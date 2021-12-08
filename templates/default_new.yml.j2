@@ -1,0 +1,79 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home }}"
+logging:
+{% for key, value in logging.items() %}
+  {{ key }}: {{ value }}
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+{% for key, value in paths.items() %}
+  {{ key }}: {{ value }}
+TODO
+  models:
+    - models
+    - /work/models/
+# Here default clone_urls
+repos:
+  tensorflow:
+    url: "https://github.com/tum-ei-eda/tensorflow.git"
+    ref: tumeda
+  tflite_micro_compiler:
+    url: "https://github.com/cpetig/tflite_micro_compiler.git"
+    ref: master
+  tvm:
+    url: "https://github.com/tum-ei-eda/tvm.git"
+    ref: tumeda
+  utvm_staticrt_codegen:
+    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
+    ref: master
+  etiss:
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: master
+# Here all supported frameworks with their specific features are defined
+# Optionally disable unwanted or incomatible backends or features here
+# The configured defaults are used if no backend was specified in the command line options
+frameworks:
+  default: tvm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmc
+      tflmc:
+        enabled: true
+      tflmi:
+        enabled: true
+    features:
+      packing: false
+      riscv_nn: false
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+      tvmaot:
+        enabled: true
+      tvmcg:
+        enabled: true
+# Some frontends are eperimental and therefore disabled here
+# Features like packing are only available in certain environments
+frontends:
+  saved_model:
+    enabled: false
+  ipynb:
+    enabled: false
+  tflite:
+    enabled: true
+    features:
+      packing: false
+# List of supported targets in the environment
+targets:
+  default: etiss_pulpino
+  etiss_pulpino:
+    enabled: true
+  host:
+    enabled: true
+# This is where further options such as specific versions of dependencies can be set in the furture
+vars:
+  packer_name: "tflite_pack"

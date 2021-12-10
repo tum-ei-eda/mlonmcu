@@ -26,7 +26,7 @@ def main():
     parser = argparse.ArgumentParser(description='ML on MCU Flow',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     #parser.add_argument('_', nargs='*')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__)
     subparsers = parser.add_subparsers(dest="subcommand") # this line changed
     init_parser = get_init_parser(subparsers)
     setup_parser = get_setup_parser(subparsers)

@@ -1,4 +1,5 @@
 from functools import wraps
+import itertools
 from enum import Enum
 import networkx as nx
 import logging
@@ -13,6 +14,7 @@ class TaskType(Enum):
     TOOLCHAIN = 3
     TARGET = 4
     FRONTEND = 5
+    OPT = 6
 
 
 class Task:
@@ -21,6 +23,13 @@ class Task:
     dependencies = {}
     providers = {}
     types = {}
+    params = {}
+    validates = {}
+    changed = []  # Main problem: per
+
+    @staticmethod
+    def reset_changes():
+        Task.changed = []
 
     @staticmethod
     def get_graph():
@@ -46,22 +55,45 @@ class Task:
        return order
 
     @staticmethod
-    def needs(keys):
+    def needs(keys, force=True):
         def real_decorator(function):
             name = function.__name__
-            Task.dependencies[name] = keys
+            if name in Task.dependencies:
+                Task.dependencies[name].extend(keys)
+            else:
+                Task.dependencies[name] = keys
             @wraps(function)
             def wrapper(*args, **kwargs):
                 # logger.debug("Checking inputs...")
-                context = args[0]
-                variables = context._vars
-                for key in keys:
-                    if key not in variables.keys() or variables[key] is None:
-                        raise RuntimeError(f"Task '{name}' needs the value of '{key}' which is not set")
+                if force:
+                    context = args[0]
+                    variables = context._vars
+                    for key in keys:
+                        if key not in variables.keys() or variables[key] is None:
+                            raise RuntimeError(f"Task '{name}' needs the value of '{key}' which is not set")
                 retval = function(*args, **kwargs)
                 return retval
             return wrapper
         return real_decorator
+
+    @staticmethod
+    def optional(keys):
+        return Task.needs(keys, force=False)
+
+    # @staticmethod
+    # def optional(keys):
+    #     def real_decorator(function):
+    #         name = function.__name__
+    #         if name in Task.dependencies:
+    #             Task.dependencies[name].extend(keys)
+    #         else:
+    #             Task.dependencies[name] = keys
+    #         @wraps(function)
+    #         def wrapper(*args, **kwargs):
+    #             retval = function(*args, **kwargs)
+    #             return retval
+    #         return wrapper
+    #     return real_decorator
 
     @staticmethod
     def provides(keys):
@@ -71,9 +103,12 @@ class Task:
                 Task.providers[key] = name
             @wraps(function)
             def wrapper(*args, **kwargs):
+                context = args[0]
+                for key in keys:
+                    if key in context._vars:
+                        del context._vars[key]  # Unset the value before calling function
                 retval = function(*args, **kwargs)
                 # logger.debug("Checking outputs...")
-                context = args[0]
                 variables = context._vars
                 for key in keys:
                     if key not in variables.keys() or variables[key] is None:
@@ -84,16 +119,78 @@ class Task:
         return real_decorator
 
     @staticmethod
+    def param(flag, options):
+        if not isinstance(options, list):
+            options = [options]
+        def real_decorator(function):
+            name = function.__name__
+            if name in Task.params:
+                Task.params[name][flag] = options
+            else:
+                Task.params[name] = {flag: options}
+            @wraps(function)
+            def wrapper(*args, **kwargs):
+                retval = function(*args, **kwargs)
+                return retval
+            return wrapper
+        return real_decorator
+
+    @staticmethod
+    def validate(func):
+        def real_decorator(function):
+            name = function.__name__
+            Task.validates[name] = func
+            return function
+        return real_decorator
+
+    def get_combs(data):
+        keys = list(data.keys())
+        values = list(data.values())
+        prod = list(itertools.product(*values))
+        if len(prod) == 1:
+            if len(prod[0]) == 0:
+                prod = []
+        combs = [dict(zip(keys, p)) for p in prod]
+        return combs
+
+    @staticmethod
     def register(category=TaskType.MISC):
         def real_decorator(function):
             name = function.__name__
             @wraps(function)
             def wrapper(*args, **kwargs):
-                logger.info("Processing task: %s", function.__name__)
-                retval = function(*args, **kwargs)
-                # logger.debug("Processed task:", function.__name__)
+                combs = Task.get_combs(Task.params[name])
+                def process(name_, params={}):
+                    if name in Task.validates:
+                        check = Task.validates[name](args[0], params=comb)
+                        if not check:
+                            # logger.debug("Skipping task: %s", name_)
+                            return
+                    rebuild = False
+                    if name in Task.dependencies:
+                        for dep in Task.dependencies[name]:
+                            if dep in Task.changed:
+                                rebuild = True
+                                break
+                    logger.info("Processing task: %s", name_)
+                    retval = function(*args, params=params, rebuild=rebuild, **kwargs)
+                    if retval:
+                        keys = [key for key, provider in Task.providers.items() if provider == name]
+                        for key in keys:
+                            if key not in Task.changed:
+                                Task.changed.append(key)
+                    # logger.debug("Processed task:", function.__name__)
+                    return retval
+
+                if len(combs) == 0:
+                    retval = process(name)
+                else:
+                    for comb in combs:
+                        extended_name = name + str(comb)
+                        retval = process(extended_name, params=comb)
                 return retval
             Task.registry[name] = wrapper
             Task.types[name] = category
+            Task.params[name] = {}
             return wrapper
         return real_decorator

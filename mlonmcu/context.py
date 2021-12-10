@@ -67,15 +67,15 @@ class MlonMcuContext:
         if name:
             env_file = get_environment_by_name(name)
         elif path:
-            env_file = get_environment_by_name(path)
+            env_file = get_environment_by_path(path)
         else:
             env_file = lookup_environment()
             if not env_file:
                 raise RuntimeError("Lookup for mlonmcu environment was not successfull.")
-
         self.environment = load_environment_from_file(env_file)
         self.lock = lock
         self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
+        self.sessions = []
 
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")

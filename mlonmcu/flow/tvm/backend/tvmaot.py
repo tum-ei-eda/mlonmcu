@@ -3,6 +3,8 @@ from ..tvm_flow import get_parser
 from .backend import TVMBackend
 
 class TVMAOTBackend(TVMBackend):
+
+    shortname = "tvmaot"
     
     def generate_code(self):
         pass

@@ -1,4 +1,6 @@
-def makeHexArray(fileName):
+import os
+
+def make_hex_array(fileName):
     out = ""
     with open(fileName, "rb") as f:
         data = f.read(1)
@@ -8,29 +10,29 @@ def makeHexArray(fileName):
     return out
 
 
-def convertInOutData(cfg):
-    inBufs = []
-    outBufs = []
-    while cfg.debug and not cfg.ignoreData:
-        newBufs = []
+def convert_inout_data(cfg):
+    in_bufs = []
+    out_bufs = []
+    while cfg.debug and not cfg.ignore_data:
+        new_bufs = []
         while True:
-            inFileName = os.path.join(cfg.modelDir, "input", str(len(inBufs)) + "_" + str(len(newBufs)) + ".bin")
+            in_filename = os.path.join(cfg.modelDir, "input", str(len(in_bufs)) + "_" + str(len(new_bufs)) + ".bin")
             if not os.path.exists(inFileName):
-                inFileName = os.path.join(cfg.modelDir, "input", str(len(inBufs)) + ".bin")
-                if os.path.exists(inFileName):
-                    newBufs.append(makeHexArray(inFileName))
+                in_filename = os.path.join(cfg.modelDir, "input", str(len(in_bufs)) + ".bin")
+                if os.path.exists(in_filename):
+                    new_bufs.append(make_hex_array(in_filename))
                 break
-            newBufs.append(makeHexArray(inFileName))
-        inBufs.append(newBufs)
-        if len(newBufs) == 0:
+            new_bufs.append(make_hex_array(in_filename))
+        in_bufs.append(new_bufs)
+        if len(new_bufs) == 0:
             break
-        newBufs = []
+        new_bufs = []
         while True:
             outFileName = os.path.join(cfg.modelDir, "output", str(len(outBufs)) + "_" + str(len(newBufs)) + ".bin")
-            if not os.path.exists(outFileName):
+            if not os.path.exists(out_fileName):
                 outFileName = os.path.join(cfg.modelDir, "output", str(len(outBufs)) + ".bin")
-                if os.path.exists(outFileName):
-                    newBufs.append(makeHexArray(outFileName))
+                if os.path.exists(out_filename):
+                    newBufs.append(make_hex_array(outFileName))
                 break
             newBufs.append(makeHexArray(outFileName))
         outBufs.append(newBufs)
@@ -65,4 +67,3 @@ def convertInOutData(cfg):
     dataFileName = os.path.join(cfg.cwd, "out", "data.c")
     with open(dataFileName, "w") as f:
         f.write(out)
-

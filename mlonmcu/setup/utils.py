@@ -1,3 +1,10 @@
+import os
+import multiprocessing
+import subprocess
+import logging
+
+logger = logging.getLogger('mlonmcu')
+
 def makeDirName(base, *args, flags=None):
     # Creates a directory name based on configuration values.
     names = [base] + [name for check, name in args if check]
@@ -16,6 +23,15 @@ def makeFlags(*args):
 def exec(*args, **kwargs):
     logger.info("- Executing: " + str(args))
     subprocess.run([i for i in args], **kwargs, check=True)
+
+def make(*args, threads=multiprocessing.cpu_count(), **kwargs):
+    cmd = ["make", "-j" + str(threads)] + list(args)
+    exec(*cmd, **kwargs)
+
+def cmake(*args, debug=False, **kwargs):
+    buildType = "Debug" if debug else "Release"
+    cmd = ["cmake", "-DCMAKE_BUILD_TYPE=" + buildType] + list(args)
+    exec(*cmd, **kwargs)
 
 
 def exec_getout(*args, live=False, **kwargs):

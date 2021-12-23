@@ -3,6 +3,8 @@ import itertools
 from enum import Enum
 import networkx as nx
 import logging
+from tqdm import tqdm
+import time
 
 logger = logging.getLogger('mlonmcu')
 logger.setLevel(logging.DEBUG)
@@ -67,7 +69,7 @@ class Task:
                 # logger.debug("Checking inputs...")
                 if force:
                     context = args[0]
-                    variables = context._vars
+                    variables = context.cache._vars
                     for key in keys:
                         if key not in variables.keys() or variables[key] is None:
                             raise RuntimeError(f"Task '{name}' needs the value of '{key}' which is not set")
@@ -105,14 +107,15 @@ class Task:
             def wrapper(*args, **kwargs):
                 context = args[0]
                 for key in keys:
-                    if key in context._vars:
-                        del context._vars[key]  # Unset the value before calling function
+                    if key in context.cache._vars:
+                        del context.cache._vars[key]  # Unset the value before calling function
                 retval = function(*args, **kwargs)
-                # logger.debug("Checking outputs...")
-                variables = context._vars
-                for key in keys:
-                    if key not in variables.keys() or variables[key] is None:
-                        raise RuntimeError(f"Task '{name}' did not set the value of '{key}'")
+                if retval is not False:
+                    # logger.debug("Checking outputs...")
+                    variables = context.cache._vars
+                    for key in keys:
+                        if key not in variables.keys() or variables[key] is None:
+                            raise RuntimeError(f"Task '{name}' did not set the value of '{key}'")
                 return retval
             Task.registry[name] = wrapper
             return wrapper
@@ -158,21 +161,25 @@ class Task:
         def real_decorator(function):
             name = function.__name__
             @wraps(function)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args, progress=False, **kwargs):
                 combs = Task.get_combs(Task.params[name])
+                def get_valid_combs(combs):
+                    ret = []
+                    for comb in combs:
+                        if name in Task.validates:
+                            check = Task.validates[name](args[0], params=comb)
+                            if not check:
+                                continue
+                        ret.append(comb)
+                    return ret
+                combs = get_valid_combs(combs)
                 def process(name_, params={}):
-                    if name in Task.validates:
-                        check = Task.validates[name](args[0], params=comb)
-                        if not check:
-                            # logger.debug("Skipping task: %s", name_)
-                            return
                     rebuild = False
                     if name in Task.dependencies:
                         for dep in Task.dependencies[name]:
                             if dep in Task.changed:
                                 rebuild = True
                                 break
-                    logger.info("Processing task: %s", name_)
                     retval = function(*args, params=params, rebuild=rebuild, **kwargs)
                     if retval:
                         keys = [key for key, provider in Task.providers.items() if provider == name]
@@ -181,13 +188,39 @@ class Task:
                                 Task.changed.append(key)
                     # logger.debug("Processed task:", function.__name__)
                     return retval
-
-                if len(combs) == 0:
-                    retval = process(name)
+                if progress:
+                    from tqdm import tqdm
+                    pbar = tqdm(total=max(len(combs), 1), desc='Processing', ncols=100, bar_format='{l_bar} {n_fmt}/{total_fmt}', leave=None)
                 else:
-                    for comb in combs:
+                    pbar = None
+                if len(combs) == 0:
+                    if pbar:
+                        pbar.set_description("Processing: %s" % name)
+                    else:
+                        logger.info("Processing task: %s", name)
+                    time.sleep(0.1)
+                    check = True
+                    if name in Task.validates:
+                        check = Task.validates[name](args[0], params={})
+                    if check:
+                        retval = process(name)
+                    else:
+                        retval = False
+                    if pbar:
+                        pbar.update(1)
+                else:
+                    for comb in combs:  # TODO process in parallel?
                         extended_name = name + str(comb)
+                        if pbar:
+                            pbar.set_description("Processing - %s" % extended_name)
+                        else:
+                            logger.info("Processing task: %s", extended_name)
+                        time.sleep(0.1)
                         retval = process(extended_name, params=comb)
+                        if pbar:
+                            pbar.update(1)
+                if pbar:
+                    pbar.close()
                 return retval
             Task.registry[name] = wrapper
             Task.types[name] = category

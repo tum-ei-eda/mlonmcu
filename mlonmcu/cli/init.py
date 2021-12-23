@@ -114,7 +114,7 @@ def in_virtualenv():
     """Detects if the current python interpreter is from a virtual environment."""
     return get_base_prefix_compat() != sys.prefix
 
-def get_init_parser(subparsers):
+def get_parser(subparsers):
     """"Define and return a subparser for the init subcommand."""
     parser = subparsers.add_parser('init', description='Initialize ML on MCU environment.')
     parser.set_defaults(func=handle)

@@ -77,7 +77,7 @@ def load_environment_from_file(filename):
             for key in loaded["frameworks"]:
                 framework = loaded["frameworks"][key]
                 if "enabled" in framework:
-                    enabled = bool(framwork["enabled"])
+                    enabled = bool(framework["enabled"])
                 else:
                     enabled = False
                 backends = {}

@@ -4,20 +4,18 @@ import sys
 
 from ..version import __version__
 
-from .init import get_init_parser
-from .setup import get_setup_parser
-from .build import get_build_parser
-from .debug import get_debug_parser
-from .test import get_test_parser
-from .trace import get_trace_parser
-from .cleanup import get_cleanup_parser
-from .check import get_check_parser
-from .run import get_run_parser
-from .env import get_env_parser
-from .models import get_models_parser
+import mlonmcu.cli.init as init
+#from .init import get_init_parser
+import mlonmcu.cli.setup as setup
+import mlonmcu.cli.flow as flow
+import mlonmcu.cli.cleanup as cleanup
+import mlonmcu.cli.check as check
+import mlonmcu.cli.env as env
+import mlonmcu.cli.models as models
 
 import logging
-logging.basicConfig(format="[%(asctime)s]::%(pathname)s:%(lineno)d::%(levelname)s - %(message)s")
+# logging.basicConfig(format="[%(asctime)s]::%(pathname)s:%(lineno)d::%(levelname)s - %(message)s")
+#logging.basicConfig(format="[%(asctime)s]::%(levelname)s - %(message)s")
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 
@@ -26,24 +24,22 @@ def main():
     parser = argparse.ArgumentParser(description='ML on MCU Flow',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     #parser.add_argument('_', nargs='*')
-    parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('-V', '--version', action='version', version='mlonmcu ' + __version__)
     subparsers = parser.add_subparsers(dest="subcommand") # this line changed
-    init_parser = get_init_parser(subparsers)
-    setup_parser = get_setup_parser(subparsers)
-    build_parser = get_build_parser(subparsers)
-    debug_parser = get_debug_parser(subparsers)
-    test_parser = get_test_parser(subparsers)
-    trace_parser = get_trace_parser(subparsers)
+    init_parser = init.get_parser(subparsers)
+    setup_parser = setup.get_parser(subparsers)
+    flow_parser = flow.get_parser(subparsers)
+    # TODO: hide load,build,compile,run,debug,test behind flow subcommand?
+    # trace_parser = get_trace_parser(subparsers)  # Handled as a flag to run subcommand or target-feature
     # TODO: cleanup
-    cleanup_parser = get_cleanup_parser(subparsers)
+    cleanup_parser = cleanup.get_parser(subparsers)
     # TODO: check
-    check_parser = get_check_parser(subparsers)
+    check_parser = check.get_parser(subparsers)
     # TODO: run
-    run_parser = get_run_parser(subparsers)
     # TODO: env
-    env_parser = get_env_parser(subparsers)
+    env_parser = env.get_parser(subparsers)
     # TODO: models
-    models_parser = get_models_parser(subparsers)
+    models_parser = models.get_parser(subparsers)
     args = parser.parse_args()
     if hasattr(args, "func"):
         args.func(args)

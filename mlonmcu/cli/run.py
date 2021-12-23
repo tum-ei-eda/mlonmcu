@@ -4,41 +4,24 @@ import multiprocessing
 import concurrent
 import copy
 import itertools
+import logging
 
 import mlonmcu
-from mlonmcu.cli.common import add_common_options, add_context_options
-from mlonmcu.cli.build import handle as handle_build, add_build_options
+from mlonmcu.cli.common import add_common_options, add_context_options, add_flow_options
+from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_FRAMEWORK_BACKENDS
+from mlonmcu.cli.load import add_model_options, add_load_options
+from mlonmcu.cli.build import add_build_options
+from mlonmcu.cli.compile import handle as handle_compile, add_compile_options, add_model_options
+from mlonmcu.flow.backend import Backend
+from mlonmcu.flow.framework import Framework
+from mlonmcu.session.run import RunStage
+
+#rom mlonmcu.flow.tflite.framework import TFLiteFramework
+#from mlonmcu.flow.tvm.framework import TVMFramework
 #from mlonmcu.cli.compile import handle as handle_compile
 
-def add_flow_options(parser):
-    flow_parser = parser.add_argument_group("flow options")
-    flow_parser.add_argument('-t', '--target', type=str, metavar="TARGET", choices=["etiss/pulpino", "host"], default="etiss/pulpino", nargs=1, help="The target device/architecture (default: %(default)s choices: %(choices)s)")
-    flow_parser.add_argument(
-        "--docker", action="store_true", help="Execute run.py inside docker container (default: %(default)s)"
-    )
-    flow_parser.add_argument(
-        "-f",
-        "--feature",
-        type=str,
-        metavar="FEATURE",
-        nargs=1,
-        action='append',
-        choices=["riscv_nn", "packing", "autotune", "fusetile"],
-        help="Enabled features for target/framework/backend (default: %(default)s choices: %(choices)s)")
-
-
-
-
-def add_compile_options(parser):
-    compile_parser = parser.add_argument_group("compile options")
-    compile_parser.add_argument('-d', '--debug', action="store_true", help="Build target sorftware in DEBUG mode (default: %(default)s)")
-    compile_parser.add_argument("--num", action="append", type=int, help="Number of runs in simulation (default: %(default)s)")
-    compile_parser.add_argument(
-        "--ignore-data",
-        dest="ignore_data",
-        action="store_true",
-        help="Do not use MLIF inout data in debug mode (default: %(default)s)",
-    )
+logger = logging.getLogger("mlonmcu")
+logger.setLevel(logging.DEBUG)
 
 
 def add_run_options(parser):
@@ -50,15 +33,6 @@ def add_run_options(parser):
         choices=["xlsx", "xls", "csv"],
         default="xlsx",
         help="Report file format (default: %(default)s)",
-    )
-    run_parser.add_argument(
-        "--parallel",
-        metavar="THREADS",
-        nargs="?",
-        type=int,
-        const=multiprocessing.cpu_count(),
-        default=1,
-        help="Use multiple threads to run simulations in parallel (%(const)s if specified, else %(default)s)",
     )
     run_parser.add_argument(
         "--detailed-cycles",
@@ -77,14 +51,11 @@ def add_run_options(parser):
 
 
 
-def get_run_parser(subparsers):
+def get_parser(subparsers):
     """"Define and return a subparser for the run subcommand."""
     parser = subparsers.add_parser('run', description='Run model using ML on MCU flow. This is meant to reproduce the bahavior of the original `run.py` script in older versions of mlonmcu.')
     parser.set_defaults(func=handle)
-    parser.add_argument(
-        "models", metavar="model", type=str, nargs="*", default=None, help="Model to process"
-    )
-
+    add_model_options(parser)
     add_common_options(parser)
     add_context_options(parser)
     add_run_options(parser)
@@ -93,51 +64,14 @@ def get_run_parser(subparsers):
     add_flow_options(parser)
     return parser
 
-# TODO: move to Run class? run.compile()
-def run_compile(run, context=None):
-    print("COMPILE RUN:", run)
-
-def _handle_compile(context, args):
-    handle_build(args, ctx=context)
-    target = args.target
-    num = args.num if args.num else [1]
-    if target != "etiss/pulpino":
-        raise NotImplementedError("Unimplemented Target")
-    debug = args.debug
-    assert len(context.sessions) > 0  # TODO: automatically request session if no active one is available
-    session = context.sessions[-1]
-    for run in session.runs:
-        run.target = target
-        run.debug = debug
-        run.num = num
-    new_runs = []
-    for run in session.runs:
-        for n in num:
-            new_run = copy.deepcopy(run)
-            new_run.num = n
-            new_runs.append(new_run)
-    session.runs = new_runs
-    for run in session.runs:
-        run_compile(run, context=context)
-
-def handle_compile(args, ctx=None):  # TODO: move to compile subcommand
-    print("HANLDE COMPILE")
-    if ctx:
-        _handle_compile(ctx, args)
-    else:
-        with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-            _handle_compile(context, args)
-    print("HANLDED COMPILE")
-
-def run_simulate(run, context=None):
-    print("SIMULATE RUN:", run)
-
-
 def check_args(context, args):
     print("CHECK ARGS")
 
 def handle(args):
     print("HANLDE RUN")
+    print(Framework.registry)
+    #print(TFLiteFramework.backends)
+    #print(TVMFramework.registry)
     print(args)
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         check_args(context, args)
@@ -145,19 +79,10 @@ def handle(args):
         assert len(context.sessions) > 0
         session = context.sessions[-1]
         parallel = args.parallel
-        workers = []
-        with concurrent.futures.ThreadPoolExecutor(parallel) as executor:
-            for i, run in enumerate(session.runs):
-                workers.append(executor.submit(run_simulate, run, context=context))
-        results = []
-        num_failed_runs = 0
-        for w in workers:
-            try:
-                results.append(w.result())
-            except Exception as e:
-                logger.exception(e)
-                logger.error("An exception was thrown by a worker during simulation:")
-                num_failed_runs = num_failed_runs + 1
+        progress = args.progress
+        #session.process_runs(until=RunStage.RUN, per_stage=False, num_workers=parallel, progress=progress, context=context)
+        session.process_runs(until=RunStage.RUN, per_stage=True, num_workers=parallel, progress=progress, context=context)
+        results = [run.result for run in session.runs]
         if args.detailed:
             def find_run_pairs(runs):
                 return [(a,b) for a, b in itertools.permutations(runs, 2) if a.model == b.model and a.backend == b.backend and a.num < b.num]

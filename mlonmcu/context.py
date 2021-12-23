@@ -6,6 +6,10 @@ import pathlib
 import xdg
 import filelock
 
+from mlonmcu.session.run import Run
+from mlonmcu.session.session import Session
+from mlonmcu.setup.cache import TaskCache
+
 #from mlonmcu.environment2 import load_environment_from_file
 from mlonmcu.environment.loader import load_environment_from_file
 
@@ -58,6 +62,39 @@ def get_environment_by_name(name):
     return None
 
 
+def load_recent_sessions(env):
+    sessions = []
+    temp_directory = env.paths["temp"].path
+    sessions_directory = temp_directory / "sessions"
+    if not sessions_directory.is_dir():
+        return []
+    # TODO: in the future also strs (custom or hash) should be allowed
+    session_ids = [int(o) for o in os.listdir(sessions_directory) if os.path.isdir(sessions_directory / o)]
+    session_ids = sorted(session_ids)  # TODO: sort by session datetime?
+    print("session_ids", session_ids)
+    for sid in session_ids:
+        session_directory = sessions_directory / str(sid)
+        session_file = session_directory / "session.txt"
+        if not session_file.is_file():
+            continue
+        runs_directory = session_directory / "runs"
+        if runs_directory.is_dir():
+            run_ids = [int(o) for o in os.listdir(runs_directory) if os.path.isdir(runs_directory / o)]
+        else:
+            run_ids = []
+        print("run_ids", run_ids)
+        runs = []
+        for rid in run_ids:
+            run_directory = runs_directory / str(rid)
+            run_file = run_directory / "run.txt"
+            run = Run()  # TODO
+            runs.append(run)
+        session = Session(idx=sid, archived=True, dir=session_directory)
+        session.runs = runs
+        sessions.append(session)
+    return sessions
+
+
 class MlonMcuContext:
     """Contextmanager for mlonmcu environments."""
     def __init__(self, name=None, path=None, lock=False):
@@ -72,10 +109,42 @@ class MlonMcuContext:
             env_file = lookup_environment()
             if not env_file:
                 raise RuntimeError("Lookup for mlonmcu environment was not successfull.")
-        self.environment = load_environment_from_file(env_file)
+        self.environment = load_environment_from_file(env_file)  # TODO: move to __enter__
         self.lock = lock
         self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
-        self.sessions = []
+        self.sessions = load_recent_sessions(self.environment)
+        self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
+        self.cache = TaskCache()
+
+    def create_session(self):
+        idx = self.session_idx + 1
+        logger.debug("Creating a new session with idx %s", idx)
+        temp_directory = self.environment.paths["temp"].path
+        sessions_directory = temp_directory / "sessions"
+        session_dir = sessions_directory / str(idx)
+        session = Session(idx=idx, dir=session_dir)
+        self.sessions.append(session)
+        self.session_idx = idx
+        # TODO: set latest symlink?
+
+    def load_cache(self):
+        if self.environment:
+            if self.environment.paths:
+                if "deps" in self.environment.paths:
+                    deps_dir = self.environment.paths["deps"].path
+                    if deps_dir.is_dir():
+                        cache_file = deps_dir / "cache.ini"
+                        if cache_file.is_file():
+                            logger.info(f"Loading environment cache from file")
+                            self.cache.read_from_file(cache_file)
+                            logger.info(f"Successfully initialized cache")
+                            return
+        logger.info("No cache found in deps directory")
+
+    def get_session(self):
+        if self.session_idx < 0 or not self.sessions[-1].active:
+            self.create_session()
+        return self.sessions[-1]
 
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")
@@ -87,7 +156,14 @@ class MlonMcuContext:
                 self.lockfile.acquire(timeout=0)
             except filelock.Timeout as err:
                 raise RuntimeError("Lock on current conext could not be aquired.") from err
+        self.load_cache()
         return self
+
+    def cleanup(self):
+        logger.debug("Cleaning up active sessions")
+        for session in self.sessions:
+            if session.active:
+                session.close()
 
 
     def __exit__(self, exception_type, exception_value, traceback):

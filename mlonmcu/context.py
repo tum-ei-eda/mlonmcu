@@ -18,7 +18,7 @@ logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 
 # TODO: sync across files
-config_dir = pathlib.Path(os.path.join(xdg.XDG_CONFIG_HOME, "mlonmcu"))
+config_dir = pathlib.Path(os.path.join(xdg.xdg_config_home(), "mlonmcu"))
 environments_dir = pathlib.Path(os.path.join(config_dir, "environments"))
 
 def lookup_environment():

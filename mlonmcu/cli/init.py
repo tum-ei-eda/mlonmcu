@@ -10,7 +10,7 @@ import jinja2
 
 from mlonmcu.config.templates import all_templates
 
-config_dir = os.path.join(xdg.XDG_CONFIG_HOME, "mlonmcu")
+config_dir = os.path.join(xdg.xdg_config_home(), "mlonmcu")
 environments_dir = os.path.join(config_dir, "environments")
 environments_file = os.path.join(config_dir, "environments.txt")
 

@@ -8,7 +8,7 @@ class PostProcess():
         duplicates_map = df.duplicated(subset=cols, keep=False)
         if cols:
             duplicates_map = duplicates_map[cols]
-        groups = duplicates_map.groupby(list(duplicates_map)).apply(lambda x: tuple(x.index]).tolist()
+        groups = duplicates_map.groupby(list(duplicates_map)).apply(lambda x: tuple(x.index)).tolist()
         return groups
 
 class AverageCyclesPostprocess(PostProcess):

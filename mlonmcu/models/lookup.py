@@ -20,7 +20,7 @@ def get_model_directories(context):
     return dirs
 
 def find_metadata(directory, model_name=None):
-    possible_basenames = ["model", "metadata"]
+    possible_basenames = ["model", "metadata", "definition"]
     possible_extensions = ["yaml", "yml"]
     directory = Path(directory)
     dirname = directory.name
@@ -42,7 +42,9 @@ def find_metadata(directory, model_name=None):
 def list_models(directory, depth=1):
     default_frontend = "tflite"  # TODO: configurable?
     if depth != 1:
-        raise NotImplementedError
+        raise NotImplementedError  # TODO: implement for arm ml zoo
+        # define all allowed extensions + search recusively (with limit?)
+        # list(Path(".").rglob(f"*.{ext}")) for ext in allowed_ext
     if not os.path.isdir(directory):
         logger.debug("Not a directory: %s", str(directory))
         return []
@@ -68,16 +70,18 @@ def list_models(directory, depth=1):
             main_model = submodels[0]
 
         if main_model:
+
             submodels.remove(main_model)
 
-        main_base = main_model.split("/")[-1]
-        main_metadata = find_metadata(Path(directory) / dirname, model_name=main_base)
+            main_base = main_model.split("/")[-1]
+            main_metadata = find_metadata(Path(directory) / dirname, model_name=main_base)
 
-        models.append(Model(main_base, Path(directory) / f"{main_model}.{frontend}", alt=main_model, fmt=ModelFormat.TFLITE, metadata=main_metadata))
+            models.append(Model(main_base, Path(directory) / f"{main_model}.{frontend}", alt=main_model, format=ModelFormat.TFLITE, metadata=main_metadata))
+
         for submodel in submodels:
             sub_base = submodel.split("/")[-1]
             submodel_metadata = find_metadata(Path(directory) / dirname, model_name=sub_base)
-            models.append(Model(submodel, Path(directory) / f"{submodel}.{frontend}", fmt=ModelFormat.TFLITE, metadata=submodel_metadata))
+            models.append(Model(submodel, Path(directory) / f"{submodel}.{frontend}", format=ModelFormat.TFLITE, metadata=submodel_metadata))
 
     return models
 
@@ -99,6 +103,7 @@ def list_modelgroups(directory):
                 try:
                     content = yaml.safe_load(yamlfile)
                     for groupname, groupmodels in content.items():
+                        assert isinstance(groupmodels, list), "Modelgroups should be defined as a YAML list"
                         modelgroup = ModelGroup(groupname, groupmodels)
                         groups.append(modelgroup)
                 except yaml.YAMLError as err:
@@ -106,9 +111,7 @@ def list_modelgroups(directory):
             break
     return groups
 
-def print_summary(context, detailed=False):
-    directories = get_model_directories(context)
-
+def lookup_models_and_groups(directories):
     all_models = []
     all_groups = []
     duplicates = {}
@@ -145,17 +148,20 @@ def print_summary(context, detailed=False):
 
     all_models = sorted(all_models, key=lambda x: x.name)
 
-    print("Models Summary")
-    print()
+    return all_models, all_groups, duplicates, group_duplicates
+
+def print_paths(directories):
     print("Paths:")
     for directory in directories:
         exists = os.path.exists(directory)
         print("    " + str(directory), end="\n" if exists else " (skipped)\n")
-        if not exists:
-            directories.remove(directory)
+        # if not exists:
+        #     directories.remove(directory)
     print()
+
+def print_models(models, duplicates=[], detailed=False):
     print("Models:")
-    for model in all_models:
+    for model in models:
         name = model.name
         path = model.path
         meta = "available" if model.metadata is not None else "not available"
@@ -174,8 +180,10 @@ def print_summary(context, detailed=False):
                 print(f"        Backend Options: {backends}")
             print()
     print()
+
+def print_groups(groups, all_models=[], duplicates=[], detailed=False):
     print("Groups:")
-    for group in all_groups:
+    for group in groups:
         name = group.name
         models = group.models
         all_model_names = [m.name for m in all_models]
@@ -185,8 +193,8 @@ def print_summary(context, detailed=False):
                 group.name = "~" + group.name
         size = len(models)
         print(f"    {name} [{size} models]", end="")
-        if name in group_duplicates:
-            num = group_duplicates[name]
+        if name in duplicates:
+            num = duplicates[name]
             print(f" ({num} duplicates)")
         else:
             print()
@@ -195,3 +203,13 @@ def print_summary(context, detailed=False):
             groupmodels = " ".join(models)
             print(f"        Models: {groupmodels}")
             print()
+
+def print_summary(context, detailed=False):
+    directories = get_model_directories(context)
+
+    models, groups, duplicates, group_duplicates = lookup_models_and_groups(directories)
+
+    print("Models Summary\n")
+    print_paths(directories)
+    print_models(models, duplicates=duplicates, detailed=detailed)
+    print_groups(groups, duplicates=group_duplicates, all_models=models, detailed=detailed)

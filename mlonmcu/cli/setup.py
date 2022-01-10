@@ -1,6 +1,7 @@
 """Command line subcommand for installing a mlonmcu environment."""
 import mlonmcu.setup.tasks
 import mlonmcu.context
+import mlonmcu.setup.install
 import logging
 
 from mlonmcu.cli.common import add_common_options, add_context_options

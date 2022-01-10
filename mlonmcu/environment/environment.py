@@ -40,9 +40,13 @@ class PathConfig(BaseConfig):
             self.base = base
         if base:
             if not self.path.is_absolute():
+                assert base is not None
                 self.path = self.base / self.path
         # Resolve symlinks
         self.path = self.path.resolve()
+
+    def __repr(self):
+        return f"PathConfig({self.path})"
 
 
 class RepoConfig(BaseConfig):
@@ -269,7 +273,7 @@ class UserEnvironment(DefaultEnvironment):
         if targets:
             self.targets = targets
         if variables:
-            self.variables = variables
+            self.vars = variables
 
 #test_env = DefaultEnvironment()
 #print("---")

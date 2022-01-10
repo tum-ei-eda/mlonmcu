@@ -52,9 +52,9 @@ def load_environment_from_file(filename):
                 if isinstance(path, list):
                     paths[key] = []
                     for p in path:
-                        paths[key].append(PathConfig(p))
+                        paths[key].append(PathConfig(p, base=home))
                 else:
-                    paths[key] = PathConfig(path)
+                    paths[key] = PathConfig(path, base=home)
         else:
             paths = None
         if "repos" in loaded:
@@ -138,8 +138,8 @@ def load_environment_from_file(filename):
                 targets[key] = TargetConfig(enabled=enabled, features=target_features)
         else:
             targets = None
-        if "variables" in loaded:
-            variables = loaded["variables"]
+        if "vars" in loaded:
+            variables = loaded["vars"]
         else:
             variables = None
         defaults = DefaultsConfig(log_level=log_level, log_to_file=log_to_file, default_framework=default_framework, default_backends=default_backends, default_target=default_target)

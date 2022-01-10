@@ -4,7 +4,10 @@ from pathlib import Path
 import time
 from mlonmcu.context import MlonMcuContext
 import mlonmcu.setup.utils as utils
+from urllib.request import urlretrieve
 from git import Repo
+import tempfile
+import os
 
 logger = logging.getLogger('mlonmcu')
 logger.setLevel(logging.DEBUG)
@@ -19,7 +22,8 @@ enabled_frameworks = supported_frameworks
 supported_backends = ["tflmc", "tflmi", "tvmaot", "tvmrt", "tvmcg"]
 enabled_backends = supported_backends
 supported_backend_per_framework = {"tflm": ["tflmc", "tflmi"], "tvm": ["tvmaot", "tvmrt", "tvmcg"]}
-supported_features = ["muriscvnn"]
+# supported_features = ["muriscvnn"]
+supported_features = []
 enabled_targets = ["etiss"]
 # class TaskCache:
 # class Context:
@@ -87,7 +91,7 @@ def clone_tensorflow(context, params={}, rebuild=False):
 @Tasks.validate(_validate_tensorflow)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def build_tensorflow(context, params={}, rebuild=False):
-    print("params", params)
+    # print("params", params)
     flags = utils.makeFlags((params["dbg"], "dbg"))
     tfName = utils.makeDirName("tf", flags=flags)
     tfSrcDir = context.cache["tf.src_dir"]
@@ -98,11 +102,12 @@ def build_tensorflow(context, params={}, rebuild=False):
         tflmLib = tflmBuildDir / "gen" / "linux_x86_64" / "lib" / "libtensorflow-microlite.a"  # FIXME: add _dbg suffix is possible
     else:
         tflmLib = tflmBuildDir / "gen" / "linux_x86_64" / "lib" / "libtensorflow-microlite.a"
-    if rebuild or not tflmLib.is_file() or not tflmDownloadsDir.is_dir():
+    # if rebuild or not tflmLib.is_file() or not tflmDownloadsDir.is_dir():
+    if rebuild or not tflmDownloadsDir.is_dir():
         tfDbgArg = ["BUILD_TYPE=debug"] if params["dbg"] else []
-        utils.make("-f", str(tflmDir / "tools" / "make" / "Makefile"), "hello_world_bin", *tfDbgArg, cwd=tfSrcDir)
+        utils.make("-f", str(tflmDir / "tools" / "make" / "Makefile"), "third_party_downloads", *tfDbgArg, cwd=tfSrcDir)
     context.cache["tf.dl_dir"] = tflmDownloadsDir
-    context.cache["tf.lib_path", flags] = tflmLib
+    context.cache["tf.lib_path", flags] = tflmLib # ignore!
 
 
 #########
@@ -151,13 +156,16 @@ def build_tflite_micro_compiler(context, params={}, rebuild=False):
     flags_ = utils.makeFlags((params["dbg"], "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
-    tflmcExe = tflmcBuildDir / "compiler"
+    tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
+    tflmcExe = tflmcInstallDir / "compiler"
     tfSrcDir = context.cache["tf.src_dir", flags_]
     tflmcSrcDir = context.cache["tflmc.src_dir", flags_]
     if rebuild or not tflmcBuildDir.is_dir() or not tflmcExe.is_file():
         utils.mkdirs(tflmcBuildDir)
-        utils.cmake("-DTF_DIR=" + str(tfSrcDir), str(tflmcSrcDir), debug=params["dbg"], cwd=tflmcBuildDir)
+        # utils.cmake("-DTF_SRC=" + str(tfSrcDir), str(tflmcSrcDir), debug=params["dbg"], cwd=tflmcBuildDir)
+        utils.cmake("-DTF_SRC=" + str(tfSrcDir), "-DGET_TF_SRC=ON", str(tflmcSrcDir), debug=params["dbg"], cwd=tflmcBuildDir, live=True)
         utils.make(cwd=tflmcBuildDir)
+        utils.move(tflmcBuildDir / "compiler", tflmcExe)  # TODO: os.rename
     context.cache["tflmc.build_dir", flags] = tflmcBuildDir
     context.cache["tflmc.exe", flags] = tflmcExe
 
@@ -177,6 +185,24 @@ def _validate_riscv_gcc(context, params={}):
 def install_riscv_gcc(context, params={}, rebuild=False):
     riscvName = utils.makeDirName("riscv_gcc")
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
+    user_vars = context.environment.vars
+    if "riscv_gcc.dir" in user_vars:
+        # TODO: WARNING
+        riscvInstallDir = user_vars["riscv_gcc.dir"]
+    else:
+        riscvVersion = user_vars["riscv.version"] if "riscv.version" in user_vars else "8.3.0-2020.04.0"
+        riscvDist = user_vars["riscv.distribution"] if "riscv.distribution" in user_vars else "x86_64-linux-ubuntu14"
+        riscvUrl = "https://static.dev.sifive.com/dev-tools/"
+        riscvFileName = f"riscv64-unknown-elf-gcc-{riscvVersion}-{riscvDist}"
+        riscvArchive = riscvFileName + ".tar.gz"
+        if rebuild or not riscvInstallDir.is_dir() or not os.listdir(riscvInstallDir.resolve()):
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                tmpArchive = os.path.join(tmp_dir, riscvArchive)
+                urlretrieve(riscvUrl + riscvArchive, tmpArchive)  # TODO: replace by exec(wget)?
+                utils.exec("tar", "xf", tmpArchive, cwd=tmp_dir)
+                os.remove(os.path.join(tmp_dir, tmpArchive))  # Cleanup in tmpdir not neccessary
+                utils.mkdirs(riscvInstallDir)
+                os.rename(os.path.join(tmp_dir, riscvFileName), riscvInstallDir)
     context.cache["riscv_gcc.install_dir"] = riscvInstallDir
 
 
@@ -195,6 +221,20 @@ def _validate_llvm(context, params={}):
 def install_llvm(context, params={}, rebuild=False):
     llvmName = utils.makeDirName("llvm")
     llvmInstallDir = context.environment.paths["deps"].path / "install" / llvmName
+    user_vars = context.environment.vars
+    llvmVersion = user_vars["llvm.version"] if "llvm.version" in user_vars else "11.0.1"
+    llvmDist = user_vars["llvm.distribution"] if "llvm.distribution" in user_vars else "x86_64-linux-gnu-ubuntu-16.04"
+    llvmUrl = f"https://github.com/llvm/llvm-project/releases/download/llvmorg-{llvmVersion}/"
+    llvmFileName = f"clang+llvm-{llvmVersion}-{llvmDist}"
+    llvmArchive = llvmFileName + ".tar.xz"
+    if rebuild or not llvmInstallDir.is_dir() or not os.listdir(llvmInstallDir.resolve()):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmpArchive = os.path.join(tmp_dir, llvmArchive)
+            urlretrieve(llvmUrl + llvmArchive, tmpArchive)  # TODO: replace by exec(wget)?
+            utils.exec("tar", "xf", tmpArchive, cwd=tmp_dir)
+            os.remove(os.path.join(tmp_dir, tmpArchive))  # Cleanup in tmpdir not neccessary
+            utils.mkdirs(llvmInstallDir)
+            os.rename(os.path.join(tmp_dir, llvmFileName), llvmInstallDir)
     context.cache["llvm.install_dir"] = llvmInstallDir
 
 
@@ -213,6 +253,12 @@ def _validate_etiss(context, params={}):
 def clone_etiss(context, params={}, rebuild=False):
     etissName = utils.makeDirName("etiss")
     etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
+    if rebuild or not etissSrcDir.is_dir():
+        etissRepo = context.environment.repos["etiss"]
+        if etissRepo.ref:
+            Repo.clone_from(etissRepo.url, etissSrcDir, branch=etissRepo.ref)
+        else:
+            Repo.clone_from(etissRepo.url, etissSrcDir)
     context.cache["etiss.src_dir"] = etissSrcDir
 
 
@@ -274,6 +320,12 @@ def _validate_tvm(context, params={}):
 def clone_tvm(context, params={}, rebuild=False):
     tvmName = utils.makeDirName("tvm")
     tvmSrcDir = context.environment.paths["deps"].path / "install" / tvmName
+    if rebuild or not tvmSrcDir.is_dir():
+        tvmRepo = context.environment.repos["tvm"]
+        if tvmRepo.ref:
+            Repo.clone_from(tvmRepo.url, tvmSrcDir, branch=tvmRepo.ref)
+        else:
+            Repo.clone_from(tvmRepo.url, tvmSrcDir)
     context.cache["tvm.src_dir"] = tvmSrcDir
 
 
@@ -311,6 +363,12 @@ def _validate_utvmcg(context, params={}):
 def clone_utvm_staticrt_codegen(context, params={}, rebuild=False):
     utvmcgName = utils.makeDirName("utvmcg")
     utvmcgSrcDir = context.environment.paths["deps"].path / "src" / utvmcgName
+    if rebuild or not utvmcgSrcDir.is_dir():
+        utvmcgRepo = context.environment.repos["utvm_staticrt_codegen"]
+        if utvmcgRepo.ref:
+            Repo.clone_from(utvmcgRepo.url, utvmcgSrcDir, branch=utvmcgRepo.ref)
+        else:
+            Repo.clone_from(utvmcgRepo.url, utvmcgSrcDir)
     context.cache["utvmcg.src_dir"] = utvmcgSrcDir
 
 
@@ -344,6 +402,12 @@ def _validate_muriscvnn(context, params={}):
 def clone_muriscvnn(context, params={}, rebuild=False):
     muriscvnnName = utils.makeDirName("muriscvnn")
     muriscvnnSrcDir = context.environment.paths["deps"].path / "src" / muriscvnnName
+    if rebuild or not muriscvnnSrcDir.is_dir():
+        muriscvnnRepo = context.environment.repos["muriscvnn"]
+        if muriscvnnRepo.ref:
+            Repo.clone_from(muriscvnnRepo.url, muriscvnnSrcDir, branch=muriscvnnRepo.ref)
+        else:
+            Repo.clone_from(muriscvnnRepo.url, muriscvnnSrcDir)
     context.cache["muriscvnn.src_dir"] = muriscvnnSrcDir
 
 @Tasks.needs(["muriscvnn.src_dir", "etiss.install_dir"])

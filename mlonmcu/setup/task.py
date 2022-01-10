@@ -167,7 +167,6 @@ class TaskFactory():
                 def get_valid_combs(combs):
                     ret = []
                     for comb in combs:
-                        print("if", name, "in", self.validates)
                         if name in self.validates:
                             check = self.validates[name](args[0], params=comb)
                             if not check:

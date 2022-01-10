@@ -33,10 +33,13 @@ def parse_metadata(path):
     with open(path, "r") as yamlfile:
         try:
             content = yaml.safe_load(yamlfile)
+            if not content:
+                # file empty
+                return ModelMetadata()
             if "author" in content:
                 author = content["author"]
             else:
-                author = None  
+                author = None
             if "description" in content:
                 description = content["description"]
             else:
@@ -44,7 +47,7 @@ def parse_metadata(path):
             if "created_at" in content:
                 created_at = content["created_at"]
             else:
-                created_at = None    
+                created_at = None
             if "references" in content:
                 references = content["references"]
                 assert isinstance(references, list)
@@ -63,6 +66,6 @@ def parse_metadata(path):
             metadata = ModelMetadata(author=author, description=description, created_at=created_at, references=references, comment=comment, backend_options_map=backend_options_map)
             return metadata
         except yaml.YAMLError as err:
-            raise RuntimeError("Could not open YAML file") from err
+            raise RuntimeError(f"Could not open YAML file: {path}") from err
 
     return None

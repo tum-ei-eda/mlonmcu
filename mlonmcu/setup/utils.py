@@ -2,6 +2,7 @@ import os
 import multiprocessing
 import subprocess
 import logging
+from pathlib import Path
 
 logger = logging.getLogger('mlonmcu')
 
@@ -23,15 +24,10 @@ def makeFlags(*args):
 def exec(*args, **kwargs):
     logger.info("- Executing: " + str(args))
     subprocess.run([i for i in args], **kwargs, check=True)
-
-def make(*args, threads=multiprocessing.cpu_count(), **kwargs):
-    cmd = ["make", "-j" + str(threads)] + list(args)
-    exec(*cmd, **kwargs)
-
-def cmake(*args, debug=False, **kwargs):
-    buildType = "Debug" if debug else "Release"
-    cmd = ["cmake", "-DCMAKE_BUILD_TYPE=" + buildType] + list(args)
-    exec(*cmd, **kwargs)
+    #try:
+    #except subprocess.CalledProcessError as e:
+    #    print("EEE", e.output)
+    #    raise e
 
 
 def exec_getout(*args, live=False, **kwargs):
@@ -82,3 +78,20 @@ def clone(dir, url, branch="", rename=""):
     except:
         logger.debug(str(url) + " is already there")
 
+def make(*args, threads=multiprocessing.cpu_count(), **kwargs):
+    cmd = ["make", "-j" + str(threads)] + list(args)
+    exec_getout(*cmd, **kwargs)
+
+def cmake(*args, debug=False, **kwargs):
+    buildType = "Debug" if debug else "Release"
+    cmd = ["cmake", "-DCMAKE_BUILD_TYPE=" + buildType] + list(args)
+    exec_getout(*cmd, **kwargs)
+
+
+def move(a, b):  # TODO: make every utility compatible with Paths!
+    if not isinstance(a, Path):
+        a = Path(a)
+    if not isinstance(b, Path):
+        b = Path(b)
+
+    a.replace(b)

@@ -1,4 +1,4 @@
-from mlonmcu.setup.task import Task, TaskType
+from mlonmcu.setup.task import TaskFactory, TaskType
 import logging
 from pathlib import Path
 import time
@@ -9,6 +9,7 @@ from git import Repo
 logger = logging.getLogger('mlonmcu')
 logger.setLevel(logging.DEBUG)
 
+Tasks = TaskFactory()
 
 # WIP:
 
@@ -64,9 +65,9 @@ def _validate_tensorflow(context, params={}):
         return False
     return True
 
-@Task.provides(["tf.src_dir"])
-@Task.validate(_validate_tensorflow)
-@Task.register(category=TaskType.FRAMEWORK)
+@Tasks.provides(["tf.src_dir"])
+@Tasks.validate(_validate_tensorflow)
+@Tasks.register(category=TaskType.FRAMEWORK)
 def clone_tensorflow(context, params={}, rebuild=False):
     tfName = utils.makeDirName("tf")
     tfSrcDir = context.environment.paths["deps"].path / "src" / tfName
@@ -79,12 +80,12 @@ def clone_tensorflow(context, params={}, rebuild=False):
     context.cache["tf.src_dir"] = tfSrcDir
 
 
-@Task.needs(["tf.src_dir"])
-@Task.provides(["tf.dl_dir", "tf.lib_path"])
-#@Task.param("dbg", False)
-@Task.param("dbg", True)
-@Task.validate(_validate_tensorflow)
-@Task.register(category=TaskType.FRAMEWORK)
+@Tasks.needs(["tf.src_dir"])
+@Tasks.provides(["tf.dl_dir", "tf.lib_path"])
+#@Tasks.param("dbg", False)
+@Tasks.param("dbg", True)
+@Tasks.validate(_validate_tensorflow)
+@Tasks.register(category=TaskType.FRAMEWORK)
 def build_tensorflow(context, params={}, rebuild=False):
     print("params", params)
     flags = utils.makeFlags((params["dbg"], "dbg"))
@@ -117,9 +118,9 @@ def _validate_tflite_micro_compiler(context, params={}):
     return True
 
 
-@Task.provides(["tflmc.src_dir"])
-@Task.validate(_validate_tflite_micro_compiler)
-@Task.register(category=TaskType.BACKEND)
+@Tasks.provides(["tflmc.src_dir"])
+@Tasks.validate(_validate_tflite_micro_compiler)
+@Tasks.register(category=TaskType.BACKEND)
 def clone_tflite_micro_compiler(context, params={}, rebuild=False):
     tflmcName = utils.makeDirName("tflmc")
     tflmcSrcDir = context.environment.paths["deps"].path / "src" / tflmcName
@@ -138,13 +139,13 @@ def _validate_build_tflite_micro_compiler(context, params={}):
                 return False
     return _validate_tflite_micro_compiler(context, params=params)
 
-@Task.needs(["tflmc.src_dir", "tf.src_dir"])
-@Task.optional(["muriscvnn.build_dir", "muriscvnn.inc_dir"])
-@Task.provides(["tflmc.build_dir", "tflmc.exe"])
-@Task.param("muriscvnn", [False, True])
-@Task.param("dbg", False)
-@Task.validate(_validate_build_tflite_micro_compiler)
-@Task.register(category=TaskType.BACKEND)
+@Tasks.needs(["tflmc.src_dir", "tf.src_dir"])
+@Tasks.optional(["muriscvnn.build_dir", "muriscvnn.inc_dir"])
+@Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
+@Tasks.param("muriscvnn", [False, True])
+@Tasks.param("dbg", False)
+@Tasks.validate(_validate_build_tflite_micro_compiler)
+@Tasks.register(category=TaskType.BACKEND)
 def build_tflite_micro_compiler(context, params={}, rebuild=False):
     flags = utils.makeFlags((params["muriscvnn"], "muriscvnn"), (params["dbg"], "dbg"))
     flags_ = utils.makeFlags((params["dbg"], "dbg"))
@@ -170,9 +171,9 @@ def _validate_riscv_gcc(context, params={}):
         return False
     return True
 
-@Task.provides(["riscv_gcc.install_dir"])
-@Task.validate(_validate_riscv_gcc)
-@Task.register(category=TaskType.TOOLCHAIN)
+@Tasks.provides(["riscv_gcc.install_dir"])
+@Tasks.validate(_validate_riscv_gcc)
+@Tasks.register(category=TaskType.TOOLCHAIN)
 def install_riscv_gcc(context, params={}, rebuild=False):
     riscvName = utils.makeDirName("riscv_gcc")
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
@@ -188,9 +189,9 @@ def _validate_llvm(context, params={}):
         return False
     return True
 
-@Task.provides(["llvm.install_dir"])
-@Task.validate(_validate_llvm)
-@Task.register(category=TaskType.MISC)
+@Tasks.provides(["llvm.install_dir"])
+@Tasks.validate(_validate_llvm)
+@Tasks.register(category=TaskType.MISC)
 def install_llvm(context, params={}, rebuild=False):
     llvmName = utils.makeDirName("llvm")
     llvmInstallDir = context.environment.paths["deps"].path / "install" / llvmName
@@ -206,20 +207,20 @@ def _validate_etiss(context, params={}):
         return False
     return True
 
-@Task.provides(["etiss.src_dir"])
-@Task.validate(_validate_etiss)
-@Task.register(category=TaskType.TARGET)
+@Tasks.provides(["etiss.src_dir"])
+@Tasks.validate(_validate_etiss)
+@Tasks.register(category=TaskType.TARGET)
 def clone_etiss(context, params={}, rebuild=False):
     etissName = utils.makeDirName("etiss")
     etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
     context.cache["etiss.src_dir"] = etissSrcDir
 
 
-@Task.needs(["etiss.src_dir"])
-@Task.provides(["etiss.build_dir"])
-@Task.param("dbg", False)
-@Task.validate(_validate_etiss)
-@Task.register(category=TaskType.TARGET)
+@Tasks.needs(["etiss.src_dir"])
+@Tasks.provides(["etiss.build_dir"])
+@Tasks.param("dbg", False)
+@Tasks.validate(_validate_etiss)
+@Tasks.register(category=TaskType.TARGET)
 def build_etiss(context, params={}, rebuild=False):
     flags = utils.makeFlags((params["dbg"], "dbg"))
     etissName = utils.makeDirName("etiss", flags=flags)
@@ -227,11 +228,11 @@ def build_etiss(context, params={}, rebuild=False):
     context.cache["etiss.build_dir", flags] = etissBuildDir
 
 
-@Task.needs(["etiss.src_dir"])
-@Task.provides(["etiss.install_dir", "etissvp.src_dir"])
-@Task.param("dbg", False)
-@Task.validate(_validate_etiss)
-@Task.register(category=TaskType.TARGET)
+@Tasks.needs(["etiss.src_dir"])
+@Tasks.provides(["etiss.install_dir", "etissvp.src_dir"])
+@Tasks.param("dbg", False)
+@Tasks.validate(_validate_etiss)
+@Tasks.register(category=TaskType.TARGET)
 def install_etiss(context, params={}, rebuild=False):
     flags = utils.makeFlags((params["dbg"], "dbg"))
     etissName = utils.makeDirName("etiss", flags=flags)
@@ -243,11 +244,11 @@ def install_etiss(context, params={}, rebuild=False):
     # return True
 
 
-@Task.needs(["etissvp.src_dir"])
-@Task.provides(["etissvp.build_dir", "etissvp.exe"])
-@Task.param("dbg", False)
-@Task.validate(_validate_etiss)
-@Task.register(category=TaskType.TARGET)
+@Tasks.needs(["etissvp.src_dir"])
+@Tasks.provides(["etissvp.build_dir", "etissvp.exe"])
+@Tasks.param("dbg", False)
+@Tasks.validate(_validate_etiss)
+@Tasks.register(category=TaskType.TARGET)
 def build_etissvp(context, params={}, rebuild=False):
     flags = utils.makeFlags((params["dbg"], "dbg"))
     etissvpName = utils.makeDirName("etissvp", flags=flags)
@@ -267,20 +268,20 @@ def _validate_tvm(context, params={}):
         return False
     return True
 
-@Task.provides(["tvm.src_dir"])
-@Task.validate(_validate_tvm)
-@Task.register(category=TaskType.FRAMEWORK)
+@Tasks.provides(["tvm.src_dir"])
+@Tasks.validate(_validate_tvm)
+@Tasks.register(category=TaskType.FRAMEWORK)
 def clone_tvm(context, params={}, rebuild=False):
     tvmName = utils.makeDirName("tvm")
     tvmSrcDir = context.environment.paths["deps"].path / "install" / tvmName
     context.cache["tvm.src_dir"] = tvmSrcDir
 
 
-@Task.needs(["tvm.src_dir", "llvm.install_dir"])
-@Task.provides(["tvm.build_dir", "tvm.lib", "tvm.pythonpath"])
-@Task.param("dbg", False)
-@Task.validate(_validate_tvm)
-@Task.register(category=TaskType.FRAMEWORK)
+@Tasks.needs(["tvm.src_dir", "llvm.install_dir"])
+@Tasks.provides(["tvm.build_dir", "tvm.lib", "tvm.pythonpath"])
+@Tasks.param("dbg", False)
+@Tasks.validate(_validate_tvm)
+@Tasks.register(category=TaskType.FRAMEWORK)
 def build_tvm(context, params={}, rebuild=False):
     flags = utils.makeFlags((params["dbg"], "dbg"))
     tvmName = utils.makeDirName("tvm", flags=flags)
@@ -304,20 +305,20 @@ def _validate_utvmcg(context, params={}):
         return False
     return True
 
-@Task.provides(["utvmcg.src_dir"])
-@Task.validate(_validate_utvmcg)
-@Task.register(category=TaskType.BACKEND)
+@Tasks.provides(["utvmcg.src_dir"])
+@Tasks.validate(_validate_utvmcg)
+@Tasks.register(category=TaskType.BACKEND)
 def clone_utvm_staticrt_codegen(context, params={}, rebuild=False):
     utvmcgName = utils.makeDirName("utvmcg")
     utvmcgSrcDir = context.environment.paths["deps"].path / "src" / utvmcgName
     context.cache["utvmcg.src_dir"] = utvmcgSrcDir
 
 
-@Task.needs(["utvmcg.src_dir", "tvm.src_dir"])
-@Task.provides(["utvmcg.build_dir", "utvmcg.exe"])
-@Task.param("dbg", False)
-# @Task.validate(_validate_utvmcg)
-@Task.register(category=TaskType.BACKEND)
+@Tasks.needs(["utvmcg.src_dir", "tvm.src_dir"])
+@Tasks.provides(["utvmcg.build_dir", "utvmcg.exe"])
+@Tasks.param("dbg", False)
+# @Tasks.validate(_validate_utvmcg)
+@Tasks.register(category=TaskType.BACKEND)
 def build_utvm_staticrt_codegen(context, params={}, rebuild=False):
     flags = utils.makeFlags((params["dbg"], "dbg"))
     utvmcgName = utils.makeDirName("utvmcg", flags=flags)
@@ -337,19 +338,19 @@ def _validate_muriscvnn(context, params={}):
         return False
     return True
 
-@Task.provides(["muriscvnn.src_dir"])
-@Task.validate(_validate_muriscvnn)
-@Task.register(category=TaskType.OPT)
+@Tasks.provides(["muriscvnn.src_dir"])
+@Tasks.validate(_validate_muriscvnn)
+@Tasks.register(category=TaskType.OPT)
 def clone_muriscvnn(context, params={}, rebuild=False):
     muriscvnnName = utils.makeDirName("muriscvnn")
     muriscvnnSrcDir = context.environment.paths["deps"].path / "src" / muriscvnnName
     context.cache["muriscvnn.src_dir"] = muriscvnnSrcDir
 
-@Task.needs(["muriscvnn.src_dir", "etiss.install_dir"])
-@Task.provides(["muriscvnn.build_dir", "muriscvnn.inc_dir"])
-@Task.param("dbg", [False, True])
-@Task.validate(_validate_muriscvnn)
-@Task.register(category=TaskType.OPT)
+@Tasks.needs(["muriscvnn.src_dir", "etiss.install_dir"])
+@Tasks.provides(["muriscvnn.build_dir", "muriscvnn.inc_dir"])
+@Tasks.param("dbg", [False, True])
+@Tasks.validate(_validate_muriscvnn)
+@Tasks.register(category=TaskType.OPT)
 def build_muriscvnn(context, params={}, rebuild=False):
     flags = utils.makeFlags((params["dbg"], "dbg"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
@@ -379,14 +380,14 @@ def _validate_build_milf(context, params={}):
     return True
 
 
-# @Task.optional(["tf.src_dir", "tvm.src_dir", "muriscvnn.build_dir", "muriscvnn.inc_dir"])
-# @Task.provides(["mlif.build_dir", "mlif.lib_path"])
-# @Task.param("framework", ["tflm", "tvm"])  # TODO: from context?
-# @Task.param("backend", ["tflmc", "tflmi", "tvmaot", "tvmrt", "tvmcg"])  # TODO: from context?
-# @Task.param("muriscvnn", [False, True])
-# @Task.param("dbg", [False, True])
-# @Task.validate(_validate_build_milf)
-# @Task.register(category=TaskType.OPT)
+# @Tasks.optional(["tf.src_dir", "tvm.src_dir", "muriscvnn.build_dir", "muriscvnn.inc_dir"])
+# @Tasks.provides(["mlif.build_dir", "mlif.lib_path"])
+# @Tasks.param("framework", ["tflm", "tvm"])  # TODO: from context?
+# @Tasks.param("backend", ["tflmc", "tflmi", "tvmaot", "tvmrt", "tvmcg"])  # TODO: from context?
+# @Tasks.param("muriscvnn", [False, True])
+# @Tasks.param("dbg", [False, True])
+# @Tasks.validate(_validate_build_milf)
+# @Tasks.register(category=TaskType.OPT)
 # def build_mlif(context, params={}, rebuild=False):
 #     flags = utils.makeFlags((True, params["backend"]),(params["dbg"], "dbg"))  # params["framework"] not required?
 #     mlifName = utils.makeDirName("mlif", flags=flags)
@@ -397,38 +398,5 @@ def _validate_build_milf(context, params={}):
 #     context.cache["mlif.lib_path", flags] = mlifLib
 
 # TODO: return True if changed, False if not, or: reurn code: unchanged, changed, error, unknown
-
-def install_dependencies(context, progress=False):
-    print("context.environment", context.environment)
-    print("Task.params", Task.params)
-    Task.reset_changes()
-    # print("registry", Task.registry)
-    # print("dependencies", Task.dependencies)
-    # print("providers", Task.providers)
-    V, E = Task.get_graph()
-    # print("(V, E)", (V, E))
-    order = Task.get_order()
-    logger.debug("Determined dependency order: %s" % str(order))
-
-    # skip = 1
-    # print("num tasks:", len(Task.registry))
-    # print("num skip:", skip)
-    if progress:
-        from tqdm import tqdm
-        pbar = tqdm(total=len(Task.registry), desc="Installing dependencies", ncols=100, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}')
-    else:
-        pbar = None
-    for task in order:
-        func = Task.registry[task]
-        func(context, progress=progress)
-        time.sleep(0.1)
-        if pbar:
-            pbar.update(1)
-    if pbar:
-        pbar.close()
-    cache_file = context.environment.paths["deps"].path / "cache.ini"
-    context.cache.write_to_file(cache_file)
-
-    # print(ctx._vars)
 
 # install_dependencies()

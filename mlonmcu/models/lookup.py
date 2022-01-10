@@ -72,7 +72,7 @@ def list_models(directory, depth=1):
 
         main_base = main_model.split("/")[-1]
         main_metadata = find_metadata(Path(directory) / dirname, model_name=main_base)
-       
+
         models.append(Model(main_base, Path(directory) / f"{main_model}.{frontend}", alt=main_model, fmt=ModelFormat.TFLITE, metadata=main_metadata))
         for submodel in submodels:
             sub_base = submodel.split("/")[-1]
@@ -149,7 +149,10 @@ def print_summary(context, detailed=False):
     print()
     print("Paths:")
     for directory in directories:
-        print("    " + str(directory))
+        exists = os.path.exists(directory)
+        print("    " + str(directory), end="\n" if exists else " (skipped)\n")
+        if not exists:
+            directories.remove(directory)
     print()
     print("Models:")
     for model in all_models:
@@ -187,7 +190,7 @@ def print_summary(context, detailed=False):
             print(f" ({num} duplicates)")
         else:
             print()
-        
+
         if detailed:
             groupmodels = " ".join(models)
             print(f"        Models: {groupmodels}")

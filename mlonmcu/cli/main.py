@@ -19,7 +19,8 @@ import logging
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 
-def main():
+# def main(args):
+def main(args=None):
     """Console script for mlonmcu."""
     parser = argparse.ArgumentParser(description='ML on MCU Flow',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -40,7 +41,10 @@ def main():
     env_parser = env.get_parser(subparsers)
     # TODO: models
     models_parser = models.get_parser(subparsers)
-    args = parser.parse_args()
+    if args:
+        args = parser.parse_args(args)
+    else:
+        args = parser.parse_args()
     if hasattr(args, "func"):
         args.func(args)
     else:
@@ -53,4 +57,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
+    sys.exit(main(args=sys.argv[1:]))  # pragma: no cover

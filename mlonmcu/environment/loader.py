@@ -2,7 +2,7 @@ import os
 import yaml
 import pathlib
 
-from mlonmcu.environment import *
+from .environment import *
 
 # def load_environment_from_file(filename):
 #     """Utility to initialize a mlonmcu environment from a YAML file."""
@@ -52,7 +52,7 @@ def load_environment_from_file(filename):
                 if isinstance(path, list):
                     paths[key] = []
                     for p in path:
-                        paths[key].append(p)
+                        paths[key].append(PathConfig(p))
                 else:
                     paths[key] = PathConfig(path)
         else:

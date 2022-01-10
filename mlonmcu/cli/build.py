@@ -12,11 +12,13 @@ from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session
 from mlonmcu.cli.common import add_common_options, add_context_options, add_model_options, add_flow_options
 from mlonmcu.cli.load import handle as handle_load, add_load_options, add_model_options
+from .helper.parse import extract_features, extract_config
 
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 
 def add_build_options(parser):
+    # TODO: rename to build_group
     build_parser = parser.add_argument_group("build options")
     build_parser.add_argument(
         "-b",
@@ -40,40 +42,7 @@ def get_parser(subparsers, parent=None):
 def _handle(context, args):
     handle_load(args, ctx=context)
     print(args)
-    if args.config:
-        configs = sum(args.config,[])
-    else:
-        configs = {}
-    def parse_var(s):
-        """
-        Parse a key, value pair, separated by '='
-        That's the reverse of ShellArgs.
-
-        On the command line (argparse) a declaration will typically look like:
-            foo=hello
-        or
-            foo="hello world"
-        """
-        items = s.split('=')
-        key = items[0].strip() # we remove blanks around keys, as is logical
-        if len(items) > 1:
-            # rejoin the rest:
-            value = '='.join(items[1:])
-        return (key, value)
-
-
-    def parse_vars(items):
-        """
-        Parse a series of key-value pairs and return a dictionary
-        """
-        d = {}
-
-        if items:
-            for item in items:
-                key, value = parse_var(item)
-                d[key] = value
-        return d
-    configs = parse_vars(configs)
+    configs = extract_config(args)
     print("configs", configs)
     # print(configs)
     # input()

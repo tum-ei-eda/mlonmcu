@@ -23,4 +23,4 @@ def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         # print(f"Environment: {context.environment}")
         progress = args.progress
-        mlonmcu.setup.tasks.install_dependencies(context, progress=progress)
+        mlonmcu.setup.install.install_dependencies(context=context, progress=progress)

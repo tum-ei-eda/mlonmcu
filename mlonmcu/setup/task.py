@@ -9,6 +9,17 @@ import time
 logger = logging.getLogger('mlonmcu')
 logger.setLevel(logging.DEBUG)
 
+
+def get_combs(data):
+    keys = list(data.keys())
+    values = list(data.values())
+    prod = list(itertools.product(*values))
+    if len(prod) == 1:
+        if len(prod[0]) == 0:
+            prod = []
+    combs = [dict(zip(keys, p)) for p in prod]
+    return combs
+
 class TaskType(Enum):
     MISC = 0
     FRAMEWORK = 1
@@ -18,52 +29,58 @@ class TaskType(Enum):
     FRONTEND = 5
     OPT = 6
 
+class TaskGraph():
 
-class Task:
+    def __init__(self, names, dependencies, providers):
+        self.names = names
+        self.dependencies = dependencies
+        self.providers = providers
 
-    registry = {}
-    dependencies = {}
-    providers = {}
-    types = {}
-    params = {}
-    validates = {}
-    changed = []  # Main problem: per
-
-    @staticmethod
-    def reset_changes():
-        Task.changed = []
-
-    @staticmethod
-    def get_graph():
-        nodes = list(Task.registry.keys())
+    def get_graph(self):
+        nodes = list(self.names)
         edges = []
-        for dest, deps in Task.dependencies.items():
+        for dest, deps in self.dependencies.items():
             for dep in deps:
-                if dep not in Task.providers.keys():
+                if dep not in self.providers.keys():
                     raise RuntimeError(f"Unable to resolve dependency '{dep}'")
-                src = Task.providers[dep]
+                src = self.providers[dep]
                 edge = (src, dest)
                 edges.append(edge)
         # Remove duplicates
         edges = list(dict.fromkeys(edges))
         return nodes, edges
 
-    @staticmethod
-    def get_order():
-       V, E = Task.get_graph()
+    def get_order(self):
+       V, E = self.get_graph()
        G = nx.DiGraph(E)
        G.add_nodes_from(V)
        order = list(nx.topological_sort(G))
        return order
 
-    @staticmethod
-    def needs(keys, force=True):
+
+
+class TaskFactory():
+
+    def __init__(self):
+        self.registry = {}
+        self.dependencies = {}
+        self.providers = {}
+        self.types = {}
+        self.params = {}
+        self.validates = {}
+        self.changed = []  # Main problem: per
+
+    def reset_changes(self):
+        self.changed = []
+
+
+    def needs(self, keys, force=True):
         def real_decorator(function):
             name = function.__name__
-            if name in Task.dependencies:
-                Task.dependencies[name].extend(keys)
+            if name in self.dependencies:
+                self.dependencies[name].extend(keys)
             else:
-                Task.dependencies[name] = keys
+                self.dependencies[name] = keys
             @wraps(function)
             def wrapper(*args, **kwargs):
                 # logger.debug("Checking inputs...")
@@ -78,18 +95,16 @@ class Task:
             return wrapper
         return real_decorator
 
-    @staticmethod
-    def optional(keys):
-        return Task.needs(keys, force=False)
+    def optional(self, keys):
+        return self.needs(keys, force=False)
 
-    # @staticmethod
-    # def optional(keys):
+    # def optional(self, keys):
     #     def real_decorator(function):
     #         name = function.__name__
-    #         if name in Task.dependencies:
-    #             Task.dependencies[name].extend(keys)
+    #         if name in self.dependencies:
+    #             self.dependencies[name].extend(keys)
     #         else:
-    #             Task.dependencies[name] = keys
+    #             self.dependencies[name] = keys
     #         @wraps(function)
     #         def wrapper(*args, **kwargs):
     #             retval = function(*args, **kwargs)
@@ -97,12 +112,11 @@ class Task:
     #         return wrapper
     #     return real_decorator
 
-    @staticmethod
-    def provides(keys):
+    def provides(self, keys):
         def real_decorator(function):
             name = function.__name__
             for key in keys:
-                Task.providers[key] = name
+                self.providers[key] = name
             @wraps(function)
             def wrapper(*args, **kwargs):
                 context = args[0]
@@ -117,20 +131,19 @@ class Task:
                         if key not in variables.keys() or variables[key] is None:
                             raise RuntimeError(f"Task '{name}' did not set the value of '{key}'")
                 return retval
-            Task.registry[name] = wrapper
+            self.registry[name] = wrapper
             return wrapper
         return real_decorator
 
-    @staticmethod
-    def param(flag, options):
+    def param(self, flag, options):
         if not isinstance(options, list):
             options = [options]
         def real_decorator(function):
             name = function.__name__
-            if name in Task.params:
-                Task.params[name][flag] = options
+            if name in self.params:
+                self.params[name][flag] = options
             else:
-                Task.params[name] = {flag: options}
+                self.params[name] = {flag: options}
             @wraps(function)
             def wrapper(*args, **kwargs):
                 retval = function(*args, **kwargs)
@@ -138,36 +151,25 @@ class Task:
             return wrapper
         return real_decorator
 
-    @staticmethod
-    def validate(func):
+    def validate(self, func):
         def real_decorator(function):
             name = function.__name__
-            Task.validates[name] = func
+            self.validates[name] = func
             return function
         return real_decorator
 
-    def get_combs(data):
-        keys = list(data.keys())
-        values = list(data.values())
-        prod = list(itertools.product(*values))
-        if len(prod) == 1:
-            if len(prod[0]) == 0:
-                prod = []
-        combs = [dict(zip(keys, p)) for p in prod]
-        return combs
-
-    @staticmethod
-    def register(category=TaskType.MISC):
+    def register(self, category=TaskType.MISC):
         def real_decorator(function):
             name = function.__name__
             @wraps(function)
             def wrapper(*args, progress=False, **kwargs):
-                combs = Task.get_combs(Task.params[name])
+                combs = get_combs(self.params[name])
                 def get_valid_combs(combs):
                     ret = []
                     for comb in combs:
-                        if name in Task.validates:
-                            check = Task.validates[name](args[0], params=comb)
+                        print("if", name, "in", self.validates)
+                        if name in self.validates:
+                            check = self.validates[name](args[0], params=comb)
                             if not check:
                                 continue
                         ret.append(comb)
@@ -175,17 +177,17 @@ class Task:
                 combs = get_valid_combs(combs)
                 def process(name_, params={}):
                     rebuild = False
-                    if name in Task.dependencies:
-                        for dep in Task.dependencies[name]:
-                            if dep in Task.changed:
+                    if name in self.dependencies:
+                        for dep in self.dependencies[name]:
+                            if dep in self.changed:
                                 rebuild = True
                                 break
                     retval = function(*args, params=params, rebuild=rebuild, **kwargs)
                     if retval:
-                        keys = [key for key, provider in Task.providers.items() if provider == name]
+                        keys = [key for key, provider in self.providers.items() if provider == name]
                         for key in keys:
-                            if key not in Task.changed:
-                                Task.changed.append(key)
+                            if key not in self.changed:
+                                self.changed.append(key)
                     # logger.debug("Processed task:", function.__name__)
                     return retval
                 if progress:
@@ -200,8 +202,8 @@ class Task:
                         logger.info("Processing task: %s", name)
                     time.sleep(0.1)
                     check = True
-                    if name in Task.validates:
-                        check = Task.validates[name](args[0], params={})
+                    if name in self.validates:
+                        check = self.validates[name](args[0], params={})
                     if check:
                         retval = process(name)
                     else:
@@ -222,8 +224,8 @@ class Task:
                 if pbar:
                     pbar.close()
                 return retval
-            Task.registry[name] = wrapper
-            Task.types[name] = category
-            Task.params[name] = {}
+            self.registry[name] = wrapper
+            self.types[name] = category
+            self.params[name] = {}
             return wrapper
         return real_decorator

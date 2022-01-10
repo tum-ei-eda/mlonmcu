@@ -12,14 +12,15 @@ from mlonmcu.setup.cache import TaskCache
 
 #from mlonmcu.environment2 import load_environment_from_file
 from mlonmcu.environment.loader import load_environment_from_file
+from mlonmcu.environment.list import get_environments_map
 
 #logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 
 # TODO: sync across files
-config_dir = pathlib.Path(os.path.join(xdg.xdg_config_home(), "mlonmcu"))
-environments_dir = pathlib.Path(os.path.join(config_dir, "environments"))
+# config_dir = pathlib.Path(os.path.join(xdg.xdg_config_home(), "mlonmcu"))
+# environments_dir = pathlib.Path(os.path.join(config_dir, "environments"))
 
 def lookup_environment():
     """Helper function to automatically find a suitable environment."""
@@ -35,6 +36,16 @@ def lookup_environment():
     home = os.environ.get("MLONMCU_HOME")
     if home:
         path = os.path.join(home, "environment.yml")
+        if os.path.exists(path):
+            logger.debug("Found environment directory: %s", path)
+            return path
+
+    logger.debug("Looking for default environment for current user")
+    envs_list = get_environments_map()
+    if "default" in envs_list:
+        assert "path" in envs_list["default"]
+        directory = envs_list["default"]["path"]
+        path = os.path.join(directory, "environment.yml")
         if os.path.exists(path):
             logger.debug("Found environment directory: %s", path)
             return path
@@ -94,21 +105,24 @@ def load_recent_sessions(env):
         sessions.append(session)
     return sessions
 
+def resolve_environment_file(name=None, path=None):
+    if name and path:
+        raise RuntimeError("mlonmcu environments are specified either by name OR path")
+    if name:
+        env_file = get_environment_by_name(name)
+    elif path:
+        env_file = get_environment_by_path(path)
+    else:
+        env_file = lookup_environment()
+        if not env_file:
+            raise RuntimeError("Lookup for mlonmcu environment was not successful.")
+    return env_file
 
 class MlonMcuContext:
     """Contextmanager for mlonmcu environments."""
     def __init__(self, name=None, path=None, lock=False):
         """"Initialize MlonMcuContext."""
-        if name and path:
-            raise RuntimeError("mlonmcu environments are specified either by name OR path")
-        if name:
-            env_file = get_environment_by_name(name)
-        elif path:
-            env_file = get_environment_by_path(path)
-        else:
-            env_file = lookup_environment()
-            if not env_file:
-                raise RuntimeError("Lookup for mlonmcu environment was not successfull.")
+        env_file = resolve_environment_file(name=name, path=path)
         self.environment = load_environment_from_file(env_file)  # TODO: move to __enter__
         self.lock = lock
         self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
@@ -155,7 +169,7 @@ class MlonMcuContext:
             try:
                 self.lockfile.acquire(timeout=0)
             except filelock.Timeout as err:
-                raise RuntimeError("Lock on current conext could not be aquired.") from err
+                raise RuntimeError("Lock on current context could not be aquired.") from err
         self.load_cache()
         return self
 
@@ -165,9 +179,14 @@ class MlonMcuContext:
             if session.active:
                 session.close()
 
+    @property
+    def is_clean(self):
+        return not any([sess.active for sess in self.sessions])
+
 
     def __exit__(self, exception_type, exception_value, traceback):
         logger.debug("Exit MlonMcuContext")
+        self.cleanup()
         if self.lock:
             logger.debug("Releasing lock on context")
             self.lockfile.release()

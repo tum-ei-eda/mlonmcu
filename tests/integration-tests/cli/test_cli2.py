@@ -15,8 +15,9 @@ import xdg
 import mock
 
 from mlonmcu.version import __version__
+from mlonmcu.cli.main import main
 
-# from fixtures import fake_config_home, fake_environment_directory, fake_working_directory
+
 # @pytest.fixture()
 # def fake_config_home(tmp_path):
 #     config_home = tmp_path / "cfg"
@@ -44,11 +45,13 @@ from mlonmcu.version import __version__
 
 
 @pytest.mark.script_launch_mode("subprocess")
-def test_version(script_runner):
-    ret = script_runner.run("mlonmcu", "--version")
-    assert ret.success
-    assert ret.stdout == f"mlonmcu {__version__}\n"
-    assert ret.stderr == ""
+def test_version(capsys):
+    with pytest.raises(SystemExit) as pytest_exit:
+        ret = main(["--version"])
+    out, err = capsys.readouterr()
+    assert pytest_exit.value.code == 0
+    assert out == f"mlonmcu {__version__}\n"
+    assert err == ""
 
 
 def _write_environments_file(path, data):
@@ -77,6 +80,16 @@ def _create_valid_environments_file(path):
     # with open(path, "w") as env_file:
     #     env_file.write("""[default]\npath=\"/x/y/z\"\ncreated=\"20211223T08000\"\n\n[custom]\npath=\"/a/b/c\"""")
 
+def _create_complex_environments_file(path):
+    _write_environments_file(
+        path,
+        {
+            "default": {"path": "/x/y/z", "created": "20211223T08000"},
+            "custom": {"path": "/a/b/c"},
+        },
+    )
+    # with open(path, "w") as env_file:
+    #     env_file.write("""[default]\npath=\"/x/y/z\"\ncreated=\"20211223T08000\"\n\n[custom]\npath=\"/a/b/c\"""")
 
 def _create_invalid_environments_file(path):
     _write_environments_file(path, {"default": {}})
@@ -93,20 +106,23 @@ def _count_envs(text):
 
 
 @pytest.mark.script_launch_mode("subprocess")
-def test_env_empty(script_runner: ScriptRunner, fake_config_home: Path):
+def test_env_empty(fake_config_home: Path, capsys):
     _create_empty_environments_file(fake_config_home / "environments.ini")
-    ret = script_runner.run("mlonmcu", "env")
-    assert ret.success
-    count = _count_envs(ret.stdout)
+    ret = main(["env"])
+    out, err = capsys.readouterr()
+    assert ret == 0
+    count = _count_envs(out)
     assert count == 0
 
 
-@pytest.mark.script_launch_mode("subprocess")
-def test_env_valid(script_runner: ScriptRunner, fake_config_home: Path):
+# @pytest.mark.script_launch_mode("subprocess")
+def test_env_valid(fake_config_home: Path, capsys):
     _create_valid_environments_file(fake_config_home / "environments.ini")
-    ret = script_runner.run("mlonmcu", "env")
-    assert ret.success
-    count = _count_envs(ret.stdout)
+    # ret = script_runner.run("mlonmcu", "env")
+    ret = main(["env"])
+    out, err = capsys.readouterr()
+    assert ret == 0
+    count = _count_envs(out)
     assert count > 0
 
 

@@ -1,0 +1,251 @@
+#!/usr/bin/env python
+
+"""Tests for `mlonmcu` package."""
+
+
+# import unittest
+import pytest
+import unittest
+import os
+import tempfile
+import configparser
+from pathlib import Path
+from pytest_console_scripts import ScriptRunner
+import xdg
+import mock
+
+from mlonmcu.version import __version__
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_version(script_runner):
+    ret = script_runner.run('mlonmcu', '--version')
+    assert ret.success
+    assert ret.stdout == f'mlonmcu {__version__}\n'
+    assert ret.stderr == ''
+
+def _write_environments_file(path, data):
+    config = configparser.ConfigParser()
+    for key in data:
+        config[key] = data[key]
+    with open(path, "w") as env_file:
+        config.write(env_file)
+    print("_write_environments_file", path, data)
+
+def _create_empty_environments_file(path):
+    _write_environments_file(path, {})
+    # with open(path, "w") as env_file:
+    #     env_file.write("")
+
+def _create_valid_environments_file(path):
+    _write_environments_file(path, {"default": {"path": "/x/y/z", "created": "20211223T08000"}, "custom": {"path": "/a/b/c"}})
+    # with open(path, "w") as env_file:
+    #     env_file.write("""[default]\npath=\"/x/y/z\"\ncreated=\"20211223T08000\"\n\n[custom]\npath=\"/a/b/c\"""")
+
+def _create_invalid_environments_file(path):
+    _write_environments_file(path, {"default": {}})
+    # with open(path, "w") as env_file:
+    #     env_file.write("[default]")
+
+def _count_envs(text):
+    count = 0
+    for line in text:
+        if "    - " in line:
+            count = count + 1
+    return count
+
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_empty(script_runner):
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_empty_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env')
+            assert ret.success
+            count = _count_envs(ret.stdout)
+            assert count == 0
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_valid(script_runner):
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_valid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env')
+            assert ret.success
+            count = _count_envs(ret.stdout)
+            assert count > 0
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_file(script_runner):
+    with tempfile.TemporaryDirectory() as dirname:
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env', '--file')
+            assert ret.success
+            assert dirname in ret.stdout
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_add(script_runner):
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_valid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env', 'add', 'new', '/foo/bar')
+            assert ret.success
+            # TODO
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_add_invalid(script_runner):  # already exists
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_valid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env', 'add', 'default', '/foo/bar')
+            assert ret.success
+            # TODO
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_delete(script_runner):
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_valid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env', 'delete', 'custom')
+            assert ret.success
+            # TODO
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_delete_invalid(script_runner):  # does not exits
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_valid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env', 'delete', 'custom2')
+            assert ret.success
+            # TODO
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_update(script_runner):
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_valid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env', 'update', 'custom', '/foo/bar')
+            assert ret.success
+            # TODO
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_update_invalid(script_runner):  # does not exist
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_valid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env', 'update', 'custom2', '/foo/bar')
+            assert ret.success
+            # TODO
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_env_invalid(script_runner):
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_invalid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env')
+            assert not ret.success
+
+@pytest.mark.script_launch_mode('subprocess')
+class TestCliEnv(unittest.TestCase):
+    """Tests for `mlonmcu` package."""
+
+    def setUp(self):
+        """Set up test fixtures, if any."""
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.dirname = self.tempdir.name
+        self.env_dir = Path(self.dirname) / "mlonmcu"
+        os.mkdir(self.env_dir)
+        self.env_file_path = self.env_dir / "environments.ini"
+        self.patcher = mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": self.dirname})
+        self.patcher.start()
+
+    def tearDown(self):
+        """Tear down test fixtures, if any."""
+        self.tempdir.cleanup()
+        self.patcher.stop()
+
+    # def test_000_something(self, script_runner):
+    #     """Test something."""
+    #     pass
+
+    def test_env_invalid2(self, script_runner: ScriptRunner):
+        _create_invalid_environments_file(self.env_file_path)
+        ret = script_runner.run('mlonmcu', 'env')
+        assert not ret.success
+
+# class MockedEnvironmentDirectory:
+#     def __init__(self):
+#         self.tempdir = None
+#         self.env_dir = None
+#         self.env_file_path = None
+#     def __enter__(self):
+#         self.tempdir = tempfile.TemporaryDirectory()
+#         self.env_dir = Path(self.tempdir.name) / "mlonmcu"
+#         os.mkdir(self.env_dir)
+#         self.env_file_path = self.env_dir / "environments.ini"
+#         return self
+#     def __exit__(self, type, value, traceback):
+#         self.tempdir.cleanup()
+#         self.env_dir = None
+#         self.env_file_path = None
+#
+#
+# @pytest.mark.script_launch_mode('subprocess')
+# def test_env_invalid_compact(script_runner):
+#     with MockedEnvironmentDirectory() as mocked:
+#         _create_invalid_environments_file(mocked.env_file_path)
+#         ret = script_runner.run('mlonmcu', 'env')
+#         assert not ret.success
+
+# TODO:
+# test_cleanup_all
+# test_cleanup_deps
+# test_cleanup_results
+# test_cleanup_sessions
+# test_cleanup_session
+#
+# mlonmcu export -> Cleanup?
+# test_export_list
+# test_export_session_list
+# test_export_run_list
+# test_export_session
+# test_export_run
+
+@pytest.mark.script_launch_mode('subprocess')
+def test_cleanup_all(script_runner):
+    with tempfile.TemporaryDirectory() as dirname:
+        env_dir = Path(dirname) / "mlonmcu"
+        os.mkdir(env_dir)
+        env_file_path = env_dir / "environments.ini"
+        _create_valid_environments_file(env_file_path)
+        with mock.patch.dict(os.environ, {"XDG_CONFIG_HOME": dirname}):
+            ret = script_runner.run('mlonmcu', 'env')
+            assert ret.success
+            count = _count_envs(ret.stdout)
+            assert count > 0

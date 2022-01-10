@@ -1,0 +1,58 @@
+# GitHub CI build pipeline
+name: CI build
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.7, 3.8]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: actions/cache@v2
+      id: cache-venv  # name for referring later
+      with:
+        path: ./.venv/  # what we cache: the virtualenv
+        # The cache key depends on requirements[_dev].txt
+        key: ${{ runner.os }}-venv-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-venv-
+    - name: Initialize Virtualenv
+      run: |
+        python -m venv .venv
+    - name: Install dependencies
+      run: |
+        source .venv/bin/activate
+        if  [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if  [ -f requirements_dev.txt ]; then pip install -r requirements_dev.txt; fi
+    - name: Run package creation
+      run: |
+        source .venv/bin/activate && make install
+    - name: Archive package
+      uses: actions/upload-artifact@v2
+      with:
+        name: mlonmcu
+        path: dist/
+    - name: Run Unit Tests and generate coverage report
+      run: |
+        source .venv/bin/activate
+        make coverage
+    - name: Archive code coverage html report
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: htmlcov

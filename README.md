@@ -1,15 +1,11 @@
 # ML on MCU
 
-.. image:: https://img.shields.io/pypi/v/mlonmcu.svg
-        :target: https://pypi.python.org/pypi/mlonmcu
-
-.. image:: https://img.shields.io/travis/tum-ei-eda/mlonmcu.svg
-        :target: https://travis-ci.com/tum-ei-eda/mlonmcu
-
-.. image:: https://readthedocs.org/projects/mlonmcu/badge/?version=latest
-        :target: https://mlonmcu.readthedocs.io/en/latest/?version=latest
-        :alt: Documentation Status
-
+[![](https://img.shields.io/pypi/v/mlonmcu.svg)](https://pypi.python.org/pypi/mlonmcu)
+[![](https://github.com/PhilippvK/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/PhilippvK/mlonmcu/actions/workflows/cicd.yml)
+[![](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![made-with-sphinx-doc](https://img.shields.io/badge/Made%20with-Sphinx-1f425f.svg)](https://www.sphinx-doc.org/)
+[![GitHub license](https://img.shields.io/github/license/PhilippvK/mlonmcu.svg)](https://github.com/PhilippvK/mlonmcu/blob/main/LICENSE)
 
 This project contains research code related to the deployment of inference or learning applications on tiny micro-controllers.
 

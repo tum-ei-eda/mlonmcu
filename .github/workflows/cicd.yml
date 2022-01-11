@@ -28,16 +28,19 @@ jobs:
       with:
         path: ./.venv/  # what we cache: the virtualenv
         # The cache key depends on requirements[_dev].txt
-        key: ${{ runner.os }}-venv-${{ hashFiles('**/requirements*.txt') }}
+        key: ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
         restore-keys: |
-          ${{ runner.os }}-venv-
+          ${{ runner.os }}-${{ matrix.python-version }}-venv-
     - name: Initialize Virtualenv
       run: |
+        python -m pip install --upgrade pip
         python -m venv .venv
     - name: Install dependencies
       run: |
-        source .venv/bin/activate && if  [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        && if  [ -f requirements_dev.txt ]; then pip install -r requirements_dev.txt; fi
+        source .venv/bin/activate
+        if  [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if  [ -f requirements_dev.txt ]; then pip install -r requirements_dev.txt; fi
+        if  [ -f docs/requirements.txt ]; then pip install -r docs/requirements.txt; fi
     - name: Run package creation
       run: |
         source .venv/bin/activate && make install
@@ -54,3 +57,14 @@ jobs:
       with:
         name: code-coverage-report
         path: htmlcov
+    - name: Build docs
+      run: |
+        source .venv/bin/activate
+        make docs
+    - name: Deploy docs
+      uses: peaceiris/actions-gh-pages@v3
+      if: ${{ github.ref == 'refs/heads/main' }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/_build/html
+

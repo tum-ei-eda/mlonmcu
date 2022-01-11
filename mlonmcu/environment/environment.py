@@ -2,6 +2,7 @@ from enum import Enum
 from pathlib import Path
 import yaml
 
+
 class LogLevel(Enum):
     DEBUG = 0
     VERBOSE = 1
@@ -9,8 +10,8 @@ class LogLevel(Enum):
     WARNING = 3
     ERROR = 4
 
-class BaseConfig:
 
+class BaseConfig:
     def __repr__(self):
         return self.__class__.__name__ + "(" + str(vars(self)) + ")"
 
@@ -18,8 +19,14 @@ class BaseConfig:
 class DefaultsConfig(BaseConfig):
     # TODO: loglevels enum
 
-    def __init__(self, log_level=LogLevel.INFO, log_to_file=False,
-                 default_framework=None, default_backends={}, default_target=None):
+    def __init__(
+        self,
+        log_level=LogLevel.INFO,
+        log_to_file=False,
+        default_framework=None,
+        default_backends={},
+        default_target=None,
+    ):
         self.log_level = log_level
         self.log_to_file = log_to_file
         self.default_framework = default_framework
@@ -28,7 +35,6 @@ class DefaultsConfig(BaseConfig):
 
 
 class PathConfig(BaseConfig):
-
     def __init__(self, path, base=None):
         if isinstance(path, str):
             self.path = Path(path)
@@ -50,13 +56,12 @@ class PathConfig(BaseConfig):
 
 
 class RepoConfig(BaseConfig):
-
     def __init__(self, url, ref=None):
         self.url = url
         self.ref = ref
 
-class BackendConfig(BaseConfig):
 
+class BackendConfig(BaseConfig):
     def __init__(self, description="", enabled=True, features={}):
         self.description = description
         self.enabled = enabled
@@ -72,7 +77,6 @@ class FeatureKind(Enum):
 
 
 class Feature:
-
     def __init__(self, description="", kind=FeatureKind.UNKNOWN, supported=True):
         self.description = description
         self.type = kind
@@ -81,32 +85,41 @@ class Feature:
     def __repr__(self):
         return self.__class__.__name__ + "(" + str(vars(self)) + ")"
 
+
 class FrameworkFeature(Feature):
     def __init__(self, description="", supported=True):
-        super().__init__(description=description, kind=FeatureKind.FRAMEWORK, supported=supported)
+        super().__init__(
+            description=description, kind=FeatureKind.FRAMEWORK, supported=supported
+        )
+
 
 class BackendFeature(FrameworkFeature):
     pass
 
-class TargetFeature(Feature):
 
+class TargetFeature(Feature):
     def __init__(self, description="", supported=True):
-        super().__init__(description=description, kind=FeatureKind.TARGET, supported=supported)
+        super().__init__(
+            description=description, kind=FeatureKind.TARGET, supported=supported
+        )
+
 
 class DebugFeature(TargetFeature):
-
     def __init__(self, supported=True):
         super().__init__("GDB support", supported=supported)
 
-class TraceFeature(TargetFeature):
 
+class TraceFeature(TargetFeature):
     def __init__(self, supported=True):
         super().__init__("Memory trace support", supported=supported)
 
-class FrontendFeature(Feature):
 
+class FrontendFeature(Feature):
     def __init__(self, description="", supported=True):
-        super().__init__(description=description, kind=FeatureKind.FRONTEND, supported=supported)
+        super().__init__(
+            description=description, kind=FeatureKind.FRONTEND, supported=supported
+        )
+
 
 class FrameworkConfig(BaseConfig):
     def __init__(self, description="", enabled=True, backends={}, features={}):
@@ -122,6 +135,7 @@ class FrontendConfig(BaseConfig):
         self.enabled = enabled
         self.features = features
 
+
 class TargetConfig(BaseConfig):
     def __init__(self, description="", enabled=True, features={}):
         self.description = description
@@ -129,10 +143,7 @@ class TargetConfig(BaseConfig):
         self.features = features
 
 
-
-
 class Environment:
-
     def __init__(self):
         self._home = None
         self.alias = None
@@ -152,8 +163,8 @@ class Environment:
         """Home directory of mlonmcu environment."""
         return self._home
 
-class DefaultEnvironment(Environment):
 
+class DefaultEnvironment(Environment):
     def __init__(self):
         super().__init__()
         self.defaults = DefaultsConfig(
@@ -174,11 +185,21 @@ class DefaultEnvironment(Environment):
             ],
         }
         self.repos = {
-            "tensorflow": RepoConfig("https://github.com/tensorflow/tensorflow.git", ref="v2.5.2"),
-            "tflite_micro_compiler": RepoConfig("https://github.com/cpetig/tflite_micro_compiler.git", ref="master"),  # TODO: freeze ref?
-            "tvm": RepoConfig("https://github.com/tum-ei-eda/tvm.git", ref="tumeda"),  # TODO: use upstream repo with suitable commit?
-            "utvm_staticrt_codegen": RepoConfig("https://github.com/tum-ei-eda/utvm_staticrt_codegen.git", ref="master"),  # TODO: freeze ref?
-            "etiss": RepoConfig("https://github.com/tum-ei-eda/etiss.git", ref="master"),  # TODO: freeze ref?
+            "tensorflow": RepoConfig(
+                "https://github.com/tensorflow/tensorflow.git", ref="v2.5.2"
+            ),
+            "tflite_micro_compiler": RepoConfig(
+                "https://github.com/cpetig/tflite_micro_compiler.git", ref="master"
+            ),  # TODO: freeze ref?
+            "tvm": RepoConfig(
+                "https://github.com/tum-ei-eda/tvm.git", ref="tumeda"
+            ),  # TODO: use upstream repo with suitable commit?
+            "utvm_staticrt_codegen": RepoConfig(
+                "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git", ref="master"
+            ),  # TODO: freeze ref?
+            "etiss": RepoConfig(
+                "https://github.com/tum-ei-eda/etiss.git", ref="master"
+            ),  # TODO: freeze ref?
         }
         self.frameworks = {
             "tflm": FrameworkConfig(
@@ -186,11 +207,13 @@ class DefaultEnvironment(Environment):
                 enabled=True,
                 backends={
                     "tflmc": BackendConfig("TFLM Compiler", enabled=True, features={}),
-                    "tflmi": BackendConfig("TFLM Interpreter", enabled=True, features={}),
+                    "tflmi": BackendConfig(
+                        "TFLM Interpreter", enabled=True, features={}
+                    ),
                 },
                 features={
                     "muriscvnn": FrameworkFeature("muRISCV-NN Kernels", supported=False)
-                }
+                },
             ),
             "utvm": FrameworkConfig(
                 "MicroTVM",
@@ -200,35 +223,42 @@ class DefaultEnvironment(Environment):
                         "TVM Ahead-of-Time Executor",
                         enabled=True,
                         features={
-                            "unpacked_api": BackendFeature("Unpacked Interface", supported=True)
+                            "unpacked_api": BackendFeature(
+                                "Unpacked Interface", supported=True
+                            )
                         },
                     ),
                     "tvmrt": BackendConfig(
-                        "TVM Graph Runtime",
-                        enabled=True,
-                        features=[]
+                        "TVM Graph Runtime", enabled=True, features=[]
                     ),
                     "tvmcg": BackendConfig(
-                        "uTVM Staticrt Codegen",
-                        enabled=True,
-                        features={}
+                        "uTVM Staticrt Codegen", enabled=True, features={}
                     ),
                 },
                 features={
-                    "memplan": FrameworkFeature("Custom memory planner", supported=False)
+                    "memplan": FrameworkFeature(
+                        "Custom memory planner", supported=False
+                    )
                 },
             ),
         }
         self.frontends = {
-            "saved_model": FrontendConfig("Tensorflow saved model format (experimental)", enabled=False),
-            "ipynb": FrontendConfig("Build TFLite model by running a notebook (experimental)", enabled=False),
-            "tflite": FrontendConfig("Use TFLite model flatbuffer",
+            "saved_model": FrontendConfig(
+                "Tensorflow saved model format (experimental)", enabled=False
+            ),
+            "ipynb": FrontendConfig(
+                "Build TFLite model by running a notebook (experimental)", enabled=False
+            ),
+            "tflite": FrontendConfig(
+                "Use TFLite model flatbuffer",
                 enabled=True,
                 features={
-                    "packing": FrontendFeature("Allows to process flatbuffers with packed/sparse weights", supported=False),
+                    "packing": FrontendFeature(
+                        "Allows to process flatbuffers with packed/sparse weights",
+                        supported=False,
+                    ),
                 },
-            )
-
+            ),
         }
         self.vars = {
             "TEST": "abc",
@@ -236,10 +266,7 @@ class DefaultEnvironment(Environment):
         self.targets = {
             "etiss/pulpino": TargetConfig(
                 "Simple RISC-V Virtual Prototype running in ETISS",
-                features={
-                    "debug": DebugFeature(True),
-                    "trace": TraceFeature(True)
-                },
+                features={"debug": DebugFeature(True), "trace": TraceFeature(True)},
             ),
             "host": TargetConfig(
                 "Run target software on local machine (x86)",
@@ -249,9 +276,21 @@ class DefaultEnvironment(Environment):
             ),
         }
 
-class UserEnvironment(DefaultEnvironment):
 
-    def __init__(self, home, merge=False, alias=None, defaults=None, paths=None, repos=None, frameworks=None, frontends=None, targets=None, variables=None):
+class UserEnvironment(DefaultEnvironment):
+    def __init__(
+        self,
+        home,
+        merge=False,
+        alias=None,
+        defaults=None,
+        paths=None,
+        repos=None,
+        frameworks=None,
+        frontends=None,
+        targets=None,
+        variables=None,
+    ):
         super().__init__()
         self._home = home
 
@@ -275,11 +314,11 @@ class UserEnvironment(DefaultEnvironment):
         if variables:
             self.vars = variables
 
-#test_env = DefaultEnvironment()
-#print("---")
-#print("test_env", test_env)
-#print("---")
-#print(yaml.dump(vars(test_env)))
 
-#test_file = "/work/git/prj/mlonmcu_open_source/mlonmcu/templates/default.yml.j2"
+# test_env = DefaultEnvironment()
+# print("---")
+# print("test_env", test_env)
+# print("---")
+# print(yaml.dump(vars(test_env)))
 
+# test_file = "/work/git/prj/mlonmcu_open_source/mlonmcu/templates/default.yml.j2"

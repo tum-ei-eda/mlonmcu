@@ -1,4 +1,3 @@
-
 from pathlib import Path
 import os
 import glob
@@ -18,6 +17,7 @@ def get_model_directories(context):
     dirs = context.environment.paths["models"]
     dirs = [d.path for d in dirs]
     return dirs
+
 
 def find_metadata(directory, model_name=None):
     possible_basenames = ["model", "metadata", "definition"]
@@ -48,7 +48,11 @@ def list_models(directory, depth=1):
     if not os.path.isdir(directory):
         logger.debug("Not a directory: %s", str(directory))
         return []
-    subdirs = [Path(directory) / o for o in os.listdir(directory) if os.path.isdir(os.path.join(directory, o))]
+    subdirs = [
+        Path(directory) / o
+        for o in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, o))
+    ]
     models = []
     for subdir in subdirs:
         dirname = subdir.name
@@ -74,14 +78,33 @@ def list_models(directory, depth=1):
             submodels.remove(main_model)
 
             main_base = main_model.split("/")[-1]
-            main_metadata = find_metadata(Path(directory) / dirname, model_name=main_base)
+            main_metadata = find_metadata(
+                Path(directory) / dirname, model_name=main_base
+            )
 
-            models.append(Model(main_base, Path(directory) / f"{main_model}.{frontend}", alt=main_model, format=ModelFormat.TFLITE, metadata=main_metadata))
+            models.append(
+                Model(
+                    main_base,
+                    Path(directory) / f"{main_model}.{frontend}",
+                    alt=main_model,
+                    format=ModelFormat.TFLITE,
+                    metadata=main_metadata,
+                )
+            )
 
         for submodel in submodels:
             sub_base = submodel.split("/")[-1]
-            submodel_metadata = find_metadata(Path(directory) / dirname, model_name=sub_base)
-            models.append(Model(submodel, Path(directory) / f"{submodel}.{frontend}", format=ModelFormat.TFLITE, metadata=submodel_metadata))
+            submodel_metadata = find_metadata(
+                Path(directory) / dirname, model_name=sub_base
+            )
+            models.append(
+                Model(
+                    submodel,
+                    Path(directory) / f"{submodel}.{frontend}",
+                    format=ModelFormat.TFLITE,
+                    metadata=submodel_metadata,
+                )
+            )
 
     return models
 
@@ -103,13 +126,16 @@ def list_modelgroups(directory):
                 try:
                     content = yaml.safe_load(yamlfile)
                     for groupname, groupmodels in content.items():
-                        assert isinstance(groupmodels, list), "Modelgroups should be defined as a YAML list"
+                        assert isinstance(
+                            groupmodels, list
+                        ), "Modelgroups should be defined as a YAML list"
                         modelgroup = ModelGroup(groupname, groupmodels)
                         groups.append(modelgroup)
                 except yaml.YAMLError as err:
                     raise RuntimeError("Could not open YAML file") from err
             break
     return groups
+
 
 def lookup_models_and_groups(directories):
     all_models = []
@@ -150,6 +176,7 @@ def lookup_models_and_groups(directories):
 
     return all_models, all_groups, duplicates, group_duplicates
 
+
 def print_paths(directories):
     print("Paths:")
     for directory in directories:
@@ -159,13 +186,16 @@ def print_paths(directories):
         #     directories.remove(directory)
     print()
 
+
 def print_models(models, duplicates=[], detailed=False):
     print("Models:")
     for model in models:
         name = model.name
         path = model.path
         meta = "available" if model.metadata is not None else "not available"
-        has_backend_options = model.metadata and model.metadata.backend_options_map is not None
+        has_backend_options = (
+            model.metadata and model.metadata.backend_options_map is not None
+        )
         print("    " + name, end="")
         if name in duplicates:
             num = duplicates[name]
@@ -180,6 +210,7 @@ def print_models(models, duplicates=[], detailed=False):
                 print(f"        Backend Options: {backends}")
             print()
     print()
+
 
 def print_groups(groups, all_models=[], duplicates=[], detailed=False):
     print("Groups:")
@@ -204,6 +235,7 @@ def print_groups(groups, all_models=[], duplicates=[], detailed=False):
             print(f"        Models: {groupmodels}")
             print()
 
+
 def print_summary(context, detailed=False):
     directories = get_model_directories(context)
 
@@ -212,4 +244,6 @@ def print_summary(context, detailed=False):
     print("Models Summary\n")
     print_paths(directories)
     print_models(models, duplicates=duplicates, detailed=detailed)
-    print_groups(groups, duplicates=group_duplicates, all_models=models, detailed=detailed)
+    print_groups(
+        groups, duplicates=group_duplicates, all_models=models, detailed=detailed
+    )

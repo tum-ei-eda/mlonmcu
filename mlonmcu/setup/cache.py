@@ -1,7 +1,14 @@
-import configparser
+"""Definition of Taks Cache"""
+
 import os
+import configparser
+from typing import Any
 
 class TaskCache:
+    """Task cache used to store dependency paths for the current and furture sessions.
+
+    This can be interpreted as a "modded" dictionary which takes a key + some flags.
+    """
 
     def __init__(self):
         self._vars = {}
@@ -11,7 +18,7 @@ class TaskCache:
 
     def __setitem__(self, name, value):
         if not isinstance(name, tuple):
-            name = (name,frozenset())
+            name = (name, frozenset())
         else:
             assert len(name) == 2
             if not isinstance(name[1], frozenset):
@@ -21,14 +28,23 @@ class TaskCache:
 
     def __getitem__(self, name):
         if not isinstance(name, tuple):
-            name = (name,frozenset())
+            name = (name, frozenset())
         else:
             assert len(name) == 2
             if not isinstance(name[1], frozenset):
                 name = (name[0], frozenset(name[1]))
         return self._vars[name]
 
-    def find_best_match(self, name, flags=[]):
+    def find_best_match(self, name : str, flags=[]) -> Any:
+        """Utility whih tries to resolve the cache entry with the beste match.
+
+        Parameters
+        ----------
+        name : str
+            The cache-key.
+        flags : list
+            Optional flags used for the lookup.
+        """
         # print("find_best_match", name, flags)
         keys = self._vars.keys()
         # print("keys", keys)
@@ -43,7 +59,7 @@ class TaskCache:
                 count = 0
                 for flag in flags_:
                     if flag not in flags:
-                        count = -1 # incompatible
+                        count = -1  # incompatible
                         break
                     count = count + 1
                 if count >= 0:
@@ -52,12 +68,13 @@ class TaskCache:
         if len(counts) == 0:
             raise RuntimeError("Unable to find a match in the cache")
         m = max(counts)
-        assert counts.count(m) == 1, f"For the given set of flags, there are multiple cache matches for the name {name}"
+        assert (
+            counts.count(m) == 1
+        ), f"For the given set of flags, there are multiple cache matches for the name {name}"
         idx = counts.index(m)
         flag = matches[idx]
         ret = self._vars[name, flag]
         return ret
-
 
     def read_from_file(self, filename, reset=True):
         if reset:
@@ -74,12 +91,12 @@ class TaskCache:
                 flags = {flag for flag in section.split(",")}
             content = dict(cfg[section].items())
             for name, value in content.items():
-                 self[name, flags] = value
+                self[name, flags] = value
 
     def write_to_file(self, filename):
         d = self._vars
 
-        out = {} # This will be a dict of dicts
+        out = {}  # This will be a dict of dicts
         for key in self._vars:
             # print(key, type(key))
             if isinstance(key, str):
@@ -93,9 +110,9 @@ class TaskCache:
             if section_name in out:
                 out[section_name][name] = value
             else:
-                out[section_name] = { name: value }
+                out[section_name] = {name: value}
 
-        with open(filename, 'w') as cachefile:
+        with open(filename, "w") as cachefile:
             cfg = configparser.ConfigParser()
             if "default" in out:  # Default section should be first
                 cfg["default"] = out["default"]
@@ -105,28 +122,29 @@ class TaskCache:
                 cfg[x] = out[x]
             cfg.write(cachefile)
 
+
 # cache = TaskCache()
-# 
+#
 # cache["tf.src_dir"] = "a"
 # cache["tf.lib_path"] = "a1"
 # cache["tf.lib_path", {"debug"}] = "a2"
 # cache["tf.lib_path", {"debug", "muriscvnn"}] = "a3"
-# 
+#
 # print("cache", cache)
-# 
+#
 # cache.write_to_file("example.ini")
 # cache.read_from_file("example2.ini")
-# 
+#
 # print("cache2", cache)
-# 
-# 
-# 
+#
+#
+#
 # import sys
 # sys.exit(0)
-# 
+#
 # FILE = "deps/vars.txt"
 # OUTFILE = "deps/vars_.txt"
-# 
+#
 # print("---")
 # result = parse_vars(FILE)
 # print("result", result)
@@ -159,14 +177,14 @@ class TaskCache:
 # cache["mlif.build_dir", {"tvmaot", "etiss", "debug"}] = "B1"
 # cache["mlif.build_dir", {"tvmrt", "etiss", "debug"}] = "B2"
 # cache["mlif.build_dir", {"tvmcg", "etiss", "debug"}] = "B3"
-# 
+#
 # print("cache", cache)
-# 
+#
 # def test(name, flags):
 #     #print("---")
 #     #print("name", name)
 #     #print("flags", flags)
 #     print("find_best_match", cache.find_best_match(name, flags=flags))
-# 
+#
 # test("tf.src_dir", [])
 # test("mlif.build_dir", ["tflmi", "etiss", "packing", "debug", "muriscvnn"])

@@ -6,6 +6,7 @@ class ReshapeInfo:
         self.reshapeFuncParam = reshapeFuncParam
         self.newShape = newShape
 
+
 @relay.transform.function_pass(opt_level=0)
 class RemoveReshapeOnlyPass(relay.ExprMutator):
     def transform_function(self, func, mod, ctx):
@@ -61,13 +62,19 @@ class FixReshapesPass(relay.ExprMutator):
                 newFnParams = {}
                 for i, arg in argsFromReshapes:
                     origParam = arg.op.params[0]
-                    newFnParams[i] = relay.var(origParam.name_hint, origParam.type_annotation)
+                    newFnParams[i] = relay.var(
+                        origParam.name_hint, origParam.type_annotation
+                    )
 
                 prevReshapeInfos = self.reshapeInfos
                 self.reshapeInfos = []
                 for i, arg in argsFromReshapes:
                     newShape = arg.op.body.attrs.newshape
-                    self.reshapeInfos.append(ReshapeInfo(call, i, call.op.params[i], newFnParams[i], newShape))
+                    self.reshapeInfos.append(
+                        ReshapeInfo(
+                            call, i, call.op.params[i], newFnParams[i], newShape
+                        )
+                    )
                 fnBody = self.visit(call.op.body)
                 fnParams = [self.visit(p) for p in call.op.params]
                 self.reshapeInfos = prevReshapeInfos
@@ -75,10 +82,18 @@ class FixReshapesPass(relay.ExprMutator):
                 for i, arg in argsFromReshapes:
                     fnParams[i] = newFnParams[i]
                     newArgs[i] = arg.args[0]
-                newFn = relay.Function(fnParams, fnBody, call.op.ret_type, call.op.type_params, call.op.attrs)
+                newFn = relay.Function(
+                    fnParams,
+                    fnBody,
+                    call.op.ret_type,
+                    call.op.type_params,
+                    call.op.attrs,
+                )
                 return relay.Call(newFn, newArgs, call.attrs, call.type_args, call.span)
 
-        return relay.Call(self.visit(call.op), newArgs, call.attrs, call.type_args, call.span)
+        return relay.Call(
+            self.visit(call.op), newArgs, call.attrs, call.type_args, call.span
+        )
 
     def visit_var(self, var):
         for info in self.reshapeInfos:

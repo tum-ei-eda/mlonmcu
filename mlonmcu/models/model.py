@@ -1,5 +1,5 @@
-
 from enum import Enum
+
 
 class ModelFormat(Enum):
     NONE = 0
@@ -8,8 +8,8 @@ class ModelFormat(Enum):
     IPYNB = 3
     ONNX = 4
 
-class Model:
 
+class Model:
     def __init__(self, name, path, alt=None, format=ModelFormat.TFLITE, metadata=None):
         self.name = name
         self.path = path

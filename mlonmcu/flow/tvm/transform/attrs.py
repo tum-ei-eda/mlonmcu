@@ -1,4 +1,3 @@
-
 class CheckAttrs(relay.ExprVisitor):
     def visit_call(self, call):
         if not isinstance(call.op, relay.Function):

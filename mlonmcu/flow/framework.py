@@ -1,8 +1,9 @@
 from abc import ABC
 
+
 class Framework(ABC):
     registry = {}
-    
+
     shortname = None
 
     def __init__(self, backends={}):

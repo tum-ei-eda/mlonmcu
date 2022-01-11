@@ -4,7 +4,8 @@ import subprocess
 import logging
 from pathlib import Path
 
-logger = logging.getLogger('mlonmcu')
+logger = logging.getLogger("mlonmcu")
+
 
 def makeDirName(base, *args, flags=None):
     # Creates a directory name based on configuration values.
@@ -13,6 +14,7 @@ def makeDirName(base, *args, flags=None):
         names = names + flags
     return "_".join(names)
 
+
 def makeFlags(*args):
     flags = []
     for cond, name in args:
@@ -20,12 +22,13 @@ def makeFlags(*args):
             flags.append(name)
     return flags
 
+
 # Executes a process with the given args and using the given kwards as Popen arguments.
 def exec(*args, **kwargs):
     logger.info("- Executing: " + str(args))
     subprocess.run([i for i in args], **kwargs, check=True)
-    #try:
-    #except subprocess.CalledProcessError as e:
+    # try:
+    # except subprocess.CalledProcessError as e:
     #    print("EEE", e.output)
     #    raise e
 
@@ -34,16 +37,29 @@ def exec_getout(*args, live=False, **kwargs):
     logger.info("- Executing: " + str(args))
     outStr = ""
     if live:
-        process = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        process = subprocess.Popen(
+            [i for i in args],
+            **kwargs,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
         for line in process.stdout:
             new_line = line.decode(errors="replace")
             outStr = outStr + new_line
             print(new_line.replace("\n", ""))
-        assert process.poll() == 0, "The process returned an non-zero exit code! (CMD: `{}`)".format(" ".join(args))
+        assert (
+            process.poll() == 0
+        ), "The process returned an non-zero exit code! (CMD: `{}`)".format(
+            " ".join(args)
+        )
     else:
         try:
             p = subprocess.run(
-                [i for i in args], **kwargs, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                [i for i in args],
+                **kwargs,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
             )
             outStr = p.stdout.decode(errors="replace")
             logger.info(outStr)
@@ -69,7 +85,15 @@ def clone(dir, url, branch="", rename=""):
             if rename == "":
                 exec("git", "clone", "--recursive", "-b", branch, url, cwd=dir)
             else:
-                exec("git", "clone", "--recursive", "-b", branch, url, os.path.join(dir, rename))
+                exec(
+                    "git",
+                    "clone",
+                    "--recursive",
+                    "-b",
+                    branch,
+                    url,
+                    os.path.join(dir, rename),
+                )
         else:
             if rename == "":
                 exec("git", "clone", "--recursive", url, cwd=dir)
@@ -78,9 +102,11 @@ def clone(dir, url, branch="", rename=""):
     except:
         logger.debug(str(url) + " is already there")
 
+
 def make(*args, threads=multiprocessing.cpu_count(), **kwargs):
     cmd = ["make", "-j" + str(threads)] + list(args)
     exec_getout(*cmd, **kwargs)
+
 
 def cmake(*args, debug=False, **kwargs):
     buildType = "Debug" if debug else "Release"

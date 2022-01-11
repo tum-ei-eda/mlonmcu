@@ -1,4 +1,3 @@
-
 def filter_arg(arg):
     """TODO"""
     if not arg:

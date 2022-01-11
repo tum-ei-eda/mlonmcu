@@ -1,16 +1,36 @@
+"""Definitions of a task registry used to automatically install dependencies."""
+
 from functools import wraps
 import itertools
 from enum import Enum
-import networkx as nx
 import logging
-from tqdm import tqdm
 import time
+from typing import List, Tuple
+import networkx as nx
+from tqdm import tqdm
 
-logger = logging.getLogger('mlonmcu')
+logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 
 
-def get_combs(data):
+def get_combs(data) -> List[dict]:
+    """Utility which returns combinations of the input data.
+
+    Parameters
+    ----------
+    data : dict
+        Input dictionary
+
+    Returns
+    -------
+    combs : list
+        All combinations of the input data.
+
+    Examples
+    --------
+    >>> get_combs({"foo": [False, True], "bar": [5, 10]})
+    [{"foo": False, "bar": 5}, {"foo": False, "bar": 10}, {"foo": True, "bar": 5}, {"foo": True, "bar": 10}]
+    """
     keys = list(data.keys())
     values = list(data.values())
     prod = list(itertools.product(*values))
@@ -20,7 +40,9 @@ def get_combs(data):
     combs = [dict(zip(keys, p)) for p in prod]
     return combs
 
+
 class TaskType(Enum):
+    """Enumeration for the task type."""
     MISC = 0
     FRAMEWORK = 1
     BACKEND = 2
@@ -29,14 +51,38 @@ class TaskType(Enum):
     FRONTEND = 5
     OPT = 6
 
-class TaskGraph():
 
-    def __init__(self, names, dependencies, providers):
+class TaskGraph:
+    """Task graph object.
+
+    Attributes
+    ----------
+    names : list
+        list of task names in the graph
+    dependencies : dict
+        Dependencies between task artifacts
+    providers : dict
+        Providers for all the artifacts
+
+    Examples
+    -------
+    TODO
+    """
+    def __init__(self, names: List[str], dependencies: dict, providers: dict):
         self.names = names
         self.dependencies = dependencies
         self.providers = providers
 
-    def get_graph(self):
+    def get_graph(self) -> Tuple[list, list]:
+        """Get nodes and edges of the task graph.
+
+        Returns
+        -------
+        nodes : list
+            List of edges
+        edges : list
+            List of edge tuples.
+        """
         nodes = list(self.names)
         edges = []
         for dest, deps in self.dependencies.items():
@@ -50,17 +96,33 @@ class TaskGraph():
         edges = list(dict.fromkeys(edges))
         return nodes, edges
 
-    def get_order(self):
-       V, E = self.get_graph()
-       G = nx.DiGraph(E)
-       G.add_nodes_from(V)
-       order = list(nx.topological_sort(G))
-       return order
+    def get_order(self) -> list:
+        """Get execution order of tasks via topological sorting."""
+        nodes, edges = self.get_graph()
+        graph = nx.DiGraph(edges)
+        graph.add_nodes_from(nodes)
+        order = list(nx.topological_sort(graph))
+        return order
 
 
+class TaskFactory:
+    """Class which is used to register all available tasks and their annotations.
 
-class TaskFactory():
-
+    Attributes
+    ----------
+    registry : dict
+        Mapping of task names and their actual function
+    dependencies : dict
+        Mapping of task dependencies
+    providers : dict
+        Mapping of which task provides which artifacts
+    types : dict
+        Mapping of task types
+    validates : dict
+        Mapping of validation functions for the tasks
+    changed : list
+        List of tasks?artifacts which have changed recently
+    """
     def __init__(self):
         self.registry = {}
         self.dependencies = {}
@@ -71,16 +133,18 @@ class TaskFactory():
         self.changed = []  # Main problem: per
 
     def reset_changes(self):
+        """Reset all pending changes."""
         self.changed = []
 
-
     def needs(self, keys, force=True):
+        """Decorator which registers the artifacts a task needs to be processed."""
         def real_decorator(function):
             name = function.__name__
             if name in self.dependencies:
                 self.dependencies[name].extend(keys)
             else:
                 self.dependencies[name] = keys
+
             @wraps(function)
             def wrapper(*args, **kwargs):
                 # logger.debug("Checking inputs...")
@@ -89,13 +153,18 @@ class TaskFactory():
                     variables = context.cache._vars
                     for key in keys:
                         if key not in variables.keys() or variables[key] is None:
-                            raise RuntimeError(f"Task '{name}' needs the value of '{key}' which is not set")
+                            raise RuntimeError(
+                                f"Task '{name}' needs the value of '{key}' which is not set"
+                            )
                 retval = function(*args, **kwargs)
                 return retval
+
             return wrapper
+
         return real_decorator
 
     def optional(self, keys):
+        """Decorator for optional task requirements."""
         return self.needs(keys, force=False)
 
     # def optional(self, keys):
@@ -113,57 +182,75 @@ class TaskFactory():
     #     return real_decorator
 
     def provides(self, keys):
+        """Decorator which registers what a task provides."""
         def real_decorator(function):
             name = function.__name__
             for key in keys:
                 self.providers[key] = name
+
             @wraps(function)
             def wrapper(*args, **kwargs):
                 context = args[0]
                 for key in keys:
                     if key in context.cache._vars:
-                        del context.cache._vars[key]  # Unset the value before calling function
+                        del context.cache._vars[
+                            key
+                        ]  # Unset the value before calling function
                 retval = function(*args, **kwargs)
                 if retval is not False:
                     # logger.debug("Checking outputs...")
                     variables = context.cache._vars
                     for key in keys:
                         if key not in variables.keys() or variables[key] is None:
-                            raise RuntimeError(f"Task '{name}' did not set the value of '{key}'")
+                            raise RuntimeError(
+                                f"Task '{name}' did not set the value of '{key}'"
+                            )
                 return retval
+
             self.registry[name] = wrapper
             return wrapper
+
         return real_decorator
 
     def param(self, flag, options):
+        """Decorator which registers available task parameters."""
         if not isinstance(options, list):
             options = [options]
+
         def real_decorator(function):
             name = function.__name__
             if name in self.params:
                 self.params[name][flag] = options
             else:
                 self.params[name] = {flag: options}
+
             @wraps(function)
             def wrapper(*args, **kwargs):
                 retval = function(*args, **kwargs)
                 return retval
+
             return wrapper
+
         return real_decorator
 
     def validate(self, func):
+        """Decorator which registers validattion functions for a task."""
         def real_decorator(function):
             name = function.__name__
             self.validates[name] = func
             return function
+
         return real_decorator
 
     def register(self, category=TaskType.MISC):
+        """Decorator which actually registers a task in the registry."""
         def real_decorator(function):
             name = function.__name__
+
             @wraps(function)
             def wrapper(*args, progress=False, **kwargs):
                 combs = get_combs(self.params[name])
+
                 def get_valid_combs(combs):
                     ret = []
                     for comb in combs:
@@ -173,8 +260,12 @@ class TaskFactory():
                                 continue
                         ret.append(comb)
                     return ret
+
                 combs = get_valid_combs(combs)
-                def process(name_, params={}):
+
+                def process(name_, params=None):
+                    if not params:
+                        params = []
                     rebuild = False
                     if name in self.dependencies:
                         for dep in self.dependencies[name]:
@@ -183,20 +274,31 @@ class TaskFactory():
                                 break
                     retval = function(*args, params=params, rebuild=rebuild, **kwargs)
                     if retval:
-                        keys = [key for key, provider in self.providers.items() if provider == name]
+                        keys = [
+                            key
+                            for key, provider in self.providers.items()
+                            if provider == name
+                        ]
                         for key in keys:
                             if key not in self.changed:
                                 self.changed.append(key)
                     # logger.debug("Processed task:", function.__name__)
                     return retval
+
                 if progress:
-                    from tqdm import tqdm
-                    pbar = tqdm(total=max(len(combs), 1), desc='Processing', ncols=100, bar_format='{l_bar} {n_fmt}/{total_fmt}', leave=None)
+
+                    pbar = tqdm(
+                        total=max(len(combs), 1),
+                        desc="Processing",
+                        ncols=100,
+                        bar_format="{l_bar} {n_fmt}/{total_fmt}",
+                        leave=None,
+                    )
                 else:
                     pbar = None
                 if len(combs) == 0:
                     if pbar:
-                        pbar.set_description("Processing: %s" % name)
+                        pbar.set_description(f"Processing: {name}")
                     else:
                         logger.info("Processing task: %s", name)
                     time.sleep(0.1)
@@ -213,7 +315,7 @@ class TaskFactory():
                     for comb in combs:  # TODO process in parallel?
                         extended_name = name + str(comb)
                         if pbar:
-                            pbar.set_description("Processing - %s" % extended_name)
+                            pbar.set_description(f"Processing - {extended_name}")
                         else:
                             logger.info("Processing task: %s", extended_name)
                         time.sleep(0.1)
@@ -223,8 +325,10 @@ class TaskFactory():
                 if pbar:
                     pbar.close()
                 return retval
+
             self.registry[name] = wrapper
             self.types[name] = category
             self.params[name] = {}
             return wrapper
+
         return real_decorator

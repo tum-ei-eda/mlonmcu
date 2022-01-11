@@ -4,9 +4,12 @@ import time
 from .tasks import Tasks
 from .task import TaskGraph
 
-logger = logging.getLogger('mlonmcu')
+logger = logging.getLogger("mlonmcu")
 
-def install_dependencies(tasks_factory=Tasks, context=None, progress=False, write_cache=True):
+
+def install_dependencies(
+    tasks_factory=Tasks, context=None, progress=False, write_cache=True
+):
     assert context is not None
     print("context.environment", context.environment)
     print("tasks_factory.params", tasks_factory.params)
@@ -14,7 +17,11 @@ def install_dependencies(tasks_factory=Tasks, context=None, progress=False, writ
     # print("registry", tasks_factory.registry)
     # print("dependencies", tasks_factory.dependencies)
     # print("providers", tasks_factory.providers)
-    task_graph = TaskGraph(tasks_factory.registry.keys(), tasks_factory.dependencies, tasks_factory.providers)
+    task_graph = TaskGraph(
+        tasks_factory.registry.keys(),
+        tasks_factory.dependencies,
+        tasks_factory.providers,
+    )
     V, E = task_graph.get_graph()
     # print("(V, E)", (V, E))
     order = task_graph.get_order()
@@ -25,7 +32,13 @@ def install_dependencies(tasks_factory=Tasks, context=None, progress=False, writ
     # print("num skip:", skip)
     if progress:
         from tqdm import tqdm
-        pbar = tqdm(total=len(tasks_factory.registry), desc="Installing dependencies", ncols=100, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}')
+
+        pbar = tqdm(
+            total=len(tasks_factory.registry),
+            desc="Installing dependencies",
+            ncols=100,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
+        )
     else:
         pbar = None
     for task in order:

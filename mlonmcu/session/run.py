@@ -3,6 +3,7 @@ from pathlib import Path
 import os
 from enum import IntEnum
 
+
 class RunStage(IntEnum):
     NOP = 0
     LOAD = 1  # unimplemented
@@ -12,9 +13,20 @@ class RunStage(IntEnum):
     POSTPROCESS = 5
     DONE = 6
 
-class Run:
 
-    def __init__(self, idx=None, model=None, backend=None, target=None, features=[], cfg={}, num=1, archived=False, session=None):
+class Run:
+    def __init__(
+        self,
+        idx=None,
+        model=None,
+        backend=None,
+        target=None,
+        features=[],
+        cfg={},
+        num=1,
+        archived=False,
+        session=None,
+    ):
         self.idx = idx
         self.model = model
         self.backend = backend
@@ -61,7 +73,9 @@ class Run:
         print("COMPILE RUN:", self)
         if context:
             if context.cache:
-                mlif_build_dir = context.cache.find_best_match("mlif_build_dir", flags=[self.backend.shortname, self.target.name])
+                mlif_build_dir = context.cache.find_best_match(
+                    "mlif_build_dir", flags=[self.backend.shortname, self.target.name]
+                )
                 print("mlif_build_dir", mlif_build_dir)
         pass
 

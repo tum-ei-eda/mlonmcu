@@ -7,18 +7,18 @@ import copy
 
 from mlonmcu.models.model import Model, ModelFormat
 
-logger = logging.getLogger('mlonmcu')
+logger = logging.getLogger("mlonmcu")
 
 
 extension_to_fmt = {
     "tflite": ModelFormat.TFLITE,
-    "onnx" : ModelFormat.ONNX,
+    "onnx": ModelFormat.ONNX,
     "ipynb": ModelFormat.IPYNB,
     "tflm": ModelFormat.PACKED,
 }
 
 
-class FrontendRegistry():
+class FrontendRegistry:
 
     registry = {}
     supports = {}
@@ -31,28 +31,27 @@ class FrontendRegistry():
         return cls.frontends_for_fmt[fmt]
 
     @classmethod
-    def register(cls, name : str, supports=[]) -> Callable:
-
+    def register(cls, name: str, supports=[]) -> Callable:
         def inner_wrapper(wrapped_class: Frontend) -> Callable:
             if name in cls.registry:
-                logger.warning('Frontend %s already exists. Will replace it', name)
+                logger.warning("Frontend %s already exists. Will replace it", name)
             cls.registry[name] = wrapped_class
             cls.supports[name] = supports
             for s in supports:
                 if s in cls.frontends_for_fmt:
-                    if name not in cls.frontends_for_fmt[s]: 
+                    if name not in cls.frontends_for_fmt[s]:
                         cls.frontends_for_fmt[s].append(wrapped_class)
                 else:
                     cls.frontends_for_fmt[s] = [wrapped_class]
 
             # logger.debug('Registered frontend %s', name)
-            print('Registered frontend', name)
+            print("Registered frontend", name)
             return wrapped_class
 
         return inner_wrapper
 
-class Frontend(ABC):
 
+class Frontend(ABC):
     def __init__(self, name="", format=ModelFormat.NONE, features=[], cfg={}):
         self.name = name
         self.format = format
@@ -71,10 +70,12 @@ class Frontend(ABC):
                 model = new_model
         print("B")
         frontends = FrontendRegistry.get_supported_frontends(model.format)
-        for frontend in frontends:            
+        for frontend in frontends:
             print("C", frontend)
-            #input()
-            new_model =  frontend(features=self.features, cfg=self.cfg).convert(model, to=to)
+            # input()
+            new_model = frontend(features=self.features, cfg=self.cfg).convert(
+                model, to=to
+            )
             print("new_model", new_model, model)
             if new_model:
                 if new_model.format == to:
@@ -104,11 +105,13 @@ class Frontend(ABC):
     def _export(self, file):
         pass
 
+
 @FrontendRegistry.register("onnx", supports=[ModelFormat.IPYNB])
 class ONNXFrontend(Frontend):
-
     def __init__(self, features=[], cfg={}):
-        super().__init__(name="onnx", format=ModelFormat.ONNX, features=features, cfg=cfg)
+        super().__init__(
+            name="onnx", format=ModelFormat.ONNX, features=features, cfg=cfg
+        )
 
     def _convert(self, model):
         print("_convert onnx")
@@ -119,17 +122,18 @@ class ONNXFrontend(Frontend):
             return new_model
         return None
 
-        
     def _load(self, file):
         model = super()._load()
         # TODO: postprocessing (metadata?)
-        return model 
+        return model
+
 
 @FrontendRegistry.register("tflite", supports=[ModelFormat.IPYNB])
 class TfLiteFrontend(Frontend):
-
     def __init__(self, features=[], cfg={}):
-        super().__init__(name="tflite", format=ModelFormat.TFLITE, features=features, cfg=cfg)
+        super().__init__(
+            name="tflite", format=ModelFormat.TFLITE, features=features, cfg=cfg
+        )
 
     def _convert(self, model):
         print("_convert tflite")
@@ -140,17 +144,18 @@ class TfLiteFrontend(Frontend):
             return new_model
         return None
 
-        
     def _load(self, file):
         model = super()._load()
         # TODO: postprocessing (metadata?)
         return model
-        
+
+
 @FrontendRegistry.register("packed", supports=[ModelFormat.TFLITE])
 class PackedFrontend(Frontend):
-
     def __init__(self, features=[], cfg={}):
-        super().__init__(name="packed", format=ModelFormat.PACKED, features=features, cfg=cfg)
+        super().__init__(
+            name="packed", format=ModelFormat.PACKED, features=features, cfg=cfg
+        )
 
     def _convert(self, model):
         print("_convert packed")
@@ -161,30 +166,29 @@ class PackedFrontend(Frontend):
             return new_model
         return None
 
-        
     def _load(self, file):
         model = super()._load()
         # TODO: postprocessing (metadata?)
         return model
 
+
 @FrontendRegistry.register("ipynb", supports=[])
 class IPYNBFrontend(Frontend):
-
     def __init__(self, features=[], cfg={}):
-        super().__init__(name="ipynb", format=ModelFormat.IPYNB, features=features, cfg=cfg)
+        super().__init__(
+            name="ipynb", format=ModelFormat.IPYNB, features=features, cfg=cfg
+        )
 
     def _convert(self, model):
         print("_convert ipynb")
         return
 
-        
     def _load(self, file):
         model = super()._load()
         # TODO: postprocessing (metadata?)
         return model
 
 
-        
 print("ABC")
 print(FrontendRegistry.registry)
 print(FrontendRegistry.supports)

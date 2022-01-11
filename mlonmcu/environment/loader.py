@@ -21,6 +21,7 @@ from .environment import *
 #         raise RuntimeError(f"Error opening environment file: {filename}")
 #     return None
 
+
 def load_environment_from_file(filename):
     """Utility to initialize a mlonmcu environment from a YAML file."""
     if isinstance(filename, str):
@@ -94,14 +95,20 @@ def load_environment_from_file(filename):
                         if "features" in backend:
                             for key3 in backend["features"]:
                                 supported = bool(backend["features"][key3])
-                                backend_features[key] = BackendFeature(supported=supported)
-                        backends[key2] = BackendConfig(enabled=enabled2, features=backend_features)  # TODO: do we really need a description?
+                                backend_features[key] = BackendFeature(
+                                    supported=supported
+                                )
+                        backends[key2] = BackendConfig(
+                            enabled=enabled2, features=backend_features
+                        )  # TODO: do we really need a description?
             framework_features = {}
             if "features" in framework:
                 for key2 in framework["features"]:
                     supported = bool(framework["features"][key2])
                     framework_features[key2] = FrameworkFeature(supported=supported)
-            frameworks[key] = FrameworkConfig(enabled=enabled, backends=backends, features=framework_features)
+            frameworks[key] = FrameworkConfig(
+                enabled=enabled, backends=backends, features=framework_features
+            )
         else:
             frameworks = None
         if "frontends" in loaded:
@@ -117,7 +124,9 @@ def load_environment_from_file(filename):
                     for key2 in frontend["features"]:
                         supported = bool(frontend["features"][key2])
                         frontend_features[key2] = FrontendFeature(supported=supported)
-                frontends[key] = FrontendConfig(enabled=enabled, features=frontend_features)
+                frontends[key] = FrontendConfig(
+                    enabled=enabled, features=frontend_features
+                )
         else:
             frontends = None
         default_target = None
@@ -142,7 +151,22 @@ def load_environment_from_file(filename):
             variables = loaded["vars"]
         else:
             variables = None
-        defaults = DefaultsConfig(log_level=log_level, log_to_file=log_to_file, default_framework=default_framework, default_backends=default_backends, default_target=default_target)
-        env = UserEnvironment(home, defaults=defaults, paths=paths, repos=repos, frameworks=frameworks, frontends=frontends, targets=targets, variables=variables)
+        defaults = DefaultsConfig(
+            log_level=log_level,
+            log_to_file=log_to_file,
+            default_framework=default_framework,
+            default_backends=default_backends,
+            default_target=default_target,
+        )
+        env = UserEnvironment(
+            home,
+            defaults=defaults,
+            paths=paths,
+            repos=repos,
+            frameworks=frameworks,
+            frontends=frontends,
+            targets=targets,
+            variables=variables,
+        )
         return env
         # print("env", env)

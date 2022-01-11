@@ -1,5 +1,6 @@
 from contextlib import contextmanager, nullcontext
 
+
 @contextmanager
 def OptionallyDisableLegalize(disableLegalize):
     if not disableLegalize:

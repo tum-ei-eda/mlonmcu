@@ -4,6 +4,7 @@ import os
 import yaml
 import pathlib
 
+
 def load_environment_from_file(filename):
     """Utility to initialize a mlonmcu environment from a YAML file."""
     if isinstance(filename, str):
@@ -13,13 +14,16 @@ def load_environment_from_file(filename):
         if data:
             if "home" in data:
                 print(data["home"], filename.parent)
-                assert os.path.realpath(data["home"]) == os.path.realpath(filename.parent)
+                assert os.path.realpath(data["home"]) == os.path.realpath(
+                    filename.parent
+                )
             else:
                 data["home"] = filename.parent
             env = Environment(data)
             return env
         raise RuntimeError(f"Error opening environment file: {filename}")
     return None
+
 
 class Environment:
     """Environment data structure for mlonmcu."""
@@ -40,7 +44,6 @@ class Environment:
     def home(self):
         """Home directory of mlonmcu environment."""
         return self._home
-
 
     def to_yaml(self):
         """Convert mlonmcu environment to a YAML string."""

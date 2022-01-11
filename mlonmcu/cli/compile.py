@@ -10,7 +10,11 @@ import mlonmcu
 from mlonmcu.cli.common import add_common_options, add_context_options
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_FRAMEWORK_BACKENDS
 from mlonmcu.target import SUPPORTED_TARGETS
-from mlonmcu.cli.build import handle as handle_build, add_build_options, add_model_options
+from mlonmcu.cli.build import (
+    handle as handle_build,
+    add_build_options,
+    add_model_options,
+)
 from mlonmcu.flow.backend import Backend
 from mlonmcu.flow.framework import Framework
 from mlonmcu.session.run import RunStage
@@ -18,10 +22,21 @@ from mlonmcu.session.run import RunStage
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 
+
 def add_compile_options(parser):
     compile_parser = parser.add_argument_group("compile options")
-    compile_parser.add_argument('-d', '--debug', action="store_true", help="Build target sorftware in DEBUG mode (default: %(default)s)")
-    compile_parser.add_argument("--num", action="append", type=int, help="Number of runs in simulation (default: %(default)s)")
+    compile_parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Build target sorftware in DEBUG mode (default: %(default)s)",
+    )
+    compile_parser.add_argument(
+        "--num",
+        action="append",
+        type=int,
+        help="Number of runs in simulation (default: %(default)s)",
+    )
     compile_parser.add_argument(
         "--ignore-data",
         dest="ignore_data",
@@ -29,9 +44,12 @@ def add_compile_options(parser):
         help="Do not use MLIF inout data in debug mode (default: %(default)s)",
     )
 
+
 def get_parser(subparsers):
-    """"Define and return a subparser for the compile subcommand."""
-    parser = subparsers.add_parser('compile', description='Compile model using ML on MCU flow.')
+    """ "Define and return a subparser for the compile subcommand."""
+    parser = subparsers.add_parser(
+        "compile", description="Compile model using ML on MCU flow."
+    )
     parser.set_defaults(func=handle)
     add_model_options(parser)
     add_common_options(parser)
@@ -40,6 +58,7 @@ def get_parser(subparsers):
     add_build_options(parser)
     return parser
 
+
 def _handle(context, args):
     handle_build(args, ctx=context)
     num = args.num if args.num else [1]
@@ -47,7 +66,9 @@ def _handle(context, args):
         raise NotImplementedError(f"Unimplemented Target: {target}")
     target = SUPPORTED_TARGETS[args.target]
     debug = args.debug
-    assert len(context.sessions) > 0  # TODO: automatically request session if no active one is available
+    assert (
+        len(context.sessions) > 0
+    )  # TODO: automatically request session if no active one is available
     session = context.sessions[-1]
     for run in session.runs:
         run.target = target
@@ -63,8 +84,10 @@ def _handle(context, args):
     for run in session.runs:
         run.compile(context=context)
 
+
 def check_args(context, args):
     print("CHECK ARGS")
+
 
 def handle(args, ctx=None):
     print("HANLDE COMPILE")

@@ -1,12 +1,15 @@
 from abc import ABC, abstractmethod
 
 
-
 class Backend(ABC):
 
     shortname = None
 
-    def __init__(self, config={}, context=None, ):
+    def __init__(
+        self,
+        config={},
+        context=None,
+    ):
         self.config = config
         self.context = context
 

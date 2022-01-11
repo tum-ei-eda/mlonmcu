@@ -10,12 +10,18 @@ import mlonmcu.flow.tvm
 from mlonmcu.models.model import Model
 from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session
-from mlonmcu.cli.common import add_common_options, add_context_options, add_model_options, add_flow_options
+from mlonmcu.cli.common import (
+    add_common_options,
+    add_context_options,
+    add_model_options,
+    add_flow_options,
+)
 from mlonmcu.cli.load import handle as handle_load, add_load_options, add_model_options
 from .helper.parse import extract_features, extract_config
 
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
+
 
 def add_build_options(parser):
     # TODO: rename to build_group
@@ -24,13 +30,20 @@ def add_build_options(parser):
         "-b",
         "--backend",
         type=str,
-        action='append',
+        action="append",
         choices=["tflmc", "tflmi", "tvmaot", "tvmrt", "tvmcg", "tflm", "utvm"],
-        help="Backends to use (default: %(default)s)")
+        help="Backends to use (default: %(default)s)",
+    )
+
 
 def get_parser(subparsers, parent=None):
-    """"Define and return a subparser for the build subcommand."""
-    parser = subparsers.add_parser('build', description='Build model using the ML on MCU flow.', parents=[parent] if parent else [], add_help = (parent is None))
+    """ "Define and return a subparser for the build subcommand."""
+    parser = subparsers.add_parser(
+        "build",
+        description="Build model using the ML on MCU flow.",
+        parents=[parent] if parent else [],
+        add_help=(parent is None),
+    )
     parser.set_defaults(func=handle)
     add_model_options(parser)
     add_common_options(parser)
@@ -38,6 +51,7 @@ def get_parser(subparsers, parent=None):
     add_build_options(parser)
     add_flow_options(parser)
     return parser
+
 
 def _handle(context, args):
     handle_load(args, ctx=context)
@@ -67,6 +81,7 @@ def _handle(context, args):
     for run in session.runs:
         run.build(context=context)
     print("session.runs", session.runs)
+
 
 def handle(args, ctx=None):
     print("HANDLE BUILD")

@@ -1,13 +1,14 @@
-
 # TODO: rename to paths.py or user.py?
 
 import os
 import xdg
 from pathlib import Path
 
+
 def get_config_dir():
     config_dir = os.path.join(xdg.xdg_config_home(), "mlonmcu")
     return config_dir
+
 
 def init_config_dir():
     config_dir = Path(get_config_dir())
@@ -21,13 +22,16 @@ def init_config_dir():
         filepath = config_dir / file
         filepath.touch(exist_ok=True)
 
+
 def get_environments_dir():
     environments_dir = os.path.join(get_config_dir(), "environments")
     return environments_dir
 
+
 def get_environments_file():
     environments_file = os.path.join(get_config_dir(), "environments.ini")
     return environments_file
+
 
 DEFAULTS = {
     "environment": "default",
@@ -35,4 +39,3 @@ DEFAULTS = {
 }
 
 env_subdirs = ["deps"]
-

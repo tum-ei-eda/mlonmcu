@@ -12,42 +12,46 @@ import subprocess
 import pathlib
 
 import numpy as np
-#from matplotlib import pyplot as plt
 
-#import tvm
-#import tvm.micro
-#from tvm import te
-#from tvm import relay
-#from tvm import ir
-#from tvm import autotvm
-#from tvm.contrib import graph_runtime
-#from tvm.contrib import utils as tvm_utils
-#from tvm.micro import export_model_library_format
+# from matplotlib import pyplot as plt
+
+# import tvm
+# import tvm.micro
+# from tvm import te
+# from tvm import relay
+# from tvm import ir
+# from tvm import autotvm
+# from tvm.contrib import graph_runtime
+# from tvm.contrib import utils as tvm_utils
+# from tvm.micro import export_model_library_format
 #
 ## import compiler_riscv
-#import codegen
-#from load_tflite_model import load_tflite_model
-#from ftp import FTPass
-#from plan_memory import plan_memory
+# import codegen
+# from load_tflite_model import load_tflite_model
+# from ftp import FTPass
+# from plan_memory import plan_memory
 #
-#from tvm.ir import _ffi_api as ir_ffi
+# from tvm.ir import _ffi_api as ir_ffi
 
 import mlonmcu.cli.helper.filter as cli_filter
-#import mlonmcu.flow.tvm.wrapper as tvm_wrapper
 
-#from mlonmcu.flow.tvm.transform.reshape import ReshapeInfo, RemoveReshapeOnlyPass, FixReshapesPass
-#from mlonmcu.flow.tvm.transform.attrs import CheckAttrs
-#from mlonmcu.flow.tvm.transform.legalize import OptionallyDisableLegalize
+# import mlonmcu.flow.tvm.wrapper as tvm_wrapper
+
+# from mlonmcu.flow.tvm.transform.reshape import ReshapeInfo, RemoveReshapeOnlyPass, FixReshapesPass
+# from mlonmcu.flow.tvm.transform.attrs import CheckAttrs
+# from mlonmcu.flow.tvm.transform.legalize import OptionallyDisableLegalize
 
 # Setup logging
-logging.basicConfig(format="[%(asctime)s]::%(pathname)s:%(lineno)d::%(levelname)s - %(message)s")
+logging.basicConfig(
+    format="[%(asctime)s]::%(pathname)s:%(lineno)d::%(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logging.getLogger("compile_engine").setLevel(logging.WARNING)
 logging.getLogger("autotvm").setLevel(logging.WARNING)
 
 
-#class TVMFlow:
+# class TVMFlow:
 #    def __init__(
 #        self,
 #        local=False,
@@ -267,10 +271,30 @@ def get_parser():
       - RISCV_DIR (default: /usr/local/research/projects/SystemDesign/tools/riscv/current, read only)
 """,
     )
-    parser.add_argument("model", metavar="MODEL", type=str, nargs=1, help="Model to process")
+    parser.add_argument(
+        "model", metavar="MODEL", type=str, nargs=1, help="Model to process"
+    )
     # TODO: support non-.tflite models!
-    parser.add_argument("--codegen", "-c", metavar="CODEGEN", type=str, nargs=1, choices=["aot", "graph"], default="aot", help="Choose a code generator or executor/runtime (default: %(default)s, choices: %(choices)s)")
-    parser.add_argument("--target", "-t", metavar="TARGET", type=str, nargs=1, choices=["host", "arm_cpu"], default="host", help="Choose a target (default: %(default)s, choices: %(choices)s)")
+    parser.add_argument(
+        "--codegen",
+        "-c",
+        metavar="CODEGEN",
+        type=str,
+        nargs=1,
+        choices=["aot", "graph"],
+        default="aot",
+        help="Choose a code generator or executor/runtime (default: %(default)s, choices: %(choices)s)",
+    )
+    parser.add_argument(
+        "--target",
+        "-t",
+        metavar="TARGET",
+        type=str,
+        nargs=1,
+        choices=["host", "arm_cpu"],
+        default="host",
+        help="Choose a target (default: %(default)s, choices: %(choices)s)",
+    )
     # TODO: allow non-micro targets?
     parser.add_argument(
         "--output",
@@ -290,9 +314,21 @@ def get_parser():
     # TODO: allow multiple -v's?
 
     tvm_group = parser.add_argument_group("TVM General")
-    tvm_group.add_argument("--wrapper", action="store_true", help="Generate a wrapper entry point (default: %(default)s)")
-    tvm_group.add_argument("--compile", action="store_true", help="Compile model with TVM (default: %(default)s)")
-    tvm_group.add_argument("--run", action="store_true", help="Run model after building (default: %(default)s)")
+    tvm_group.add_argument(
+        "--wrapper",
+        action="store_true",
+        help="Generate a wrapper entry point (default: %(default)s)",
+    )
+    tvm_group.add_argument(
+        "--compile",
+        action="store_true",
+        help="Compile model with TVM (default: %(default)s)",
+    )
+    tvm_group.add_argument(
+        "--run",
+        action="store_true",
+        help="Run model after building (default: %(default)s)",
+    )
     tvm_group.add_argument(
         "--transformations",
         metavar="T",
@@ -314,7 +350,13 @@ Available transformations:
         "times, each one to set one configuration value, "
         "e.g. '--pass-config relay.FuseOps.max_depth=1'.",
     )
-    tvm_group.add_argument("--tune", action="store_const", const=True, default=False, help="Use TVM Autotuner, optionally pass path to existing autotuning logs (default: %(default)s)")
+    tvm_group.add_argument(
+        "--tune",
+        action="store_const",
+        const=True,
+        default=False,
+        help="Use TVM Autotuner, optionally pass path to existing autotuning logs (default: %(default)s)",
+    )
 
     graph_group = parser.add_argument_group("TVM Graph Runtime")
     graph_group.add_argument(
@@ -328,7 +370,6 @@ Available transformations:
 
     aot_group = parser.add_argument_group("TVM AoT Runtime")
 
-
     return parser
 
 
@@ -341,7 +382,7 @@ def main():
 
     # TODO: make helper function
     # filter removes elements that evaluate to False.
-    #transformations = list(filter(None, args.transformations.split(",")))
+    # transformations = list(filter(None, args.transformations.split(",")))
     transformations = cli_filter.filter_arg(args.transformations)
 
     flow = TVMFlow(
@@ -366,6 +407,7 @@ def main():
         flow.run()
     if args.tune:
         flow.tune()
+
 
 if __name__ == "__main__":
     main()

@@ -10,18 +10,27 @@ import mlonmcu.flow.tvm
 from mlonmcu.models.model import Model
 from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session
-from mlonmcu.cli.common import add_common_options, add_context_options, add_model_options, add_flow_options
+from mlonmcu.cli.common import (
+    add_common_options,
+    add_context_options,
+    add_model_options,
+    add_flow_options,
+)
 from mlonmcu.feature import lookup_features
 
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 
+
 def add_load_options(parser):
     load_parser = parser.add_argument_group("load options")
 
+
 def get_parser(subparsers):
-    """"Define and return a subparser for the load subcommand."""
-    parser = subparsers.add_parser('load', description='Load model using the ML on MCU flow.')
+    """ "Define and return a subparser for the load subcommand."""
+    parser = subparsers.add_parser(
+        "load", description="Load model using the ML on MCU flow."
+    )
     parser.set_defaults(func=handle)
     add_model_options(parser)
     add_common_options(parser)
@@ -30,8 +39,10 @@ def get_parser(subparsers):
     add_flow_options(parser)
     return parser
 
+
 def load_model(model, context=None):
     pass
+
 
 def _handle(context, args):
     model_names = args.models

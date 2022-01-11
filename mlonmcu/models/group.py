@@ -1,6 +1,4 @@
-
 class ModelGroup:
-
     def __init__(self, name, models, description=""):
         self.name = name
         self.models = models

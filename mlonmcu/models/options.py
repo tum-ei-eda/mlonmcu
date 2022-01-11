@@ -1,24 +1,30 @@
-
 class BackendModelOptions:
-
     def __init__(self, backend, supported=True, options={}):
         self.backend = backend
         self.supported = supported
         self.options = options
 
-class TFLMIModelOptions(BackendModelOptions):
 
-    def __init__(self, backend, supported=True, arena_size=None, builtin_ops=None, custom_ops=None):
+class TFLMIModelOptions(BackendModelOptions):
+    def __init__(
+        self,
+        backend,
+        supported=True,
+        arena_size=None,
+        builtin_ops=None,
+        custom_ops=None,
+    ):
         super().__init__(backend, supported=supported)
         self.arena_size = arena_size
         self.builtin_ops = builtin_ops
         self.custom_ops = custom_ops
 
-class TVMRTModelOptions(BackendModelOptions):
 
+class TVMRTModelOptions(BackendModelOptions):
     def __init__(self, backend, supported=True, arena_size=None):
         super().__init__(backend, supported=supported)
         self.arena_size = arena_size
+
 
 def parse_model_options_for_backend(backend, options):
     backend_types = {

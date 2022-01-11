@@ -2,7 +2,6 @@ from abc import ABC
 
 # Abstract class
 class CodegenWrapper(ABC):
-
     def __init__(self, modelInfo, TODO):
         pass
 

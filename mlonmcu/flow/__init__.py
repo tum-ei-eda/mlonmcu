@@ -1,4 +1,3 @@
-
 import mlonmcu
 from mlonmcu.flow.tflite.backend.tflmc import TFLMCBackend
 from mlonmcu.flow.tflite.backend.tflmi import TFLMIBackend
@@ -26,7 +25,7 @@ SUPPORTED_TVM_BACKENDS = {
 }
 
 SUPPORTED_FRAMEWORK_BACKENDS = {
-    "tflite" : SUPPORTED_TFLITE_BACKENDS,
+    "tflite": SUPPORTED_TFLITE_BACKENDS,
     "tvm": SUPPORTED_TVM_BACKENDS,
 }
 

@@ -43,71 +43,71 @@ from mlonmcu.version import __version__
 #     yield cwd
 
 
-@pytest.mark.script_launch_mode("subprocess")
-def test_version(script_runner):
-    ret = script_runner.run("mlonmcu", "--version")
-    assert ret.success
-    assert ret.stdout == f"mlonmcu {__version__}\n"
-    assert ret.stderr == ""
-
-
-def _write_environments_file(path, data):
-    config = configparser.ConfigParser()
-    for key in data:
-        config[key] = data[key]
-    with open(path, "w") as env_file:
-        config.write(env_file)
-    print("_write_environments_file", path, data)
-
-
-def _create_empty_environments_file(path):
-    _write_environments_file(path, {})
-    # with open(path, "w") as env_file:
-    #     env_file.write("")
-
-
-def _create_valid_environments_file(path):
-    _write_environments_file(
-        path,
-        {
-            "default": {"path": "/x/y/z", "created": "20211223T08000"},
-            "custom": {"path": "/a/b/c"},
-        },
-    )
-    # with open(path, "w") as env_file:
-    #     env_file.write("""[default]\npath=\"/x/y/z\"\ncreated=\"20211223T08000\"\n\n[custom]\npath=\"/a/b/c\"""")
-
-
-def _create_invalid_environments_file(path):
-    _write_environments_file(path, {"default": {}})
-    # with open(path, "w") as env_file:
-    #     env_file.write("[default]")
-
-
-def _count_envs(text):
-    count = 0
-    for line in text.split("\n"):
-        if "    - " in line:
-            count = count + 1
-    return count
-
-
-@pytest.mark.script_launch_mode("subprocess")
-def test_env_empty(script_runner: ScriptRunner, fake_config_home: Path):
-    _create_empty_environments_file(fake_config_home / "environments.ini")
-    ret = script_runner.run("mlonmcu", "env")
-    assert ret.success
-    count = _count_envs(ret.stdout)
-    assert count == 0
-
-
-@pytest.mark.script_launch_mode("subprocess")
-def test_env_valid(script_runner: ScriptRunner, fake_config_home: Path):
-    _create_valid_environments_file(fake_config_home / "environments.ini")
-    ret = script_runner.run("mlonmcu", "env")
-    assert ret.success
-    count = _count_envs(ret.stdout)
-    assert count > 0
+# @pytest.mark.script_launch_mode("subprocess")
+# def test_version(script_runner):
+#     ret = script_runner.run("mlonmcu", "--version")
+#     assert ret.success
+#     assert ret.stdout == f"mlonmcu {__version__}\n"
+#     assert ret.stderr == ""
+#
+#
+# def _write_environments_file(path, data):
+#     config = configparser.ConfigParser()
+#     for key in data:
+#         config[key] = data[key]
+#     with open(path, "w") as env_file:
+#         config.write(env_file)
+#     print("_write_environments_file", path, data)
+#
+#
+# def _create_empty_environments_file(path):
+#     _write_environments_file(path, {})
+#     # with open(path, "w") as env_file:
+#     #     env_file.write("")
+#
+#
+# def _create_valid_environments_file(path):
+#     _write_environments_file(
+#         path,
+#         {
+#             "default": {"path": "/x/y/z", "created": "20211223T08000"},
+#             "custom": {"path": "/a/b/c"},
+#         },
+#     )
+#     # with open(path, "w") as env_file:
+#     #     env_file.write("""[default]\npath=\"/x/y/z\"\ncreated=\"20211223T08000\"\n\n[custom]\npath=\"/a/b/c\"""")
+#
+#
+# def _create_invalid_environments_file(path):
+#     _write_environments_file(path, {"default": {}})
+#     # with open(path, "w") as env_file:
+#     #     env_file.write("[default]")
+#
+#
+# def _count_envs(text):
+#     count = 0
+#     for line in text.split("\n"):
+#         if "    - " in line:
+#             count = count + 1
+#     return count
+#
+#
+# @pytest.mark.script_launch_mode("subprocess")
+# def test_env_empty(script_runner: ScriptRunner, fake_config_home: Path):
+#     _create_empty_environments_file(fake_config_home / "environments.ini")
+#     ret = script_runner.run("mlonmcu", "env")
+#     assert ret.success
+#     count = _count_envs(ret.stdout)
+#     assert count == 0
+#
+#
+# @pytest.mark.script_launch_mode("subprocess")
+# def test_env_valid(script_runner: ScriptRunner, fake_config_home: Path):
+#     _create_valid_environments_file(fake_config_home / "environments.ini")
+#     ret = script_runner.run("mlonmcu", "env")
+#     assert ret.success
+#     count = _count_envs(ret.stdout)
+#     assert count > 0
 
 
 # @pytest.mark.script_launch_mode('subprocess')

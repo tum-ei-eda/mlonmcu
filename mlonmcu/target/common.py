@@ -41,13 +41,13 @@ def execute(
     logger.info("- Executing: %s", str(args))
     if ignore_output:
         assert not live
-        subprocess.run(*args, **kwargs, check=True)
+        subprocess.run(args, **kwargs, check=True)
         return None
 
     out_str = ""
     if live:
         with subprocess.Popen(
-            *args,
+            args,
             **kwargs,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -64,7 +64,7 @@ def execute(
     else:
         try:
             process = subprocess.run(
-                *args,
+                args,
                 **kwargs,
                 check=True,
                 stdout=subprocess.PIPE,

@@ -1,0 +1,76 @@
+mlonmcu package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mlonmcu.cli
+   mlonmcu.data
+   mlonmcu.environment
+   mlonmcu.flow
+   mlonmcu.models
+   mlonmcu.session
+   mlonmcu.setup
+   mlonmcu.target
+
+Submodules
+----------
+
+mlonmcu.artifact module
+-----------------------
+
+.. automodule:: mlonmcu.artifact
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.context module
+----------------------
+
+.. automodule:: mlonmcu.context
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.environment2 module
+---------------------------
+
+.. automodule:: mlonmcu.environment2
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.feature module
+----------------------
+
+.. automodule:: mlonmcu.feature
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.mlonmcu module
+----------------------
+
+.. automodule:: mlonmcu.mlonmcu
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.version module
+----------------------
+
+.. automodule:: mlonmcu.version
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: mlonmcu
+   :members:
+   :undoc-members:
+   :show-inheritance:

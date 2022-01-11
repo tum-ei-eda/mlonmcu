@@ -1,6 +1,7 @@
 import os
 import pytest
 import mock
+import urllib.request
 
 @pytest.fixture()
 def fake_config_home(tmp_path):
@@ -45,3 +46,10 @@ def fake_context():
     context = FakeContext()
     yield context
 
+@pytest.fixture()
+def example_elf_file(request, tmp_path):
+    name = request.param
+    elf_path = tmp_path / name
+    url = f"https://github.com/JonathanSalwan/binary-samples/raw/master/{name}"
+    urllib.request.urlretrieve(url, elf_path)
+    yield str(elf_path)

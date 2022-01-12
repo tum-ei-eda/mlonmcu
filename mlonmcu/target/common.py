@@ -10,6 +10,7 @@ from mlonmcu.cli.helper.parse import extract_features, extract_config
 logger = logging.getLogger("mlonmcu")
 
 
+# TODO: merge together with mlonmcu.setup.utils.exec_getout
 def execute(
     *args: List[str],
     ignore_output: bool = False,

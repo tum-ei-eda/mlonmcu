@@ -43,6 +43,7 @@ def get_combs(data) -> List[dict]:
 
 class TaskType(Enum):
     """Enumeration for the task type."""
+
     MISC = 0
     FRAMEWORK = 1
     BACKEND = 2
@@ -68,6 +69,7 @@ class TaskGraph:
     -------
     TODO
     """
+
     def __init__(self, names: List[str], dependencies: dict, providers: dict):
         self.names = names
         self.dependencies = dependencies
@@ -123,6 +125,7 @@ class TaskFactory:
     changed : list
         List of tasks?artifacts which have changed recently
     """
+
     def __init__(self):
         self.registry = {}
         self.dependencies = {}
@@ -138,6 +141,7 @@ class TaskFactory:
 
     def needs(self, keys, force=True):
         """Decorator which registers the artifacts a task needs to be processed."""
+
         def real_decorator(function):
             name = function.__name__
             if name in self.dependencies:
@@ -183,6 +187,7 @@ class TaskFactory:
 
     def provides(self, keys):
         """Decorator which registers what a task provides."""
+
         def real_decorator(function):
             name = function.__name__
             for key in keys:
@@ -235,6 +240,7 @@ class TaskFactory:
 
     def validate(self, func):
         """Decorator which registers validattion functions for a task."""
+
         def real_decorator(function):
             name = function.__name__
             self.validates[name] = func
@@ -244,6 +250,7 @@ class TaskFactory:
 
     def register(self, category=TaskType.MISC):
         """Decorator which actually registers a task in the registry."""
+
         def real_decorator(function):
             name = function.__name__
 

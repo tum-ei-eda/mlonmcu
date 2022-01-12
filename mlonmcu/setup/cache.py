@@ -4,6 +4,7 @@ import os
 import configparser
 from typing import Any
 
+
 class TaskCache:
     """Task cache used to store dependency paths for the current and furture sessions.
 
@@ -35,7 +36,7 @@ class TaskCache:
                 name = (name[0], frozenset(name[1]))
         return self._vars[name]
 
-    def find_best_match(self, name : str, flags=[]) -> Any:
+    def find_best_match(self, name: str, flags=[]) -> Any:
         """Utility whih tries to resolve the cache entry with the beste match.
 
         Parameters

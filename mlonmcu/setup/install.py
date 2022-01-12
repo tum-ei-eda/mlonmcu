@@ -11,8 +11,8 @@ def install_dependencies(
     tasks_factory=Tasks, context=None, progress=False, write_cache=True
 ):
     assert context is not None
-    print("context.environment", context.environment)
-    print("tasks_factory.params", tasks_factory.params)
+    # print("context.environment", context.environment)
+    # print("tasks_factory.params", tasks_factory.params)
     tasks_factory.reset_changes()
     # print("registry", tasks_factory.registry)
     # print("dependencies", tasks_factory.dependencies)

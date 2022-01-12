@@ -7,8 +7,11 @@ class TFLiteBackend(Backend):
 
     shortname = None
 
-    def __init__(self, config={}, context=None):
-        super().__init__(config=config, context=context)
+    def __init__(self, features=None, config=None, context=None):
+        super().__init__(
+            framework="tflite", features=features, config=config, context=context
+        )
+        self.model = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -17,3 +20,7 @@ class TFLiteBackend(Backend):
 
     def load(self, model):
         self.model = model
+
+    def get_cmake_args(self):
+        assert self.shortname is not None
+        return [f"-DBACKEND={self.shortname}"]

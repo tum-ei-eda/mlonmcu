@@ -58,3 +58,6 @@ class Target:
         return execute(
             self.inspect_program, program, *self.inspect_program_args, *args, **kwargs
         )
+
+    def get_cmake_args(self):
+        return [f"-DTARGET_SYSTEM={self.name}"]

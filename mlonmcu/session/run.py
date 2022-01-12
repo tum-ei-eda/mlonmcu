@@ -109,3 +109,6 @@ class Run:
         pass
         # TODO: write run.txt
         # TODO: export model
+
+
+# TODO: implement close()? and use closing contextlib?

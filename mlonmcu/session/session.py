@@ -163,3 +163,6 @@ class Session:
         else:
             self.status = SessionStatus.CLOSED
         self.closed_at = datetime.now()
+
+
+# TODO: implement close()? and use closing contextlib? for tempdir

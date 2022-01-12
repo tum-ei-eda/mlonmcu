@@ -420,10 +420,10 @@ def build_etissvp(context: MlonMcuContext, params=None, rebuild=False):
 
         checkMemMap(memMap)
 
-        args.append(f"-DPULPINO_ROM_START={memMap[0]}")
-        args.append(f"-DPULPINO_RAM_SIZE={memMap[1]}")
-        args.append(f"-DPULPINO_ROM_START={memMap[2]}")
-        args.append(f"-DPULPINO_RAM_SIZE={memMap[3]}")
+        args.append(f"-DPULPINO_ROM_START={hex(memMap[0])}")
+        args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[1])}")
+        args.append(f"-DPULPINO_ROM_START={hex(memMap[2])}")
+        args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[3])}")
         return args
 
     etissvpArgs = addMemArgs([], context=context)
@@ -623,45 +623,6 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False):
     context.cache["muriscvnn.build_dir", flags] = muriscvnnBuildDir
     context.cache["muriscvnn.inc_dir", flags] = muriscvnnIncludeDir
 
-
-def _validate_build_milf(context: MlonMcuContext, params=None):
-    if not params:
-        params = {}
-    assert "framework" in params, "Missing param: framework"
-    framework = params["framework"]
-    assert framework in supported_frameworks, f"Unsupported Configuration: {params}"
-    if framework not in enabled_frameworks:
-        return False  # Skip
-    assert "backend" in params, "Missing param: backend"
-    backend = params["backend"]
-    assert backend in supported_backends, f"Unsupported Configuration: {params}"
-    if backend not in supported_backend_per_framework[framework]:
-        return False  # Skip
-    if backend not in enabled_backends:
-        return False  # Skip
-    if "muriscvnn" in params:
-        if params["muriscvnn"]:
-            if framework != "tflm":
-                return False  # Skip
-    return True
-
-
-# @Tasks.optional(["tf.src_dir", "tvm.src_dir", "muriscvnn.build_dir", "muriscvnn.inc_dir"])
-# @Tasks.provides(["mlif.build_dir", "mlif.lib_path"])
-# @Tasks.param("framework", ["tflm", "tvm"])  # TODO: from context?
-# @Tasks.param("backend", ["tflmc", "tflmi", "tvmaot", "tvmrt", "tvmcg"])  # TODO: from context?
-# @Tasks.param("muriscvnn", [False, True])
-# @Tasks.param("dbg", [False, True])
-# @Tasks.validate(_validate_build_milf)
-# @Tasks.register(category=TaskType.OPT)
-# def build_mlif(context, params={}, rebuild=False):
-#     flags = utils.makeFlags((True, params["backend"]),(params["dbg"], "dbg"))  # params["framework"] not required?
-#     mlifName = utils.makeDirName("mlif", flags=flags)
-#     mlifSrc = Path("sw") / "lib" / "ml_interface"
-#     mlifBuildDir = context.environment.paths["deps"].path / "build" / mlifName
-#     context.cache["mlif.build_dir", flags] = mlifBuildDir
-#     mlifLib = mlifBuildDir / "libmlif.a"
-#     context.cache["mlif.lib_path", flags] = mlifLib
 
 # TODO: return True if changed, False if not, or: reurn code: unchanged, changed, error, unknown
 

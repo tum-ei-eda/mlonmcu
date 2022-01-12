@@ -7,10 +7,14 @@ class Backend(ABC):
 
     def __init__(
         self,
-        config={},
+        framework="",
+        features=None,
+        config=None,
         context=None,
     ):
-        self.config = config
+        self.framework = framework
+        self.features = features if features else []
+        self.config = config if config else {}
         self.context = context
 
     def __repr__(self):
@@ -24,3 +28,6 @@ class Backend(ABC):
     @abstractmethod
     def generate_code(self):
         pass
+
+    def get_cmake_args(self):
+        return []

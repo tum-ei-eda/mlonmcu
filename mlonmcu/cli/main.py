@@ -1,8 +1,15 @@
 """Console script for mlonmcu."""
+
 import argparse
 import sys
+import logging
 
 from ..version import __version__
+
+logging.basicConfig(
+    format="[%(asctime)s]::%(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 import mlonmcu.cli.init as init
 
@@ -14,10 +21,7 @@ import mlonmcu.cli.check as check
 import mlonmcu.cli.env as env
 import mlonmcu.cli.models as models
 
-import logging
-
 # logging.basicConfig(format="[%(asctime)s]::%(pathname)s:%(lineno)d::%(levelname)s - %(message)s")
-# logging.basicConfig(format="[%(asctime)s]::%(levelname)s - %(message)s")
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
 

@@ -1,6 +1,23 @@
+import sys
+
 from ..tvm_flow import get_parser
+from ..framework import COMMON_TVM_CONFIG
 
 from .backend import TVMBackend
+from mlonmcu.flow.backend import main
+
+FEATURES = ["debug_arena"]
+
+# COMMON_TVM_CONFIG = {}
+
+DEFAULT_CONFIG = {
+    **COMMON_TVM_CONFIG,
+    **{
+        "arena_size": -1,  # Determined automatically
+        "unpacked_api": False,
+        "workspace-byte-alignment": 4,
+    },
+}
 
 
 class TVMAOTBackend(TVMBackend):
@@ -11,12 +28,13 @@ class TVMAOTBackend(TVMBackend):
         pass
 
 
-def main():
-    parser = get_parser()
-    print("PARSER", parser, parser._actions)
-    parser.parse_args()
-    pass
-
-
 if __name__ == "__main__":
-    main()
+    sys.exit(
+        main(
+            "tvmaot",
+            TVMAOTBackend,
+            backend_features=FEATURES,
+            backend_defaults=DEFAULT_CONFIG,
+            args=sys.argv[1:],
+        )
+    )  # pragma: no cover

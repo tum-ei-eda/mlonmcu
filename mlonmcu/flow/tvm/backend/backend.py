@@ -18,9 +18,5 @@ class TVMBackend(Backend):
         assert isinstance(cls.shortname, str)
         cls.registry[cls.shortname] = cls
 
-    def load(self, model):
+    def load_model(self, model):
         self.model = model
-
-    def get_cmake_args(self):
-        assert self.shortname is not None
-        return [f"-DBACKEND={self.shortname}"]

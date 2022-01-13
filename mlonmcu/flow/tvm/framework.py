@@ -1,5 +1,12 @@
 from mlonmcu.flow.framework import Framework
-from mlonmcu.flow.tvm import TVMBackend
+
+# from mlonmcu.flow.tvm import TVMBackend
+
+COMMON_TVM_CONFIG = {
+    "opt_level": 3,
+    "target_device": None,
+    "mod_prefix": "model",
+}
 
 
 class TVMFramework(Framework):
@@ -8,7 +15,7 @@ class TVMFramework(Framework):
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)
-        self.backends = TVMBackend.registry
+        # self.backends = TVMBackend.registry
 
     def get_cmake_args(self):
         args = super().get_cmake_args()

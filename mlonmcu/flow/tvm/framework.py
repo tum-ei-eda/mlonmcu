@@ -5,7 +5,8 @@ from mlonmcu.flow.framework import Framework
 COMMON_TVM_CONFIG = {
     "opt_level": 3,
     "target_device": None,
-    "mod_prefix": "model",
+    "fuse_max_depth": None,
+    "tvm.src_dir": None
 }
 
 

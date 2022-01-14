@@ -167,7 +167,7 @@ def main(backend_name, backend, backend_features, backend_defaults, args=None):
     if args.print:
         print("Printing generated artifacts:")
         for artifact in backend_inst.artifacts:
-            print("=== {artifact.name} ===")
+            print(f"=== {artifact.name} ===")
             print(artifact.content)
             print("=== End ===")
             print()

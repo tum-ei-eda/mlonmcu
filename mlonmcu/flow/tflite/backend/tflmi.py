@@ -85,6 +85,7 @@ size_t {prefix}_outputs();
         model,
         prefix="model",
         header=True,
+        debug_arena=False,
         arena_size=None,
         ops=None,
         custom_ops=None,
@@ -96,11 +97,19 @@ size_t {prefix}_outputs();
             arena_size if arena_size is not None else DEFAULT_CONFIG["arena_size"]
         )
         ops = ops if ops else DEFAULT_CONFIG["ops"]
+        if len(ops) > 0:
+            raise NotImplementedError
         custom_ops = custom_ops if custom_ops else DEFAULT_CONFIG["custom_ops"]
+        if len(custom_ops) > 0:
+            raise NotImplementedError
         registrations = (
             registrations if registrations else DEFAULT_CONFIG["registrations"]
         )  # TODO: Dict or list?
+        if len(registrations) > 0:
+            raise NotImplementedError
         ops_resolver = ops_resolver if ops_resolver else DEFAULT_CONFIG["ops_resolver"]
+        if ops_resolver != "mutable":
+            raise NotImplementedError
 
         model_data = None
         with open(model, "rb") as model_buf:
@@ -127,9 +136,15 @@ size_t {prefix}_outputs();
 #define ALIGN(X) __declspec(align(X))
 #elif defined __TASKING__
 #define ALIGN(X) __align(X)
+#endif"""
+        if debug_arena:  # This will enable the feature only if it is not overwritten by the user/compiler
+            wrapper_content += """
+#ifndef DEBUG_ARENA_USAGE
+#define DEBUG_ARENA_USAGE 1
 #endif
 
-const unsigned char g_model_data[] = { """
+"""
+        wrapper_content += """const unsigned char g_model_data[] = { """
         wrapper_content += make_hex_array(model_data)
         wrapper_content += """ };
 
@@ -267,8 +282,9 @@ class TFLMIBackend(TFLiteBackend):
         artifacts = []
         assert self.model is not None
         config_map = {key.split(".")[-1]: value for key, value in self.config.items()}
+        debug_arena = "debug_arena" in self.features
         wrapper_code, header_code = self.codegen.generate_wrapper(
-            self.model, prefix=self.prefix, header=True, **config_map
+            self.model, prefix=self.prefix, header=True, debug_arena=debug_arena, **config_map
         )
         artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code))
         artifacts.append(Artifact(f"{self.prefix}.cc.h", content=header_code))

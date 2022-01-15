@@ -1,146 +1,20 @@
-from enum import Enum
 from pathlib import Path
 import yaml
 
+from .config import *
+from .loader import load_environment_from_file
+from .writer import write_environment_to_file
 
-class LogLevel(Enum):
-    DEBUG = 0
-    VERBOSE = 1
-    INFO = 2
-    WARNING = 3
-    ERROR = 4
+from playground import FeatureType
 
 
-class BaseConfig:
-    def __repr__(self):
-        return self.__class__.__name__ + "(" + str(vars(self)) + ")"
-
-
-class DefaultsConfig(BaseConfig):
-    # TODO: loglevels enum
-
-    def __init__(
-        self,
-        log_level=LogLevel.INFO,
-        log_to_file=False,
-        default_framework=None,
-        default_backends={},
-        default_target=None,
-    ):
-        self.log_level = log_level
-        self.log_to_file = log_to_file
-        self.default_framework = default_framework
-        self.default_backends = default_backends
-        self.default_target = default_target
-
-
-class PathConfig(BaseConfig):
-    def __init__(self, path, base=None):
-        if isinstance(path, str):
-            self.path = Path(path)
-        else:
-            self.path = path
-        if isinstance(base, str):
-            self.base = Path(base)
-        else:
-            self.base = base
-        if base:
-            if not self.path.is_absolute():
-                assert base is not None
-                self.path = self.base / self.path
-        # Resolve symlinks
-        self.path = self.path.resolve()
-
-    def __repr(self):
-        return f"PathConfig({self.path})"
-
-
-class RepoConfig(BaseConfig):
-    def __init__(self, url, ref=None):
-        self.url = url
-        self.ref = ref
-
-
-class BackendConfig(BaseConfig):
-    def __init__(self, description="", enabled=True, features={}):
-        self.description = description
-        self.enabled = enabled
-        self.features = features
-
-
-class FeatureKind(Enum):
-    UNKNOWN = 0
-    FRAMEWORK = 1
-    BACKEND = 2
-    TARGET = 3
-    FRONTEND = 4
-
-
-class Feature:
-    def __init__(self, description="", kind=FeatureKind.UNKNOWN, supported=True):
-        self.description = description
-        self.type = kind
-        self.supported = supported
-
-    def __repr__(self):
-        return self.__class__.__name__ + "(" + str(vars(self)) + ")"
-
-
-class FrameworkFeature(Feature):
-    def __init__(self, description="", supported=True):
-        super().__init__(
-            description=description, kind=FeatureKind.FRAMEWORK, supported=supported
-        )
-
-
-class BackendFeature(FrameworkFeature):
-    pass
-
-
-class TargetFeature(Feature):
-    def __init__(self, description="", supported=True):
-        super().__init__(
-            description=description, kind=FeatureKind.TARGET, supported=supported
-        )
-
-
-class DebugFeature(TargetFeature):
-    def __init__(self, supported=True):
-        super().__init__("GDB support", supported=supported)
-
-
-class TraceFeature(TargetFeature):
-    def __init__(self, supported=True):
-        super().__init__("Memory trace support", supported=supported)
-
-
-class FrontendFeature(Feature):
-    def __init__(self, description="", supported=True):
-        super().__init__(
-            description=description, kind=FeatureKind.FRONTEND, supported=supported
-        )
-
-
-class FrameworkConfig(BaseConfig):
-    def __init__(self, description="", enabled=True, backends={}, features={}):
-        self.description = description
-        self.enabled = enabled
-        self.backends = backends
-        self.features = features
-
-
-class FrontendConfig(BaseConfig):
-    def __init__(self, description="", enabled=True, features={}):
-        self.description = description
-        self.enabled = enabled
-        self.features = features
-
-
-class TargetConfig(BaseConfig):
-    def __init__(self, description="", enabled=True, features={}):
-        self.description = description
-        self.enabled = enabled
-        self.features = features
+def _feature_helper(obj, name):
+    features = obj.features
+    names = [feature.name for feature in features]
+    if name:
+        return [features[names.index(name)]]
+    else:
+        return features
 
 
 class Environment:
@@ -150,9 +24,9 @@ class Environment:
         self.defaults = DefaultsConfig()
         self.paths = {}
         self.repos = {}
-        self.frameworks = {}
-        self.frontends = {}
-        self.targets = {}
+        self.frameworks = []
+        self.frontends = []
+        self.targets = []
         self.vars = {}
 
     def __str__(self):
@@ -163,6 +37,130 @@ class Environment:
         """Home directory of mlonmcu environment."""
         return self._home
 
+    @classmethod
+    def from_file(cls, filename):
+        return load_environment_from_file(filename, base=cls)
+
+    def to_file(self, filename):
+        write_environment_to_file(self, filename)
+
+    def lookup_frontend_feature_configs(self, name=None, frontend=None):
+        configs = []
+        if frontend:
+            names = [frontend.name for frontend in self.frontends]
+            index = names.index(frontend)
+            assert (
+                index is not None
+            ), f"Frontend {frontend} not found in environment config"
+            configs.extend(_feature_helper(self.frontends[index], name))
+        else:
+            for frontend in self.frontends:
+                configs.extend(_feature_helper(frontend, name))
+        return configs
+
+    def lookup_framework_feature_configs(self, name=None, framework=None):
+        configs = []
+        if framework:
+            names = [framework.name for framework in self.frameworks]
+            index = names.index(framework)
+            assert (
+                index is not None
+            ), f"Framework {framework} not found in environment config"
+            configs.extend(_feature_helper(self.frameworks[index], name))
+        else:
+            for framework in self.frameworks:
+                configs.extend(_feature_helper(framework, name))
+        return configs
+
+    def lookup_backend_feature_configs(self, name=None, framework=None, backend=None):
+        print("backend!", backend)
+
+        def helper(framework, backend, name):
+            backend_features = self.framework[framework].backends[backend].features
+            if name:
+                return [backend_features[name]]
+            else:
+                return backend_features.values()
+
+        configs = []
+        if framework:
+            names = [framework.name for framework in self.frameworks]
+            index = names.index(framework)
+            assert (
+                index is not None
+            ), f"Framework {framework} not found in environment config"
+            if backend:
+                names_ = [backend.name for backend in self.frameworks[index].backends]
+                index_ = names_.index(backend)
+                assert (
+                    index_ is not None
+                ), f"Backend {backend} not found in environment config"
+                configs.extend(
+                    _feature_helper(self.frameworks[index].backends[index], name)
+                )
+            else:
+                for backend in self.frameworks[index].backends:
+                    configs.extend(_feature_helper(backend, name))
+        else:
+            for framework in self.frameworks:
+                print("backend2", backend)
+                if backend:
+                    print("backend", backend)
+                    names_ = [backend.name for backend in framework.backends]
+                    index_ = names_.index(backend)
+                    assert (
+                        index_ is not None
+                    ), f"Backend {backend} not found in environment config"
+                    configs.extend(
+                        _feature_helper(self.frameworks[index].backends[index], name)
+                    )
+                else:
+                    for backend in framework.backends:
+                        configs.extend(_feature_helper(backend, name))
+                    backend = None
+        return configs
+
+    def lookup_target_feature_configs(self, name=None, target=None):
+        configs = []
+        if target:
+            names = [target.name for target in self.targets]
+            index = names.index(backend)
+            assert index is not None, f"Target {target} not found in environment config"
+            configs.extend(_feature_helper(self.targets[index], name))
+        else:
+            for target in self.targets:
+                configs.extend(_feature_helper(target, name))
+        return configs
+
+    def lookup_feature_configs(
+        self,
+        name=None,
+        kind=None,
+        frontend=None,
+        framework=None,
+        backend=None,
+        target=None,
+    ):
+        configs = []
+        if kind == FeatureType.FRONTEND or kind is None:
+            configs.extend(
+                self.lookup_frontend_feature_configs(name=name, frontend=frontend)
+            )
+        if kind == FeatureType.FRAMEWORK or kind is None:
+            configs.extend(
+                self.lookup_framework_feature_configs(name=name, framework=framework)
+            )
+        if kind == FeatureType.BACKEND or kind is None:
+            configs.extend(
+                self.lookup_backend_feature_configs(
+                    name=name, framework=framework, backend=backend
+                )
+            )
+        if kind == FeatureType.TARGET or kind is None:
+            configs.extend(self.lookup_target_feature_configs(name=name, target=target))
+
+        return configs
+
 
 class DefaultEnvironment(Environment):
     def __init__(self):
@@ -172,7 +170,7 @@ class DefaultEnvironment(Environment):
             log_to_file=False,
             default_framework="utvm",
             default_backends={"tflm": "tflmc", "utvm": "tvmaot"},
-            default_target="etiss/pulpino",
+            default_target="etiss_pulpino",
         )
         self.paths = {
             "deps": PathConfig("./deps"),
@@ -201,80 +199,82 @@ class DefaultEnvironment(Environment):
                 "https://github.com/tum-ei-eda/etiss.git", ref="master"
             ),  # TODO: freeze ref?
         }
-        self.frameworks = {
-            "tflm": FrameworkConfig(
-                "Tensorflow Lite for Microcontrollers",
+        self.frameworks = [
+            FrameworkConfig(
+                "tflm",
                 enabled=True,
-                backends={
-                    "tflmc": BackendConfig("TFLM Compiler", enabled=True, features={}),
-                    "tflmi": BackendConfig(
-                        "TFLM Interpreter", enabled=True, features={}
+                backends=[
+                    BackendConfig("tflmc", enabled=True, features=[]),
+                    BackendConfig("tflmi", enabled=True, features=[]),
+                ],
+                features=[
+                    FrameworkFeatureConfig(
+                        "muriscvnn", framework="tflm", supported=False
                     ),
-                },
-                features={
-                    "muriscvnn": FrameworkFeature("muRISCV-NN Kernels", supported=False)
-                },
+                ],
             ),
-            "utvm": FrameworkConfig(
-                "MicroTVM",
+            FrameworkConfig(
+                "utvm",
                 enabled=True,
-                backends={
-                    "tvmaot": BackendConfig(
-                        "TVM Ahead-of-Time Executor",
+                backends=[
+                    BackendConfig(
+                        "tvmaot",
                         enabled=True,
-                        features={
-                            "unpacked_api": BackendFeature(
-                                "Unpacked Interface", supported=True
-                            )
-                        },
+                        features=[
+                            BackendFeatureConfig(
+                                "unpacked_api", backend="tvmaot", supported=True
+                            ),
+                        ],
                     ),
-                    "tvmrt": BackendConfig(
-                        "TVM Graph Runtime", enabled=True, features=[]
+                    BackendConfig("tvmrt", enabled=True, features=[]),
+                    BackendConfig("tvmcg", enabled=True, features=[]),
+                ],
+                features=[
+                    FrameworkFeatureConfig(
+                        "memplan", framework="utvm", supported=False
                     ),
-                    "tvmcg": BackendConfig(
-                        "uTVM Staticrt Codegen", enabled=True, features={}
-                    ),
-                },
-                features={
-                    "memplan": FrameworkFeature(
-                        "Custom memory planner", supported=False
-                    )
-                },
+                ],
             ),
-        }
-        self.frontends = {
-            "saved_model": FrontendConfig(
-                "Tensorflow saved model format (experimental)", enabled=False
-            ),
-            "ipynb": FrontendConfig(
-                "Build TFLite model by running a notebook (experimental)", enabled=False
-            ),
-            "tflite": FrontendConfig(
-                "Use TFLite model flatbuffer",
+        ]
+        self.frontends = [
+            FrontendConfig("saved_model", enabled=False),
+            FrontendConfig("ipynb", enabled=False),
+            FrontendConfig(
+                "tflite",
                 enabled=True,
-                features={
-                    "packing": FrontendFeature(
-                        "Allows to process flatbuffers with packed/sparse weights",
-                        supported=False,
+                features=[
+                    FrontendFeatureConfig(
+                        "packing", frontend="tflite", supported=False
                     ),
-                },
+                ],
             ),
-        }
+        ]
         self.vars = {
             "TEST": "abc",
         }
-        self.targets = {
-            "etiss/pulpino": TargetConfig(
-                "Simple RISC-V Virtual Prototype running in ETISS",
-                features={"debug": DebugFeature(True), "trace": TraceFeature(True)},
+        self.targets = [
+            TargetConfig(
+                "etiss_pulpino",
+                features=[
+                    TargetFeatureConfig(
+                        "debug", target="etiss_pulpino", supported=True
+                    ),
+                    TargetFeatureConfig(
+                        "attach", target="etiss_pulpino", supported=True
+                    ),
+                    TargetFeatureConfig(
+                        "trace", target="etiss_pulpino", supported=True
+                    ),
+                ],
             ),
-            "host": TargetConfig(
-                "Run target software on local machine (x86)",
-                features={
-                    "debug": DebugFeature(True),
-                },
+            TargetConfig(
+                "host_x86",
+                features=[
+                    TargetFeatureConfig("debug", target="host_x86", supported=True),
+                    TargetFeatureConfig("attach", target="host_x86", supported=True),
+                ],
             ),
-        }
+        ]
 
 
 class UserEnvironment(DefaultEnvironment):
@@ -313,12 +313,3 @@ class UserEnvironment(DefaultEnvironment):
             self.targets = targets
         if variables:
             self.vars = variables
-
-
-# test_env = DefaultEnvironment()
-# print("---")
-# print("test_env", test_env)
-# print("---")
-# print(yaml.dump(vars(test_env)))
-
-# test_file = "/work/git/prj/mlonmcu_open_source/mlonmcu/templates/default.yml.j2"

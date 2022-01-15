@@ -2,7 +2,7 @@ import os
 import yaml
 import pathlib
 
-from .environment import *
+from .config import *
 
 # def load_environment_from_file(filename):
 #     """Utility to initialize a mlonmcu environment from a YAML file."""
@@ -22,7 +22,7 @@ from .environment import *
 #     return None
 
 
-def load_environment_from_file(filename):
+def load_environment_from_file(filename, base):
     """Utility to initialize a mlonmcu environment from a YAML file."""
     if isinstance(filename, str):
         filename = pathlib.Path(filename)
@@ -36,10 +36,10 @@ def load_environment_from_file(filename):
             home = None
         if "logging" in loaded:
             if "level" in loaded["logging"]:
-                log_level = LogLevel[loaded["logging"]["level"]]
+                log_level = LogLevel[loaded["logging"]["level"].upper()]
             else:
                 log_level = None
-            if "log_to_file" in loaded["logging"]:
+            if "to_file" in loaded["logging"]:
                 log_to_file = bool(loaded["logging"]["to_file"])
             else:
                 log_to_file = None
@@ -73,7 +73,7 @@ def load_environment_from_file(filename):
         default_framework = None
         default_backends = {}
         if "frameworks" in loaded:
-            frameworks = {}
+            frameworks = []
             default_framework = loaded["frameworks"].pop("default", None)
             for key in loaded["frameworks"]:
                 framework = loaded["frameworks"][key]
@@ -81,7 +81,7 @@ def load_environment_from_file(filename):
                     enabled = bool(framework["enabled"])
                 else:
                     enabled = False
-                backends = {}
+                backends = []
                 if "backends" in framework:
                     default_backend = framework["backends"].pop("default", None)
                     default_backends[key] = default_backend
@@ -91,47 +91,65 @@ def load_environment_from_file(filename):
                             enabled2 = bool(backend["enabled"])
                         else:
                             enabled2 = True
-                        backend_features = {}
+                        backend_features = []
                         if "features" in backend:
                             for key3 in backend["features"]:
                                 supported = bool(backend["features"][key3])
-                                backend_features[key] = BackendFeature(
-                                    supported=supported
+                                backend_features.append(
+                                    BackendFeatureConfig(
+                                        key3, backend=key2, supported=supported
+                                    )
                                 )
-                        backends[key2] = BackendConfig(
-                            enabled=enabled2, features=backend_features
-                        )  # TODO: do we really need a description?
-            framework_features = {}
-            if "features" in framework:
-                for key2 in framework["features"]:
-                    supported = bool(framework["features"][key2])
-                    framework_features[key2] = FrameworkFeature(supported=supported)
-            frameworks[key] = FrameworkConfig(
-                enabled=enabled, backends=backends, features=framework_features
-            )
+                        backends.append(
+                            BackendConfig(
+                                key2, enabled=enabled2, features=backend_features
+                            )
+                        )
+                framework_features = []
+                if "features" in framework:
+                    for key2 in framework["features"]:
+                        supported = bool(framework["features"][key2])
+                        framework_features.append(
+                            FrameworkFeatureConfig(
+                                key2, framework=key, supported=supported
+                            )
+                        )
+                frameworks.append(
+                    FrameworkConfig(
+                        key,
+                        enabled=enabled,
+                        backends=backends,
+                        features=framework_features,
+                    )
+                )
         else:
             frameworks = None
         if "frontends" in loaded:
-            frontends = {}
+            frontends = []
             for key in loaded["frontends"]:
                 frontend = loaded["frontends"][key]
+
                 if "enabled" in frontend:
                     enabled = frontend["enabled"]
                 else:
                     enabled = True
-                frontend_features = {}
+                frontend_features = []
                 if "features" in frontend:
                     for key2 in frontend["features"]:
                         supported = bool(frontend["features"][key2])
-                        frontend_features[key2] = FrontendFeature(supported=supported)
-                frontends[key] = FrontendConfig(
-                    enabled=enabled, features=frontend_features
+                        frontend_features.append(
+                            FrontendFeatureConfig(
+                                key2, frontend=key, supported=supported
+                            )
+                        )
+                frontends.append(
+                    FrontendConfig(key, enabled=enabled, features=frontend_features)
                 )
         else:
             frontends = None
         default_target = None
         if "targets" in loaded:
-            targets = {}
+            targets = []
             default_target = loaded["targets"].pop("default", None)
             for key in loaded["targets"]:
                 target = loaded["targets"][key]
@@ -139,12 +157,16 @@ def load_environment_from_file(filename):
                     enabled = target["enabled"]
                 else:
                     enabled = True
-                target_features = {}
+                target_features = []
                 if "features" in target:
                     for key2 in target["features"]:
                         supported = bool(target["features"][key2])
-                        target_features[key2] = TargetFeature(supported=supported)
-                targets[key] = TargetConfig(enabled=enabled, features=target_features)
+                        target_features.append(
+                            TargetFeatureConfig(key2, target=key, supported=supported)
+                        )
+                targets.append(
+                    TargetConfig(key, enabled=enabled, features=target_features)
+                )
         else:
             targets = None
         if "vars" in loaded:
@@ -158,7 +180,7 @@ def load_environment_from_file(filename):
             default_backends=default_backends,
             default_target=default_target,
         )
-        env = UserEnvironment(
+        env = base(
             home,
             defaults=defaults,
             paths=paths,

@@ -2,6 +2,7 @@
 
 import os
 import xdg
+from enum import Enum
 from pathlib import Path
 
 
@@ -39,3 +40,131 @@ DEFAULTS = {
 }
 
 env_subdirs = ["deps"]
+
+
+class LogLevel(Enum):
+    DEBUG = 0
+    VERBOSE = 1
+    INFO = 2
+    WARNING = 3
+    ERROR = 4
+
+
+class BaseConfig:
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + str(vars(self)) + ")"
+
+
+class DefaultsConfig(BaseConfig):
+    # TODO: loglevels enum
+
+    def __init__(
+        self,
+        log_level=LogLevel.INFO,
+        log_to_file=False,
+        default_framework=None,
+        default_backends={},
+        default_target=None,
+    ):
+        self.log_level = log_level
+        self.log_to_file = log_to_file
+        self.default_framework = default_framework
+        self.default_backends = default_backends
+        self.default_target = default_target
+
+
+class PathConfig(BaseConfig):
+    def __init__(self, path, base=None):
+        if isinstance(path, str):
+            self.path = Path(path)
+        else:
+            self.path = path
+        if isinstance(base, str):
+            self.base = Path(base)
+        else:
+            self.base = base
+        if base:
+            if not self.path.is_absolute():
+                assert base is not None
+                self.path = self.base / self.path
+        # Resolve symlinks
+        self.path = self.path.resolve()
+
+    def __repr(self):
+        return f"PathConfig({self.path})"
+
+
+class RepoConfig(BaseConfig):
+    def __init__(self, url, ref=None):
+        self.url = url
+        self.ref = ref
+
+
+class BackendConfig(BaseConfig):
+    def __init__(self, name, enabled=True, features={}):
+        self.name = name
+        self.enabled = enabled
+        self.features = features
+
+
+class FeatureKind(Enum):
+    UNKNOWN = 0
+    FRAMEWORK = 1
+    BACKEND = 2
+    TARGET = 3
+    FRONTEND = 4
+
+
+class FeatureConfig:
+    def __init__(self, name, kind=FeatureKind.UNKNOWN, supported=True):
+        self.name = name
+        self.supported = supported
+
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + str(vars(self)) + ")"
+
+
+class FrameworkFeatureConfig(FeatureConfig):
+    def __init__(self, name, framework, supported=True):
+        super().__init__(name=name, kind=FeatureKind.FRONTEND, supported=supported)
+        self.framework = framework
+
+
+class BackendFeatureConfig(FeatureConfig):
+    def __init__(self, name, backend, supported=True):
+        super().__init__(name=name, kind=FeatureKind.FRONTEND, supported=supported)
+        self.backend = backend
+
+
+class TargetFeatureConfig(FeatureConfig):
+    def __init__(self, name, target, supported=True):
+        super().__init__(name=name, kind=FeatureKind.TARGET, supported=supported)
+        self.target = target
+
+
+class FrontendFeatureConfig(FeatureConfig):
+    def __init__(self, name, frontend, supported=True):
+        super().__init__(name=name, kind=FeatureKind.FRONTEND, supported=supported)
+        self.frontend = frontend
+
+
+class FrameworkConfig(BaseConfig):
+    def __init__(self, name, enabled=True, backends={}, features={}):
+        self.name = name
+        self.enabled = enabled
+        self.backends = backends
+        self.features = features
+
+
+class FrontendConfig(BaseConfig):
+    def __init__(self, name, enabled=True, features={}):
+        self.name = name
+        self.enabled = enabled
+        self.features = features
+
+
+class TargetConfig(BaseConfig):
+    def __init__(self, name, enabled=True, features={}):
+        self.name = name
+        self.enabled = enabled
+        self.features = features

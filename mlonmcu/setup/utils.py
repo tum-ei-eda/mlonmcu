@@ -132,6 +132,11 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
     return outStr
 
 
+def python(*args, **kwargs):
+    """Run a python script with the current interpreter."""
+    return exec_getout(sys.executable, *args, **kwarsg)
+
+
 # Makes sure all directories at the given path are created.
 def mkdirs(path: Union[str, bytes, os.PathLike]):
     """Wrapper for os.makedirs which handels the special case where the path already exits."""

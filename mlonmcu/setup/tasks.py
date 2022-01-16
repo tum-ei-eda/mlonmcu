@@ -470,6 +470,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False):
         params = {}
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!
+    # This should help: TVM_LIBRARY_PATH -> tvm.build_dir
     tvmName = utils.makeDirName("tvm", flags=flags)
     tvmSrcDir = context.cache["tvm.src_dir"]
     tvmBuildDir = tvmSrcDir / "build"

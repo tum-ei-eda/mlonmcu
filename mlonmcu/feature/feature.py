@@ -4,6 +4,7 @@ from abc import ABC
 from enum import Enum
 from typing import List
 
+
 class FeatureType(Enum):
     OTHER = 0
     FRONTEND = 1
@@ -11,7 +12,6 @@ class FeatureType(Enum):
     BACKEND = 3
     TARGET = 4
     COMPILE = 5
-
 
 
 # TODO: features might get an optional context parameter to lookup if they are supported by themselfs in the environment
@@ -121,8 +121,6 @@ class CompileFeature(FeatureBase):
 
 # TODO: get or ADD (update) config?
 # TODO: MLIFFeature? / CompileFeature?
-
-
 
 
 def lookup_features(name: str) -> List[Feature]:

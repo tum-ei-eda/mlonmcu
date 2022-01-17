@@ -16,7 +16,7 @@ from mlonmcu.cli.common import (
     add_model_options,
     add_flow_options,
 )
-from mlonmcu.feature import lookup_features
+from mlonmcu.feature.features import get_available_features
 
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)
@@ -50,7 +50,7 @@ def _handle(context, args):
     features = []
     if feature_names:
         for feature_name in feature_names:
-            features.extend(lookup_features(feature_name))
+            features.extend(get_available_features(feature_name=feature_name))
     session = context.get_session()
     for model_name in model_names:
         path = None  # FIXME

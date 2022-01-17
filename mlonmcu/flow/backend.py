@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from abc import ABC, abstractmethod
 
-from mlonmcu.cli.helper.parse import extract_features, extract_config
+from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 
 logger = logging.getLogger("mlonmcu")
 

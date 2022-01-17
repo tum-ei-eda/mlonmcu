@@ -1,6 +1,6 @@
 import multiprocessing
 from mlonmcu.target import SUPPORTED_TARGETS
-from mlonmcu.feature import ALL_FEATURES
+from mlonmcu.feature.features import get_available_feature_names
 
 
 def add_flow_options(parser):
@@ -22,7 +22,7 @@ def add_flow_options(parser):
         metavar="FEATURE",
         # nargs=1,
         action="append",
-        choices=list(dict.fromkeys(ALL_FEATURES)),
+        choices=get_available_feature_names(),
         help="Enabled features for target/framework/backend (default: %(default)s choices: %(choices)s)",
     )
     flow_parser.add_argument(

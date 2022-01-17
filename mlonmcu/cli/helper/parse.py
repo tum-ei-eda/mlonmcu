@@ -33,7 +33,7 @@ def parse_vars(items):  # TODO: this needs to be used in other subcommands as we
     return d
 
 
-def extract_features(args):
+def extract_feature_names(args):
     if args.feature:
         return args.feature
     else:

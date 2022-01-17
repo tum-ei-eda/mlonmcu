@@ -17,7 +17,7 @@ from mlonmcu.cli.common import (
     add_flow_options,
 )
 from mlonmcu.cli.load import handle as handle_load, add_load_options, add_model_options
-from .helper.parse import extract_features, extract_config
+from .helper.parse import extract_feature_names, extract_config
 
 logger = logging.getLogger("mlonmcu")
 logger.setLevel(logging.DEBUG)

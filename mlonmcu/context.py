@@ -10,10 +10,10 @@ from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 
-from mlonmcu.environment.environment import Environment
+from mlonmcu.environment.environment import Environment, UserEnvironment
 
 # from mlonmcu.environment2 import load_environment_from_file
-from mlonmcu.environment.loader import load_environment_from_file
+# from mlonmcu.environment.loader import load_environment_from_file
 from mlonmcu.environment.list import get_environments_map
 from mlonmcu.environment.config import get_environments_dir
 
@@ -226,7 +226,7 @@ class MlonMcuContext:
 
     def __init__(self, name: str = None, path: str = None, lock: bool = False):
         env_file = resolve_environment_file(name=name, path=path)
-        self.environment = load_environment_from_file(
+        self.environment = UserEnvironment.from_file(
             env_file
         )  # TODO: move to __enter__
         self.lock = lock

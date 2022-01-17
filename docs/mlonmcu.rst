@@ -8,8 +8,10 @@ Subpackages
    :maxdepth: 4
 
    mlonmcu.cli
+   mlonmcu.compile
    mlonmcu.data
    mlonmcu.environment
+   mlonmcu.feature
    mlonmcu.flow
    mlonmcu.models
    mlonmcu.session
@@ -39,14 +41,6 @@ mlonmcu.environment2 module
 ---------------------------
 
 .. automodule:: mlonmcu.environment2
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mlonmcu.feature module
-----------------------
-
-.. automodule:: mlonmcu.feature
    :members:
    :undoc-members:
    :show-inheritance:

@@ -8,7 +8,7 @@ Welcome to ML on MCU's documentation!
    readme
    installation
    usage
-   modules
+   docs
    contributing
    authors
    history

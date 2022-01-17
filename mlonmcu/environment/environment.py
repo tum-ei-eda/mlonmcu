@@ -5,7 +5,7 @@ from .config import *
 from .loader import load_environment_from_file
 from .writer import write_environment_to_file
 
-from playground import FeatureType
+from ..feature.feature import FeatureType
 
 
 def _feature_helper(obj, name):

@@ -1,0 +1,56 @@
+# ML on MCU demonstration (also serves as end-to-end testj
+# TODO: provide docker image with apt packages
+name: Usage Demo
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+        template: ["default"]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    # TODO: caching
+    - name: Initialize Virtualenv
+      run: |
+        python -m pip install --upgrade pip
+        python -m venv .venv
+    - name: Install dependencies
+      run: |
+        source .venv/bin/activate
+        pip install -r requirements.txt
+    - name: Run package creation
+      run: |
+        source .venv/bin/activate
+        make install
+    - name: Initialize MLonMCU environment
+      run: |
+        source .venv/bin/activate
+        mlonmcu init home/ --non-interactive --template ${{ matrix.template }}
+    - name: Setup MLonMCU dependencies
+      run: |
+        source .venv/bin/activate
+        mlonmcu setup -H home/
+    - name: Run MLonMCU flow
+      run: |
+        source .venv/bin/activate
+        mlonmcu flow run sine_model -H home/
+    - name: Remove deps directory
+      run: rm -rf home/deps/
+    - name: Archive environment (without deps)
+      uses: actions/upload-artifact@v2
+      with:
+        name: mlonmcu_home
+        path: home/

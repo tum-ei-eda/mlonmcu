@@ -70,6 +70,13 @@ def get_parser(subparsers):
         action="store_true",
         help="Add environment to the list of environment for the current user",
     )
+    parser.add_argument(
+        "--allow-exists",
+        dest="allow_exists",
+        default=None,
+        action="store_true",
+        help="Allow overwriting an existing environment directory",
+    )
     return parser
 
 
@@ -84,4 +91,5 @@ def handle(args):
         clone_models=args.clone_models,
         register=args.register,
         template=args.template,
+        allow_exists=args.allow_exists,
     )

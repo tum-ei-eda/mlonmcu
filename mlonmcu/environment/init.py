@@ -68,6 +68,7 @@ def initialize_environment(
     interactive=True,
     create_venv=None,
     clone_models=None,
+    allow_exists=None,
     register=None,
     template=None,
 ):
@@ -106,7 +107,7 @@ def initialize_environment(
         if len(os.listdir(target_dir)) > 0:
             print("The directory is not empty!", end=" - ")
             # TODO: check for mlonmcu project files, if yes ask for overwrite instead
-            if not ask_user("Use anyway?", default=False, interactive=interactive):
+            if not allow_exists or (allow_exists is None and not ask_user("Use anyway?", default=False, interactive=interactive)):
                 print("Aborting...")
                 sys.exit(1)
         print("Using existing directory.")

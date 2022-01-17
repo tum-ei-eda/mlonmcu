@@ -8,6 +8,8 @@ from mlonmcu.target.host_x86 import HostX86Target
 
 class CustomTarget(Target):
 
+    FEATURES = ["featureA"]
+
     def __init__(self, features=[], config={}, context=None):
         super().__init__("custom", features=features, config=config, context=context)
         self.inspectProgram = "ls"

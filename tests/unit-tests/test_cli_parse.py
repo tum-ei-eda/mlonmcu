@@ -1,6 +1,6 @@
 import pytest
 from argparse import Namespace
-from mlonmcu.cli.helper.parse import parse_var, parse_vars, extract_features, extract_config
+from mlonmcu.cli.helper.parse import parse_var, parse_vars, extract_feature_names, extract_config
 
 def test_parse_var():
     assert parse_var("foo=bar") == ("foo", "bar")
@@ -19,11 +19,11 @@ def test_parse_vars():
     assert parse_vars(["foo=bar"]) == {"foo": "bar"}
     assert parse_vars(["foo=bar", "a=b"]) == {"foo": "bar", "a": "b"}
 
-def test_extract_features():
-    assert extract_features(Namespace(feature=None)) == []
-    assert extract_features(Namespace(feature=[])) == []
-    assert extract_features(Namespace(feature=["x"])) == ["x"]
-    assert extract_features(Namespace(feature=["x", "y"])) == ["x", "y"]
+def test_extract_feature_names():
+    assert extract_feature_names(Namespace(feature=None)) == []
+    assert extract_feature_names(Namespace(feature=[])) == []
+    assert extract_feature_names(Namespace(feature=["x"])) == ["x"]
+    assert extract_feature_names(Namespace(feature=["x", "y"])) == ["x", "y"]
 
 def test_extract_config():
     assert extract_config(Namespace(config=None)) == {}

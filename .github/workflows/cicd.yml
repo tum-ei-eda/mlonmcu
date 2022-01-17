@@ -57,6 +57,16 @@ jobs:
       with:
         name: code-coverage-report
         path: htmlcov
+    - name: Get coverage percentage (WIP)
+      run: "##[set-output name=percent;]$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')"
+    - name: Create coverage badge (WIP)
+        uses: RubbaBoy/BYOB@v1.2.1
+        with:
+          NAME: coverage
+          LABEL: 'Coverage'
+          STATUS: ${{ steps.date.outputs.percent }}
+          COLOR: orange
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build docs
       run: |
         source .venv/bin/activate

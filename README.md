@@ -3,6 +3,7 @@
 [![](https://img.shields.io/pypi/v/mlonmcu.svg)](https://pypi.python.org/pypi/mlonmcu)
 [![](https://github.com/PhilippvK/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/PhilippvK/mlonmcu/actions/workflows/cicd.yml)
 [![](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
+![](https://byob.yarr.is/PhilippvK/mlonmcu/coverage)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![made-with-sphinx-doc](https://img.shields.io/badge/Made%20with-Sphinx-1f425f.svg)](https://www.sphinx-doc.org/)
 [![GitHub license](https://img.shields.io/github/license/PhilippvK/mlonmcu.svg)](https://github.com/PhilippvK/mlonmcu/blob/main/LICENSE)

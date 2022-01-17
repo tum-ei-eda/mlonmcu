@@ -307,7 +307,7 @@ def clone_etiss(context: MlonMcuContext, params=None, rebuild=False):
     context.cache["etiss.src_dir"] = etissSrcDir
 
 
-@Tasks.needs(["etiss.src_dir"])
+@Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_etiss)
@@ -320,21 +320,25 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False):
     etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
     etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
+    llvmInstallDir = context.cache["llvm.install_dir"]
     if rebuild or not utils.is_populated(etissBuildDir):
         utils.mkdirs(etissBuildDir)
+        env = os.environ.copy()
+        env["LLVM_DIR"] = str(llvmInstallDir)
         utils.cmake(
             context.cache["etiss.src_dir"],
             "-DCMAKE_INSTALL_PREFIX=" + str(etissInstallDir),
             cwd=etissBuildDir,
             debug=params["dbg"],
+            env=env,
         )
         utils.make(cwd=etissBuildDir)
     context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etiss.build_dir", flags] = etissBuildDir
 
 
-@Tasks.needs(["etiss.src_dir"])
-@Tasks.provides(["etissvp.src_dir", "etiss.lib_dir"])
+@Tasks.needs(["etiss.build_dir"])
+@Tasks.provides(["etissvp.src_dir", "etiss.lib_dir", "etiss.install_dir"])
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
@@ -356,6 +360,7 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False):
         utils.make("install", cwd=etissBuildDir)
     context.cache["etissvp.src_dir", flags] = etissvpSrcDir
     context.cache["etiss.lib_dir", flags] = etissLibDir
+    context.cache["etiss.install_dir", flags] = etissInstallDir
     # return True
 
 

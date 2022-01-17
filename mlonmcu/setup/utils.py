@@ -1,7 +1,8 @@
 import os
 import multiprocessing
 import subprocess
-import logging
+
+# import logging
 import tarfile
 import zipfile
 import shutil
@@ -11,7 +12,9 @@ from pathlib import Path
 from typing import Union
 from git import Repo
 
-logger = logging.getLogger("mlonmcu")
+from mlonmcu import logging
+
+logger = logging.get_logger()
 
 
 def makeFlags(*args):
@@ -73,7 +76,7 @@ def exec(*args, **kwargs):
     args
         The command to be executed.
     """
-    logger.info("- Executing: " + str(args))
+    logger.debug("- Executing: " + str(args))
     subprocess.run([i for i in args], **kwargs, check=True)
 
 
@@ -94,7 +97,7 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
     output
         The text printed to the command line.
     """
-    logger.info("- Executing: " + str(args))
+    logger.debug("- Executing: " + str(args))
     outStr = ""
     if live:
         process = subprocess.Popen(

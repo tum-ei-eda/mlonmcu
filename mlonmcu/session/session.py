@@ -13,8 +13,9 @@ from .run import RunStage
 
 
 from mlonmcu.session.run import Run
+from mlonmcu.logging import get_logger
 
-logger = logging.getLogger("mlonmcu")
+logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 
 
 class SessionStatus(Enum):

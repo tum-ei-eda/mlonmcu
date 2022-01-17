@@ -6,10 +6,9 @@ import logging
 
 from ..version import __version__
 
-logging.basicConfig(
-    format="[%(asctime)s]::%(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 import mlonmcu.cli.init as init
 
@@ -21,9 +20,7 @@ import mlonmcu.cli.check as check
 import mlonmcu.cli.env as env
 import mlonmcu.cli.models as models
 
-# logging.basicConfig(format="[%(asctime)s]::%(pathname)s:%(lineno)d::%(levelname)s - %(message)s")
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
+from .common import handle_logging_flags
 
 # def main(args):
 def main(args=None):
@@ -55,6 +52,7 @@ def main(args=None):
         args = parser.parse_args(args)
     else:
         args = parser.parse_args()
+    handle_logging_flags(args)
     if hasattr(args, "func"):
         args.func(args)
     else:

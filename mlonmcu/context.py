@@ -1,25 +1,21 @@
 """Definition if the contextmanager for mlonmcu environments."""
 
 import os
-import logging
 from typing import List, Union
 from pathlib import Path
 import filelock
 
+from mlonmcu.logging import get_logger, set_log_file
 from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 
 from mlonmcu.environment.environment import Environment, UserEnvironment
 
-# from mlonmcu.environment2 import load_environment_from_file
-# from mlonmcu.environment.loader import load_environment_from_file
 from mlonmcu.environment.list import get_environments_map
 from mlonmcu.environment.config import get_environments_dir
 
-# logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
+logger = get_logger()
 
 
 def lookup_environment() -> Environment:
@@ -203,6 +199,22 @@ def resolve_environment_file(name: str = None, path: str = None) -> Path:
     return env_file
 
 
+def setup_logging(environment):
+    defaults = environment.defaults
+    level = defaults.log_level
+    to_file = defaults.log_to_file
+    rotate = defaults.log_rotate
+    if to_file:
+        assert (
+            "logs" in environment.paths
+        ), "To use a logfile, define a logging directory in your environment.yml"
+        directory = environment.paths["logs"].path
+        if not directory.is_dir():
+            directory.mkdir()
+        path = directory / "mlonmcu.log"
+        set_log_file(path, level=level, rotate=rotate)
+
+
 class MlonMcuContext:
     """Contextmanager for mlonmcu environments.
 
@@ -229,6 +241,7 @@ class MlonMcuContext:
         self.environment = UserEnvironment.from_file(
             env_file
         )  # TODO: move to __enter__
+        setup_logging(self.environment)
         self.lock = lock
         self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
         self.sessions = load_recent_sessions(self.environment)

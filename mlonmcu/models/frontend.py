@@ -7,7 +7,9 @@ import copy
 
 from mlonmcu.models.model import Model, ModelFormat
 
-logger = logging.getLogger("mlonmcu")
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 extension_to_fmt = {

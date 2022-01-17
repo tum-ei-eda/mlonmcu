@@ -1,6 +1,21 @@
+import os
 import multiprocessing
+import logging
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.feature.features import get_available_feature_names
+from mlonmcu.logging import get_logger, set_log_level
+
+
+def handle_logging_flags(args):
+    if hasattr(args, "verbose") and hasattr(args, "quiet"):
+        if args.verbose and args.quiet:
+            raise RuntimeError("--verbose and --quiet can not be used at the same time")
+        elif args.verbose:
+            set_log_level(logging.DEBUG)
+        elif args.quiet:
+            set_log_level(logging.WARNING)
+        else:
+            set_log_level(logging.INFO)
 
 
 def add_flow_options(parser):

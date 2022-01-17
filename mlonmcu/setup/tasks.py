@@ -7,9 +7,9 @@ from pathlib import Path
 from mlonmcu.setup.task import TaskFactory, TaskType
 from mlonmcu.context import MlonMcuContext
 from mlonmcu.setup import utils
+from mlonmcu.logging import get_logger
 
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
+logger = get_logger()
 
 Tasks = TaskFactory()
 

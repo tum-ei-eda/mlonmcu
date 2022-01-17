@@ -5,8 +5,9 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
+from mlonmcu.logging import get_logger
 
-logger = logging.getLogger("mlonmcu")
+logger = get_logger()
 
 
 class Artifact:

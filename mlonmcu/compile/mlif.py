@@ -14,7 +14,9 @@ from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
 from mlonmcu.target import SUPPORTED_TARGETS
 from .inout import write_inout_data
 
-logger = logging.getLogger("mlonmcu")
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 class MLIF:

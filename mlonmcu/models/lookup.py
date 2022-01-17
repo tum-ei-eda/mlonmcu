@@ -10,7 +10,9 @@ from .metadata import parse_metadata
 from .model import Model, ModelFormat
 from .group import ModelGroup
 
-logger = logging.getLogger("mlonmcu")
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 def get_model_directories(context):

@@ -9,8 +9,9 @@ from typing import List, Tuple
 import networkx as nx
 from tqdm import tqdm
 
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 def get_combs(data) -> List[dict]:

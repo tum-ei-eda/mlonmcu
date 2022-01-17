@@ -1,7 +1,6 @@
 """Command line subcommand for the build process."""
 
 import copy
-import logging
 
 import mlonmcu
 from mlonmcu.flow import SUPPORTED_BACKENDS
@@ -18,9 +17,6 @@ from mlonmcu.cli.common import (
 )
 from mlonmcu.cli.load import handle as handle_load, add_load_options, add_model_options
 from .helper.parse import extract_feature_names, extract_config
-
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
 
 
 def add_build_options(parser):

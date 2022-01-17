@@ -1,6 +1,7 @@
 import os
 import yaml
 import pathlib
+import logging
 
 from .config import *
 
@@ -36,16 +37,21 @@ def load_environment_from_file(filename, base):
             home = None
         if "logging" in loaded:
             if "level" in loaded["logging"]:
-                log_level = LogLevel[loaded["logging"]["level"].upper()]
+                log_level = logging.getLevelName(loaded["logging"]["level"])
             else:
                 log_level = None
             if "to_file" in loaded["logging"]:
                 log_to_file = bool(loaded["logging"]["to_file"])
             else:
                 log_to_file = None
+            if "rotate" in loaded["logging"]:
+                log_rotate = bool(loaded["logging"]["rotate"])
+            else:
+                log_rotate = None
         else:
             log_level = None
             log_to_file = False
+            log_rotate = False
         if "paths" in loaded:
             paths = {}
             for key in loaded["paths"]:
@@ -176,6 +182,7 @@ def load_environment_from_file(filename, base):
         defaults = DefaultsConfig(
             log_level=log_level,
             log_to_file=log_to_file,
+            log_rotate=log_rotate,
             default_framework=default_framework,
             default_backends=default_backends,
             default_target=default_target,

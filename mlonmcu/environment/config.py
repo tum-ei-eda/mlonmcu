@@ -2,6 +2,7 @@
 
 import os
 import xdg
+import logging
 from enum import Enum
 from pathlib import Path
 
@@ -42,12 +43,12 @@ DEFAULTS = {
 env_subdirs = ["deps"]
 
 
-class LogLevel(Enum):
-    DEBUG = 0
-    VERBOSE = 1
-    INFO = 2
-    WARNING = 3
-    ERROR = 4
+# class LogLevel(Enum):
+#     DEBUG = 0
+#     VERBOSE = 1
+#     INFO = 2
+#     WARNING = 3
+#     ERROR = 4
 
 
 class BaseConfig:
@@ -60,14 +61,16 @@ class DefaultsConfig(BaseConfig):
 
     def __init__(
         self,
-        log_level=LogLevel.INFO,
+        log_level=logging.INFO,
         log_to_file=False,
+        log_rotate=False,
         default_framework=None,
         default_backends={},
         default_target=None,
     ):
         self.log_level = log_level
         self.log_to_file = log_to_file
+        self.log_rotate = log_rotate
         self.default_framework = default_framework
         self.default_backends = default_backends
         self.default_target = default_target

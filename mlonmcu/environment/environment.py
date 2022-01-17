@@ -1,4 +1,5 @@
 from pathlib import Path
+import logging
 import yaml
 
 from .config import *
@@ -166,7 +167,7 @@ class DefaultEnvironment(Environment):
     def __init__(self):
         super().__init__()
         self.defaults = DefaultsConfig(
-            log_level=LogLevel.DEBUG,
+            log_level=logging.DEBUG,
             log_to_file=False,
             default_framework="utvm",
             default_backends={"tflm": "tflmc", "utvm": "tvmaot"},

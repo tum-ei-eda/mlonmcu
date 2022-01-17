@@ -4,7 +4,6 @@ import multiprocessing
 import concurrent
 import copy
 import itertools
-import logging
 
 import mlonmcu
 from mlonmcu.cli.common import add_common_options, add_context_options
@@ -18,9 +17,6 @@ from mlonmcu.cli.build import (
 from mlonmcu.flow.backend import Backend
 from mlonmcu.flow.framework import Framework
 from mlonmcu.session.run import RunStage
-
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
 
 
 def add_compile_options(parser):

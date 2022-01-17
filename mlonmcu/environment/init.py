@@ -14,8 +14,9 @@ from .config import (
 )
 from .templates import write_environment_yaml_from_template
 from .util import in_virtualenv
+from mlonmcu.logging import get_logger
 
-logger = logging.getLogger("mlonmcu")
+logger = get_logger()
 
 
 def create_environment_directories(path, directories):

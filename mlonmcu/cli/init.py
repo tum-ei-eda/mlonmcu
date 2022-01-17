@@ -2,7 +2,6 @@
 
 import sys
 import os
-import logging
 import pkg_resources
 import pkgutil
 import jinja2
@@ -11,9 +10,6 @@ from mlonmcu.environment.templates import all_templates
 from mlonmcu.environment.config import get_environments_dir, DEFAULTS, env_subdirs
 from mlonmcu.environment.util import in_virtualenv
 from mlonmcu.environment.init import initialize_environment
-
-
-logger = logging.getLogger("mlonmcu")
 
 
 def get_parser(subparsers):

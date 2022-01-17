@@ -2,26 +2,26 @@
 import mlonmcu.setup.tasks
 import mlonmcu.context
 import mlonmcu.setup.install
-import logging
 
-from mlonmcu.cli.common import add_common_options, add_context_options
-
-# logger = logging.getLogger(__name__)
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
+from mlonmcu.cli.common import (
+    add_common_options,
+    add_context_options,
+    handle_logging_flags,
+)
 
 
 def get_parser(subparsers):
     """ "Define and return a subparser for the setup subcommand."""
     parser = subparsers.add_parser("setup", description="Setup ML on MCU dependencies.")
     parser.set_defaults(func=handle)
+    add_common_options(parser)
+    add_context_options(parser)
     parser.add_argument(
         "-p",
         "--progress",
         action="store_true",
         help="Display progress bar (default: %(default)s)",
     )
-    add_context_options(parser)
     return parser
 
 

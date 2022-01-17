@@ -1,7 +1,6 @@
 """Command line subcommand for the load stage."""
 
 import copy
-import logging
 
 import mlonmcu
 from mlonmcu.flow import SUPPORTED_BACKENDS
@@ -17,9 +16,6 @@ from mlonmcu.cli.common import (
     add_flow_options,
 )
 from mlonmcu.feature.features import get_available_features
-
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
 
 
 def add_load_options(parser):

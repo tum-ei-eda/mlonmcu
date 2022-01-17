@@ -4,7 +4,6 @@ import multiprocessing
 import concurrent
 import copy
 import itertools
-import logging
 
 import mlonmcu
 from mlonmcu.cli.common import add_common_options, add_context_options, add_flow_options
@@ -23,9 +22,6 @@ from mlonmcu.session.run import RunStage
 # rom mlonmcu.flow.tflite.framework import TFLiteFramework
 # from mlonmcu.flow.tvm.framework import TVMFramework
 # from mlonmcu.cli.compile import handle as handle_compile
-
-logger = logging.getLogger("mlonmcu")
-logger.setLevel(logging.DEBUG)
 
 
 def add_run_options(parser):

@@ -6,8 +6,9 @@ from pathlib import Path
 from .backend import TFLiteBackend
 import mlonmcu.setup.utils as utils
 from mlonmcu.flow.backend import main, Artifact
+from mlonmcu.logging import get_logger
 
-logger = logging.getLogger("mlonmcu")
+logger = get_logger()
 
 
 class TFLMCBackend(TFLiteBackend):

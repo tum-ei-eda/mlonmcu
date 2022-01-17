@@ -4,7 +4,9 @@ import time
 from .tasks import Tasks
 from .task import TaskGraph
 
-logger = logging.getLogger("mlonmcu")
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 def install_dependencies(
@@ -40,6 +42,7 @@ def install_dependencies(
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
         )
     else:
+        logger.info("Installing dependencies...")
         pbar = None
     for task in order:
         func = tasks_factory.registry[task]
@@ -50,7 +53,9 @@ def install_dependencies(
     if pbar:
         pbar.close()
     if write_cache:
+        logger.debug("Updating dependency cache")
         cache_file = context.environment.paths["deps"].path / "cache.ini"
         context.cache.write_to_file(cache_file)
+    logger.info("Finished installing dependencies")
 
     # print(ctx._vars)

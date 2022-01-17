@@ -42,11 +42,9 @@ import mlonmcu.cli.helper.filter as cli_filter
 # from mlonmcu.flow.tvm.transform.legalize import OptionallyDisableLegalize
 
 # Setup logging
-logging.basicConfig(
-    format="[%(asctime)s]::%(pathname)s:%(lineno)d::%(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 logging.getLogger("compile_engine").setLevel(logging.WARNING)
 logging.getLogger("autotvm").setLevel(logging.WARNING)
 

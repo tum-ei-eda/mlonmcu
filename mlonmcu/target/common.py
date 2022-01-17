@@ -5,7 +5,9 @@ import subprocess
 import argparse
 from typing import List, Callable
 
-from mlonmcu.cli.helper.parse import extract_features, extract_config
+from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
+from mlonmcu.feature.feature import FeatureType
+from mlonmcu.feature.features import get_available_feature_names, get_available_features
 
 logger = logging.getLogger("mlonmcu")
 
@@ -81,7 +83,7 @@ def execute(
     return out_str
 
 
-def add_common_options(parser: argparse.ArgumentParser):
+def add_common_options(parser: argparse.ArgumentParser, target):
     """Add a set of common options to a command line parser.
 
     Parameters
@@ -96,8 +98,8 @@ def add_common_options(parser: argparse.ArgumentParser):
         type=str,
         metavar="FEATURE",
         action="append",
-        # choices=list(dict.fromkeys(ALL_FEATURES)), # TODO: get from selected target?
-        help="Enabled features for target",
+        choices=target.FEATURES,  # TODO: get from selected target?
+        help="Enabled features for target (Choices: %(choices)s)",
     )
     target_group.add_argument(
         "-c",
@@ -107,6 +109,17 @@ def add_common_options(parser: argparse.ArgumentParser):
         action="append",
         help="Custom target config as key-value pairs",
     )
+
+
+def init_target_features(names, config):
+    features = []
+    for name in names:
+        feature_classes = get_available_features(
+            feature_type=FeatureType.TARGET, feature_name=name
+        )
+        for feature_class in feature_classes:
+            features.append(feature_class(config=config))
+    return features
 
 
 def cli(target, args: List[str] = None):
@@ -124,13 +137,14 @@ def cli(target, args: List[str] = None):
     exec_parser = subparsers.add_parser("exec", description="Run program with target")
 
     def _handle_execute(args):
-        target_inst = target(
-            features=extract_features(args), config=extract_config(args)
-        )
+        config = extract_config(args)
+        feature_names = extract_feature_names(args)
+        features = init_target_features(feature_names, config)
+        target_inst = target(features=features, config=config)
         target_inst.exec(args.program, *args.extra_args, live=True)
 
     exec_parser.set_defaults(func=_handle_execute)
-    add_common_options(exec_parser)
+    add_common_options(exec_parser, target)
     exec_group = exec_parser.add_argument_group("Exec options")
     exec_group.add_argument(
         "program", metavar="EXE", type=str, help="The program which should be executed"
@@ -143,13 +157,14 @@ def cli(target, args: List[str] = None):
     )
 
     def _handle_inspect(args):
-        target_inst = target(
-            features=extract_features(args), config=extract_config(args)
-        )
+        config = extract_config(args)
+        feature_names = extract_feature_names(args)
+        features = init_target_features(feature_names, config)
+        target_inst = target(features=features, config=config)
         target_inst.inspect(args.program)
 
     inspect_parser.set_defaults(func=_handle_inspect)
-    add_common_options(inspect_parser)
+    add_common_options(inspect_parser, target)
     inspect_group = inspect_parser.add_argument_group("Inspect options")
     inspect_group.add_argument(
         "program", metavar="EXE", type=str, help="The program which should be inspected"

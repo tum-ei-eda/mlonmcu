@@ -3,18 +3,20 @@
 from .common import cli, execute
 from .target import Target
 
-SUPPORTED_FEATURES = ["attach", "noattach"]
-
-DEFAULT_CONFIG = {
-    "host.gdbserver_port": 2222,
-}
-
 
 class HostX86Target(Target):
     """Target using the x86 host system
 
     Mainly interesting to easy testing and debugging because benchmarking is not possible.
     """
+
+    FEATURES = ["gdbserver"]
+
+    DEFAULTS = {
+        "gdbserver_enable": False,
+        "gdbserver_attach": False,
+        "gdbserver_port": 2222,
+    }
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__("host_x86", features=features, config=config, context=context)

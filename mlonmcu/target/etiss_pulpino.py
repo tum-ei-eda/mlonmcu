@@ -8,14 +8,6 @@ from mlonmcu.context import MlonMcuContext
 from .common import cli, execute
 from .target import Target
 
-SUPPORTED_FEATURES = ["etissdbg", "attach", "noattach", "trace"]
-
-DEFAULT_CONFIG = {
-    "etissvp.gdbserver_port": 2222,  # TODO: make this configurable in ETISS
-    "etissvp.extra_args": "",
-    "etissvp.verbose": True,
-}
-
 
 def lookup_riscv_prefix(
     cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None
@@ -108,6 +100,19 @@ def lookup_etiss(
 
 class ETISSPulpinoTarget(Target):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
+
+    FEATURES = ["gdbserver", "etissdbg", "trace"]
+
+    DEFAULTS = {
+        "gdbserver_enable": False,
+        "gdbserver_attach": False,
+        "gdbserver_port": 2222,
+        "debug_etiss": False,
+        "trace_memory": False,
+        "extra_args": "",
+        "verbose": True,
+    }
+    REQUIRED = ["riscv.dir", "etiss.install_dir"]
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(

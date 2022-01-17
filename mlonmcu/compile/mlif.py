@@ -20,6 +20,11 @@ logger = logging.getLogger("mlonmcu")
 class MLIF:
     """Model Library Interface class."""
 
+    FEATURES = ["debug"]
+    DEFAULTS = {"debug": False}
+    # REQUIRES = ["mlif.src_dir"]
+    REQUIRES = []
+
     def __init__(
         self, framework, backend, target, features=None, config=None, context=None
     ):
@@ -27,9 +32,11 @@ class MLIF:
         self.backend = backend
         self.target = target
         self.features = features if features else []
+        self.process_features()
         self.config = (
             config if config else {}
         )  # Warning: this should only be used for passing paths,.. when no co context is provided, NO customization of the build is allowed!
+        self.filter_config()
         self.ignore_data = False
         if (
             "mlif.ignore_data" in self.config
@@ -75,6 +82,41 @@ class MLIF:
                     "Please define the value of 'mlif.src_dir' or pass a context"
                 )
         self.validate()
+
+    def process_features(self):
+        for feature in self.features:
+            if FeatureType.COMPILE in feature.types:
+                assert (
+                    feature.name in self.FEATURES
+                ), f"Incompatible compile feature:   {feature.name}"
+                feature.add_compile_config(self.config)
+
+    def remove_config_prefix(self, config):
+        def helper(key):
+            return key.split(f"{self.name}.")[-1]
+
+        return {helper(key): value for key, value in config if f"{self.name}." in key}
+
+    def filter_config(self):
+        cfg = self.remove_config_prefix(self.config)
+        for required in self.REQUIRED:
+            value = None
+            if required in cfg:
+                value = cfg[required]
+            elif required in self.config:
+                value = self.config[required]
+            assert value is not None, f"Required config key can not be None: {required}"
+
+        for key in self.DEFAULTS:
+            if key not in cfg:
+                cfg[key] = self.DEFAULTS[key]
+
+        for key in cfg:
+            if key not in self.DEFAULTS.keys() + self.REQUIRED:
+                logger.warn("Backend received an unknown config key: %s", key)
+                del cfg[key]
+
+        self.config = cfg
 
     def close(self):
         if self.tempdir:

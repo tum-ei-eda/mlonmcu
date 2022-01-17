@@ -44,7 +44,7 @@ jobs:
     - name: Setup MLonMCU dependencies
       run: |
         source .venv/bin/activate
-        mlonmcu setup -H home/
+        mlonmcu setup -H home/ -v
     - name: Run MLonMCU flow
       run: |
         source .venv/bin/activate

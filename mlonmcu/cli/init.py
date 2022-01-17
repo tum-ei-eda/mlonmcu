@@ -32,6 +32,7 @@ def get_parser(subparsers):
         "--template",
         metavar="TEMPLATE",
         nargs=1,
+        type=str,
         choices=all_templates.keys(),
         default=DEFAULTS["template"],
         help="Environment template (default: %(default)s, allowed: %(choices)s)",
@@ -90,6 +91,6 @@ def handle(args):
         interactive=not args.non_interactive,
         clone_models=args.clone_models,
         register=args.register,
-        template=args.template,
+        template=args.template[0],
         allow_exists=args.allow_exists,
     )

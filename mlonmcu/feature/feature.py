@@ -123,7 +123,7 @@ class CompileFeature(FeatureBase):
 # TODO: MLIFFeature? / CompileFeature?
 
 
-def lookup_features(name: str) -> List[Feature]:
+def lookup_features(name: str) -> List[FeatureBase]:
     """Get a list of all available features matching a given name.
 
     Work in progress

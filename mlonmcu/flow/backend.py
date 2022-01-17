@@ -19,6 +19,10 @@ class Backend(ABC):
 
     shortname = None
 
+    FEATURES = []
+    DEFAULTS = {}
+    REQUIRED = []
+
     def __init__(
         self,
         framework="",
@@ -35,6 +39,42 @@ class Backend(ABC):
     def __repr__(self):
         name = type(self).shortname
         return f"Backend({name})"
+
+    def process_features(self):
+        for feature in self.features:
+            if FeatureType.BACKEND in feature.types:
+                assert (
+                    feature.name in self.FEATURES
+                ), f"Incompatible backend feature: {feature.name}"
+                # TODO: allow incompatible features to mix backends? -> just allow?
+                feature.add_backend_config(self.name, self.config)
+
+    def remove_config_prefix(self, config):
+        def helper(key):
+            return key.split(f"{self.name}.")[-1]
+
+        return {helper(key): value for key, value in config if f"{self.name}." in key}
+
+    def filter_config(self):
+        cfg = self.remove_config_prefix(self.config)
+        for required in self.REQUIRED:
+            value = None
+            if required in cfg:
+                value = cfg[required]
+            elif required in self.config:
+                value = self.config[required]
+            assert value is not None, f"Required config key can not be None: {required}"
+
+        for key in self.DEFAULTS:
+            if key not in cfg:
+                cfg[key] = self.DEFAULTS[key]
+
+        for key in cfg:
+            if key not in self.DEFAULTS.keys() + self.REQUIRED:
+                logger.warn("Backend received an unknown config key: %s", key)
+                del cfg[key]
+
+        self.config = cfg
 
     @abstractmethod
     def load_model(self, model):
@@ -87,6 +127,9 @@ class Backend(ABC):
     def get_cmake_args(self):
         assert self.shortname is not None
         return [f"-DBACKEND={self.shortname}"]
+
+    def add_cmake_args(self, args):
+        args += self.get_cmake_args()
 
 
 def get_parser(backend_name, features, defaults):
@@ -149,6 +192,17 @@ Allowed options:
     return parser
 
 
+def init_backend_features(names, config):
+    features = []
+    for name in names:
+        feature_classes = get_supported_features(
+            feature_type=FeatureType.BACKEND, feature_name=name
+        )
+        for feature_class in feature_classes:
+            features.append(feature_class(config=config))
+    return features
+
+
 def main(backend_name, backend, backend_features, backend_defaults, args=None):
     parser = get_parser(
         backend_name, features=backend_features, defaults=backend_defaults
@@ -159,8 +213,9 @@ def main(backend_name, backend, backend_features, backend_defaults, args=None):
         args = parser.parse_args()
     # TODO: handle args!
     model = Path(args.model[0])
-    features = features = extract_features(args)
     config = extract_config(args)
+    features_names = extract_feature_names(args)
+    features = init_backend_features(features_names, config)
     backend_inst = backend(features=features, config=config)
     backend_inst.load_model(model)
     backend_inst.generate_code()

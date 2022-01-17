@@ -9,18 +9,21 @@ from mlonmcu.flow.backend import main, Artifact
 
 logger = logging.getLogger("mlonmcu")
 
-FEATURES = ["debug_arena"]
-
-DEFAULT_CONFIG = {
-    "custom_ops": [],
-    "registrations": {},
-    "tflmc.exe": None,
-}
-
 
 class TFLMCBackend(TFLiteBackend):
 
     shortname = "tflmc"
+
+    FEATURES = ["debug_arena"]
+
+    DEFAULTS = {
+        **TFLiteBackend.DEFAULTS,
+        "custom_ops": [],
+        "registrations": {},
+        "debug_arena": False,
+    }
+
+    REQUIRED = TFLiteBackend.REQUIRED + ["tflmc.exe"]
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(features=features, config=config, context=context)
@@ -41,14 +44,20 @@ class TFLMCBackend(TFLiteBackend):
             # Lookup cache
             raise NotImplementedError
         with tempfile.TemporaryDirectory() as tmpdirname:
-            logger.debug('Using temporary directory for codegen results: %s', tmpdirname)
+            logger.debug(
+                "Using temporary directory for codegen results: %s", tmpdirname
+            )
             args = []
             args.append(str(self.model))
             args.append(str(Path(tmpdirname) / f"{self.prefix}.cc"))
             args.append(f"{self.prefix}_")
             verbose = True  # ???
             utils.exec_getout(tflmc_exe, live=verbose, *args)
-            files = [f for f in os.listdir(tmpdirname) if os.path.isfile(os.path.join(tmpdirname, f))]
+            files = [
+                f
+                for f in os.listdir(tmpdirname)
+                if os.path.isfile(os.path.join(tmpdirname, f))
+            ]
             # TODO: ensure that main file is processed first
             for filename in files:
                 with open(Path(tmpdirname) / filename, "r") as handle:

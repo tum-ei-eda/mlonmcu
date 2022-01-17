@@ -9,7 +9,11 @@ class TensorInfo:
         if fix_names:
             self.name = self.name.replace("/", "_").replace(";", "_")
 
-        typeLookup = {TType.FLOAT32: (4, "float32"), TType.UINT8: (1, "uint8"), TType.INT8: (1, "int8")}
+        typeLookup = {
+            TType.FLOAT32: (4, "float32"),
+            TType.UINT8: (1, "uint8"),
+            TType.INT8: (1, "int8"),
+        }
         self.tysz, self.ty = typeLookup[t.Type()]
         assert self.ty != ""
 
@@ -52,5 +56,7 @@ def load_tflite_model(modelBuf):
         shapes[t.name] = t.shape
         types[t.name] = t.ty
 
-    mod, params = relay.frontend.from_tflite(tflModel, shape_dict=shapes, dtype_dict=types)
+    mod, params = relay.frontend.from_tflite(
+        tflModel, shape_dict=shapes, dtype_dict=types
+    )
     return mod, params, modelInfo

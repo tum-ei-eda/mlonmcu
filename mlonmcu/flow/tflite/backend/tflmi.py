@@ -137,7 +137,9 @@ size_t {prefix}_outputs();
 #elif defined __TASKING__
 #define ALIGN(X) __align(X)
 #endif"""
-        if debug_arena:  # This will enable the feature only if it is not overwritten by the user/compiler
+        if (
+            debug_arena
+        ):  # This will enable the feature only if it is not overwritten by the user/compiler
             wrapper_content += """
 #ifndef DEBUG_ARENA_USAGE
 #define DEBUG_ARENA_USAGE 1
@@ -284,7 +286,11 @@ class TFLMIBackend(TFLiteBackend):
         config_map = {key.split(".")[-1]: value for key, value in self.config.items()}
         debug_arena = "debug_arena" in self.features
         wrapper_code, header_code = self.codegen.generate_wrapper(
-            self.model, prefix=self.prefix, header=True, debug_arena=debug_arena, **config_map
+            self.model,
+            prefix=self.prefix,
+            header=True,
+            debug_arena=debug_arena,
+            **config_map,
         )
         artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code))
         artifacts.append(Artifact(f"{self.prefix}.cc.h", content=header_code))

@@ -6,7 +6,11 @@ from ..framework import COMMON_TVM_CONFIG
 from .backend import TVMBackend
 from mlonmcu.flow.backend import main
 
-FEATURES = ["debug_arena", "unpacked_api", "autotuned"]  # TODO COMMON_TVM_FEATURES(autotuned) -> Framework?
+FEATURES = [
+    "debug_arena",
+    "unpacked_api",
+    "autotuned",
+]  # TODO COMMON_TVM_FEATURES(autotuned) -> Framework?
 
 # COMMON_TVM_CONFIG = {}
 
@@ -51,14 +55,15 @@ class TVMAOTBackend(TVMBackend):
                 alignment_bytes = int(value)
         return (arena_size, alignment_bytes)
 
-
     def get_target_str(self):
         target_str = super().get_target_str(self)
         target_str += " --link-params"
         target_str += " --executor=aot"
         target_str += " --workspace-byte-alignment={}".format(self.alignment_bytes)
         target_str += " --unpacked-api={}".format(int(self.unpacked_api))
-        target_str += " --interface-api={}".format("c" if self.unpacked_api else "packed")
+        target_str += " --interface-api={}".format(
+            "c" if self.unpacked_api else "packed"
+        )
         return target_str
 
     def generate_code(self):

@@ -7,10 +7,12 @@ class TFLiteBackend(Backend):
 
     shortname = None
 
+    DEFAULTS = {}
+
+    REQUIRED = []
+
     def __init__(self, features=None, config=None, context=None):
-        super().__init__(
-            framework="tflite", features=features, config=config, context=context
-        )
+        super().__init__(framework="tflite", config=config, context=context)
         self.model = None
 
     def __init_subclass__(cls, **kwargs):

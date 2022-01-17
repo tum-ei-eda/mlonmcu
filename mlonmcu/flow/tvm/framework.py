@@ -6,7 +6,7 @@ COMMON_TVM_CONFIG = {
     "opt_level": 3,
     "target_device": None,
     "fuse_max_depth": None,
-    "tvm.src_dir": None
+    "tvm.src_dir": None,
 }
 
 

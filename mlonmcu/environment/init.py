@@ -28,7 +28,7 @@ def create_environment_directories(path, directories):
 
 
 def clone_models_repo(
-    dest, url="https://github.com/PhilippvK/mlonmcu-models.git"
+    dest, url="https://github.com/tum-ei-eda/mlonmcu-models.git"
 ):  # FIXME: update URL
     git.Git(dest).clone(url)
 

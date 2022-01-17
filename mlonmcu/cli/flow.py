@@ -1,5 +1,7 @@
 """Command line subcommand for invoking the mlonmcu flow."""
 
+import sys
+
 import multiprocessing
 
 import mlonmcu.cli.load as load
@@ -34,9 +36,10 @@ def get_parser(subparsers, parent=None):
 
 def handle(args):
     """Callback function which will be called to process the flow subcommand"""
-    print("HANDLE FLOW")
-    if hasattr(args, "func"):
+    if hasattr(args, "flow_func"):
         args.flow_func(args)
     else:
-        raise RuntimeError("Invalid command. For usage details use '--help'!")
-    print("HANDLED FLOW")
+        print(
+            "Invalid command. Check 'mlonmcu flow --help' for the available subcommands!"
+        )
+        sys.exit(1)

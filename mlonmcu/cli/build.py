@@ -3,7 +3,7 @@
 import copy
 
 import mlonmcu
-from mlonmcu.flow import SUPPORTED_BACKENDS
+from mlonmcu.flow import get_available_backend_names
 import mlonmcu.flow.tflite
 import mlonmcu.flow.tvm
 from mlonmcu.models.model import Model
@@ -27,7 +27,7 @@ def add_build_options(parser):
         "--backend",
         type=str,
         action="append",
-        choices=["tflmc", "tflmi", "tvmaot", "tvmrt", "tvmcg", "tflm", "utvm"],
+        choices=get_available_backend_names(),
         help="Backends to use (default: %(default)s)",
     )
 

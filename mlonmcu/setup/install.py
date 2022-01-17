@@ -27,7 +27,8 @@ def install_dependencies(
     V, E = task_graph.get_graph()
     # print("(V, E)", (V, E))
     order = task_graph.get_order()
-    logger.debug("Determined dependency order: %s" % str(order))
+    order_str = " -> ".join(order)
+    logger.debug("Determined dependency order: %s" % order_str)
 
     # skip = 1
     # print("num tasks:", len(tasks_factory.registry))

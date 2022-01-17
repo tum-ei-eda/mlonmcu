@@ -30,3 +30,7 @@ SUPPORTED_FRAMEWORK_BACKENDS = {
 }
 
 SUPPORTED_BACKENDS = {**SUPPORTED_TFLITE_BACKENDS, **SUPPORTED_TVM_BACKENDS}
+
+
+def get_available_backend_names():
+    return list(SUPPORTED_BACKENDS.keys())

@@ -570,8 +570,9 @@ def build_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=Fa
 
 
 def _validate_muriscvnn(context: MlonMcuContext, params=None):
-    if "muriscvnn" not in supported_features:
+    if not context.environment.supports_feature("muriscvnn"):
         return False
+    assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
         if "vext" in params:
             pass

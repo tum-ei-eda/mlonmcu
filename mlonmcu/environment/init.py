@@ -1,3 +1,4 @@
+import sys
 import git
 import logging
 from pathlib import Path
@@ -108,7 +109,7 @@ def initialize_environment(
             if not ask_user("Use anyway?", default=False, interactive=interactive):
                 print("Aborting...")
                 sys.exit(1)
-            print("Using existing directory.")
+        print("Using existing directory.")
     else:
         print("The directory does not exist!", end=" - ")
         if not ask_user("Create directory?", default=True, interactive=interactive):
@@ -161,7 +162,7 @@ def initialize_environment(
         register is None
         and ask_user(
             "Should the new environment be added to your list of environments?",
-            default=True,
+            default=has_name,
             interactive=interactive,
         )
     ):

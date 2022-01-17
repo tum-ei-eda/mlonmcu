@@ -96,6 +96,7 @@ def get_environment_by_name(name: str) -> Environment:
     Environment :
         The environment (if the lookup was successful).
     """
+    # TODO: parse the ini file instead
     environments_dir = get_environments_dir()
     if environments_dir.is_dir():
         path = environments_dir / name
@@ -238,6 +239,7 @@ class MlonMcuContext:
 
     def __init__(self, name: str = None, path: str = None, lock: bool = False):
         env_file = resolve_environment_file(name=name, path=path)
+        assert env_file is not None, "Unable to find a MLonMCU environment"
         self.environment = UserEnvironment.from_file(
             env_file
         )  # TODO: move to __enter__

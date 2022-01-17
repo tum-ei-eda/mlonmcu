@@ -26,9 +26,9 @@ def add_flow_options(parser):
         type=str,
         metavar="TARGET",
         choices=SUPPORTED_TARGETS.keys(),
-        default="etiss/pulpino",
+        default=None,
         nargs=1,
-        help="The target device/architecture (default: %(default)s choices: %(choices)s)",
+        help="The target device/architecture (choices: %(choices)s)",
     )
     flow_parser.add_argument(
         "-f",
@@ -38,7 +38,7 @@ def add_flow_options(parser):
         # nargs=1,
         action="append",
         choices=get_available_feature_names(),
-        help="Enabled features for target/framework/backend (default: %(default)s choices: %(choices)s)",
+        help="Enabled features for target/framework/backend (choices: %(choices)s)",
     )
     flow_parser.add_argument(
         "-c",
@@ -93,11 +93,13 @@ def add_common_options(parser):
 def add_context_options(parser, with_home=True):
     common = parser.add_argument_group("context options")
     if with_home:
+        home = os.getenv("MLONMCU_HOME", None)
         common.add_argument(
             "-H",
             "--home",
+            "--hint",
             type=str,
-            default=".",
+            default=home,
             help="The path to the mlonmcu environment (overwriting $MLONMCU_HOME environment variable)",
         )
 

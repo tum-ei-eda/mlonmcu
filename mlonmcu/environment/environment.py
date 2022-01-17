@@ -6,14 +6,13 @@ from .config import *
 from .loader import load_environment_from_file
 from .writer import write_environment_to_file
 
-from ..feature.feature import FeatureType
+from mlonmcu.feature.feature import FeatureType
 
 
 def _feature_helper(obj, name):
     features = obj.features
-    names = [feature.name for feature in features]
     if name:
-        return [features[names.index(name)]]
+        return [feature for feature in features if feature.name == name]
     else:
         return features
 
@@ -74,8 +73,6 @@ class Environment:
         return configs
 
     def lookup_backend_feature_configs(self, name=None, framework=None, backend=None):
-        print("backend!", backend)
-
         def helper(framework, backend, name):
             backend_features = self.framework[framework].backends[backend].features
             if name:
@@ -104,7 +101,6 @@ class Environment:
                     configs.extend(_feature_helper(backend, name))
         else:
             for framework in self.frameworks:
-                print("backend2", backend)
                 if backend:
                     print("backend", backend)
                     names_ = [backend.name for backend in framework.backends]
@@ -161,6 +157,11 @@ class Environment:
             configs.extend(self.lookup_target_feature_configs(name=name, target=target))
 
         return configs
+
+    def supports_feature(self, name):
+        configs = self.lookup_feature_configs(name=name)
+        supported = [feature.supported for feature in configs]
+        return any(supported)
 
 
 class DefaultEnvironment(Environment):

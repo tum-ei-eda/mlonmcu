@@ -56,7 +56,8 @@ def main(args=None):
     if hasattr(args, "func"):
         args.func(args)
     else:
-        raise RuntimeError("Invalid command. For usage details use '--help'!")
+        print("Invalid command. Check 'mlonmcu --help' for the available subcommands!")
+        sys.exit(1)
 
     # print("Arguments: " + str(args))
     # print("Replace this message by putting your code into "

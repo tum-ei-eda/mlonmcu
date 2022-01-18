@@ -197,17 +197,17 @@ class Environment:
         return []
     
     def has_backend(self, name):
-        configs = self.lookup_backend_configs(backend=name):
+        configs = self.lookup_backend_configs(backend=name)
         assert len(configs) <= 1
         return configs[0].enabled if len(configs) > 0 else False
 
     def has_framework(self, name):
-        configs = self.lookup_framework_configs(framework=name):
+        configs = self.lookup_framework_configs(framework=name)
         assert len(configs) <= 1
         return configs[0].enabled if len(configs) > 0 else False
     
     def has_target(self, name):
-        configs = self.lookup_target_configs(target=name):
+        configs = self.lookup_target_configs(target=name)
         assert len(configs) <= 1
         return configs[0].enabled if len(configs) > 0 else False
     

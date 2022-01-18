@@ -314,8 +314,18 @@ class TaskFactory:
                     if name in self.validates:
                         check = self.validates[name](args[0], params={})
                     if check:
+                        start = time.time()
                         retval = process(name)
+                        end = time.time()
+                        diff = end - start
+                        minutes = diff // 60
+                        seconds = diff % 60
+                        duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
+                        if not pbar:
+                            logger.debug("-> Done (%)", duration_str)
+                        # TODO: move this to helper func
                     else:
+                        logger.debug("-> Skipped")
                         retval = False
                     if pbar:
                         pbar.update(1)
@@ -327,8 +337,17 @@ class TaskFactory:
                         else:
                             logger.info("Processing task: %s", extended_name)
                         time.sleep(0.1)
+                        start = time.time()
                         retval = process(extended_name, params=comb)
-                        if pbar:
+                        end = time.time()
+                        diff = end - start
+                        minutes = diff // 60
+                        seconds = diff % 60
+                        duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
+                        if not pbar:
+                            logger.debug("-> Done (%)", duration_str)
+                             # TODO: move this to helper func
+                        else:
                             pbar.update(1)
                 if pbar:
                     pbar.close()

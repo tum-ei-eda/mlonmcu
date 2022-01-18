@@ -10,6 +10,8 @@ from mlonmcu.feature.feature import FeatureType
 
 
 def _feature_helper(obj, name):
+    if not obj.enabled:
+        return []
     features = obj.features
     if name:
         return [feature for feature in features if feature.name == name]
@@ -121,8 +123,8 @@ class Environment:
         configs = []
         if target:
             names = [target.name for target in self.targets]
-            index = names.index(backend)
-            assert index is not None, f"Target {target} not found in environment config"
+            index = names.index(target)
+            assert index is not None, f"Target {target} not found in environment config"  # TODO: do not fail, just return empty list
             configs.extend(_feature_helper(self.targets[index], name))
         else:
             for target in self.targets:
@@ -162,7 +164,53 @@ class Environment:
         configs = self.lookup_feature_configs(name=name)
         supported = [feature.supported for feature in configs]
         return any(supported)
+    
+    def lookup_backend_configs(self, backend=None, framework=None):
+        configs = []
+        for framework_config in self.frameworks:
+            if not framework_config.enabled or (framework is not None and framework_config.name != framework):
+                continue
+            if backend is None:
+                configs.extend(framework_config.backends)
+            else:
+                for backend_config in framework_config.backends:
+                    if backend_config.name == backend:
+                        return [backend_config]
+        return configs
+    
+    def lookup_framework_configs(self, framework=None):
+        if framework is None:
+            return self.frameworks
+        
+        for framework_config in self.frameworks:
+            if framework_config.name == framework
+                return [framework_config]
+        return []
+            
+    def lookup_target_configs(self, target=None):
+        if target is None:
+            return self.targets
+        
+        for target_config in self.targets:
+            if target_config.name == target
+                return [target_config]
+        return []
+    
+    def has_backend(self, name):
+        configs = self.lookup_backend_configs(backend=name):
+        assert len(configs) <= 1
+        return configs[0].enabled if len(configs) > 0 else False
 
+    def has_framework(self, name):
+        configs = self.lookup_framework_configs(framework=name):
+        assert len(configs) <= 1
+        return configs[0].enabled if len(configs) > 0 else False
+    
+    def has_target(self, name):
+        configs = self.lookup_target_configs(target=name):
+        assert len(configs) <= 1
+        return configs[0].enabled if len(configs) > 0 else False
+    
 
 class DefaultEnvironment(Environment):
     def __init__(self):

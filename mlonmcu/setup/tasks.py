@@ -324,7 +324,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False):
     if rebuild or not utils.is_populated(etissBuildDir):
         utils.mkdirs(etissBuildDir)
         env = os.environ.copy()
-        env["LLVM_DIR"] = str(llvmInstallDir)
+        # env["LLVM_DIR"] = str(llvmInstallDir)
         utils.cmake(
             context.cache["etiss.src_dir"],
             "-DCMAKE_INSTALL_PREFIX=" + str(etissInstallDir),

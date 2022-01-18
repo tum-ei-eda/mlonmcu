@@ -133,7 +133,7 @@ class Session:
                             len(self.runs), msg=f"Processing stage {run_stage}"
                         )
                     else:
-                        print(f"Processing stage {run_stage}")
+                        logger.info(f"Processing stage {run_stage}")
                     for run in self.runs:
                         workers.append(executor.submit(_process, run, until=stage))
                     results = _join_workers(workers)

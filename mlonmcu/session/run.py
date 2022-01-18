@@ -3,6 +3,10 @@ from pathlib import Path
 import os
 from enum import IntEnum
 
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
+
 
 class RunStage(IntEnum):
     NOP = 0
@@ -22,7 +26,7 @@ class Run:
         backend=None,
         target=None,
         features=[],
-        cfg={},
+        config={},
         num=1,
         archived=False,
         session=None,
@@ -45,7 +49,7 @@ class Run:
             if not self.dir.is_dir():
                 os.mkdir(self.dir)
         self.target = target
-        self.cfg = cfg
+        self.config = config
         self.features = features
         self.result = None
 
@@ -61,8 +65,8 @@ class Run:
             probs.append(str(self.num))
         if self.features and len(self.features) > 0:
             probs.append(str(self.features))
-        if self.cfg and len(self.cfg) > 0:
-            probs.append(str(self.cfg))
+        if self.config and len(self.config) > 0:
+            probs.append(str(self.config))
         return "Run(" + ",".join(probs) + ")"
 
     def run(self, context=None):
@@ -70,22 +74,26 @@ class Run:
         pass
 
     def compile(self, context=None):
-        print("COMPILE RUN:", self)
-        if context:
-            if context.cache:
-                mlif_build_dir = context.cache.find_best_match(
-                    "mlif_build_dir", flags=[self.backend.shortname, self.target.name]
-                )
-                print("mlif_build_dir", mlif_build_dir)
+        # print("COMPILE RUN:", self)
+        # if context:
+        #     if context.cache:
+        #         mlif_build_dir = context.cache.find_best_match(
+        #             "mlif_build_dir", flags=[self.backend.shortname, self.target.name]
+        #         )
+        #         print("mlif_build_dir", mlif_build_dir)
         pass
 
     def build(self, context=None):
-        self.backend.load(model=self.artifacts["model"])
+        self.backend.load_model(model=self.artifacts["model"])
         code = self.backend.generate_code()
         self.artifacts["code"] = code
 
     def process(self, until=RunStage.RUN, context=None):
-        # print("PROCESS START")
+        logger.debug(
+            "Started processing a new run until stage %s: %s",
+            str(RunStage(until).name),
+            str(self),
+        )
         if until == RunStage.DONE:
             until = RunStage.DONE - 1
         for stage in range(until):

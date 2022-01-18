@@ -51,9 +51,9 @@ jobs:
     - name: Run MLonMCU flow
       run: |
         source .venv/bin/activate
-        mlonmcu flow run sine_model -H home/
-    - name: Remove deps directory
-      run: rm -rf home/deps/
+        mlonmcu flow run sine_model -H home/ -v
+    - name: Remove dependencies (too large for artifact)
+      run: rm -rf home/deps/{src,build,install}
     - name: Archive environment (without deps)
       uses: actions/upload-artifact@v2
       with:

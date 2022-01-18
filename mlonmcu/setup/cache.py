@@ -5,6 +5,16 @@ import configparser
 from typing import Any
 
 
+def convert_key(name):
+    if not isinstance(name, tuple):
+        name = (name, frozenset())
+    else:
+        assert len(name) == 2
+        if not isinstance(name[1], frozenset):
+            name = (name[0], frozenset(name[1]))
+    return name
+
+
 class TaskCache:
     """Task cache used to store dependency paths for the current and furture sessions.
 
@@ -18,23 +28,20 @@ class TaskCache:
         return str(self._vars)
 
     def __setitem__(self, name, value):
-        if not isinstance(name, tuple):
-            name = (name, frozenset())
-        else:
-            assert len(name) == 2
-            if not isinstance(name[1], frozenset):
-                name = (name[0], frozenset(name[1]))
+        name = convert_key(name)
         self._vars[name[0]] = value  # Holds latest value
         self._vars[name] = value
 
     def __getitem__(self, name):
-        if not isinstance(name, tuple):
-            name = (name, frozenset())
-        else:
-            assert len(name) == 2
-            if not isinstance(name[1], frozenset):
-                name = (name[0], frozenset(name[1]))
+        name = convert_key(name)
         return self._vars[name]
+
+    def __len__(self):
+        return len(self._vars)
+
+    def __contains__(self, name):
+        name = convert_key(name)
+        return name in self._vars.keys()
 
     def find_best_match(self, name: str, flags=[]) -> Any:
         """Utility whih tries to resolve the cache entry with the beste match.

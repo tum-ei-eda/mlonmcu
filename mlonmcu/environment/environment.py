@@ -183,7 +183,7 @@ class Environment:
             return self.frameworks
         
         for framework_config in self.frameworks:
-            if framework_config.name == framework
+            if framework_config.name == framework:
                 return [framework_config]
         return []
             
@@ -192,7 +192,7 @@ class Environment:
             return self.targets
         
         for target_config in self.targets:
-            if target_config.name == target
+            if target_config.name == target:
                 return [target_config]
         return []
     

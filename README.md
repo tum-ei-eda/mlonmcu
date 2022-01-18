@@ -24,7 +24,7 @@ This project contains research code related to the deployment of inference or le
   - Targets: Host (x86), ETISS (Pulpino)
   - Features: Autotuning (WIP), Debugging
 - Build-in parallel processing of large number of benchmarks
-- Isolated enironments (not interfering with )
+- Isolated enironments (not interfering with other installations)
 - Command Line and Python Development Interfaces
 - WIP: Docker images to get started quickly
 - Extensive documentation on usage and code details

@@ -5,6 +5,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
+from mlonmcu.feature.feature import FeatureType
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
@@ -34,6 +35,8 @@ class Backend(ABC):
         self.framework = framework
         self.features = features if features else []
         self.config = config if config else {}
+        self.process_features()
+        self.filter_config()
         self.context = context
         self.artifacts = []
 
@@ -42,19 +45,24 @@ class Backend(ABC):
         return f"Backend({name})"
 
     def process_features(self):
+        # Filter out non-backend features
+        self.features = [
+            feature
+            for feature in self.features
+            if FeatureType.BACKEND in feature.types()
+        ]
         for feature in self.features:
-            if FeatureType.BACKEND in feature.types:
-                assert (
-                    feature.name in self.FEATURES
-                ), f"Incompatible backend feature: {feature.name}"
-                # TODO: allow incompatible features to mix backends? -> just allow?
-                feature.add_backend_config(self.name, self.config)
+            feature.add_backend_config(self.name, self.config)
 
     def remove_config_prefix(self, config):
         def helper(key):
             return key.split(f"{self.name}.")[-1]
 
-        return {helper(key): value for key, value in config if f"{self.name}." in key}
+        return {
+            helper(key): value
+            for key, value in config.items()
+            if f"{self.name}." in key
+        }
 
     def filter_config(self):
         cfg = self.remove_config_prefix(self.config)
@@ -71,7 +79,7 @@ class Backend(ABC):
                 cfg[key] = self.DEFAULTS[key]
 
         for key in cfg:
-            if key not in self.DEFAULTS.keys() + self.REQUIRED:
+            if key not in list(self.DEFAULTS.keys()) + self.REQUIRED:
                 logger.warn("Backend received an unknown config key: %s", key)
                 del cfg[key]
 

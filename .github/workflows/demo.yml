@@ -24,7 +24,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     # TODO: caching
     - name: Install APT packages
-      run: sudo apt-get -qq install -y g++ libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo
+      run: |
+        sudo apt-get -qq install -y g++ libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo
+        sudo apt remove clang-11*
     - name: Initialize Virtualenv
       run: |
         python -m pip install --upgrade pip

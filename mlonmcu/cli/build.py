@@ -16,7 +16,7 @@ from mlonmcu.cli.common import (
     add_flow_options,
 )
 from mlonmcu.cli.load import handle as handle_load, add_load_options, add_model_options
-from .helper.parse import extract_feature_names, extract_config
+from mlonmcu.flow import SUPPORTED_BACKENDS
 
 
 def add_build_options(parser):
@@ -49,41 +49,70 @@ def get_parser(subparsers, parent=None):
     return parser
 
 
+# TODO: move somewhere else
+from mlonmcu.feature.feature import FeatureType
+
+
+def get_cache_flags(features):
+    result = {}
+    for feature in features:
+        if FeatureType.SETUP in type(feature).types():
+            feature.add_required_cache_flags(result)
+    return result
+
+
 def _handle(context, args):
     handle_load(args, ctx=context)
-    print(args)
-    configs = extract_config(args)
-    print("configs", configs)
     # print(configs)
     # input()
     backends_names = args.backend
+    if isinstance(backends_names, list) and len(backend_names) > 0:
+        backends = backends_names
+    elif isinstance(backends_names, str):
+        backends = [backends_names]
+    else:
+        assert backends_names is None, "TODO"
+        frameworks = context.environment.get_default_frameworks()
+        backends = []
+        for framework in frameworks:
+            framework_backends = context.environment.get_default_backends(framework)
+            backends.extend(framework_backends)
     assert len(context.sessions) > 0
     session = context.sessions[-1]
-    print("session", session)
-    print("backends_names", backends_names)
     new_runs = []
     for run in session.runs:
-        if backends_names and len(backends_names) > 0:
-            for backend_name in backends_names:
-                new_run = copy.deepcopy(run)
-                backend_class = SUPPORTED_BACKENDS[backend_name]
-                backend = backend_class(config=configs)
-                new_run.backend = backend
-                new_run.cfg = configs
-                new_runs.append(new_run)
-        else:
-            raise NotImplementedError("TODO: Default backends!")
+        for backend_name in backends:
+            new_run = copy.deepcopy(run)
+            # TODO: where to add framework features/config?
+            backend_cls = SUPPORTED_BACKENDS[backend_name]
+            required_keys = backend_cls.REQUIRED
+            # TODO: move somewhere else
+            cache_flags = get_cache_flags(new_run.features)
+            for key in required_keys:
+                if key not in new_run.config:
+                    flags = cache_flags.get(key, ())
+                    if len(context.cache) == 0:
+                        raise RuntimeError(
+                            "The dependency cache is empty! Make sure `to run `mlonmcu` setup first.`"
+                        )
+                    if (key, flags) in context.cache:
+                        value = context.cache[key, flags]
+                        new_run.config[key] = value
+                    else:
+                        raise RuntimeError(
+                            "Dependency cache miss for required key '{key}'. Try re-running `mlonmcu setup`."
+                        )
+            backend = backend_cls(features=new_run.features, config=new_run.config)
+            new_run.backend = backend
+            new_runs.append(new_run)
     session.runs = new_runs
     for run in session.runs:
         run.build(context=context)
-    print("session.runs", session.runs)
 
 
 def handle(args, ctx=None):
-    print("HANDLE BUILD")
     if ctx:
         _handle(ctx, args)
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
             _handle(context, args)
-    print("HANDLED BUILD")

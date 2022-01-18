@@ -70,15 +70,11 @@ def get_parser(subparsers):
 
 
 def check_args(context, args):
-    print("CHECK ARGS")
+    # print("CHECK ARGS")
+    pass
 
 
 def handle(args):
-    print("HANLDE RUN")
-    print(Framework.registry)
-    # print(TFLiteFramework.backends)
-    # print(TVMFramework.registry)
-    print(args)
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         check_args(context, args)
         handle_compile(args, ctx=context)
@@ -109,5 +105,3 @@ def handle(args):
                 for a, b in find_run_pairs(session.runs)
             ]
             print("pairs", pairs)
-
-    print("HANLDED RUN")

@@ -3,7 +3,6 @@
 import copy
 
 import mlonmcu
-from mlonmcu.flow import SUPPORTED_BACKENDS
 import mlonmcu.flow.tflite
 import mlonmcu.flow.tvm
 from mlonmcu.models.model import Model
@@ -16,6 +15,7 @@ from mlonmcu.cli.common import (
     add_flow_options,
 )
 from mlonmcu.feature.features import get_available_features
+from .helper.parse import extract_feature_names, extract_config
 
 
 def add_load_options(parser):
@@ -42,16 +42,23 @@ def load_model(model, context=None):
 
 def _handle(context, args):
     model_names = args.models
-    feature_names = args.feature
+    # TODO: move to helper function OUT OF CLI
+    feature_names = extract_feature_names(args)
+    config = extract_config(args)
     features = []
-    if feature_names:
-        for feature_name in feature_names:
-            features.extend(get_available_features(feature_name=feature_name))
+    for feature_name in feature_names:
+        available_features = get_available_features(feature_name=feature_name)
+        for feature_cls in available_features:
+            feature_inst = feature_cls(config=config)
+            features.append(feature_inst)
+
+        # How about featuretype.other?
+
     session = context.get_session()
     for model_name in model_names:
         path = None  # FIXME
         model = Model(model_name, path)
-        run = Run(model=model, features=features)
+        run = Run(model=model, features=features, config=config)
         session.runs.append(run)
     for run in session.runs:
         loaded_model = load_model(run.model, context=context)
@@ -59,10 +66,8 @@ def _handle(context, args):
 
 
 def handle(args, ctx=None):
-    print("HANLDE LOAD")
     if ctx:
         _handle(ctx, args)
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
             _handle(context, args)
-    print("HANLDED LOAD")

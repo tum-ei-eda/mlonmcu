@@ -200,7 +200,7 @@ def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
     if use_ninja:
         extraArgs.append("-GNinja")
     cmd = ["cmake", str(src)] + extraArgs + list(args)
-    exec_getout(*cmd, cwd=cwd, print_output=True, **kwargs)
+    exec_getout(*cmd, cwd=cwd, print_output=False, **kwargs)
 
 
 # def move(a, b):  # TODO: make every utility compatible with Paths!

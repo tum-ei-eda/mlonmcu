@@ -124,6 +124,8 @@ class Session:
                 _close_progress()
             return results
 
+        prefix = f"[session-{self.idx}] "
+
         with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
             if per_stage:
                 for stage in range(until + 1):
@@ -133,7 +135,7 @@ class Session:
                             len(self.runs), msg=f"Processing stage {run_stage}"
                         )
                     else:
-                        logger.info(f"Processing stage {run_stage}")
+                        logger.info(prefix + f"Processing stage {run_stage}")
                     for run in self.runs:
                         workers.append(executor.submit(_process, run, until=stage))
                     results = _join_workers(workers)
@@ -142,10 +144,11 @@ class Session:
                 if progress:
                     _init_progress(len(self.runs), msg="Processing all stages")
                 else:
-                    print("Processing all stages")
+                    logger.info(prefix + "Processing all stages")
                 for run in self.runs:
                     workers.append(executor.submit(_process, run, until=until))
                 results = _join_workers(workers)
+        logger.info(prefix + "Done processing runs")
 
     def __repr__(self):
         return f"Session(idx={self.idx},status={self.status},runs={self.runs})"

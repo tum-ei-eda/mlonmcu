@@ -124,7 +124,9 @@ class Environment:
         if target:
             names = [target.name for target in self.targets]
             index = names.index(target)
-            assert index is not None, f"Target {target} not found in environment config"  # TODO: do not fail, just return empty list
+            assert (
+                index is not None
+            ), f"Target {target} not found in environment config"  # TODO: do not fail, just return empty list
             configs.extend(_feature_helper(self.targets[index], name))
         else:
             for target in self.targets:
@@ -164,11 +166,13 @@ class Environment:
         configs = self.lookup_feature_configs(name=name)
         supported = [feature.supported for feature in configs]
         return any(supported)
-    
+
     def lookup_backend_configs(self, backend=None, framework=None):
         configs = []
         for framework_config in self.frameworks:
-            if not framework_config.enabled or (framework is not None and framework_config.name != framework):
+            if not framework_config.enabled or (
+                framework is not None and framework_config.name != framework
+            ):
                 continue
             if backend is None:
                 configs.extend(framework_config.backends)
@@ -177,40 +181,90 @@ class Environment:
                     if backend_config.name == backend:
                         return [backend_config]
         return configs
-    
+
     def lookup_framework_configs(self, framework=None):
         if framework is None:
             return self.frameworks
-        
+
         for framework_config in self.frameworks:
             if framework_config.name == framework:
                 return [framework_config]
         return []
-            
+
     def lookup_target_configs(self, target=None):
         if target is None:
             return self.targets
-        
+
         for target_config in self.targets:
             if target_config.name == target:
                 return [target_config]
         return []
-    
+
+    # TODO: remove whitespace
     def has_backend(self, name):
         configs = self.lookup_backend_configs(backend=name)
-        assert len(configs) <= 1
+        assert len(configs) <= 1, "TODO"
         return configs[0].enabled if len(configs) > 0 else False
 
     def has_framework(self, name):
         configs = self.lookup_framework_configs(framework=name)
-        assert len(configs) <= 1
+        assert len(configs) <= 1, "TODO"
         return configs[0].enabled if len(configs) > 0 else False
-    
+
     def has_target(self, name):
         configs = self.lookup_target_configs(target=name)
-        assert len(configs) <= 1
+        assert len(configs) <= 1, "TODO"
         return configs[0].enabled if len(configs) > 0 else False
-    
+
+    def get_default_backends(self, framework):
+        if framework is None or framework not in self.defaults.default_backends:
+            return []
+        default = self.defaults.default_backends[framework]
+        framework_names = [
+            framework_config.name for framework_config in self.frameworks
+        ]
+        framework_config = self.frameworks[framework_names.index(framework)]
+        if default is None:
+            return []
+        if isinstance(default, str):
+            if default == "*":  # Wildcard all enabled frameworks
+                default = [
+                    backend.name
+                    for backend in framework_config.backends
+                    if backend.enabled
+                ]
+            else:
+                default = [default]
+        else:
+            assert isinstance(default, list), "TODO"
+        return default
+
+    def get_default_frameworks(self):
+        default = self.defaults.default_framework
+        if default is None:
+            return []
+        if isinstance(default, str):
+            if default == "*":  # Wildcard all enabled frameworks
+                default = [
+                    framework.name for framework in self.frameworks if framework.enabled
+                ]
+            else:
+                default = [default]
+        else:
+            assert isinstance(default, list), "TODO"
+        return default
+
+    def get_default_targets(self):
+        default = self.defaults.default_target
+        if default is not None:
+            if isinstance(default, str):
+                if default == "*":  # Wildcard all enabled targets
+                    default = [target.name for target in self.targets if target.enabled]
+                else:
+                    default = [default]
+            else:
+                assert isinstance(default, list)
+        return default
 
 class DefaultEnvironment(Environment):
     def __init__(self):
@@ -218,9 +272,9 @@ class DefaultEnvironment(Environment):
         self.defaults = DefaultsConfig(
             log_level=logging.DEBUG,
             log_to_file=False,
-            default_framework="utvm",
-            default_backends={"tflm": "tflmc", "utvm": "tvmaot"},
-            default_target="etiss_pulpino",
+            default_framework=None,
+            default_backends={},
+            default_target=None,
         )
         self.paths = {
             "deps": PathConfig("./deps"),

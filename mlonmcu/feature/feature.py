@@ -25,7 +25,6 @@ class FeatureBase(ABC):
     REQUIRED = []
 
     def __init__(self, name, config=None):
-        print("FeatureBase.__init__")
         self.name = name
         self.config = config if config else {}
         self.filter_config()
@@ -101,10 +100,8 @@ class FrontendFeature(FeatureBase):
 
     def __init__(self, name, config=None):
         super().__init__(name, config=config)
-        print("FrontendFeature.__init__")
 
     def get_frontend_config(self, frontend):
-        print("get_frontend_config")
         return {}
 
     def add_frontend_config(self, frontend, config):
@@ -118,10 +115,8 @@ class FrameworkFeature(FeatureBase):
 
     def __init__(self, name, config=None):
         super().__init__(name, config=config)
-        print("FrameworkFeature.__init__")
 
     def get_framework_config(self, farmework):
-        print("get_framework_config")
         return {}
 
     def add_framework_config(self, framework, config):
@@ -135,10 +130,8 @@ class BackendFeature(FeatureBase):
 
     def __init__(self, name, config=None):
         super().__init__(name, config=config)
-        print("BackendFeature.__init__")
 
     def get_backend_config(self, backend):
-        print("get_backend_config")
         return {}
 
     def add_backend_config(self, backend, config):
@@ -153,10 +146,8 @@ class TargetFeature(FeatureBase):
 
     def __init__(self, name, config=None):
         super().__init__(name, config=config)
-        print("TargetFeature.__init__")
 
     def get_target_config(self, target):
-        print("get_target_config")
         return {}
 
     def add_target_config(self, target, config):
@@ -171,10 +162,8 @@ class CompileFeature(FeatureBase):
 
     def __init__(self, name, config=None):
         super().__init__(name, config=config)
-        print("CompileFeature.__init__")
 
     def get_compile_config(self):
-        print("get_compile_config")
         return {}
 
     def add_compile_config(self, config):
@@ -196,10 +185,8 @@ class SetupFeature(FeatureBase):  # TODO: alternative: CacheFeature
 
     def __init__(self, name, config=None):
         super().__init__(name, config=config)
-        print("SetupFeature.__init__")
 
     def get_setup_config(self):
-        print("get_setup_config")
         raise NotImplementedError
         return {}
 

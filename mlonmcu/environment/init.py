@@ -107,7 +107,10 @@ def initialize_environment(
         if len(os.listdir(target_dir)) > 0:
             print("The directory is not empty!", end=" - ")
             # TODO: check for mlonmcu project files, if yes ask for overwrite instead
-            if not allow_exists or (allow_exists is None and not ask_user("Use anyway?", default=False, interactive=interactive)):
+            if not allow_exists or (
+                allow_exists is None
+                and not ask_user("Use anyway?", default=False, interactive=interactive)
+            ):
                 print("Aborting...")
                 sys.exit(1)
         print("Using existing directory.")
@@ -181,6 +184,7 @@ def initialize_environment(
                 f"An environment with the name '{final_name}' already exists. Using '{alternative_name}' instead"
             )
             final_name = alternative_name
+        # TODO: interactively ask the user
         print("Adding new environment to environments file.")
         register_environment(final_name, target_dir)
 

@@ -320,7 +320,9 @@ class TaskFactory:
                         diff = end - start
                         minutes = int(diff // 60)
                         seconds = int(diff % 60)
-                        duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
+                        duration_str = (
+                            f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
+                        )
                         if not pbar:
                             logger.debug("-> Done (%s)", duration_str)
                         # TODO: move this to helper func
@@ -343,10 +345,12 @@ class TaskFactory:
                         diff = end - start
                         minutes = int(diff // 60)
                         seconds = int(diff % 60)
-                        duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
+                        duration_str = (
+                            f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
+                        )
                         if not pbar:
                             logger.debug("-> Done (%s)", duration_str)
-                             # TODO: move this to helper func
+                            # TODO: move this to helper func
                         else:
                             pbar.update(1)
                 if pbar:

@@ -104,7 +104,6 @@ class Environment:
         else:
             for framework in self.frameworks:
                 if backend:
-                    print("backend", backend)
                     names_ = [backend.name for backend in framework.backends]
                     index_ = names_.index(backend)
                     assert (
@@ -266,6 +265,7 @@ class Environment:
                 assert isinstance(default, list)
         return default
 
+
 class DefaultEnvironment(Environment):
     def __init__(self):
         super().__init__()
@@ -283,7 +283,6 @@ class DefaultEnvironment(Environment):
             "temp": PathConfig("out"),
             "models": [
                 PathConfig("./models"),
-                PathConfig("/work/models"),
             ],
         }
         self.repos = {

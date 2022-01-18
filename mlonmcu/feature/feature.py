@@ -38,7 +38,11 @@ class FeatureBase(ABC):
         def helper(key):
             return key.split(f"{self.name}.")[-1]
 
-        return {helper(key): value for key, value in config if f"{self.name}." in key}
+        return {
+            helper(key): value
+            for key, value in config.items()
+            if f"{self.name}." in key
+        }
 
     def filter_config(self):
         cfg = self.remove_config_prefix(self.config)

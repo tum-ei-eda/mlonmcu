@@ -318,11 +318,11 @@ class TaskFactory:
                         retval = process(name)
                         end = time.time()
                         diff = end - start
-                        minutes = diff // 60
-                        seconds = diff % 60
+                        minutes = int(diff // 60)
+                        seconds = int(diff % 60)
                         duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
                         if not pbar:
-                            logger.debug("-> Done (%)", duration_str)
+                            logger.debug("-> Done (%s)", duration_str)
                         # TODO: move this to helper func
                     else:
                         logger.debug("-> Skipped")
@@ -341,11 +341,11 @@ class TaskFactory:
                         retval = process(extended_name, params=comb)
                         end = time.time()
                         diff = end - start
-                        minutes = diff // 60
-                        seconds = diff % 60
+                        minutes = int(diff // 60)
+                        seconds = int(diff % 60)
                         duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
                         if not pbar:
-                            logger.debug("-> Done (%)", duration_str)
+                            logger.debug("-> Done (%s)", duration_str)
                              # TODO: move this to helper func
                         else:
                             pbar.update(1)

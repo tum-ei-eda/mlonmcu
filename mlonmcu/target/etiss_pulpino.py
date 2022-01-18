@@ -112,23 +112,31 @@ class ETISSPulpinoTarget(Target):
         "extra_args": "",
         "verbose": True,
     }
-    REQUIRED = ["riscv.dir", "etiss.install_dir"]
+    REQUIRED = ["riscv_gcc.install_dir", "etiss.install_dir"]
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(
             "etiss_pulpino", features=features, config=config, context=context
         )
-        self.etiss_dir = lookup_etiss(cfg=config, env=self.env, context=self.context)
-        assert len(self.etiss_dir) > 0
-        self.riscv_prefix = lookup_riscv_prefix(
-            cfg=config, env=self.env, context=self.context
-        )
-        assert len(self.riscv_prefix) > 0
+        # self.etiss_dir = lookup_etiss(cfg=config, env=self.env, context=self.context)
+        # assert len(self.etiss_dir) > 0
+        # self.riscv_prefix = lookup_riscv_prefix(
+        #     cfg=config, env=self.env, context=self.context
+        # )
+        # assert len(self.riscv_prefix) > 0
         self.etiss_script = (
             Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "run_helper.sh"
         )
         # TODO: self.cmakeToolchainFile = ?
         # TODO: self.cmakeScript = ?
+
+    @property
+    def etiss_dir(self):
+        return self.config["etiss.install_dir"]
+
+    @property
+    def riscv_prefix(self):
+        return self.config["riscv_gcc.install_dir"]
 
     def exec(self, program, *args, **kwargs):
         """Use target to execute a executable with given arguments"""

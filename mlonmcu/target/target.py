@@ -44,9 +44,9 @@ class Target:
         context: MlonMcuContext = None,
     ):
         self.name = name
+        self.config = config if config else {}
         self.features = features if features else []
         self.process_features()
-        self.config = config if config else {}
         self.filter_config()
         self.inspect_program = "readelf"
         self.inspect_program_args = ["--all"]
@@ -57,12 +57,13 @@ class Target:
         return f"Target({self.name})"
 
     def process_features(self):
+        self.features = [
+            feature
+            for feature in self.features
+            if FeatureType.BACKEND in feature.types()
+        ]
         for feature in self.features:
-            if FeatureType.TARGET in feature.types:
-                assert (
-                    feature.name in self.FEATURES
-                ), f"Incompatible target feature:   {feature.name}"
-                feature.add_feature_config(self.name, self.config)
+            feature.add_feature_config(self.name, self.config)
 
     def remove_config_prefix(self, config):
         def helper(key):
@@ -82,6 +83,7 @@ class Target:
                 value = cfg[required]
             elif required in self.config:
                 value = self.config[required]
+                cfg[required] = value
             assert value is not None, f"Required config key can not be None: {required}"
 
         for key in self.DEFAULTS:
@@ -89,7 +91,7 @@ class Target:
                 cfg[key] = self.DEFAULTS[key]
 
         for key in cfg:
-            if key not in self.DEFAULTS.keys() + self.REQUIRED:
+            if key not in list(self.DEFAULTS.keys()) + self.REQUIRED:
                 logger.warn("Target received an unknown config key: %s", key)
                 del cfg[key]
 

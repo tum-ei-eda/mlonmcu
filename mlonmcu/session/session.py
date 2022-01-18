@@ -41,7 +41,7 @@ class Session:
             self.tempdir = None
             self.dir = dir
             if not self.dir.is_dir():
-                os.mkdir(self.dir)
+                self.dir.mkdir(parents=True)
         self.runs_dir = self.dir / "runs"
         if not os.path.exists(self.runs_dir):
             os.mkdir(self.runs_dir)

@@ -498,7 +498,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False):
             "sed",
             "-i",
             "--",
-            "s/USE_LLVM \(OFF\|ON\)/USE_LLVM " + llvmConfigEscaped + "/g",
+            r"s/USE_LLVM \(OFF\|ON\)/USE_LLVM " + llvmConfigEscaped + "/g",
             str(cfgFile),
         )
         utils.cmake(tvmSrcDir, cwd=tvmBuildDir, debug=True, use_ninja=ninja)

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.feature.feature &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.feature.feature</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.feature.feature</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; MLonMCU Features API&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+
+<div class="viewcode-block" id="FeatureType"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FeatureType">[docs]</a><span class="k">class</span> <span class="nc">FeatureType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">OTHER</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">SETUP</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">FRONTEND</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">FRAMEWORK</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">BACKEND</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">TARGET</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">COMPILE</span> <span class="o">=</span> <span class="mi">6</span></div>
+
+
+<span class="c1"># TODO: features might get an optional context parameter to lookup if they are supported by themselfs in the environment</span>
+
+
+<div class="viewcode-block" id="FeatureBase"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase">[docs]</a><span class="k">class</span> <span class="nc">FeatureBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Feature base class&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_config</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+<div class="viewcode-block" id="FeatureBase.remove_config_prefix"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase.remove_config_prefix">[docs]</a>    <span class="k">def</span> <span class="nf">remove_config_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>  <span class="c1"># TODO: move to different place</span>
+        <span class="k">def</span> <span class="nf">helper</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">helper</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span> <span class="ow">in</span> <span class="n">key</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="FeatureBase.filter_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase.filter_config">[docs]</a>    <span class="k">def</span> <span class="nf">filter_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_config_prefix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">required</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">required</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="n">required</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">required</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">required</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Required config key can not be None: </span><span class="si">{</span><span class="n">required</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+                <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Feature received an unknown config key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+                <span class="k">del</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">cfg</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def types(self):</span>
+    <span class="c1">#     return [base.feature_type for base in type(self).__bases__]</span>
+
+<div class="viewcode-block" id="FeatureBase.types"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase.types">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="n">feature_type</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">]</span></div></div>
+
+    <span class="c1"># This does not make sense because the get_?_config methods may beed a parameter</span>
+    <span class="c1"># This could be solved by seeting he backend/target/frontend in the constructor!</span>
+    <span class="c1"># Multiple inheritance would make this still pretty dirty</span>
+    <span class="c1"># def get_config(self):</span>
+    <span class="c1">#     for feature_type in self.types:</span>
+    <span class="c1">#         type_name = FeatureType(feature_type).name.lower()</span>
+    <span class="c1">#         method_name = f&quot;get_{type_name}_config&quot;</span>
+    <span class="c1">#         method = getattr(self, method_name)</span>
+    <span class="c1">#         args = {&quot;type_name&quot;: getattr(self, type_name)}</span>
+    <span class="c1">#         self.method(**args)</span>
+
+
+<div class="viewcode-block" id="Feature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.Feature">[docs]</a><span class="k">class</span> <span class="nc">Feature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Feature of unknown type&quot;&quot;&quot;</span>
+
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">OTHER</span></div>
+
+
+<div class="viewcode-block" id="FrontendFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FrontendFeature">[docs]</a><span class="k">class</span> <span class="nc">FrontendFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Frontend related feature&quot;&quot;&quot;</span>
+
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">FRONTEND</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FrontendFeature.get_frontend_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FrontendFeature.get_frontend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="FrontendFeature.add_frontend_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FrontendFeature.add_frontend_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frontend_config</span><span class="p">(</span><span class="n">frontend</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="FrameworkFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FrameworkFeature">[docs]</a><span class="k">class</span> <span class="nc">FrameworkFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Framework related feature&quot;&quot;&quot;</span>
+
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">FRAMEWORK</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FrameworkFeature.get_framework_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FrameworkFeature.get_framework_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">farmework</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="FrameworkFeature.add_framework_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FrameworkFeature.add_framework_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_framework_config</span><span class="p">(</span><span class="n">framework</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="BackendFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.BackendFeature">[docs]</a><span class="k">class</span> <span class="nc">BackendFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Backend related feature&quot;&quot;&quot;</span>
+
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">BACKEND</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BackendFeature.get_backend_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.BackendFeature.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="BackendFeature.add_backend_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.BackendFeature.add_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="c1"># TODO: cfg passed to method instead of contructor or self.config = config</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span><span class="n">backend</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="TargetFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.TargetFeature">[docs]</a><span class="k">class</span> <span class="nc">TargetFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Target related feature&quot;&quot;&quot;</span>
+
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">TARGET</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TargetFeature.get_target_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.TargetFeature.get_target_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="TargetFeature.add_target_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.TargetFeature.add_target_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="c1"># TODO: cfg passed to method instead of contructor or self.config = config</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_target_config</span><span class="p">(</span><span class="n">target</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="CompileFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature">[docs]</a><span class="k">class</span> <span class="nc">CompileFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compile related feature&quot;&quot;&quot;</span>
+
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">COMPILE</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CompileFeature.get_compile_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.get_compile_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_compile_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="CompileFeature.add_compile_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.add_compile_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_compile_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_compile_config</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="CompileFeature.get_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="CompileFeature.add_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.add_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">add_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">()</span></div></div>
+
+    <span class="c1"># TODO: alternative mlif.cmake_args appenden?</span>
+
+
+<div class="viewcode-block" id="SetupFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature">[docs]</a><span class="k">class</span> <span class="nc">SetupFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>  <span class="c1"># TODO: alternative: CacheFeature</span>
+    <span class="sd">&quot;&quot;&quot;Setup/Cache related feature&quot;&quot;&quot;</span>
+
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">SETUP</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SetupFeature.get_setup_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature.get_setup_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_setup_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="SetupFeature.add_setup_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature.add_setup_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_setup_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_setup_config</span><span class="p">(</span><span class="nb">compile</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SetupFeature.get_required_cache_flags"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature.get_required_cache_flags">[docs]</a>    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="SetupFeature.add_required_cache_flags"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature.add_required_cache_flags">[docs]</a>    <span class="k">def</span> <span class="nf">add_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required_flags</span><span class="p">):</span>
+        <span class="n">own_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_required_cache_flags</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">flags</span> <span class="ow">in</span> <span class="n">own_flags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_flags</span><span class="p">:</span>
+                <span class="n">required_flags</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">required_flags</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">flags</span></div></div>
+
+
+<span class="c1"># # registry</span>
+<span class="c1">#</span>
+<span class="c1"># REGISTERED_FEATURES = {}</span>
+<span class="c1">#</span>
+<span class="c1"># def register_feature(object):</span>
+<span class="c1">#     def __init__(self, name):</span>
+<span class="c1">#         self.name</span>
+<span class="c1">#</span>
+<span class="c1">#     def __call__(self, cls):</span>
+<span class="c1">#         assert self.name not in REGISTERED_FEATURES, f&quot;Can not register feature &#39;{self.name}&#39;&quot;</span>
+<span class="c1">#         REGISTERED_FEATURES[name] = cls</span>
+<span class="c1">#         return cls</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># # TODO: get or ADD (update) config?</span>
+<span class="c1"># # TODO: MLIFFeature? / CompileFeature?</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># def get_available_features(feature_type=None, feature_name=None):</span>
+<span class="c1">#     print(REGISTERED_FEATURES)</span>
+<span class="c1">#     if feature_type is None:</span>
+<span class="c1">#         if feature_name is None:</span>
+<span class="c1">#             return REGISTERED_FEATURES.values()</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             ret = []</span>
+<span class="c1">#             for name, feature in REGISTERED_FEATURES.items():</span>
+<span class="c1">#                 if name == feature_name:</span>
+<span class="c1">#                     ret.append(feature)</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         ret = []</span>
+<span class="c1">#         for feature in REGISTERED_FEATURES.values():</span>
+<span class="c1">#             if feature_type in feature.types:</span>
+<span class="c1">#                 if name is None or name == feature_name:</span>
+<span class="c1">#                     ret.append(feature)</span>
+<span class="c1">#     return ret</span>
+
+
+<span class="c1"># def lookup_features(name: str) -&gt; List[FeatureBase]:</span>
+<span class="c1">#     &quot;&quot;&quot;Get a list of all available features matching a given name.</span>
+<span class="c1">#</span>
+<span class="c1">#     Work in progress</span>
+<span class="c1">#</span>
+<span class="c1">#     Parameters</span>
+<span class="c1">#     ----------</span>
+<span class="c1">#     name : str</span>
+<span class="c1">#         Name of feature</span>
+<span class="c1">#</span>
+<span class="c1">#     Returns</span>
+<span class="c1">#     -------</span>
+<span class="c1">#     list</span>
+<span class="c1">#         List of all features matching the given name</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     assert name in ALL_FEATURES, f&quot;Unknown feature: {name}&quot;</span>
+<span class="c1">#     ret = (</span>
+<span class="c1">#         []</span>
+<span class="c1">#     )  # For a single feature-name, there can be multiple types of features (e.g. backend vs target) and we want to match all of them</span>
+<span class="c1">#     if name in FRONTEND_FEATURES:</span>
+<span class="c1">#         ret.append(FrontendFeature(name))</span>
+<span class="c1">#     if name in FRAMEWORK_FEATURES:</span>
+<span class="c1">#         ret.append(FrameworkFeature(name))</span>
+<span class="c1">#     if name in BACKEND_FEATURES:</span>
+<span class="c1">#         ret.append(BackendFeature(name))</span>
+<span class="c1">#     if name in TARGET_FEATURES:</span>
+<span class="c1">#         ret.append(TargetFeature(name))</span>
+<span class="c1">#     return ret</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

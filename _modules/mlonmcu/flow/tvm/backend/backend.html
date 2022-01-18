@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.flow.tvm.backend.backend &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../../flow.html">mlonmcu.flow</a> &raquo;</li>
+      <li>mlonmcu.flow.tvm.backend.backend</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.flow.tvm.backend.backend</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..framework</span> <span class="kn">import</span> <span class="n">COMMON_TVM_CONFIG</span>
+
+<span class="c1"># from ..support.load_tflite_model import load_tflite_model</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
+
+
+<div class="viewcode-block" id="TVMBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend">[docs]</a><span class="k">class</span> <span class="nc">TVMBackend</span><span class="p">(</span><span class="n">Backend</span><span class="p">):</span>
+
+    <span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;opt_level&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;target_device&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;disabled_passes&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout</span>
+        <span class="s2">&quot;extra_pass_config&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># TODO: some example (fuse_max_depth etc.)</span>
+    <span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Actual filename!</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[]</span>
+        <span class="p">)</span>  <span class="c1"># TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods</span>
+        <span class="c1"># TODO: decide if artifacts should be handled by code (str) or file path or binary data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pass_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tir.disable_vectorize&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_pass_config&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="kn">import</span> <span class="nn">ast</span>
+
+            <span class="n">extra</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">base</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_device&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">opt_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;opt_level&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="TVMBackend.get_pass_config_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_pass_config_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_pass_config_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="TVMBackend.get_common_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_common_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_common_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executor</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mlf&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">executor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;aot&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">],</span> <span class="s2">&quot;Unsupported TVM executor&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
+            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+            <span class="n">fmt</span><span class="p">,</span>
+            <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">,</span>
+            <span class="s2">&quot;--executor&quot;</span><span class="p">,</span>
+            <span class="n">executor</span><span class="p">,</span>
+            <span class="s2">&quot;--runtime&quot;</span><span class="p">,</span>
+            <span class="n">runtime</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pass_config_tvmc_args</span><span class="p">(),</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_disabled_pass_tvmc_args</span><span class="p">(),</span>
+            <span class="s2">&quot;--target-c-device&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+            <span class="s2">&quot;--opt-level&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt_level</span><span class="p">,</span>
+            <span class="s2">&quot;--input-shapes&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="TVMBackend.get_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># tvmaot</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_common_tvmc_args</span><span class="p">(</span><span class="s2">&quot;aot&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;--target-c-constants-byte-alignment&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment_bytes</span><span class="p">),</span>
+            <span class="s2">&quot;--target-c-workspace-byte-alignment&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment_bytes</span><span class="p">),</span>
+            <span class="s2">&quot;--target-c-executor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aot&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--target-c-unpacked-api&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unpacked_api</span><span class="p">)),</span>
+            <span class="s2">&quot;--target-c-interface-api&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;c&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpacked_api</span> <span class="k">else</span> <span class="s2">&quot;packed&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+        <span class="c1"># tvmrt / tvmgraph?</span>
+        <span class="c1"># return self.get_common_tvmc_args(&quot;graph&quot;) + [&quot;--runtime-crt-system-lib&quot;, str(1), &quot;--executor-graph-link-params&quot;, str(0),</span>
+        <span class="c1"># tvmcg? -&gt; tvmrt</span>
+
+<div class="viewcode-block" id="TVMBackend.get_opt_level"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_opt_level">[docs]</a>    <span class="k">def</span> <span class="nf">get_opt_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Make this a helper function?</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;opt_level&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">COMMON_TVM_CONFIG</span><span class="p">[</span><span class="s2">&quot;opt_level&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TVMBackend.get_target_device"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target_device">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Make this a helper function?</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;target_device&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">COMMON_TVM_CONFIG</span><span class="p">[</span><span class="s2">&quot;target_device&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TVMBackend.get_fuse_max_depth"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_fuse_max_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_fuse_max_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Make this a helper function?</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;fuse_max_depth&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">COMMON_TVM_CONFIG</span><span class="p">[</span><span class="s2">&quot;fuse_max_depth&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TVMBackend.get_target_str"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target_str">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">target_str</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
+        <span class="n">target_str</span> <span class="o">+=</span> <span class="s2">&quot; --runtime=c&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">:</span>
+            <span class="n">target_str</span> <span class="o">+=</span> <span class="s2">&quot; --device=&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span>
+        <span class="n">target_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; --model=unknown&quot;</span>  <span class="c1"># TODO: required?</span>
+        <span class="k">return</span> <span class="n">target_str</span></div>
+
+<div class="viewcode-block" id="TVMBackend.get_target"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target">[docs]</a>    <span class="k">def</span> <span class="nf">get_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tvm</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">Target</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_target_str</span><span class="p">())</span></div>
+
+    <span class="c1"># def __init_subclass__(cls, **kwargs):</span>
+    <span class="c1">#     super().__init_subclass__(**kwargs)</span>
+    <span class="c1">#     assert isinstance(cls.name, str)</span>
+    <span class="c1">#     cls.registry[cls.name] = cls</span>
+
+<div class="viewcode-block" id="TVMBackend.load_model"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.load_model">[docs]</a>    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span></div></div>
+        <span class="c1"># model_buf = open(path, &quot;rb&quot;).read()</span>
+        <span class="c1"># self.mod, self.params, self.modelInfo = load_tflite_model(model_buf)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

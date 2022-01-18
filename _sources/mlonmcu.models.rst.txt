@@ -1,0 +1,78 @@
+mlonmcu.models package
+======================
+
+Submodules
+----------
+
+mlonmcu.models.frontend module
+------------------------------
+
+.. automodule:: mlonmcu.models.frontend
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+mlonmcu.models.frontends module
+-------------------------------
+
+.. automodule:: mlonmcu.models.frontends
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+mlonmcu.models.group module
+---------------------------
+
+.. automodule:: mlonmcu.models.group
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+mlonmcu.models.inout module
+---------------------------
+
+.. automodule:: mlonmcu.models.inout
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+mlonmcu.models.lookup module
+----------------------------
+
+.. automodule:: mlonmcu.models.lookup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+mlonmcu.models.metadata module
+------------------------------
+
+.. automodule:: mlonmcu.models.metadata
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+mlonmcu.models.model module
+---------------------------
+
+.. automodule:: mlonmcu.models.model
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+mlonmcu.models.options module
+-----------------------------
+
+.. automodule:: mlonmcu.models.options
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: mlonmcu.models
+    :members:
+    :undoc-members:
+    :show-inheritance:

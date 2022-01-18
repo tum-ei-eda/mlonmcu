@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.environment package &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.feature package" href="mlonmcu.feature.html" />
+    <link rel="prev" title="mlonmcu.data package" href="mlonmcu.data.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.context">mlonmcu.context module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.environment2">mlonmcu.environment2 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="docs.html">Documentation</a> &raquo;</li>
+          <li><a href="modules.html">mlonmcu</a> &raquo;</li>
+          <li><a href="mlonmcu.html">mlonmcu package</a> &raquo;</li>
+      <li>mlonmcu.environment package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.environment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-environment-package">
+<h1>mlonmcu.environment package<a class="headerlink" href="#mlonmcu-environment-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-mlonmcu.environment.config">
+<span id="mlonmcu-environment-config-module"></span><h2>mlonmcu.environment.config module<a class="headerlink" href="#module-mlonmcu.environment.config" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.BackendConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">BackendConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#BackendConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.BackendConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.BaseConfig" title="mlonmcu.environment.config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.BaseConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.BackendFeatureConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">BackendFeatureConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#BackendFeatureConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.BackendFeatureConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.FeatureConfig" title="mlonmcu.environment.config.FeatureConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.FeatureConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.BaseConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">BaseConfig</span></span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#BaseConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.BaseConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.DefaultsConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">DefaultsConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_rotate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_backends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#DefaultsConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.DefaultsConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.BaseConfig" title="mlonmcu.environment.config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.BaseConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FeatureConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">FeatureConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">FeatureKind.UNKNOWN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#FeatureConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.FeatureConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FeatureKind">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">FeatureKind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#FeatureKind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.FeatureKind" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FeatureKind.BACKEND">
+<span class="sig-name descname"><span class="pre">BACKEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#mlonmcu.environment.config.FeatureKind.BACKEND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FeatureKind.FRAMEWORK">
+<span class="sig-name descname"><span class="pre">FRAMEWORK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#mlonmcu.environment.config.FeatureKind.FRAMEWORK" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FeatureKind.FRONTEND">
+<span class="sig-name descname"><span class="pre">FRONTEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#mlonmcu.environment.config.FeatureKind.FRONTEND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FeatureKind.TARGET">
+<span class="sig-name descname"><span class="pre">TARGET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#mlonmcu.environment.config.FeatureKind.TARGET" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FeatureKind.UNKNOWN">
+<span class="sig-name descname"><span class="pre">UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#mlonmcu.environment.config.FeatureKind.UNKNOWN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FrameworkConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">FrameworkConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#FrameworkConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.FrameworkConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.BaseConfig" title="mlonmcu.environment.config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.BaseConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FrameworkFeatureConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">FrameworkFeatureConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#FrameworkFeatureConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.FrameworkFeatureConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.FeatureConfig" title="mlonmcu.environment.config.FeatureConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.FeatureConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FrontendConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">FrontendConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#FrontendConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.FrontendConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.BaseConfig" title="mlonmcu.environment.config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.BaseConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.FrontendFeatureConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">FrontendFeatureConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frontend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#FrontendFeatureConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.FrontendFeatureConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.FeatureConfig" title="mlonmcu.environment.config.FeatureConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.FeatureConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.PathConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">PathConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#PathConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.PathConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.BaseConfig" title="mlonmcu.environment.config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.BaseConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.RepoConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">RepoConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#RepoConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.RepoConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.BaseConfig" title="mlonmcu.environment.config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.BaseConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.TargetConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">TargetConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#TargetConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.TargetConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.BaseConfig" title="mlonmcu.environment.config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.BaseConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.TargetFeatureConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">TargetFeatureConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#TargetFeatureConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.TargetFeatureConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.config.FeatureConfig" title="mlonmcu.environment.config.FeatureConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.config.FeatureConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.get_config_dir">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">get_config_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#get_config_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.get_config_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.get_environments_dir">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">get_environments_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#get_environments_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.get_environments_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.get_environments_file">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">get_environments_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#get_environments_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.get_environments_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.config.init_config_dir">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.config.</span></span><span class="sig-name descname"><span class="pre">init_config_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/config.html#init_config_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.config.init_config_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.environment.environment">
+<span id="mlonmcu-environment-environment-module"></span><h2>mlonmcu.environment.environment module<a class="headerlink" href="#module-mlonmcu.environment.environment" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.DefaultEnvironment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.environment.</span></span><span class="sig-name descname"><span class="pre">DefaultEnvironment</span></span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#DefaultEnvironment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.DefaultEnvironment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.environment.Environment</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">home</span></code></dt><dd><p>Home directory of mlonmcu environment.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_backend</span></code>(name)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 78%" />
+<col style="width: 22%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>from_file</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_default_backends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>get_default_frameworks</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_default_targets</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>has_framework</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>has_target</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_backend_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_framework_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_frontend_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_target_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_target_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>supports_feature</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>to_file</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.environment.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#mlonmcu.environment.environment.Environment.home" title="mlonmcu.environment.environment.Environment.home"><code class="xref py py-obj docutils literal notranslate"><span class="pre">home</span></code></a></dt><dd><p>Home directory of mlonmcu environment.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.environment.environment.Environment.has_backend" title="mlonmcu.environment.environment.Environment.has_backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_backend</span></code></a>(name)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 78%" />
+<col style="width: 22%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>from_file</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_default_backends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>get_default_frameworks</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_default_targets</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>has_framework</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>has_target</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_backend_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_framework_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_frontend_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_target_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_target_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>supports_feature</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>to_file</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.from_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.get_default_backends">
+<span class="sig-name descname"><span class="pre">get_default_backends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">framework</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.get_default_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.get_default_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.get_default_frameworks">
+<span class="sig-name descname"><span class="pre">get_default_frameworks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.get_default_frameworks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.get_default_frameworks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.get_default_targets">
+<span class="sig-name descname"><span class="pre">get_default_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.get_default_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.get_default_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.has_backend">
+<span class="sig-name descname"><span class="pre">has_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.has_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.has_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.has_framework">
+<span class="sig-name descname"><span class="pre">has_framework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.has_framework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.has_framework" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.has_target">
+<span class="sig-name descname"><span class="pre">has_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.has_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.has_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.home">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">home</span></span><a class="headerlink" href="#mlonmcu.environment.environment.Environment.home" title="Permalink to this definition"></a></dt>
+<dd><p>Home directory of mlonmcu environment.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_backend_configs">
+<span class="sig-name descname"><span class="pre">lookup_backend_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_backend_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_backend_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_backend_feature_configs">
+<span class="sig-name descname"><span class="pre">lookup_backend_feature_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_backend_feature_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_backend_feature_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_feature_configs">
+<span class="sig-name descname"><span class="pre">lookup_feature_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_feature_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_feature_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_framework_configs">
+<span class="sig-name descname"><span class="pre">lookup_framework_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_framework_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_framework_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_framework_feature_configs">
+<span class="sig-name descname"><span class="pre">lookup_framework_feature_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_framework_feature_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_framework_feature_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_frontend_feature_configs">
+<span class="sig-name descname"><span class="pre">lookup_frontend_feature_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_frontend_feature_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_frontend_feature_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_target_configs">
+<span class="sig-name descname"><span class="pre">lookup_target_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_target_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_target_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_target_feature_configs">
+<span class="sig-name descname"><span class="pre">lookup_target_feature_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_target_feature_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_target_feature_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.supports_feature">
+<span class="sig-name descname"><span class="pre">supports_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.supports_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.supports_feature" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.to_file">
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.to_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.UserEnvironment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.environment.</span></span><span class="sig-name descname"><span class="pre">UserEnvironment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">home</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frameworks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frontends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#UserEnvironment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.UserEnvironment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.environment.environment.DefaultEnvironment" title="mlonmcu.environment.environment.DefaultEnvironment"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.environment.environment.DefaultEnvironment</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">home</span></code></dt><dd><p>Home directory of mlonmcu environment.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_backend</span></code>(name)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 78%" />
+<col style="width: 22%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>from_file</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_default_backends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>get_default_frameworks</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_default_targets</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>has_framework</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>has_target</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_backend_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_framework_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_frontend_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_target_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_target_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>supports_feature</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>to_file</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.environment.init">
+<span id="mlonmcu-environment-init-module"></span><h2>mlonmcu.environment.init module<a class="headerlink" href="#module-mlonmcu.environment.init" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.init.ask_user">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.init.</span></span><span class="sig-name descname"><span class="pre">ask_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yes_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['y',</span> <span class="pre">'j']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['n']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/init.html#ask_user"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.init.ask_user" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.init.clone_models_repo">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.init.</span></span><span class="sig-name descname"><span class="pre">clone_models_repo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'https://github.com/tum-ei-eda/mlonmcu-models.git'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/init.html#clone_models_repo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.init.clone_models_repo" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.init.create_environment_directories">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.init.</span></span><span class="sig-name descname"><span class="pre">create_environment_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directories</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/init.html#create_environment_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.init.create_environment_directories" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.init.create_venv_directory">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.init.</span></span><span class="sig-name descname"><span class="pre">create_venv_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/init.html#create_venv_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.init.create_venv_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.init.initialize_environment">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.init.</span></span><span class="sig-name descname"><span class="pre">initialize_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_venv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/init.html#initialize_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.init.initialize_environment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.environment.list">
+<span id="mlonmcu-environment-list-module"></span><h2>mlonmcu.environment.list module<a class="headerlink" href="#module-mlonmcu.environment.list" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.list.get_alternative_name">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.list.</span></span><span class="sig-name descname"><span class="pre">get_alternative_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/list.html#get_alternative_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.list.get_alternative_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.list.get_environment_names">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.list.</span></span><span class="sig-name descname"><span class="pre">get_environment_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/list.html#get_environment_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.list.get_environment_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.list.get_environments_map">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.list.</span></span><span class="sig-name descname"><span class="pre">get_environments_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/list.html#get_environments_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.list.get_environments_map" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.list.register_environment">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.list.</span></span><span class="sig-name descname"><span class="pre">register_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/list.html#register_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.list.register_environment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.environment.loader">
+<span id="mlonmcu-environment-loader-module"></span><h2>mlonmcu.environment.loader module<a class="headerlink" href="#module-mlonmcu.environment.loader" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.loader.load_environment_from_file">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.loader.</span></span><span class="sig-name descname"><span class="pre">load_environment_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/loader.html#load_environment_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.loader.load_environment_from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to initialize a mlonmcu environment from a YAML file.</p>
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.environment.templates">
+<span id="mlonmcu-environment-templates-module"></span><h2>mlonmcu.environment.templates module<a class="headerlink" href="#module-mlonmcu.environment.templates" title="Permalink to this headline"></a></h2>
+<p>Definitions of mlonmcu config templates.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.templates.fill_environment_yaml">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.templates.</span></span><span class="sig-name descname"><span class="pre">fill_environment_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">home_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/templates.html#fill_environment_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.templates.fill_environment_yaml" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.templates.fill_template">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.templates.</span></span><span class="sig-name descname"><span class="pre">fill_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/templates.html#fill_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.templates.fill_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.templates.get_template_names">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.templates.</span></span><span class="sig-name descname"><span class="pre">get_template_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/templates.html#get_template_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.templates.get_template_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.templates.get_template_text">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.templates.</span></span><span class="sig-name descname"><span class="pre">get_template_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/templates.html#get_template_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.templates.get_template_text" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.templates.write_environment_yaml_from_template">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.templates.</span></span><span class="sig-name descname"><span class="pre">write_environment_yaml_from_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">home_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/templates.html#write_environment_yaml_from_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.templates.write_environment_yaml_from_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.environment.util">
+<span id="mlonmcu-environment-util-module"></span><h2>mlonmcu.environment.util module<a class="headerlink" href="#module-mlonmcu.environment.util" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.util.get_base_prefix_compat">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.util.</span></span><span class="sig-name descname"><span class="pre">get_base_prefix_compat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/util.html#get_base_prefix_compat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.util.get_base_prefix_compat" title="Permalink to this definition"></a></dt>
+<dd><p>Get base/real prefix, or sys.prefix if there is none.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.util.in_virtualenv">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.util.</span></span><span class="sig-name descname"><span class="pre">in_virtualenv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/util.html#in_virtualenv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.util.in_virtualenv" title="Permalink to this definition"></a></dt>
+<dd><p>Detects if the current python interpreter is from a virtual environment.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment.util.validate_name">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment.util.</span></span><span class="sig-name descname"><span class="pre">validate_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/util.html#validate_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.util.validate_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.environment">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.environment" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mlonmcu.data.html" class="btn btn-neutral float-left" title="mlonmcu.data package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.feature.html" class="btn btn-neutral float-right" title="mlonmcu.feature package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

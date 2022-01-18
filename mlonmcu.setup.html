@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.setup package &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.target package" href="mlonmcu.target.html" />
+    <link rel="prev" title="mlonmcu.session package" href="mlonmcu.session.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.context">mlonmcu.context module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.environment2">mlonmcu.environment2 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="docs.html">Documentation</a> &raquo;</li>
+          <li><a href="modules.html">mlonmcu</a> &raquo;</li>
+          <li><a href="mlonmcu.html">mlonmcu package</a> &raquo;</li>
+      <li>mlonmcu.setup package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.setup.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-setup-package">
+<h1>mlonmcu.setup package<a class="headerlink" href="#mlonmcu-setup-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-mlonmcu.setup.cache">
+<span id="mlonmcu-setup-cache-module"></span><h2>mlonmcu.setup.cache module<a class="headerlink" href="#module-mlonmcu.setup.cache" title="Permalink to this headline"></a></h2>
+<p>Definition of Taks Cache</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.setup.cache.TaskCache">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.cache.</span></span><span class="sig-name descname"><span class="pre">TaskCache</span></span><a class="reference internal" href="_modules/mlonmcu/setup/cache.html#TaskCache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.cache.TaskCache" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Task cache used to store dependency paths for the current and furture sessions.</p>
+<p>This can be interpreted as a “modded” dictionary which takes a key + some flags.</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.cache.TaskCache.find_best_match" title="mlonmcu.setup.cache.TaskCache.find_best_match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_best_match</span></code></a>(name[, flags])</p></td>
+<td><p>Utility whih tries to resolve the cache entry with the beste match.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 64%" />
+<col style="width: 36%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>read_from_file</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>write_to_file</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.cache.TaskCache.find_best_match">
+<span class="sig-name descname"><span class="pre">find_best_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/cache.html#TaskCache.find_best_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.cache.TaskCache.find_best_match" title="Permalink to this definition"></a></dt>
+<dd><p>Utility whih tries to resolve the cache entry with the beste match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The cache-key.</p>
+</dd>
+<dt><strong>flags</strong><span class="classifier">list</span></dt><dd><p>Optional flags used for the lookup.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.cache.TaskCache.read_from_file">
+<span class="sig-name descname"><span class="pre">read_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/cache.html#TaskCache.read_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.cache.TaskCache.read_from_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.cache.TaskCache.write_to_file">
+<span class="sig-name descname"><span class="pre">write_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/cache.html#TaskCache.write_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.cache.TaskCache.write_to_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.cache.convert_key">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.cache.</span></span><span class="sig-name descname"><span class="pre">convert_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/cache.html#convert_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.cache.convert_key" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.setup.install">
+<span id="mlonmcu-setup-install-module"></span><h2>mlonmcu.setup.install module<a class="headerlink" href="#module-mlonmcu.setup.install" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.install.install_dependencies">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.install.</span></span><span class="sig-name descname"><span class="pre">install_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks_factory=&lt;mlonmcu.setup.task.TaskFactory</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_cache=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/install.html#install_dependencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.install.install_dependencies" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.setup.task">
+<span id="mlonmcu-setup-task-module"></span><h2>mlonmcu.setup.task module<a class="headerlink" href="#module-mlonmcu.setup.task" title="Permalink to this headline"></a></h2>
+<p>Definitions of a task registry used to automatically install dependencies.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.task.</span></span><span class="sig-name descname"><span class="pre">TaskFactory</span></span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class which is used to register all available tasks and their annotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>registry</strong><span class="classifier">dict</span></dt><dd><p>Mapping of task names and their actual function</p>
+</dd>
+<dt><strong>dependencies</strong><span class="classifier">dict</span></dt><dd><p>Mapping of task dependencies</p>
+</dd>
+<dt><strong>providers</strong><span class="classifier">dict</span></dt><dd><p>Mapping of which task provides which artifacts</p>
+</dd>
+<dt><strong>types</strong><span class="classifier">dict</span></dt><dd><p>Mapping of task types</p>
+</dd>
+<dt><strong>validates</strong><span class="classifier">dict</span></dt><dd><p>Mapping of validation functions for the tasks</p>
+</dd>
+<dt><strong>changed</strong><span class="classifier">list</span></dt><dd><p>List of tasks?artifacts which have changed recently</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.needs" title="mlonmcu.setup.task.TaskFactory.needs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">needs</span></code></a>(keys[, force])</p></td>
+<td><p>Decorator which registers the artifacts a task needs to be processed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.optional" title="mlonmcu.setup.task.TaskFactory.optional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optional</span></code></a>(keys)</p></td>
+<td><p>Decorator for optional task requirements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.param" title="mlonmcu.setup.task.TaskFactory.param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">param</span></code></a>(flag, options)</p></td>
+<td><p>Decorator which registers available task parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.provides" title="mlonmcu.setup.task.TaskFactory.provides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">provides</span></code></a>(keys)</p></td>
+<td><p>Decorator which registers what a task provides.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.register" title="mlonmcu.setup.task.TaskFactory.register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register</span></code></a>([category])</p></td>
+<td><p>Decorator which actually registers a task in the registry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.reset_changes" title="mlonmcu.setup.task.TaskFactory.reset_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_changes</span></code></a>()</p></td>
+<td><p>Reset all pending changes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.validate" title="mlonmcu.setup.task.TaskFactory.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>(func)</p></td>
+<td><p>Decorator which registers validattion functions for a task.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory.needs">
+<span class="sig-name descname"><span class="pre">needs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory.needs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory.needs" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator which registers the artifacts a task needs to be processed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory.optional">
+<span class="sig-name descname"><span class="pre">optional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory.optional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory.optional" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator for optional task requirements.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory.param">
+<span class="sig-name descname"><span class="pre">param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory.param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory.param" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator which registers available task parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory.provides">
+<span class="sig-name descname"><span class="pre">provides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory.provides"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory.provides" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator which registers what a task provides.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">TaskType.MISC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory.register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory.register" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator which actually registers a task in the registry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory.reset_changes">
+<span class="sig-name descname"><span class="pre">reset_changes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory.reset_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory.reset_changes" title="Permalink to this definition"></a></dt>
+<dd><p>Reset all pending changes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory.validate" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator which registers validattion functions for a task.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskGraph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.task.</span></span><span class="sig-name descname"><span class="pre">TaskGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependencies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">providers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskGraph" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Task graph object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>names</strong><span class="classifier">list</span></dt><dd><p>list of task names in the graph</p>
+</dd>
+<dt><strong>dependencies</strong><span class="classifier">dict</span></dt><dd><p>Dependencies between task artifacts</p>
+</dd>
+<dt><strong>providers</strong><span class="classifier">dict</span></dt><dd><p>Providers for all the artifacts</p>
+</dd>
+<dt><strong>Examples</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>TODO</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskGraph.get_graph" title="mlonmcu.setup.task.TaskGraph.get_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_graph</span></code></a>()</p></td>
+<td><p>Get nodes and edges of the task graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskGraph.get_order" title="mlonmcu.setup.task.TaskGraph.get_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_order</span></code></a>()</p></td>
+<td><p>Get execution order of tasks via topological sorting.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskGraph.get_graph">
+<span class="sig-name descname"><span class="pre">get_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskGraph.get_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskGraph.get_graph" title="Permalink to this definition"></a></dt>
+<dd><p>Get nodes and edges of the task graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes</strong><span class="classifier">list</span></dt><dd><p>List of edges</p>
+</dd>
+<dt><strong>edges</strong><span class="classifier">list</span></dt><dd><p>List of edge tuples.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskGraph.get_order">
+<span class="sig-name descname"><span class="pre">get_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskGraph.get_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskGraph.get_order" title="Permalink to this definition"></a></dt>
+<dd><p>Get execution order of tasks via topological sorting.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.task.</span></span><span class="sig-name descname"><span class="pre">TaskType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enumeration for the task type.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.BACKEND">
+<span class="sig-name descname"><span class="pre">BACKEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.BACKEND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.FRAMEWORK">
+<span class="sig-name descname"><span class="pre">FRAMEWORK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.FRAMEWORK" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.FRONTEND">
+<span class="sig-name descname"><span class="pre">FRONTEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.FRONTEND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.MISC">
+<span class="sig-name descname"><span class="pre">MISC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.MISC" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.OPT">
+<span class="sig-name descname"><span class="pre">OPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.OPT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.TARGET">
+<span class="sig-name descname"><span class="pre">TARGET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.TARGET" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.TOOLCHAIN">
+<span class="sig-name descname"><span class="pre">TOOLCHAIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.TOOLCHAIN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.get_combs">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.task.</span></span><span class="sig-name descname"><span class="pre">get_combs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#get_combs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.get_combs" title="Permalink to this definition"></a></dt>
+<dd><p>Utility which returns combinations of the input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">dict</span></dt><dd><p>Input dictionary</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>combs</strong><span class="classifier">list</span></dt><dd><p>All combinations of the input data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_combs</span><span class="p">({</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span> <span class="s2">&quot;bar&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]})</span>
+<span class="go">[{&quot;foo&quot;: False, &quot;bar&quot;: 5}, {&quot;foo&quot;: False, &quot;bar&quot;: 10}, {&quot;foo&quot;: True, &quot;bar&quot;: 5}, {&quot;foo&quot;: True, &quot;bar&quot;: 10}]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.setup.tasks">
+<span id="mlonmcu-setup-tasks-module"></span><h2>mlonmcu.setup.tasks module<a class="headerlink" href="#module-mlonmcu.setup.tasks" title="Permalink to this headline"></a></h2>
+<p>Definition of tasks used to dynamically install MLonMCU dependencies</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.build_etiss">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">build_etiss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#build_etiss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.build_etiss" title="Permalink to this definition"></a></dt>
+<dd><p>Build the ETISS simulator.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.build_etissvp">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">build_etissvp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#build_etissvp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.build_etissvp" title="Permalink to this definition"></a></dt>
+<dd><p>Build the ETISS virtual prototype.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.build_muriscvnn">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">build_muriscvnn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#build_muriscvnn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.build_muriscvnn" title="Permalink to this definition"></a></dt>
+<dd><p>Build muRISCV-NN.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.build_tensorflow">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">build_tensorflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#build_tensorflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.build_tensorflow" title="Permalink to this definition"></a></dt>
+<dd><p>Download tensorflow dependencies and build lib.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.build_tflite_micro_compiler">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">build_tflite_micro_compiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#build_tflite_micro_compiler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.build_tflite_micro_compiler" title="Permalink to this definition"></a></dt>
+<dd><p>Build the TFLM preinterpreter.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.build_tvm">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">build_tvm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#build_tvm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.build_tvm" title="Permalink to this definition"></a></dt>
+<dd><p>Build the TVM framework.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.build_utvm_staticrt_codegen">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">build_utvm_staticrt_codegen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#build_utvm_staticrt_codegen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.build_utvm_staticrt_codegen" title="Permalink to this definition"></a></dt>
+<dd><p>Build the uTVM code generator.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.clone_etiss">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">clone_etiss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#clone_etiss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.clone_etiss" title="Permalink to this definition"></a></dt>
+<dd><p>Clone the ETISS repository.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.clone_muriscvnn">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">clone_muriscvnn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#clone_muriscvnn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.clone_muriscvnn" title="Permalink to this definition"></a></dt>
+<dd><p>Clone the muRISCV-NN project.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.clone_tensorflow">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">clone_tensorflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#clone_tensorflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.clone_tensorflow" title="Permalink to this definition"></a></dt>
+<dd><p>Clone the TF/TFLM repository.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.clone_tflite_micro_compiler">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">clone_tflite_micro_compiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#clone_tflite_micro_compiler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.clone_tflite_micro_compiler" title="Permalink to this definition"></a></dt>
+<dd><p>Clone the preinterpreter repository.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.clone_tvm">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">clone_tvm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#clone_tvm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.clone_tvm" title="Permalink to this definition"></a></dt>
+<dd><p>Clone the TVM repository.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.clone_utvm_staticrt_codegen">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">clone_utvm_staticrt_codegen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#clone_utvm_staticrt_codegen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.clone_utvm_staticrt_codegen" title="Permalink to this definition"></a></dt>
+<dd><p>Clone the uTVM code generator.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.install_etiss">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">install_etiss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#install_etiss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.install_etiss" title="Permalink to this definition"></a></dt>
+<dd><p>Install ETISS.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.install_llvm">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">install_llvm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#install_llvm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.install_llvm" title="Permalink to this definition"></a></dt>
+<dd><p>Download and install LLVM.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.install_riscv_gcc">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">install_riscv_gcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#install_riscv_gcc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.install_riscv_gcc" title="Permalink to this definition"></a></dt>
+<dd><p>Download and install the RISCV GCC toolchain.</p>
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.setup.utils">
+<span id="mlonmcu-setup-utils-module"></span><h2>mlonmcu.setup.utils module<a class="headerlink" href="#module-mlonmcu.setup.utils" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.clone">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">clone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#clone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.clone" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function for cloning a repository.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>url</strong><span class="classifier">str</span></dt><dd><p>Clone URL of the repository.</p>
+</dd>
+<dt><strong>dest</strong><span class="classifier">Path</span></dt><dd><p>Destination directory path.</p>
+</dd>
+<dt><strong>branch</strong><span class="classifier">str</span></dt><dd><p>Optional branch name or commit reference/tag.</p>
+</dd>
+<dt><strong>recursive</strong><span class="classifier">bool</span></dt><dd><p>If the clone should be done recursively.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.cmake">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">cmake</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ninja</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#cmake"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.cmake" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.copy">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.copy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.download">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.download" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.download_and_extract">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">download_and_extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#download_and_extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.download_and_extract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.exec">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.exec" title="Permalink to this definition"></a></dt>
+<dd><p>Execute a process with the given args and using the given kwards as Popen arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>args</strong></dt><dd><p>The command to be executed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.exec_getout">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">exec_getout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">live</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#exec_getout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.exec_getout" title="Permalink to this definition"></a></dt>
+<dd><p>Execute a process with the given args and using the given kwards as Popen arguments and return the output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>args</strong></dt><dd><p>The command to be executed.</p>
+</dd>
+<dt><strong>live</strong><span class="classifier">bool</span></dt><dd><p>If the stdout should be updated in real time.</p>
+</dd>
+<dt><strong>print_output</strong><span class="classifier">bool</span></dt><dd><p>Print the output at the end on non-live mode.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>output</dt><dd><p>The text printed to the command line.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.extract">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">archive</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.extract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.is_populated">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">is_populated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#is_populated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.is_populated" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.make">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ninja</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#make"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.make" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.makeDirName">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">makeDirName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#makeDirName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.makeDirName" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a directory name based on configuration values.</p>
+<p>Using snake_case style.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>base</strong><span class="classifier">str</span></dt><dd><p>Prefix of the filename to be generated.</p>
+</dd>
+<dt><strong>args</strong></dt><dd><p>List of tuples of the form: [(True, “foo”), (False, “bar”)]</p>
+</dd>
+<dt><strong>flags</strong><span class="classifier">list</span></dt><dd><p>Optional list of additional flags to be added.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>dirname</strong><span class="classifier">str</span></dt><dd><p>The generated directory name</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">),</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">])</span>
+<span class="go">&quot;base_foo_flag&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.makeFlags">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">makeFlags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#makeFlags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.makeFlags" title="Permalink to this definition"></a></dt>
+<dd><p>Resolve tuple-like arguments to a list of string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>args</strong></dt><dd><p>List of tuples of the form: [(True, “foo”), (False, “bar”)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>dirname</strong><span class="classifier">str</span></dt><dd><p>The generated directory name</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">makeFlags</span><span class="p">((</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">))</span>
+<span class="go">[&quot;foo&quot;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.mkdirs">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">mkdirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#mkdirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.mkdirs" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper for os.makedirs which handels the special case where the path already exits.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.move">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.move" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.python">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">python</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#python"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.python" title="Permalink to this definition"></a></dt>
+<dd><p>Run a python script with the current interpreter.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.remove">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.remove" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.setup">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.setup" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mlonmcu.session.html" class="btn btn-neutral float-left" title="mlonmcu.session package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.target.html" class="btn btn-neutral float-right" title="mlonmcu.target package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.environment.loader &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.environment.loader</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.environment.loader</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># def load_environment_from_file(filename):</span>
+<span class="c1">#     &quot;&quot;&quot;Utility to initialize a mlonmcu environment from a YAML file.&quot;&quot;&quot;</span>
+<span class="c1">#     if isinstance(filename, str):</span>
+<span class="c1">#         filename = pathlib.Path(filename)</span>
+<span class="c1">#     with open(filename, encoding=&quot;utf-8&quot;) as yaml_file:</span>
+<span class="c1">#         data = yaml.safe_load(yaml_file)</span>
+<span class="c1">#         if data:</span>
+<span class="c1">#             if &quot;home&quot; in data:</span>
+<span class="c1">#                 print(data[&quot;home&quot;], filename.parent)</span>
+<span class="c1">#                 assert os.path.realpath(data[&quot;home&quot;]) == os.path.realpath(filename.parent)</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 data[&quot;home&quot;] = filename.parent</span>
+<span class="c1">#             env = Environment(data)</span>
+<span class="c1">#             return env</span>
+<span class="c1">#         raise RuntimeError(f&quot;Error opening environment file: {filename}&quot;)</span>
+<span class="c1">#     return None</span>
+
+
+<div class="viewcode-block" id="load_environment_from_file"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.loader.load_environment_from_file">[docs]</a><span class="k">def</span> <span class="nf">load_environment_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Utility to initialize a mlonmcu environment from a YAML file.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yaml_file</span><span class="p">:</span>
+        <span class="n">loaded</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid YAML contents&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;home&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">home</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;home&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">home</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;logging&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;level&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">]:</span>
+                <span class="n">log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLevelName</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">][</span><span class="s2">&quot;level&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log_level</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="s2">&quot;to_file&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">]:</span>
+                <span class="n">log_to_file</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">][</span><span class="s2">&quot;to_file&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log_to_file</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="s2">&quot;rotate&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">]:</span>
+                <span class="n">log_rotate</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">][</span><span class="s2">&quot;rotate&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log_rotate</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log_level</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">log_to_file</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">log_rotate</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s2">&quot;paths&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">]:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">paths</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+                        <span class="n">paths</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PathConfig</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">home</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">paths</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">PathConfig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">home</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;repos&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">repos</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;repos&quot;</span><span class="p">]:</span>
+                <span class="n">repo</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;repos&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;url&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">repo</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing field &#39;url&#39; in YAML file&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;ref&quot;</span> <span class="ow">in</span> <span class="n">repo</span><span class="p">:</span>
+                    <span class="n">repos</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">RepoConfig</span><span class="p">(</span><span class="n">repo</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">],</span> <span class="n">ref</span><span class="o">=</span><span class="n">repo</span><span class="p">[</span><span class="s2">&quot;ref&quot;</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">repos</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">RepoConfig</span><span class="p">(</span><span class="n">repo</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repos</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">default_framework</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">default_backends</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s2">&quot;frameworks&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">frameworks</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">default_framework</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;frameworks&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;frameworks&quot;</span><span class="p">]:</span>
+                <span class="n">framework</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;frameworks&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;enabled&quot;</span> <span class="ow">in</span> <span class="n">framework</span><span class="p">:</span>
+                    <span class="n">enabled</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">framework</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">enabled</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">backends</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="s2">&quot;backends&quot;</span> <span class="ow">in</span> <span class="n">framework</span><span class="p">:</span>
+                    <span class="n">default_backend</span> <span class="o">=</span> <span class="n">framework</span><span class="p">[</span><span class="s2">&quot;backends&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">default_backends</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_backend</span>
+                    <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">framework</span><span class="p">[</span><span class="s2">&quot;backends&quot;</span><span class="p">]:</span>
+                        <span class="n">backend</span> <span class="o">=</span> <span class="n">framework</span><span class="p">[</span><span class="s2">&quot;backends&quot;</span><span class="p">][</span><span class="n">key2</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="s2">&quot;enabled&quot;</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">:</span>
+                            <span class="n">enabled2</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">backend</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">enabled2</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">backend_features</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">key3</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
+                                <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">backend</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key3</span><span class="p">])</span>
+                                <span class="n">backend_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="n">BackendFeatureConfig</span><span class="p">(</span>
+                                        <span class="n">key3</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">key2</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span>
+                                    <span class="p">)</span>
+                                <span class="p">)</span>
+                        <span class="n">backends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">BackendConfig</span><span class="p">(</span>
+                                <span class="n">key2</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled2</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">backend_features</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="n">framework_features</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">framework</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">framework</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
+                        <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">framework</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key2</span><span class="p">])</span>
+                        <span class="n">framework_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">FrameworkFeatureConfig</span><span class="p">(</span>
+                                <span class="n">key2</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="n">frameworks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">FrameworkConfig</span><span class="p">(</span>
+                        <span class="n">key</span><span class="p">,</span>
+                        <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span>
+                        <span class="n">backends</span><span class="o">=</span><span class="n">backends</span><span class="p">,</span>
+                        <span class="n">features</span><span class="o">=</span><span class="n">framework_features</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frameworks</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;frontends&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">frontends</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;frontends&quot;</span><span class="p">]:</span>
+                <span class="n">frontend</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;frontends&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="s2">&quot;enabled&quot;</span> <span class="ow">in</span> <span class="n">frontend</span><span class="p">:</span>
+                    <span class="n">enabled</span> <span class="o">=</span> <span class="n">frontend</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">frontend_features</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">frontend</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">frontend</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
+                        <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">frontend</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key2</span><span class="p">])</span>
+                        <span class="n">frontend_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">FrontendFeatureConfig</span><span class="p">(</span>
+                                <span class="n">key2</span><span class="p">,</span> <span class="n">frontend</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="n">frontends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">FrontendConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">frontend_features</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frontends</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">default_target</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;targets&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">default_target</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;targets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;targets&quot;</span><span class="p">]:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;targets&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;enabled&quot;</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+                    <span class="n">enabled</span> <span class="o">=</span> <span class="n">target</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">target_features</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">target</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
+                        <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key2</span><span class="p">])</span>
+                        <span class="n">target_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="n">key2</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">TargetConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">target_features</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;vars&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="n">DefaultsConfig</span><span class="p">(</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+            <span class="n">log_to_file</span><span class="o">=</span><span class="n">log_to_file</span><span class="p">,</span>
+            <span class="n">log_rotate</span><span class="o">=</span><span class="n">log_rotate</span><span class="p">,</span>
+            <span class="n">default_framework</span><span class="o">=</span><span class="n">default_framework</span><span class="p">,</span>
+            <span class="n">default_backends</span><span class="o">=</span><span class="n">default_backends</span><span class="p">,</span>
+            <span class="n">default_target</span><span class="o">=</span><span class="n">default_target</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">base</span><span class="p">(</span>
+            <span class="n">home</span><span class="p">,</span>
+            <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span><span class="p">,</span>
+            <span class="n">paths</span><span class="o">=</span><span class="n">paths</span><span class="p">,</span>
+            <span class="n">repos</span><span class="o">=</span><span class="n">repos</span><span class="p">,</span>
+            <span class="n">frameworks</span><span class="o">=</span><span class="n">frameworks</span><span class="p">,</span>
+            <span class="n">frontends</span><span class="o">=</span><span class="n">frontends</span><span class="p">,</span>
+            <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
+            <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">env</span></div>
+        <span class="c1"># print(&quot;env&quot;, env)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

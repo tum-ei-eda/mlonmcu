@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.flow.tvm.tvm_flow &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../flow.html">mlonmcu.flow</a> &raquo;</li>
+      <li>mlonmcu.flow.tvm.tvm_flow</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.flow.tvm.tvm_flow</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># from matplotlib import pyplot as plt</span>
+
+<span class="c1"># import tvm</span>
+<span class="c1"># import tvm.micro</span>
+<span class="c1"># from tvm import te</span>
+<span class="c1"># from tvm import relay</span>
+<span class="c1"># from tvm import ir</span>
+<span class="c1"># from tvm import autotvm</span>
+<span class="c1"># from tvm.contrib import graph_runtime</span>
+<span class="c1"># from tvm.contrib import utils as tvm_utils</span>
+<span class="c1"># from tvm.micro import export_model_library_format</span>
+<span class="c1">#</span>
+<span class="c1">## import compiler_riscv</span>
+<span class="c1"># import codegen</span>
+<span class="c1"># from load_tflite_model import load_tflite_model</span>
+<span class="c1"># from ftp import FTPass</span>
+<span class="c1"># from plan_memory import plan_memory</span>
+<span class="c1">#</span>
+<span class="c1"># from tvm.ir import _ffi_api as ir_ffi</span>
+
+<span class="kn">import</span> <span class="nn">mlonmcu.cli.helper.filter</span> <span class="k">as</span> <span class="nn">cli_filter</span>
+
+<span class="c1"># import mlonmcu.flow.tvm.wrapper as tvm_wrapper</span>
+
+<span class="c1"># from mlonmcu.flow.tvm.transform.reshape import ReshapeInfo, RemoveReshapeOnlyPass, FixReshapesPass</span>
+<span class="c1"># from mlonmcu.flow.tvm.transform.attrs import CheckAttrs</span>
+<span class="c1"># from mlonmcu.flow.tvm.transform.legalize import OptionallyDisableLegalize</span>
+
+<span class="c1"># Setup logging</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;compile_engine&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;autotvm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+
+<span class="c1"># class TVMFlow:</span>
+<span class="c1">#    def __init__(</span>
+<span class="c1">#        self,</span>
+<span class="c1">#        local=False,</span>
+<span class="c1">#        transformations=[],</span>
+<span class="c1">#        aot=False,</span>
+<span class="c1">#        unpacked=False,</span>
+<span class="c1">#        outDir=os.path.join(os.getcwd(), &quot;out&quot;),</span>
+<span class="c1">#        verbose=False,</span>
+<span class="c1">#        fuseMaxDepth=-1,</span>
+<span class="c1">#        arenaBytes=-1,</span>
+<span class="c1">#    ):</span>
+<span class="c1">#        self.opt_level = 3</span>
+<span class="c1">#        self.local = local</span>
+<span class="c1">#        self.transformations = transformations</span>
+<span class="c1">#        self.useAOT = aot</span>
+<span class="c1">#        # Unpacked API is incompatible with most BYOC kernels and not supported by graph runtime!</span>
+<span class="c1">#        self.unpacked = &quot;unpacked_api&quot; in self.transformations</span>
+<span class="c1">#        targetStr = &quot;llvm&quot; if self.local else &quot;c&quot;</span>
+<span class="c1">#        targetStr += &quot; --runtime=c&quot;</span>
+<span class="c1">#        if &quot;arm_schedules&quot; in self.transformations:</span>
+<span class="c1">#            targetStr += &quot; -device=arm_cpu&quot;</span>
+<span class="c1">#        if self.useAOT:</span>
+<span class="c1">#            targetStr += &quot; --link-params&quot;</span>
+<span class="c1">#            targetStr += &quot; --executor=aot&quot;</span>
+<span class="c1">#            targetStr += &quot; --workspace-byte-alignment={}&quot;.format(4)</span>
+<span class="c1">#            targetStr += &quot; --unpacked-api={}&quot;.format(int(self.unpacked))</span>
+<span class="c1">#            targetStr += &quot; --interface-api={}&quot;.format(&quot;c&quot; if self.unpacked else &quot;packed&quot;)</span>
+<span class="c1">#        else:</span>
+<span class="c1">#            # TODO -link-params: adds static parameters into generated code</span>
+<span class="c1">#            targetStr += &quot; -model=unknown --system-lib&quot;</span>
+<span class="c1">#        self.target = tvm.target.Target(targetStr)</span>
+<span class="c1">#        self.outDir = outDir</span>
+<span class="c1">#        self.verbose = verbose</span>
+<span class="c1">#        self.fuseMaxDepth = fuseMaxDepth</span>
+<span class="c1">#        self.arenaBytes = arenaBytes</span>
+<span class="c1">#        self.modName = &quot;model&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#    def loadModel(self, path):</span>
+<span class="c1">#        logger.info(&quot;### TVMFlow.loadModel&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#        modelBuf = open(path, &quot;rb&quot;).read()</span>
+<span class="c1">#        self.mod, self.params, self.modelInfo = load_tflite_model(modelBuf)</span>
+<span class="c1">#</span>
+<span class="c1">#        if &quot;fusetile&quot; in self.transformations or &quot;memplan&quot; in self.transformations:</span>
+<span class="c1">#            modelName = re.search(r&quot;\/(\w+)\.tflite&quot;, path).group(1)</span>
+<span class="c1">#</span>
+<span class="c1">#            @tvm.register_func(&quot;relay.backend.PostPass&quot;)</span>
+<span class="c1">#            def _post_pass(mod, params):</span>
+<span class="c1">#                # CheckAttrs().visit(mod[&quot;main&quot;])</span>
+<span class="c1">#                # if &quot;memplan&quot; in self.transformations:</span>
+<span class="c1">#                #    mod = RemoveReshapeOnlyPass()(mod)</span>
+<span class="c1">#                mod = FixReshapesPass()(mod)</span>
+<span class="c1">#                if &quot;fusetile&quot; in self.transformations:</span>
+<span class="c1">#                    hintAxis = None</span>
+<span class="c1">#                    if modelName == &quot;vww&quot;:</span>
+<span class="c1">#                        hintAxis = 3</span>
+<span class="c1">#                    mod = FTPass(params, 2, hintAxis)(mod)</span>
+<span class="c1">#                    # TODO: automate</span>
+<span class="c1">#                    &quot;&quot;&quot;</span>
+<span class="c1">#                    if modelName == &quot;dummy_add&quot;:</span>
+<span class="c1">#                        mod = FTPass(params, 2, [3, 3, 3, 1, 3])(mod)</span>
+<span class="c1">#                    elif modelName == &quot;bigsine_quant&quot;:</span>
+<span class="c1">#                        #mod = FTPass(params, 2, [2, 1, 1])(mod)</span>
+<span class="c1">#                        mod = FTPass(params, 2, [0, 1, 1])(mod)</span>
+<span class="c1">#                    &quot;&quot;&quot;</span>
+<span class="c1">#                mod = FixReshapesPass()(mod)</span>
+<span class="c1">#                return mod</span>
+<span class="c1">#</span>
+<span class="c1">#        if &quot;memplan&quot; in self.transformations:</span>
+<span class="c1">#</span>
+<span class="c1">#            @tvm.register_func(&quot;tvm.relay.plan_memory&quot;)</span>
+<span class="c1">#            def _plan_memory(func):</span>
+<span class="c1">#                return plan_memory(func)</span>
+<span class="c1">#</span>
+<span class="c1">#        cfg = {}</span>
+<span class="c1">#        transformations = []</span>
+<span class="c1">#        transformations.append(relay.transform.InferType())</span>
+<span class="c1">#        # Will be helpful when further (optional) transformations are added -&gt; BYOC</span>
+<span class="c1">#</span>
+<span class="c1">#        if self.verbose:</span>
+<span class="c1">#            logger.info(&quot;Relay Model before transformations: \n&quot;)</span>
+<span class="c1">#            logger.info(self.mod)</span>
+<span class="c1">#        seq = tvm.transform.Sequential(transformations)</span>
+<span class="c1">#        with tvm.transform.PassContext(opt_level=3, config=cfg):</span>
+<span class="c1">#            self.mod = seq(self.mod)</span>
+<span class="c1">#</span>
+<span class="c1">#        if self.verbose:</span>
+<span class="c1">#            logger.info(&quot;Relay Model after transformations: \n&quot;)</span>
+<span class="c1">#            logger.info(self.mod)</span>
+<span class="c1">#</span>
+<span class="c1">#    def build(self, export_only=False):</span>
+<span class="c1">#        logger.info(&quot;### TVMFlow.build&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#        if self.local:</span>
+<span class="c1">#            cfg = {}</span>
+<span class="c1">#        else:</span>
+<span class="c1">#            cfg = {&quot;tir.disable_vectorize&quot;: True}</span>
+<span class="c1">#            if self.fuseMaxDepth &gt;= 0:</span>
+<span class="c1">#                cfg[&quot;relay.FuseOps.max_depth&quot;] = self.fuseMaxDepth</span>
+<span class="c1">#</span>
+<span class="c1">#        with tvm.transform.PassContext(opt_level=self.opt_level, config=cfg):</span>
+<span class="c1">#            with OptionallyDisableLegalize(&quot;disable_legalize&quot; in self.transformations):</span>
+<span class="c1">#                c_mod = relay.build(self.mod, self.target, params=self.params, mod_name=self.modName)</span>
+<span class="c1">#            if not self.useAOT:</span>
+<span class="c1">#                self.graph = c_mod.get_graph_json()</span>
+<span class="c1">#            else:</span>
+<span class="c1">#                self.graph = None</span>
+<span class="c1">#            self.c_params = c_mod.get_params()</span>
+<span class="c1">#            # Individual steps:</span>
+<span class="c1">#            # opt_mod, opt_params = relay.optimize(self.mod, self.target, self.params)</span>
+<span class="c1">#            # grc = graph_executor_codegen.GraphExecutorCodegen(None, self.target)</span>
+<span class="c1">#            # self.graph, lowered_mod, lowered_params = grc.codegen(opt_mod[&quot;main&quot;])</span>
+<span class="c1">#            # TODO: call into backend, see target.build.c / driver_api.cc</span>
+<span class="c1">#            # print(lowered_mod)</span>
+<span class="c1">#</span>
+<span class="c1">#        if self.verbose:</span>
+<span class="c1">#            # print(c_mod.get_source())</span>
+<span class="c1">#            for k, v in self.params.items():</span>
+<span class="c1">#                logger.debug(k, v.shape)</span>
+<span class="c1">#            for k, v in self.c_params.items():</span>
+<span class="c1">#                logger.debug(k, v.shape)</span>
+<span class="c1">#</span>
+<span class="c1">#        if not self.local:</span>
+<span class="c1">#            # Extract metadata.</span>
+<span class="c1">#            mlfDir = tvm_utils.tempdir().temp_dir</span>
+<span class="c1">#            os.makedirs(mlfDir, exist_ok=True)</span>
+<span class="c1">#            tarFile = os.path.join(mlfDir, &quot;archive.tar&quot;)</span>
+<span class="c1">#            export_model_library_format(c_mod, tarFile)</span>
+<span class="c1">#            tarfile.open(tarFile).extractall(mlfDir)</span>
+<span class="c1">#            with open(os.path.join(mlfDir, &quot;metadata.json&quot;)) as f:</span>
+<span class="c1">#                metadata = json.load(f)</span>
+<span class="c1">#</span>
+<span class="c1">#            if not export_only:</span>
+<span class="c1">#                # TODO: fix this?</span>
+<span class="c1">#                repo_root = pathlib.Path(</span>
+<span class="c1">#                    subprocess.check_output([&quot;git&quot;, &quot;rev-parse&quot;, &quot;--show-toplevel&quot;], encoding=&quot;utf-8&quot;).strip()</span>
+<span class="c1">#                )</span>
+<span class="c1">#                template_project_path = repo_root / &quot;src&quot; / &quot;runtime&quot; / &quot;crt&quot; / &quot;host&quot;</span>
+<span class="c1">#                project_options = {}</span>
+<span class="c1">#                temp_dir = tvm_utils.tempdir()</span>
+<span class="c1">#                generated_project_dir = temp_dir / &quot;generated-project&quot;</span>
+<span class="c1">#                generated_project = tvm.micro.generate_project(</span>
+<span class="c1">#                    template_project_path, c_mod, generated_project_dir, project_options</span>
+<span class="c1">#                )</span>
+<span class="c1">#                generated_project.build()</span>
+<span class="c1">#</span>
+<span class="c1">#            if os.path.exists(os.path.join(self.outDir, &quot;params.bin&quot;)):</span>
+<span class="c1">#                shutil.rmtree(self.outDir)</span>
+<span class="c1">#</span>
+<span class="c1">#            shutil.copytree(os.path.join(mlfDir, &quot;codegen&quot;, &quot;host&quot;, &quot;src&quot;), self.outDir)</span>
+<span class="c1">#            shutil.copy2(os.path.join(mlfDir, &quot;src&quot;, &quot;relay.txt&quot;), os.path.join(self.outDir, &quot;relay.txt&quot;))</span>
+<span class="c1">#            shutil.copy2(os.path.join(mlfDir, &quot;metadata.json&quot;), os.path.join(self.outDir, &quot;metadata.json&quot;))</span>
+<span class="c1">#</span>
+<span class="c1">#            if self.graph:</span>
+<span class="c1">#                with open(os.path.join(self.outDir, &quot;graph.json&quot;), &quot;w&quot;) as f:</span>
+<span class="c1">#                    f.write(self.graph)</span>
+<span class="c1">#</span>
+<span class="c1">#            with open(os.path.join(self.outDir, &quot;metadata.json&quot;)) as json_f:</span>
+<span class="c1">#                metadata = json.load(json_f)</span>
+<span class="c1">#</span>
+<span class="c1">#            with open(os.path.join(self.outDir, &quot;params.bin&quot;), &quot;wb&quot;) as f:</span>
+<span class="c1">#                f.write(relay.save_param_dict(self.c_params))</span>
+<span class="c1">#</span>
+<span class="c1">#            if self.useAOT:</span>
+<span class="c1">#                if self.unpacked:</span>
+<span class="c1">#                    shutil.copy2(</span>
+<span class="c1">#                        os.path.join(mlfDir, &quot;codegen&quot;, &quot;host&quot;, &quot;include&quot;, f&quot;tvmgen_{self.modName}.h&quot;),</span>
+<span class="c1">#                        os.path.join(self.outDir, f&quot;tvmgen_{self.modName}.h&quot;),</span>
+<span class="c1">#                    )</span>
+<span class="c1">#                workspaceBytes = metadata[&quot;memory&quot;][&quot;functions&quot;][&quot;main&quot;][0][&quot;workspace_size_bytes&quot;]</span>
+<span class="c1">#                wrapper_codegen = tvm_wrapper.AOTWrapper(</span>
+<span class="c1">#                    self.modelInfo,</span>
+<span class="c1">#                    workspaceBytes,</span>
+<span class="c1">#                    self.modName,</span>
+<span class="c1">#                    modApi=&quot;c&quot; if self.unpacked else &quot;packed&quot;,</span>
+<span class="c1">#                )</span>
+<span class="c1">#            else:</span>
+<span class="c1">#                # THe following does NOT work for the graph runtime because the memory requirements for JSON parsing are</span>
+<span class="c1">#                # not considered here.</span>
+<span class="c1">#                # workspaceBytes = metadata[&quot;memory&quot;][&quot;functions&quot;][&quot;main&quot;][0][&quot;workspace_size_bytes&quot;]</span>
+<span class="c1">#                # Instead let the user pass a workspace size and fall back to default (16 MB) if not specified</span>
+<span class="c1">#                if self.arenaBytes &gt;= 0:</span>
+<span class="c1">#                    workspaceBytes = self.arenaBytes</span>
+<span class="c1">#                else:</span>
+<span class="c1">#                    workspaceBytes = 2 ** (24)</span>
+<span class="c1">#                    # Get size for code generator: Max of op functions usage.</span>
+<span class="c1">#                maxOpWorkspaceBytes = 0</span>
+<span class="c1">#                for op in metadata[&quot;memory&quot;][&quot;functions&quot;][&quot;operator_functions&quot;]:</span>
+<span class="c1">#                    maxOpWorkspaceBytes = max(</span>
+<span class="c1">#                        maxOpWorkspaceBytes,</span>
+<span class="c1">#                        op[&quot;workspace&quot;][0][&quot;workspace_size_bytes&quot;] if len(op[&quot;workspace&quot;]) &gt; 0 else 0,</span>
+<span class="c1">#                    )</span>
+<span class="c1">#                with open(os.path.join(self.outDir, &quot;max_op_workspace_size.txt&quot;), &quot;w&quot;) as f:</span>
+<span class="c1">#                    f.write(str(maxOpWorkspaceBytes))</span>
+<span class="c1">#</span>
+<span class="c1">#                codegen = tvm_wrapper.RTWrapper(</span>
+<span class="c1">#                    os.path.join(self.outDir, &quot;runtime_wrapper.c&quot;),</span>
+<span class="c1">#                    self.graph,</span>
+<span class="c1">#                    relay.save_param_dict(self.c_params),</span>
+<span class="c1">#                    self.modelInfo,</span>
+<span class="c1">#                    workspaceBytes,</span>
+<span class="c1">#                )</span>
+<span class="c1">#            codegen.generateTargetCode(self.outDir, wrapper=f&quot;{self.codegen}_wrapper.c&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#    def run(self, inData=None):</span>
+<span class="c1">#        logger.info(&quot;### TVMFlow.run&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#        raise NotImplementedError</span>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../../mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.tvm_flow.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="c1"># TODO: add help strings should start with a lower case letter</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run TVM Flow&quot;</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawTextHelpFormatter</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Use environment variables to overwrite default paths:</span>
+<span class="s2">      - RISCV_DIR (default: /usr/local/research/projects/SystemDesign/tools/riscv/current, read only)</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;MODEL&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Model to process&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># TODO: support non-.tflite models!</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--codegen&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;CODEGEN&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aot&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;aot&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Choose a code generator or executor/runtime (default: </span><span class="si">%(default)s</span><span class="s2">, choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;TARGET&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span> <span class="s2">&quot;arm_cpu&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;host&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Choose a target (default: </span><span class="si">%(default)s</span><span class="s2">, choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># TODO: allow non-micro targets?</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;outdir&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;DIR&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s2">&quot;out&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Output directory (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-v&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print detailed messages for easier debugging (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># TODO: allow multiple -v&#39;s?</span>
+
+    <span class="n">tvm_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;TVM General&quot;</span><span class="p">)</span>
+    <span class="n">tvm_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--wrapper&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate a wrapper entry point (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tvm_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--compile&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compile model with TVM (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tvm_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--run&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run model after building (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tvm_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--transformations&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Comma-separated list of transformations to apply (default: </span><span class="si">%(default)s</span><span class="s2">)</span>
+<span class="s2">Available transformations:</span>
+<span class="s2">  - fusetile</span>
+<span class="s2">  - memplan</span>
+<span class="s2">  - arm_schedules</span>
+<span class="s2">  - disable_legalize</span>
+<span class="s2">  - unpacked_api&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tvm_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--pass-config&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;name=value&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;configurations to be used at compile time. This option can be provided multiple &quot;</span>
+        <span class="s2">&quot;times, each one to set one configuration value, &quot;</span>
+        <span class="s2">&quot;e.g. &#39;--pass-config relay.FuseOps.max_depth=1&#39;.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tvm_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--tune&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use TVM Autotuner, optionally pass path to existing autotuning logs (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">graph_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;TVM Graph Runtime&quot;</span><span class="p">)</span>
+    <span class="n">graph_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--arena-bytes&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;arena_bytes&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;BYTES&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite default/determined arena size (default: </span><span class="si">%(default)s</span><span class="s2">))&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">aot_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;TVM AoT Runtime&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../../mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.tvm_flow.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># TODO: setup verbosity</span>
+    <span class="c1"># logging.basicConfig(level=logging.INFO)</span>
+
+    <span class="c1"># TODO: make helper function</span>
+    <span class="c1"># filter removes elements that evaluate to False.</span>
+    <span class="c1"># transformations = list(filter(None, args.transformations.split(&quot;,&quot;)))</span>
+    <span class="n">transformations</span> <span class="o">=</span> <span class="n">cli_filter</span><span class="o">.</span><span class="n">filter_arg</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">transformations</span><span class="p">)</span>
+
+    <span class="n">flow</span> <span class="o">=</span> <span class="n">TVMFlow</span><span class="p">(</span>
+        <span class="n">local</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">local</span><span class="p">,</span>
+        <span class="n">transformations</span><span class="o">=</span><span class="n">transformations</span><span class="p">,</span>
+        <span class="n">aot</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">aot</span><span class="p">,</span>
+        <span class="n">outDir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">outdir</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="n">fuseMaxDepth</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_depth</span><span class="p">,</span>
+        <span class="n">arenaBytes</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">arena_bytes</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">flow</span><span class="o">.</span><span class="n">loadModel</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">transform</span><span class="p">:</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">transform</span><span class="p">)</span>
+    <span class="n">flow</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">compile</span><span class="p">:</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">:</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">wrapper</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">wrapper</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span><span class="p">:</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tune</span><span class="p">:</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">tune</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

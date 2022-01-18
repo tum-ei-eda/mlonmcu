@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu package &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.cli package" href="mlonmcu.cli.html" />
+    <link rel="prev" title="mlonmcu" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">mlonmcu package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.context">mlonmcu.context module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.environment2">mlonmcu.environment2 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="docs.html">Documentation</a> &raquo;</li>
+          <li><a href="modules.html">mlonmcu</a> &raquo;</li>
+      <li>mlonmcu package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-package">
+<h1>mlonmcu package<a class="headerlink" href="#mlonmcu-package" title="Permalink to this headline"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.cli.html">mlonmcu.cli package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.helper.html">mlonmcu.cli.helper package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.cli.helper.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.cli.helper.html#module-mlonmcu.cli.helper.filter">mlonmcu.cli.helper.filter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.cli.helper.html#module-mlonmcu.cli.helper.parse">mlonmcu.cli.helper.parse module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.cli.helper.html#module-mlonmcu.cli.helper">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.build">mlonmcu.cli.build module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.check">mlonmcu.cli.check module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.cleanup">mlonmcu.cli.cleanup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.common">mlonmcu.cli.common module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.compile">mlonmcu.cli.compile module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.debug">mlonmcu.cli.debug module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.env">mlonmcu.cli.env module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.flow">mlonmcu.cli.flow module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.init">mlonmcu.cli.init module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.load">mlonmcu.cli.load module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.main">mlonmcu.cli.main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.models">mlonmcu.cli.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.run">mlonmcu.cli.run module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.setup">mlonmcu.cli.setup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.test">mlonmcu.cli.test module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.trace">mlonmcu.cli.trace module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.compile.html">mlonmcu.compile package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.compile.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.compile.html#module-mlonmcu.compile.inout">mlonmcu.compile.inout module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.compile.html#mlonmcu-compile-mlif-module">mlonmcu.compile.mlif module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.compile.html#module-mlonmcu.compile">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.data.html">mlonmcu.data package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.data.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.data.html#module-mlonmcu.data.utils">mlonmcu.data.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.data.html#module-mlonmcu.data">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.environment.html">mlonmcu.environment package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.config">mlonmcu.environment.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.environment">mlonmcu.environment.environment module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.init">mlonmcu.environment.init module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.list">mlonmcu.environment.list module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.loader">mlonmcu.environment.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.templates">mlonmcu.environment.templates module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.util">mlonmcu.environment.util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.feature.html">mlonmcu.feature package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.feature.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.feature.html#module-mlonmcu.feature.feature">mlonmcu.feature.feature module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.feature.html#module-mlonmcu.feature.features">mlonmcu.feature.features module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.feature.html#module-mlonmcu.feature">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.flow.html">mlonmcu.flow package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tflite.html">mlonmcu.flow.tflite package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflite.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflite.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflite.html#module-mlonmcu.flow.tflite.framework">mlonmcu.flow.tflite.framework module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflite.html#module-mlonmcu.flow.tflite.tflite_flow">mlonmcu.flow.tflite.tflite_flow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflite.html#module-mlonmcu.flow.tflite">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tvm.html">mlonmcu.flow.tvm package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm.framework">mlonmcu.flow.tvm.framework module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm.tvm_flow">mlonmcu.flow.tvm.tvm_flow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.html#module-mlonmcu.flow.backend">mlonmcu.flow.backend module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.html#module-mlonmcu.flow.framework">mlonmcu.flow.framework module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.html#module-mlonmcu.flow">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.models.html">mlonmcu.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#mlonmcu-models-frontend-module">mlonmcu.models.frontend module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.frontends">mlonmcu.models.frontends module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.group">mlonmcu.models.group module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.inout">mlonmcu.models.inout module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.lookup">mlonmcu.models.lookup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.metadata">mlonmcu.models.metadata module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.model">mlonmcu.models.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.options">mlonmcu.models.options module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.session.html">mlonmcu.session package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.html#module-mlonmcu.session.postprocess">mlonmcu.session.postprocess module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.html#module-mlonmcu.session.progress">mlonmcu.session.progress module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.html#module-mlonmcu.session.run">mlonmcu.session.run module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.html#module-mlonmcu.session.session">mlonmcu.session.session module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.html#module-mlonmcu.session">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.setup.html">mlonmcu.setup package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.cache">mlonmcu.setup.cache module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.install">mlonmcu.setup.install module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.task">mlonmcu.setup.task module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.tasks">mlonmcu.setup.tasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.utils">mlonmcu.setup.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.target.html">mlonmcu.target package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.common">mlonmcu.target.common module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.etiss_pulpino">mlonmcu.target.etiss_pulpino module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.host_x86">mlonmcu.target.host_x86 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.target">mlonmcu.target.target module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-mlonmcu.artifact">
+<span id="mlonmcu-artifact-module"></span><h2>mlonmcu.artifact module<a class="headerlink" href="#module-mlonmcu.artifact" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.artifact.Artifact">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.artifact.</span></span><span class="sig-name descname"><span class="pre">Artifact</span></span><a class="reference internal" href="_modules/mlonmcu/artifact.html#Artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.artifact.Artifact" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.artifact.ModelLibraryFormatPlus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.artifact.</span></span><span class="sig-name descname"><span class="pre">ModelLibraryFormatPlus</span></span><a class="reference internal" href="_modules/mlonmcu/artifact.html#ModelLibraryFormatPlus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.artifact.ModelLibraryFormatPlus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.context">
+<span id="mlonmcu-context-module"></span><h2>mlonmcu.context module<a class="headerlink" href="#module-mlonmcu.context" title="Permalink to this headline"></a></h2>
+<p>Definition if the contextmanager for mlonmcu environments.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.context.MlonMcuContext">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.context.</span></span><span class="sig-name descname"><span class="pre">MlonMcuContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context.html#MlonMcuContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.MlonMcuContext" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Contextmanager for mlonmcu environments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>environment</strong><span class="classifier">Environment</span></dt><dd><p>The MLonMCU Environment where paths, repos, features,… are configured.</p>
+</dd>
+<dt><strong>lock</strong><span class="classifier">bool</span></dt><dd><p>Holds if the environment should be limited to only one user or not.</p>
+</dd>
+<dt><strong>lockfile</strong><span class="classifier">FileLock</span></dt><dd><p>The lock for the environment directory (optional).</p>
+</dd>
+<dt><strong>sessions</strong><span class="classifier">list</span></dt><dd><p>List of sessions for the current environment.</p>
+</dd>
+<dt><strong>session_idx</strong><span class="classifier">list</span></dt><dd><p>A counter for determining the next session index.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">TaskCache</span></dt><dd><p>The cache where paths of installed dependencies can be looked up.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.context.MlonMcuContext.cleanup" title="mlonmcu.context.MlonMcuContext.cleanup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanup</span></code></a>()</p></td>
+<td><p>Clean up the context before leaving the context by closing all active sessions</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.context.MlonMcuContext.create_session" title="mlonmcu.context.MlonMcuContext.create_session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_session</span></code></a>()</p></td>
+<td><p>Create a new session in the current context.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.context.MlonMcuContext.get_session" title="mlonmcu.context.MlonMcuContext.get_session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_session</span></code></a>()</p></td>
+<td><p>Get an active session if available, else create a new one.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.context.MlonMcuContext.load_cache" title="mlonmcu.context.MlonMcuContext.load_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_cache</span></code></a>()</p></td>
+<td><p>If available load the cache.ini file in the deps directory</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.MlonMcuContext.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context.html#MlonMcuContext.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.MlonMcuContext.cleanup" title="Permalink to this definition"></a></dt>
+<dd><p>Clean up the context before leaving the context by closing all active sessions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.MlonMcuContext.create_session">
+<span class="sig-name descname"><span class="pre">create_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context.html#MlonMcuContext.create_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.MlonMcuContext.create_session" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new session in the current context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.MlonMcuContext.get_session">
+<span class="sig-name descname"><span class="pre">get_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlonmcu.session.html#mlonmcu.session.session.Session" title="mlonmcu.session.session.Session"><span class="pre">mlonmcu.session.session.Session</span></a></span></span><a class="reference internal" href="_modules/mlonmcu/context.html#MlonMcuContext.get_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.MlonMcuContext.get_session" title="Permalink to this definition"></a></dt>
+<dd><p>Get an active session if available, else create a new one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Session:</dt><dd><p>An active session</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.context.MlonMcuContext.is_clean">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_clean</span></span><a class="headerlink" href="#mlonmcu.context.MlonMcuContext.is_clean" title="Permalink to this definition"></a></dt>
+<dd><p>Return true if all sessions in the context are inactive</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.MlonMcuContext.load_cache">
+<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context.html#MlonMcuContext.load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.MlonMcuContext.load_cache" title="Permalink to this definition"></a></dt>
+<dd><p>If available load the cache.ini file in the deps directory</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.get_environment_by_name">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.</span></span><span class="sig-name descname"><span class="pre">get_environment_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><span class="pre">mlonmcu.environment.environment.Environment</span></a></span></span><a class="reference internal" href="_modules/mlonmcu/context.html#get_environment_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.get_environment_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to find an environment file using a supplied name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The name/alias if the environment.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Environment :</dt><dd><p>The environment (if the lookup was successful).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.get_environment_by_path">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.</span></span><span class="sig-name descname"><span class="pre">get_environment_by_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><span class="pre">mlonmcu.environment.environment.Environment</span></a></span></span><a class="reference internal" href="_modules/mlonmcu/context.html#get_environment_by_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.get_environment_by_path" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to find an environment file using a supplied path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path</strong><span class="classifier">str/Path</span></dt><dd><p>The path of the environment (or its YAML file).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Environment:</dt><dd><p>The environment (if the lookup was successful).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.get_ids">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.</span></span><span class="sig-name descname"><span class="pre">get_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/context.html#get_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.get_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Get a sorted list of ids for sessions/runs found in the given directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>directory</strong><span class="classifier">Path</span></dt><dd><p>Directory where the sessions/runs are stored.</p>
+</dd>
+<dt><strong>Returns:</strong></dt><dd></dd>
+<dt><strong>list</strong></dt><dd><p>List of integers representing the session numbers. Empty list if directory does not exist.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.load_recent_sessions">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.</span></span><span class="sig-name descname"><span class="pre">load_recent_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><span class="pre">mlonmcu.environment.environment.Environment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.session.html#mlonmcu.session.session.Session" title="mlonmcu.session.session.Session"><span class="pre">mlonmcu.session.session.Session</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/context.html#load_recent_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.load_recent_sessions" title="Permalink to this definition"></a></dt>
+<dd><p>Get a list of recent sessions for the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>env</strong><span class="classifier">Environment</span></dt><dd><p>MLonMCU environment which should be used.</p>
+</dd>
+<dt><strong>count</strong><span class="classifier">int</span></dt><dd><p>Maximum number of sessions to return. Collect all if None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>list:</dt><dd><p>The resulting list of session objects.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.lookup_environment">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.</span></span><span class="sig-name descname"><span class="pre">lookup_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><span class="pre">mlonmcu.environment.environment.Environment</span></a></span></span><a class="reference internal" href="_modules/mlonmcu/context.html#lookup_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.lookup_environment" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to automatically find a suitable environment.</p>
+<p>This function is used if neither a name nor a path of the environment was specified by the user.
+The lookup follows a predefined order:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Check current working directory</p></li>
+<li><p>Check MLONMCU_HOME environment variable</p></li>
+<li><p>Default environment for current user</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>environment</dt><dd><p>The environment (if the lookup was successful).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.resolve_environment_file">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.</span></span><span class="sig-name descname"><span class="pre">resolve_environment_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="reference internal" href="_modules/mlonmcu/context.html#resolve_environment_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.resolve_environment_file" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to find the environment file by a optionally given name or path.</p>
+<p>The lookup is performed in a predefined order:
+- If specified: name/path
+- Else: see lookup_environment()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Hint for the environment name provided by the user.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Hint for the environment path provided by the user.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path:</dt><dd><p>Path to the found environment.yml (if sucessful)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.setup_logging">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.</span></span><span class="sig-name descname"><span class="pre">setup_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context.html#setup_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.setup_logging" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.environment2">
+<span id="mlonmcu-environment2-module"></span><h2>mlonmcu.environment2 module<a class="headerlink" href="#module-mlonmcu.environment2" title="Permalink to this headline"></a></h2>
+<p>Environment module for mlonmcu.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.environment2.Environment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.environment2.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment2.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment2.Environment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Environment data structure for mlonmcu.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#mlonmcu.environment2.Environment.home" title="mlonmcu.environment2.Environment.home"><code class="xref py py-obj docutils literal notranslate"><span class="pre">home</span></code></a></dt><dd><p>Home directory of mlonmcu environment.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.environment2.Environment.to_yaml" title="mlonmcu.environment2.Environment.to_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_yaml</span></code></a>()</p></td>
+<td><p>Convert mlonmcu environment to a YAML string.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.environment2.Environment.home">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">home</span></span><a class="headerlink" href="#mlonmcu.environment2.Environment.home" title="Permalink to this definition"></a></dt>
+<dd><p>Home directory of mlonmcu environment.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment2.Environment.to_yaml">
+<span class="sig-name descname"><span class="pre">to_yaml</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment2.html#Environment.to_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment2.Environment.to_yaml" title="Permalink to this definition"></a></dt>
+<dd><p>Convert mlonmcu environment to a YAML string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.environment2.load_environment_from_file">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.environment2.</span></span><span class="sig-name descname"><span class="pre">load_environment_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment2.html#load_environment_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment2.load_environment_from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to initialize a mlonmcu environment from a YAML file.</p>
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.logging">
+<span id="mlonmcu-logging-module"></span><h2>mlonmcu.logging module<a class="headerlink" href="#module-mlonmcu.logging" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.logging.get_formatter">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.logging.</span></span><span class="sig-name descname"><span class="pre">get_formatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/logging.html#get_formatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.logging.get_formatter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.logging.get_logger">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.logging.</span></span><span class="sig-name descname"><span class="pre">get_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/logging.html#get_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.logging.get_logger" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.logging.set_log_file">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.logging.</span></span><span class="sig-name descname"><span class="pre">set_log_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/logging.html#set_log_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.logging.set_log_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.logging.set_log_level">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.logging.</span></span><span class="sig-name descname"><span class="pre">set_log_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/logging.html#set_log_level"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.logging.set_log_level" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.mlonmcu">
+<span id="mlonmcu-mlonmcu-module"></span><h2>mlonmcu.mlonmcu module<a class="headerlink" href="#module-mlonmcu.mlonmcu" title="Permalink to this headline"></a></h2>
+<p>Main module.</p>
+</section>
+<section id="module-mlonmcu.version">
+<span id="mlonmcu-version-module"></span><h2>mlonmcu.version module<a class="headerlink" href="#module-mlonmcu.version" title="Permalink to this headline"></a></h2>
+<p>Version module for mlonmcu.</p>
+</section>
+<section id="module-mlonmcu">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu" title="Permalink to this headline"></a></h2>
+<p>Top-level package for ML on MCU.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="mlonmcu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.cli.html" class="btn btn-neutral float-right" title="mlonmcu.cli package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

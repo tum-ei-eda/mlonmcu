@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.environment.environment &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.environment.environment</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.environment.environment</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.loader</span> <span class="kn">import</span> <span class="n">load_environment_from_file</span>
+<span class="kn">from</span> <span class="nn">.writer</span> <span class="kn">import</span> <span class="n">write_environment_to_file</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.feature.feature</span> <span class="kn">import</span> <span class="n">FeatureType</span>
+
+
+<span class="k">def</span> <span class="nf">_feature_helper</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">features</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">feature</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span> <span class="k">if</span> <span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">features</span>
+
+
+<div class="viewcode-block" id="Environment"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment">[docs]</a><span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_home</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">DefaultsConfig</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Home directory of mlonmcu environment.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_home</span>
+
+<div class="viewcode-block" id="Environment.from_file"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">load_environment_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="bp">cls</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Environment.to_file"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.to_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">write_environment_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Environment.lookup_frontend_feature_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_frontend_feature_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_frontend_feature_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frontend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">frontend</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">]</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">frontend</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Frontend </span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">:</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">frontend</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">configs</span></div>
+
+<div class="viewcode-block" id="Environment.lookup_framework_feature_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_framework_feature_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_framework_feature_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">framework</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">]</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Framework </span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">configs</span></div>
+
+<div class="viewcode-block" id="Environment.lookup_backend_feature_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_backend_feature_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_backend_feature_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">helper</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="n">backend_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">[</span><span class="n">framework</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">backend</span><span class="p">]</span><span class="o">.</span><span class="n">features</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">backend_features</span><span class="p">[</span><span class="n">name</span><span class="p">]]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">backend_features</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">framework</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">]</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Framework </span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+            <span class="k">if</span> <span class="n">backend</span><span class="p">:</span>
+                <span class="n">names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">]</span>
+                <span class="n">index_</span> <span class="o">=</span> <span class="n">names_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">index_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
+                    <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">backend</span><span class="p">:</span>
+                    <span class="n">names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">backends</span><span class="p">]</span>
+                    <span class="n">index_</span> <span class="o">=</span> <span class="n">names_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="p">(</span>
+                        <span class="n">index_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+                    <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                        <span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
+                        <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+                    <span class="n">backend</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">configs</span></div>
+
+<div class="viewcode-block" id="Environment.lookup_target_feature_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_target_feature_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_target_feature_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">target</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">]</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Target </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>  <span class="c1"># TODO: do not fail, just return empty list</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">configs</span></div>
+
+<div class="viewcode-block" id="Environment.lookup_feature_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_feature_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_feature_configs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">frontend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">FRONTEND</span> <span class="ow">or</span> <span class="n">kind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lookup_frontend_feature_configs</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">frontend</span><span class="o">=</span><span class="n">frontend</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">FRAMEWORK</span> <span class="ow">or</span> <span class="n">kind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lookup_framework_feature_configs</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">framework</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">BACKEND</span> <span class="ow">or</span> <span class="n">kind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lookup_backend_feature_configs</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">framework</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">TARGET</span> <span class="ow">or</span> <span class="n">kind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookup_target_feature_configs</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">configs</span></div>
+
+<div class="viewcode-block" id="Environment.supports_feature"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.supports_feature">[docs]</a>    <span class="k">def</span> <span class="nf">supports_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_feature_configs</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">supported</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">supported</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Environment.lookup_backend_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_backend_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_backend_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">framework_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">framework_config</span><span class="o">.</span><span class="n">enabled</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">framework</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">framework_config</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">framework</span>
+            <span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">framework_config</span><span class="o">.</span><span class="n">backends</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">backend_config</span> <span class="ow">in</span> <span class="n">framework_config</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">backend_config</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">backend</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="p">[</span><span class="n">backend_config</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">configs</span></div>
+
+<div class="viewcode-block" id="Environment.lookup_framework_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_framework_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_framework_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">framework</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span>
+
+        <span class="k">for</span> <span class="n">framework_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">framework_config</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">framework</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">framework_config</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="Environment.lookup_target_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_target_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_target_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span>
+
+        <span class="k">for</span> <span class="n">target_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target_config</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">target_config</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+    <span class="c1"># TODO: remove whitespace</span>
+<div class="viewcode-block" id="Environment.has_backend"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_backend">[docs]</a>    <span class="k">def</span> <span class="nf">has_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_backend_configs</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">return</span> <span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Environment.has_framework"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_framework">[docs]</a>    <span class="k">def</span> <span class="nf">has_framework</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_framework_configs</span><span class="p">(</span><span class="n">framework</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">return</span> <span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Environment.has_target"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_target">[docs]</a>    <span class="k">def</span> <span class="nf">has_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_target_configs</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">return</span> <span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Environment.get_default_backends"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_default_backends">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">framework</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">[</span><span class="n">framework</span><span class="p">]</span>
+        <span class="n">framework_names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">framework_config</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span>
+        <span class="p">]</span>
+        <span class="n">framework_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">framework_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">framework</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">backend</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework_config</span><span class="o">.</span><span class="n">backends</span>
+                    <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">enabled</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">return</span> <span class="n">default</span></div>
+
+<div class="viewcode-block" id="Environment.get_default_frameworks"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_default_frameworks">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_frameworks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_framework</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">framework</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span> <span class="k">if</span> <span class="n">framework</span><span class="o">.</span><span class="n">enabled</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">return</span> <span class="n">default</span></div>
+
+<div class="viewcode-block" id="Environment.get_default_targets"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_default_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_target</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled targets</span>
+                    <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">enabled</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">default</span></div></div>
+
+
+<div class="viewcode-block" id="DefaultEnvironment"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.DefaultEnvironment">[docs]</a><span class="k">class</span> <span class="nc">DefaultEnvironment</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">DefaultsConfig</span><span class="p">(</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+            <span class="n">log_to_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">default_framework</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">default_backends</span><span class="o">=</span><span class="p">{},</span>
+            <span class="n">default_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;deps&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./deps&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./logs&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./results&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;models&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./models&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span>
+                <span class="s2">&quot;https://github.com/tensorflow/tensorflow.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;v2.5.2&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;tflite_micro_compiler&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span>
+                <span class="s2">&quot;https://github.com/cpetig/tflite_micro_compiler.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;master&quot;</span>
+            <span class="p">),</span>  <span class="c1"># TODO: freeze ref?</span>
+            <span class="s2">&quot;tvm&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span>
+                <span class="s2">&quot;https://github.com/tum-ei-eda/tvm.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;tumeda&quot;</span>
+            <span class="p">),</span>  <span class="c1"># TODO: use upstream repo with suitable commit?</span>
+            <span class="s2">&quot;utvm_staticrt_codegen&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span>
+                <span class="s2">&quot;https://github.com/tum-ei-eda/utvm_staticrt_codegen.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;master&quot;</span>
+            <span class="p">),</span>  <span class="c1"># TODO: freeze ref?</span>
+            <span class="s2">&quot;etiss&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span>
+                <span class="s2">&quot;https://github.com/tum-ei-eda/etiss.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;master&quot;</span>
+            <span class="p">),</span>  <span class="c1"># TODO: freeze ref?</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">FrameworkConfig</span><span class="p">(</span>
+                <span class="s2">&quot;tflm&quot;</span><span class="p">,</span>
+                <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">backends</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">BackendConfig</span><span class="p">(</span><span class="s2">&quot;tflmc&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[]),</span>
+                    <span class="n">BackendConfig</span><span class="p">(</span><span class="s2">&quot;tflmi&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[]),</span>
+                <span class="p">],</span>
+                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">FrameworkFeatureConfig</span><span class="p">(</span>
+                        <span class="s2">&quot;muriscvnn&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;tflm&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">False</span>
+                    <span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">FrameworkConfig</span><span class="p">(</span>
+                <span class="s2">&quot;utvm&quot;</span><span class="p">,</span>
+                <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">backends</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">BackendConfig</span><span class="p">(</span>
+                        <span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span>
+                        <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">features</span><span class="o">=</span><span class="p">[</span>
+                            <span class="n">BackendFeatureConfig</span><span class="p">(</span>
+                                <span class="s2">&quot;unpacked_api&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span>
+                            <span class="p">),</span>
+                        <span class="p">],</span>
+                    <span class="p">),</span>
+                    <span class="n">BackendConfig</span><span class="p">(</span><span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[]),</span>
+                    <span class="n">BackendConfig</span><span class="p">(</span><span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[]),</span>
+                <span class="p">],</span>
+                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">FrameworkFeatureConfig</span><span class="p">(</span>
+                        <span class="s2">&quot;memplan&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;utvm&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">False</span>
+                    <span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">FrontendConfig</span><span class="p">(</span><span class="s2">&quot;saved_model&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">FrontendConfig</span><span class="p">(</span><span class="s2">&quot;ipynb&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">FrontendConfig</span><span class="p">(</span>
+                <span class="s2">&quot;tflite&quot;</span><span class="p">,</span>
+                <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">FrontendFeatureConfig</span><span class="p">(</span>
+                        <span class="s2">&quot;packing&quot;</span><span class="p">,</span> <span class="n">frontend</span><span class="o">=</span><span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">False</span>
+                    <span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;TEST&quot;</span><span class="p">:</span> <span class="s2">&quot;abc&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">TargetConfig</span><span class="p">(</span>
+                <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
+                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">TargetFeatureConfig</span><span class="p">(</span>
+                        <span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">),</span>
+                    <span class="n">TargetFeatureConfig</span><span class="p">(</span>
+                        <span class="s2">&quot;attach&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">),</span>
+                    <span class="n">TargetFeatureConfig</span><span class="p">(</span>
+                        <span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">TargetConfig</span><span class="p">(</span>
+                <span class="s2">&quot;host_x86&quot;</span><span class="p">,</span>
+                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                    <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="s2">&quot;attach&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="UserEnvironment"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.UserEnvironment">[docs]</a><span class="k">class</span> <span class="nc">UserEnvironment</span><span class="p">(</span><span class="n">DefaultEnvironment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">home</span><span class="p">,</span>
+        <span class="n">merge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">alias</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">paths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">repos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">frameworks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">frontends</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">targets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_home</span> <span class="o">=</span> <span class="n">home</span>
+
+        <span class="k">if</span> <span class="n">merge</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="k">if</span> <span class="n">alias</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">alias</span>
+        <span class="k">if</span> <span class="n">defaults</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">defaults</span>
+        <span class="k">if</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths</span>
+        <span class="k">if</span> <span class="n">repos</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="n">repos</span>
+        <span class="k">if</span> <span class="n">frameworks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span> <span class="o">=</span> <span class="n">frameworks</span>
+        <span class="k">if</span> <span class="n">frontends</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span> <span class="o">=</span> <span class="n">frontends</span>
+        <span class="k">if</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
+        <span class="k">if</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="n">variables</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

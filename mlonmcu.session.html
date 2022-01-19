@@ -52,7 +52,6 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.context">mlonmcu.context module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.environment2">mlonmcu.environment2 module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
@@ -187,54 +186,69 @@
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.run.</span></span><span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archived</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A run is single model/backend/framework/target combination with a given set of features and configs.</p>
 <p class="rubric">Methods</p>
-<table class="docutils align-default">
+<table class="longtable docutils align-default">
 <colgroup>
-<col style="width: 52%" />
-<col style="width: 48%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><strong>build</strong></p></td>
-<td></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.build" title="mlonmcu.session.run.Run.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build</span></code></a>([context])</p></td>
+<td><p>Process the run using the choosen backend.</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>compile</strong></p></td>
-<td></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.compile" title="mlonmcu.session.run.Run.compile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile</span></code></a>([context])</p></td>
+<td><p>Compile the target software for the run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>export</strong></p></td>
-<td></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.export" title="mlonmcu.session.run.Run.export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code></a>([path])</p></td>
+<td><p>Write a run configuration to a disk.</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>process</strong></p></td>
-<td></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.from_file" title="mlonmcu.session.run.Run.from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code></a>()</p></td>
+<td><p>Restore a run object which was written to the disk.</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>run</strong></p></td>
-<td></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.process" title="mlonmcu.session.run.Run.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>([until, context])</p></td>
+<td><p>Process the run until a given stage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.run" title="mlonmcu.session.run.Run.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([context])</p></td>
+<td><p>Run the 'run' using the defined target.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.build">
 <span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.build" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Process the run using the choosen backend.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.compile">
 <span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.compile" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Compile the target software for the run.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.export">
-<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.export" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.export" title="Permalink to this definition"></a></dt>
+<dd><p>Write a run configuration to a disk.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Restore a run object which was written to the disk.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">RunStage.RUN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.process" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Process the run until a given stage.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.run" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Run the ‘run’ using the defined target.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -242,7 +256,7 @@
 <dt class="sig sig-object py" id="mlonmcu.session.run.RunStage">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.run.</span></span><span class="sig-name descname"><span class="pre">RunStage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#RunStage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.RunStage" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>An enumeration.</p>
+<p>Type describing the stages a run can have.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.RunStage.BUILD">
 <span class="sig-name descname"><span class="pre">BUILD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.BUILD" title="Permalink to this definition"></a></dt>

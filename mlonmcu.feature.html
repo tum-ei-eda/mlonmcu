@@ -52,7 +52,6 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.context">mlonmcu.context module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.environment2">mlonmcu.environment2 module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
@@ -116,6 +115,17 @@
 </dd>
 </dl>
 <p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">types</span></code>()</p></td>
+<td><p>Find out which types the features is based on.</p></td>
+</tr>
+</tbody>
+</table>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 71%" />
@@ -125,16 +135,10 @@
 <tr class="row-odd"><td><p><strong>add_backend_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>filter_config</strong></p></td>
+<tr class="row-even"><td><p><strong>get_backend_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_backend_config</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>types</strong></p></td>
+<tr class="row-odd"><td><p><strong>remove_config_prefix</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -169,6 +173,17 @@
 </dd>
 </dl>
 <p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">types</span></code>()</p></td>
+<td><p>Find out which types the features is based on.</p></td>
+</tr>
+</tbody>
+</table>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 71%" />
@@ -181,19 +196,13 @@
 <tr class="row-even"><td><p><strong>add_compile_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>filter_config</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_cmake_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_compile_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_compile_config</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>types</strong></p></td>
+<tr class="row-odd"><td><p><strong>remove_config_prefix</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -238,19 +247,24 @@
 </dd>
 </dl>
 <p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">types</span></code>()</p></td>
+<td><p>Find out which types the features is based on.</p></td>
+</tr>
+</tbody>
+</table>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 71%" />
 <col style="width: 29%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><strong>filter_config</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>types</strong></p></td>
+<tr class="row-odd"><td><p><strong>remove_config_prefix</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -271,23 +285,29 @@
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>enabled</strong></dt><dd></dd>
+<dt><strong>feature_type</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.feature.feature.FeatureBase.types" title="mlonmcu.feature.feature.FeatureBase.types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">types</span></code></a>()</p></td>
+<td><p>Find out which types the features is based on.</p></td>
+</tr>
+</tbody>
+</table>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 71%" />
 <col style="width: 29%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><strong>filter_config</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>types</strong></p></td>
+<tr class="row-odd"><td><p><strong>remove_config_prefix</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -307,9 +327,9 @@
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#mlonmcu.feature.feature.FeatureBase.enabled" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.feature.feature.FeatureBase.filter_config">
-<span class="sig-name descname"><span class="pre">filter_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/feature.html#FeatureBase.filter_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.feature.FeatureBase.filter_config" title="Permalink to this definition"></a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.feature.feature.FeatureBase.feature_type">
+<span class="sig-name descname"><span class="pre">feature_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.feature.feature.FeatureBase.feature_type" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -320,7 +340,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.feature.feature.FeatureBase.types">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/feature.html#FeatureBase.types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.feature.FeatureBase.types" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Find out which types the features is based on.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -328,7 +349,7 @@
 <dt class="sig sig-object py" id="mlonmcu.feature.feature.FeatureType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.feature.</span></span><span class="sig-name descname"><span class="pre">FeatureType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/feature.html#FeatureType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.feature.FeatureType" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enumeration.</p>
+<p>Enumeration for Feature types.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.feature.feature.FeatureType.BACKEND">
 <span class="sig-name descname"><span class="pre">BACKEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#mlonmcu.feature.feature.FeatureType.BACKEND" title="Permalink to this definition"></a></dt>
@@ -379,6 +400,17 @@
 </dd>
 </dl>
 <p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">types</span></code>()</p></td>
+<td><p>Find out which types the features is based on.</p></td>
+</tr>
+</tbody>
+</table>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 71%" />
@@ -388,16 +420,10 @@
 <tr class="row-odd"><td><p><strong>add_framework_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>filter_config</strong></p></td>
+<tr class="row-even"><td><p><strong>get_framework_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_framework_config</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>types</strong></p></td>
+<tr class="row-odd"><td><p><strong>remove_config_prefix</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -414,7 +440,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.feature.feature.FrameworkFeature.get_framework_config">
-<span class="sig-name descname"><span class="pre">get_framework_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">farmework</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/feature.html#FrameworkFeature.get_framework_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.feature.FrameworkFeature.get_framework_config" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_framework_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">framework</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/feature.html#FrameworkFeature.get_framework_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.feature.FrameworkFeature.get_framework_config" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -432,6 +458,17 @@
 </dd>
 </dl>
 <p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">types</span></code>()</p></td>
+<td><p>Find out which types the features is based on.</p></td>
+</tr>
+</tbody>
+</table>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 71%" />
@@ -441,16 +478,10 @@
 <tr class="row-odd"><td><p><strong>add_frontend_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>filter_config</strong></p></td>
+<tr class="row-even"><td><p><strong>get_frontend_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_frontend_config</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>types</strong></p></td>
+<tr class="row-odd"><td><p><strong>remove_config_prefix</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -485,6 +516,17 @@
 </dd>
 </dl>
 <p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">types</span></code>()</p></td>
+<td><p>Find out which types the features is based on.</p></td>
+</tr>
+</tbody>
+</table>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 74%" />
@@ -497,19 +539,13 @@
 <tr class="row-even"><td><p><strong>add_setup_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>filter_config</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_required_cache_flags</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_required_cache_flags</strong></p></td>
+<tr class="row-even"><td><p><strong>get_setup_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_setup_config</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>types</strong></p></td>
+<tr class="row-odd"><td><p><strong>remove_config_prefix</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -554,6 +590,17 @@
 </dd>
 </dl>
 <p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">types</span></code>()</p></td>
+<td><p>Find out which types the features is based on.</p></td>
+</tr>
+</tbody>
+</table>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 71%" />
@@ -563,16 +610,10 @@
 <tr class="row-odd"><td><p><strong>add_target_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>filter_config</strong></p></td>
+<tr class="row-even"><td><p><strong>get_target_config</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_target_config</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>types</strong></p></td>
+<tr class="row-odd"><td><p><strong>remove_config_prefix</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -597,25 +638,35 @@
 </section>
 <section id="module-mlonmcu.feature.features">
 <span id="mlonmcu-feature-features-module"></span><h2>mlonmcu.feature.features module<a class="headerlink" href="#module-mlonmcu.feature.features" title="Permalink to this headline"></a></h2>
+<p>Definition of MLonMCU features and the feature registry.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.feature.features.filter_none">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">filter_none</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#filter_none"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.filter_none" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Helper function which drop dict items with a None value.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.feature.features.get_available_feature_names">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">get_available_feature_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#get_available_feature_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.get_available_feature_names" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Utility for getting feature names.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.feature.features.get_available_features">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">get_available_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#get_available_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.get_available_features" title="Permalink to this definition"></a></dt>
+<dd><p>Utility for looking up features.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.get_matching_features">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">get_matching_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#get_matching_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.get_matching_features" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.feature.features.register_feature">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">register_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#register_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.register_feature" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Decorator for adding a feature to the global registry.</p>
+</dd></dl>
 
 </section>
 <section id="module-mlonmcu.feature">

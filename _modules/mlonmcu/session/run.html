@@ -84,6 +84,8 @@
 
 
 <div class="viewcode-block" id="RunStage"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunStage">[docs]</a><span class="k">class</span> <span class="nc">RunStage</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Type describing the stages a run can have.&quot;&quot;&quot;</span>
+
     <span class="n">NOP</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">LOAD</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># unimplemented</span>
     <span class="n">BUILD</span> <span class="o">=</span> <span class="mi">2</span>
@@ -94,6 +96,13 @@
 
 
 <div class="viewcode-block" id="Run"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run">[docs]</a><span class="k">class</span> <span class="nc">Run</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A run is single model/backend/framework/target combination with a given set of features and configs.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Run.from_file"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Restore a run object which was written to the disk.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -145,25 +154,29 @@
         <span class="k">return</span> <span class="s2">&quot;Run(&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
 
 <div class="viewcode-block" id="Run.run"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the &#39;run&#39; using the defined target.&quot;&quot;&quot;</span>
         <span class="c1"># print(&quot;RUN RUN:&quot;, self)</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Run.compile"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compile the target software for the run.&quot;&quot;&quot;</span>
         <span class="c1"># print(&quot;COMPILE RUN:&quot;, self)</span>
         <span class="c1"># if context:</span>
         <span class="c1">#     if context.cache:</span>
         <span class="c1">#         mlif_build_dir = context.cache.find_best_match(</span>
-        <span class="c1">#             &quot;mlif_build_dir&quot;, flags=[self.backend.shortname, self.target.name]</span>
+        <span class="c1">#             &quot;mlif_build_dir&quot;, flags=[self.backend.name, self.target.name]</span>
         <span class="c1">#         )</span>
         <span class="c1">#         print(&quot;mlif_build_dir&quot;, mlif_build_dir)</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Run.build"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process the run using the choosen backend.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">])</span>
         <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">generate_code</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">code</span></div>
 
 <div class="viewcode-block" id="Run.process"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process the run until a given stage.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;Started processing a new run until stage </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">RunStage</span><span class="p">(</span><span class="n">until</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
@@ -188,7 +201,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">stage</span>  <span class="c1"># FIXME: The stage_func should update the stage intead?</span></div>
         <span class="c1"># print(&quot;PROCESS DONE&quot;)</span>
 
-<div class="viewcode-block" id="Run.export"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Run.export"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a run configuration to a disk.&quot;&quot;&quot;</span>
         <span class="k">pass</span></div></div>
         <span class="c1"># TODO: write run.txt</span>
         <span class="c1"># TODO: export model</span>

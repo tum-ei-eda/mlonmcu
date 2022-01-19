@@ -281,7 +281,7 @@ class TFLMIBackend(TFLiteBackend):
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
 
-    def generate_code(self):
+    def generate_code(self, verbose=False):
         artifacts = []
         assert self.model is not None
         config_map = {key.split(".")[-1]: value for key, value in self.config.items()}
@@ -312,10 +312,7 @@ class TFLMIBackend(TFLiteBackend):
 if __name__ == "__main__":
     sys.exit(
         main(
-            "tflmi",
             TFLMIBackend,
-            backend_features=FEATURES,
-            backend_defaults=DEFAULT_CONFIG,
             args=sys.argv[1:],
         )
     )  # pragma: no cover

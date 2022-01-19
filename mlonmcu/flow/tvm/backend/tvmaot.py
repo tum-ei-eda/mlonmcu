@@ -1,39 +1,62 @@
 import sys
+import tempfile
+import json
+import tarfile
+from pathlib import Path
 
 from ..tvm_flow import get_parser
 from ..framework import COMMON_TVM_CONFIG
 
 from .backend import TVMBackend
 from mlonmcu.flow.backend import main
-
-FEATURES = [
-    "debug_arena",
-    "unpacked_api",
-    "autotuned",
-]  # TODO COMMON_TVM_FEATURES(autotuned) -> Framework?
-
-# COMMON_TVM_CONFIG = {}
-
-DEFAULT_CONFIG = {
-    **COMMON_TVM_CONFIG,
-    **{
-        "arena_size": -1,  # Determined automatically
-        # "unpacked_api": False,  # Actually a feature, so ommit here?
-        "alignment_bytes": 4,
-        "tuning_log_file": "tuning.log.txt",  # TODO: update and share between backends
-    },
-}
+from mlonmcu.artifact import Artifact, ArtifactFormat
+from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
 
 
 class TVMAOTBackend(TVMBackend):
 
-    shortname = "tvmaot"
+    FEATURES = [
+        "debug_arena",
+        "unpacked_api",
+    ]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__(features=features, config=config, context=context)
-        # self.unpacked_api, self.get_debug_arena = self.resolve_features()
-        # self.arena_size, self.alignment_bytes = self.resolve_config()
-        # self.target = self.get_target()
+    DEFAULTS = {
+        **TVMBackend.DEFAULTS,
+        "arena_size": None,  # Determined automatically
+        "unpacked_api": False,
+        "alignment_bytes": 4,
+    }
+
+    name = "tvmaot"
+
+    @property
+    def arena_size(self):
+        size = self.config["arena_size"]
+        return int(size) if size else None
+
+    @property
+    def unpacked_api(self):
+        return bool(self.config["unpacked_api"])
+
+    @property
+    def alignment_bytes(self):
+        return int(self.config["alignment_bytes"])
+
+    def get_tvmc_args(self):
+        return self.get_common_tvmc_args("aot") + [
+            "--runtime-crt-system-lib",
+            str(0),
+            "--target-c-constants-byte-alignment",
+            str(self.alignment_bytes),
+            "--target-c-workspace-byte-alignment",
+            str(self.alignment_bytes),
+            "--target-c-executor",
+            "aot",
+            "--target-c-unpacked-api",
+            str(int(self.unpacked_api)),
+            "--target-c-interface-api",
+            "c" if self.unpacked_api else "packed",
+        ]
 
     # def resolve_features(self):
     #     unpacked_api = False
@@ -66,18 +89,85 @@ class TVMAOTBackend(TVMBackend):
     #     )
     #     return target_str
 
-    def generate_code(self):
+    def get_workspace_size_from_metadata(self, metadata):
+        return metadata["memory"]["functions"]["main"][0]["workspace_size_bytes"]
+
+    def generate_code(self, verbose=False):
+        artifacts = []
+        assert self.model is not None
+        full = False  # Required due to bug in TVM
+        dump = ["c", "relay"] if full else []
+        with tempfile.TemporaryDirectory() as temp_dir:
+            out_path = Path(temp_dir) / f"{self.prefix}.tar"
+            self.invoke_tvmc(out_path, dump=dump)
+            mlf_path = Path(temp_dir) / "mlf"
+            tarfile.open(out_path).extractall(mlf_path)
+            with open(mlf_path / "metadata.json") as handle:
+                metadata = json.load(handle)
+            metadata_txt = json.dumps(metadata)
+            with open(out_path, "rb") as handle:
+                mlf_data = handle.read()
+                artifacts.append(
+                    Artifact(
+                        f"{self.prefix}.tar",
+                        raw=mlf_data,
+                        fmt=ArtifactFormat.MLF,
+                        archive=True,
+                    )
+                )
+            if full:  # FIXME: broken due to error in TVM
+                with open(str(out_path) + ".c", "r") as handle:
+                    mod_src = handle.read()
+                    artifacts.append(
+                        Artifac(
+                            f"{self.prefix}.c",
+                            content=mod_str,
+                            fmt=ArtifactFormat.SOURCE,
+                            optional=True,
+                        )
+                    )
+                with open(str(out_path) + ".relay", "r") as handle:
+                    mod_txt = handle.read()
+                    artifacts.append(
+                        Artifac(
+                            f"{self.prefix}.relay",
+                            content=mod_txt,
+                            fmt=ArtifactFormat.TEXT,
+                            optional=True,
+                        )
+                    )
+            generate_wrapper = True
+            if generate_wrapper:
+                if self.arena_size:
+                    assert self.arena_size >= 0
+                    workspace_size = self.arena_size
+                else:
+                    workspace_size = self.get_workspace_size_from_metadata(metadata)
+                wrapper_src = generate_tvmaot_wrapper(
+                    self.model_info,
+                    workspace_size,
+                    self.prefix,
+                    api="c" if self.unpacked_api else "packed",
+                )
+                artifacts.append(
+                    Artifact(
+                        "aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE
+                    )
+                )
+                header_src = generate_wrapper_header()
+                artifacts.append(
+                    Artifact(
+                        "tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE
+                    )
+                )
         # assert self.target
-        pass
+        self.artifacts = artifacts
 
 
 if __name__ == "__main__":
     sys.exit(
         main(
-            "tvmaot",
             TVMAOTBackend,
-            backend_features=FEATURES,
-            backend_defaults=DEFAULT_CONFIG,
             args=sys.argv[1:],
         )
     )  # pragma: no cover

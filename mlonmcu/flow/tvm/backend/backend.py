@@ -1,7 +1,11 @@
+import os
+
 from ..framework import COMMON_TVM_CONFIG
 
 # from ..support.load_tflite_model import load_tflite_model
 from mlonmcu.flow.backend import Backend
+from mlonmcu.setup import utils
+from .tflite_model_info import get_tflite_model_info
 
 
 class TVMBackend(Backend):
@@ -9,6 +13,8 @@ class TVMBackend(Backend):
     registry = {}
 
     name = None
+
+    FEATURES = ["autotune", "autotuned"]
 
     DEFAULTS = {
         "opt_level": 3,
@@ -25,6 +31,8 @@ class TVMBackend(Backend):
         )
 
         self.model = None  # Actual filename!
+        self.model_info = None
+        self.input_shapes = None
 
         self.prefix = "model"
         self.artifacts = (

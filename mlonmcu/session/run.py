@@ -126,7 +126,8 @@ class Run:
             self.stage = stage  # FIXME: The stage_func should update the stage intead?
         # print("PROCESS DONE")
 
-    def export(self):
+    def export(self, path=None):
+        """Write a run configuration to a disk."""
         pass
         # TODO: write run.txt
         # TODO: export model

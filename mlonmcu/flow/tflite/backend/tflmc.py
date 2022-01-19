@@ -36,7 +36,7 @@ class TFLMCBackend(TFLiteBackend):
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
 
-    def generate_code(self):
+    def generate_code(self, verbose=False):
         artifacts = []
         assert self.model is not None
         tflmc_exe = None
@@ -53,8 +53,7 @@ class TFLMCBackend(TFLiteBackend):
             args.append(str(self.model))
             args.append(str(Path(tmpdirname) / f"{self.prefix}.cc"))
             args.append(f"{self.prefix}_")
-            verbose = True  # ???
-            utils.exec_getout(tflmc_exe, live=verbose, *args)
+            utils.exec_getout(tflmc_exe, *args, live=verbose)
             files = [
                 f
                 for f in os.listdir(tmpdirname)
@@ -74,10 +73,7 @@ class TFLMCBackend(TFLiteBackend):
 if __name__ == "__main__":
     sys.exit(
         main(
-            "tflmc",
             TFLMCBackend,
-            backend_features=FEATURES,
-            backend_defaults=DEFAULT_CONFIG,
             args=sys.argv[1:],
         )
     )  # pragma: no cover

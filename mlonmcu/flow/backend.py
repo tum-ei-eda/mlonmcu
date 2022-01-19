@@ -59,7 +59,7 @@ class Backend(ABC):
         pass
 
     @abstractmethod
-    def generate_code(self):
+    def generate_code(self, verbose=False):
         pass
 
     def export_code(self, path):
@@ -76,11 +76,12 @@ class Backend(ABC):
                 path.is_dir()
             ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
             for artifact in self.artifacts:
+                artifact.export(path)
                 # TODO: move the following to a helper function and share code
-                dest = path / artifact.name
-                with open(dest, "w") as outfile:
-                    logger.info(f"Exporting artifact: {artifact.name}")
-                    outfile.write(artifact.content)
+                # dest = path / artifact.name
+                # with open(dest, "w") as outfile:
+                #     logger.info(f"Exporting artifact: {artifact.name}")
+                #     outfile.write(artifact.content)
         else:
             assert (
                 path.parent.is_dir()
@@ -103,14 +104,14 @@ class Backend(ABC):
                     outfile.write(artifact.content)
 
     def get_cmake_args(self):
-        assert self.shortname is not None
-        return [f"-DBACKEND={self.shortname}"]
+        assert self.name is not None
+        return [f"-DBACKEND={self.name}"]
 
     def add_cmake_args(self, args):
         args += self.get_cmake_args()
 
 
-def get_parser(backend_name, features, defaults):
+def get_parser(backend_name, features, required, defaults):
     # TODO: add help strings should start with a lower case letter
     parser = argparse.ArgumentParser(
         description=f"Run {backend_name} backend",
@@ -165,6 +166,7 @@ Allowed options:
                 f"- [{backend_name}].{key} (Default: {value})"
                 for key, value in defaults.items()
             ]
+            + [f"- {key} (required)" for key in required]
         ),
     )
     return parser
@@ -181,9 +183,12 @@ def init_backend_features(names, config):
     return features
 
 
-def main(backend_name, backend, backend_features, backend_defaults, args=None):
+def main(backend, args=None):
     parser = get_parser(
-        backend_name, features=backend_features, defaults=backend_defaults
+        backend.name,
+        features=backend.FEATURES,
+        required=backend.REQUIRED,
+        defaults=backend.DEFAULTS,
     )
     if args:
         args = parser.parse_args(args)
@@ -196,7 +201,7 @@ def main(backend_name, backend, backend_features, backend_defaults, args=None):
     features = init_backend_features(features_names, config)
     backend_inst = backend(features=features, config=config)
     backend_inst.load_model(model)
-    backend_inst.generate_code()
+    backend_inst.generate_code(verbose=args.verbose)
     if args.print:
         print("Printing generated artifacts:")
         for artifact in backend_inst.artifacts:

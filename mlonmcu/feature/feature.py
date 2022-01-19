@@ -21,13 +21,17 @@ class FeatureType(Enum):
 class FeatureBase(ABC):
     """Feature base class"""
 
+    feature_type = None
+
     DEFAULTS = {"enabled": True}
     REQUIRED = []
 
     def __init__(self, name, config=None):
         self.name = name
         self.config = config if config else {}
-        self.filter_config()
+        self.config = filter_config(
+            self.config, self.name, self.DEFAULTS, self.REQUIRED
+        )
 
     @property
     def enabled(self):
@@ -42,27 +46,6 @@ class FeatureBase(ABC):
             for key, value in config.items()
             if f"{self.name}." in key
         }
-
-    def filter_config(self):
-        cfg = self.remove_config_prefix(self.config)
-        for required in self.REQUIRED:
-            value = None
-            if required in cfg:
-                value = cfg[required]
-            elif required in self.config:
-                value = self.config[required]
-            assert value is not None, f"Required config key can not be None: {required}"
-
-        for key in self.DEFAULTS:
-            if key not in cfg:
-                cfg[key] = self.DEFAULTS[key]
-
-        for key in cfg:
-            if key not in list(self.DEFAULTS.keys()) + self.REQUIRED:
-                logger.warn("Feature received an unknown config key: %s", key)
-                del cfg[key]
-
-        self.config = cfg
 
     def __repr__(self):
         return type(self).__name__ + f"({self.name})"
@@ -204,72 +187,3 @@ class SetupFeature(FeatureBase):  # TODO: alternative: CacheFeature
                 required_flags[key].append(flags)
             else:
                 required_flags[key] = flags
-
-
-# # registry
-#
-# REGISTERED_FEATURES = {}
-#
-# def register_feature(object):
-#     def __init__(self, name):
-#         self.name
-#
-#     def __call__(self, cls):
-#         assert self.name not in REGISTERED_FEATURES, f"Can not register feature '{self.name}'"
-#         REGISTERED_FEATURES[name] = cls
-#         return cls
-#
-#
-#
-#
-# # TODO: get or ADD (update) config?
-# # TODO: MLIFFeature? / CompileFeature?
-#
-#
-# def get_available_features(feature_type=None, feature_name=None):
-#     print(REGISTERED_FEATURES)
-#     if feature_type is None:
-#         if feature_name is None:
-#             return REGISTERED_FEATURES.values()
-#         else:
-#             ret = []
-#             for name, feature in REGISTERED_FEATURES.items():
-#                 if name == feature_name:
-#                     ret.append(feature)
-#     else:
-#         ret = []
-#         for feature in REGISTERED_FEATURES.values():
-#             if feature_type in feature.types:
-#                 if name is None or name == feature_name:
-#                     ret.append(feature)
-#     return ret
-
-
-# def lookup_features(name: str) -> List[FeatureBase]:
-#     """Get a list of all available features matching a given name.
-#
-#     Work in progress
-#
-#     Parameters
-#     ----------
-#     name : str
-#         Name of feature
-#
-#     Returns
-#     -------
-#     list
-#         List of all features matching the given name
-#     """
-#     assert name in ALL_FEATURES, f"Unknown feature: {name}"
-#     ret = (
-#         []
-#     )  # For a single feature-name, there can be multiple types of features (e.g. backend vs target) and we want to match all of them
-#     if name in FRONTEND_FEATURES:
-#         ret.append(FrontendFeature(name))
-#     if name in FRAMEWORK_FEATURES:
-#         ret.append(FrameworkFeature(name))
-#     if name in BACKEND_FEATURES:
-#         ret.append(BackendFeature(name))
-#     if name in TARGET_FEATURES:
-#         ret.append(TargetFeature(name))
-#     return ret

@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.feature import FeatureType
+from mlonmcu.config import filter_config
+from mlonmcu.feature.features import get_matching_features
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact
 
@@ -28,10 +30,11 @@ class Backend(ABC):
         context=None,
     ):
         self.framework = framework
-        self.features = features if features else []
         self.config = config if config else {}
-        self.process_features()
-        self.filter_config()
+        self.features = self.process_features(features)
+        self.config = filter_config(
+            self.config, self.name, self.DEFAULTS, self.REQUIRED
+        )
         self.context = context
         self.artifacts = []
 
@@ -39,46 +42,17 @@ class Backend(ABC):
         name = type(self).shortname
         return f"Backend({name})"
 
-    def process_features(self):
+    def process_features(self, features):
         # Filter out non-backend features
-        self.features = [
-            feature
-            for feature in self.features
-            if FeatureType.BACKEND in feature.types()
-        ]
+        if features is None:
+            return []
+        features = get_matching_features(features, FeatureType.BACKEND)
         for feature in self.features:
+            assert (
+                feature.name in self.FEATURES
+            ), f"Incompatible feature: {feature.name}"
             feature.add_backend_config(self.name, self.config)
-
-    def remove_config_prefix(self, config):
-        def helper(key):
-            return key.split(f"{self.name}.")[-1]
-
-        return {
-            helper(key): value
-            for key, value in config.items()
-            if f"{self.name}." in key
-        }
-
-    def filter_config(self):
-        cfg = self.remove_config_prefix(self.config)
-        for required in self.REQUIRED:
-            value = None
-            if required in cfg:
-                value = cfg[required]
-            elif required in self.config:
-                value = self.config[required]
-            assert value is not None, f"Required config key can not be None: {required}"
-
-        for key in self.DEFAULTS:
-            if key not in cfg:
-                cfg[key] = self.DEFAULTS[key]
-
-        for key in cfg:
-            if key not in list(self.DEFAULTS.keys()) + self.REQUIRED:
-                logger.warn("Backend received an unknown config key: %s", key)
-                del cfg[key]
-
-        self.config = cfg
+        return features
 
     @abstractmethod
     def load_model(self, model):

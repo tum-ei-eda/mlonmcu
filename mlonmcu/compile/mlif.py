@@ -12,6 +12,8 @@ from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.cli.helper.parse import extract_features, extract_config
 from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
 from mlonmcu.target import SUPPORTED_TARGETS
+from mlonmcu.config import filter_config
+from mlonmcu.feature.features import get_matching_features
 from .inout import write_inout_data
 
 from mlonmcu.logging import get_logger
@@ -34,11 +36,11 @@ class MLIF:
         self.backend = backend
         self.target = target
         self.features = features if features else []
-        self.process_features()
         self.config = (
             config if config else {}
         )  # Warning: this should only be used for passing paths,.. when no co context is provided, NO customization of the build is allowed!
-        self.filter_config()
+        self.process_features()
+        self.config = filter_config(self.config, "mlif", self.DEFAULTS, self.REQUIRED)
         self.ignore_data = False
         if (
             "mlif.ignore_data" in self.config
@@ -85,40 +87,16 @@ class MLIF:
                 )
         self.validate()
 
-    def process_features(self):
-        for feature in self.features:
-            if FeatureType.COMPILE in feature.types:
-                assert (
-                    feature.name in self.FEATURES
-                ), f"Incompatible compile feature:   {feature.name}"
-                feature.add_compile_config(self.config)
-
-    def remove_config_prefix(self, config):
-        def helper(key):
-            return key.split(f"{self.name}.")[-1]
-
-        return {helper(key): value for key, value in config if f"{self.name}." in key}
-
-    def filter_config(self):
-        cfg = self.remove_config_prefix(self.config)
-        for required in self.REQUIRED:
-            value = None
-            if required in cfg:
-                value = cfg[required]
-            elif required in self.config:
-                value = self.config[required]
-            assert value is not None, f"Required config key can not be None: {required}"
-
-        for key in self.DEFAULTS:
-            if key not in cfg:
-                cfg[key] = self.DEFAULTS[key]
-
-        for key in cfg:
-            if key not in self.DEFAULTS.keys() + self.REQUIRED:
-                logger.warn("Backend received an unknown config key: %s", key)
-                del cfg[key]
-
-        self.config = cfg
+    def process_features(self, features):
+        if features is None:
+            return []
+        features = get_matching_features(features, FeatureType.COMPILE)
+        for feature in features:
+            assert (
+                feature.name in self.FEATURES
+            ), f"Incompatible feature: {feature.name}"
+            feature.add_compile_config(self.config)
+        return features
 
     def close(self):
         if self.tempdir:

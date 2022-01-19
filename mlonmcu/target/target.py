@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import List
 
 from mlonmcu.context import MlonMcuContext
+from mlonmcu.config import filter_config
 from mlonmcu.feature.feature import FeatureType, Feature
+from mlonmcu.feature.features import get_matching_features
 
 # TODO: class TargetFactory:
 from .common import execute
@@ -45,9 +47,10 @@ class Target:
     ):
         self.name = name
         self.config = config if config else {}
-        self.features = features if features else []
-        self.process_features()
-        self.filter_config()
+        self.features = self.process_features(features)
+        self.config = filter_config(
+            self.config, self.name, self.DEFAULTS, self.REQUIRED
+        )
         self.inspect_program = "readelf"
         self.inspect_program_args = ["--all"]
         self.env = os.environ
@@ -56,46 +59,16 @@ class Target:
     def __repr__(self):
         return f"Target({self.name})"
 
-    def process_features(self):
-        self.features = [
-            feature
-            for feature in self.features
-            if FeatureType.BACKEND in feature.types()
-        ]
-        for feature in self.features:
+    def process_features(self, features):
+        if features is None:
+            return []
+        features = get_matching_features(features, FeatureType.TARGET)
+        for feature in features:
+            assert (
+                feature.name in self.FEATURES
+            ), f"Incompatible feature: {feature.name}"
             feature.add_feature_config(self.name, self.config)
-
-    def remove_config_prefix(self, config):
-        def helper(key):
-            return key.split(f"{self.name}.")[-1]
-
-        return {
-            helper(key): value
-            for key, value in config.items()
-            if f"{self.name}." in key
-        }
-
-    def filter_config(self):
-        cfg = self.remove_config_prefix(self.config)
-        for required in self.REQUIRED:
-            value = None
-            if required in cfg:
-                value = cfg[required]
-            elif required in self.config:
-                value = self.config[required]
-                cfg[required] = value
-            assert value is not None, f"Required config key can not be None: {required}"
-
-        for key in self.DEFAULTS:
-            if key not in cfg:
-                cfg[key] = self.DEFAULTS[key]
-
-        for key in cfg:
-            if key not in list(self.DEFAULTS.keys()) + self.REQUIRED:
-                logger.warn("Target received an unknown config key: %s", key)
-                del cfg[key]
-
-        self.config = cfg
+        return features
 
     def exec(self, program: Path, *args, **kwargs):
         """Use target to execute a executable with given arguments"""

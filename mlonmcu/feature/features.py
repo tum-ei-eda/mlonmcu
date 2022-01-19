@@ -36,6 +36,10 @@ def get_available_features(feature_type=None, feature_name=None):
     ]
 
 
+def get_matching_features(features, feature_type):
+    return [feature for feature in features if feature_type in feature.types()]
+
+
 @register_feature("debug_arena")
 class DebugArena(BackendFeature, CompileFeature):
     def __init__(self, config=None):

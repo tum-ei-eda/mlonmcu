@@ -256,7 +256,7 @@ class TaskFactory:
             name = function.__name__
 
             @wraps(function)
-            def wrapper(*args, progress=False, **kwargs):
+            def wrapper(*args, rebuild=False, progress=False, **kwargs):
                 combs = get_combs(self.params[name])
 
                 def get_valid_combs(combs):
@@ -271,10 +271,10 @@ class TaskFactory:
 
                 combs = get_valid_combs(combs)
 
-                def process(name_, params=None):
+                def process(name_, params=None, rebuild=False):
                     if not params:
                         params = []
-                    rebuild = False
+                    rebuild = rebuild
                     if name in self.dependencies:
                         for dep in self.dependencies[name]:
                             if dep in self.changed:
@@ -315,7 +315,7 @@ class TaskFactory:
                         check = self.validates[name](args[0], params={})
                     if check:
                         start = time.time()
-                        retval = process(name)
+                        retval = process(name, rebuild=rebuild)
                         end = time.time()
                         diff = end - start
                         minutes = int(diff // 60)
@@ -340,7 +340,7 @@ class TaskFactory:
                             logger.info("Processing task: %s", extended_name)
                         time.sleep(0.1)
                         start = time.time()
-                        retval = process(extended_name, params=comb)
+                        retval = process(extended_name, params=comb, rebuild=rebuild)
                         end = time.time()
                         diff = end - start
                         minutes = int(diff // 60)

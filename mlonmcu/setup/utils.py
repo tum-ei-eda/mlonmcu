@@ -1,4 +1,5 @@
 import os
+import sys
 import multiprocessing
 import subprocess
 
@@ -113,7 +114,7 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
         assert (
             process.poll() == 0
         ), "The process returned an non-zero exit code! (CMD: `{}`)".format(
-            " ".join(args)
+            " ".join(list(map(str, args)))
         )
     else:
         try:
@@ -137,7 +138,7 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
 
 def python(*args, **kwargs):
     """Run a python script with the current interpreter."""
-    return exec_getout(sys.executable, *args, **kwarsg)
+    return exec_getout(sys.executable, *args, **kwargs)
 
 
 # Makes sure all directories at the given path are created.
@@ -153,6 +154,7 @@ def clone(
     dest: Union[str, bytes, os.PathLike],
     branch: str = "",
     recursive: bool = False,
+    refresh: bool = False,
 ):
     """Helper function for cloning a repository.
 
@@ -166,16 +168,35 @@ def clone(
         Optional branch name or commit reference/tag.
     recursive : bool
         If the clone should be done recursively.
+    refesh : bool
+        Enables switching the url/branch if the repo already exists
     """
     mkdirs(dest)
-    if branch:
-        Repo.clone_from(url, dest, branch=branch, recursive=recursive)
+
+    if is_populated(dest):
+        if refresh:
+            repo = Repo(dest)
+            # TODO: backup old remote?
+            repo.remotes.origin.set_url(url)
+            repo.remotes.origin.fetch()
+            repo.git.checkout(branch)
+            repo.git.pull(
+                "origin", branch
+            )  # This should also work for specific commits
     else:
-        Repo.clone_from(url, dest, recursive=recursive)
+        if branch:
+            Repo.clone_from(url, dest, branch=branch, recursive=recursive)
+        else:
+            Repo.clone_from(url, dest, recursive=recursive)
 
 
 def make(
-    *args, threads=multiprocessing.cpu_count(), use_ninja=False, cwd=None, **kwargs
+    *args,
+    threads=multiprocessing.cpu_count(),
+    use_ninja=False,
+    cwd=None,
+    verbose=False,
+    **kwargs
 ):
     if cwd is None:
         raise RuntimeError("Please always pass a cwd to make()")

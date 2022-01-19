@@ -22,6 +22,12 @@ def get_parser(subparsers):
         action="store_true",
         help="Display progress bar (default: %(default)s)",
     )
+    parser.add_argument(
+        "-r",
+        "--rebuild",
+        action="store_true",
+        help="Trigger a rebuild/refresh of already installed dependencies (default: %(default)s)",
+    )
     return parser
 
 
@@ -29,4 +35,9 @@ def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         # print(f"Environment: {context.environment}")
         progress = args.progress
-        mlonmcu.setup.install.install_dependencies(context=context, progress=progress)
+        mlonmcu.setup.install.install_dependencies(
+            context=context,
+            progress=progress,
+            rebuild=args.rebuild,
+            verbose=args.verbose,
+        )

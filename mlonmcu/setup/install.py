@@ -10,7 +10,12 @@ logger = get_logger()
 
 
 def install_dependencies(
-    tasks_factory=Tasks, context=None, progress=False, write_cache=True
+    tasks_factory=Tasks,
+    context=None,
+    progress=False,
+    write_cache=True,
+    rebuild=False,
+    verbose=False,
 ):
     assert context is not None
     # print("context.environment", context.environment)
@@ -47,7 +52,7 @@ def install_dependencies(
         pbar = None
     for task in order:
         func = tasks_factory.registry[task]
-        func(context, progress=progress)
+        func(context, progress=progress, rebuild=rebuild, verbose=verbose)
         time.sleep(0.1)
         if pbar:
             pbar.update(1)

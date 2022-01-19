@@ -68,13 +68,15 @@ def _validate_tensorflow(context: MlonMcuContext, params=None):
 @Tasks.provides(["tf.src_dir"])
 @Tasks.validate(_validate_tensorflow)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def clone_tensorflow(context: MlonMcuContext, params=None, rebuild=False):
+def clone_tensorflow(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False
+):
     """Clone the TF/TFLM repository."""
     tfName = utils.makeDirName("tf")
     tfSrcDir = context.environment.paths["deps"].path / "src" / tfName
     if rebuild or not utils.is_populated(tfSrcDir):
         tfRepo = context.environment.repos["tensorflow"]
-        utils.clone(tfRepo.url, tfSrcDir, branch=tfRepo.ref)
+        utils.clone(tfRepo.url, tfSrcDir, branch=tfRepo.ref, refresh=rebuild)
     context.cache["tf.src_dir"] = tfSrcDir
 
 
@@ -84,7 +86,9 @@ def clone_tensorflow(context: MlonMcuContext, params=None, rebuild=False):
 @Tasks.param("dbg", True)
 @Tasks.validate(_validate_tensorflow)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def build_tensorflow(context: MlonMcuContext, params=None, rebuild=False):
+def build_tensorflow(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False
+):
     """Download tensorflow dependencies and build lib."""
     if not params:
         params = {}
@@ -111,6 +115,7 @@ def build_tensorflow(context: MlonMcuContext, params=None, rebuild=False):
             "third_party_downloads",
             *tfDbgArg,
             cwd=tfSrcDir,
+            live=verbose,
         )
     context.cache["tf.dl_dir"] = tflmDownloadsDir
     context.cache["tf.lib_path", flags] = tflmLib  # ignore!
@@ -132,7 +137,9 @@ def _validate_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.provides(["tflmc.src_dir"])
 @Tasks.validate(_validate_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
-def clone_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=False):
+def clone_tflite_micro_compiler(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False
+):
     """Clone the preinterpreter repository."""
     tflmcName = utils.makeDirName("tflmc")
     tflmcSrcDir = context.environment.paths["deps"].path / "src" / tflmcName
@@ -158,7 +165,9 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_build_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
-def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=False):
+def build_tflite_micro_compiler(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False
+):
     """Build the TFLM preinterpreter."""
     if not params:
         params = {}
@@ -179,9 +188,9 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
             str(tflmcSrcDir),
             debug=params["dbg"],
             cwd=tflmcBuildDir,
-            live=True,
+            live=verbose,
         )
-        utils.make(cwd=tflmcBuildDir)
+        utils.make(cwd=tflmcBuildDir, live=verbose)
         utils.mkdirs(tflmcInstallDir)
         utils.move(tflmcBuildDir / "compiler", tflmcExe)
     context.cache["tflmc.build_dir", flags] = tflmcBuildDir
@@ -208,7 +217,9 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
 @Tasks.param("vext", [False, True])
 @Tasks.validate(_validate_riscv_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)
-def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False):
+def install_riscv_gcc(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False
+):
     """Download and install the RISCV GCC toolchain."""
     if not params:
         params = {}
@@ -243,7 +254,9 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False):
             riscvUrl = "https://static.dev.sifive.com/dev-tools/"
             riscvFileName = f"riscv64-unknown-elf-gcc-{riscvVersion}-{riscvDist}"
         riscvArchive = riscvFileName + ".tar.gz"
-        if rebuild or not utils.is_populated(riscvInstallDir):
+        # if rebuild or not utils.is_populated(riscvInstallDir):
+        # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
+        if not utils.is_populated(riscvInstallDir):
             utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir)
     context.cache["riscv_gcc.install_dir", flags] = riscvInstallDir
 
@@ -262,7 +275,7 @@ def _validate_llvm(context: MlonMcuContext, params=None):
 @Tasks.provides(["llvm.install_dir"])
 @Tasks.validate(_validate_llvm)
 @Tasks.register(category=TaskType.MISC)
-def install_llvm(context: MlonMcuContext, params=None, rebuild=False):
+def install_llvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Download and install LLVM."""
     llvmName = utils.makeDirName("llvm")
     llvmInstallDir = context.environment.paths["deps"].path / "install" / llvmName
@@ -278,7 +291,9 @@ def install_llvm(context: MlonMcuContext, params=None, rebuild=False):
     )
     llvmFileName = f"clang+llvm-{llvmVersion}-{llvmDist}"
     llvmArchive = llvmFileName + ".tar.xz"
-    if rebuild or not utils.is_populated(llvmInstallDir):
+    # if rebuild or not utils.is_populated(llvmInstallDir):
+    # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
+    if not utils.is_populated(llvmInstallDir):
         utils.download_and_extract(llvmUrl, llvmArchive, llvmInstallDir)
     context.cache["llvm.install_dir"] = llvmInstallDir
 
@@ -297,7 +312,7 @@ def _validate_etiss(context: MlonMcuContext, params={}):
 @Tasks.provides(["etiss.src_dir"])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
-def clone_etiss(context: MlonMcuContext, params=None, rebuild=False):
+def clone_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Clone the ETISS repository."""
     etissName = utils.makeDirName("etiss")
     etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
@@ -312,7 +327,7 @@ def clone_etiss(context: MlonMcuContext, params=None, rebuild=False):
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
-def build_etiss(context: MlonMcuContext, params=None, rebuild=False):
+def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build the ETISS simulator."""
     if not params:
         params = {}
@@ -331,8 +346,9 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False):
             cwd=etissBuildDir,
             debug=params["dbg"],
             env=env,
+            live=verbose,
         )
-        utils.make(cwd=etissBuildDir)
+        utils.make(cwd=etissBuildDir, live=verbose)
     context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etiss.build_dir", flags] = etissBuildDir
 
@@ -342,7 +358,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False):
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
-def install_etiss(context: MlonMcuContext, params=None, rebuild=False):
+def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Install ETISS."""
     if not params:
         params = {}
@@ -357,7 +373,7 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False):
         or not utils.is_populated(etissvpSrcDir)
         or not utils.is_populated(etissLibDir)
     ):
-        utils.make("install", cwd=etissBuildDir)
+        utils.make("install", cwd=etissBuildDir, live=verbose)
     context.cache["etissvp.src_dir", flags] = etissvpSrcDir
     context.cache["etiss.lib_dir", flags] = etissLibDir
     context.cache["etiss.install_dir", flags] = etissInstallDir
@@ -369,7 +385,7 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False):
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
-def build_etissvp(context: MlonMcuContext, params=None, rebuild=False):
+def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build the ETISS virtual prototype."""
     if not params:
         params = {}
@@ -433,8 +449,14 @@ def build_etissvp(context: MlonMcuContext, params=None, rebuild=False):
 
     etissvpArgs = addMemArgs([], context=context)
     utils.mkdirs(etissvpBuildDir)
-    utils.cmake(etissvpSrcDir, *etissvpArgs, cwd=etissvpBuildDir, debug=params["dbg"])
-    utils.make(cwd=etissvpBuildDir)
+    utils.cmake(
+        etissvpSrcDir,
+        *etissvpArgs,
+        cwd=etissvpBuildDir,
+        debug=params["dbg"],
+        live=verbose,
+    )
+    utils.make(cwd=etissvpBuildDir, live=verbose)
     context.cache["etissvp.build_dir", flags] = etissvpBuildDir
     etissvpExe = etissvpBuildDir / "bare_etiss_processor"
     context.cache["etissvp.exe", flags] = etissvpExe
@@ -454,10 +476,10 @@ def _validate_tvm(context: MlonMcuContext, params=None):
 @Tasks.provides(["tvm.src_dir"])
 @Tasks.validate(_validate_tvm)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def clone_tvm(context: MlonMcuContext, params=None, rebuild=False):
+def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Clone the TVM repository."""
     tvmName = utils.makeDirName("tvm")
-    tvmSrcDir = context.environment.paths["deps"].path / "install" / tvmName
+    tvmSrcDir = context.environment.paths["deps"].path / "src" / tvmName
     if rebuild or not utils.is_populated(tvmSrcDir):
         tvmRepo = context.environment.repos["tvm"]
         utils.clone(tvmRepo.url, tvmSrcDir, branch=tvmRepo.ref, recursive=True)
@@ -469,16 +491,17 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False):
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_tvm)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def build_tvm(context: MlonMcuContext, params=None, rebuild=False):
+def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build the TVM framework."""
     if not params:
         params = {}
     flags = utils.makeFlags((params["dbg"], "dbg"))
+    dbg = bool(params["dbg"])
     # FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!
     # This should help: TVM_LIBRARY_PATH -> tvm.build_dir
     tvmName = utils.makeDirName("tvm", flags=flags)
     tvmSrcDir = context.cache["tvm.src_dir"]
-    tvmBuildDir = tvmSrcDir / "build"
+    tvmBuildDir = context.environment.paths["deps"].path / "build" / tvmName
     tvmLib = tvmBuildDir / "libtvm.so"
     tvmPythonPath = tvmSrcDir / "python"
     if rebuild or not utils.is_populated(tvmBuildDir) or not tvmLib.is_file():
@@ -498,11 +521,27 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False):
             "sed",
             "-i",
             "--",
+            r"s/USE_MICRO OFF/USE_MICRO ON/g",
+            str(cfgFile),
+        )
+        utils.exec(
+            "sed",
+            "-i",
+            "--",
+            r"s/USE_MICRO_STANDALONE_RUNTIME OFF/USE_MICRO_STANDALONE_RUNTIME ON/g",
+            str(cfgFile),
+        )
+        utils.exec(
+            "sed",
+            "-i",
+            "--",
             r"s/USE_LLVM \(OFF\|ON\)/USE_LLVM " + llvmConfigEscaped + "/g",
             str(cfgFile),
         )
-        utils.cmake(tvmSrcDir, cwd=tvmBuildDir, debug=True, use_ninja=ninja)
-        utils.make(cwd=tvmBuildDir, use_ninja=ninja)
+        utils.cmake(
+            tvmSrcDir, cwd=tvmBuildDir, debug=dbg, use_ninja=ninja, live=verbose
+        )
+        utils.make(cwd=tvmBuildDir, use_ninja=ninja, live=verbose)
     context.cache["tvm.build_dir", flags] = tvmBuildDir
     context.cache["tvm.lib", flags] = tvmLib
     context.cache["tvm.pythonpath"] = tvmPythonPath
@@ -524,7 +563,9 @@ def _validate_utvmcg(context: MlonMcuContext, params=None):
 @Tasks.provides(["utvmcg.src_dir"])
 @Tasks.validate(_validate_utvmcg)
 @Tasks.register(category=TaskType.BACKEND)
-def clone_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=False):
+def clone_utvm_staticrt_codegen(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False
+):
     """Clone the uTVM code generator."""
     utvmcgName = utils.makeDirName("utvmcg")
     utvmcgSrcDir = context.environment.paths["deps"].path / "src" / utvmcgName
@@ -539,7 +580,9 @@ def clone_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=Fa
 @Tasks.param("dbg", False)
 # @Tasks.validate(_validate_utvmcg)
 @Tasks.register(category=TaskType.BACKEND)
-def build_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=False):
+def build_utvm_staticrt_codegen(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False
+):
     """Build the uTVM code generator."""
     if not params:
         params = {}
@@ -561,8 +604,14 @@ def build_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=Fa
                 crtConfigPath = Path(user_vars["tvm.crt_config_dir"])
         utvmcgArgs.append("-DTVM_CRT_CONFIG_DIR=" + str(crtConfigPath))
         utils.mkdirs(utvmcgBuildDir)
-        utils.cmake(utvmcgSrcDir, *utvmcgArgs, cwd=utvmcgBuildDir, debug=params["dbg"])
-        utils.make(cwd=utvmcgBuildDir)
+        utils.cmake(
+            utvmcgSrcDir,
+            *utvmcgArgs,
+            cwd=utvmcgBuildDir,
+            debug=params["dbg"],
+            live=verbose,
+        )
+        utils.make(cwd=utvmcgBuildDir, live=verbose)
         utils.mkdirs(utvmcgInstallDir)
         utils.move(utvmcgBuildDir / "utvm_staticrt_codegen", utvmcgExe)
     context.cache["utvmcg.build_dir", flags] = utvmcgBuildDir
@@ -587,7 +636,7 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
 @Tasks.provides(["muriscvnn.src_dir"])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
-def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False):
+def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Clone the muRISCV-NN project."""
     muriscvnnName = utils.makeDirName("muriscvnn")
     muriscvnnSrcDir = context.environment.paths["deps"].path / "src" / muriscvnnName
@@ -603,7 +652,7 @@ def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False):
 @Tasks.param("vext", [False, True])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
-def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False):
+def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build muRISCV-NN."""
     if not params:
         params = {}
@@ -624,9 +673,13 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False):
             vext = params["vext"]
         muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
         utils.cmake(
-            muriscvnnSrcDir, *muriscvnnArgs, cwd=muriscvnnBuildDir, debug=params["dbg"]
+            muriscvnnSrcDir,
+            *muriscvnnArgs,
+            cwd=muriscvnnBuildDir,
+            debug=params["dbg"],
+            live=verbose,
         )
-        utils.make(cwd=muriscvnnBuildDir)
+        utils.make(cwd=muriscvnnBuildDir, live=verbose)
     context.cache["muriscvnn.build_dir", flags] = muriscvnnBuildDir
     context.cache["muriscvnn.inc_dir", flags] = muriscvnnIncludeDir
 

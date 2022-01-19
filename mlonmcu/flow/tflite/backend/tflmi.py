@@ -1,7 +1,8 @@
 import sys
 
 from .backend import TFLiteBackend
-from mlonmcu.flow.backend import main, Artifact
+from mlonmcu.flow.backend import main
+from mlonmcu.artifact import Artifact, ArtifactFormat
 
 FEATURES = ["debug_arena"]
 
@@ -292,8 +293,19 @@ class TFLMIBackend(TFLiteBackend):
             debug_arena=debug_arena,
             **config_map,
         )
-        artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code))
-        artifacts.append(Artifact(f"{self.prefix}.cc.h", content=header_code))
+        artifacts.append(
+            Artifact(
+                f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE
+            )
+        )
+        artifacts.append(
+            Artifact(
+                f"{self.prefix}.cc.h",
+                content=header_code,
+                fmt=ArtifactFormat.SOURCE,
+                optional=True,
+            )
+        )
         self.artifacts = artifacts
 
 

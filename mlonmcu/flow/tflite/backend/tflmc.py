@@ -5,8 +5,9 @@ import logging
 from pathlib import Path
 from .backend import TFLiteBackend
 import mlonmcu.setup.utils as utils
-from mlonmcu.flow.backend import main, Artifact
+from mlonmcu.flow.backend import main
 from mlonmcu.logging import get_logger
+from mlonmcu.artifact import Artifact, ArtifactFormat
 
 logger = get_logger()
 
@@ -63,7 +64,9 @@ class TFLMCBackend(TFLiteBackend):
             for filename in files:
                 with open(Path(tmpdirname) / filename, "r") as handle:
                     content = handle.read()
-                    artifacts.append(Artifact(filename, content=content))
+                    artifacts.append(
+                        Artifact(filename, content=content, fmt=ArtifactFormat.SOURCE)
+                    )
 
         self.artifacts = artifacts
 

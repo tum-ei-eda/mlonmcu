@@ -7,14 +7,9 @@ from abc import ABC, abstractmethod
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.feature import FeatureType
 from mlonmcu.logging import get_logger
+from mlonmcu.artifact import Artifact
 
 logger = get_logger()
-
-
-class Artifact:
-    def __init__(self, name, content=None):
-        self.name = name
-        self.content = content
 
 
 class Backend(ABC):
@@ -232,7 +227,7 @@ def main(backend_name, backend, backend_features, backend_defaults, args=None):
         print("Printing generated artifacts:")
         for artifact in backend_inst.artifacts:
             print(f"=== {artifact.name} ===")
-            print(artifact.content)
+            artifact.print_summary()
             print("=== End ===")
             print()
     else:

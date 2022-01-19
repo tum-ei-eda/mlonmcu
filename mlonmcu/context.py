@@ -150,17 +150,15 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     session_ids = get_ids(sessions_directory)
 
     for sid in session_ids:
-        session_directory = sessions_directory / str(sid)
-        session_file = session_directory / "session.txt"
+        session_file = sessions_directory / str(sid) / "session.txt"
         if not session_file.is_file():
             continue
         runs_directory = session_directory / "runs"
         run_ids = get_ids(runs_directory)
         runs = []
         for rid in run_ids:
-            run_directory = runs_directory / str(rid)
-            run_file = run_directory / "run.txt"
-            run = Run()  # TODO: actually implement run restore
+            run_file = runs_directory / str(rid) / "run.txt"
+            run = Run.from_file(run_file)  # TODO: actually implement run restore
             runs.append(run)
         session = Session(idx=sid, archived=True, dir=session_directory)
         session.runs = runs

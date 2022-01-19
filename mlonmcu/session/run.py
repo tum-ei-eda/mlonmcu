@@ -21,6 +21,13 @@ class RunStage(IntEnum):
 
 
 class Run:
+    """A run is single model/backend/framework/target combination with a given set of features and configs."""
+
+    @classmethod
+    def from_file(path):
+        """Restore a run object which was written to the disk."""
+        raise NotImplementedError
+
     def __init__(
         self,
         idx=None,

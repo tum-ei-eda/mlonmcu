@@ -50,13 +50,13 @@ def set_log_file(path, level=logging.DEBUG, rotate=False):
     logger = logging.getLogger("mlonmcu")
     if rotate:
         file_handler = logging.handlers.TimedRotatingFileHandler(
-            filename=path, when="midnight", backupCount=30
+            filename=path, when="midnight", backupCount=30, mode="a"
         )
     else:
-        file_handler = logging.FileHandler(path, "w")
+        file_handler = logging.FileHandler(path, mode="a")
     file_handler.setFormatter(get_formatter())
     file_handler.setLevel(level)
     for handler in logger.handlers[:]:
         if isinstance(handler, logging.FileHandler):
-            logger.removeHandler(hdlr)
+            logger.removeHandler(handler)
     logger.addHandler(file_handler)

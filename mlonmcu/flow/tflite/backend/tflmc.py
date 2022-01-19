@@ -14,7 +14,7 @@ logger = get_logger()
 
 class TFLMCBackend(TFLiteBackend):
 
-    shortname = "tflmc"
+    name = "tflmc"
 
     FEATURES = ["debug_arena"]
 

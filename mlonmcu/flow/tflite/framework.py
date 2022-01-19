@@ -1,10 +1,13 @@
+"""Definitions for TFLiteFramework."""
+
 from mlonmcu.flow.framework import Framework
 from mlonmcu.flow.tflite import TFLiteBackend
 
 
 class TFLiteFramework(Framework):
+    """TFLite Framework specialization."""
 
-    shortname = "tflite"
+    name = "tflite"
     backends = TFLiteBackend.registry
 
     def __init__(self, features=None, config=None):

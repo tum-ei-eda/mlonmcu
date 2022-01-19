@@ -53,7 +53,27 @@ class TVMBackend(Backend):
         return self.config["opt_level"]
 
     def get_pass_config_tvmc_args(self):
-        pass
+        args = []
+        for key, value in self.pass_config.items():
+            args.extend(["--pass-config", f"{key}={value}"])
+        return args
+
+    def get_disabled_pass_tvmc_args(self):
+        args = []
+        for item in self.config["disabled_passes"]:
+            args.extend(["--disable-pass", item])
+        return args
+
+    def get_input_shapes_tvmc_args(self):
+        if self.input_shapes is None:
+            return []
+        arg = " ".join(
+            [
+                f"{name}:[" + ",".join(list(map(str, dims))) + "]"
+                for name, dims in self.input_shapes.items()
+            ]
+        )
+        return ["--input-shapes", arg]
 
     def get_common_tvmc_args(self, executor, fmt="mlf", target="c", runtime="crt"):
         assert executor in ["aot", "graph"], "Unsupported TVM executor"
@@ -69,34 +89,27 @@ class TVMBackend(Backend):
             runtime,
             *self.get_pass_config_tvmc_args(),
             *self.get_disabled_pass_tvmc_args(),
-            "--target-c-device",
-            self.device,
+            *(
+                ["--target-c-device", self.target_device]
+                if self.target_device is not None
+                else []
+            ),
             "--opt-level",
-            self.opt_level,
-            "--input-shapes",
-            self.input_shapes,
+            str(self.opt_level),
+            *self.get_input_shapes_tvmc_args(),
         ]
 
-    def get_tvmc_args(self):
-        # tvmaot
-        return self.get_common_tvmc_args("aot") + [
-            "--runtime-crt-system-lib",
-            str(0),
-            "--target-c-constants-byte-alignment",
-            str(self.alignment_bytes),
-            "--target-c-workspace-byte-alignment",
-            str(self.alignment_bytes),
-            "--target-c-executor",
-            "aot",
-            "--target-c-unpacked-api",
-            str(int(self.unpacked_api)),
-            "--target-c-interface-api",
-            "c" if self.unpacked_api else "packed",
-        ]
-
-        # tvmrt / tvmgraph?
-        # return self.get_common_tvmc_args("graph") + ["--runtime-crt-system-lib", str(1), "--executor-graph-link-params", str(0),
-        # tvmcg? -> tvmrt
+    def invoke_tvmc(self, out, command="compile", dump=None):
+        args = self.get_tvmc_args()
+        args.extend(["--output", str(out)])
+        if dump:
+            assert isinstance(dump, list)
+            args.extend(["--dump-code", ",".join(dump)])
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(self.config["tvm.pythonpath"])
+        env["TVM_LIBRARY_PATH"] = str(self.config["tvm.build_dir"])
+        verbose = True  # ???
+        utils.python("-m", "tvm.driver.tvmc", command, *args, live=verbose, env=env)
 
     def get_opt_level(self):
         # TODO: Make this a helper function?
@@ -137,5 +150,9 @@ class TVMBackend(Backend):
 
     def load_model(self, model):
         self.model = model
-        # model_buf = open(path, "rb").read()
-        # self.mod, self.params, self.modelInfo = load_tflite_model(model_buf)
+        with open(model, "rb") as handle:
+            model_buf = handle.read()
+            self.model_info = get_tflite_model_info(model_buf)
+            self.input_shapes = {
+                tensor.name: tensor.shape for tensor in self.model_info.inTensors
+            }

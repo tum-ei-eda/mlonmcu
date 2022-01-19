@@ -39,12 +39,12 @@ class Framework(ABC):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        assert isinstance(cls.shortname, str)
-        cls.registry[cls.shortname] = cls
+        assert isinstance(cls.name, str)
+        cls.registry[cls.name] = cls
 
     def get_cmake_args(self):
-        assert self.shortname is not None
-        return [f"-DFRAMEWORK={self.shortname}"]
+        assert self.name is not None
+        return [f"-DFRAMEWORK={self.name}"]
 
     def add_cmake_args(self, args):
         args += self.get_cmake_args()

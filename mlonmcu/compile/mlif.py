@@ -48,7 +48,7 @@ class MLIF:
             self.ignore_data = bool(self.config["mlif.ignore_data"])
         self.context = context
         self.goal = "generic_mlif"
-        flags = [self.framework.shortname, self.backend.shortname, self.target.name] + [
+        flags = [self.framework.name, self.backend.name, self.target.name] + [
             feature.name for feature in self.features
         ]
         dir_name = utils.makeDirName("mlif", flags=flags)
@@ -103,11 +103,10 @@ class MLIF:
             self.tempdir.cleanup()
 
     def validate(self):
-        print("self.framework", self.framework.shortname)
-        assert self.framework.shortname in SUPPORTED_FRAMEWORKS
-        # assert self.framework.shortname in enabled_frameworks  # TODO
-        assert self.backend.shortname in SUPPORTED_BACKENDS
-        # assert self.backend.shortname in enabled_backends  # TODO
+        assert self.framework.name in SUPPORTED_FRAMEWORKS
+        # assert self.framework.name in enabled_frameworks  # TODO
+        assert self.backend.name in SUPPORTED_BACKENDS
+        # assert self.backend.name in enabled_backends  # TODO
         for feature in self.features:
             # TODO: maybe rather for type in types?
             if feature.type == FeatureType.FRAMEWORK:

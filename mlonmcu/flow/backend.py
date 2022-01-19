@@ -16,7 +16,7 @@ logger = get_logger()
 
 class Backend(ABC):
 
-    shortname = None
+    name = None
 
     FEATURES = []
     DEFAULTS = {}
@@ -39,7 +39,7 @@ class Backend(ABC):
         self.artifacts = []
 
     def __repr__(self):
-        name = type(self).shortname
+        name = type(self).name
         return f"Backend({name})"
 
     def process_features(self, features):

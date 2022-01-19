@@ -5,7 +5,7 @@ class TFLiteBackend(Backend):
 
     registry = {}
 
-    shortname = None
+    name = None
 
     DEFAULTS = {}
 
@@ -17,8 +17,8 @@ class TFLiteBackend(Backend):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        assert isinstance(cls.shortname, str)
-        cls.registry[cls.shortname] = cls
+        assert isinstance(cls.name, str)
+        cls.registry[cls.name] = cls
 
     def load_model(self, model):
         self.model = model

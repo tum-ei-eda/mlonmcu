@@ -269,7 +269,7 @@ void {prefix}_invoke() {
 
 class TFLMIBackend(TFLiteBackend):
 
-    shortname = "tflmi"
+    name = "tflmi"
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(features=features, config=config, context=context)

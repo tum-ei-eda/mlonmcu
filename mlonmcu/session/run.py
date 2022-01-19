@@ -78,7 +78,7 @@ class Run:
         # if context:
         #     if context.cache:
         #         mlif_build_dir = context.cache.find_best_match(
-        #             "mlif_build_dir", flags=[self.backend.shortname, self.target.name]
+        #             "mlif_build_dir", flags=[self.backend.name, self.target.name]
         #         )
         #         print("mlif_build_dir", mlif_build_dir)
         pass

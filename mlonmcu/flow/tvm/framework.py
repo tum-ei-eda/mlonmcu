@@ -11,8 +11,9 @@ COMMON_TVM_CONFIG = {
 
 
 class TVMFramework(Framework):
+    """TVM Framework specialization."""
 
-    shortname = "tvm"
+    name = "tvm"
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)

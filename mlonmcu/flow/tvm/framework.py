@@ -1,3 +1,5 @@
+"""Definitions for TVMFramework."""
+
 from mlonmcu.flow.framework import Framework
 
 # from mlonmcu.flow.tvm import TVMBackend

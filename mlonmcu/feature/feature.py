@@ -6,6 +6,8 @@ from typing import List
 
 
 class FeatureType(Enum):
+    """Enumeration for Feature types."""
+
     OTHER = 0
     SETUP = 1
     FRONTEND = 2
@@ -56,6 +58,7 @@ class FeatureBase(ABC):
 
     @classmethod
     def types(cls):
+        """Find out which types the features is based on."""
         return [base.feature_type for base in cls.__bases__]
 
     # This does not make sense because the get_?_config methods may beed a parameter
@@ -85,6 +88,7 @@ class FrontendFeature(FeatureBase):
         super().__init__(name, config=config)
 
     def get_frontend_config(self, frontend):
+        # pylint: disable=unused-argument
         return {}
 
     def add_frontend_config(self, frontend, config):
@@ -99,7 +103,8 @@ class FrameworkFeature(FeatureBase):
     def __init__(self, name, config=None):
         super().__init__(name, config=config)
 
-    def get_framework_config(self, farmework):
+    def get_framework_config(self, framework):
+        # pylint: disable=unused-argument
         return {}
 
     def add_framework_config(self, framework, config):
@@ -115,6 +120,7 @@ class BackendFeature(FeatureBase):
         super().__init__(name, config=config)
 
     def get_backend_config(self, backend):
+        # pylint: disable=unused-argument
         return {}
 
     def add_backend_config(self, backend, config):
@@ -131,6 +137,7 @@ class TargetFeature(FeatureBase):
         super().__init__(name, config=config)
 
     def get_target_config(self, target):
+        # pylint: disable=unused-argument
         return {}
 
     def add_target_config(self, target, config):

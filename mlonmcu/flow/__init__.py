@@ -1,3 +1,5 @@
+"""Flow module for frameworks and backend."""
+
 import mlonmcu
 from mlonmcu.flow.tflite.backend.tflmc import TFLMCBackend
 from mlonmcu.flow.tflite.backend.tflmi import TFLMIBackend
@@ -33,4 +35,5 @@ SUPPORTED_BACKENDS = {**SUPPORTED_TFLITE_BACKENDS, **SUPPORTED_TVM_BACKENDS}
 
 
 def get_available_backend_names():
+    """Return all available backend names."""
     return list(SUPPORTED_BACKENDS.keys())

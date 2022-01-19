@@ -201,6 +201,13 @@ def resolve_environment_file(name: str = None, path: str = None) -> Path:
 
 
 def setup_logging(environment):
+    """Check logging settings for environment and initialize the logs directory.
+
+    Attributes
+    ----------
+    environment : Environment
+        The MLonMCU Environment where paths, repos, features,... are configured.
+    """
     defaults = environment.defaults
     level = defaults.log_level
     to_file = defaults.log_to_file

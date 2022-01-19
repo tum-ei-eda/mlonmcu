@@ -9,6 +9,8 @@ logger = get_logger()
 
 
 class RunStage(IntEnum):
+    """Type describing the stages a run can have."""
+
     NOP = 0
     LOAD = 1  # unimplemented
     BUILD = 2
@@ -70,10 +72,12 @@ class Run:
         return "Run(" + ",".join(probs) + ")"
 
     def run(self, context=None):
+        """Run the 'run' using the defined target."""
         # print("RUN RUN:", self)
         pass
 
     def compile(self, context=None):
+        """Compile the target software for the run."""
         # print("COMPILE RUN:", self)
         # if context:
         #     if context.cache:
@@ -84,11 +88,13 @@ class Run:
         pass
 
     def build(self, context=None):
+        """Process the run using the choosen backend."""
         self.backend.load_model(model=self.artifacts["model"])
         code = self.backend.generate_code()
         self.artifacts["code"] = code
 
     def process(self, until=RunStage.RUN, context=None):
+        """Process the run until a given stage."""
         logger.debug(
             "Started processing a new run until stage %s: %s",
             str(RunStage(until).name),

@@ -51,6 +51,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.context">mlonmcu.context module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
@@ -166,17 +167,290 @@ args</p>
 <dd></dd></dl>
 
 </section>
-<section id="mlonmcu-target-etiss-pulpino-module">
-<h2>mlonmcu.target.etiss_pulpino module<a class="headerlink" href="#mlonmcu-target-etiss-pulpino-module" title="Permalink to this headline"></a></h2>
+<section id="module-mlonmcu.target.etiss_pulpino">
+<span id="mlonmcu-target-etiss-pulpino-module"></span><h2>mlonmcu.target.etiss_pulpino module<a class="headerlink" href="#module-mlonmcu.target.etiss_pulpino" title="Permalink to this headline"></a></h2>
+<p>MLonMCU ETISS/Pulpino Target definitions</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.etiss_pulpino.</span></span><span class="sig-name descname"><span class="pre">ETISSPulpinoTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/etiss_pulpino.html#ETISSPulpinoTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.target.target.Target" title="mlonmcu.target.target.Target"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.target.target.Target</span></code></a></p>
+<p>Target using a Pulpino-like VP running in the ETISS simulator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>etiss_dir</strong></dt><dd></dd>
+<dt><strong>riscv_prefix</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.exec" title="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.exec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exec</span></code></a>(program, *args, **kwargs)</p></td>
+<td><p>Use target to execute a executable with given arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inspect</span></code>(program, *args, **kwargs)</p></td>
+<td><p>Use target to inspect a executable</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 67%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'debug_etiss':</span> <span class="pre">False,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'gdbserver_attach':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_enable':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_port':</span> <span class="pre">2222,</span> <span class="pre">'trace_memory':</span> <span class="pre">False,</span> <span class="pre">'verbose':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['gdbserver',</span> <span class="pre">'etissdbg',</span> <span class="pre">'trace']</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['riscv_gcc.install_dir',</span> <span class="pre">'etiss.install_dir']</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.etiss_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">etiss_dir</span></span><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.etiss_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/etiss_pulpino.html#ETISSPulpinoTarget.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.exec" title="Permalink to this definition"></a></dt>
+<dd><p>Use target to execute a executable with given arguments</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.riscv_prefix">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">riscv_prefix</span></span><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.riscv_prefix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.lookup_etiss">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.target.etiss_pulpino.</span></span><span class="sig-name descname"><span class="pre">lookup_etiss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">os._Environ</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="reference internal" href="_modules/mlonmcu/target/etiss_pulpino.html#lookup_etiss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.lookup_etiss" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to find the directory where the ETISS simulator is installed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cfg</strong><span class="classifier">dict</span></dt><dd><p>Optional config provided by the user.</p>
+</dd>
+<dt><strong>env</strong><span class="classifier">os._Environ</span></dt><dd><p>Environment variables</p>
+</dd>
+<dt><strong>context</strong><span class="classifier">MlonMcuContext</span></dt><dd><p>Optional context for looking up dependencies</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>path</strong><span class="classifier">pathlib.Path</span></dt><dd><p>The path to the ETISS install directory (if found).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.lookup_riscv_prefix">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.target.etiss_pulpino.</span></span><span class="sig-name descname"><span class="pre">lookup_riscv_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">os._Environ</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="reference internal" href="_modules/mlonmcu/target/etiss_pulpino.html#lookup_riscv_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.lookup_riscv_prefix" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to find the directory where the RISCV GCC compiler toolchain is installed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cfg</strong><span class="classifier">dict</span></dt><dd><p>Optional config provided by the user.</p>
+</dd>
+<dt><strong>env</strong><span class="classifier">os._Environ</span></dt><dd><p>Environment variables</p>
+</dd>
+<dt><strong>context</strong><span class="classifier">MlonMcuContext</span></dt><dd><p>Optional context for looking up dependencies</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>path</strong><span class="classifier">pathlib.Path</span></dt><dd><p>The path to the toolchain directory (if found).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<section id="mlonmcu-target-host-x86-module">
-<h2>mlonmcu.target.host_x86 module<a class="headerlink" href="#mlonmcu-target-host-x86-module" title="Permalink to this headline"></a></h2>
+<section id="module-mlonmcu.target.host_x86">
+<span id="mlonmcu-target-host-x86-module"></span><h2>mlonmcu.target.host_x86 module<a class="headerlink" href="#module-mlonmcu.target.host_x86" title="Permalink to this headline"></a></h2>
+<p>MLonMCU Host/x86 Target definitions</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.host_x86.HostX86Target">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.host_x86.</span></span><span class="sig-name descname"><span class="pre">HostX86Target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/host_x86.html#HostX86Target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.host_x86.HostX86Target" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.target.target.Target" title="mlonmcu.target.target.Target"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.target.target.Target</span></code></a></p>
+<p>Target using the x86 host system</p>
+<p>Mainly interesting to easy testing and debugging because benchmarking is not possible.</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.target.host_x86.HostX86Target.exec" title="mlonmcu.target.host_x86.HostX86Target.exec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exec</span></code></a>(program, *args, **kwargs)</p></td>
+<td><p>Use target to execute a executable with given arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inspect</span></code>(program, *args, **kwargs)</p></td>
+<td><p>Use target to inspect a executable</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 67%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.host_x86.HostX86Target.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'gdbserver_attach':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_enable':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_port':</span> <span class="pre">2222}</span></em><a class="headerlink" href="#mlonmcu.target.host_x86.HostX86Target.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.host_x86.HostX86Target.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['gdbserver']</span></em><a class="headerlink" href="#mlonmcu.target.host_x86.HostX86Target.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.host_x86.HostX86Target.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/host_x86.html#HostX86Target.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.host_x86.HostX86Target.exec" title="Permalink to this definition"></a></dt>
+<dd><p>Use target to execute a executable with given arguments</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="mlonmcu-target-target-module">
-<h2>mlonmcu.target.target module<a class="headerlink" href="#mlonmcu-target-target-module" title="Permalink to this headline"></a></h2>
+<section id="module-mlonmcu.target.target">
+<span id="mlonmcu-target-target-module"></span><h2>mlonmcu.target.target module<a class="headerlink" href="#module-mlonmcu.target.target" title="Permalink to this headline"></a></h2>
+<p>MLonMCU Target definitions</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.target.Target">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.target.</span></span><span class="sig-name descname"><span class="pre">Target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.feature.html#mlonmcu.feature.feature.Feature" title="mlonmcu.feature.feature.Feature"><span class="pre">mlonmcu.feature.feature.Feature</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/target.html#Target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.target.Target" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base target class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Default name of the target</p>
+</dd>
+<dt><strong>features</strong><span class="classifier">list</span></dt><dd><p>List of target features which should be enabled</p>
+</dd>
+<dt><strong>config</strong><span class="classifier">dict</span></dt><dd><p>User config defined via key-value pairs</p>
+</dd>
+<dt><strong>inspect_program</strong><span class="classifier">str</span></dt><dd><p>Program which can be used to inspect executables (i.e. readelf)</p>
+</dd>
+<dt><strong>inspect_program_args</strong><span class="classifier">list</span></dt><dd><p>List of additional arguments to the inspect_program</p>
+</dd>
+<dt><strong>env</strong><span class="classifier">os._Environ</span></dt><dd><p>Optinal map of environment variables</p>
+</dd>
+<dt><strong>context</strong><span class="classifier">MlonMcuContext</span></dt><dd><p>Optional context for resolving dependency paths</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.target.target.Target.exec" title="mlonmcu.target.target.Target.exec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exec</span></code></a>(program, *args, **kwargs)</p></td>
+<td><p>Use target to execute a executable with given arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.target.target.Target.inspect" title="mlonmcu.target.target.Target.inspect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inspect</span></code></a>(program, *args, **kwargs)</p></td>
+<td><p>Use target to inspect a executable</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 67%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.target.Target.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.target.target.Target.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.target.Target.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.target.target.Target.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.target.Target.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.target.target.Target.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.target.Target.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/target.html#Target.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.target.Target.exec" title="Permalink to this definition"></a></dt>
+<dd><p>Use target to execute a executable with given arguments</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.target.Target.get_cmake_args">
+<span class="sig-name descname"><span class="pre">get_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/target.html#Target.get_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.target.Target.get_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.target.Target.inspect">
+<span class="sig-name descname"><span class="pre">inspect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/target.html#Target.inspect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.target.Target.inspect" title="Permalink to this definition"></a></dt>
+<dd><p>Use target to inspect a executable</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.target.Target.process_features">
+<span class="sig-name descname"><span class="pre">process_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/target.html#Target.process_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.target.Target.process_features" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<section id="module-mlonmcu.target">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.target" title="Permalink to this headline"></a></h2>
+<p>MLonMCU target submodule</p>
 </section>
 </section>
 

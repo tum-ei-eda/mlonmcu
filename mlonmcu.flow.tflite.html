@@ -51,6 +51,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.context">mlonmcu.context module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
@@ -103,10 +104,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html">mlonmcu.flow.tflite.backend package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#mlonmcu-flow-tflite-backend-backend-module">mlonmcu.flow.tflite.backend.backend module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#mlonmcu-flow-tflite-backend-tflmc-module">mlonmcu.flow.tflite.backend.tflmc module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#mlonmcu-flow-tflite-backend-tflmi-module">mlonmcu.flow.tflite.backend.tflmi module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#module-mlonmcu.flow.tflite.backend.backend">mlonmcu.flow.tflite.backend.backend module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#module-mlonmcu.flow.tflite.backend.tflmc">mlonmcu.flow.tflite.backend.tflmc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#module-mlonmcu.flow.tflite.backend.tflmi">mlonmcu.flow.tflite.backend.tflmi module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflite.backend.html#module-mlonmcu.flow.tflite.backend">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -115,14 +116,59 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 </section>
-<section id="mlonmcu-flow-tflite-framework-module">
-<h2>mlonmcu.flow.tflite.framework module<a class="headerlink" href="#mlonmcu-flow-tflite-framework-module" title="Permalink to this headline"></a></h2>
+<section id="module-mlonmcu.flow.tflite.framework">
+<span id="mlonmcu-flow-tflite-framework-module"></span><h2>mlonmcu.flow.tflite.framework module<a class="headerlink" href="#module-mlonmcu.flow.tflite.framework" title="Permalink to this headline"></a></h2>
+<p>Definitions for TFLiteFramework.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tflite.framework.</span></span><span class="sig-name descname"><span class="pre">TFLiteFramework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/framework.html#TFLiteFramework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework" title="mlonmcu.flow.framework.Framework"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.framework.Framework</span></code></a></p>
+<p>TFLite Framework specialization.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 71%" />
+<col style="width: 29%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>add_cmake_args</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_cmake_args</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.backends">
+<span class="sig-name descname"><span class="pre">backends</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'tflmc':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tflite.backend.tflmc.TFLMCBackend'&gt;,</span> <span class="pre">'tflmi':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend'&gt;}</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.get_cmake_args">
+<span class="sig-name descname"><span class="pre">get_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/framework.html#TFLiteFramework.get_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.get_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tflite'</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="mlonmcu-flow-tflite-tflite-flow-module">
-<h2>mlonmcu.flow.tflite.tflite_flow module<a class="headerlink" href="#mlonmcu-flow-tflite-tflite-flow-module" title="Permalink to this headline"></a></h2>
+<section id="module-mlonmcu.flow.tflite.tflite_flow">
+<span id="mlonmcu-flow-tflite-tflite-flow-module"></span><h2>mlonmcu.flow.tflite.tflite_flow module<a class="headerlink" href="#module-mlonmcu.flow.tflite.tflite_flow" title="Permalink to this headline"></a></h2>
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<section id="module-mlonmcu.flow.tflite">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.flow.tflite" title="Permalink to this headline"></a></h2>
+<p>TFLite framework module.</p>
 </section>
 </section>
 

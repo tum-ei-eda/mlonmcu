@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.flow.tvm.backend.tvmaot &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../../flow.html">mlonmcu.flow</a> &raquo;</li>
+      <li>mlonmcu.flow.tvm.backend.tvmaot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.flow.tvm.backend.tvmaot</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">..tvm_flow</span> <span class="kn">import</span> <span class="n">get_parser</span>
+<span class="kn">from</span> <span class="nn">..framework</span> <span class="kn">import</span> <span class="n">COMMON_TVM_CONFIG</span>
+
+<span class="kn">from</span> <span class="nn">.backend</span> <span class="kn">import</span> <span class="n">TVMBackend</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">main</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span> <span class="nn">.wrapper</span> <span class="kn">import</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">,</span> <span class="n">generate_wrapper_header</span>
+
+
+<div class="viewcode-block" id="TVMAOTBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend">[docs]</a><span class="k">class</span> <span class="nc">TVMAOTBackend</span><span class="p">(</span><span class="n">TVMBackend</span><span class="p">):</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;debug_arena&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unpacked_api&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">TVMBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;arena_size&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Determined automatically</span>
+        <span class="s2">&quot;unpacked_api&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;alignment_bytes&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tvmaot&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">arena_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">size</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unpacked_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;unpacked_api&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">alignment_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;alignment_bytes&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="TVMAOTBackend.get_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_common_tvmc_args</span><span class="p">(</span><span class="s2">&quot;aot&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;--target-c-constants-byte-alignment&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment_bytes</span><span class="p">),</span>
+            <span class="s2">&quot;--target-c-workspace-byte-alignment&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment_bytes</span><span class="p">),</span>
+            <span class="s2">&quot;--target-c-executor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aot&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--target-c-unpacked-api&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unpacked_api</span><span class="p">)),</span>
+            <span class="s2">&quot;--target-c-interface-api&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;c&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpacked_api</span> <span class="k">else</span> <span class="s2">&quot;packed&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+    <span class="c1"># def resolve_features(self):</span>
+    <span class="c1">#     unpacked_api = False</span>
+    <span class="c1">#     debug_arena = False</span>
+    <span class="c1">#     for feature in self.features:</span>
+    <span class="c1">#         if feature.name == &quot;unpacked_api&quot;:</span>
+    <span class="c1">#             unpacked_api = True</span>
+    <span class="c1">#         elif feature.name == &quot;debug_arena&quot;:</span>
+    <span class="c1">#             debug_arena = True</span>
+    <span class="c1">#     return (unpacked_api, debug_arena)</span>
+
+    <span class="c1"># def resolve_config(self):</span>
+    <span class="c1">#     arena_size = DEFAULT_CONFIG[&quot;arena_size&quot;]</span>
+    <span class="c1">#     alignment_bytes = DEFAULT_CONFIG[&quot;alignment_bytes&quot;]</span>
+    <span class="c1">#     for key, value in self.config:</span>
+    <span class="c1">#         if key.split(&quot;.&quot;)[-1] == &quot;arena_size&quot;:</span>
+    <span class="c1">#             arena_size = int(value)</span>
+    <span class="c1">#         if key.split(&quot;.&quot;)[-1] == &quot;alignment_bytes&quot;:</span>
+    <span class="c1">#             alignment_bytes = int(value)</span>
+    <span class="c1">#     return (arena_size, alignment_bytes)</span>
+
+    <span class="c1"># def get_target_str(self):</span>
+    <span class="c1">#     target_str = super().get_target_str(self)</span>
+    <span class="c1">#     target_str += &quot; --link-params&quot;</span>
+    <span class="c1">#     target_str += &quot; --executor=aot&quot;</span>
+    <span class="c1">#     target_str += &quot; --workspace-byte-alignment={}&quot;.format(self.alignment_bytes)</span>
+    <span class="c1">#     target_str += &quot; --unpacked-api={}&quot;.format(int(self.unpacked_api))</span>
+    <span class="c1">#     target_str += &quot; --interface-api={}&quot;.format(</span>
+    <span class="c1">#         &quot;c&quot; if self.unpacked_api else &quot;packed&quot;</span>
+    <span class="c1">#     )</span>
+    <span class="c1">#     return target_str</span>
+
+<div class="viewcode-block" id="TVMAOTBackend.get_workspace_size_from_metadata"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_workspace_size_from_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_workspace_size_from_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">][</span><span class="s2">&quot;main&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;workspace_size_bytes&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TVMAOTBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">full</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Required due to bug in TVM</span>
+        <span class="n">dump</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;relay&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">full</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+            <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">)</span>
+            <span class="n">mlf_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;mlf&quot;</span>
+            <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">mlf_path</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;metadata.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+            <span class="n">metadata_txt</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">mlf_data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar&quot;</span><span class="p">,</span>
+                        <span class="n">raw</span><span class="o">=</span><span class="n">mlf_data</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">,</span>
+                        <span class="n">archive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">full</span><span class="p">:</span>  <span class="c1"># FIXME: broken due to error in TVM</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.c&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                    <span class="n">mod_src</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Artifac</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.c&quot;</span><span class="p">,</span>
+                            <span class="n">content</span><span class="o">=</span><span class="n">mod_str</span><span class="p">,</span>
+                            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                            <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.relay&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                    <span class="n">mod_txt</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Artifac</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.relay&quot;</span><span class="p">,</span>
+                            <span class="n">content</span><span class="o">=</span><span class="n">mod_txt</span><span class="p">,</span>
+                            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                            <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="n">generate_wrapper</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">generate_wrapper</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+                    <span class="n">workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_workspace_size_from_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+                <span class="n">wrapper_src</span> <span class="o">=</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">,</span>
+                    <span class="n">workspace_size</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span>
+                    <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpacked_api</span> <span class="k">else</span> <span class="s2">&quot;packed&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="s2">&quot;aot_wrapper.c&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">header_src</span> <span class="o">=</span> <span class="n">generate_wrapper_header</span><span class="p">()</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="s2">&quot;tvm_wrapper.h&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">header_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="c1"># assert self.target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+        <span class="n">main</span><span class="p">(</span>
+            <span class="n">TVMAOTBackend</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

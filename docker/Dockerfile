@@ -47,7 +47,7 @@ FROM mlonmcu-ci AS mlonmcu
 
 ADD . /mlonmcu
 WORKDIR /mlonmcu
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 RUN make install
 CMD mlonmcu
 

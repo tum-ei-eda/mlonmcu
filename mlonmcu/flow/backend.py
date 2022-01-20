@@ -47,7 +47,7 @@ class Backend(ABC):
         if features is None:
             return []
         features = get_matching_features(features, FeatureType.BACKEND)
-        for feature in self.features:
+        for feature in features:
             assert (
                 feature.name in self.FEATURES
             ), f"Incompatible feature: {feature.name}"

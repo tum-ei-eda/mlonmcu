@@ -47,7 +47,7 @@ jobs:
           build-args: |
             ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
-          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
           cache-to: type=inline
           tags: ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
       - name: Build and push
@@ -62,8 +62,8 @@ jobs:
             ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
-            type=registry,ref=ghrc.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
-            type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
           tags: ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
   base:
@@ -92,8 +92,8 @@ jobs:
           push: true
           target: mlonmcu
           cache-from: |
-            type=registry,ref=ghrc.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
-            type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
           tags: ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
   bench:
@@ -125,8 +125,8 @@ jobs:
           build-args: |
             MLONMCU_TEMPLATE=${{ github.event.inputs.template}}
           cache-from: |
-            type=registry,ref=ghrc.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
-            type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
-            type=registry,ref=ghrc.io/${{ github.repository }}:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
           cache-to: type=inline
           tags: ghcr.io/${{ github.repository }}-bench:${{ github.event.inputs.version }}

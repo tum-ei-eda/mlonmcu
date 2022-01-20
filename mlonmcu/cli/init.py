@@ -54,27 +54,23 @@ def get_parser(subparsers):
     )
     parser.add_argument(
         "--venv",
-        default=None,
         action="store_true",
         help="Create virtual python environment",
     )
     parser.add_argument(
         "--clone-models",
-        default=None,
         dest="clone_models",
         action="store_true",
         help="Clone models directory into environment",
     )
     parser.add_argument(
         "--register",
-        default=None,
         action="store_true",
         help="Add environment to the list of environment for the current user",
     )
     parser.add_argument(
         "--allow-exists",
         dest="allow_exists",
-        default=None,
         action="store_true",
         help="Allow overwriting an existing environment directory",
     )

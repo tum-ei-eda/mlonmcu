@@ -36,17 +36,34 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push (CMake)
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker/Dockerfile
+          pull: true
+          push: true
+          target: cmake-install
+          build-args: |
+            ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+          cache-to: type=inline
+          tags: ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: docker
+          context: .
+          file: docker/Dockerfile
           pull: true
           push: true
           target: mlonmcu-ci
           build-args: |
             ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
-          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+          cache-from: |
+            type=registry,ref=ghrc.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
           tags: ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
   base:
@@ -69,11 +86,14 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: docker
+          context: .
+          file: docker/Dockerfile
           pull: true
           push: true
           target: mlonmcu
-          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+          cache-from: |
+            type=registry,ref=ghrc.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
           tags: ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
   bench:
@@ -97,12 +117,16 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: docker
+          context: .
+          file: docker/Dockerfile
           pull: true
           push: true
           target: mlonmcu-bench
           build-args: |
             MLONMCU_TEMPLATE=${{ github.event.inputs.template}}
-          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}:${{ github.event.inputs.version }}
+          cache-from: |
+            type=registry,ref=ghrc.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+            type=registry,ref=ghrc.io/${{ github.repository }}:${{ github.event.inputs.version }}
           cache-to: type=inline
           tags: ghcr.io/${{ github.repository }}-bench:${{ github.event.inputs.version }}

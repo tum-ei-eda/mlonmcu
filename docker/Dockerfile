@@ -1,5 +1,6 @@
+ARG ENABLE_CMAKE="false"
 
-FROM debian:buster AS cmake-install
+FROM debian:bullseye AS cmake-install
 ARG CMAKE_REPO="https://github.com/Kitware/CMake"
 ARG CMAKE_VERSION="3.15.5"
 ARG CMAKE_TARGET="Linux-x86_64"
@@ -25,7 +26,7 @@ RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     && rm ./cmake.sh ; \
     fi
 
-FROM debian:buster AS mlonmcu-ci
+FROM debian:bullseye AS mlonmcu-ci
 
 COPY --from=cmake-install /opt/tools/cmake/ /opt/tools/cmake/
 ENV PATH="/opt/tools/cmake/bin:${PATH}"
@@ -39,7 +40,7 @@ RUN apt-get update \
     autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
     virtualenv git python3-dev python3-pip python3-setuptools libtinfo5 \
-    gcc libedit-dev libxml2-dev gcc-arm-none-eabi libopenblas-dev liblapack-dev gfortran
+    gcc libedit-dev libxml2-dev gcc-arm-none-eabi libopenblas-dev liblapack-dev gfortran cmake
 
 CMD /bin/bash
 

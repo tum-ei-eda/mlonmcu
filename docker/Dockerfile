@@ -39,7 +39,7 @@ RUN apt-get update \
     autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
     virtualenv git python3-dev python3-pip python3-setuptools libtinfo5 \
-    gcc libedit-dev libxml2-dev gcc-arm-none-eabi libopenblas-dev liblapack-dev
+    gcc libedit-dev libxml2-dev gcc-arm-none-eabi libopenblas-dev liblapack-dev gfortran
 
 CMD /bin/bash
 
@@ -47,6 +47,7 @@ FROM mlonmcu-ci AS mlonmcu
 
 ADD . /mlonmcu
 WORKDIR /mlonmcu
+RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 RUN pip3 install .
 CMD mlonmcu

@@ -46,9 +46,9 @@ jobs:
           build-args: |
             ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
-          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.tag }}
+          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.tag }}
+          tags: ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
   base:
     name: Build base image for users
     runs-on: ubuntu-latest
@@ -73,9 +73,9 @@ jobs:
           pull: true
           push: true
           target: mlonmcu:${{ github.event.inputs.version }}
-          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.tag }}
+          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ghcr.io/${{ github.repository }}:${{ github.event.inputs.tag }}
+          tags: ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
   bench:
     name: Build large image for benchmarking
     runs-on: ubuntu-latest
@@ -103,6 +103,6 @@ jobs:
           target: mlonmcu-bench
           build-args: |
             MLONMCU_TEMPLATE=${{ github.event.inputs.template}}
-          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}:${{ github.event.inputs.tag }}
+          cache-from: type=registry,ref=ghrc.io/${{ github.repository }}:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ghcr.io/${{ github.repository }}-bench:${{ github.event.inputs.tag }}
+          tags: ghcr.io/${{ github.repository }}-bench:${{ github.event.inputs.version }}

@@ -48,7 +48,7 @@ FROM mlonmcu-ci AS mlonmcu
 ADD . /mlonmcu
 WORKDIR /mlonmcu
 RUN pip3 install -r requirements.txt
-RUN make install
+RUN pip3 install .
 CMD mlonmcu
 
 ARG MLONMCU_TEMPLATE=default

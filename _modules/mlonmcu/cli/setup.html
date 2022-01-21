@@ -93,6 +93,29 @@
     <span class="n">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--feature&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;FEATURE&quot;</span><span class="p">,</span>
+        <span class="c1"># nargs=1,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># FIXME: only setup features?</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enabled features for setup (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;KEY=VALUE&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set a number of key-value pairs &quot;</span>
+        <span class="s2">&quot;(do not put spaces before or after the = sign). &quot;</span>
+        <span class="s2">&quot;If a value contains spaces, you should define &quot;</span>
+        <span class="s2">&quot;it with double quotes: &quot;</span>
+        <span class="s1">&#39;foo=&quot;this is a sentence&quot;. Note that &#39;</span>
+        <span class="s2">&quot;values are always treated as strings.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--progress&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>

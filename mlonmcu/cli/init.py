@@ -87,6 +87,6 @@ def handle(args):
         interactive=not args.non_interactive,
         clone_models=args.clone_models,
         register=args.register,
-        template=args.template[0],
+        template=args.template[0] if isinstance(args.template, list) else args.template,
         allow_exists=args.allow_exists,
     )

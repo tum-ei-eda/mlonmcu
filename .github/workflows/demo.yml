@@ -18,6 +18,8 @@ jobs:
         template: ["default"]
     steps:
     - uses: actions/checkout@v2
+      with:
+        recursive: true
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -43,7 +45,12 @@ jobs:
     - name: Initialize MLonMCU environment
       run: |
         source .venv/bin/activate
-        mlonmcu init home/ --non-interactive --template ${{ matrix.template }} --clone-models
+        mlonmcu init home/ --non-interactive --template ${{ matrix.template }} --skip-sw
+    - name: Create symlinks (WIP)
+      run: |
+        cd home
+        ln -s ../models models
+        ln -s ../sw sw
     - name: Setup MLonMCU dependencies
       run: |
         source .venv/bin/activate

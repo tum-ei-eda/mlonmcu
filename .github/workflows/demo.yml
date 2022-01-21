@@ -43,7 +43,7 @@ jobs:
     - name: Initialize MLonMCU environment
       run: |
         source .venv/bin/activate
-        mlonmcu init home/ --non-interactive --template ${{ matrix.template }}
+        mlonmcu init home/ --non-interactive --template ${{ matrix.template }} --clone-models
     - name: Setup MLonMCU dependencies
       run: |
         source .venv/bin/activate

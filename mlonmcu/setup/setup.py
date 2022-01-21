@@ -3,6 +3,7 @@ from tqdm import tqdm
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.feature import FeatureType
+from mlonmcu.config import filter_config
 from .tasks import Tasks
 from .task import TaskGraph
 
@@ -18,7 +19,7 @@ class Setup:
         "print_outputs": False,
     }
 
-    REQUIRES = []
+    REQUIRED = []
 
     def __init__(self, features=None, config=None, context=None, tasks_factory=Tasks):
         self.config = config if config else {}
@@ -54,7 +55,7 @@ class Setup:
         return order
 
     def setup_progress_bar(self, enabled):
-        if progress:
+        if enabled:
             pbar = tqdm(
                 total=len(self.tasks_factory.registry),
                 desc="Installing dependencies",
@@ -88,5 +89,6 @@ class Setup:
                 pbar.update(1)
         if pbar:
             pbar.close()
-        self.write_cache_file()
+        if write_cache:
+            self.write_cache_file()
         logger.info("Finished installing dependencies")

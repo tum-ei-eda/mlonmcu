@@ -214,7 +214,7 @@
 <li class="toctree-l1"><a class="reference internal" href="mlonmcu.setup.html">mlonmcu.setup package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.cache">mlonmcu.setup.cache module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.install">mlonmcu.setup.install module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu-setup-install-module">mlonmcu.setup.install module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.task">mlonmcu.setup.task module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.tasks">mlonmcu.setup.tasks module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.utils">mlonmcu.setup.utils module</a></li>
@@ -363,6 +363,13 @@
 <dt class="sig sig-object py" id="mlonmcu.config.remove_config_prefix">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">remove_config_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#remove_config_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.remove_config_prefix" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.config.resolve_required_config">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">resolve_required_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#resolve_required_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.resolve_required_config" title="Permalink to this definition"></a></dt>
+<dd><p>Utility which iterates over a set of given config keys and
+resolves their values using the passed config and/or cache.</p>
+</dd></dl>
 
 </section>
 <section id="module-mlonmcu.context">

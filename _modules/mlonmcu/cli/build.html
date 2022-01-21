@@ -90,6 +90,7 @@
     <span class="n">add_model_options</span><span class="p">,</span>
     <span class="n">add_flow_options</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.cli.load</span> <span class="kn">import</span> <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_load</span><span class="p">,</span> <span class="n">add_load_options</span><span class="p">,</span> <span class="n">add_model_options</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow</span> <span class="kn">import</span> <span class="n">SUPPORTED_BACKENDS</span>
 
@@ -124,18 +125,6 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<span class="c1"># TODO: move somewhere else</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.feature</span> <span class="kn">import</span> <span class="n">FeatureType</span>
-
-
-<div class="viewcode-block" id="get_cache_flags"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.build.get_cache_flags">[docs]</a><span class="k">def</span> <span class="nf">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">):</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">SETUP</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span><span class="o">.</span><span class="n">types</span><span class="p">():</span>
-            <span class="n">feature</span><span class="o">.</span><span class="n">add_required_cache_flags</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span></div>
-
-
 <span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
     <span class="n">handle_load</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="c1"># print(configs)</span>
@@ -161,25 +150,18 @@
             <span class="c1"># TODO: where to add framework features/config?</span>
             <span class="n">backend_cls</span> <span class="o">=</span> <span class="n">SUPPORTED_BACKENDS</span><span class="p">[</span><span class="n">backend_name</span><span class="p">]</span>
             <span class="n">required_keys</span> <span class="o">=</span> <span class="n">backend_cls</span><span class="o">.</span><span class="n">REQUIRED</span>
-            <span class="c1"># TODO: move somewhere else</span>
-            <span class="n">cache_flags</span> <span class="o">=</span> <span class="n">get_cache_flags</span><span class="p">(</span><span class="n">new_run</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
-                    <span class="n">flags</span> <span class="o">=</span> <span class="n">cache_flags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                            <span class="s2">&quot;The dependency cache is empty! Make sure `to run `mlonmcu` setup first.`&quot;</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span>
-                        <span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                            <span class="s2">&quot;Dependency cache miss for required key &#39;</span><span class="si">{key}</span><span class="s2">&#39;. Try re-running `mlonmcu setup`.&quot;</span>
-                        <span class="p">)</span>
+            <span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">resolve_required_config</span><span class="p">(</span>
+                    <span class="n">backend_cls</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">,</span>
+                    <span class="n">features</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">backend</span> <span class="o">=</span> <span class="n">backend_cls</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
             <span class="n">new_run</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
             <span class="n">new_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_run</span><span class="p">)</span>
+
     <span class="n">session</span><span class="o">.</span><span class="n">runs</span> <span class="o">=</span> <span class="n">new_runs</span>
     <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
         <span class="n">run</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>

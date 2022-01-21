@@ -104,6 +104,58 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Backend received an unknown config key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">cfg</span></div>
+
+
+<div class="viewcode-block" id="resolve_required_config"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.resolve_required_config">[docs]</a><span class="k">def</span> <span class="nf">resolve_required_config</span><span class="p">(</span><span class="n">required_keys</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Utility which iterates over a set of given config keys and</span>
+<span class="sd">    resolves their values using the passed config and/or cache.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    required_keys : List[str]</span>
+
+<span class="sd">    features : List[Feature]</span>
+
+<span class="sd">    config : dict</span>
+
+<span class="sd">    cache : TaskCache</span>
+<span class="sd">        Optional task cache parsed from the `cache.ini` file in the `deps` directory.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">SETUP</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span><span class="o">.</span><span class="n">types</span><span class="p">():</span>
+                <span class="n">feature</span><span class="o">.</span><span class="n">add_required_cache_flags</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">cache_flags</span> <span class="o">=</span> <span class="n">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">if</span> <span class="n">features</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="s2">&quot;No dependency cache was provided. Either provide a cache or config.&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;The dependency cache is empty! Make sure `to run `mlonmcu` setup first.`&quot;</span>
+                <span class="p">)</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="n">cache_flags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span>
+                <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Dependency cache miss for required key &#39;</span><span class="si">{key}</span><span class="s2">&#39;. Try re-running `mlonmcu setup`.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">ret</span></div>
 </pre></div>
 
            </div>

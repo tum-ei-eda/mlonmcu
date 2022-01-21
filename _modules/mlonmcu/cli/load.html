@@ -89,8 +89,7 @@
     <span class="n">add_model_options</span><span class="p">,</span>
     <span class="n">add_flow_options</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_available_features</span>
-<span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_feature_names</span><span class="p">,</span> <span class="n">extract_config</span>
+<span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_config_and_init_features</span>
 
 
 <div class="viewcode-block" id="add_load_options"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.load.add_load_options">[docs]</a><span class="k">def</span> <span class="nf">add_load_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
@@ -117,17 +116,7 @@
 
 <span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
     <span class="n">model_names</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">models</span>
-    <span class="c1"># TODO: move to helper function OUT OF CLI</span>
-    <span class="n">feature_names</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">feature_names</span><span class="p">:</span>
-        <span class="n">available_features</span> <span class="o">=</span> <span class="n">get_available_features</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="n">feature_name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">feature_cls</span> <span class="ow">in</span> <span class="n">available_features</span><span class="p">:</span>
-            <span class="n">feature_inst</span> <span class="o">=</span> <span class="n">feature_cls</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-            <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_inst</span><span class="p">)</span>
-
-        <span class="c1"># How about featuretype.other?</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">features</span> <span class="o">=</span> <span class="n">extract_config_and_init_features</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
     <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_session</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">model_names</span><span class="p">:</span>

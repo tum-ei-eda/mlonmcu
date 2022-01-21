@@ -76,13 +76,14 @@
 <span></span><span class="sd">&quot;&quot;&quot;Command line subcommand for installing a mlonmcu environment.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">mlonmcu.setup.tasks</span>
 <span class="kn">import</span> <span class="nn">mlonmcu.context</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.setup.install</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">setup</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_common_options</span><span class="p">,</span>
     <span class="n">add_context_options</span><span class="p">,</span>
     <span class="n">handle_logging_flags</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_config_and_init_features</span>
 
 
 <div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.setup.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
@@ -108,13 +109,11 @@
 
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.setup.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
-        <span class="c1"># print(f&quot;Environment: {context.environment}&quot;)</span>
-        <span class="n">progress</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">progress</span>
-        <span class="n">mlonmcu</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="n">install</span><span class="o">.</span><span class="n">install_dependencies</span><span class="p">(</span>
-            <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-            <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">features</span> <span class="o">=</span> <span class="n">extract_config_and_init_features</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">installer</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">installer</span><span class="o">.</span><span class="n">install_dependencies</span><span class="p">(</span>
+            <span class="n">progress</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">progress</span><span class="p">,</span>
             <span class="n">rebuild</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">rebuild</span><span class="p">,</span>
-            <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
         <span class="p">)</span></div>
 </pre></div>
 

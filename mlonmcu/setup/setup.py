@@ -40,13 +40,7 @@ class Setup:
             feature.add_setup_config(self.config)
         return features
 
-    def install_dependencies(
-        self,
-        progress=False,
-        write_cache=True,
-        rebuild=False,
-    ):
-        assert self.context is not None
+    def get_dependency_order(self):
         self.tasks_factory.reset_changes()
         task_graph = TaskGraph(
             self.tasks_factory.registry.keys(),
@@ -57,17 +51,35 @@ class Setup:
         order = task_graph.get_order()
         order_str = " -> ".join(order)
         logger.debug("Determined dependency order: %s" % order_str)
-        if progress:
+        return order
 
+    def setup_progress_bar(self, enabled):
+        if progress:
             pbar = tqdm(
                 total=len(self.tasks_factory.registry),
                 desc="Installing dependencies",
                 ncols=100,
                 bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
             )
+            return pbar
         else:
             logger.info("Installing dependencies...")
-            pbar = None
+            return None
+
+    def write_cache_file(self):
+        logger.debug("Updating dependency cache")
+        cache_file = self.context.environment.paths["deps"].path / "cache.ini"
+        self.context.cache.write_to_file(cache_file)
+
+    def install_dependencies(
+        self,
+        progress=False,
+        write_cache=True,
+        rebuild=False,
+    ):
+        assert self.context is not None
+        order = self.get_dependency_order()
+        pbar = self.setup_progress_bar(progress)
         for task in order:
             func = self.tasks_factory.registry[task]
             func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose)
@@ -76,8 +88,5 @@ class Setup:
                 pbar.update(1)
         if pbar:
             pbar.close()
-        if write_cache:
-            logger.debug("Updating dependency cache")
-            cache_file = self.context.environment.paths["deps"].path / "cache.ini"
-            self.context.cache.write_to_file(cache_file)
+        self.write_cache_file()
         logger.info("Finished installing dependencies")

@@ -15,6 +15,7 @@ from mlonmcu.cli.common import (
     add_model_options,
     add_flow_options,
 )
+from mlonmcu.config import resolve_required_config
 from mlonmcu.cli.load import handle as handle_load, add_load_options, add_model_options
 from mlonmcu.flow import SUPPORTED_BACKENDS
 
@@ -49,18 +50,6 @@ def get_parser(subparsers, parent=None):
     return parser
 
 
-# TODO: move somewhere else
-from mlonmcu.feature.feature import FeatureType
-
-
-def get_cache_flags(features):
-    result = {}
-    for feature in features:
-        if FeatureType.SETUP in type(feature).types():
-            feature.add_required_cache_flags(result)
-    return result
-
-
 def _handle(context, args):
     handle_load(args, ctx=context)
     # print(configs)
@@ -86,25 +75,18 @@ def _handle(context, args):
             # TODO: where to add framework features/config?
             backend_cls = SUPPORTED_BACKENDS[backend_name]
             required_keys = backend_cls.REQUIRED
-            # TODO: move somewhere else
-            cache_flags = get_cache_flags(new_run.features)
-            for key in required_keys:
-                if key not in new_run.config:
-                    flags = cache_flags.get(key, ())
-                    if len(context.cache) == 0:
-                        raise RuntimeError(
-                            "The dependency cache is empty! Make sure `to run `mlonmcu` setup first.`"
-                        )
-                    if (key, flags) in context.cache:
-                        value = context.cache[key, flags]
-                        new_run.config[key] = value
-                    else:
-                        raise RuntimeError(
-                            "Dependency cache miss for required key '{key}'. Try re-running `mlonmcu setup`."
-                        )
+            new_run.config.update(
+                resolve_required_config(
+                    backend_cls.REQUIRED,
+                    features=new_run.features,
+                    config=new_run.config,
+                    cache=context.cache,
+                )
+            )
             backend = backend_cls(features=new_run.features, config=new_run.config)
             new_run.backend = backend
             new_runs.append(new_run)
+
     session.runs = new_runs
     for run in session.runs:
         run.build(context=context)

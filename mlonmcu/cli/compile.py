@@ -13,8 +13,8 @@ from mlonmcu.cli.build import (
     handle as handle_build,
     add_build_options,
     add_model_options,
-    get_cache_flags,
 )
+from mlonmcu.config import resolve_required_config
 from mlonmcu.flow.backend import Backend
 from mlonmcu.flow.framework import Framework
 from mlonmcu.session.run import RunStage

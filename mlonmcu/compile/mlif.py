@@ -24,8 +24,10 @@ logger = get_logger()
 class MLIF:
     """Model Library Interface class."""
 
-    FEATURES = ["debug"]
-    DEFAULTS = {"debug": False}
+    FEATURES = ["debug", "validate"]
+
+    DEFAULTS = {"debug": False, "ignore_data": True}
+
     # REQUIRES = ["mlif.src_dir"]
     REQUIRES = []
 
@@ -35,17 +37,11 @@ class MLIF:
         self.framework = framework  # TODO: required? or self.target.framework?
         self.backend = backend
         self.target = target
-        self.features = features if features else []
         self.config = (
             config if config else {}
         )  # Warning: this should only be used for passing paths,.. when no co context is provided, NO customization of the build is allowed!
-        self.process_features()
+        self.features = self.process_features(features)
         self.config = filter_config(self.config, "mlif", self.DEFAULTS, self.REQUIRED)
-        self.ignore_data = False
-        if (
-            "mlif.ignore_data" in self.config
-        ):  # TODO: rather introduce CompileFeature(inout)?
-            self.ignore_data = bool(self.config["mlif.ignore_data"])
         self.context = context
         self.goal = "generic_mlif"
         flags = [self.framework.name, self.backend.name, self.target.name] + [
@@ -86,6 +82,14 @@ class MLIF:
                     "Please define the value of 'mlif.src_dir' or pass a context"
                 )
         self.validate()
+
+    @property
+    def debug(self):
+        return bool(self.config["debug"])
+
+    @property
+    def ignore_data(self):
+        return bool(self.config["ignore_data"])
 
     def process_features(self, features):
         if features is None:

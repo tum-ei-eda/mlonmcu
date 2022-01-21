@@ -18,6 +18,29 @@ def get_parser(subparsers):
     add_common_options(parser)
     add_context_options(parser)
     parser.add_argument(
+        "-f",
+        "--feature",
+        type=str,
+        metavar="FEATURE",
+        # nargs=1,
+        action="append",
+        choices=[],  # FIXME: only setup features?
+        help="Enabled features for setup (choices: %(choices)s)",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        metavar="KEY=VALUE",
+        nargs="+",
+        action="append",
+        help="Set a number of key-value pairs "
+        "(do not put spaces before or after the = sign). "
+        "If a value contains spaces, you should define "
+        "it with double quotes: "
+        'foo="this is a sentence". Note that '
+        "values are always treated as strings.",
+    )
+    parser.add_argument(
         "-p",
         "--progress",
         action="store_true",

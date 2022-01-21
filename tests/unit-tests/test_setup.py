@@ -1,7 +1,7 @@
 import pytest
 import mock
 from mlonmcu.setup.task import get_combs, TaskFactory, TaskType, TaskGraph
-from mlonmcu.setup.install import install_dependencies
+from mlonmcu.setup.setup import Setup
 
 TestTaskFactory = TaskFactory()
 
@@ -44,13 +44,17 @@ def test_task_registry_reset_changes():
     assert len(TestTaskFactory.changed) == 0
 
 @pytest.mark.parametrize("progress", [False, True])
+@pytest.mark.parametrize("print_output", [False, True])
+@pytest.mark.parametrize("rebuild", [False, True])  # TODO: actually test this
 @pytest.mark.parametrize("write_cache", [False])  # TODO: True
-def test_task_install_dependencies(progress, write_cache, fake_context):
+def test_setup_install_dependencies(progress, print_output, rebuild, write_cache, fake_context):
     # example_task1_mock = mock.Mock(return_value=True)
     TestTaskFactory.registry["example_task1"] = mock.Mock(return_value=True)
     # example_task2_mock = mock.Mock(return_value=True)
     TestTaskFactory.registry["example_task2"] = mock.Mock(return_value=True)
-    result = install_dependencies(tasks_factory=TestTaskFactory, context=fake_context, progress=progress, write_cache=write_cache)
+    config = {"print_output": print_output}
+    installer = Setup(config=config, context=fake_context, tasks_factory=TestTaskFactory)
+    result = installer.install_dependencies(progress=progress, write_cache=write_cache, rebuild=rebuild)
     # assert example_task1_mock.call_count == 3
     assert TestTaskFactory.registry["example_task1"].call_count == 1  # Due to the mock, the actual wrapper is not executed anymore, params are not considered etc
     # assert example_task2_mock.call_count == 1

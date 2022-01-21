@@ -1,3 +1,8 @@
+from mlonmcu.feature.features import (
+    get_available_features,
+)  # This does not really belong here
+
+
 def parse_var(s):
     """
     Parse a key, value pair, separated by '='
@@ -47,3 +52,17 @@ def extract_config(args):
     else:
         configs = {}
     return configs
+
+
+def extract_config_and_init_features(args):
+    feature_names = extract_feature_names(args)
+    config = extract_config(args)
+    features = []
+    for feature_name in feature_names:
+        available_features = get_available_features(feature_name=feature_name)
+        for feature_cls in available_features:
+            feature_inst = feature_cls(config=config)
+            features.append(feature_inst)
+    # How about FeatureType.other?
+
+    return config, features

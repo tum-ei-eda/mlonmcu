@@ -1,13 +1,14 @@
 """Command line subcommand for installing a mlonmcu environment."""
 import mlonmcu.setup.tasks
 import mlonmcu.context
-import mlonmcu.setup.install
+from mlonmcu.setup import setup
 
 from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,
     handle_logging_flags,
 )
+from .helper.parse import extract_config_and_init_features
 
 
 def get_parser(subparsers):
@@ -33,11 +34,9 @@ def get_parser(subparsers):
 
 def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-        # print(f"Environment: {context.environment}")
-        progress = args.progress
-        mlonmcu.setup.install.install_dependencies(
-            context=context,
-            progress=progress,
+        config, features = extract_config_and_init_features(args)
+        installer = setup.Setup(features=features, config=config, context=context)
+        installer.install_dependencies(
+            progress=args.progress,
             rebuild=args.rebuild,
-            verbose=args.verbose,
         )

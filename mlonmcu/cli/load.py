@@ -14,8 +14,7 @@ from mlonmcu.cli.common import (
     add_model_options,
     add_flow_options,
 )
-from mlonmcu.feature.features import get_available_features
-from .helper.parse import extract_feature_names, extract_config
+from .helper.parse import extract_config_and_init_features
 
 
 def add_load_options(parser):
@@ -42,17 +41,7 @@ def load_model(model, context=None):
 
 def _handle(context, args):
     model_names = args.models
-    # TODO: move to helper function OUT OF CLI
-    feature_names = extract_feature_names(args)
-    config = extract_config(args)
-    features = []
-    for feature_name in feature_names:
-        available_features = get_available_features(feature_name=feature_name)
-        for feature_cls in available_features:
-            feature_inst = feature_cls(config=config)
-            features.append(feature_inst)
-
-        # How about featuretype.other?
+    config, features = extract_config_and_init_features(args)
 
     session = context.get_session()
     for model_name in model_names:

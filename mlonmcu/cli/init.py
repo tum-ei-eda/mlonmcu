@@ -54,23 +54,34 @@ def get_parser(subparsers):
     )
     parser.add_argument(
         "--venv",
+        default=None,
         action="store_true",
         help="Create virtual python environment",
     )
     parser.add_argument(
         "--clone-models",
         dest="clone_models",
+        default=None,
         action="store_true",
         help="Clone models directory into environment",
     )
     parser.add_argument(
+        "--skip-sw",
+        dest="skip_sw",
+        default=None,
+        action="store_true",
+        help="Clone sw directory into environment",
+    )
+    parser.add_argument(
         "--register",
+        default=None,
         action="store_true",
         help="Add environment to the list of environment for the current user",
     )
     parser.add_argument(
         "--allow-exists",
         dest="allow_exists",
+        default=None,
         action="store_true",
         help="Allow overwriting an existing environment directory",
     )
@@ -86,6 +97,7 @@ def handle(args):
         create_venv=args.venv,
         interactive=not args.non_interactive,
         clone_models=args.clone_models,
+        skip_sw=args.skip_sw,
         register=args.register,
         template=args.template[0] if isinstance(args.template, list) else args.template,
         allow_exists=args.allow_exists,

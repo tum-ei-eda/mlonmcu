@@ -31,8 +31,14 @@ def create_environment_directories(path, directories):
 
 def clone_models_repo(
     dest, url="https://github.com/tum-ei-eda/mlonmcu-models.git"
-):  # FIXME: update URL
-    git.Git(dest).clone(url)
+):  # TODO: how to get submodule url/ref
+    git.Repo.clone_from(url, dest)
+
+
+def clone_sw_repo(
+    dest, url="https://github.com/tum-ei-eda/mlonmcu-sw.git"
+):  # TODO: how to get submodule url/ref?
+    git.Repo.clone_from(url, dest)
 
 
 def ask_user(text, default: bool, yes_keys=["y", "j"], no_keys=["n"], interactive=True):
@@ -68,6 +74,7 @@ def initialize_environment(
     interactive=True,
     create_venv=None,
     clone_models=None,
+    skip_sw=None,
     allow_exists=None,
     register=None,
     template=None,
@@ -148,16 +155,31 @@ def initialize_environment(
             print("Skipping creation of virtual environment.")
 
     subdirs = env_subdirs
-    if clone_models or (
-        clone_models is None
-        and ask_user(
-            "Clone mlonmcu-models repository into environment?",
-            default=False,
-            interactive=interactive,
-        )
-    ):
-        clone_models_repo(os.path.join(target_dir, "models"))
-        subdirs.append("models")
+    models_subdir = Path(target_dir) / "models"
+    if not models_subdir.is_dir():
+        if clone_models or (
+            clone_models is None
+            and ask_user(
+                "Clone mlonmcu-models repository into environment?",
+                default=False,
+                interactive=interactive,
+            )
+        ):
+            clone_models_repo(models_subdir)
+        else:
+            subdirs.append("models")
+
+    sw_subdir = Path(target_dir) / "sw"
+    if not sw_subdir.is_dir():
+        if (not skip_sw) or (
+            skip_sw is None
+            and ask_user(
+                "Clone mlonmcu-sw repository into environment?",
+                default=True,
+                interactive=interactive,
+            )
+        ):
+            clone_sw_repo(sw_subdir)
 
     print("Initializing directories in environment:", " ".join(subdirs))
     create_environment_directories(target_dir, subdirs)

@@ -83,7 +83,7 @@ def test_environment_register_environment():
 @pytest.mark.parametrize("interactive", [False])  # We do not want to mock the user input here
 @pytest.mark.parametrize("create_venv", [False])  # Already covered above
 @pytest.mark.parametrize("clone_models", [False])  # Already covered above
-@pytest.mark.parametrize("skip_sw", [False])  # Already covered above
+@pytest.mark.parametrize("skip_sw", [True])  # Already covered above
 @pytest.mark.parametrize("register", [False, True])  #
 @pytest.mark.parametrize("template", ["default"])
 def test_environment_initialize_environment(interactive, create_venv, clone_models, skip_sw, register, template, fake_environment_directory, fake_working_directory, fake_config_home):

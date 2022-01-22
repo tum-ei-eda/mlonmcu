@@ -1,6 +1,7 @@
 """Loging utilities for MLonMCU"""
 
 import logging
+import logging.handlers
 import sys
 
 logging.basicConfig(
@@ -50,7 +51,7 @@ def set_log_file(path, level=logging.DEBUG, rotate=False):
     logger = logging.getLogger("mlonmcu")
     if rotate:
         file_handler = logging.handlers.TimedRotatingFileHandler(
-            filename=path, when="midnight", backupCount=30, mode="a"
+            filename=path, when="midnight", backupCount=30
         )
     else:
         file_handler = logging.FileHandler(path, mode="a")

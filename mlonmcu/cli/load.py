@@ -46,12 +46,11 @@ def _handle(context, args):
     session = context.get_session()
     for model_name in model_names:
         path = None  # FIXME
-        model = Model(model_name, path)
-        run = Run(model=model, features=features, config=config)
+        # model = Model(model_name, path)
+        run = Run(model_name=model_name, features=features, config=config)
         session.runs.append(run)
     for run in session.runs:
-        loaded_model = load_model(run.model, context=context)
-        run.artifacts["model"] = loaded_model
+        run.load(context=context)
 
 
 def handle(args, ctx=None):

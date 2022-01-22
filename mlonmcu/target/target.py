@@ -67,7 +67,7 @@ class Target:
             assert (
                 feature.name in self.FEATURES
             ), f"Incompatible feature: {feature.name}"
-            feature.add_feature_config(self.name, self.config)
+            feature.add_target_config(self.name, self.config)
         return features
 
     def exec(self, program: Path, *args, **kwargs):

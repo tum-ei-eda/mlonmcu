@@ -67,15 +67,18 @@ frameworks:
         enabled: true
 # Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
+# 
 frontends:
-  saved_model:
-    enabled: false
-  ipynb:
-    enabled: false
   tflite:
     enabled: true
+  packed:
+    enabled: true
     features:
-      packing: false
+      packing: true
+      packed: true
+  onnx:
+    enabled: false
+  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
 # List of supported targets in the environment
 targets:
   default: etiss_pulpino
@@ -85,6 +88,5 @@ targets:
     enabled: true
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
-  packer.name: "tflite_pack"
   tvm.make_tool: "ninja"
   llvm.version: "11.1.0"

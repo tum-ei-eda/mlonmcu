@@ -9,6 +9,10 @@ from mlonmcu.setup import utils
 # class ModelLibraryFormatPlus:
 #     pass
 
+# TODO: offer pack/unpack/flatten methods for mlf
+# TODO: implement restore methods
+# TODO: decide if inheritance based scheme would fit better
+
 
 class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
     UNKNOWN = 0
@@ -33,6 +37,7 @@ class Artifact:
         self,
         name,
         content=None,
+        path=None,
         data=None,
         raw=None,
         fmt=ArtifactFormat.UNKNOWN,
@@ -42,12 +47,17 @@ class Artifact:
         # TODO: Allow to store filenames as well as raw data
         self.name = name
         self.content = content
+        self.path = path
         self.data = data
         self.raw = raw
         self.fmt = fmt
         self.archive = archive
         self.optional = optional
         self.validate()
+
+    @property
+    def exported(self):
+        return bool(self.path is not None)
 
     def validate(self):
         if self.fmt in [ArtifactFormat.TEXT, ArtifactFormat.SOURCE]:
@@ -88,6 +98,7 @@ class Artifact:
             utils.copy(self.path, filename)
         else:
             raise NotImplementedError
+        self.path = filename if self.path is None else self.path
 
     def print_summary(self):
         print("Format:", self.fmt)
@@ -99,7 +110,7 @@ class Artifact:
             print(f"Data Size: {len(self.raw)}B")
         elif self.fmt in [ArtifactFormat.MLF]:
             print(f"Archive Size: {len(self.raw)}B")
-        elif self.fmt in [ArtifactFormat.Path]:
+        elif self.fmt in [ArtifactFormat.PATH]:
             print(f"File Location: {self.path}")
         else:
             raise NotImplementedError

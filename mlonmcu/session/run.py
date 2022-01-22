@@ -23,6 +23,14 @@ class RunStage(IntEnum):
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
+    # FEATURES = []
+
+    DEFAULTS = {
+        "export_optionals": False,
+    }
+
+    # REQUIRED = []
+
     @classmethod
     def from_file(path):
         """Restore a run object which was written to the disk."""

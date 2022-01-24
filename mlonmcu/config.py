@@ -1,3 +1,8 @@
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
+
+
 def remove_config_prefix(config, prefix, skip=[]):
     def helper(key):
         return key.split(f"{prefix}.")[-1]
@@ -75,7 +80,7 @@ def resolve_required_config(required_keys, features=None, config=None, cache=Non
                 ret[key] = value
             else:
                 raise RuntimeError(
-                    "Dependency cache miss for required key '{key}'. Try re-running `mlonmcu setup`."
+                    f"Dependency cache miss for required key '{key}'. Try re-running `mlonmcu setup`."
                 )
         else:
             ret[key] = config[key]

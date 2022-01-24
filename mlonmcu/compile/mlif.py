@@ -9,11 +9,12 @@ from typing import List
 
 from mlonmcu.context import MlonMcuContext
 from mlonmcu.setup import utils  # TODO: Move one level up?
-from mlonmcu.cli.helper.parse import extract_features, extract_config
+from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
+from mlonmcu.feature.feature import FeatureType
 from .inout import write_inout_data
 
 from mlonmcu.logging import get_logger
@@ -29,7 +30,7 @@ class MLIF:
     DEFAULTS = {"debug": False, "ignore_data": True}
 
     # REQUIRES = ["mlif.src_dir"]
-    REQUIRES = []
+    REQUIRED = []
 
     def __init__(
         self, framework, backend, target, features=None, config=None, context=None
@@ -73,10 +74,13 @@ class MLIF:
             self.mlif_dir = Path(self.config["mlif.src_dir"])
         else:
             if context:
-                assert "sw" in context.environment.paths
-                self.mlif_dir = context.environment.paths[
-                    "sw"
-                ]  # TODO: clone on environment init!
+                # assert "sw" in context.environment.paths
+                # self.mlif_dir = context.environment.paths[
+                #     "sw"
+                # ]  # TODO: clone on environment init!
+                self.mlif_dir = (
+                    Path(context.environment.home) / "sw"
+                )  # TODO: Define in env paths
             else:
                 raise RuntimeError(
                     "Please define the value of 'mlif.src_dir' or pass a context"
@@ -262,7 +266,7 @@ def get_model(model):
 
 
 def create_mlif_from_args(args):
-    features = extract_features(args)
+    features = extract_feature_names(args)
     config = extract_config(args)
     assert args.backend is not None, "The backend must be set"
     backend = get_backend_by_name(args.backend, features=features, config=config)

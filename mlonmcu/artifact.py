@@ -84,7 +84,7 @@ class Artifact:
                 not extract
             ), "extract option is only available for ArtifactFormat.MLF"
             with open(filename, "wb") as handle:
-                handle.write(self.data)
+                handle.write(self.raw)
         elif self.fmt in [ArtifactFormat.MLF]:
             with open(filename, "wb") as handle:
                 handle.write(self.raw)

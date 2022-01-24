@@ -48,14 +48,16 @@ class Session:
         if not self.archived:
             self.open()
 
-    #  def create_run(self, *args, **kwargs):
-    #      idx = self.run_id + 1
-    #      logger.debug("Creating a new run with id %s", idx)
-    #      run = Run(*args, idx=idx, session=self, **kwargs)
-    #      self.runs.append(run)
-    #      self.run_id = idx
-    #      return run
-    #      # TODO: set latest symlink?
+    @property
+    def prefix(self):
+        return f"[session-{self.idx}] " if self.idx else ""
+
+    def create_run(self, *args, **kwargs):
+        idx = len(self.runs)
+        logger.debug("Creating a new run with id %s", idx)
+        run = Run(*args, idx=idx, session=self, **kwargs)
+        self.runs.append(run)
+        return run
 
     #  def update_run(self): # TODO TODO
     #      pass
@@ -78,6 +80,7 @@ class Session:
         per_stage=False,
         num_workers=1,
         progress=False,
+        export=False,
         context=None,
     ):
         assert num_workers > 0, "num_workers can not be < 1"
@@ -105,8 +108,8 @@ class Session:
                 pbar.close()
 
         def _process(run, until):
-            run.process(until=until, context=context)
-            sleep(randint(1, 5))
+            run.process(until=until, export=export, context=context)
+            # sleep(randint(1, 5))
             if progress:
                 _update_progress()
 
@@ -124,8 +127,6 @@ class Session:
                 _close_progress()
             return results
 
-        prefix = f"[session-{self.idx}] "
-
         with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
             if per_stage:
                 for stage in range(until + 1):
@@ -135,7 +136,7 @@ class Session:
                             len(self.runs), msg=f"Processing stage {run_stage}"
                         )
                     else:
-                        logger.info(prefix + f"Processing stage {run_stage}")
+                        logger.info(self.prefix + f"Processing stage {run_stage}")
                     for run in self.runs:
                         workers.append(executor.submit(_process, run, until=stage))
                     results = _join_workers(workers)
@@ -144,11 +145,11 @@ class Session:
                 if progress:
                     _init_progress(len(self.runs), msg="Processing all stages")
                 else:
-                    logger.info(prefix + "Processing all stages")
+                    logger.info(self.prefix + "Processing all stages")
                 for run in self.runs:
                     workers.append(executor.submit(_process, run, until=until))
                 results = _join_workers(workers)
-        logger.info(prefix + "Done processing runs")
+        logger.info(self.prefix + "Done processing runs")
 
     def __repr__(self):
         return f"Session(idx={self.idx},status={self.status},runs={self.runs})"

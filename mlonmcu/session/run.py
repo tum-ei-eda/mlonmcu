@@ -1,9 +1,11 @@
 import tempfile
 from pathlib import Path
 import os
+import copy
 from enum import IntEnum
 
 from mlonmcu.logging import get_logger
+from mlonmcu.artifact import ArtifactFormat
 
 logger = get_logger()
 
@@ -39,7 +41,8 @@ class Run:
     def __init__(
         self,
         idx=None,
-        model_name=None,
+        model=None,
+        framework=None,
         frontend=None,
         backend=None,
         target=None,
@@ -51,12 +54,12 @@ class Run:
         session=None,
     ):
         self.idx = idx
-        self.model_name = model_name  # Model name, not object?
+        self.model = model  # Model name, not object?
         self.frontend = frontend  # Single one or all enabled ones?
-        # self.framework = framework  # ???
+        self.framework = framework  # ???
         self.backend = backend
         self.mlif = mlif
-        self.artifacts = []
+        self.artifacts_per_stage = {}
         self.num = num
         self.archived = archived
         self.session = session
@@ -77,13 +80,28 @@ class Run:
         self.result = None
         self.active = False  # TODO: rename to staus with enum?
 
+    def copy(self):
+        return copy.deepcopy(self)
+
+    def add_frontend(self, frontend):
+        self.frontend = frontend
+
+    def add_backend(self, backend):
+        self.backend = backend
+
+    def add_framework(self, framework):
+        self.framework = framework
+
+    def add_target(self, target):
+        self.target = target
+
     @property
     def export_optional(self):
         return bool(self.config["export_optional"])
 
     def __repr__(self):
         probs = []
-        if self.model_name:
+        if self.model:
             probs.append(str(self.model))
         if self.frontend:
             probs.append(str(self.frontend))
@@ -104,17 +122,20 @@ class Run:
 
     def export_stage(self, stage, optional=False, subdir=False):
         # TODO: per stage subdirs?
-        artifacts = self.artifacts_per_stage[stage]
-        for artifact in artifacts:
-            if not artifact.optional or optional:
-                dest = subdir
-                if subdir:
-                    stage_idx = int(stage)
-                    dest = dest / f"stage_{stage_idx}"
-                artifact.export(self.dir)
+        if stage in self.artifacts_per_stage:
+            artifacts = self.artifacts_per_stage[stage]
+            for artifact in artifacts:
+                if not artifact.optional or optional:
+                    dest = self.dir
+                    if subdir:
+                        stage_idx = int(stage)
+                        dest = dest / f"stage_{stage_idx}"
+                    extract = artifact.fmt == ArtifactFormat.MLF
+                    artifact.export(self.dir, extract=extract)
 
     def postprocess(self, context=None):  # TODO: drop context arguments?
         """Run the 'run' using the defined target."""
+        logger.debug(self.prefix + "Processing stage POSTPROCESS")
         assert not self.active, "Parallel processing of the same run is not allowed"
         # TODO: Extract run metrics (cycles, runtime, memory usage,...)
         self.active = True  # TODO: move to self.set_active(stage), self.set_done(stage), self.set_failed(stage)
@@ -133,6 +154,7 @@ class Run:
 
     def run(self, context=None):  # TODO: drop context arguments?
         """Run the 'run' using the defined target."""
+        logger.debug(self.prefix + "Processing stage RUN")
         assert not self.active, "Parallel processing of the same run is not allowed"
         self.active = True  # TODO: do we need self.current_stage and self.max_stage?
         # Alternative: drop artifacts of higher stages when re-triggering a lower one?
@@ -148,6 +170,7 @@ class Run:
 
     def compile(self, context=None):
         """Compile the target software for the run."""
+        logger.debug(self.prefix + "Processing stage COMPILE")
         assert not self.active, "Parallel processing of the same run is not allowed"
         self.active = True
         assert self.stage >= RunStage.BUILD
@@ -159,10 +182,10 @@ class Run:
 
         self.stage = max(self.stage, RunStage.COMPILE)
         self.active = False
-        raise NotImplementedError
 
     def build(self, context=None):
         """Process the run using the choosen backend."""
+        logger.debug(self.prefix + "Processing stage BUILD")
         assert not self.active, "Parallel processing of the same run is not allowed"
         self.active = True
         assert self.stage >= RunStage.LOAD
@@ -182,21 +205,21 @@ class Run:
 
     def load(self, context=None):
         """Load the model using the given frontend."""
+        logger.debug(self.prefix + "Processing stage LOAD")
         assert not self.active, "Parallel processing of the same run is not allowed"
         self.active = True
         # assert self.stage >= RunStage.NOP
 
-        models = resolve_models(self.model_name)  # TODO
-        self.frontend.generate_artifacts(models)
+        self.frontend.generate_models(self.model)
         self.artifacts_per_stage[RunStage.LOAD] = self.frontend.artifacts
 
         self.stage = max(self.stage, RunStage.LOAD)
         self.active = False
 
-    def process(self, until=RunStage.RUN, context=None):
+    def process(self, until=RunStage.RUN, export=False, context=None):
         """Process the run until a given stage."""
         logger.debug(
-            "Started processing a new run until stage %s: %s",
+            self.prefix + "Processing run until stage %s: %s",
             str(RunStage(until).name),
             str(self),
         )
@@ -205,24 +228,40 @@ class Run:
         for stage in range(until):
             stage_funcs = {
                 RunStage.NOP: lambda *args, **kwargs: None,  # stage already done as self.stage shows
-                RunStage.LOAD: lambda *args, **kwargs: self.load,
+                RunStage.LOAD: self.load,
                 RunStage.BUILD: self.build,
                 RunStage.COMPILE: self.compile,
                 RunStage.RUN: self.run,
-                RunStage.POSTPROCESS: lambda *args, **kwargs: self.postprocess,
+                RunStage.POSTPROCESS: self.postprocess,
             }
             func = stage_funcs[stage]
             if func:
                 func(context=context)
             # self.stage = stage  # FIXME: The stage_func should update the stage intead?
+        if export:
+            self.export(optional=True)  # TODO: set to flase?
 
     def write_run_file(self):
+        logger.debug(self.prefix + "Writing run file")
         filename = self.dir / "run.txt"
         with open(filename, "w") as handle:
             handle.write(str(self))
 
+    @property
+    def prefix(self):
+        return (
+            (
+                f"[session-{self.session.idx}] [run-{self.idx}] "
+                if self.session
+                else f"[run-{self.idx}]"
+            )
+            if self.idx is not None
+            else ""
+        )
+
     def export(self, path=None, optional=False):
         """Write a run configuration to a disk."""
+        logger.debug(self.prefix + "Exporting run to disk")
         # TODO use proper locks instead of boolean and also lock during export!
         assert not self.active, "Can not export an active run"
         for stage in range(self.stage):

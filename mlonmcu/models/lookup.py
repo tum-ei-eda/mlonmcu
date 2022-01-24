@@ -196,7 +196,7 @@ def print_models(models, duplicates=[], detailed=False):
     print("Models:")
     for model in models:
         name = model.name
-        path = model.path
+        path = model.paths[0]
         meta = "available" if model.metadata is not None else "not available"
         has_backend_options = (
             model.metadata and model.metadata.backend_options_map is not None
@@ -242,9 +242,12 @@ def print_groups(groups, all_models=[], duplicates=[], detailed=False):
 
 
 def print_summary(context, detailed=False):
+    # TODO: get from context!
+    formats = ModelFormats.TFLITE
+
     directories = get_model_directories(context)
 
-    models, groups, duplicates, group_duplicates = lookup_models_and_groups(directories)
+    models, groups, duplicates, group_duplicates = lookup_models_and_groups(directories, formats)
 
     print("Models Summary\n")
     print_paths(directories)

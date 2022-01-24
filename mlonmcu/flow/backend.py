@@ -8,8 +8,8 @@ from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.feature import FeatureType
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact
+from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
@@ -76,7 +76,8 @@ class Backend(ABC):
                 path.is_dir()
             ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
             for artifact in self.artifacts:
-                artifact.export(path)
+                extract = artifact.fmt == ArctifactFormat.MLF
+                artifact.export(path, extract=extract)
                 # TODO: move the following to a helper function and share code
                 # dest = path / artifact.name
                 # with open(dest, "w") as outfile:

@@ -34,7 +34,7 @@ class TVMBackend(Backend):
         self.model_info = None
         self.input_shapes = None
 
-        self.prefix = "model"
+        self.prefix = "default"
         self.artifacts = (
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods

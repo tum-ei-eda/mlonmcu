@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 
+from mlonmcu.feature.feature import FeatureType
 from mlonmcu.config import filter_config
+from mlonmcu.feature.features import get_matching_features
 
 
 class Framework(ABC):

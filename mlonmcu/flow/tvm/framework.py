@@ -17,6 +17,12 @@ class TVMFramework(Framework):
 
     name = "tvm"
 
+    FEATURES = []
+
+    DEFAULTS = {}
+
+    REQUIRED = ["tvm.src_dir"]
+
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)
         # self.backends = TVMBackend.registry

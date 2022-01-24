@@ -6,7 +6,12 @@ import copy
 import itertools
 
 import mlonmcu
-from mlonmcu.cli.common import add_common_options, add_context_options, add_flow_options
+from mlonmcu.cli.common import (
+    add_common_options,
+    add_context_options,
+    add_flow_options,
+    kickoff_runs,
+)
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_FRAMEWORK_BACKENDS
 from mlonmcu.cli.load import add_model_options, add_load_options
 from mlonmcu.cli.build import add_build_options
@@ -65,6 +70,7 @@ def get_parser(subparsers):
     add_run_options(parser)
     add_compile_options(parser)
     add_build_options(parser)
+    add_load_options(parser)
     add_flow_options(parser)
     return parser
 
@@ -74,23 +80,18 @@ def check_args(context, args):
     pass
 
 
+def get_results(context):
+    assert len(context.sessions) > 0
+    session = context.sessions[-1]
+    results = [run.result for run in session.runs]
+
+
 def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         check_args(context, args)
         handle_compile(args, ctx=context)
-        assert len(context.sessions) > 0
-        session = context.sessions[-1]
-        parallel = args.parallel
-        progress = args.progress
-        # session.process_runs(until=RunStage.RUN, per_stage=False, num_workers=parallel, progress=progress, context=context)
-        session.process_runs(
-            until=RunStage.RUN,
-            per_stage=True,
-            num_workers=parallel,
-            progress=progress,
-            context=context,
-        )
-        results = [run.result for run in session.runs]
+        kickoff_runs(args, RunStage.RUN, context)
+        results = get_results(context)
         if args.detailed:
 
             def find_run_pairs(runs):

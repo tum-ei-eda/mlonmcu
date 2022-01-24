@@ -20,7 +20,7 @@ def handle_logging_flags(args):
 
 def add_flow_options(parser):
     flow_parser = parser.add_argument_group("flow options")
-    flow_parser.add_argument(
+    flow_parser.add_argument(  # TODO: move to compile.py?
         "-t",
         "--target",
         type=str,
@@ -112,4 +112,17 @@ def add_model_options(parser):
         nargs="*",
         default=None,
         help="Model to process",
+    )
+
+
+def kickoff_runs(args, until, context):
+    assert len(context.sessions) > 0
+    session = context.sessions[-1]
+    session.process_runs(
+        until=until,
+        per_stage=True,
+        num_workers=args.parallel,
+        progress=args.progress,
+        context=context,
+        export=True,
     )

@@ -14,10 +14,12 @@ from mlonmcu.cli.common import (
     add_context_options,
     add_model_options,
     add_flow_options,
+    kickoff_runs,
 )
 from mlonmcu.config import resolve_required_config
 from mlonmcu.cli.load import handle as handle_load, add_load_options, add_model_options
-from mlonmcu.flow import SUPPORTED_BACKENDS
+from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
+from mlonmcu.session.run import RunStage
 
 
 def add_build_options(parser):
@@ -46,6 +48,7 @@ def get_parser(subparsers, parent=None):
     add_common_options(parser)
     add_context_options(parser)
     add_build_options(parser)
+    add_load_options(parser)
     add_flow_options(parser)
     return parser
 
@@ -54,11 +57,11 @@ def _handle(context, args):
     handle_load(args, ctx=context)
     # print(configs)
     # input()
-    backends_names = args.backend
-    if isinstance(backends_names, list) and len(backend_names) > 0:
-        backends = backends_names
-    elif isinstance(backends_names, str):
-        backends = [backends_names]
+    backend_names = args.backend
+    if isinstance(backend_names, list) and len(backend_names) > 0:
+        backends = backend_names
+    elif isinstance(backend_names, str):
+        backends = [backend_names]
     else:
         assert backends_names is None, "TODO"
         frameworks = context.environment.get_default_frameworks()
@@ -71,7 +74,7 @@ def _handle(context, args):
     new_runs = []
     for run in session.runs:
         for backend_name in backends:
-            new_run = copy.deepcopy(run)
+            new_run = run.copy()
             # TODO: where to add framework features/config?
             backend_cls = SUPPORTED_BACKENDS[backend_name]
             required_keys = backend_cls.REQUIRED
@@ -84,12 +87,23 @@ def _handle(context, args):
                 )
             )
             backend = backend_cls(features=new_run.features, config=new_run.config)
-            new_run.backend = backend
+            framework_name = backend.framework
+            framework_cls = SUPPORTED_FRAMEWORKS[framework_name]
+            required_keys = backend_cls.REQUIRED
+            new_run.config.update(
+                resolve_required_config(
+                    framework_cls.REQUIRED,
+                    features=new_run.features,
+                    config=new_run.config,
+                    cache=context.cache,
+                )
+            )
+            framework = framework_cls(features=new_run.features, config=new_run.config)
+            new_run.add_backend(backend)
+            new_run.add_framework(framework)
             new_runs.append(new_run)
 
     session.runs = new_runs
-    for run in session.runs:
-        run.build(context=context)
 
 
 def handle(args, ctx=None):
@@ -98,3 +112,4 @@ def handle(args, ctx=None):
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
             _handle(context, args)
+            kickoff_runs(args, RunStage.BUILD, context)

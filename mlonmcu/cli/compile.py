@@ -6,7 +6,7 @@ import copy
 import itertools
 
 import mlonmcu
-from mlonmcu.cli.common import add_common_options, add_context_options
+from mlonmcu.cli.common import add_common_options, add_context_options, kickoff_runs
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_FRAMEWORK_BACKENDS
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.cli.build import (
@@ -14,10 +14,14 @@ from mlonmcu.cli.build import (
     add_build_options,
     add_model_options,
 )
+from mlonmcu.cli.load import (
+    add_load_options,
+)
 from mlonmcu.config import resolve_required_config
 from mlonmcu.flow.backend import Backend
 from mlonmcu.flow.framework import Framework
 from mlonmcu.session.run import RunStage
+from mlonmcu.compile.mlif import MLIF
 
 
 def add_compile_options(parser):
@@ -53,6 +57,7 @@ def get_parser(subparsers):
     add_context_options(parser)
     add_compile_options(parser)
     add_build_options(parser)
+    add_load_options(parser)
     return parser
 
 
@@ -78,35 +83,35 @@ def _handle(context, args):
         for target_name in targets:
             assert target_name in SUPPORTED_TARGETS, "TODO"
             for n in num:
-                new_run = copy.deepcopy(run)
+                new_run = run.copy()
                 target_cls = SUPPORTED_TARGETS[target_name]
                 required_keys = target_cls.REQUIRED
-                cache_flags = get_cache_flags(new_run.features)
-                for key in required_keys:
-                    if key not in new_run.config:
-                        flags = cache_flags.get(key, ())
-                        if len(context.cache) == 0:
-                            raise RuntimeError(
-                                "The dependency cache is empty! Make sure `to run `mlonmcu` setup first.`"
-                            )
-                        if (key, flags) in context.cache:
-                            value = context.cache[key, flags]
-                            new_run.config[key] = value
-                        else:
-                            raise RuntimeError(
-                                "Dependency cache miss for required key '{key}'. Try re-running `mlonmcu setup`."
-                            )
+                new_run.config.update(
+                    resolve_required_config(
+                        required_keys,
+                        features=new_run.features,
+                        config=new_run.config,
+                        cache=context.cache,
+                    )
+                )
                 target_inst = target_cls(
                     features=new_run.features, config=new_run.config
                 )
-                new_run.target = target_inst
+                mlif_inst = MLIF(
+                    new_run.framework,
+                    new_run.backend,
+                    target_inst,
+                    features=new_run.features,
+                    config=new_run.config,
+                    context=context,
+                )  # TODO: move somewhere else?
+                # TODO: manage required keys here?
+                new_run.add_target(target_inst)
+                new_run.mlif = mlif_inst
                 new_run.debug = debug
-                new_run.num = n
                 new_run.num = n
                 new_runs.append(new_run)
     session.runs = new_runs
-    for run in session.runs:
-        run.compile(context=context)
 
 
 def check_args(context, args):
@@ -120,3 +125,4 @@ def handle(args, ctx=None):
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
             _handle(context, args)
+            kickoff_runs(args, RunStage.COMPILE, context)

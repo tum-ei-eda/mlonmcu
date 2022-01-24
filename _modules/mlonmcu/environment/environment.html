@@ -338,7 +338,14 @@
                     <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">default</span></div></div>
+        <span class="k">return</span> <span class="n">default</span></div>
+
+<div class="viewcode-block" id="Environment.get_enabled_frontends"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_enabled_frontends">[docs]</a>    <span class="k">def</span> <span class="nf">get_enabled_frontends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">frontend</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
 
 
 <div class="viewcode-block" id="DefaultEnvironment"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.DefaultEnvironment">[docs]</a><span class="k">class</span> <span class="nc">DefaultEnvironment</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>

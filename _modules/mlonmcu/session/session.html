@@ -123,14 +123,16 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">archived</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
 
-    <span class="c1">#  def create_run(self, *args, **kwargs):</span>
-    <span class="c1">#      idx = self.run_id + 1</span>
-    <span class="c1">#      logger.debug(&quot;Creating a new run with id %s&quot;, idx)</span>
-    <span class="c1">#      run = Run(*args, idx=idx, session=self, **kwargs)</span>
-    <span class="c1">#      self.runs.append(run)</span>
-    <span class="c1">#      self.run_id = idx</span>
-    <span class="c1">#      return run</span>
-    <span class="c1">#      # TODO: set latest symlink?</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[session-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+<div class="viewcode-block" id="Session.create_run"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.create_run">[docs]</a>    <span class="k">def</span> <span class="nf">create_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating a new run with id </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">run</span></div>
 
     <span class="c1">#  def update_run(self): # TODO TODO</span>
     <span class="c1">#      pass</span>
@@ -153,6 +155,7 @@
         <span class="n">per_stage</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">assert</span> <span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;num_workers can not be &lt; 1&quot;</span>
@@ -180,8 +183,8 @@
                 <span class="n">pbar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="p">):</span>
-            <span class="n">run</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-            <span class="n">sleep</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span> <span class="n">export</span><span class="o">=</span><span class="n">export</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+            <span class="c1"># sleep(randint(1, 5))</span>
             <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
                 <span class="n">_update_progress</span><span class="p">()</span>
 
@@ -199,8 +202,6 @@
                 <span class="n">_close_progress</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">results</span>
 
-        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[session-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] &quot;</span>
-
         <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">per_stage</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">until</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
@@ -210,7 +211,7 @@
                             <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Processing stage </span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Processing stage </span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Processing stage </span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
                         <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_process</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">stage</span><span class="p">))</span>
                     <span class="n">results</span> <span class="o">=</span> <span class="n">_join_workers</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span>
@@ -219,11 +220,11 @@
                 <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
                     <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing all stages&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing all stages&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing all stages&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
                     <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_process</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">))</span>
                 <span class="n">results</span> <span class="o">=</span> <span class="n">_join_workers</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Done processing runs&quot;</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Done processing runs&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Session(idx=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">,status=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">,runs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="si">}</span><span class="s2">)&quot;</span>

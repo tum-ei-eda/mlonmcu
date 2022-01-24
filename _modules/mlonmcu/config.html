@@ -73,7 +73,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mlonmcu.config</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="remove_config_prefix"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.remove_config_prefix">[docs]</a><span></span><span class="k">def</span> <span class="nf">remove_config_prefix</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="p">[]):</span>
+<span></span><span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="remove_config_prefix"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.remove_config_prefix">[docs]</a><span class="k">def</span> <span class="nf">remove_config_prefix</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="p">[]):</span>
     <span class="k">def</span> <span class="nf">helper</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
@@ -150,7 +155,7 @@
                 <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;Dependency cache miss for required key &#39;</span><span class="si">{key}</span><span class="s2">&#39;. Try re-running `mlonmcu setup`.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Dependency cache miss for required key &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;. Try re-running `mlonmcu setup`.&quot;</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>

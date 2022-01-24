@@ -95,7 +95,7 @@
 
 <div class="viewcode-block" id="add_flow_options"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_flow_options">[docs]</a><span class="k">def</span> <span class="nf">add_flow_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">flow_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;flow options&quot;</span><span class="p">)</span>
-    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>  <span class="c1"># TODO: move to compile.py?</span>
         <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
@@ -187,6 +187,19 @@
         <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Model to process&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="kickoff_runs"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.kickoff_runs">[docs]</a><span class="k">def</span> <span class="nf">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">process_runs</span><span class="p">(</span>
+        <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span>
+        <span class="n">per_stage</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">parallel</span><span class="p">,</span>
+        <span class="n">progress</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">progress</span><span class="p">,</span>
+        <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+        <span class="n">export</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span></div>
 </pre></div>
 

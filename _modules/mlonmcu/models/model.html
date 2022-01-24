@@ -74,22 +74,39 @@
              
   <h1>Source code for mlonmcu.models.model</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="n">ModelFormat</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;ModelFormat&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;extensions&quot;</span><span class="p">])</span>
 
 
-<div class="viewcode-block" id="ModelFormat"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.ModelFormat">[docs]</a><span class="k">class</span> <span class="nc">ModelFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">TFLITE</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">PACKED</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">IPYNB</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">ONNX</span> <span class="o">=</span> <span class="mi">4</span></div>
+<div class="viewcode-block" id="ModelFormats"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.ModelFormats">[docs]</a><span class="k">class</span> <span class="nc">ModelFormats</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">extensions</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">extensions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">NONE</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">TFLITE</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">])</span>
+    <span class="n">PACKED</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tflm&quot;</span><span class="p">])</span>
+    <span class="n">IPYNB</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ipynb&quot;</span><span class="p">])</span>
+    <span class="n">ONNX</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;onnx&quot;</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">ModelFormat</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alt</span> <span class="o">=</span> <span class="n">alt</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="nb">format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="n">formats</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="p">[</span><span class="n">formats</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

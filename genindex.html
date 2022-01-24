@@ -85,6 +85,7 @@
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -103,6 +104,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.active">active (mlonmcu.session.session.Session property)</a>
 </li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_backend">add_backend() (mlonmcu.session.run.Run method)</a>
+</li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.BackendFeature.add_backend_config">add_backend_config() (mlonmcu.feature.feature.BackendFeature method)</a>
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.build.add_build_options">add_build_options() (in module mlonmcu.cli.build)</a>
@@ -118,6 +121,8 @@
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.common.add_common_options">add_common_options() (in module mlonmcu.cli.common)</a>
 
       <ul>
+        <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.add_common_options">(in module mlonmcu.compile.mlif)</a>
+</li>
         <li><a href="mlonmcu.target.html#mlonmcu.target.common.add_common_options">(in module mlonmcu.target.common)</a>
 </li>
       </ul></li>
@@ -125,14 +130,20 @@
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.compile.add_compile_options">add_compile_options() (in module mlonmcu.cli.compile)</a>
 </li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.add_configure_options">add_configure_options() (in module mlonmcu.compile.mlif)</a>
+</li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.common.add_context_options">add_context_options() (in module mlonmcu.cli.common)</a>
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.common.add_flow_options">add_flow_options() (in module mlonmcu.cli.common)</a>
 </li>
-      <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FrameworkFeature.add_framework_config">add_framework_config() (mlonmcu.feature.feature.FrameworkFeature method)</a>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_framework">add_framework() (mlonmcu.session.run.Run method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FrameworkFeature.add_framework_config">add_framework_config() (mlonmcu.feature.feature.FrameworkFeature method)</a>
+</li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_frontend">add_frontend() (mlonmcu.session.run.Run method)</a>
+</li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FrontendFeature.add_frontend_config">add_frontend_config() (mlonmcu.feature.feature.FrontendFeature method)</a>
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.load.add_load_options">add_load_options() (in module mlonmcu.cli.load)</a>
@@ -144,6 +155,8 @@
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.run.add_run_options">add_run_options() (in module mlonmcu.cli.run)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature.add_setup_config">add_setup_config() (mlonmcu.feature.feature.SetupFeature method)</a>
+</li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_target">add_target() (mlonmcu.session.run.Run method)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.TargetFeature.add_target_config">add_target_config() (mlonmcu.feature.feature.TargetFeature method)</a>
 </li>
@@ -219,6 +232,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend.check">check (mlonmcu.models.frontend.PackedFrontend property)</a>
+</li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.compile.check_args">check_args() (in module mlonmcu.cli.compile)</a>
 
       <ul>
@@ -247,12 +262,16 @@
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.tasks.clone_utvm_staticrt_codegen">clone_utvm_staticrt_codegen() (in module mlonmcu.setup.tasks)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.close">close() (mlonmcu.session.session.Session method)</a>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.close">close() (mlonmcu.compile.mlif.MLIF method)</a>
+
+      <ul>
+        <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.close">(mlonmcu.session.session.Session method)</a>
 </li>
+      </ul></li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.session.SessionStatus.CLOSED">CLOSED (mlonmcu.session.session.SessionStatus attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.cmake">cmake() (in module mlonmcu.setup.utils)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FeatureType.COMPILE">COMPILE (mlonmcu.feature.feature.FeatureType attribute)</a>
@@ -261,17 +280,31 @@
         <li><a href="mlonmcu.session.html#mlonmcu.session.run.RunStage.COMPILE">(mlonmcu.session.run.RunStage attribute)</a>
 </li>
       </ul></li>
-      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.compile">compile() (mlonmcu.session.run.Run method)</a>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.compile">compile() (mlonmcu.compile.mlif.MLIF method)</a>
+
+      <ul>
+        <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.compile">(mlonmcu.session.run.Run method)</a>
 </li>
+      </ul></li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature">CompileFeature (class in mlonmcu.feature.feature)</a>
+</li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.configure">configure() (mlonmcu.compile.mlif.MLIF method)</a>
 </li>
       <li><a href="mlonmcu.data.html#mlonmcu.data.utils.convert_inout_data">convert_inout_data() (in module mlonmcu.data.utils)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.cache.convert_key">convert_key() (in module mlonmcu.setup.cache)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.copy">copy() (in module mlonmcu.setup.utils)</a>
+
+      <ul>
+        <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.copy">(mlonmcu.session.run.Run method)</a>
 </li>
+      </ul></li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.init.create_environment_directories">create_environment_directories() (in module mlonmcu.environment.init)</a>
+</li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.create_mlif_from_args">create_mlif_from_args() (in module mlonmcu.compile.mlif)</a>
+</li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.create_run">create_run() (mlonmcu.session.session.Session method)</a>
 </li>
       <li><a href="mlonmcu.html#mlonmcu.context.MlonMcuContext.create_session">create_session() (mlonmcu.context.MlonMcuContext method)</a>
 </li>
@@ -287,11 +320,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.html#mlonmcu.artifact.ArtifactFormat.DATA">DATA (mlonmcu.artifact.ArtifactFormat attribute)</a>
 </li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.debug">debug (mlonmcu.compile.mlif.MLIF property)</a>
+</li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.DefaultEnvironment">DefaultEnvironment (class in mlonmcu.environment.environment)</a>
 </li>
-      <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase.DEFAULTS">DEFAULTS (mlonmcu.feature.feature.FeatureBase attribute)</a>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.DEFAULTS">DEFAULTS (mlonmcu.compile.mlif.MLIF attribute)</a>
 
       <ul>
+        <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase.DEFAULTS">(mlonmcu.feature.feature.FeatureBase attribute)</a>
+</li>
         <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.DEFAULTS">(mlonmcu.flow.backend.Backend attribute)</a>
 </li>
         <li><a href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework.DEFAULTS">(mlonmcu.flow.framework.Framework attribute)</a>
@@ -305,6 +342,18 @@
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.DEFAULTS">(mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend attribute)</a>
 </li>
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.DEFAULTS">(mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend attribute)</a>
+</li>
+        <li><a href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.DEFAULTS">(mlonmcu.flow.tvm.framework.TVMFramework attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.DEFAULTS">(mlonmcu.models.frontend.Frontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.ONNXFrontend.DEFAULTS">(mlonmcu.models.frontend.ONNXFrontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend.DEFAULTS">(mlonmcu.models.frontend.PackedFrontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS">(mlonmcu.models.frontend.TfLiteFrontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.DEFAULTS">(mlonmcu.session.run.Run attribute)</a>
 </li>
         <li><a href="mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.DEFAULTS">(mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget attribute)</a>
 </li>
@@ -355,8 +404,6 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.target.Target.exec">(mlonmcu.target.target.Target method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.exec_getout">exec_getout() (in module mlonmcu.setup.utils)</a>
 </li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.common.execute">execute() (in module mlonmcu.target.common)</a>
@@ -364,11 +411,31 @@
       <li><a href="mlonmcu.html#mlonmcu.artifact.Artifact.export">export() (mlonmcu.artifact.Artifact method)</a>
 
       <ul>
+        <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.export">(mlonmcu.compile.mlif.MLIF method)</a>
+</li>
         <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.export">(mlonmcu.session.run.Run method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.export_code">export_code() (mlonmcu.flow.backend.Backend method)</a>
 </li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.export_models">export_models() (mlonmcu.models.frontend.Frontend method)</a>
+</li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.export_optional">export_optional (mlonmcu.session.run.Run property)</a>
+</li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.export_stage">export_stage() (mlonmcu.session.run.Run method)</a>
+</li>
+      <li><a href="mlonmcu.html#mlonmcu.artifact.Artifact.exported">exported (mlonmcu.artifact.Artifact property)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormats.extension">extension (mlonmcu.models.model.ModelFormats property)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormat.extensions">extensions (mlonmcu.models.model.ModelFormat attribute)</a>
+
+      <ul>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormats.extensions">(mlonmcu.models.model.ModelFormats property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.extract">extract() (in module mlonmcu.setup.utils)</a>
 </li>
       <li><a href="mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_config">extract_config() (in module mlonmcu.cli.helper.parse)</a>
@@ -409,9 +476,11 @@
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.config.FeatureKind">FeatureKind (class in mlonmcu.environment.config)</a>
 </li>
-      <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.FEATURES">FEATURES (mlonmcu.flow.backend.Backend attribute)</a>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.FEATURES">FEATURES (mlonmcu.compile.mlif.MLIF attribute)</a>
 
       <ul>
+        <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.FEATURES">(mlonmcu.flow.backend.Backend attribute)</a>
+</li>
         <li><a href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework.FEATURES">(mlonmcu.flow.framework.Framework attribute)</a>
 </li>
         <li><a href="mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmc.TFLMCBackend.FEATURES">(mlonmcu.flow.tflite.backend.tflmc.TFLMCBackend attribute)</a>
@@ -422,6 +491,16 @@
 </li>
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.FEATURES">(mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend attribute)</a>
 </li>
+        <li><a href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.FEATURES">(mlonmcu.flow.tvm.framework.TVMFramework attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.FEATURES">(mlonmcu.models.frontend.Frontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.ONNXFrontend.FEATURES">(mlonmcu.models.frontend.ONNXFrontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend.FEATURES">(mlonmcu.models.frontend.PackedFrontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.FEATURES">(mlonmcu.models.frontend.TfLiteFrontend attribute)</a>
+</li>
         <li><a href="mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.FEATURES">(mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.html#mlonmcu.target.host_x86.HostX86Target.FEATURES">(mlonmcu.target.host_x86.HostX86Target attribute)</a>
@@ -429,10 +508,10 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.target.Target.FEATURES">(mlonmcu.target.target.Target attribute)</a>
 </li>
       </ul></li>
-      <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FeatureType">FeatureType (class in mlonmcu.feature.feature)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FeatureType">FeatureType (class in mlonmcu.feature.feature)</a>
+</li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.templates.fill_environment_yaml">fill_environment_yaml() (in module mlonmcu.environment.templates)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.templates.fill_template">fill_template() (in module mlonmcu.environment.templates)</a>
@@ -469,6 +548,8 @@
         <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.from_file">(mlonmcu.session.run.Run class method)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend">Frontend (class in mlonmcu.models.frontend)</a>
+</li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.config.FeatureKind.FRONTEND">FRONTEND (mlonmcu.environment.config.FeatureKind attribute)</a>
 
       <ul>
@@ -505,6 +586,8 @@
       </ul></li>
       <li><a href="mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.generate_header">generate_header() (mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen method)</a>
 </li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.generate_models">generate_models() (mlonmcu.models.frontend.Frontend method)</a>
+</li>
       <li><a href="mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.generate_wrapper">generate_wrapper() (mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen method)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.list.get_alternative_name">get_alternative_name() (in module mlonmcu.environment.list)</a>
@@ -514,6 +597,8 @@
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.features.get_available_feature_names">get_available_feature_names() (in module mlonmcu.feature.features)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.features.get_available_features">get_available_features() (in module mlonmcu.feature.features)</a>
+</li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.get_backend_by_name">get_backend_by_name() (in module mlonmcu.compile.mlif)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.BackendFeature.get_backend_config">get_backend_config() (mlonmcu.feature.feature.BackendFeature method)</a>
 </li>
@@ -535,6 +620,8 @@
       </ul></li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.get_combs">get_combs() (in module mlonmcu.setup.task)</a>
 </li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.get_common_cmake_args">get_common_cmake_args() (mlonmcu.compile.mlif.MLIF method)</a>
+</li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_common_tvmc_args">get_common_tvmc_args() (mlonmcu.flow.tvm.backend.backend.TVMBackend method)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.get_compile_config">get_compile_config() (mlonmcu.feature.feature.CompileFeature method)</a>
@@ -548,6 +635,8 @@
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_default_targets">get_default_targets() (mlonmcu.environment.environment.Environment method)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_disabled_pass_tvmc_args">get_disabled_pass_tvmc_args() (mlonmcu.flow.tvm.backend.backend.TVMBackend method)</a>
+</li>
+      <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_enabled_frontends">get_enabled_frontends() (mlonmcu.environment.environment.Environment method)</a>
 </li>
       <li><a href="mlonmcu.html#mlonmcu.context.get_environment_by_name">get_environment_by_name() (in module mlonmcu.context)</a>
 </li>
@@ -563,14 +652,16 @@
 </li>
       <li><a href="mlonmcu.html#mlonmcu.logging.get_formatter">get_formatter() (in module mlonmcu.logging)</a>
 </li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.get_framework_by_name">get_framework_by_name() (in module mlonmcu.compile.mlif)</a>
+</li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FrameworkFeature.get_framework_config">get_framework_config() (mlonmcu.feature.feature.FrameworkFeature method)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FrontendFeature.get_frontend_config">get_frontend_config() (mlonmcu.feature.feature.FrontendFeature method)</a>
 </li>
-      <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_fuse_max_depth">get_fuse_max_depth() (mlonmcu.flow.tvm.backend.backend.TVMBackend method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_fuse_max_depth">get_fuse_max_depth() (mlonmcu.flow.tvm.backend.backend.TVMBackend method)</a>
+</li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskGraph.get_graph">get_graph() (mlonmcu.setup.task.TaskGraph method)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.get_graph_and_params_from_mlf">get_graph_and_params_from_mlf() (mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend method)</a>
@@ -584,6 +675,8 @@
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.features.get_matching_features">get_matching_features() (in module mlonmcu.feature.features)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend.get_max_workspace_size_from_metadata">get_max_workspace_size_from_metadata() (mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend method)</a>
+</li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.get_model">get_model() (in module mlonmcu.compile.mlif)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.get_model_directories">get_model_directories() (in module mlonmcu.models.lookup)</a>
 </li>
@@ -627,11 +720,15 @@
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature.get_required_cache_flags">get_required_cache_flags() (mlonmcu.feature.feature.SetupFeature method)</a>
 </li>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.run.get_results">get_results() (in module mlonmcu.cli.run)</a>
+</li>
       <li><a href="mlonmcu.html#mlonmcu.context.MlonMcuContext.get_session">get_session() (mlonmcu.context.MlonMcuContext method)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature.get_setup_config">get_setup_config() (mlonmcu.feature.feature.SetupFeature method)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target">get_target() (mlonmcu.flow.tvm.backend.backend.TVMBackend method)</a>
+</li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.get_target_by_name">get_target_by_name() (in module mlonmcu.compile.mlif)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.TargetFeature.get_target_config">get_target_config() (mlonmcu.feature.feature.TargetFeature method)</a>
 </li>
@@ -699,6 +796,10 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.ignore_data">ignore_data (mlonmcu.compile.mlif.MLIF property)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend.ignore_existing">ignore_existing (mlonmcu.models.frontend.PackedFrontend property)</a>
+</li>
       <li><a href="mlonmcu.html#mlonmcu.artifact.ArtifactFormat.IMAGE">IMAGE (mlonmcu.artifact.ArtifactFormat attribute)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.util.in_virtualenv">in_virtualenv() (in module mlonmcu.environment.util)</a>
@@ -707,14 +808,16 @@
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.config.init_config_dir">init_config_dir() (in module mlonmcu.environment.config)</a>
 </li>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.load.init_frontends">init_frontends() (in module mlonmcu.cli.load)</a>
+</li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.common.init_target_features">init_target_features() (in module mlonmcu.target.common)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.init.initialize_environment">initialize_environment() (in module mlonmcu.environment.init)</a>
 </li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.target.Target.inspect">inspect() (mlonmcu.target.target.Target method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.tasks.install_etiss">install_etiss() (in module mlonmcu.setup.tasks)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.tasks.install_llvm">install_llvm() (in module mlonmcu.setup.tasks)</a>
@@ -723,7 +826,7 @@
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc">invoke_tvmc() (mlonmcu.flow.tvm.backend.backend.TVMBackend method)</a>
 </li>
-      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormat.IPYNB">IPYNB (mlonmcu.models.model.ModelFormat attribute)</a>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormats.IPYNB">IPYNB (mlonmcu.models.model.ModelFormats attribute)</a>
 </li>
       <li><a href="mlonmcu.html#mlonmcu.context.MlonMcuContext.is_clean">is_clean (mlonmcu.context.MlonMcuContext property)</a>
 </li>
@@ -740,6 +843,14 @@
   </ul></td>
 </tr></table>
 
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.common.kickoff_runs">kickoff_runs() (in module mlonmcu.cli.common)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -749,15 +860,15 @@
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.RunStage.LOAD">LOAD (mlonmcu.session.run.RunStage attribute)</a>
 </li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.load">load() (mlonmcu.session.run.Run method)</a>
+</li>
       <li><a href="mlonmcu.html#mlonmcu.context.MlonMcuContext.load_cache">load_cache() (mlonmcu.context.MlonMcuContext method)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.loader.load_environment_from_file">load_environment_from_file() (in module mlonmcu.environment.loader)</a>
 </li>
-      <li><a href="mlonmcu.cli.html#mlonmcu.cli.load.load_model">load_model() (in module mlonmcu.cli.load)</a>
+      <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.load_model">load_model() (mlonmcu.flow.backend.Backend method)</a>
 
       <ul>
-        <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.load_model">(mlonmcu.flow.backend.Backend method)</a>
-</li>
         <li><a href="mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.backend.TFLiteBackend.load_model">(mlonmcu.flow.tflite.backend.backend.TFLiteBackend method)</a>
 </li>
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.load_model">(mlonmcu.flow.tvm.backend.backend.TVMBackend method)</a>
@@ -767,10 +878,10 @@
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_backend_configs">lookup_backend_configs() (mlonmcu.environment.environment.Environment method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_backend_feature_configs">lookup_backend_feature_configs() (mlonmcu.environment.environment.Environment method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.html#mlonmcu.context.lookup_environment">lookup_environment() (in module mlonmcu.context)</a>
 </li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.etiss_pulpino.lookup_etiss">lookup_etiss() (in module mlonmcu.target.etiss_pulpino)</a>
@@ -782,6 +893,8 @@
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_framework_feature_configs">lookup_framework_feature_configs() (mlonmcu.environment.environment.Environment method)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_frontend_feature_configs">lookup_frontend_feature_configs() (mlonmcu.environment.environment.Environment method)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.lookup_models">lookup_models() (in module mlonmcu.models.lookup)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.lookup_models_and_groups">lookup_models_and_groups() (in module mlonmcu.models.lookup)</a>
 </li>
@@ -802,6 +915,8 @@
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.main.main">main() (in module mlonmcu.cli.main)</a>
 
       <ul>
+        <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.main">(in module mlonmcu.compile.mlif)</a>
+</li>
         <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.main">(in module mlonmcu.flow.backend)</a>
 </li>
         <li><a href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.tvm_flow.main">(in module mlonmcu.flow.tvm.tvm_flow)</a>
@@ -825,6 +940,8 @@
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.makeFlags">makeFlags() (in module mlonmcu.setup.utils)</a>
 </li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.map_frontend_to_model">map_frontend_to_model() (in module mlonmcu.models.lookup)</a>
+</li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.postprocess.PostProcess.match_rows">match_rows() (mlonmcu.session.postprocess.PostProcess method)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskType.MISC">MISC (mlonmcu.setup.task.TaskType attribute)</a>
@@ -832,6 +949,8 @@
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.mkdirs">mkdirs() (in module mlonmcu.setup.utils)</a>
 </li>
       <li><a href="mlonmcu.html#mlonmcu.artifact.ArtifactFormat.MLF">MLF (mlonmcu.artifact.ArtifactFormat attribute)</a>
+</li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF">MLIF (class in mlonmcu.compile.mlif)</a>
 </li>
       <li>
     mlonmcu
@@ -999,6 +1118,13 @@
 
       <ul>
         <li><a href="mlonmcu.compile.html#module-mlonmcu.compile.inout">module</a>
+</li>
+      </ul></li>
+      <li>
+    mlonmcu.compile.mlif
+
+      <ul>
+        <li><a href="mlonmcu.compile.html#module-mlonmcu.compile.mlif">module</a>
 </li>
       </ul></li>
       <li>
@@ -1261,14 +1387,21 @@
 </li>
       </ul></li>
       <li>
+    mlonmcu.models.frontend
+
+      <ul>
+        <li><a href="mlonmcu.models.html#module-mlonmcu.models.frontend">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
     mlonmcu.models.frontends
 
       <ul>
         <li><a href="mlonmcu.models.html#module-mlonmcu.models.frontends">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     mlonmcu.models.group
 
@@ -1431,6 +1564,8 @@
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormat">ModelFormat (class in mlonmcu.models.model)</a>
 </li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormats">ModelFormats (class in mlonmcu.models.model)</a>
+</li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.group.ModelGroup">ModelGroup (class in mlonmcu.models.group)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.metadata.ModelMetadata">ModelMetadata (class in mlonmcu.models.metadata)</a>
@@ -1488,6 +1623,8 @@
         <li><a href="mlonmcu.compile.html#module-mlonmcu.compile">mlonmcu.compile</a>
 </li>
         <li><a href="mlonmcu.compile.html#module-mlonmcu.compile.inout">mlonmcu.compile.inout</a>
+</li>
+        <li><a href="mlonmcu.compile.html#module-mlonmcu.compile.mlif">mlonmcu.compile.mlif</a>
 </li>
         <li><a href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config</a>
 </li>
@@ -1562,6 +1699,8 @@
         <li><a href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu</a>
 </li>
         <li><a href="mlonmcu.models.html#module-mlonmcu.models">mlonmcu.models</a>
+</li>
+        <li><a href="mlonmcu.models.html#module-mlonmcu.models.frontend">mlonmcu.models.frontend</a>
 </li>
         <li><a href="mlonmcu.models.html#module-mlonmcu.models.frontends">mlonmcu.models.frontends</a>
 </li>
@@ -1646,7 +1785,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.needs">needs() (mlonmcu.setup.task.TaskFactory method)</a>
 </li>
-      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormat.NONE">NONE (mlonmcu.models.model.ModelFormat attribute)</a>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormats.NONE">NONE (mlonmcu.models.model.ModelFormats attribute)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.RunStage.NOP">NOP (mlonmcu.session.run.RunStage attribute)</a>
 </li>
@@ -1658,7 +1797,9 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormat.ONNX">ONNX (mlonmcu.models.model.ModelFormat attribute)</a>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormats.ONNX">ONNX (mlonmcu.models.model.ModelFormats attribute)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.ONNXFrontend">ONNXFrontend (class in mlonmcu.models.frontend)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.session.SessionStatus.OPEN">OPEN (mlonmcu.session.session.SessionStatus attribute)</a>
 </li>
@@ -1680,7 +1821,9 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormat.PACKED">PACKED (mlonmcu.models.model.ModelFormat attribute)</a>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormats.PACKED">PACKED (mlonmcu.models.model.ModelFormats attribute)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend">PackedFrontend (class in mlonmcu.models.frontend)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.param">param() (mlonmcu.setup.task.TaskFactory method)</a>
 </li>
@@ -1704,6 +1847,16 @@
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.RunStage.POSTPROCESS">POSTPROCESS (mlonmcu.session.run.RunStage attribute)</a>
 </li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.postprocess">postprocess() (mlonmcu.session.run.Run method)</a>
+</li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.prefix">prefix (mlonmcu.session.run.Run property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.prefix">(mlonmcu.session.session.Session property)</a>
+</li>
+      </ul></li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.prepare">prepare() (mlonmcu.compile.mlif.MLIF method)</a>
+</li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.print_groups">print_groups() (in module mlonmcu.models.lookup)</a>
 </li>
   </ul></td>
@@ -1726,16 +1879,28 @@
         <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.process">(mlonmcu.session.run.Run method)</a>
 </li>
       </ul></li>
-      <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.process_features">process_features() (mlonmcu.flow.backend.Backend method)</a>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.process_features">process_features() (mlonmcu.compile.mlif.MLIF method)</a>
 
       <ul>
+        <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.process_features">(mlonmcu.flow.backend.Backend method)</a>
+</li>
         <li><a href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework.process_features">(mlonmcu.flow.framework.Framework method)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.process_features">(mlonmcu.models.frontend.Frontend method)</a>
 </li>
         <li><a href="mlonmcu.target.html#mlonmcu.target.target.Target.process_features">(mlonmcu.target.target.Target method)</a>
 </li>
       </ul></li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.process_runs">process_runs() (mlonmcu.session.session.Session method)</a>
 </li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.produce_artifacts">produce_artifacts() (mlonmcu.models.frontend.Frontend method)</a>
+
+      <ul>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend.produce_artifacts">(mlonmcu.models.frontend.PackedFrontend method)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.SimpleFrontend.produce_artifacts">(mlonmcu.models.frontend.SimpleFrontend method)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.provides">provides() (mlonmcu.setup.task.TaskFactory method)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.python">python() (in module mlonmcu.setup.utils)</a>
@@ -1776,9 +1941,11 @@
       </ul></li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.config.RepoConfig">RepoConfig (class in mlonmcu.environment.config)</a>
 </li>
-      <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase.REQUIRED">REQUIRED (mlonmcu.feature.feature.FeatureBase attribute)</a>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.REQUIRED">REQUIRED (mlonmcu.compile.mlif.MLIF attribute)</a>
 
       <ul>
+        <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase.REQUIRED">(mlonmcu.feature.feature.FeatureBase attribute)</a>
+</li>
         <li><a href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend.REQUIRED">(mlonmcu.flow.backend.Backend attribute)</a>
 </li>
         <li><a href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework.REQUIRED">(mlonmcu.flow.framework.Framework attribute)</a>
@@ -1790,6 +1957,16 @@
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.REQUIRED">(mlonmcu.flow.tvm.backend.backend.TVMBackend attribute)</a>
 </li>
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend.REQUIRED">(mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend attribute)</a>
+</li>
+        <li><a href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.REQUIRED">(mlonmcu.flow.tvm.framework.TVMFramework attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.REQUIRED">(mlonmcu.models.frontend.Frontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.ONNXFrontend.REQUIRED">(mlonmcu.models.frontend.ONNXFrontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend.REQUIRED">(mlonmcu.models.frontend.PackedFrontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.REQUIRED">(mlonmcu.models.frontend.TfLiteFrontend attribute)</a>
 </li>
         <li><a href="mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.REQUIRED">(mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget attribute)</a>
 </li>
@@ -1828,17 +2005,21 @@
 </li>
       <li><a href="mlonmcu.html#mlonmcu.logging.set_log_level">set_log_level() (in module mlonmcu.logging)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.FeatureType.SETUP">SETUP (mlonmcu.feature.feature.FeatureType attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.html#mlonmcu.context.setup_logging">setup_logging() (in module mlonmcu.context)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature">SetupFeature (class in mlonmcu.feature.feature)</a>
 </li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.SimpleFrontend">SimpleFrontend (class in mlonmcu.models.frontend)</a>
+</li>
       <li><a href="mlonmcu.html#mlonmcu.artifact.ArtifactFormat.SOURCE">SOURCE (mlonmcu.artifact.ArtifactFormat attribute)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.supports_feature">supports_feature() (mlonmcu.environment.environment.Environment method)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.supports_formats">supports_formats() (mlonmcu.models.frontend.Frontend method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1874,13 +2055,15 @@
 </li>
       <li><a href="mlonmcu.html#mlonmcu.artifact.ArtifactFormat.TEXT">TEXT (mlonmcu.artifact.ArtifactFormat attribute)</a>
 </li>
-      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormat.TFLITE">TFLITE (mlonmcu.models.model.ModelFormat attribute)</a>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormats.TFLITE">TFLITE (mlonmcu.models.model.ModelFormats attribute)</a>
 </li>
       <li><a href="mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.backend.TFLiteBackend">TFLiteBackend (class in mlonmcu.flow.tflite.backend.backend)</a>
 </li>
+      <li><a href="mlonmcu.flow.tflite.html#mlonmcu.flow.tflite.framework.TFLiteFramework">TFLiteFramework (class in mlonmcu.flow.tflite.framework)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="mlonmcu.flow.tflite.html#mlonmcu.flow.tflite.framework.TFLiteFramework">TFLiteFramework (class in mlonmcu.flow.tflite.framework)</a>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend">TfLiteFrontend (class in mlonmcu.models.frontend)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.metadata.TfLitelMetadata">TfLitelMetadata (class in mlonmcu.models.metadata)</a>
 </li>
@@ -1893,6 +2076,8 @@
       <li><a href="mlonmcu.models.html#mlonmcu.models.options.TFLMIModelOptions">TFLMIModelOptions (class in mlonmcu.models.options)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.to_file">to_file() (mlonmcu.environment.environment.Environment method)</a>
+</li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.toDict">toDict() (mlonmcu.session.run.Run method)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskType.TOOLCHAIN">TOOLCHAIN (mlonmcu.setup.task.TaskType attribute)</a>
 </li>
@@ -1922,9 +2107,13 @@
         <li><a href="mlonmcu.environment.html#mlonmcu.environment.config.FeatureKind.UNKNOWN">(mlonmcu.environment.config.FeatureKind attribute)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.unpack_modelgroups">unpack_modelgroups() (in module mlonmcu.models.lookup)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.unpacked_api">unpacked_api (mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend property)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend.use_packed">use_packed (mlonmcu.models.frontend.PackedFrontend property)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.UserEnvironment">UserEnvironment (class in mlonmcu.environment.environment)</a>
 </li>
@@ -1937,12 +2126,16 @@
       <li><a href="mlonmcu.html#mlonmcu.artifact.Artifact.validate">validate() (mlonmcu.artifact.Artifact method)</a>
 
       <ul>
+        <li><a href="mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.validate">(mlonmcu.compile.mlif.MLIF method)</a>
+</li>
         <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.validate">(mlonmcu.setup.task.TaskFactory method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.util.validate_name">validate_name() (in module mlonmcu.environment.util)</a>
+</li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.model.ModelFormat.value">value (mlonmcu.models.model.ModelFormat attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1952,9 +2145,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.templates.write_environment_yaml_from_template">write_environment_yaml_from_template() (in module mlonmcu.environment.templates)</a>
 </li>
+      <li><a href="mlonmcu.compile.html#mlonmcu.compile.inout.write_inout_data">write_inout_data() (in module mlonmcu.compile.inout)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="mlonmcu.compile.html#mlonmcu.compile.inout.write_inout_data">write_inout_data() (in module mlonmcu.compile.inout)</a>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.write_run_file">write_run_file() (mlonmcu.session.run.Run method)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.write_to_file">write_to_file() (mlonmcu.setup.cache.TaskCache method)</a>
 </li>

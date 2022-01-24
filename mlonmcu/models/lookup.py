@@ -7,7 +7,7 @@ import logging
 from enum import Enum
 
 from .metadata import parse_metadata
-from .model import Model, ModelFormat
+from .model import Model, ModelFormats
 from .group import ModelGroup
 
 from mlonmcu.logging import get_logger
@@ -41,72 +41,75 @@ def find_metadata(directory, model_name=None):
     return None
 
 
-def list_models(directory, depth=1):
-    default_frontend = "tflite"  # TODO: configurable?
-    if depth != 1:
-        raise NotImplementedError  # TODO: implement for arm ml zoo
-        # define all allowed extensions + search recusively (with limit?)
-        # list(Path(".").rglob(f"*.{ext}")) for ext in allowed_ext
-    if not os.path.isdir(directory):
-        logger.debug("Not a directory: %s", str(directory))
-        return []
-    subdirs = [
-        Path(directory) / o
-        for o in os.listdir(directory)
-        if os.path.isdir(os.path.join(directory, o))
-    ]
-    models = []
-    for subdir in subdirs:
-        dirname = subdir.name
-        if dirname.startswith("."):
-            # logger.debug("Skipping hidden directory: %s", str(dirname))
-            continue
-        frontend = default_frontend
-        main_model = subdir / f"{dirname}.{frontend}"
-        if os.path.exists(main_model):
-            main_model = f"{dirname}/{dirname}"
-        else:
-            main_model = None
-        submodels = []
-        for filename in glob.glob(str(subdir / f"*.{frontend}")):
-            basename = "".join(Path(filename).name.split(".")[:-1])
-            submodels.append(f"{dirname}/{basename}")
+def list_models(directory, depth=1, formats=None):
+    formats = formats if formats else [ModelFormats.TFLITE]
+    assert len(formats) > 0, "No formats peovided for model lookup"
+    for fmt in formats:
+        if depth != 1:
+            raise NotImplementedError  # TODO: implement for arm ml zoo
+            # define all allowed extensions + search recusively (with limit?)
+            # list(Path(".").rglob(f"*.{ext}")) for ext in allowed_ext
+        if not os.path.isdir(directory):
+            logger.debug("Not a directory: %s", str(directory))
+            return []
+        subdirs = [
+            Path(directory) / o
+            for o in os.listdir(directory)
+            if os.path.isdir(os.path.join(directory, o))
+        ]
+        models = []
+        for subdir in subdirs:
+            dirname = subdir.name
+            if dirname.startswith("."):
+                # logger.debug("Skipping hidden directory: %s", str(dirname))
+                continue
+            exts = fmt.extensions
+            for ext in exts:
+                main_model = subdir / f"{dirname}.{ext}"
+                if os.path.exists(main_model):
+                    main_model = f"{dirname}/{dirname}"
+                else:
+                    main_model = None
+                submodels = []
+                for filename in glob.glob(str(subdir / f"*.{ext}")):
+                    basename = "".join(Path(filename).name.split(".")[:-1])
+                    submodels.append(f"{dirname}/{basename}")
 
-        if len(submodels) == 1:
-            main_model = submodels[0]
+                if len(submodels) == 1:
+                    main_model = submodels[0]
 
-        if main_model:
+                if main_model:
 
-            submodels.remove(main_model)
+                    submodels.remove(main_model)
 
-            main_base = main_model.split("/")[-1]
-            main_metadata = find_metadata(
-                Path(directory) / dirname, model_name=main_base
-            )
+                    main_base = main_model.split("/")[-1]
+                    main_metadata = find_metadata(
+                        Path(directory) / dirname, model_name=main_base
+                    )
 
-            models.append(
-                Model(
-                    main_base,
-                    Path(directory) / f"{main_model}.{frontend}",
-                    alt=main_model,
-                    format=ModelFormat.TFLITE,
-                    metadata=main_metadata,
-                )
-            )
+                    models.append(
+                        Model(
+                            main_base,
+                            [Path(directory) / f"{main_model}.{ext}"],
+                            alt=main_model,
+                            formats=[ModelFormats.TFLITE],
+                            metadata=main_metadata,
+                        )
+                    )
 
-        for submodel in submodels:
-            sub_base = submodel.split("/")[-1]
-            submodel_metadata = find_metadata(
-                Path(directory) / dirname, model_name=sub_base
-            )
-            models.append(
-                Model(
-                    submodel,
-                    Path(directory) / f"{submodel}.{frontend}",
-                    format=ModelFormat.TFLITE,
-                    metadata=submodel_metadata,
-                )
-            )
+                for submodel in submodels:
+                    sub_base = submodel.split("/")[-1]
+                    submodel_metadata = find_metadata(
+                        Path(directory) / dirname, model_name=sub_base
+                    )
+                    models.append(
+                        Model(
+                            submodel,
+                            [Path(directory) / f"{submodel}.{ext}"],
+                            formats=[ModelFormats.TFLITE],
+                            metadata=submodel_metadata,
+                        )
+                    )
 
     return models
 
@@ -139,7 +142,7 @@ def list_modelgroups(directory):
     return groups
 
 
-def lookup_models_and_groups(directories):
+def lookup_models_and_groups(directories, formats):
     all_models = []
     all_groups = []
     duplicates = {}
@@ -249,3 +252,85 @@ def print_summary(context, detailed=False):
     print_groups(
         groups, duplicates=group_duplicates, all_models=models, detailed=detailed
     )
+
+
+def unpack_modelgroups(names, groups):
+    ret = []
+    group_names = [group.name for group in groups]
+    for name in names:
+        if name in group_names:
+            index = group_names.index(name)
+            ret.extend(groups[index].models)
+    return list(dict.fromkeys(ret))  # Drop duplicates
+
+
+def lookup_models(names, frontends=None, context=None):
+    if frontends is None:
+        assert context is not None
+        # TODO: Get defaults backends from environment (with no config/features)
+        raise NotImplementedError
+        # frontends = ?
+    # allowed_ext = [frontend.fmt.extension for frontend in frontends]
+    allowed_fmts = list(
+        dict.fromkeys(sum([frontend.input_formats for frontend in frontends], []))
+    )  # Remove duplicates
+    allowed_exts = [
+        fmt.extension for fmt in allowed_fmts
+    ]  # There should nit be duplicates
+
+    if context:
+        directories = get_model_directories(context)
+        models, groups, _, _ = lookup_models_and_groups(directories, allowed_fmts)
+        new_names = unpack_modelgroups(names, groups)
+        names.extend(new_names)
+    else:
+        models = []
+    model_names = [model.name for model in models]
+
+    hints = []
+    for name in names:
+        filepath = Path(name)
+        ext = filepath.suffix
+        if len(ext) > 0 and filepath.is_file():  # Explicit file
+            assert (
+                ext in allowed_exts
+            ), f"Unsupported file extension for model which was explicitly passed by path: {ext}"
+            paths = [filepath]
+            hint = Model(name, paths, format=ModelFormat.from_extension(ext))
+            # TODO: look for metadata
+            hints.append(hint)
+        else:
+            assert context is not None, "Context is required for passing models by name"
+            assert len(model_names) > 0, "List of available models is empty"
+            assert (
+                name in model_names
+            ), f"Could not help a model mstching the name : {name}"
+            index = model_names.index(name)
+            hint = models[index]
+            hints.append(hint)
+
+    return hints
+
+
+def map_frontend_to_model(model, frontends, backend=None):
+    model_fmts = model.formats
+    backend_fmts = backend.get_supported_formats() if backend else []
+    for frontend in frontends:
+        ins = frontend.input_formats
+        outs = frontend.output_formats
+        assert len(ins) > 0
+        # TODO: instead of picking the first frontend which at least one match, determine the highest overlap
+        if any(in_fmt in model_fmts for in_fmt in ins):
+            if len(backend_fmts) == 0 or any(
+                out_fmt in backend_fmts for out_fmt in outs
+            ):
+                new_model = model  # TODO: deepcopy?
+                for i, fmt in enumerate(model_fmts):
+                    if (
+                        fmt not in ins
+                    ):  # Only keep those formqts which are supported by the chosen frontend
+                        path = model.paths[model_fmts.index(fmt)]
+                        new_model.formats.remove(fmt)
+                        new_model.paths.remove(path)
+                return new_model, frontend
+    raise RuntimeError(f"Unable to find a suitable frontend for model '{model.name}'")

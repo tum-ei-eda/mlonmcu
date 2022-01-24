@@ -265,6 +265,13 @@ class Environment:
                 assert isinstance(default, list)
         return default
 
+    def get_enabled_frontends(self):
+        ret = []
+        for frontend in self.frontends:
+            if frontend.enabled:
+                ret.append(frontend.name)
+        return ret
+
 
 class DefaultEnvironment(Environment):
     def __init__(self):

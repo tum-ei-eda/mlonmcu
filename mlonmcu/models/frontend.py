@@ -6,7 +6,11 @@ from collections.abc import Callable
 import logging
 import copy
 
-from mlonmcu.models.model import Model, ModelFormat
+from mlonmcu.feature.features import get_matching_features
+from mlonmcu.models.model import Model, ModelFormats
+from mlonmcu.feature.feature import FeatureType, Feature
+from mlonmcu.config import filter_config
+from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.logging import get_logger
 
@@ -33,7 +37,17 @@ class Frontend(ABC):
             self.config, self.name, self.DEFAULTS, self.REQUIRED
         )
 
-    def supports_formats(ins=None, outs=None):
+    def __repr__(self):
+        probs = []
+        if self.name:
+            probs.append(self.name)
+        if self.features and len(self.features) > 0:
+            probs.append(str(self.features))
+        if self.config and len(self.config) > 0:
+            probs.append(str(self.config))
+        return "Frontend(" + ",".join(probs) + ")"
+
+    def supports_formats(self, ins=None, outs=None):
         """Returs true if the frontend can handle at least one combination of input and output formats."""
         assert (
             ins is not None or outs is not None
@@ -51,7 +65,7 @@ class Frontend(ABC):
             ret = ret and supported
         return ret
 
-    def process_features(self):
+    def process_features(self, features):
         if features is None:
             return []
         features = get_matching_features(features, FeatureType.TARGET)
@@ -64,27 +78,24 @@ class Frontend(ABC):
         return features
 
     @abstractmethod
-    def produce_artifacts(self, models, name):
+    def produce_artifacts(self, model):
         pass
 
-    def generate_models(path, models):
+    def generate_models(self, model):
         artifacts = []
 
-        assert len(models) > 0, f"'{self.name}' frontend expects at least one model"
+        count = len(model.paths)
+        assert count == len(model.formats)
+        assert count > 0, f"'{self.name}' frontend expects at least one model"
         max_ins = len(self.input_formats)
         assert (
-            len(models) < max_ins
+            count <= max_ins
         ), f"'{self.name}' frontend did not expect more than {max_ins} models"
-        formats = [model.fmt for model in models]
+        formats = model.formats
         assert self.supports_formats(
             formats
         ), f"Invalid model format for '{self.name}' frontend"
-        names = [model.name for model in models]
-        name = names[0]
-        assert all(
-            name == name_ for name_ in names
-        ), "All input models should share the same name"
-        artifacts = self.produce_artifacts(models, name=name)
+        artifacts = self.produce_artifacts(model)
         if not isinstance(artifacts, list):
             artifacts = [artifacts]
         assert (
@@ -129,20 +140,23 @@ class SimpleFrontend(Frontend):
             config=config,
         )
 
-    def produce_artifacts(self, models, name="model"):
-        assert len(self.input_formats) == len(self.output_formats) == len(models) == 1
+    def produce_artifacts(self, model):
+        assert (
+            len(self.input_formats) == len(self.output_formats) == len(model.paths) == 1
+        )
         artifacts = []
-        model = models[0]
+        name = model.name
+        path = model.paths[0]
         ext = self.input_formats[0].extension
-        with open(
-            model.path, "rb"
-        ) as handle:  # TODO: is an onnx model raw data or text?
-            data = handle.read()
+        with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
+            raw = handle.read()
             artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
         return artifacts
 
 
 # TODO: move to frontends.py
+# TODO: frontend parsed metadata instead of lookup.py?
+# TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
 
     FEATURES = Frontend.FEATURES + ["visualize"]
@@ -151,16 +165,15 @@ class TfLiteFrontend(SimpleFrontend):
 
     REQUIRED = Frontend.REQUIRED + []
 
-    def __init__(self, features=[], cfg={}):
+    def __init__(self, features=None, config=None):
         super().__init__(
-            name="tflite",
-            input_formats=[ModelFormat.TFLITE],
-            output_formats=[ModelFormat.TFLITE],
+            "tflite",
+            ModelFormats.TFLITE,
             features=features,
             config=config,
         )
 
-    # TODO: ModelFormat.OTHER as placeholder for visualization artifacts
+    # TODO: ModelFormats.OTHER as placeholder for visualization artifacts
 
 
 class PackedFrontend(
@@ -179,22 +192,22 @@ class PackedFrontend(
 
     REQUIRED = ["packer.exe"]  # TODO move to feature?
 
-    def __init__(self, features=[], cfg={}):
+    def __init__(self, features=None, config=None):
         super().__init__(name="packed", features=features, config=config)
         if self.fake_pack or self.ignore_existing:
             # assert self.use_packed
-            self.input_formats = [ModelFormat.TFLITE]
+            self.input_formats = [ModelFormats.TFLITE]
         else:
-            self.input_formats = [ModelFormat.PACKED, ModelFormat.TFLITE]
+            self.input_formats = [ModelFormats.PACKED, ModelFormats.TFLITE]
 
         # if self.use_packed:
         self.output_formats = [
-            ModelFormat.PACKED,
-            ModelFormat.TFLITE,
+            ModelFormats.PACKED,
+            ModelFormats.TFLITE,
         ]  # Always copy over the input model as intermediate artifact for reproducability
         # TODO: add a Frontend.DEFAULT which can be used to turn off this behavoir (keep intermediate?)
         # else:
-        #     self.output_formats = [ModelFormat.TFLITE]
+        #     self.output_formats = [ModelFormats.TFLITE]
         # Order of formats ir irrelevant here, hot for artifacts, the first one will always be the main object
 
     @property
@@ -213,26 +226,26 @@ class PackedFrontend(
     def check(self):
         return bool(self.config["check"])
 
-    def produce_artifacts(self, models, name="model"):
+    def produce_artifacts(self, model):
         tflite_data = None
         packed_data = None
+        name = model.name
 
         if self.fake_pack or self.ignore_existing:  # -> ins: TFLITE
             # assert self.use_packed
-            tflite_model = models[0]
+            tflite_path = model.paths[0]
 
-            with open(tflite_model.path, "rb") as handle:
+            with open(tflite_path, "rb") as handle:
                 tflite_data = handle.read()
         else:  # -> ins: TFLITE, PACKED
-            for model in models:
-                fmt = model.fmt
+            for path, fmt in zip(model.paths, model.formats):
                 data_in = None
-                with open(tflite_model.path, "rb") as handle:
+                with open(path, "rb") as handle:
                     data_in = handle.read()
-                if fmt == ModelFormat.PACKED:
+                if fmt == ModelFormats.PACKED:
                     packed_data = data_in
                     break
-                elif fmt == ModelFormat.TFLITE:
+                elif fmt == ModelFormats.TFLITE:
                     tflite_data_in = data_in
                     break
                 else:
@@ -286,11 +299,11 @@ class ONNXFrontend(SimpleFrontend):
 
     REQUIRED = Frontend.REQUIRED + []
 
-    def __init__(self, features=[], cfg={}):
+    def __init__(self, features=None, config=None):
         super().__init__(
             name="onnx",
-            input_formats=[ModelFormat.ONNX],
-            output_formats=[ModelFormat.ONNX],
+            input_formats=[ModelFormats.ONNX],
+            output_formats=[ModelFormats.ONNX],
             features=features,
             config=config,
         )

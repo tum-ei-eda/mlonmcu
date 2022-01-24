@@ -4,27 +4,26 @@ This is a list of pending tasks which did not make it into an own issue.
 
 ## Essential
 
-- [ ] Pull `mlonmcu-sw` on `mlonmcu init`
+- [x] Pull `mlonmcu-sw` on `mlonmcu init`
 - [ ] Lint everything
 - [ ] Fix `--home` flag (use environments.ini)
-- [ ] Fix template issue `default -> d`
+- [x] Fix template issue `default -> d`
 - [ ] Remove hardcoded features/targets from `tasks.py` etc.
 - [ ] Requirements.txt: Freeze vs. Latest?
 - [ ] Discussion: split backend wrappers from their implementation
 - [ ] Get default targets running (`host_x86` and `etiss_pulpino`)
-- [ ] TVM: Split src dir and build dir
-- [ ] Move cache handling out of CLI module
-- [ ] Move config/feature processing to another place
+- [x] TVM: Split src dir and build dir
+- [x] Move cache handling out of CLI module
+- [x] Move config/feature processing to another place
 - [ ] finish mlif class with debug support
-- [ ] check why model gets compiled twice
-- [ ] Cleanup non-tflite frontends
+- [x] Cleanup non-tflite frontends
 - [ ] Implement packing/packed features
 - [ ] Replace tensorflow with tflite-micro
 - [ ] MLIF: Replace `ChooseTarget.cmake` by `{target_name}.cmake` or custom file
 - [ ] MLIF: ensure that cmake tests still work
 - [ ] Try out debugging and data validation
 - [ ] Complete demo notebook
-- [ ] Finish TVM backend wrappers
+- [x] Finish TVM backend wrappers
 
      Hint:
 
@@ -48,22 +47,18 @@ This is a list of pending tasks which did not make it into an own issue.
 - [ ] Open Source Release
 
 ## General
-- [ ] Docker Setup
-  - [ ] CI Images
+- [x] Docker Setup
+  - [x] CI Images
   - [ ] Benchmark Images
 
 ## Tests
-- [ ] Lint tests
+- [x] Lint tests
 - [ ] Add tests: templates
 - [ ] Add tests: model lookup
 
 ## CLI
 
 - [ ] Implement: `mlonmcu models [filter]`
-
-## Models
-- [ ] Finalize model metadata format
-- [ ] Finish model metadata parsing
 
 ## Models
 - [ ] Finalize model metadata format
@@ -86,8 +81,8 @@ This is a list of pending tasks which did not make it into an own issue.
 
 ## Setup
 
-- [ ] Add `setup.verbose` config to enabled cmake/make stdout
-- [ ] Fix verbosity of cmake commands
+- [x] Add `setup.verbose` config to enabled cmake/make stdout
+- [x] Fix verbosity of cmake commands
 
 ## Docs
 
@@ -122,6 +117,6 @@ This is a list of pending tasks which did not make it into an own issue.
 - [ ] Explain Models
 
 
-#@ Optional
+# Optional
 
 - [ ] Implement own error-types (e.g. `FlowError`, `TaskError`, `SessionError`)?

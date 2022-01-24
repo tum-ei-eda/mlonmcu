@@ -49,8 +49,8 @@ jobs:
     - name: Create symlinks (WIP)
       run: |
         cd home
-        ln -s ../models models
-        ln -s ../sw sw
+        cp -r ../models models
+        cp -r ../sw sw
     - name: Setup MLonMCU dependencies
       run: |
         source .venv/bin/activate

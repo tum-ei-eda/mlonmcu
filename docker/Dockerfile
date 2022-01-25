@@ -40,7 +40,7 @@ RUN apt-get update \
     autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
     virtualenv git python3-dev python3-pip python3-setuptools libtinfo5 \
-    gcc libedit-dev libxml2-dev gcc-arm-none-eabi libopenblas-dev liblapack-dev gfortran cmake
+    gcc libedit-dev libxml2-dev gcc-arm-none-eabi libopenblas-dev liblapack-dev gfortran cmake unzip
 
 CMD /bin/bash
 

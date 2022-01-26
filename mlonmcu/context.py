@@ -120,7 +120,7 @@ def get_ids(directory: Path) -> List[int]:
     if not directory.is_dir():
         return []
 
-    ids = [int(o) for o in os.listdir(directory) if os.path.isdir(directory / o)]
+    ids = [int(o) for o in os.listdir(directory) if os.path.isdir(directory / o) and not os.path.islink(directory / o)]
     return sorted(ids)  # TODO: sort by session datetime?
 
 
@@ -150,15 +150,18 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     session_ids = get_ids(sessions_directory)
 
     for sid in session_ids:
-        session_file = sessions_directory / str(sid) / "session.txt"
-        if not session_file.is_file():
-            continue
+        session_directory = sessions_directory / str(sid)
+        # session_file = sessions_directory / str(sid) / "session.txt"
+        # if not session_file.is_file():
+        #     continue
         runs_directory = session_directory / "runs"
         run_ids = get_ids(runs_directory)
         runs = []
         for rid in run_ids:
             run_file = runs_directory / str(rid) / "run.txt"
-            run = Run.from_file(run_file)  # TODO: actually implement run restore
+            # run = Run.from_file(run_file)  # TODO: actually implement run restore
+            run = Run()  # TODO: fix
+            run.archived = True
             runs.append(run)
         session = Session(idx=sid, archived=True, dir=session_directory)
         session.runs = runs
@@ -253,6 +256,7 @@ class MlonMcuContext:
         self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
         self.sessions = load_recent_sessions(self.environment)
         self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
+        logger.debug(f"Restored {len(self.sessions)} recent sessions")
         self.cache = TaskCache()
 
     def create_session(self):
@@ -265,7 +269,11 @@ class MlonMcuContext:
         session = Session(idx=idx, dir=session_dir)
         self.sessions.append(session)
         self.session_idx = idx
-        # TODO: set latest symlink?
+        # TODO: move this to a helper function
+        session_link = sessions_directory / "latest"
+        if os.path.islink(session_link):
+            os.unlink(session_link)
+        os.symlink(session_dir, session_link)
 
     def load_cache(self):
         """If available load the cache.ini file in the deps directory"""

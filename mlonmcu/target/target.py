@@ -1,17 +1,22 @@
 """MLonMCU Target definitions"""
 
 import os
+import tempfile
+import time
 from pathlib import Path
 from typing import List
 
-from mlonmcu.context import MlonMcuContext
+# from mlonmcu.context import MlonMcuContext
 from mlonmcu.config import filter_config
 from mlonmcu.feature.feature import Feature
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
+from mlonmcu.artifact import Artifact, ArtifactFormat
+
 
 # TODO: class TargetFactory:
 from .common import execute
+from .metrics import Metrics
 
 
 class Target:
@@ -44,7 +49,7 @@ class Target:
         name: str,
         features: List[Feature] = None,
         config: dict = None,
-        context: MlonMcuContext = None,
+        context=None,
     ):
         self.name = name
         self.config = config if config else {}
@@ -56,6 +61,7 @@ class Target:
         self.inspect_program_args = ["--all"]
         self.env = os.environ
         self.context = context
+        self.artifacts = []
 
     def __repr__(self):
         return f"Target({self.name})"
@@ -80,6 +86,51 @@ class Target:
         return execute(
             self.inspect_program, program, *self.inspect_program_args, *args, **kwargs
         )
+
+    def get_metrics(self, elf, directory, verbose=False):
+        # This should not be accurate, just a fallback which should be overwritten
+        start_time = time.time()
+        if verbose:
+            out = self.exec(elf, cwd=directory, live=True)
+        else:
+            out = self.exec(
+                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None
+            )
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        # size instead of readelf?
+        metrics = Metrics()
+        metrics.add("Runtime [s]", diff)
+        return metrics
+
+    def generate_metrics(self, elf, verbose=False):
+        artifacts = []
+        with tempfile.TemporaryDirectory() as temp_dir:
+            metrics = self.get_metrics(elf, temp_dir, verbose=verbose)
+            content = metrics.to_csv()  # TODO: store df instead?
+            artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
+            # Alternative: artifact = Artifact("metrics.csv", data=df/dict, fmt=ArtifactFormat.DATA)
+            artifacts.append(artifact)
+        self.artifacts = artifacts
+
+    def export_metrics(self, path):
+        assert (
+            len(self.artifacts) > 0
+        ), "No artifacts found, please run generate_metrics() first"
+
+        if not isinstance(path, Path):
+            path = Path(path)
+
+        is_dir = len(path.suffix) == 0
+        if is_dir:
+            assert (
+                path.is_dir()
+            ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
+            for artifact in self.artifacts:
+                artifact.export(path)
+        else:
+            raise NotImplementedError
 
     def get_cmake_args(self):
         return [f"-DTARGET_SYSTEM={self.name}"]

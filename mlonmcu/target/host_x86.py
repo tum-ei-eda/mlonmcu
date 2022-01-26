@@ -1,5 +1,8 @@
 """MLonMCU Host/x86 Target definitions"""
 
+import stat
+from pathlib import Path
+
 from .common import cli, execute
 from .target import Target
 
@@ -26,16 +29,16 @@ class HostX86Target(Target):
         self.gdb_server_path = "gdbserver"
 
     def exec(self, program, *args, **kwargs):
-        print("exec", program, args, kwargs)
-        config = DEFAULT_CONFIG
-        for cfg, data in self.config.items():
-            config[cfg] = data
         if "attach" in self.features and "noattach" not in self.features:
             return execute(self.gdb_path, program, *args, **kwargs)
         if "noattach" in self.features:
-            port = int(config["host.gdbserver_port"])
+            port = int(self.config["gdbserver_port"])
             comm = f"host:{port}"
             return execute(self.gdb_server_path, comm, program, *args, **kwargs)
+        def make_executable(exe):
+            f = Path(exe)
+            f.chmod(f.stat().st_mode | stat.S_IEXEC)
+        make_executable(program)
         return execute(program, *args, **kwargs)
 
 

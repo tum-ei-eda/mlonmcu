@@ -6,7 +6,7 @@ from .config import *
 from .loader import load_environment_from_file
 from .writer import write_environment_to_file
 
-from mlonmcu.feature.feature import FeatureType
+from mlonmcu.feature.type import FeatureType
 
 
 def _feature_helper(obj, name):

@@ -1,5 +1,7 @@
 from random import randint
 from time import sleep
+from datetime import datetime
+import pandas as pd
 
 from enum import Enum
 from datetime import datetime
@@ -14,6 +16,7 @@ from .run import RunStage
 
 from mlonmcu.session.run import Run
 from mlonmcu.logging import get_logger
+from mlonmcu.report import Report
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 
@@ -26,12 +29,15 @@ class SessionStatus(Enum):
 
 
 class Session:
-    def __init__(self, idx=None, archived=False, dir=None):
+    def __init__(self, alias="unnamed", idx=None, archived=False, dir=None):
+        timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+        self.alias = alias + "_" + timestamp
         self.idx = idx
         self.status = SessionStatus.CREATED
         self.opened_at = None
         self.closed_at = None
         self.runs = []
+        self.next_run_idx = 0
         self.archived = archived
         if dir is None:
             assert not self.archived
@@ -57,10 +63,21 @@ class Session:
         logger.debug("Creating a new run with id %s", idx)
         run = Run(*args, idx=idx, session=self, **kwargs)
         self.runs.append(run)
+        # TODO: move this to a helper function
+        run_link = run.dir.parent / "latest"
+        if os.path.islink(run_link):
+            os.unlink(run_link)
+        os.symlink(run.dir, run_link)
         return run
 
     #  def update_run(self): # TODO TODO
     #      pass
+
+    def get_reports(self):
+        report_dfs = [run.get_report().df for run in self.runs]
+        merged = Report()
+        merged.df = pd.concat(report_dfs)
+        return merged
 
     def enumerate_runs(self):
         # Find start index
@@ -73,6 +90,13 @@ class Session:
             if not run.archived:
                 run.idx = run_idx
                 run_idx += 1
+        self.next_run_idx = run_idx
+
+    def request_run_idx(self):
+        ret = self.next_run_idx
+        self.next_run_idx += 1
+        # TODO: find a better approach for this
+        return ret
 
     def process_runs(
         self,
@@ -83,6 +107,7 @@ class Session:
         export=False,
         context=None,
     ):
+        self.enumerate_runs()
         assert num_workers > 0, "num_workers can not be < 1"
         workers = []
         results = []
@@ -149,6 +174,12 @@ class Session:
                 for run in self.runs:
                     workers.append(executor.submit(_process, run, until=until))
                 results = _join_workers(workers)
+        report = self.get_reports()
+        report_file = Path(self.dir) / "report.csv"
+        report.export(report_file)
+        results_dir = context.environment.paths["results"].path
+        results_file = results_dir / f"{self.alias}.csv"
+        report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
 
     def __repr__(self):

@@ -29,6 +29,14 @@ mlonmcu.artifact module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.config module
+---------------------
+
+.. automodule:: mlonmcu.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.context module
 ----------------------
 
@@ -37,10 +45,10 @@ mlonmcu.context module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.environment2 module
----------------------------
+mlonmcu.logging module
+----------------------
 
-.. automodule:: mlonmcu.environment2
+.. automodule:: mlonmcu.logging
    :members:
    :undoc-members:
    :show-inheritance:
@@ -49,6 +57,14 @@ mlonmcu.mlonmcu module
 ----------------------
 
 .. automodule:: mlonmcu.mlonmcu
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.report module
+---------------------
+
+.. automodule:: mlonmcu.report
    :members:
    :undoc-members:
    :show-inheritance:

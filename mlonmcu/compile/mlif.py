@@ -14,7 +14,8 @@ from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.feature.feature import FeatureType
+from mlonmcu.feature.type import FeatureType
+from mlonmcu.artifact import Artifact, ArtifactFormat
 from .inout import write_inout_data
 
 from mlonmcu.logging import get_logger
@@ -27,7 +28,7 @@ class MLIF:
 
     FEATURES = ["debug", "validate"]
 
-    DEFAULTS = {"debug": False, "ignore_data": True}
+    DEFAULTS = {"debug": False, "ignore_data": True, "build_dir": None}
 
     # REQUIRES = ["mlif.src_dir"]
     REQUIRED = []
@@ -50,10 +51,10 @@ class MLIF:
         ]
         dir_name = utils.makeDirName("mlif", flags=flags)
         self.tempdir = None
-        if "mlif.build_dir" in self.config:
-            if self.context:
-                logger.warn("User has overwritten the value of 'mlif.build_dir'")
-            self.build_dir = Path(self.config["mlif.build_dir"])
+        if self.config["build_dir"]:
+            # if self.context:
+            #     logger.warn("User has overwritten the value of 'mlif.build_dir'")
+            self.build_dir = Path(self.config["build_dir"])
         else:
             if context:
                 assert "temp" in context.environment.paths
@@ -111,18 +112,19 @@ class MLIF:
             self.tempdir.cleanup()
 
     def validate(self):
-        assert self.framework.name in SUPPORTED_FRAMEWORKS
-        # assert self.framework.name in enabled_frameworks  # TODO
-        assert self.backend.name in SUPPORTED_BACKENDS
-        # assert self.backend.name in enabled_backends  # TODO
-        for feature in self.features:
-            # TODO: maybe rather for type in types?
-            if feature.type == FeatureType.FRAMEWORK:
-                assert feature in self.framework.features
-            if feature.type == FeatureType.BACKEND:
-                assert feature in self.backend.features
-            if feature.type == FeatureType.TARGET:
-                assert feature in self.target.features
+        pass
+        # assert self.framework.name in SUPPORTED_FRAMEWORKS
+        # # assert self.framework.name in enabled_frameworks  # TODO
+        # assert self.backend.name in SUPPORTED_BACKENDS
+        # # assert self.backend.name in enabled_backends  # TODO
+        # for feature in self.features:
+        #     # TODO: maybe rather for type in types?
+        #     if feature.type == FeatureType.FRAMEWORK:
+        #         assert feature in self.framework.features
+        #     if feature.type == FeatureType.BACKEND:
+        #         assert feature in self.backend.features
+        #     if feature.type == FeatureType.TARGET:
+        #         assert feature in self.target.features
 
     def get_common_cmake_args(self, model, num=1):
         args = {}
@@ -153,13 +155,34 @@ class MLIF:
         utils.mkdirs(self.build_dir)
         utils.cmake(self.mlif_dir, *cmakeArgs, cwd=self.build_dir, debug=debug)
 
-    def compile(self, src=None, model=None, num=1, debug=True):
+    def compile(self, src=None, model=None, num=1, debug=False):
         if src:
             self.configure(src, model, num=num, debug=debug)
         utils.make(self.goal, cwd=self.build_dir)
 
-    def export(self):
-        raise NotImplementedError
+    def generate_elf(self, src=None, model=None, num=1, debug=False):
+        artifacts = []
+        self.compile(src=src, model=model, num=num, debug=debug)
+        elf_file = self.build_dir / "bin" / "generic_mlif"
+        # TODO: just use path instead of raw data?
+        with open(elf_file, "rb") as handle:
+            data = handle.read()
+            artifact = Artifact("generic_mlif", raw=data, fmt=ArtifactFormat.RAW)
+            artifacts.append(artifact)
+        self.artifacts = artifacts
+
+    def export_elf(self, path):
+        assert (
+            len(self.artifacts) > 0
+        ), "No artifacts found, please run generate_elf() first"
+
+        if not isinstance(path, Path):
+            path = Path(path)
+        assert (
+            path.is_dir()
+        ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
+        for artifact in self.artifacts:
+            artifact.export(path)
 
 
 def add_common_options(parser: argparse.ArgumentParser):

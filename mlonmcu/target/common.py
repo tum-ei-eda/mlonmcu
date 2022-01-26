@@ -42,7 +42,7 @@ def execute(
     out : str
         The command line output of the command
     """
-    logger.info("- Executing: %s", str(args))
+    logger.debug("- Executing: %s", str(args))
     if ignore_output:
         assert not live
         subprocess.run(args, **kwargs, check=True)

@@ -2,7 +2,7 @@ import time
 from tqdm import tqdm
 
 from mlonmcu.logging import get_logger
-from mlonmcu.feature.feature import FeatureType
+from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.config import filter_config
 from .tasks import Tasks

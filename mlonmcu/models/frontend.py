@@ -8,7 +8,8 @@ import copy
 
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import Model, ModelFormats
-from mlonmcu.feature.feature import FeatureType, Feature
+from mlonmcu.feature.feature import Feature
+from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config
 from mlonmcu.artifact import Artifact, ArtifactFormat
 

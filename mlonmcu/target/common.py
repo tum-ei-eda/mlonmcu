@@ -6,7 +6,7 @@ import argparse
 from typing import List, Callable
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
-from mlonmcu.feature.feature import FeatureType
+from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_available_feature_names, get_available_features
 from mlonmcu.logging import get_logger
 

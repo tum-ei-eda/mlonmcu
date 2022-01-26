@@ -6,7 +6,8 @@ from typing import List
 
 from mlonmcu.context import MlonMcuContext
 from mlonmcu.config import filter_config
-from mlonmcu.feature.feature import FeatureType, Feature
+from mlonmcu.feature.feature import Feature
+from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
 
 # TODO: class TargetFactory:

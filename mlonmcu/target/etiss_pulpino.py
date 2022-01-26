@@ -1,101 +1,104 @@
 """MLonMCU ETISS/Pulpino Target definitions"""
 
 import os
+import re
+import csv
 from pathlib import Path
 
-from mlonmcu.context import MlonMcuContext
+# from mlonmcu.context import MlonMcuContext
 
 from .common import cli, execute
 from .target import Target
+from .metrics import Metrics
 
 
-def lookup_riscv_prefix(
-    cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None
-) -> Path:
-    """Utility to find the directory where the RISCV GCC compiler toolchain is installed.
-
-    Parameters
-    ----------
-    cfg : dict
-        Optional config provided by the user.
-    env : os._Environ
-        Environment variables
-    context : MlonMcuContext
-        Optional context for looking up dependencies
-
-    Returns
-    -------
-    path : pathlib.Path
-        The path to the toolchain directory (if found).
-    """
-    prefix = None
-
-    if cfg:
-        if "riscv.dir" in cfg:
-            prefix = cfg["riscv.dir"]
-
-    if context:
-        if context.cache:
-            if context.cache["riscv.dir"]:
-                prefix = context.cache["riscv.dir"]
-
-    if env:
-        if "MLONMCU_HOME" in env:
-            with MlonMcuContext() as ctx:
-                if ctx.cache:
-                    if ctx.cache["riscv.dir"]:
-                        prefix = ctx.cache["riscv.dir"]
-        elif "RISCV_DIR" in env:
-            prefix = env["RISCV_DIR"]
-
-    if not prefix:
-        prefix = ""
-
-    return prefix
-
-
-def lookup_etiss(
-    cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None
-) -> Path:
-    """Utility to find the directory where the ETISS simulator is installed.
-
-    Parameters
-    ----------
-    cfg : dict
-        Optional config provided by the user.
-    env : os._Environ
-        Environment variables
-    context : MlonMcuContext
-        Optional context for looking up dependencies
-
-    Returns
-    -------
-    path : pathlib.Path
-        The path to the ETISS install directory (if found).
-    """
-    etiss = None
-
-    if cfg:
-        if "etiss.dir" in cfg:
-            etiss = cfg["etiss.dir"]
-
-    if context:  # TODO: feature flags?
-        if context.cache:
-            if context.cache["etiss.install_dir"]:
-                etiss = context.cache["etiss.install_dir"]
-    if env:
-        if "MLONMCU_HOME" in env:
-            with MlonMcuContext() as ctx:
-                if ctx.cache:
-                    if ctx.cache["etiss.install_dir"]:
-                        etiss = ctx.cache["etiss.install_dir"]
-        if "ETISS_DIR" in env:
-            etiss = env["ETISS_DIR"]
-
-    if not etiss:
-        etiss = ""
-
-    return etiss
+# def lookup_riscv_prefix(
+#     cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None
+# ) -> Path:
+#     """Utility to find the directory where the RISCV GCC compiler toolchain is installed.
+#
+#     Parameters
+#     ----------
+#     cfg : dict
+#         Optional config provided by the user.
+#     env : os._Environ
+#         Environment variables
+#     context : MlonMcuContext
+#         Optional context for looking up dependencies
+#
+#     Returns
+#     -------
+#     path : pathlib.Path
+#         The path to the toolchain directory (if found).
+#     """
+#     prefix = None
+#
+#     if cfg:
+#         if "riscv.dir" in cfg:
+#             prefix = cfg["riscv.dir"]
+#
+#     if context:
+#         if context.cache:
+#             if context.cache["riscv.dir"]:
+#                 prefix = context.cache["riscv.dir"]
+#
+#     if env:
+#         if "MLONMCU_HOME" in env:
+#             with MlonMcuContext() as ctx:
+#                 if ctx.cache:
+#                     if ctx.cache["riscv.dir"]:
+#                         prefix = ctx.cache["riscv.dir"]
+#         elif "RISCV_DIR" in env:
+#             prefix = env["RISCV_DIR"]
+#
+#     if not prefix:
+#         prefix = ""
+#
+#     return prefix
+#
+#
+# def lookup_etiss(
+#     cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None
+# ) -> Path:
+#     """Utility to find the directory where the ETISS simulator is installed.
+#
+#     Parameters
+#     ----------
+#     cfg : dict
+#         Optional config provided by the user.
+#     env : os._Environ
+#         Environment variables
+#     context : MlonMcuContext
+#         Optional context for looking up dependencies
+#
+#     Returns
+#     -------
+#     path : pathlib.Path
+#         The path to the ETISS install directory (if found).
+#     """
+#     etiss = None
+#
+#     if cfg:
+#         if "etiss.dir" in cfg:
+#             etiss = cfg["etiss.dir"]
+#
+#     if context:  # TODO: feature flags?
+#         if context.cache:
+#             if context.cache["etiss.install_dir"]:
+#                 etiss = context.cache["etiss.install_dir"]
+#     if env:
+#         if "MLONMCU_HOME" in env:
+#             with MlonMcuContext() as ctx:
+#                 if ctx.cache:
+#                     if ctx.cache["etiss.install_dir"]:
+#                         etiss = ctx.cache["etiss.install_dir"]
+#         if "ETISS_DIR" in env:
+#             etiss = env["ETISS_DIR"]
+#
+#     if not etiss:
+#         etiss = ""
+#
+#     return etiss
 
 
 class ETISSPulpinoTarget(Target):

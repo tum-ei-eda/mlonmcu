@@ -247,7 +247,9 @@ def print_summary(context, detailed=False):
 
     directories = get_model_directories(context)
 
-    models, groups, duplicates, group_duplicates = lookup_models_and_groups(directories, formats)
+    models, groups, duplicates, group_duplicates = lookup_models_and_groups(
+        directories, formats
+    )
 
     print("Models Summary\n")
     print_paths(directories)

@@ -1,20 +1,11 @@
 """ MLonMCU Features API"""
 
 from abc import ABC
-from enum import Enum
 from typing import List
 
+from mlonmcu.config import filter_config
+from .type import FeatureType
 
-class FeatureType(Enum):
-    """Enumeration for Feature types."""
-
-    OTHER = 0
-    SETUP = 1
-    FRONTEND = 2
-    FRAMEWORK = 3
-    BACKEND = 4
-    TARGET = 5
-    COMPILE = 6
 
 
 # TODO: features might get an optional context parameter to lookup if they are supported by themselfs in the environment

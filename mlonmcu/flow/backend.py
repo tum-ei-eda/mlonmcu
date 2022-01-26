@@ -5,7 +5,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
-from mlonmcu.feature.feature import FeatureType
+from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.artifact import Artifact

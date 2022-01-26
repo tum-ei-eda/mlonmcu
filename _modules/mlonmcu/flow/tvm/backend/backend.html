@@ -93,6 +93,7 @@
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="s2">&quot;autotuned&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;opt_level&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
         <span class="s2">&quot;target_device&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;disabled_passes&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout</span>
@@ -115,6 +116,7 @@
             <span class="p">[]</span>
         <span class="p">)</span>  <span class="c1"># TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods</span>
         <span class="c1"># TODO: decide if artifacts should be handled by code (str) or file path or binary data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_outputs&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pass_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -183,7 +185,7 @@
             <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_input_shapes_tvmc_args</span><span class="p">(),</span>
         <span class="p">]</span></div>
 
-<div class="viewcode-block" id="TVMBackend.invoke_tvmc"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;compile&quot;</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMBackend.invoke_tvmc"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;compile&quot;</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_args</span><span class="p">()</span>
         <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)])</span>
         <span class="k">if</span> <span class="n">dump</span><span class="p">:</span>
@@ -192,7 +194,6 @@
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">])</span>
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TVM_LIBRARY_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">])</span>
-        <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># ???</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.driver.tvmc&quot;</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TVMBackend.get_opt_level"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_opt_level">[docs]</a>    <span class="k">def</span> <span class="nf">get_opt_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

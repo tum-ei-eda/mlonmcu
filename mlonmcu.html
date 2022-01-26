@@ -55,6 +55,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.context">mlonmcu.context module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.report">mlonmcu.report module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.version">mlonmcu.version module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu">Module contents</a></li>
 </ul>
@@ -381,6 +382,10 @@
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">resolve_required_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#resolve_required_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.resolve_required_config" title="Permalink to this definition"></a></dt>
 <dd><p>Utility which iterates over a set of given config keys and
 resolves their values using the passed config and/or cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"></dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -484,7 +489,7 @@ resolves their values using the passed config and/or cache.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>Environment :</dt><dd><p>The environment (if the lookup was successful).</p>
+<dt><strong>Environment</strong><span class="classifier"></span></dt><dd><p>The environment (if the lookup was successful).</p>
 </dd>
 </dl>
 </dd>
@@ -644,6 +649,40 @@ The lookup follows a predefined order:</p>
 <section id="module-mlonmcu.mlonmcu">
 <span id="mlonmcu-mlonmcu-module"></span><h2>mlonmcu.mlonmcu module<a class="headerlink" href="#module-mlonmcu.mlonmcu" title="Permalink to this headline"></a></h2>
 <p>Main module.</p>
+</section>
+<section id="module-mlonmcu.report">
+<span id="mlonmcu-report-module"></span><h2>mlonmcu.report module<a class="headerlink" href="#module-mlonmcu.report" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.report.Report">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.report.</span></span><span class="sig-name descname"><span class="pre">Report</span></span><a class="reference internal" href="_modules/mlonmcu/report.html#Report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.report.Report" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>export</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.report.Report.export">
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/report.html#Report.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.report.Report.export" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.report.Report.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/report.html#Report.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.report.Report.set" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-mlonmcu.version">
 <span id="mlonmcu-version-module"></span><h2>mlonmcu.version module<a class="headerlink" href="#module-mlonmcu.version" title="Permalink to this headline"></a></h2>

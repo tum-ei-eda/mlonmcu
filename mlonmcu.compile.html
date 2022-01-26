@@ -55,6 +55,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.context">mlonmcu.context module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
 </ul>
@@ -144,26 +145,29 @@
 <tr class="row-odd"><td><p><strong>configure</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>export</strong></p></td>
+<tr class="row-even"><td><p><strong>export_elf</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_common_cmake_args</strong></p></td>
+<tr class="row-odd"><td><p><strong>generate_elf</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>prepare</strong></p></td>
+<tr class="row-even"><td><p><strong>get_common_cmake_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<tr class="row-odd"><td><p><strong>prepare</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>validate</strong></p></td>
+<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.compile.mlif.MLIF.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'debug':</span> <span class="pre">False,</span> <span class="pre">'ignore_data':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'ignore_data':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -183,7 +187,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.compile.mlif.MLIF.compile">
-<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/compile/mlif.html#MLIF.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF.compile" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/compile/mlif.html#MLIF.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF.compile" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -197,8 +201,13 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.compile.mlif.MLIF.export">
-<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/compile/mlif.html#MLIF.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF.export" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.compile.mlif.MLIF.export_elf">
+<span class="sig-name descname"><span class="pre">export_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/compile/mlif.html#MLIF.export_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF.export_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.compile.mlif.MLIF.generate_elf">
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/compile/mlif.html#MLIF.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF.generate_elf" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

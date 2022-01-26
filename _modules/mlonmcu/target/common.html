@@ -81,7 +81,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.cli.helper.parse</span> <span class="kn">import</span> <span class="n">extract_feature_names</span><span class="p">,</span> <span class="n">extract_config</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.feature</span> <span class="kn">import</span> <span class="n">FeatureType</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_available_feature_names</span><span class="p">,</span> <span class="n">get_available_features</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
@@ -117,7 +117,7 @@
 <span class="sd">    out : str</span>
 <span class="sd">        The command line output of the command</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;- Executing: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;- Executing: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">ignore_output</span><span class="p">:</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">live</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

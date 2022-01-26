@@ -141,7 +141,8 @@
     <span class="k">for</span> <span class="n">frontend_name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
         <span class="n">frontend_cls</span> <span class="o">=</span> <span class="n">SUPPORTED_FRONTENDS</span><span class="p">[</span><span class="n">frontend_name</span><span class="p">]</span>
         <span class="n">required_keys</span> <span class="o">=</span> <span class="n">frontend_cls</span><span class="o">.</span><span class="n">REQUIRED</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">frontend_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">frontend_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="n">resolve_required_config</span><span class="p">(</span>
                 <span class="n">required_keys</span><span class="p">,</span>
                 <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
@@ -150,7 +151,7 @@
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">frontend</span> <span class="o">=</span> <span class="n">frontend_cls</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">frontend</span> <span class="o">=</span> <span class="n">frontend_cls</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">frontend_config</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;BLA&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Frontend could not be initialized. Continuing with next one...&quot;</span><span class="p">)</span>

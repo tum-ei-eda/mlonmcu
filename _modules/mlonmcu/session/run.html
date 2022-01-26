@@ -81,6 +81,8 @@
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.report</span> <span class="kn">import</span> <span class="n">Report</span>  <span class="c1"># TODO: move to mlonmcu.session.report</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -109,7 +111,7 @@
     <span class="c1"># REQUIRED = []</span>
 
 <div class="viewcode-block" id="Run.from_file"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.from_file">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Restore a run object which was written to the disk.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
@@ -127,6 +129,7 @@
         <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">archived</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>  <span class="c1"># Model name, not object?</span>
@@ -138,16 +141,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">archived</span> <span class="o">=</span> <span class="n">archived</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span>  <span class="c1"># max executed stage</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">archived</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">runs_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_directory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">DEFAULTS</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{})</span>
@@ -155,8 +152,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: rename to staus with enum?</span>
 
+    <span class="k">def</span> <span class="nf">_init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">archived</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">runs_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+            <span class="c1"># This is not a good idea, but else we would need a mutex/lock on the shared build_dir</span>
+            <span class="c1"># A solution would be to split up the framework runtime libs from the mlif...</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span>
+
 <div class="viewcode-block" id="Run.copy"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
+            <span class="n">new_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">request_run_idx</span><span class="p">()</span>
+            <span class="n">new</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">new_idx</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_directory</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">new</span></div>
 
 <div class="viewcode-block" id="Run.add_frontend"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_frontend">[docs]</a>    <span class="k">def</span> <span class="nf">add_frontend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span> <span class="o">=</span> <span class="n">frontend</span></div>
@@ -237,11 +254,11 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">elf_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">generate_metrics</span><span class="p">(</span><span class="n">elf_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">artifacts</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Run.compile"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compile the target software for the run.&quot;&quot;&quot;</span>
@@ -253,7 +270,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">codegen_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span>
         <span class="c1"># TODO: MLIF -&gt; self.?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">codegen_dir</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="o">.</span><span class="n">generate_elf</span><span class="p">(</span><span class="n">codegen_dir</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="o">.</span><span class="n">artifacts</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
@@ -293,14 +311,25 @@
 
 <div class="viewcode-block" id="Run.process"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Process the run until a given stage.&quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing run until stage </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">RunStage</span><span class="p">(</span><span class="n">until</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-        <span class="p">)</span>
         <span class="k">if</span> <span class="n">until</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">DONE</span><span class="p">:</span>
             <span class="n">until</span> <span class="o">=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">DONE</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">until</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># self.stage hold the max finished stage</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="c1"># self.prefix + &quot;Processing run until stage %s: %s&quot;,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Continuing run from stage </span><span class="si">%s</span><span class="s2"> until stage </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">RunStage</span><span class="p">(</span><span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">RunStage</span><span class="p">(</span><span class="n">until</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="c1"># str(self),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="c1"># self.prefix + &quot;Processing run until stage %s: %s&quot;,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing run until stage </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">RunStage</span><span class="p">(</span><span class="n">until</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="c1"># str(self),</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">until</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">stage_funcs</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span><span class="p">:</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># stage already done as self.stage shows</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
@@ -313,8 +342,12 @@
             <span class="k">if</span> <span class="n">func</span><span class="p">:</span>
                 <span class="n">func</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
             <span class="c1"># self.stage = stage  # FIXME: The stage_func should update the stage intead?</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">export</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># TODO: set to flase?</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># TODO: set to flase?</span>
+            <span class="n">report_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;report.csv&quot;</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">report_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">report</span></div>
 
 <div class="viewcode-block" id="Run.write_run_file"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.write_run_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_run_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Writing run file&quot;</span><span class="p">)</span>
@@ -333,6 +366,47 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="p">)</span>
+
+<div class="viewcode-block" id="Run.get_report"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.get_report">[docs]</a>    <span class="k">def</span> <span class="nf">get_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: config or args for stuff like (session id) and run id as well as detailed features and configs</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
+        <span class="n">pre</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Session&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Run&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Frontend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Framework&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Backend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">post</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">post</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: list(all feature names accumulated)</span>
+        <span class="n">post</span><span class="p">[</span><span class="s2">&quot;Config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: combine all configs with their proper prefix</span>
+        <span class="n">post</span><span class="p">[</span><span class="s2">&quot;Comment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span>
+        <span class="c1"># if include_sess_idx:</span>
+        <span class="c1">#     report.session_id = self.session.idx</span>
+        <span class="c1"># if ?include_run_idx:</span>
+        <span class="c1">#     report.run_idx = self.idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">:</span>
+            <span class="n">metrics_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">metrics_artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="p">[{</span>
+                <span class="o">**</span><span class="n">pre</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">metrics</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                <span class="o">**</span><span class="n">post</span><span class="p">,</span>
+            <span class="p">}]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">report</span></div>
 
 <div class="viewcode-block" id="Run.export"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write a run configuration to a disk.&quot;&quot;&quot;</span>

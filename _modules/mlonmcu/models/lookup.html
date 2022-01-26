@@ -322,7 +322,9 @@
 
     <span class="n">directories</span> <span class="o">=</span> <span class="n">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
-    <span class="n">models</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">duplicates</span><span class="p">,</span> <span class="n">group_duplicates</span> <span class="o">=</span> <span class="n">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">formats</span><span class="p">)</span>
+    <span class="n">models</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">duplicates</span><span class="p">,</span> <span class="n">group_duplicates</span> <span class="o">=</span> <span class="n">lookup_models_and_groups</span><span class="p">(</span>
+        <span class="n">directories</span><span class="p">,</span> <span class="n">formats</span>
+    <span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Models Summary</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">print_paths</span><span class="p">(</span><span class="n">directories</span><span class="p">)</span>

@@ -76,101 +76,104 @@
 <span></span><span class="sd">&quot;&quot;&quot;MLonMCU ETISS/Pulpino Target definitions&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="c1"># from mlonmcu.context import MlonMcuContext</span>
 
 <span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
 <span class="kn">from</span> <span class="nn">.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 
 
-<div class="viewcode-block" id="lookup_riscv_prefix"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.lookup_riscv_prefix">[docs]</a><span class="k">def</span> <span class="nf">lookup_riscv_prefix</span><span class="p">(</span>
-    <span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">_Environ</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Utility to find the directory where the RISCV GCC compiler toolchain is installed.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    cfg : dict</span>
-<span class="sd">        Optional config provided by the user.</span>
-<span class="sd">    env : os._Environ</span>
-<span class="sd">        Environment variables</span>
-<span class="sd">    context : MlonMcuContext</span>
-<span class="sd">        Optional context for looking up dependencies</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    path : pathlib.Path</span>
-<span class="sd">        The path to the toolchain directory (if found).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">prefix</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">if</span> <span class="n">cfg</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;riscv.dir&quot;</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;riscv.dir&quot;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv.dir&quot;</span><span class="p">]:</span>
-                <span class="n">prefix</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv.dir&quot;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">env</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;MLONMCU_HOME&quot;</span> <span class="ow">in</span> <span class="n">env</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">MlonMcuContext</span><span class="p">()</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv.dir&quot;</span><span class="p">]:</span>
-                        <span class="n">prefix</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv.dir&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="s2">&quot;RISCV_DIR&quot;</span> <span class="ow">in</span> <span class="n">env</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;RISCV_DIR&quot;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">prefix</span><span class="p">:</span>
-        <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="n">prefix</span></div>
-
-
-<div class="viewcode-block" id="lookup_etiss"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.lookup_etiss">[docs]</a><span class="k">def</span> <span class="nf">lookup_etiss</span><span class="p">(</span>
-    <span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">_Environ</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Utility to find the directory where the ETISS simulator is installed.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    cfg : dict</span>
-<span class="sd">        Optional config provided by the user.</span>
-<span class="sd">    env : os._Environ</span>
-<span class="sd">        Environment variables</span>
-<span class="sd">    context : MlonMcuContext</span>
-<span class="sd">        Optional context for looking up dependencies</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    path : pathlib.Path</span>
-<span class="sd">        The path to the ETISS install directory (if found).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">etiss</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">if</span> <span class="n">cfg</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;etiss.dir&quot;</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
-            <span class="n">etiss</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;etiss.dir&quot;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">context</span><span class="p">:</span>  <span class="c1"># TODO: feature flags?</span>
-        <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">]:</span>
-                <span class="n">etiss</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">env</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;MLONMCU_HOME&quot;</span> <span class="ow">in</span> <span class="n">env</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">MlonMcuContext</span><span class="p">()</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">]:</span>
-                        <span class="n">etiss</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="s2">&quot;ETISS_DIR&quot;</span> <span class="ow">in</span> <span class="n">env</span><span class="p">:</span>
-            <span class="n">etiss</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;ETISS_DIR&quot;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">etiss</span><span class="p">:</span>
-        <span class="n">etiss</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="n">etiss</span></div>
+<span class="c1"># def lookup_riscv_prefix(</span>
+<span class="c1">#     cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None</span>
+<span class="c1"># ) -&gt; Path:</span>
+<span class="c1">#     &quot;&quot;&quot;Utility to find the directory where the RISCV GCC compiler toolchain is installed.</span>
+<span class="c1">#</span>
+<span class="c1">#     Parameters</span>
+<span class="c1">#     ----------</span>
+<span class="c1">#     cfg : dict</span>
+<span class="c1">#         Optional config provided by the user.</span>
+<span class="c1">#     env : os._Environ</span>
+<span class="c1">#         Environment variables</span>
+<span class="c1">#     context : MlonMcuContext</span>
+<span class="c1">#         Optional context for looking up dependencies</span>
+<span class="c1">#</span>
+<span class="c1">#     Returns</span>
+<span class="c1">#     -------</span>
+<span class="c1">#     path : pathlib.Path</span>
+<span class="c1">#         The path to the toolchain directory (if found).</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     prefix = None</span>
+<span class="c1">#</span>
+<span class="c1">#     if cfg:</span>
+<span class="c1">#         if &quot;riscv.dir&quot; in cfg:</span>
+<span class="c1">#             prefix = cfg[&quot;riscv.dir&quot;]</span>
+<span class="c1">#</span>
+<span class="c1">#     if context:</span>
+<span class="c1">#         if context.cache:</span>
+<span class="c1">#             if context.cache[&quot;riscv.dir&quot;]:</span>
+<span class="c1">#                 prefix = context.cache[&quot;riscv.dir&quot;]</span>
+<span class="c1">#</span>
+<span class="c1">#     if env:</span>
+<span class="c1">#         if &quot;MLONMCU_HOME&quot; in env:</span>
+<span class="c1">#             with MlonMcuContext() as ctx:</span>
+<span class="c1">#                 if ctx.cache:</span>
+<span class="c1">#                     if ctx.cache[&quot;riscv.dir&quot;]:</span>
+<span class="c1">#                         prefix = ctx.cache[&quot;riscv.dir&quot;]</span>
+<span class="c1">#         elif &quot;RISCV_DIR&quot; in env:</span>
+<span class="c1">#             prefix = env[&quot;RISCV_DIR&quot;]</span>
+<span class="c1">#</span>
+<span class="c1">#     if not prefix:</span>
+<span class="c1">#         prefix = &quot;&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#     return prefix</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># def lookup_etiss(</span>
+<span class="c1">#     cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None</span>
+<span class="c1"># ) -&gt; Path:</span>
+<span class="c1">#     &quot;&quot;&quot;Utility to find the directory where the ETISS simulator is installed.</span>
+<span class="c1">#</span>
+<span class="c1">#     Parameters</span>
+<span class="c1">#     ----------</span>
+<span class="c1">#     cfg : dict</span>
+<span class="c1">#         Optional config provided by the user.</span>
+<span class="c1">#     env : os._Environ</span>
+<span class="c1">#         Environment variables</span>
+<span class="c1">#     context : MlonMcuContext</span>
+<span class="c1">#         Optional context for looking up dependencies</span>
+<span class="c1">#</span>
+<span class="c1">#     Returns</span>
+<span class="c1">#     -------</span>
+<span class="c1">#     path : pathlib.Path</span>
+<span class="c1">#         The path to the ETISS install directory (if found).</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     etiss = None</span>
+<span class="c1">#</span>
+<span class="c1">#     if cfg:</span>
+<span class="c1">#         if &quot;etiss.dir&quot; in cfg:</span>
+<span class="c1">#             etiss = cfg[&quot;etiss.dir&quot;]</span>
+<span class="c1">#</span>
+<span class="c1">#     if context:  # TODO: feature flags?</span>
+<span class="c1">#         if context.cache:</span>
+<span class="c1">#             if context.cache[&quot;etiss.install_dir&quot;]:</span>
+<span class="c1">#                 etiss = context.cache[&quot;etiss.install_dir&quot;]</span>
+<span class="c1">#     if env:</span>
+<span class="c1">#         if &quot;MLONMCU_HOME&quot; in env:</span>
+<span class="c1">#             with MlonMcuContext() as ctx:</span>
+<span class="c1">#                 if ctx.cache:</span>
+<span class="c1">#                     if ctx.cache[&quot;etiss.install_dir&quot;]:</span>
+<span class="c1">#                         etiss = ctx.cache[&quot;etiss.install_dir&quot;]</span>
+<span class="c1">#         if &quot;ETISS_DIR&quot; in env:</span>
+<span class="c1">#             etiss = env[&quot;ETISS_DIR&quot;]</span>
+<span class="c1">#</span>
+<span class="c1">#     if not etiss:</span>
+<span class="c1">#         etiss = &quot;&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#     return etiss</span>
 
 
 <div class="viewcode-block" id="ETISSPulpinoTarget"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget">[docs]</a><span class="k">class</span> <span class="nc">ETISSPulpinoTarget</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
@@ -185,7 +188,14 @@
         <span class="s2">&quot;debug_etiss&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;trace_memory&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;extra_args&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;timeout_sec&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># disabled</span>
+        <span class="c1"># TODO: how to keep this in sync with setup/tasks.py? (point to ETISSPulpinoTarget.DEFAULTS?)</span>
+        <span class="s2">&quot;etissvp.rom_start&quot;</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
+        <span class="s2">&quot;etissvp.rom_size&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>  <span class="c1"># 8 MB</span>
+        <span class="s2">&quot;etissvp.ram_start&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>
+        <span class="s2">&quot;etissvp.ram_size&quot;</span><span class="p">:</span> <span class="mh">0x4000000</span><span class="p">,</span>  <span class="c1"># 64 MB</span>
+        <span class="s2">&quot;etissvp.cycle_time_ps&quot;</span><span class="p">:</span> <span class="mi">31250</span><span class="p">,</span>  <span class="c1"># 32 MHz</span>
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">]</span>
 
@@ -202,6 +212,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">etiss_script</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">etiss_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;bare_etiss_processor&quot;</span> <span class="o">/</span> <span class="s2">&quot;run_helper.sh&quot;</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">etiss_dir</span><span class="p">)</span>
+            <span class="o">/</span> <span class="s2">&quot;examples&quot;</span>
+            <span class="o">/</span> <span class="s2">&quot;bare_etiss_processor&quot;</span>
+            <span class="o">/</span> <span class="s2">&quot;get_metrics.py&quot;</span>
+        <span class="p">)</span>
         <span class="c1"># TODO: self.cmakeToolchainFile = ?</span>
         <span class="c1"># TODO: self.cmakeScript = ?</span>
 
@@ -213,18 +229,58 @@
     <span class="k">def</span> <span class="nf">riscv_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ETISSPulpinoTarget.exec"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">timeout_sec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 0 = off</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout_sec&quot;</span><span class="p">])</span>
+
+    <span class="c1"># TODO: add missing properties</span>
+    <span class="c1">#    &quot;gdbserver_enable&quot;: False,</span>
+    <span class="c1">#    &quot;gdbserver_attach&quot;: False,</span>
+    <span class="c1">#    &quot;gdbserver_port&quot;: 2222,</span>
+    <span class="c1">#    &quot;debug_etiss&quot;: False,</span>
+    <span class="c1">#    &quot;trace_memory&quot;: False,</span>
+    <span class="c1">#    &quot;extra_args&quot;: &quot;&quot;,</span>
+    <span class="c1">#    &quot;verbose&quot;: True,</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rom_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.rom_start&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rom_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.rom_size&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ram_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.ram_start&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ram_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.ram_size&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cycle_time_ps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.cycle_time_ps&quot;</span><span class="p">])</span>
+
+    <span class="c1"># TODO: other properties</span>
+
+<div class="viewcode-block" id="ETISSPulpinoTarget.write_ini"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.write_ini">[docs]</a>    <span class="k">def</span> <span class="nf">write_ini</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;[IntConfigurations]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;simple_mem_system.memseg_origin_00=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rom_start</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;simple_mem_system.memseg_length_00=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rom_size</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;simple_mem_system.memseg_origin_01=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ram_start</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;simple_mem_system.memseg_length_01=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ram_size</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;arch.cpu_cycle_time_ps=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_time_ps</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ETISSPulpinoTarget.exec"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="n">etiss_script_args</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">DEFAULT_CONFIG</span>
-        <span class="k">for</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">config</span><span class="p">[</span><span class="n">cfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.extra_args&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">&quot;etissvp.extra_args&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
-            <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_args&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_args&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">))</span>
 
+        <span class="c1"># TODO: this is outdated</span>
         <span class="c1"># TODO: validate features (attach xor noattach!)</span>
         <span class="k">if</span> <span class="s2">&quot;etissdbg&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
             <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;gdb&quot;</span><span class="p">)</span>
@@ -237,12 +293,141 @@
         <span class="k">if</span> <span class="s2">&quot;trace&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
             <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;trace&quot;</span><span class="p">)</span>
             <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;nodmi&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.verbose&quot;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;verbose&quot;</span><span class="p">]):</span>
             <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">execute</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">etiss_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">etiss_script_args</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-        <span class="p">)</span></div></div>
+        <span class="c1"># TODO: working directory?</span>
+        <span class="n">etiss_ini</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="s2">&quot;custom.ini&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_ini</span><span class="p">(</span><span class="n">etiss_ini</span><span class="p">)</span>
+        <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span> <span class="o">+</span> <span class="n">etiss_ini</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">etiss_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+                <span class="n">program</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">etiss_script_args</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="ETISSPulpinoTarget.parse_stdout"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">exit_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;exit called with code: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exit_match</span><span class="p">:</span>
+            <span class="n">exit_code</span> <span class="o">=</span> <span class="n">exit_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">exit_code</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unexpected exit code: </span><span class="si">{</span><span class="n">exit_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">error_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;ETISS: Error: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">error_match</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="n">error_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An ETISS Error occured during simulation: </span><span class="si">{</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">cpu_cycles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;CPU Cycles \(estimated\): (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cpu_cycles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unexpected script output (cycles)&quot;</span><span class="p">)</span>
+        <span class="n">cycles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_cycles</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">mips</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: parse mips?</span>
+
+        <span class="k">return</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">mips</span></div>
+
+<div class="viewcode-block" id="ETISSPulpinoTarget.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;trace&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
+            <span class="n">trace_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;dBusAccess.csv&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">trace_file</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">trace_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trace_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">metrics_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;metrics.csv&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">metrics_file</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">metrics_file</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+                <span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span>
+            <span class="p">)</span>
+        <span class="n">total_cycles</span><span class="p">,</span> <span class="n">mips</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="n">get_metrics_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">elf</span><span class="p">]</span>
+        <span class="n">etiss_ini</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;custom.ini&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">etiss_ini</span><span class="p">):</span>
+            <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--ini&quot;</span><span class="p">,</span> <span class="n">etiss_ini</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">trace_file</span><span class="p">:</span>
+            <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--trace&quot;</span><span class="p">,</span> <span class="n">trace_file</span><span class="p">])</span>
+        <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">metrics_file</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">out2</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out2</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+                <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span>
+                <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total Cyles&quot;</span><span class="p">,</span> <span class="n">total_cycles</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;MIPS&quot;</span><span class="p">,</span> <span class="n">mips</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">metrics_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;metrics.csv&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">metrics_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">metrics_content</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">metrics_content</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">def</span> <span class="nf">get_rom_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="s2">&quot;rom_rodata&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                <span class="n">rom_ro</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rom_rodata&quot;</span><span class="p">])</span>
+                <span class="k">assert</span> <span class="s2">&quot;rom_code&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                <span class="n">rom_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rom_code&quot;</span><span class="p">])</span>
+                <span class="k">assert</span> <span class="s2">&quot;rom_misc&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                <span class="n">rom_misc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rom_misc&quot;</span><span class="p">])</span>
+
+                <span class="n">rom_total</span> <span class="o">=</span> <span class="n">rom_ro</span> <span class="o">+</span> <span class="n">rom_code</span> <span class="o">+</span> <span class="n">rom_misc</span>
+                <span class="k">return</span> <span class="n">rom_total</span><span class="p">,</span> <span class="n">rom_ro</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">,</span> <span class="n">rom_misc</span>
+
+            <span class="k">def</span> <span class="nf">get_ram_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="s2">&quot;ram_data&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                <span class="n">ram_data</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_data&quot;</span><span class="p">])</span>
+                <span class="k">assert</span> <span class="s2">&quot;ram_zdata&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                <span class="n">ram_zdata</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_zdata&quot;</span><span class="p">])</span>
+                <span class="n">ram_total</span> <span class="o">=</span> <span class="n">ram_data</span> <span class="o">+</span> <span class="n">ram_zdata</span>
+                <span class="k">if</span> <span class="s2">&quot;trace&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="s2">&quot;ram_stack&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                    <span class="n">ram_stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_stack&quot;</span><span class="p">])</span>
+                    <span class="k">assert</span> <span class="s2">&quot;ram_heap&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                    <span class="n">ram_heap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_heap&quot;</span><span class="p">])</span>
+                    <span class="n">ram_total</span> <span class="o">+=</span> <span class="n">ram_stack</span> <span class="o">+</span> <span class="n">ram_heap</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ram_stack</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">ram_heap</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="n">ram_total</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">,</span> <span class="n">ram_heap</span>
+
+            <span class="n">rom_total</span><span class="p">,</span> <span class="n">rom_ro</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">,</span> <span class="n">rom_misc</span> <span class="o">=</span> <span class="n">get_rom_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">ram_total</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">,</span> <span class="n">ram_heap</span> <span class="o">=</span> <span class="n">get_ram_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total ROM&quot;</span><span class="p">,</span> <span class="n">rom_total</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total RAM&quot;</span><span class="p">,</span> <span class="n">ram_total</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM read-only&quot;</span><span class="p">,</span> <span class="n">rom_ro</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM code&quot;</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM misc&quot;</span><span class="p">,</span> <span class="n">rom_misc</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM data&quot;</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM zero-init data&quot;</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;trace&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM stack&quot;</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM heap&quot;</span><span class="p">,</span> <span class="n">ram_heap</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metrics</span></div>
+
+<div class="viewcode-block" id="ETISSPulpinoTarget.get_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">()</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DETISS_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">etiss_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DRISCV_ELF_GCC_PREFIX=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">riscv_prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

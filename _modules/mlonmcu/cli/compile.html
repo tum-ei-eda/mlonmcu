@@ -161,7 +161,8 @@
                 <span class="n">new_run</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">target_cls</span> <span class="o">=</span> <span class="n">SUPPORTED_TARGETS</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span>
                 <span class="n">required_keys</span> <span class="o">=</span> <span class="n">target_cls</span><span class="o">.</span><span class="n">REQUIRED</span>
-                <span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">target_config</span> <span class="o">=</span> <span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">target_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                     <span class="n">resolve_required_config</span><span class="p">(</span>
                         <span class="n">required_keys</span><span class="p">,</span>
                         <span class="n">features</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
@@ -170,14 +171,23 @@
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">target_inst</span> <span class="o">=</span> <span class="n">target_cls</span><span class="p">(</span>
-                    <span class="n">features</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">config</span>
+                    <span class="n">features</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">target_config</span>
+                <span class="p">)</span>
+                <span class="n">mlif_config</span> <span class="o">=</span> <span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">mlif_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">resolve_required_config</span><span class="p">(</span>
+                        <span class="n">required_keys</span><span class="p">,</span>
+                        <span class="n">features</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                        <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">mlif_inst</span> <span class="o">=</span> <span class="n">MLIF</span><span class="p">(</span>
                     <span class="n">new_run</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span>
                     <span class="n">new_run</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span>
                     <span class="n">target_inst</span><span class="p">,</span>
                     <span class="n">features</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
-                    <span class="n">config</span><span class="o">=</span><span class="n">new_run</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">mlif_config</span><span class="p">,</span>
                     <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
                 <span class="p">)</span>  <span class="c1"># TODO: move somewhere else?</span>
                 <span class="c1"># TODO: manage required keys here?</span>

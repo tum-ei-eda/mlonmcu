@@ -89,7 +89,8 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.feature</span> <span class="kn">import</span> <span class="n">FeatureType</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">.inout</span> <span class="kn">import</span> <span class="n">write_inout_data</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
@@ -102,7 +103,7 @@
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="s2">&quot;validate&quot;</span><span class="p">]</span>
 
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;ignore_data&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;ignore_data&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;build_dir&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
     <span class="c1"># REQUIRES = [&quot;mlif.src_dir&quot;]</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
@@ -125,10 +126,10 @@
         <span class="p">]</span>
         <span class="n">dir_name</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;mlif&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="s2">&quot;mlif.build_dir&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;User has overwritten the value of &#39;mlif.build_dir&#39;&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mlif.build_dir&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;build_dir&quot;</span><span class="p">]:</span>
+            <span class="c1"># if self.context:</span>
+            <span class="c1">#     logger.warn(&quot;User has overwritten the value of &#39;mlif.build_dir&#39;&quot;)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;build_dir&quot;</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="s2">&quot;temp&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span>
@@ -186,18 +187,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MLIF.validate"><a class="viewcode-back" href="../../../mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">SUPPORTED_FRAMEWORKS</span>
-        <span class="c1"># assert self.framework.name in enabled_frameworks  # TODO</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">SUPPORTED_BACKENDS</span>
-        <span class="c1"># assert self.backend.name in enabled_backends  # TODO</span>
-        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
-            <span class="c1"># TODO: maybe rather for type in types?</span>
-            <span class="k">if</span> <span class="n">feature</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">features</span>
-            <span class="k">if</span> <span class="n">feature</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">features</span>
-            <span class="k">if</span> <span class="n">feature</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">features</span></div>
+        <span class="k">pass</span></div>
+        <span class="c1"># assert self.framework.name in SUPPORTED_FRAMEWORKS</span>
+        <span class="c1"># # assert self.framework.name in enabled_frameworks  # TODO</span>
+        <span class="c1"># assert self.backend.name in SUPPORTED_BACKENDS</span>
+        <span class="c1"># # assert self.backend.name in enabled_backends  # TODO</span>
+        <span class="c1"># for feature in self.features:</span>
+        <span class="c1">#     # TODO: maybe rather for type in types?</span>
+        <span class="c1">#     if feature.type == FeatureType.FRAMEWORK:</span>
+        <span class="c1">#         assert feature in self.framework.features</span>
+        <span class="c1">#     if feature.type == FeatureType.BACKEND:</span>
+        <span class="c1">#         assert feature in self.backend.features</span>
+        <span class="c1">#     if feature.type == FeatureType.TARGET:</span>
+        <span class="c1">#         assert feature in self.target.features</span>
 
 <div class="viewcode-block" id="MLIF.get_common_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.get_common_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_common_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
@@ -228,13 +230,34 @@
         <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlif_dir</span><span class="p">,</span> <span class="o">*</span><span class="n">cmakeArgs</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MLIF.compile"><a class="viewcode-back" href="../../../mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="MLIF.compile"><a class="viewcode-back" href="../../../mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">src</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MLIF.export"><a class="viewcode-back" href="../../../mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+<div class="viewcode-block" id="MLIF.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="n">elf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;generic_mlif&quot;</span>
+        <span class="c1"># TODO: just use path instead of raw data?</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">elf_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;generic_mlif&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div>
+
+<div class="viewcode-block" id="MLIF.export_elf"><a class="viewcode-back" href="../../../mlonmcu.compile.html#mlonmcu.compile.mlif.MLIF.export_elf">[docs]</a>    <span class="k">def</span> <span class="nf">export_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">),</span> <span class="s2">&quot;No artifacts found, please run generate_elf() first&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+        <span class="p">),</span> <span class="s2">&quot;The supplied path does not exists.&quot;</span>  <span class="c1"># Make sure it actually exists (we do not create it by default)</span>
+        <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">:</span>
+            <span class="n">artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="add_common_options"><a class="viewcode-back" href="../../../mlonmcu.compile.html#mlonmcu.compile.mlif.add_common_options">[docs]</a><span class="k">def</span> <span class="nf">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>

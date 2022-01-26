@@ -381,7 +381,7 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
 """
 
     if api == "c":
-        header += '#include "${modPrefix}.h"\n'
+        includes += '#include "${modPrefix}.h"\n'
 
     out += fill(includes, modPrefix=modPrefix)
 

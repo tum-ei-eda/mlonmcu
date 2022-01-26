@@ -4,16 +4,6 @@ from .backend import TFLiteBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
-FEATURES = ["debug_arena"]
-
-DEFAULT_CONFIG = {
-    "arena_size": 2 ** 16,
-    "ops": [],
-    "custom_ops": [],
-    "registrations": {},
-    "ops_resolver": "mutable",
-}
-
 # TODO: move to another place
 def make_hex_array(data):
     out = ""
@@ -270,6 +260,19 @@ void {prefix}_invoke() {
 class TFLMIBackend(TFLiteBackend):
 
     name = "tflmi"
+
+    FEATURES = ["debug_arena"]
+
+    DEFAULTS = {
+        **TFLiteBackend.DEFAULTS,
+        "arena_size": 2 ** 16,
+        "ops": [],
+        "custom_ops": [],
+        "registrations": {},
+        "ops_resolver": "mutable",
+    }
+
+    REQUIRED = TFLiteBackend.REQUIRED + []
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(features=features, config=config, context=context)

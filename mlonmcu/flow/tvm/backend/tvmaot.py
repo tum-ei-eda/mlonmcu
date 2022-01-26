@@ -99,7 +99,7 @@ class TVMAOTBackend(TVMBackend):
         dump = ["c", "relay"] if full else []
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            self.invoke_tvmc(out_path, dump=dump)
+            self.invoke_tvmc(out_path, dump=dump, verbose=verbose)
             mlf_path = Path(temp_dir) / "mlf"
             tarfile.open(out_path).extractall(mlf_path)
             with open(mlf_path / "metadata.json") as handle:

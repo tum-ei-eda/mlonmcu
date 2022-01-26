@@ -17,6 +17,7 @@ class TVMBackend(Backend):
     FEATURES = ["autotune", "autotuned"]
 
     DEFAULTS = {
+        "print_outputs": False,
         "opt_level": 3,
         "target_device": None,
         "disabled_passes": [],  # i.e. AlterOpLayout
@@ -39,6 +40,7 @@ class TVMBackend(Backend):
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
+        self.verbose = bool(self.config["print_outputs"])
 
     @property
     def pass_config(self):
@@ -107,7 +109,7 @@ class TVMBackend(Backend):
             *self.get_input_shapes_tvmc_args(),
         ]
 
-    def invoke_tvmc(self, out, command="compile", dump=None):
+    def invoke_tvmc(self, out, command="compile", dump=None, verbose=False):
         args = self.get_tvmc_args()
         args.extend(["--output", str(out)])
         if dump:
@@ -116,7 +118,6 @@ class TVMBackend(Backend):
         env = os.environ.copy()
         env["PYTHONPATH"] = str(self.config["tvm.pythonpath"])
         env["TVM_LIBRARY_PATH"] = str(self.config["tvm.build_dir"])
-        verbose = True  # ???
         utils.python("-m", "tvm.driver.tvmc", command, *args, live=verbose, env=env)
 
     def get_opt_level(self):

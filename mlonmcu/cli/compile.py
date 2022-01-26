@@ -86,7 +86,8 @@ def _handle(context, args):
                 new_run = run.copy()
                 target_cls = SUPPORTED_TARGETS[target_name]
                 required_keys = target_cls.REQUIRED
-                new_run.config.update(
+                target_config = new_run.config.copy()
+                target_config.update(
                     resolve_required_config(
                         required_keys,
                         features=new_run.features,
@@ -95,14 +96,23 @@ def _handle(context, args):
                     )
                 )
                 target_inst = target_cls(
-                    features=new_run.features, config=new_run.config
+                    features=new_run.features, config=target_config
+                )
+                mlif_config = new_run.config.copy()
+                mlif_config.update(
+                    resolve_required_config(
+                        required_keys,
+                        features=new_run.features,
+                        config=new_run.config,
+                        cache=context.cache,
+                    )
                 )
                 mlif_inst = MLIF(
                     new_run.framework,
                     new_run.backend,
                     target_inst,
                     features=new_run.features,
-                    config=new_run.config,
+                    config=mlif_config,
                     context=context,
                 )  # TODO: move somewhere else?
                 # TODO: manage required keys here?

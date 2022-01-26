@@ -66,7 +66,8 @@ def init_frontends(frontend_names, features, config, context=None):
     for frontend_name in names:
         frontend_cls = SUPPORTED_FRONTENDS[frontend_name]
         required_keys = frontend_cls.REQUIRED
-        config.update(
+        frontend_config = config.copy()
+        frontend_config.update(
             resolve_required_config(
                 required_keys,
                 features=features,
@@ -75,7 +76,7 @@ def init_frontends(frontend_names, features, config, context=None):
             )
         )
         try:
-            frontend = frontend_cls(features=features, config=config)
+            frontend = frontend_cls(features=features, config=frontend_config)
         except Exception as err:
             raise RuntimeError("BLA") from err
             print("Frontend could not be initialized. Continuing with next one...")

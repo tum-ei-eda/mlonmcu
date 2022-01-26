@@ -55,15 +55,13 @@ def get_parser(subparsers, parent=None):
 
 def _handle(context, args):
     handle_load(args, ctx=context)
-    # print(configs)
-    # input()
     backend_names = args.backend
     if isinstance(backend_names, list) and len(backend_names) > 0:
         backends = backend_names
     elif isinstance(backend_names, str):
         backends = [backend_names]
     else:
-        assert backends_names is None, "TODO"
+        assert backend_names is None, "TODO"
         frameworks = context.environment.get_default_frameworks()
         backends = []
         for framework in frameworks:
@@ -78,7 +76,8 @@ def _handle(context, args):
             # TODO: where to add framework features/config?
             backend_cls = SUPPORTED_BACKENDS[backend_name]
             required_keys = backend_cls.REQUIRED
-            new_run.config.update(
+            backend_config = new_run.config.copy()
+            backend_config.update(
                 resolve_required_config(
                     backend_cls.REQUIRED,
                     features=new_run.features,
@@ -86,11 +85,12 @@ def _handle(context, args):
                     cache=context.cache,
                 )
             )
-            backend = backend_cls(features=new_run.features, config=new_run.config)
+            backend = backend_cls(features=new_run.features, config=backend_config)
             framework_name = backend.framework
             framework_cls = SUPPORTED_FRAMEWORKS[framework_name]
             required_keys = backend_cls.REQUIRED
-            new_run.config.update(
+            framework_config = new_run.config.copy()
+            framework_config.update(
                 resolve_required_config(
                     framework_cls.REQUIRED,
                     features=new_run.features,
@@ -98,7 +98,9 @@ def _handle(context, args):
                     cache=context.cache,
                 )
             )
-            framework = framework_cls(features=new_run.features, config=new_run.config)
+            framework = framework_cls(
+                features=new_run.features, config=framework_config
+            )
             new_run.add_backend(backend)
             new_run.add_framework(framework)
             new_runs.append(new_run)

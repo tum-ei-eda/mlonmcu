@@ -1,3 +1,4 @@
+from mlonmcu.feature.type import FeatureType
 from mlonmcu.logging import get_logger
 
 logger = get_logger()

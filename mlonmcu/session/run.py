@@ -90,7 +90,7 @@ class Run:
             # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
             # A solution would be to split up the framework runtime libs from the mlif...
             if self.mlif:
-                self.mlif.build_dir = self.dir
+                self.mlif.build_dir = Path(self.dir) / "mlif"
 
     def copy(self):
         new = copy.deepcopy(self)
@@ -349,7 +349,7 @@ class Run:
         post = {}
         post["Features"] = self.get_all_feature_names()
         post["Config"] = self.get_all_configs()
-        post["Comment"] = self.comment
+        post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         # if include_sess_idx:
         #     report.session_id = self.session.idx
         # if ?include_run_idx:

@@ -89,6 +89,7 @@ class Session:
         for run in self.runs:
             if not run.archived:
                 run.idx = run_idx
+                run._init_directory()
                 run_idx += 1
         self.next_run_idx = run_idx
 

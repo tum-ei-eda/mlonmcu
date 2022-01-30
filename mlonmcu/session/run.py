@@ -292,6 +292,41 @@ class Run:
             else ""
         )
 
+    def get_all_feature_names(self):
+        return [feature.name for feature in self.features]
+
+    def get_all_configs(self):
+        def has_prefix(key):
+            return "." in key
+
+        def config_helper(obj, prefix=None):
+            if prefix:
+                name = prefix
+            else:
+                assert hasattr(obj, "name")
+                name = obj.name
+            ret = {
+                key if has_prefix(key) else f"{name}.{key}": value
+                for key, value in obj.config.items()
+            }
+            return ret
+
+        ret = {}
+        ret.update(
+            {key: value for key, value in self.config.items() if not has_prefix(key)}
+        )  # Only config without a prefix!
+        if self.frontend:
+            ret.update(config_helper(self.frontend))
+        if self.backend:
+            ret.update(config_helper(self.backend))
+        if self.framework:
+            ret.update(config_helper(self.framework))
+        if self.target:
+            ret.update(config_helper(self.target))
+        if self.mlif:
+            ret.update(config_helper(self.mlif, "mlif"))
+        return ret
+
     def get_report(self):
         # TODO: config or args for stuff like (session id) and run id as well as detailed features and configs
         report = Report()
@@ -311,8 +346,8 @@ class Run:
         if self.target:
             pre["Target"] = self.target.name
         post = {}
-        post["Features"] = None  # TODO: list(all feature names accumulated)
-        post["Config"] = None  # TODO: combine all configs with their proper prefix
+        post["Features"] = self.get_all_feature_names()
+        post["Config"] = self.get_all_configs()
         post["Comment"] = self.comment
         # if include_sess_idx:
         #     report.session_id = self.session.idx

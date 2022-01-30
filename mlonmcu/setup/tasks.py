@@ -227,9 +227,9 @@ def install_riscv_gcc(
     riscvName = utils.makeDirName("riscv_gcc", flags=flags)
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     user_vars = context.environment.vars
-    if "riscv_gcc.dir" in user_vars:
+    if "riscv_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
         # TODO: WARNING
-        riscvInstallDir = user_vars["riscv_gcc.dir"]
+        riscvInstallDir = user_vars["riscv_gcc.install_dir"]
     else:
         vext = False
         if "vext" in params:
@@ -280,21 +280,25 @@ def install_llvm(context: MlonMcuContext, params=None, rebuild=False, verbose=Fa
     llvmName = utils.makeDirName("llvm")
     llvmInstallDir = context.environment.paths["deps"].path / "install" / llvmName
     user_vars = context.environment.vars
-    llvmVersion = user_vars["llvm.version"] if "llvm.version" in user_vars else "11.0.1"
-    llvmDist = (
-        user_vars["llvm.distribution"]
-        if "llvm.distribution" in user_vars
-        else "x86_64-linux-gnu-ubuntu-16.04"
-    )
-    llvmUrl = (
-        f"https://github.com/llvm/llvm-project/releases/download/llvmorg-{llvmVersion}/"
-    )
-    llvmFileName = f"clang+llvm-{llvmVersion}-{llvmDist}"
-    llvmArchive = llvmFileName + ".tar.xz"
-    # if rebuild or not utils.is_populated(llvmInstallDir):
-    # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
-    if not utils.is_populated(llvmInstallDir):
-        utils.download_and_extract(llvmUrl, llvmArchive, llvmInstallDir)
+    if "llvm.install_dir" in user_vars:  # TODO: also check command line flags?
+        # TODO: WARNING
+        llvmInstallDir = user_vars["llvm.install_dir"]
+    else:
+        llvmVersion = (
+            user_vars["llvm.version"] if "llvm.version" in user_vars else "11.0.1"
+        )
+        llvmDist = (
+            user_vars["llvm.distribution"]
+            if "llvm.distribution" in user_vars
+            else "x86_64-linux-gnu-ubuntu-16.04"
+        )
+        llvmUrl = f"https://github.com/llvm/llvm-project/releases/download/llvmorg-{llvmVersion}/"
+        llvmFileName = f"clang+llvm-{llvmVersion}-{llvmDist}"
+        llvmArchive = llvmFileName + ".tar.xz"
+        # if rebuild or not utils.is_populated(llvmInstallDir):
+        # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
+        if not utils.is_populated(llvmInstallDir):
+            utils.download_and_extract(llvmUrl, llvmArchive, llvmInstallDir)
     context.cache["llvm.install_dir"] = llvmInstallDir
 
 

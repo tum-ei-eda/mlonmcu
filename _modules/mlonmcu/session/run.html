@@ -367,6 +367,41 @@
             <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="p">)</span>
 
+<div class="viewcode-block" id="Run.get_all_feature_names"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.get_all_feature_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Run.get_all_configs"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.get_all_configs">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">has_prefix</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">key</span>
+
+        <span class="k">def</span> <span class="nf">config_helper</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">prefix</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">key</span> <span class="k">if</span> <span class="n">has_prefix</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">value</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">has_prefix</span><span class="p">(</span><span class="n">key</span><span class="p">)}</span>
+        <span class="p">)</span>  <span class="c1"># Only config without a prefix!</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frontend</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="p">,</span> <span class="s2">&quot;mlif&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
 <div class="viewcode-block" id="Run.get_report"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.get_report">[docs]</a>    <span class="k">def</span> <span class="nf">get_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: config or args for stuff like (session id) and run id as well as detailed features and configs</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
@@ -386,8 +421,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
             <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span>
         <span class="n">post</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">post</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: list(all feature names accumulated)</span>
-        <span class="n">post</span><span class="p">[</span><span class="s2">&quot;Config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: combine all configs with their proper prefix</span>
+        <span class="n">post</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_feature_names</span><span class="p">()</span>
+        <span class="n">post</span><span class="p">[</span><span class="s2">&quot;Config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_configs</span><span class="p">()</span>
         <span class="n">post</span><span class="p">[</span><span class="s2">&quot;Comment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span>
         <span class="c1"># if include_sess_idx:</span>
         <span class="c1">#     report.session_id = self.session.idx</span>
@@ -400,11 +435,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-            <span class="p">[{</span>
-                <span class="o">**</span><span class="n">pre</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">metrics</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-                <span class="o">**</span><span class="n">post</span><span class="p">,</span>
-            <span class="p">}]</span>
+            <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="o">**</span><span class="n">pre</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">metrics</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                    <span class="o">**</span><span class="n">post</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">report</span></div>
 

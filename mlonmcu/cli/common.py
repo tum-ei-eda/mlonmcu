@@ -4,6 +4,7 @@ import logging
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
+from .helper.parse import extract_config
 
 
 def handle_logging_flags(args):
@@ -118,9 +119,15 @@ def add_model_options(parser):
 def kickoff_runs(args, until, context):
     assert len(context.sessions) > 0
     session = context.sessions[-1]
+    config = extract_config(args)
+    per_stage = True
+    if "runs_per_stage" in config:
+        per_stage = bool(config["runs_per_stage"])
+    elif "runs_per_stage" in context.environment.vars:
+        per_stage = bool(context.environment.vars["runs_per_stage"])
     session.process_runs(
         until=until,
-        per_stage=True,
+        per_stage=per_stage,
         num_workers=args.parallel,
         progress=args.progress,
         context=context,

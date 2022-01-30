@@ -198,7 +198,7 @@ class Session:
                     _close_progress2()
             else:
                 if progress:
-                    _init_progress(len(self.runs), msg="Processing all stages")
+                    _init_progress(len(self.runs), msg="Processing all runs")
                 else:
                     logger.info(self.prefix + "Processing all stages")
                 for run in self.runs:

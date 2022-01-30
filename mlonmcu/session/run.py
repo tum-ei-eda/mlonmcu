@@ -345,6 +345,7 @@ class Run:
             pre["Backend"] = self.backend.name
         if self.target:
             pre["Target"] = self.target.name
+        pre["Num"] = self.num
         post = {}
         post["Features"] = self.get_all_feature_names()
         post["Config"] = self.get_all_configs()

@@ -5,33 +5,24 @@ This is a list of pending tasks which did not make it into an own issue.
 ## Essential
 
 - [x] Pull `mlonmcu-sw` on `mlonmcu init`
-- [ ] Lint everything
+- [x] Lint everything
 - [ ] Fix `--home` flag (use environments.ini)
 - [x] Fix template issue `default -> d`
 - [ ] Remove hardcoded features/targets from `tasks.py` etc.
-- [ ] Requirements.txt: Freeze vs. Latest?
 - [ ] Discussion: split backend wrappers from their implementation
-- [ ] Get default targets running (`host_x86` and `etiss_pulpino`)
+- [x] Get default targets running (`host_x86` and `etiss_pulpino`)
 - [x] TVM: Split src dir and build dir
 - [x] Move cache handling out of CLI module
 - [x] Move config/feature processing to another place
-- [ ] finish mlif class with debug support
+- [x] finish mlif class with debug support
 - [x] Cleanup non-tflite frontends
-- [ ] Implement packing/packed features
-- [ ] Replace tensorflow with tflite-micro
-- [ ] MLIF: Replace `ChooseTarget.cmake` by `{target_name}.cmake` or custom file
-- [ ] MLIF: ensure that cmake tests still work
+- ~~[ ] Implement packing/packed features~~ (See Issue #9)
+- ~~[ ] Replace tensorflow with tflite-micro~~ (See Issue #11)
+- ~~[ ] MLIF: Replace `ChooseTarget.cmake` by `{target_name}.cmake` or custom file~~ (See tum-ei-eda/mlonmcu-sw#1)
 - [ ] Try out debugging and data validation
 - [ ] Complete demo notebook
 - [x] Finish TVM backend wrappers
-
-     Hint:
-
-     ```
-     --input-shapes "in0:[1,2,3] in1:[4,5,6]"
-     ```
-
-- [ ] Discuss how to re-implement existing features (e.g. memplan)
+- [ ] ~~Discuss how to re-implement existing features (e.g. memplan)~~ (See Issue #9)
 - [ ] Fix RuntimeWarning:
     ````
     /usr/lib/python3.8/runpy.py:127: RuntimeWarning: 'mlonmcu.flow.tflite.backend.tflmi' found in sys.modules after import of package 'mlonmcu.flow.tflite.backend', but prior to execution of 'mlonmcu.flow.tflite.backend.tflmi'; this may result in unpredictable behaviour

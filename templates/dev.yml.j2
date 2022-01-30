@@ -25,20 +25,27 @@ paths:
 # Here default clone_urls
 repos:
   tensorflow:
-    url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: 746f880a405aeca2db6d005fd9fb8e451f3cea34
+    url: "git@github.com:tum-ei-eda/tensorflow.git"
+    ref: tumeda
   tflite_micro_compiler:
-    url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
-    ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
+    url: "git@github.com:PhilippvK/tflite_micro_compiler.git"
+    ref: patches
   tvm:
-    url: "https://github.com/apache/tvm.git"
-    ref: 779dc51e1332f417fa4c304b595ce76891dfc33a
+    url: "git@github.com:tum-ei-eda/tvm.git"
+    ref: latest
   utvm_staticrt_codegen:
-    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
-    ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
+    url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
+    ref: master
   etiss:
-    url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: 36902d32ae760aa3c413ca06189e6515bc28d79c
+    url: "git@github.com:tum-ei-eda/etiss.git"
+    ref: master
+  muriscvnn:
+    url: "git@github.com:fabianpedd/muriscv_nn.git"
+    ref: main
+  packer:
+    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
+    ref: main
+
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -47,13 +54,19 @@ frameworks:
   tflm:
     enabled: true
     backends:
-      default: tflmi
+      default: tflmc
       tflmc:
-        enabled: false
+        enabled: true
+        features:
+          muriscvnn: true
       tflmi:
         enabled: true
         features:
           debug_arena: true
+    features:
+      muriscvnn: true
+      features:
+        packed: false
   tvm:
     enabled: true
     backends:
@@ -69,6 +82,8 @@ frameworks:
           unpacked_api: true
       tvmcg:
         enabled: true
+        features:
+          debug_arena: true
 # Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
 # 
@@ -76,7 +91,7 @@ frontends:
   tflite:
     enabled: true
   packed:
-    enabled: false
+    enabled: true
     features:
       packing: true
       packed: true

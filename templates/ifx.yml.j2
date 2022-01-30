@@ -25,50 +25,54 @@ paths:
 # Here default clone_urls
 repos:
   tensorflow:
-    url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: 746f880a405aeca2db6d005fd9fb8e451f3cea34
+    url: "TODO"
+    ref: ifx/develop
   tflite_micro_compiler:
-    url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
-    ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
+    url: "TODO"
+    ref: ifx/develop
   tvm:
-    url: "https://github.com/apache/tvm.git"
-    ref: 779dc51e1332f417fa4c304b595ce76891dfc33a
+    url: "TODO"
+    ref: ifx/develop
   utvm_staticrt_codegen:
-    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
-    ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
+    url: "TODO"
+    ref: ifx/develop
   etiss:
-    url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: 36902d32ae760aa3c413ca06189e6515bc28d79c
+    url: "TODO"
+    ref: ifx/develop
+  packer:
+    url: "TODO"
+    ref: ifx/develop
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
 frameworks:
-  default: tvm
+  default: tflm
   tflm:
     enabled: true
     backends:
-      default: tflmi
+      default: tflmc
       tflmc:
-        enabled: false
-      tflmi:
         enabled: true
         features:
-          debug_arena: true
+          packing: false
+          ifx_fast: true
+      tflmi:
+        enabled: true
+    features:
+      packing: false
+      ifx_fast: true
   tvm:
     enabled: true
     backends:
       default: tvmaot
       tvmrt:
-        enabled: true
-        features:
-          debug_arena: true
+        enabled: false
       tvmaot:
         enabled: true
         features:
           debug_arena: true
-          unpacked_api: true
       tvmcg:
-        enabled: true
+        enabled: false
 # Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
 # 

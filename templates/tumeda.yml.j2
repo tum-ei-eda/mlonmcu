@@ -1,35 +1,51 @@
 ---
 # The MLONMCU_HOME is filled in automatically when creating the environment
-home: "{{ home }}"
+home: "{{ home_dir }}"
 logging:
-{% for key, value in logging.items() %}
-  {{ key }}: {{ value }}
+  level: DEBUG
+  to_file: false
+  rotate: false
 # Default locations for certain directoriescan be changed here
 # Non-absolute paths will always be threated relative to the MLONMCU_HOME
 paths:
-{% for key, value in paths.items() %}
-  {{ key }}: {{ value }}
-TODO
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: reults
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
   models:
-    - models
-    - /work/models/
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
 # Here default clone_urls
 repos:
   tensorflow:
     url: "https://github.com/tum-ei-eda/tensorflow.git"
     ref: tumeda
   tflite_micro_compiler:
-    url: "https://github.com/cpetig/tflite_micro_compiler.git"
-    ref: master
+    url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
+    ref: patches
   tvm:
     url: "https://github.com/tum-ei-eda/tvm.git"
-    ref: tumeda
+    ref: latest
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
     ref: master
+  muriscvnn:
+    url: "git@github.com:fabianpedd/muriscv_nn.git"
+    ref: main
+  packer:
+    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
+    ref: main
+
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -41,39 +57,62 @@ frameworks:
       default: tflmc
       tflmc:
         enabled: true
+        features:
+          muriscvnn: true
       tflmi:
         enabled: true
+        features:
+          debug_arena: true
     features:
-      packing: false
-      riscv_nn: false
+      muriscvnn: true
+      features:
+        packed: false
   tvm:
     enabled: true
     backends:
       default: tvmaot
       tvmrt:
         enabled: true
+        features:
+          debug_arena: true
       tvmaot:
         enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
       tvmcg:
         enabled: true
+        features:
+          debug_arena: true
 # Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
+# 
 frontends:
-  saved_model:
-    enabled: false
-  ipynb:
-    enabled: false
   tflite:
     enabled: true
+  packed:
+    enabled: true
     features:
-      packing: false
+      packing: true
+      packed: true
+  onnx:
+    enabled: false
+  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
 # List of supported targets in the environment
 targets:
   default: etiss_pulpino
   etiss_pulpino:
     enabled: true
-  host:
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+  host_x86:
     enabled: true
+    features:
+      gdbserver: true
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
-  packer_name: "tflite_pack"
+  tvm.make_tool: "ninja"
+  llvm.version: "11.1.0"
+  runs_per_stage: true

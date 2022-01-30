@@ -302,9 +302,9 @@
     <span class="n">riscvName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;riscv_gcc&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
     <span class="n">riscvInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">riscvName</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="k">if</span> <span class="s2">&quot;riscv_gcc.dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;riscv_gcc.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
         <span class="c1"># TODO: WARNING</span>
-        <span class="n">riscvInstallDir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.dir&quot;</span><span class="p">]</span>
+        <span class="n">riscvInstallDir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">vext</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="s2">&quot;vext&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
@@ -355,21 +355,25 @@
     <span class="n">llvmName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;llvm&quot;</span><span class="p">)</span>
     <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">llvmName</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="n">llvmVersion</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.version&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;llvm.version&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="k">else</span> <span class="s2">&quot;11.0.1&quot;</span>
-    <span class="n">llvmDist</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.distribution&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="s2">&quot;llvm.distribution&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span>
-        <span class="k">else</span> <span class="s2">&quot;x86_64-linux-gnu-ubuntu-16.04&quot;</span>
-    <span class="p">)</span>
-    <span class="n">llvmUrl</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">/&quot;</span>
-    <span class="p">)</span>
-    <span class="n">llvmFileName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;clang+llvm-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">llvmDist</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">llvmArchive</span> <span class="o">=</span> <span class="n">llvmFileName</span> <span class="o">+</span> <span class="s2">&quot;.tar.xz&quot;</span>
-    <span class="c1"># if rebuild or not utils.is_populated(llvmInstallDir):</span>
-    <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">llvmInstallDir</span><span class="p">):</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">llvmUrl</span><span class="p">,</span> <span class="n">llvmArchive</span><span class="p">,</span> <span class="n">llvmInstallDir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;llvm.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="c1"># TODO: WARNING</span>
+        <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">llvmVersion</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.version&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;llvm.version&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="k">else</span> <span class="s2">&quot;11.0.1&quot;</span>
+        <span class="p">)</span>
+        <span class="n">llvmDist</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.distribution&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;llvm.distribution&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span>
+            <span class="k">else</span> <span class="s2">&quot;x86_64-linux-gnu-ubuntu-16.04&quot;</span>
+        <span class="p">)</span>
+        <span class="n">llvmUrl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="n">llvmFileName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;clang+llvm-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">llvmDist</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">llvmArchive</span> <span class="o">=</span> <span class="n">llvmFileName</span> <span class="o">+</span> <span class="s2">&quot;.tar.xz&quot;</span>
+        <span class="c1"># if rebuild or not utils.is_populated(llvmInstallDir):</span>
+        <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">llvmInstallDir</span><span class="p">):</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">llvmUrl</span><span class="p">,</span> <span class="n">llvmArchive</span><span class="p">,</span> <span class="n">llvmInstallDir</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">llvmInstallDir</span></div>
 
 

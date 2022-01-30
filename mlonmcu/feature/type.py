@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class FeatureType(Enum):
     """Enumeration for Feature types."""
 
@@ -10,4 +11,3 @@ class FeatureType(Enum):
     BACKEND = 4
     TARGET = 5
     COMPILE = 6
-

@@ -35,9 +35,11 @@ class HostX86Target(Target):
             port = int(self.config["gdbserver_port"])
             comm = f"host:{port}"
             return execute(self.gdb_server_path, comm, program, *args, **kwargs)
+
         def make_executable(exe):
             f = Path(exe)
             f.chmod(f.stat().st_mode | stat.S_IEXEC)
+
         make_executable(program)
         return execute(program, *args, **kwargs)
 

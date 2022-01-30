@@ -120,7 +120,11 @@ def get_ids(directory: Path) -> List[int]:
     if not directory.is_dir():
         return []
 
-    ids = [int(o) for o in os.listdir(directory) if os.path.isdir(directory / o) and not os.path.islink(directory / o)]
+    ids = [
+        int(o)
+        for o in os.listdir(directory)
+        if os.path.isdir(directory / o) and not os.path.islink(directory / o)
+    ]
     return sorted(ids)  # TODO: sort by session datetime?
 
 

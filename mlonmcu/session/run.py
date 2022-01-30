@@ -325,11 +325,13 @@ class Run:
         else:
             metrics = Metrics()
         report.set(
-            [{
-                **pre,
-                **metrics.get_data(include_optional=True),
-                **post,
-            }]
+            [
+                {
+                    **pre,
+                    **metrics.get_data(include_optional=True),
+                    **post,
+                }
+            ]
         )
         return report
 

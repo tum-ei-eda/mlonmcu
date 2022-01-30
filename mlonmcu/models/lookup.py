@@ -266,6 +266,8 @@ def unpack_modelgroups(names, groups):
         if name in group_names:
             index = group_names.index(name)
             ret.extend(groups[index].models)
+        else:
+            ret.append(name)
     return list(dict.fromkeys(ret))  # Drop duplicates
 
 
@@ -286,8 +288,7 @@ def lookup_models(names, frontends=None, context=None):
     if context:
         directories = get_model_directories(context)
         models, groups, _, _ = lookup_models_and_groups(directories, allowed_fmts)
-        new_names = unpack_modelgroups(names, groups)
-        names.extend(new_names)
+        names = unpack_modelgroups(names, groups)
     else:
         models = []
     model_names = [model.name for model in models]
@@ -309,7 +310,7 @@ def lookup_models(names, frontends=None, context=None):
             assert len(model_names) > 0, "List of available models is empty"
             assert (
                 name in model_names
-            ), f"Could not help a model mstching the name : {name}"
+            ), f"Could not find a model or group matching the name: {name}"
             index = model_names.index(name)
             hint = models[index]
             hints.append(hint)

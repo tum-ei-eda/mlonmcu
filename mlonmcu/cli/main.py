@@ -56,12 +56,9 @@ def main(args=None):
     if hasattr(args, "func"):
         args.func(args)
     else:
-        print("Invalid command. Check 'mlonmcu --help' for the available subcommands!")
-        sys.exit(1)
+        print("Invalid subcommand for `mlonmcu`!")
+        parser.print_help(sys.stderr)
 
-    # print("Arguments: " + str(args))
-    # print("Replace this message by putting your code into "
-    #      "mlonmcu.cli.main")
     return 0
 
 

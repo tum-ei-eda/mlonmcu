@@ -171,7 +171,7 @@ def initialize_environment(
 
     sw_subdir = Path(target_dir) / "sw"
     if not sw_subdir.is_dir():
-        if (not skip_sw) or (
+        if (skip_sw == False) or (
             skip_sw is None
             and ask_user(
                 "Clone mlonmcu-sw repository into environment?",

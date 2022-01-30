@@ -6,7 +6,7 @@ import pkg_resources
 import pkgutil
 import jinja2
 
-from mlonmcu.environment.templates import all_templates
+from mlonmcu.environment.templates import get_template_names
 from mlonmcu.environment.config import get_environments_dir, DEFAULTS, env_subdirs
 from mlonmcu.environment.util import in_virtualenv
 from mlonmcu.environment.init import initialize_environment
@@ -33,7 +33,7 @@ def get_parser(subparsers):
         metavar="TEMPLATE",
         nargs=1,
         type=str,
-        choices=all_templates.keys(),
+        choices=get_template_names(),
         default=DEFAULTS["template"],
         help="Environment template (default: %(default)s, allowed: %(choices)s)",
     )

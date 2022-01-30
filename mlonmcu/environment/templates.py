@@ -2,13 +2,14 @@
 import pkgutil
 import os
 import jinja2
+import pkg_resources
 
 from .config import get_config_dir
 
-all_templates = {
-    "default": None,
-    "tumeda": None,
-}
+# all_templates = {
+#     "default": None,
+#     "tumeda": None,
+# }
 
 # TODO: TemplateFactory? with register?
 

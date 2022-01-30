@@ -52,6 +52,12 @@ def get_parser(subparsers):
         action="store_true",
         help="Trigger a rebuild/refresh of already installed dependencies (default: %(default)s)",
     )
+    parser.add_argument(
+        "-l",
+        "--list",
+        action="store_true",
+        help="Only print a list of the tasks to be processed and quit (default: %(default)s)",
+    )
     return parser
 
 
@@ -59,7 +65,12 @@ def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         config, features = extract_config_and_init_features(args)
         installer = setup.Setup(features=features, config=config, context=context)
-        installer.install_dependencies(
-            progress=args.progress,
-            rebuild=args.rebuild,
-        )
+        if args.list:
+            order = installer.get_dependency_order()
+            print("The following tasks have been selected:")
+            print("\n".join(["- " + key for key in order]))
+        else:
+            installer.install_dependencies(
+                progress=args.progress,
+                rebuild=args.rebuild,
+            )

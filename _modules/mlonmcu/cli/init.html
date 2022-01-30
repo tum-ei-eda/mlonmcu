@@ -81,7 +81,7 @@
 <span class="kn">import</span> <span class="nn">pkgutil</span>
 <span class="kn">import</span> <span class="nn">jinja2</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.environment.templates</span> <span class="kn">import</span> <span class="n">all_templates</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.environment.templates</span> <span class="kn">import</span> <span class="n">get_template_names</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.environment.config</span> <span class="kn">import</span> <span class="n">get_environments_dir</span><span class="p">,</span> <span class="n">DEFAULTS</span><span class="p">,</span> <span class="n">env_subdirs</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.environment.util</span> <span class="kn">import</span> <span class="n">in_virtualenv</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.environment.init</span> <span class="kn">import</span> <span class="n">initialize_environment</span>
@@ -108,7 +108,7 @@
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;TEMPLATE&quot;</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="n">all_templates</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">get_template_names</span><span class="p">(),</span>
         <span class="n">default</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">],</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Environment template (default: </span><span class="si">%(default)s</span><span class="s2">, allowed: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>

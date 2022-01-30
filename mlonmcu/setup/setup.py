@@ -61,7 +61,7 @@ class Setup:
                 total=len(self.tasks_factory.registry),
                 desc="Installing dependencies",
                 ncols=100,
-                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
+                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
             )
             return pbar
         else:

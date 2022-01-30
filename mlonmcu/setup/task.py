@@ -299,7 +299,7 @@ class TaskFactory:
                         total=max(len(combs), 1),
                         desc="Processing",
                         ncols=100,
-                        bar_format="{l_bar} {n_fmt}/{total_fmt}",
+                        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
                         leave=None,
                     )
                 else:

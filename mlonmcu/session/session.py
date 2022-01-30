@@ -107,12 +107,16 @@ class Session:
         export=False,
         context=None,
     ):
+
+        # TODO: Add configurable callbacks for stage/run complete
+
         self.enumerate_runs()
         assert num_workers > 0, "num_workers can not be < 1"
         workers = []
         results = []
         workers = []
         pbar = None
+        pbar2 = None
 
         def _init_progress(total, msg="Processing..."):
             global pbar
@@ -120,7 +124,8 @@ class Session:
                 total=total,
                 desc=msg,
                 ncols=100,
-                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
+                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
+                leave=None,
             )
 
         def _update_progress(count=1):
@@ -131,6 +136,24 @@ class Session:
             global pbar
             if pbar:
                 pbar.close()
+
+        def _init_progress2(total, msg="Processing..."):
+            global pbar2
+            pbar2 = tqdm(
+                total=total,
+                desc=msg,
+                ncols=100,
+                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
+            )
+
+        def _update_progress2(count=1):
+            global pbar2
+            pbar2.update(count)
+
+        def _close_progress2():
+            global pbar2
+            if pbar2:
+                pbar2.close()
 
         def _process(run, until):
             run.process(until=until, export=export, context=context)
@@ -154,6 +177,8 @@ class Session:
 
         with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
             if per_stage:
+                if progress:
+                    _init_progress2(int(until + 1), msg=f"Processing stages")
                 for stage in range(until + 1):
                     run_stage = RunStage(stage).name
                     if progress:
@@ -166,6 +191,10 @@ class Session:
                         workers.append(executor.submit(_process, run, until=stage))
                     results = _join_workers(workers)
                     workers = []
+                    if progress:
+                        _update_progress2()
+                if progress:
+                    _close_progress2()
             else:
                 if progress:
                     _init_progress(len(self.runs), msg="Processing all stages")

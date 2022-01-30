@@ -20,5 +20,5 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(lock=True) as context:
+    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         mlonmcu.models.print_summary(context, detailed=args.detailed)

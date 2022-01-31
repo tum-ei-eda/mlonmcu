@@ -60,10 +60,11 @@ def execute(
                 new_line = line.decode(errors="replace")
                 out_str = out_str + new_line
                 print_func(new_line.replace("\n", ""))
-            assert process.poll() == 0, (
-                "The process returned an non-zero exit code! (CMD: `"
-                + " ".join(args)
-                + "`)"
+            exit_code = process.poll()
+            assert (
+                exit_code == 0
+            ), "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+                exit_code, " ".join(list(map(str, args)))
             )
     else:
         try:

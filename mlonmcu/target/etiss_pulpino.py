@@ -6,6 +6,9 @@ import csv
 from pathlib import Path
 
 # from mlonmcu.context import MlonMcuContext
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 from .common import cli, execute
 from .target import Target
@@ -243,6 +246,7 @@ class ETISSPulpinoTarget(Target):
         if exit_match:
             exit_code = exit_match.group(1)
             if int(exit_code) != 0:
+                logger.error("Execution failed - " + out)
                 raise RuntimeError(f"unexpected exit code: {exit_code}")
         error_match = re.search(r"ETISS: Error: (.*)", out)
         if error_match:

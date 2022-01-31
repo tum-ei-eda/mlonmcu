@@ -78,7 +78,7 @@ def init_frontends(frontend_names, features, config, context=None):
         try:
             frontend = frontend_cls(features=features, config=frontend_config)
         except Exception as err:
-            raise RuntimeError("BLA") from err
+            raise RuntimeError() from err
             print("Frontend could not be initialized. Continuing with next one...")
             continue
         frontends.append(frontend)
@@ -104,8 +104,8 @@ def _handle(context, args):
         run = session.create_run(model=model, features=features, config=config)
         run.add_frontend(frontend)
         # session.runs.append(run)
-    for run in session.runs:
-        run.load(context=context)
+    # for run in session.runs:
+    #     run.load(context=context)
 
 
 def handle(args, ctx=None):

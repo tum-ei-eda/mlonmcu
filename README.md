@@ -80,7 +80,7 @@ make install  # Alternative: python setup.py install
 
 #### Docker (Any other OS)
 
-See [`./docker/README.md`](./docker/README.md) for more details.
+See [`./docker/README.md`](htps://github.com/tum-ei-eda/mlonmcu/blob/main/docker/README.md) for more details.
 
 This repository ships three different types of docker images based on Debian:
 
@@ -97,7 +97,7 @@ This repository ships three different types of docker images based on Debian:
 
 ### Usage
 
-Is is recommended to checkout the provided [Demo Jupyter Notebook](./ipynb/Demo.ipynb) as it contains a end-to-end example which should help to understand the main concepts and methodology of the tool. The following paragraphs can be seen as a TL;DL version of the information in that Demo notebook.
+Is is recommended to checkout the provided [Demo Jupyter Notebook](https://github.com/tum-ei-eda/mlonmcu/blob/main/ipynb/Demo.ipynb) as it contains a end-to-end example which should help to understand the main concepts and methodology of the tool. The following paragraphs can be seen as a TL;DL version of the information in that Demo notebook.
 
 #### Using the command line
 
@@ -145,7 +145,7 @@ pip install -r requirements_dev.txt  # Building distributions and running tests
 pip install -r docs/requirements.txt  # For working with the documentation
 ```
 
-Unit test and integration test are defined in the [`tests/`](./tests/) directory and can be triggered using `make test` or `pytest tests/`
+Unit test and integration test are defined in the `tests/` directory and can be triggered using `make test` or `pytest tests/`
 
 Coverage can be determined by running `make coverage`. The latest coverage report (HTML) for the default branch can also be found as an artifact of the CI/CD workflow.
 

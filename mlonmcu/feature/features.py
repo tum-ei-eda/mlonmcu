@@ -81,6 +81,34 @@ class DebugArena(BackendFeature, CompileFeature):
         return [f"-DDEBUG_ARENA={val}"]
 
 
+@register_feature("validate")
+class Validate(FrontendFeature, CompileFeature):
+    """Enable validaton of inout and output tensors."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "allow_missing": True,
+    }
+
+    def __init__(self, config=None):
+        super().__init__("validate", config=config)
+
+    @property
+    def allow_missing(self):
+        return bool(self.config["allow_missing"])
+
+    def get_frontend_config(self, frontend):
+        if not self.allow_missing:
+            raise NotImplementedError
+        return {f"{frontend}.use_inout_data": True}
+
+    def get_compile_config(self):
+        return {"mlif.ignore_data": False}
+
+    # def get_cmake_args(self):
+    #     pass
+
+
 @register_feature("muriscvnn")
 class Muriscvnn(SetupFeature, FrameworkFeature, CompileFeature):
     """MuriscvNN CMSIS-NN wrappers for TFLite Micro"""

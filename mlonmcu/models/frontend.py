@@ -15,14 +15,18 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.logging import get_logger
 
+from .utils import get_data_source
+
 logger = get_logger()
 
 
 class Frontend(ABC):
 
-    FEATURES = []
+    FEATURES = ["validate"]
 
-    DEFAULTS = {}
+    DEFAULTS = {
+        "use_inout_data": False,
+    }
 
     REQUIRED = []
 
@@ -48,6 +52,10 @@ class Frontend(ABC):
             probs.append(str(self.config))
         return "Frontend(" + ",".join(probs) + ")"
 
+    @property
+    def use_inout_data(self):
+        return bool(self.config["use_inout_data"])
+
     def supports_formats(self, ins=None, outs=None):
         """Returs true if the frontend can handle at least one combination of input and output formats."""
         assert (
@@ -69,18 +77,77 @@ class Frontend(ABC):
     def process_features(self, features):
         if features is None:
             return []
-        features = get_matching_features(features, FeatureType.TARGET)
+        features = get_matching_features(features, FeatureType.FRONTEND)
         for feature in features:
             assert (  # If this assertion occurs, continue with the next frontend instea dof failing (TODO: create custom exception type)
                 feature.name in self.FEATURES
             ), f"Incompatible feature: {feature.name}"
             # Instead we might introduce self.compatible and set it to true at this line
             feature.add_frontend_config(self.name, self.config)
+        print("process_features", features)
         return features
 
     @abstractmethod
+    # def produce_artifacts(self, model):
     def produce_artifacts(self, model):
         pass
+
+    def process_metadata(self, model, cfg=None):
+        model_dir = Path(model.paths[0]).parent
+        metadata = model.metadata
+        if self.use_inout_data:
+            print("AAA")
+            in_paths = []
+            out_paths = []
+            if "network_parameters" in metadata:
+                network = metadata["network_parameters"]
+                assert "input_nodes" in network
+                ins = network["input_nodes"]
+                for inp in ins:
+                    assert "example_input" in inp and "path" in inp["example_input"]
+                    in_data_dir = Path(inp["example_input"]["path"])
+                    # TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)
+                    in_path = model_dir / in_data_dir
+                    assert (
+                        in_path.is_dir()
+                    ), f"Input data directory defined in model metadata does not exist: {in_path}"
+                    in_paths.append(in_path)
+                assert "output_nodes" in network
+                outs = network["output_nodes"]
+                for outp in outs:
+                    assert "test_output_path" in outp
+                    out_data_dir = Path(outp["test_output_path"])
+                    out_path = model_dir / out_data_dir
+                    assert (
+                        in_path.is_dir()
+                    ), f"Output data directory defined in model metadata does not exist: {out_path}"
+                    out_paths.append(out_path)
+            else:
+                fallback_in_path = model_dir / "input"
+                if fallback_in_path.is_dir():
+                    in_paths.append(fallback_in_path)
+                fallback_out_path = model_dir / "output"
+                if fallback_out_path.is_dir():
+                    out_paths.append(fallback_out_path)
+            data_src = get_data_source(in_paths, out_paths)
+            data_artifact = Artifact(
+                "data.c", content=data_src, fmt=ArtifactFormat.SOURCE
+            )
+        else:
+            data_artifact = None
+
+        if "backends" in metadata:
+            print("BBB")
+            assert cfg is not None
+            backend_options = metadata["backends"]
+            for backend in backend_options:
+                flattened = {
+                    f"{backend}.{key}": value
+                    for key, value in backend_options[backend].items()
+                }
+                cfg.update(flattened)
+
+        return data_artifact
 
     def generate_models(self, model):
         artifacts = []
@@ -96,6 +163,7 @@ class Frontend(ABC):
         assert self.supports_formats(
             formats
         ), f"Invalid model format for '{self.name}' frontend"
+
         artifacts = self.produce_artifacts(model)
         if not isinstance(artifacts, list):
             artifacts = [artifacts]
@@ -181,7 +249,7 @@ class PackedFrontend(
     Frontend
 ):  # Inherit from TFLiteFrontend? -> how to do constructor?
 
-    FEATURES = ["packing", "packed"]
+    FEATURES = Frontend.FEATURES + ["packing", "packed"]
 
     DEFAULTS = {
         **Frontend.DEFAULTS,

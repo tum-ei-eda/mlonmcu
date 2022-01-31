@@ -16,7 +16,6 @@ from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.artifact import Artifact, ArtifactFormat
-from .inout import write_inout_data
 
 from mlonmcu.logging import get_logger
 
@@ -68,7 +67,7 @@ class MLIF:
                 self.tempdir = tempfile.TemporaryDirectory()
                 self.build_dir = Path(self.tempdir.name) / dir_name
                 logger.info("Temporary build directory: %s", self.build_dir)
-        self.data_dir = self.build_dir / "data"
+        # self.data_dir = self.build_dir / "data"
         if "mlif.src_dir" in self.config:
             if self.context:
                 logger.warn("User has overwritten the value of 'mlif.src_dir'")
@@ -126,43 +125,51 @@ class MLIF:
         #     if feature.type == FeatureType.TARGET:
         #         assert feature in self.target.features
 
-    def get_common_cmake_args(self, model, num=1):
-        args = {}
+    # def get_common_cmake_args(self, model, num=1):
+    def get_common_cmake_args(self, num=1):
+        args = []
+        args.append(f"-DNUM_RUNS={num}")
         return args
 
-    def prepare(self, model, ignore_data=False):
-        utils.mkdirs(self.data_dir)
-        data_file = self.data_dir / "data.c"
-        write_inout_data(model, data_file, skip=ignore_data)
-        return data_file
+    # def prepare(self, model, ignore_data=False):
+    def prepare(self):
+        # utils.mkdirs(self.data_dir)
+        # data_file = self.data_dir / "data.c"
+        # write_inout_data(model, data_file, skip=ignore_data)
+        # return data_file
+        pass
 
-    def configure(self, src, model, num=1, debug=False):
+    def configure(self, src, model, num=1, data_file=None, debug=False):
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = []
         cmakeArgs.extend(self.framework.get_cmake_args())
         cmakeArgs.extend(self.backend.get_cmake_args())
         cmakeArgs.extend(self.target.get_cmake_args())
-        cmakeArgs.extend(self.get_common_cmake_args(model))
+        cmakeArgs.extend(self.get_common_cmake_args(num=num))
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():
             cmakeArgs.append("-DSRC_DIR=" + str(src))
         else:
             raise RuntimeError("Unable to find sources!")
-        data_file = self.prepare(model, ignore_data=(not debug or self.ignore_data))
-        cmakeArgs.append("-DDATA_SRC=" + str(data_file))
+        # data_file = self.prepare(model, ignore_data=(not debug or self.ignore_data))
+        if self.ignore_data:
+            cmakeArgs.append("-DDATA_SRC=")
+        else:
+            assert data_file is not None, "No data.c file was supplied"
+            cmakeArgs.append("-DDATA_SRC=" + str(data_file))
         utils.mkdirs(self.build_dir)
         utils.cmake(self.mlif_dir, *cmakeArgs, cwd=self.build_dir, debug=debug)
 
-    def compile(self, src=None, model=None, num=1, debug=False):
+    def compile(self, src=None, model=None, num=1, data_file=None, debug=False):
         if src:
-            self.configure(src, model, num=num, debug=debug)
+            self.configure(src, model, num=num, data_file=data_file, debug=debug)
         utils.make(self.goal, cwd=self.build_dir)
 
-    def generate_elf(self, src=None, model=None, num=1, debug=False):
+    def generate_elf(self, src=None, model=None, num=1, data_file=None, debug=False):
         artifacts = []
-        self.compile(src=src, model=model, num=num, debug=debug)
+        self.compile(src=src, model=model, num=num, data_file=data_file, debug=debug)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:

@@ -195,7 +195,14 @@ class Run:
         self.export_stage(RunStage.BUILD, optional=False)
         codegen_dir = self.dir
         # TODO: MLIF -> self.?
-        self.mlif.generate_elf(codegen_dir, num=self.num)
+        data_file = None
+        for artifact in self.artifacts_per_stage[RunStage.LOAD]:
+            if artifact.name == "data.c":
+                artifact.export(self.dir)
+                data_file = Path(self.dir) / "data.c"
+        self.mlif.generate_elf(
+            codegen_dir, num=self.num, data_file=data_file, debug=True
+        )
         self.artifacts_per_stage[RunStage.COMPILE] = self.mlif.artifacts
 
         self.stage = max(self.stage, RunStage.COMPILE)
@@ -229,7 +236,18 @@ class Run:
         # assert self.stage >= RunStage.NOP
 
         self.frontend.generate_models(self.model)
+        # The following is very very dirty but required to update arena sizes via model metadata...
+        cfg_new = {}
+        data_artifact = self.frontend.process_metadata(self.model, cfg=cfg_new)
+        if len(cfg_new) > 0:
+            for key, value in cfg_new.items():
+                backend, name = key.split(".")[:2]
+                if self.backend is not None and backend == self.backend.name:
+                    self.backend.config[name] = value
+                    self.config[key] = value
         self.artifacts_per_stage[RunStage.LOAD] = self.frontend.artifacts
+        if data_artifact:
+            self.artifacts_per_stage[RunStage.LOAD].append(data_artifact)
 
         self.stage = max(self.stage, RunStage.LOAD)
         self.active = False

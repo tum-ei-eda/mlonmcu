@@ -27,8 +27,9 @@ def add_flow_options(parser):
         type=str,
         metavar="TARGET",
         choices=SUPPORTED_TARGETS.keys(),
-        default=None,
-        nargs=1,
+        action="append",
+        # default=None,
+        # nargs=1,
         help="The target device/architecture (choices: %(choices)s)",
     )
     flow_parser.add_argument(

@@ -278,6 +278,7 @@ class MlonMcuContext:
         if os.path.islink(session_link):
             os.unlink(session_link)
         os.symlink(session_dir, session_link)
+        return session
 
     def load_cache(self):
         """If available load the cache.ini file in the deps directory"""

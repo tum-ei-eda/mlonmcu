@@ -299,7 +299,7 @@ class ETISSPulpinoTarget(Target):
             )
 
         metrics = Metrics()
-        metrics.add("Total Cyles", total_cycles)
+        metrics.add("Total Cycles", total_cycles)
         metrics.add("MIPS", mips, optional=True)
 
         metrics_file = os.path.join(directory, "metrics.csv")

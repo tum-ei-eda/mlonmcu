@@ -198,9 +198,6 @@ def print_models(models, duplicates=[], detailed=False):
         name = model.name
         path = model.paths[0]
         meta = "available" if model.metadata is not None else "not available"
-        has_backend_options = (
-            model.metadata and model.metadata.backend_options_map is not None
-        )
         print("    " + name, end="")
         if name in duplicates:
             num = duplicates[name]
@@ -210,10 +207,6 @@ def print_models(models, duplicates=[], detailed=False):
         if detailed:
             print(f"        Path: {path}")
             print(f"        Metadata: {meta}")
-            if has_backend_options:
-                backends = " ".join(model.metadata.backend_options_map.keys())
-                print(f"        Backend Options: {backends}")
-            print()
     print()
 
 

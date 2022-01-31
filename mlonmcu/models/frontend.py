@@ -84,7 +84,6 @@ class Frontend(ABC):
             ), f"Incompatible feature: {feature.name}"
             # Instead we might introduce self.compatible and set it to true at this line
             feature.add_frontend_config(self.name, self.config)
-        print("process_features", features)
         return features
 
     @abstractmethod
@@ -96,10 +95,9 @@ class Frontend(ABC):
         model_dir = Path(model.paths[0]).parent
         metadata = model.metadata
         if self.use_inout_data:
-            print("AAA")
             in_paths = []
             out_paths = []
-            if "network_parameters" in metadata:
+            if metadata is not None and "network_parameters" in metadata:
                 network = metadata["network_parameters"]
                 assert "input_nodes" in network
                 ins = network["input_nodes"]
@@ -136,8 +134,7 @@ class Frontend(ABC):
         else:
             data_artifact = None
 
-        if "backends" in metadata:
-            print("BBB")
+        if metadata is not None and "backends" in metadata:
             assert cfg is not None
             backend_options = metadata["backends"]
             for backend in backend_options:

@@ -85,20 +85,44 @@ size_t {prefix}_outputs();
     ):
 
         arena_size = (
-            arena_size if arena_size is not None else DEFAULT_CONFIG["arena_size"]
+            arena_size
+            if arena_size is not None
+            else TFLMIBackend.DEFAULTS["arena_size"]
         )
-        ops = ops if ops else DEFAULT_CONFIG["ops"]
+        ops = ops if ops else TFLMIBackend.DEFAULTS["ops"]
         if len(ops) > 0:
-            raise NotImplementedError
-        custom_ops = custom_ops if custom_ops else DEFAULT_CONFIG["custom_ops"]
+
+            def convert_op_name(op):
+                new_name = ""
+                prev = None
+                for i, c in enumerate(op):
+                    if c == "_":
+                        prev = c
+                        continue
+                    elif prev is None:
+                        new_name += c
+                    elif (prev == "_") or prev.isdigit():
+                        new_name += c
+                    elif prev.isupper():
+                        new_name += c.lower()
+                    elif c.islower():
+                        new_name += c
+                    prev = c
+                return new_name
+
+            op_names = list(map(convert_op_name, ops))
+            ops = op_names
+        custom_ops = custom_ops if custom_ops else TFLMIBackend.DEFAULTS["custom_ops"]
         if len(custom_ops) > 0:
             raise NotImplementedError
         registrations = (
-            registrations if registrations else DEFAULT_CONFIG["registrations"]
+            registrations if registrations else TFLMIBackend.DEFAULTS["registrations"]
         )  # TODO: Dict or list?
         if len(registrations) > 0:
             raise NotImplementedError
-        ops_resolver = ops_resolver if ops_resolver else DEFAULT_CONFIG["ops_resolver"]
+        ops_resolver = (
+            ops_resolver if ops_resolver else TFLMIBackend.DEFAULTS["ops_resolver"]
+        )
         if ops_resolver != "mutable":
             raise NotImplementedError
 
@@ -127,7 +151,8 @@ size_t {prefix}_outputs();
 #define ALIGN(X) __declspec(align(X))
 #elif defined __TASKING__
 #define ALIGN(X) __align(X)
-#endif"""
+#endif
+"""
         if (
             debug_arena
         ):  # This will enable the feature only if it is not overwritten by the user/compiler
@@ -169,7 +194,9 @@ private:
 } // namespace
 
 // The name of this function is important for Arduino compatibility.
-void {prefix}_init() {
+"""
+            + f"void {prefix}_init() {{"
+            + """
   // Set up logging. Google style is to avoid globals or statics because of
   // lifetime uncertainty, but since this has a trivial destructor it's okay.
   // NOLINTNEXTLINE(runtime-global-variables)
@@ -213,43 +240,43 @@ void {prefix}_init() {
 }
 """
 
-        wrapper_content += """
-void *{prefix}_input_ptr(int id) {
+        wrapper_content += f"""
+void *{prefix}_input_ptr(int id) {{
   return interpreter->input(id)->data.data;
-}
+}}
 
-size_t {prefix}_input_size(int id) {
+size_t {prefix}_input_size(int id) {{
   return interpreter->input(id)->bytes;
-}
+}}
 
-size_t {prefix}_inputs() {
+size_t {prefix}_inputs() {{
   return interpreter->inputs_size();
-}
+}}
 
-void *{prefix}_output_ptr(int id) {
+void *{prefix}_output_ptr(int id) {{
   return interpreter->output(id)->data.data;
-}
+}}
 
-size_t {prefix}_output_size(int id) {
+size_t {prefix}_output_size(int id) {{
   return interpreter->output(id)->bytes;
-}
+}}
 
-size_t {prefix}_outputs() {
+size_t {prefix}_outputs() {{
   return interpreter->outputs_size();
-}
+}}
 
-void {prefix}_invoke() {
+void {prefix}_invoke() {{
   // Run inference, and report any error
   TfLiteStatus invoke_status = interpreter->Invoke();
-  if (invoke_status != kTfLiteOk) {
+  if (invoke_status != kTfLiteOk) {{
     error_reporter->Report("Invoke failed\\n");
     return;
-  }
+  }}
 #if DEBUG_ARENA_USAGE
   size_t used = interpreter->arena_used_bytes();
   error_reporter->Report("Arena Usage after model invocation: %d bytes\\n", used);
 #endif  // DEBUG_ARENA_USAGE
-}
+}}
 """
         if header:
             return wrapper_content, header_content
@@ -306,7 +333,7 @@ class TFLMIBackend(TFLiteBackend):
                 f"{self.prefix}.cc.h",
                 content=header_code,
                 fmt=ArtifactFormat.SOURCE,
-                optional=True,
+                optional=False,
             )
         )
         self.artifacts = artifacts

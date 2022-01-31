@@ -102,8 +102,9 @@
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;TARGET&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">SUPPORTED_TARGETS</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
-        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+        <span class="c1"># default=None,</span>
+        <span class="c1"># nargs=1,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The target device/architecture (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>

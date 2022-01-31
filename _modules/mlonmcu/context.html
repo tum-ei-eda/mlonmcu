@@ -352,7 +352,8 @@
         <span class="n">session_link</span> <span class="o">=</span> <span class="n">sessions_directory</span> <span class="o">/</span> <span class="s2">&quot;latest&quot;</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">session_link</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">session_link</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">session_dir</span><span class="p">,</span> <span class="n">session_link</span><span class="p">)</span></div>
+        <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">session_dir</span><span class="p">,</span> <span class="n">session_link</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">session</span></div>
 
 <div class="viewcode-block" id="MlonMcuContext.load_cache"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;If available load the cache.ini file in the deps directory&quot;&quot;&quot;</span>

@@ -156,6 +156,34 @@
         <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-DDEBUG_ARENA=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
 
 
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;validate&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Validate</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enable validaton of inout and output tensors.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;allow_missing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;validate&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">allow_missing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;allow_missing&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.use_inout_data&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">get_compile_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mlif.ignore_data&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+    <span class="c1"># def get_cmake_args(self):</span>
+    <span class="c1">#     pass</span>
+
+
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">Muriscvnn</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;MuriscvNN CMSIS-NN wrappers for TFLite Micro&quot;&quot;&quot;</span>

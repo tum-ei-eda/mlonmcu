@@ -153,7 +153,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">frontend</span> <span class="o">=</span> <span class="n">frontend_cls</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">frontend_config</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;BLA&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">()</span> <span class="kn">from</span> <span class="nn">err</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Frontend could not be initialized. Continuing with next one...&quot;</span><span class="p">)</span>
             <span class="k">continue</span>
         <span class="n">frontends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frontend</span><span class="p">)</span>
@@ -179,8 +179,8 @@
         <span class="n">run</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="n">run</span><span class="o">.</span><span class="n">add_frontend</span><span class="p">(</span><span class="n">frontend</span><span class="p">)</span>
         <span class="c1"># session.runs.append(run)</span>
-    <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
-        <span class="n">run</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+    <span class="c1"># for run in session.runs:</span>
+    <span class="c1">#     run.load(context=context)</span>
 
 
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.load.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

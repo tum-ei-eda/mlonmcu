@@ -78,108 +78,118 @@
 <span class="kn">from</span> <span class="nn">.options</span> <span class="kn">import</span> <span class="n">parse_model_options_for_backend</span>
 
 
-<div class="viewcode-block" id="ModelOperator"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.metadata.ModelOperator">[docs]</a><span class="k">class</span> <span class="nc">ModelOperator</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">custom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">registration</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">custom</span> <span class="o">=</span> <span class="n">custom</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">registration</span> <span class="o">=</span> <span class="n">registration</span></div>
-
-
-<div class="viewcode-block" id="ModelMetadata"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.metadata.ModelMetadata">[docs]</a><span class="k">class</span> <span class="nc">ModelMetadata</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">author</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">created_at</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">backend_options_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">author</span> <span class="k">if</span> <span class="n">author</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;unknown&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span> <span class="k">if</span> <span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">created_at</span> <span class="o">=</span> <span class="n">created_at</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">refrences</span> <span class="o">=</span> <span class="n">references</span> <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">backend_options_map</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">backend_options_map</span> <span class="k">if</span> <span class="n">backend_options_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;ModelMetadata(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span></div>
-
-
-<div class="viewcode-block" id="TfLitelMetadata"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.metadata.TfLitelMetadata">[docs]</a><span class="k">class</span> <span class="nc">TfLitelMetadata</span><span class="p">(</span><span class="n">ModelMetadata</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">author</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">created_at</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">backend_options_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">operators</span><span class="o">=</span><span class="p">[],</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">author</span><span class="o">=</span><span class="n">author</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
-            <span class="n">created_at</span><span class="o">=</span><span class="n">created_at</span><span class="p">,</span>
-            <span class="n">references</span><span class="o">=</span><span class="n">references</span><span class="p">,</span>
-            <span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span>
-            <span class="n">backend_options_map</span><span class="o">=</span><span class="n">backend_options_map</span><span class="p">,</span>
-            <span class="n">operators</span><span class="o">=</span><span class="n">operators</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">operators</span> <span class="o">=</span> <span class="n">operators</span></div>
-
-
 <div class="viewcode-block" id="parse_metadata"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.metadata.parse_metadata">[docs]</a><span class="k">def</span> <span class="nf">parse_metadata</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yamlfile</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yamlfile</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">content</span><span class="p">:</span>
-                <span class="c1"># file empty</span>
-                <span class="k">return</span> <span class="n">ModelMetadata</span><span class="p">()</span>
-            <span class="k">if</span> <span class="s2">&quot;author&quot;</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-                <span class="n">author</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">author</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="s2">&quot;description&quot;</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-                <span class="n">description</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">description</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="s2">&quot;created_at&quot;</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-                <span class="n">created_at</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s2">&quot;created_at&quot;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">created_at</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="s2">&quot;references&quot;</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-                <span class="n">references</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s2">&quot;references&quot;</span><span class="p">]</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">references</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="s2">&quot;comment&quot;</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-                <span class="n">comment</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">comment</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">backend_options_map</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">if</span> <span class="s2">&quot;backends&quot;</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
-                <span class="n">backends</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s2">&quot;backends&quot;</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">backends</span><span class="p">:</span>
-                    <span class="n">backend_options</span> <span class="o">=</span> <span class="n">parse_model_options_for_backend</span><span class="p">(</span>
-                        <span class="n">backend</span><span class="p">,</span> <span class="n">backends</span><span class="p">[</span><span class="n">backend</span><span class="p">]</span>
-                    <span class="p">)</span>
-                    <span class="n">backend_options_map</span><span class="p">[</span><span class="n">backend</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend_options</span>
-            <span class="n">metadata</span> <span class="o">=</span> <span class="n">ModelMetadata</span><span class="p">(</span>
-                <span class="n">author</span><span class="o">=</span><span class="n">author</span><span class="p">,</span>
-                <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
-                <span class="n">created_at</span><span class="o">=</span><span class="n">created_at</span><span class="p">,</span>
-                <span class="n">references</span><span class="o">=</span><span class="n">references</span><span class="p">,</span>
-                <span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span>
-                <span class="n">backend_options_map</span><span class="o">=</span><span class="n">backend_options_map</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">metadata</span>
         <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not open YAML file: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+    <span class="k">return</span> <span class="n">content</span></div>
 
-    <span class="k">return</span> <span class="kc">None</span></div>
+
+<span class="c1"># class ModelOperator:</span>
+<span class="c1">#     def __init__(self, name, custom=False, registration=None):</span>
+<span class="c1">#         self.name = name</span>
+<span class="c1">#         self.custom = custom</span>
+<span class="c1">#         self.registration = registration</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># class ModelMetadata:</span>
+<span class="c1">#     def __init__(</span>
+<span class="c1">#         self,</span>
+<span class="c1">#         author=&quot;unknown&quot;,</span>
+<span class="c1">#         description=&quot;&quot;,</span>
+<span class="c1">#         created_at=None,</span>
+<span class="c1">#         references=None,</span>
+<span class="c1">#         comment=None,</span>
+<span class="c1">#         backend_options_map=None,</span>
+<span class="c1">#     ):</span>
+<span class="c1">#         self.author = author if author is not None else &quot;unknown&quot;</span>
+<span class="c1">#         self.description = description if description is not None else &quot;&quot;</span>
+<span class="c1">#         self.created_at = created_at</span>
+<span class="c1">#         self.refrences = references if references is not None else []</span>
+<span class="c1">#         self.comment = comment</span>
+<span class="c1">#         self.backend_options_map = (</span>
+<span class="c1">#             backend_options_map if backend_options_map is not None else {}</span>
+<span class="c1">#         )</span>
+<span class="c1">#</span>
+<span class="c1">#     def __repr__(self):</span>
+<span class="c1">#         return &quot;ModelMetadata(&quot; + str(vars(self)) + &quot;)&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># class TfLitelMetadata(ModelMetadata):</span>
+<span class="c1">#     def __init__(</span>
+<span class="c1">#         self,</span>
+<span class="c1">#         author=&quot;unknown&quot;,</span>
+<span class="c1">#         description=&quot;&quot;,</span>
+<span class="c1">#         created_at=None,</span>
+<span class="c1">#         references=None,</span>
+<span class="c1">#         comment=None,</span>
+<span class="c1">#         backend_options_map=None,</span>
+<span class="c1">#         operators=[],</span>
+<span class="c1">#     ):</span>
+<span class="c1">#         super().__init__(</span>
+<span class="c1">#             author=author,</span>
+<span class="c1">#             description=description,</span>
+<span class="c1">#             created_at=created_at,</span>
+<span class="c1">#             references=references,</span>
+<span class="c1">#             comment=comment,</span>
+<span class="c1">#             backend_options_map=backend_options_map,</span>
+<span class="c1">#             operators=operators,</span>
+<span class="c1">#         )</span>
+<span class="c1">#         self.operators = operators</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># def parse_metadata(path):</span>
+<span class="c1">#     with open(path, &quot;r&quot;) as yamlfile:</span>
+<span class="c1">#         try:</span>
+<span class="c1">#             content = yaml.safe_load(yamlfile)</span>
+<span class="c1">#             if not content:</span>
+<span class="c1">#                 # file empty</span>
+<span class="c1">#                 return ModelMetadata()</span>
+<span class="c1">#             if &quot;author&quot; in content:</span>
+<span class="c1">#                 author = content[&quot;author&quot;]</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 author = None</span>
+<span class="c1">#             if &quot;description&quot; in content:</span>
+<span class="c1">#                 description = content[&quot;description&quot;]</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 description = None</span>
+<span class="c1">#             if &quot;created_at&quot; in content:</span>
+<span class="c1">#                 created_at = content[&quot;created_at&quot;]</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 created_at = None</span>
+<span class="c1">#             if &quot;references&quot; in content:</span>
+<span class="c1">#                 references = content[&quot;references&quot;]</span>
+<span class="c1">#                 assert isinstance(references, list)</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 references = []</span>
+<span class="c1">#             if &quot;comment&quot; in content:</span>
+<span class="c1">#                 comment = content[&quot;comment&quot;]</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 comment = None</span>
+<span class="c1">#             backend_options_map = {}</span>
+<span class="c1">#             if &quot;backends&quot; in content:</span>
+<span class="c1">#                 backends = content[&quot;backends&quot;]</span>
+<span class="c1">#                 for backend in backends:</span>
+<span class="c1">#                     backend_options = parse_model_options_for_backend(</span>
+<span class="c1">#                         backend, backends[backend]</span>
+<span class="c1">#                     )</span>
+<span class="c1">#                     backend_options_map[backend] = backend_options</span>
+<span class="c1">#             metadata = ModelMetadata(</span>
+<span class="c1">#                 author=author,</span>
+<span class="c1">#                 description=description,</span>
+<span class="c1">#                 created_at=created_at,</span>
+<span class="c1">#                 references=references,</span>
+<span class="c1">#                 comment=comment,</span>
+<span class="c1">#                 backend_options_map=backend_options_map,</span>
+<span class="c1">#             )</span>
+<span class="c1">#             return metadata</span>
+<span class="c1">#         except yaml.YAMLError as err:</span>
+<span class="c1">#             raise RuntimeError(f&quot;Could not open YAML file: {path}&quot;) from err</span>
+<span class="c1">#</span>
+<span class="c1">#     return None</span>
 </pre></div>
 
            </div>

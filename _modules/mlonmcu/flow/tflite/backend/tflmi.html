@@ -161,20 +161,44 @@
     <span class="p">):</span>
 
         <span class="n">arena_size</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">arena_size</span> <span class="k">if</span> <span class="n">arena_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
+            <span class="n">arena_size</span>
+            <span class="k">if</span> <span class="n">arena_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="k">if</span> <span class="n">ops</span> <span class="k">else</span> <span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">&quot;ops&quot;</span><span class="p">]</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="k">if</span> <span class="n">ops</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-        <span class="n">custom_ops</span> <span class="o">=</span> <span class="n">custom_ops</span> <span class="k">if</span> <span class="n">custom_ops</span> <span class="k">else</span> <span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">&quot;custom_ops&quot;</span><span class="p">]</span>
+
+            <span class="k">def</span> <span class="nf">convert_op_name</span><span class="p">(</span><span class="n">op</span><span class="p">):</span>
+                <span class="n">new_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">op</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>
+                        <span class="n">prev</span> <span class="o">=</span> <span class="n">c</span>
+                        <span class="k">continue</span>
+                    <span class="k">elif</span> <span class="n">prev</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">new_name</span> <span class="o">+=</span> <span class="n">c</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">prev</span> <span class="o">==</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">prev</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                        <span class="n">new_name</span> <span class="o">+=</span> <span class="n">c</span>
+                    <span class="k">elif</span> <span class="n">prev</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+                        <span class="n">new_name</span> <span class="o">+=</span> <span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">c</span><span class="o">.</span><span class="n">islower</span><span class="p">():</span>
+                        <span class="n">new_name</span> <span class="o">+=</span> <span class="n">c</span>
+                    <span class="n">prev</span> <span class="o">=</span> <span class="n">c</span>
+                <span class="k">return</span> <span class="n">new_name</span>
+
+            <span class="n">op_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">convert_op_name</span><span class="p">,</span> <span class="n">ops</span><span class="p">))</span>
+            <span class="n">ops</span> <span class="o">=</span> <span class="n">op_names</span>
+        <span class="n">custom_ops</span> <span class="o">=</span> <span class="n">custom_ops</span> <span class="k">if</span> <span class="n">custom_ops</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;custom_ops&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="n">registrations</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">registrations</span> <span class="k">if</span> <span class="n">registrations</span> <span class="k">else</span> <span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">&quot;registrations&quot;</span><span class="p">]</span>
+            <span class="n">registrations</span> <span class="k">if</span> <span class="n">registrations</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;registrations&quot;</span><span class="p">]</span>
         <span class="p">)</span>  <span class="c1"># TODO: Dict or list?</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">registrations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-        <span class="n">ops_resolver</span> <span class="o">=</span> <span class="n">ops_resolver</span> <span class="k">if</span> <span class="n">ops_resolver</span> <span class="k">else</span> <span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">&quot;ops_resolver&quot;</span><span class="p">]</span>
+        <span class="n">ops_resolver</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ops_resolver</span> <span class="k">if</span> <span class="n">ops_resolver</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops_resolver&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">ops_resolver</span> <span class="o">!=</span> <span class="s2">&quot;mutable&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -203,7 +227,8 @@
 <span class="s2">#define ALIGN(X) __declspec(align(X))</span>
 <span class="s2">#elif defined __TASKING__</span>
 <span class="s2">#define ALIGN(X) __align(X)</span>
-<span class="s2">#endif&quot;&quot;&quot;</span>
+<span class="s2">#endif</span>
+<span class="s2">&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">debug_arena</span>
         <span class="p">):</span>  <span class="c1"># This will enable the feature only if it is not overwritten by the user/compiler</span>
@@ -245,7 +270,9 @@
 <span class="s2">} // namespace</span>
 
 <span class="s2">// The name of this function is important for Arduino compatibility.</span>
-<span class="s2">void </span><span class="si">{prefix}</span><span class="s2">_init() {</span>
+<span class="s2">&quot;&quot;&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;void </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_init() </span><span class="se">{{</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">  // Set up logging. Google style is to avoid globals or statics because of</span>
 <span class="s2">  // lifetime uncertainty, but since this has a trivial destructor it&#39;s okay.</span>
 <span class="s2">  // NOLINTNEXTLINE(runtime-global-variables)</span>
@@ -289,43 +316,43 @@
 <span class="s2">}</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">void *</span><span class="si">{prefix}</span><span class="s2">_input_ptr(int id) {</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_ptr(int id) </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">  return interpreter-&gt;input(id)-&gt;data.data;</span>
-<span class="s2">}</span>
+<span class="se">}}</span><span class="s2"></span>
 
-<span class="s2">size_t </span><span class="si">{prefix}</span><span class="s2">_input_size(int id) {</span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_size(int id) </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">  return interpreter-&gt;input(id)-&gt;bytes;</span>
-<span class="s2">}</span>
+<span class="se">}}</span><span class="s2"></span>
 
-<span class="s2">size_t </span><span class="si">{prefix}</span><span class="s2">_inputs() {</span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_inputs() </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">  return interpreter-&gt;inputs_size();</span>
-<span class="s2">}</span>
+<span class="se">}}</span><span class="s2"></span>
 
-<span class="s2">void *</span><span class="si">{prefix}</span><span class="s2">_output_ptr(int id) {</span>
+<span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_ptr(int id) </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">  return interpreter-&gt;output(id)-&gt;data.data;</span>
-<span class="s2">}</span>
+<span class="se">}}</span><span class="s2"></span>
 
-<span class="s2">size_t </span><span class="si">{prefix}</span><span class="s2">_output_size(int id) {</span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_size(int id) </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">  return interpreter-&gt;output(id)-&gt;bytes;</span>
-<span class="s2">}</span>
+<span class="se">}}</span><span class="s2"></span>
 
-<span class="s2">size_t </span><span class="si">{prefix}</span><span class="s2">_outputs() {</span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_outputs() </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">  return interpreter-&gt;outputs_size();</span>
-<span class="s2">}</span>
+<span class="se">}}</span><span class="s2"></span>
 
-<span class="s2">void </span><span class="si">{prefix}</span><span class="s2">_invoke() {</span>
+<span class="s2">void </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_invoke() </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">  // Run inference, and report any error</span>
 <span class="s2">  TfLiteStatus invoke_status = interpreter-&gt;Invoke();</span>
-<span class="s2">  if (invoke_status != kTfLiteOk) {</span>
+<span class="s2">  if (invoke_status != kTfLiteOk) </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">    error_reporter-&gt;Report(&quot;Invoke failed</span><span class="se">\\</span><span class="s2">n&quot;);</span>
 <span class="s2">    return;</span>
-<span class="s2">  }</span>
+<span class="s2">  </span><span class="se">}}</span><span class="s2"></span>
 <span class="s2">#if DEBUG_ARENA_USAGE</span>
 <span class="s2">  size_t used = interpreter-&gt;arena_used_bytes();</span>
-<span class="s2">  error_reporter-&gt;Report(&quot;Arena Usage after model invocation: </span><span class="si">%d</span><span class="s2"> bytes</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
+<span class="s2">  error_reporter-&gt;Report(&quot;Arena Usage after model invocation: %d bytes</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
 <span class="s2">#endif  // DEBUG_ARENA_USAGE</span>
-<span class="s2">}</span>
+<span class="se">}}</span><span class="s2"></span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">wrapper_content</span><span class="p">,</span> <span class="n">header_content</span>
@@ -382,7 +409,7 @@
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.cc.h&quot;</span><span class="p">,</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">header_code</span><span class="p">,</span>
                 <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
-                <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div></div>

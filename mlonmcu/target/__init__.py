@@ -10,9 +10,11 @@
 from .etiss_pulpino import ETISSPulpinoTarget
 from .host_x86 import HostX86Target
 from .spike import SpikeTarget
+from .ovpsim import OVPSimTarget
 
 SUPPORTED_TARGETS = {
     "etiss_pulpino": ETISSPulpinoTarget,
     "host_x86": HostX86Target,
     "spike": SpikeTarget,
+    "ovpsim": OVPSimTarget,
 }

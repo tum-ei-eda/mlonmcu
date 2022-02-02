@@ -135,7 +135,9 @@
                 <span class="n">new_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
                 <span class="n">out_str</span> <span class="o">=</span> <span class="n">out_str</span> <span class="o">+</span> <span class="n">new_line</span>
                 <span class="n">print_func</span><span class="p">(</span><span class="n">new_line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-            <span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+            <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">while</span> <span class="n">exit_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
             <span class="p">),</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>

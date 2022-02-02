@@ -104,11 +104,11 @@ class Target:
         metrics.add("Runtime [s]", diff)
         return metrics
 
-    def generate_metrics(self, elf, verbose=False):
+    def generate_metrics(self, elf, verbose=True):
         artifacts = []
         with tempfile.TemporaryDirectory() as temp_dir:
             metrics = self.get_metrics(elf, temp_dir, verbose=verbose)
-            content = metrics.to_csv()  # TODO: store df instead?
+            content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
             artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
             # Alternative: artifact = Artifact("metrics.csv", data=df/dict, fmt=ArtifactFormat.DATA)
             artifacts.append(artifact)

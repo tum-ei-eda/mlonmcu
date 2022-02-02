@@ -257,7 +257,10 @@ class ETISSPulpinoTarget(Target):
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")
         cycles = int(float(cpu_cycles.group(1)))
-        mips = None  # TODO: parse mips?
+        mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
+        if not mips_match:
+            raise RuntimeError("unexpected script output (mips)")
+        mips = int(float(mips_match.group(1)))
 
         return cycles, mips
 

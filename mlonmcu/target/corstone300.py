@@ -14,6 +14,7 @@ from .common import cli, execute
 from .target import Target
 from .metrics import Metrics
 
+
 class Corstone300Target(Target):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
@@ -49,7 +50,20 @@ class Corstone300Target(Target):
         return int(self.config["timeout_sec"])
 
     def get_default_fvp_args(self):
-        return ["-C", f"ethosu.num_macs={self.ethosu_num_macs}", "-C", "mps3_board.visualisation.disable-visualisation=1", "-C", "mps3_board.telnetterminal0.start_telnet=0", "-C", "mps3_board.uart0.out_file=\"-\"", "-C", "mps3_board.uart0.unbuffered_output=1", "-C", "mps3_board.uart0.shutdown_on_eot=1"]
+        return [
+            "-C",
+            f"ethosu.num_macs={self.ethosu_num_macs}",
+            "-C",
+            "mps3_board.visualisation.disable-visualisation=1",
+            "-C",
+            "mps3_board.telnetterminal0.start_telnet=0",
+            "-C",
+            'mps3_board.uart0.out_file="-"',
+            "-C",
+            "mps3_board.uart0.unbuffered_output=1",
+            "-C",
+            "mps3_board.uart0.shutdown_on_eot=1",
+        ]
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
@@ -64,12 +78,12 @@ class Corstone300Target(Target):
             raise NotImplementedError
 
         ret = execute(
-                self.fvp_exe.resolve(),
-                *fvp_args,
-                program,
-                *args,
-                **kwargs,
-            )
+            self.fvp_exe.resolve(),
+            *fvp_args,
+            program,
+            *args,
+            **kwargs,
+        )
         return ret
 
     def parse_stdout(self, out):

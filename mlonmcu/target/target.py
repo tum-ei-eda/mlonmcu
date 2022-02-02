@@ -132,5 +132,9 @@ class Target:
         else:
             raise NotImplementedError
 
+    def get_target_system(self):
+        return self.name
+
     def get_cmake_args(self):
-        return [f"-DTARGET_SYSTEM={self.name}"]
+        target_system = self.get_target_system()
+        return [f"-DTARGET_SYSTEM={target_system}"]

@@ -11,26 +11,24 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 from .common import cli, execute
-from .target import Target
+from .target import Target, RISCVTarget
 from .metrics import Metrics
 
-class SpikeTarget(Target):
+
+class SpikeTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
     FEATURES = ["vext"]
 
     DEFAULTS = {
-        "timeout_sec": 0,  # disabled
+        **RISCVTarget.DEFAULTS,
         "vlen": 0,  # vectorization=off
         "isa": "rv32gc",  # rv32gcv?
-        "extra_args": "",
     }
-    REQUIRED = ["spike.exe", "spike.pk", "riscv_gcc.install_dir"]
+    REQUIRED = RISCVTarget.REQUIRED + ["spike.exe", "spike.pk"]
 
     def __init__(self, features=None, config=None, context=None):
-        super().__init__(
-            "spike", features=features, config=config, context=context
-        )
+        super().__init__("spike", features=features, config=config, context=context)
 
     @property
     def spike_exe(self):
@@ -45,10 +43,6 @@ class SpikeTarget(Target):
         return str(self.config["isa"])
 
     @property
-    def riscv_prefix(self):
-        return Path(self.config["riscv_gcc.install_dir"])
-
-    @property
     def extra_args(self):
         return str(self.config["extra_args"])
 
@@ -56,17 +50,12 @@ class SpikeTarget(Target):
     def vlen(self):
         return int(self.config["vlen"])
 
-    @property
-    def timeout_sec(self):
-        # 0 = off
-        return int(self.config["timeout_sec"])
-
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         spike_args = []
 
         spike_args.append(f"--isa={self.isa}")
-        
+
         if len(self.extra_args) > 0:
             spike_args.extend(self.extra_args.split(" "))
 
@@ -80,13 +69,13 @@ class SpikeTarget(Target):
             raise NotImplementedError
 
         ret = execute(
-                self.spike_exe.resolve(),
-                *spike_args,
-                self.spike_pk.resolve(),
-                program,
-                *args,
-                **kwargs,
-            )
+            self.spike_exe.resolve(),
+            *spike_args,
+            self.spike_pk.resolve(),
+            program,
+            *args,
+            **kwargs,
+        )
         return ret
 
     def parse_stdout(self, out):
@@ -110,11 +99,6 @@ class SpikeTarget(Target):
         metrics.add("Total Cycles", cycles)
 
         return metrics
-
-    def get_cmake_args(self):
-        ret = super().get_cmake_args()
-        ret.append(f"-DRISCV_ELF_GCC_PREFIX={self.riscv_prefix}")
-        return ret
 
 
 if __name__ == "__main__":

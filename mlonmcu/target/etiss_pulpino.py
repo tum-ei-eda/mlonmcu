@@ -5,119 +5,28 @@ import re
 import csv
 from pathlib import Path
 
-# from mlonmcu.context import MlonMcuContext
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
 from .common import cli, execute
-from .target import Target
+from .target import Target, RISCVTarget
 from .metrics import Metrics
 
 
-# def lookup_riscv_prefix(
-#     cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None
-# ) -> Path:
-#     """Utility to find the directory where the RISCV GCC compiler toolchain is installed.
-#
-#     Parameters
-#     ----------
-#     cfg : dict
-#         Optional config provided by the user.
-#     env : os._Environ
-#         Environment variables
-#     context : MlonMcuContext
-#         Optional context for looking up dependencies
-#
-#     Returns
-#     -------
-#     path : pathlib.Path
-#         The path to the toolchain directory (if found).
-#     """
-#     prefix = None
-#
-#     if cfg:
-#         if "riscv.dir" in cfg:
-#             prefix = cfg["riscv.dir"]
-#
-#     if context:
-#         if context.cache:
-#             if context.cache["riscv.dir"]:
-#                 prefix = context.cache["riscv.dir"]
-#
-#     if env:
-#         if "MLONMCU_HOME" in env:
-#             with MlonMcuContext() as ctx:
-#                 if ctx.cache:
-#                     if ctx.cache["riscv.dir"]:
-#                         prefix = ctx.cache["riscv.dir"]
-#         elif "RISCV_DIR" in env:
-#             prefix = env["RISCV_DIR"]
-#
-#     if not prefix:
-#         prefix = ""
-#
-#     return prefix
-#
-#
-# def lookup_etiss(
-#     cfg: dict = None, env: os._Environ = None, context: MlonMcuContext = None
-# ) -> Path:
-#     """Utility to find the directory where the ETISS simulator is installed.
-#
-#     Parameters
-#     ----------
-#     cfg : dict
-#         Optional config provided by the user.
-#     env : os._Environ
-#         Environment variables
-#     context : MlonMcuContext
-#         Optional context for looking up dependencies
-#
-#     Returns
-#     -------
-#     path : pathlib.Path
-#         The path to the ETISS install directory (if found).
-#     """
-#     etiss = None
-#
-#     if cfg:
-#         if "etiss.dir" in cfg:
-#             etiss = cfg["etiss.dir"]
-#
-#     if context:  # TODO: feature flags?
-#         if context.cache:
-#             if context.cache["etiss.install_dir"]:
-#                 etiss = context.cache["etiss.install_dir"]
-#     if env:
-#         if "MLONMCU_HOME" in env:
-#             with MlonMcuContext() as ctx:
-#                 if ctx.cache:
-#                     if ctx.cache["etiss.install_dir"]:
-#                         etiss = ctx.cache["etiss.install_dir"]
-#         if "ETISS_DIR" in env:
-#             etiss = env["ETISS_DIR"]
-#
-#     if not etiss:
-#         etiss = ""
-#
-#     return etiss
-
-
-class ETISSPulpinoTarget(Target):
+class ETISSPulpinoTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
     FEATURES = ["gdbserver", "etissdbg", "trace"]
 
     DEFAULTS = {
+        **RISCVTarget.DEFAULTS,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
         "debug_etiss": False,
         "trace_memory": False,
-        "extra_args": "",
         "verbose": False,
-        "timeout_sec": 0,  # disabled
         # TODO: how to keep this in sync with setup/tasks.py? (point to ETISSPulpinoTarget.DEFAULTS?)
         "etissvp.rom_start": 0x0,
         "etissvp.rom_size": 0x800000,  # 8 MB
@@ -125,7 +34,7 @@ class ETISSPulpinoTarget(Target):
         "etissvp.ram_size": 0x4000000,  # 64 MB
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
     }
-    REQUIRED = ["riscv_gcc.install_dir", "etiss.install_dir"]
+    REQUIRED = RISCVTarget.REQUIRED + ["etiss.install_dir"]
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(
@@ -152,15 +61,6 @@ class ETISSPulpinoTarget(Target):
     @property
     def etiss_dir(self):
         return self.config["etiss.install_dir"]
-
-    @property
-    def riscv_prefix(self):
-        return self.config["riscv_gcc.install_dir"]
-
-    @property
-    def timeout_sec(self):
-        # 0 = off
-        return int(self.config["timeout_sec"])
 
     # TODO: add missing properties
     #    "gdbserver_enable": False,
@@ -358,7 +258,6 @@ class ETISSPulpinoTarget(Target):
     def get_cmake_args(self):
         ret = super().get_cmake_args()
         ret.append(f"-DETISS_DIR={self.etiss_dir}")
-        ret.append(f"-DRISCV_ELF_GCC_PREFIX={self.riscv_prefix}")
         return ret
 
 

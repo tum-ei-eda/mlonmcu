@@ -11,30 +11,28 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 from .common import cli, execute
-from .target import Target
+from .target import Target, RISCVTarget
 from .metrics import Metrics
 
-class OVPSimTarget(Target):
+
+class OVPSimTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
     FEATURES = ["vext", "gdbserver"]
 
     DEFAULTS = {
-        "timeout_sec": 0,  # disabled
+        **RISCVTarget.DEFAULTS,
         "vlen": 32,  # vectorization=off
         "enable_vext": False,
         "enable_fpu": True,
         "variant": "RVB32I",
         # "extensions": "MAFDCV",
         "extensions": "MAFDC",  # rv32gc
-        "extra_args": "",
     }
-    REQUIRED = ["ovpsim.exe", "riscv_gcc.install_dir"]
+    REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
 
     def __init__(self, features=None, config=None, context=None):
-        super().__init__(
-            "ovpsim", features=features, config=config, context=context
-        )
+        super().__init__("ovpsim", features=features, config=config, context=context)
 
     @property
     def ovpsim_exe(self):
@@ -49,14 +47,6 @@ class OVPSimTarget(Target):
         return str(self.config["extensions"])
 
     @property
-    def riscv_prefix(self):
-        return Path(self.config["riscv_gcc.install_dir"])
-
-    @property
-    def extra_args(self):
-        return str(self.config["extra_args"])
-
-    @property
     def vlen(self):
         return int(self.config["vlen"])
 
@@ -68,35 +58,37 @@ class OVPSimTarget(Target):
     def enable_vext(self):
         return bool(self.config["enable_vext"])
 
-    @property
-    def timeout_sec(self):
-        # 0 = off
-        return int(self.config["timeout_sec"])
-
-# $SCRIPT_DIR/bin/riscvOVPsimPlus \
-#     --program $1 \
-#     --variant RVB32I \
-#     --override riscvOVPsim/cpu/add_Extensions=MAFDCV \
-#     --override riscvOVPsim/cpu/unaligned=T \
-#     --override riscvOVPsim/cpu/vector_version=1.0-draft-20210130 \
-#     --override riscvOVPsim/cpu/VLEN=$2 \
-#     --override riscvOVPsim/cpu/ELEN=32 \
-#     --override riscvOVPsim/cpu/mstatus_FS=$3 \
-#     --override riscvOVPsim/cpu/mstatus_VS=$3
-#     # --trace ?
-#     # --port 3333 ?
-#     # --gdbconsole ?
     def get_default_ovpsim_args(self):
-        args =  ["--variant", self.variant, "--override", f"riscvOVPsim/cpu/add_Extensions={self.extensions}", "--override", "riscvOVPsim/cpu/unaligned=T"]
+        args = [
+            "--variant",
+            self.variant,
+            "--override",
+            f"riscvOVPsim/cpu/add_Extensions={self.extensions}",
+            "--override",
+            "riscvOVPsim/cpu/unaligned=T",
+        ]
         if "vext" in [feature.name for feature in self.features]:  # TODO: remove this
             raise NotImplementedError
         if self.enable_vext:
             assert "V" in self.extensions
-            args.extend(["--override", "riscvOVPsim/cpu/vector_version=1.0-draft-20210130", "--override", f"riscvOVPsim/cpu/VLEN={self.vlen}", "--override", "riscvOVPsim/cpu/ELEN=32"])
-            args.extend(["--override", f"riscvOVPsim/cpu/mstatus_VS={int(self.enable_vext)}"])
+            args.extend(
+                [
+                    "--override",
+                    "riscvOVPsim/cpu/vector_version=1.0-draft-20210130",
+                    "--override",
+                    f"riscvOVPsim/cpu/VLEN={self.vlen}",
+                    "--override",
+                    "riscvOVPsim/cpu/ELEN=32",
+                ]
+            )
+            args.extend(
+                ["--override", f"riscvOVPsim/cpu/mstatus_VS={int(self.enable_vext)}"]
+            )
         if self.enable_fpu:
             assert "F" in self.extensions
-        args.extend(["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"])
+        args.extend(
+            ["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"]
+        )
         if False:  # ?
             args.append("--trace")
             args.extend(["--port", "3333"])
@@ -109,7 +101,7 @@ class OVPSimTarget(Target):
 
         ovpsim_args.extend(["--program", str(program)])
         ovpsim_args.extend(self.get_default_ovpsim_args())
-        
+
         if len(self.extra_args) > 0:
             spike_args.extend(self.extra_args.split(" "))
 
@@ -117,11 +109,11 @@ class OVPSimTarget(Target):
             raise NotImplementedError
 
         ret = execute(
-                self.ovpsim_exe.resolve(),
-                *ovpsim_args,
-                *args,  # Does this work?
-                **kwargs,
-            )
+            self.ovpsim_exe.resolve(),
+            *ovpsim_args,
+            *args,  # Does this work?
+            **kwargs,
+        )
         return ret
 
     def parse_stdout(self, out):
@@ -152,12 +144,6 @@ class OVPSimTarget(Target):
         metrics.add("MIPS", cycles, optional=True)
 
         return metrics
-
-    def get_cmake_args(self):
-        # ret = super().get_cmake_args()
-        ret = [f"-DTARGET_SYSTEM=spike"]  # TODO: rename to generic_riscv
-        ret.append(f"-DRISCV_ELF_GCC_PREFIX={self.riscv_prefix}")
-        return ret
 
 
 if __name__ == "__main__":

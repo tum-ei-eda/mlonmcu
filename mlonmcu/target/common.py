@@ -60,7 +60,9 @@ def execute(
                 new_line = line.decode(errors="replace")
                 out_str = out_str + new_line
                 print_func(new_line.replace("\n", ""))
-            exit_code = process.poll()
+            exit_code = None
+            while exit_code is None:
+                exit_code = process.poll()
             assert (
                 exit_code == 0
             ), "The process returned an non-zero exit code {}! (CMD: `{}`)".format(

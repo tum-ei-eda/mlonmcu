@@ -211,6 +211,9 @@ class Session:
         results_file = results_dir / f"{self.alias}.csv"
         report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
+        print_report = True
+        if print_report:
+            logger.info("Report:\n" + str(report.df))
 
     def __repr__(self):
         return f"Session(idx={self.idx},status={self.status},runs={self.runs})"

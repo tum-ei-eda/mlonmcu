@@ -90,7 +90,9 @@ def init_frontends(frontend_names, features, config, context=None):
 
 def _handle(context, args):
     model_names = args.models
-    config, features = extract_config_and_init_features(args)
+    config = context.environment.vars
+    new_config, features = extract_config_and_init_features(args)
+    config.update(new_config)
     frontends = init_frontends(
         args.frontend, features=features, config=config, context=context
     )

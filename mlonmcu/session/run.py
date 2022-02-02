@@ -30,7 +30,7 @@ class Run:
     # FEATURES = []
 
     DEFAULTS = {
-        "export_optionals": False,
+        "export_optional": False,
     }
 
     # REQUIRED = []
@@ -160,7 +160,7 @@ class Run:
             self.stage >= RunStage.RUN
         )  # Alternative: allow to trigger previous stages recursively as a fallback
 
-        self.export_stage(RunStage.RUN, optional=False)
+        self.export_stage(RunStage.RUN, optional=self.export_optional)
         self.result = (
             None  # Artifact(f"metrics.csv", data=df, fmt=ArtifactFormat.DATAFRAME)
         )
@@ -177,7 +177,7 @@ class Run:
         # Alternative: drop artifacts of higher stages when re-triggering a lower one?
 
         assert self.stage >= RunStage.COMPILE
-        self.export_stage(RunStage.COMPILE, optional=False)
+        self.export_stage(RunStage.COMPILE, optional=self.export_optional)
         elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][0]
         self.target.generate_metrics(elf_artifact.path)
         self.artifacts_per_stage[RunStage.RUN] = self.target.artifacts
@@ -192,7 +192,7 @@ class Run:
         self.active = True
         assert self.stage >= RunStage.BUILD
 
-        self.export_stage(RunStage.BUILD, optional=False)
+        self.export_stage(RunStage.BUILD, optional=self.export_optional)
         codegen_dir = self.dir
         # TODO: MLIF -> self.?
         data_file = None
@@ -215,7 +215,7 @@ class Run:
         self.active = True
         assert self.stage >= RunStage.LOAD
 
-        self.export_stage(RunStage.LOAD, optional=False)
+        self.export_stage(RunStage.LOAD, optional=self.export_optional)
         model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
         if not model_artifact.exported:
             model_artifact.export(self.dir)
@@ -287,7 +287,7 @@ class Run:
             # self.stage = stage  # FIXME: The stage_func should update the stage intead?
         report = self.get_report()
         if export:
-            self.export(optional=True)  # TODO: set to flase?
+            self.export(optional=self.export_optional)  # TODO: set to flase?
             report_file = Path(self.dir) / "report.csv"
             report.export(report_file)
         return report
@@ -372,7 +372,7 @@ class Run:
         #     report.session_id = self.session.idx
         # if ?include_run_idx:
         #     report.run_idx = self.idx
-        self.export_stage(RunStage.RUN, optional=False)
+        self.export_stage(RunStage.RUN, optional=self.export_optional)
         if RunStage.RUN in self.artifacts_per_stage:
             metrics_artifact = self.artifacts_per_stage[RunStage.RUN][0]
             metrics = Metrics.from_csv(metrics_artifact.content)
@@ -382,7 +382,7 @@ class Run:
             [
                 {
                     **pre,
-                    **metrics.get_data(include_optional=True),
+                    **metrics.get_data(include_optional=self.export_optional),
                     **post,
                 }
             ]
@@ -395,7 +395,7 @@ class Run:
         # TODO use proper locks instead of boolean and also lock during export!
         assert not self.active, "Can not export an active run"
         for stage in range(self.stage):
-            self.export_stage(stage)
+            self.export_stage(stage, optional=optional)
 
         self.write_run_file()
 

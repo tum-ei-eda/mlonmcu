@@ -128,7 +128,6 @@ size_t {prefix}_outputs();
 
         model_data = None
         with open(model, "rb") as model_buf:
-            model_buf.read(1)  # ignore first byte?
             model_data = model_buf.read()
 
         code = ""

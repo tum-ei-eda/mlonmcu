@@ -110,7 +110,7 @@ class Validate(FrontendFeature, CompileFeature):
 
 
 @register_feature("muriscvnn")
-class Muriscvnn(SetupFeature, FrameworkFeature, CompileFeature):
+class Muriscvnn(SetupFeature, FrameworkFeature):
     """MuriscvNN CMSIS-NN wrappers for TFLite Micro"""
 
     REQUIRED = ["muriscvnn.lib", "muriscvnn.inc_dir"]
@@ -130,27 +130,51 @@ class Muriscvnn(SetupFeature, FrameworkFeature, CompileFeature):
         assert (
             framework == "tflite"
         ), f"Unsupported feature '{self.name}' for framework '{framework}'"
-        return {f"{framework}.extra_kernel": "muriscvnn"}
-
-    def add_compile_config(self, config):
-        # TODO: decide if this is better than directly defining cmake extra args here?
-        if "mlif.tflite_micro_libs" in config:
-            config["mlif.tflite_micro_libs"].append(self.muriscvnn_lib)
-        else:
-            config["mlif.tflite_micro_libs"] = [self.muriscvnn_lib]
-
-        if "mlif.tflite_micro_incs" in config:
-            config["mlif.tflite_micro_incs"].append(self.muriscvnn_inc_dir)
-        else:
-            config["mlif.tflite_micro_incs"] = [self.muriscvnn_inc_dir]
-
-        if "mlif.tflite_micro_extra_kernels" in config:
-            config["mlif.tflite_micro_extra_kernels"].append("muriscvnn")
-        else:
-            config["mlif.tflite_micro_extra_kernels"] = ["muriscvnn"]
+        # TODO: make sure that no other kernels is was set beforehand! -> add_framework_config
+        return {
+            f"{framework}.optimized_kernel": "cmsis_nn",
+            f"{framework}.optimized_kernel_lib": self.muriscvnn_lib,
+            f"{framework}.optimized_kernel_inc_dir": self.muriscvnn_inc_dir,
+        }
 
     def get_required_cache_flags(self):
-        return {"tflmc.exe": ["muriscvnn"]}
+        ret = {}
+        
+        ret["tflmc.exe"] =  ["muriscvnn"]
+        return ret
+
+# @before_feature("muriscvnn")  # TODO: implment something like this
+@register_feature("vext")
+class Vext(SetupFeature, TargetFeature):
+    """MuriscvNN CMSIS-NN wrappers for TFLite Micro"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "vlen": 64,  # TODO; define reasonable default? (Or put defaults in target and overwrite of not None)
+    }
+
+    REQUIRED = []
+
+    def __init__(self, config=None):
+        super().__init__("vext", config=config)
+
+    @property
+    def vlen(self):
+        return int(self.config["vlen"])
+
+    def get_target_config(self, target):
+        assert target in ["spike", "ovpsim"]
+        return {
+            f"{target}.enable_vext": True,
+            f"{target}.vlen": self.vlen,
+        }
+
+    def get_required_cache_flags(self):
+        return {
+            "muriscvnn.lib": ["vext"],
+            "muriscvnn.inc_dir": ["vext"],
+            "tflmc.exe": "vext",
+        }
 
 
 @register_feature("debug")
@@ -184,11 +208,11 @@ class GdbServer(TargetFeature):
     @property
     def attach(self):
         # TODO: implement get_bool_or_none?
-        return bool(self.config["attach"]) if "attach" in self.config else None
+        return bool(self.config["attach"]) if self.config["attach"] is not None else None
 
     @property
     def port(self):
-        return int(self.config["port"]) if "port" in self.config else None
+        return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
         assert target in ["host_x86", "etiss_pulpino"]

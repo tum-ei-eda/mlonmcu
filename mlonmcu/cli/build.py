@@ -73,36 +73,7 @@ def _handle(context, args):
     for run in session.runs:
         for backend_name in backends:
             new_run = run.copy()
-            # TODO: where to add framework features/config?
-            backend_cls = SUPPORTED_BACKENDS[backend_name]
-            required_keys = backend_cls.REQUIRED
-            backend_config = new_run.config.copy()
-            backend_config.update(
-                resolve_required_config(
-                    backend_cls.REQUIRED,
-                    features=new_run.features,
-                    config=new_run.config,
-                    cache=context.cache,
-                )
-            )
-            backend = backend_cls(features=new_run.features, config=backend_config)
-            framework_name = backend.framework
-            framework_cls = SUPPORTED_FRAMEWORKS[framework_name]
-            required_keys = backend_cls.REQUIRED
-            framework_config = new_run.config.copy()
-            framework_config.update(
-                resolve_required_config(
-                    framework_cls.REQUIRED,
-                    features=new_run.features,
-                    config=new_run.config,
-                    cache=context.cache,
-                )
-            )
-            framework = framework_cls(
-                features=new_run.features, config=framework_config
-            )
-            new_run.add_backend(backend)
-            new_run.add_framework(framework)
+            new_run.add_backend_by_name(backend_name, context=context)
             new_runs.append(new_run)
 
     session.runs = new_runs

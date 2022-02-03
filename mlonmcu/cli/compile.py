@@ -21,7 +21,6 @@ from mlonmcu.config import resolve_required_config
 from mlonmcu.flow.backend import Backend
 from mlonmcu.flow.framework import Framework
 from mlonmcu.session.run import RunStage
-from mlonmcu.compile.mlif import MLIF
 
 
 def add_compile_options(parser):
@@ -81,43 +80,10 @@ def _handle(context, args):
     new_runs = []
     for run in session.runs:
         for target_name in targets:
-            assert target_name in SUPPORTED_TARGETS, "TODO"
             for n in num:
                 new_run = run.copy()
-                target_cls = SUPPORTED_TARGETS[target_name]
-                required_keys = target_cls.REQUIRED
-                target_config = new_run.config.copy()
-                target_config.update(
-                    resolve_required_config(
-                        required_keys,
-                        features=new_run.features,
-                        config=new_run.config,
-                        cache=context.cache,
-                    )
-                )
-                target_inst = target_cls(
-                    features=new_run.features, config=target_config
-                )
-                mlif_config = new_run.config.copy()
-                mlif_config.update(
-                    resolve_required_config(
-                        required_keys,
-                        features=new_run.features,
-                        config=new_run.config,
-                        cache=context.cache,
-                    )
-                )
-                mlif_inst = MLIF(
-                    new_run.framework,
-                    new_run.backend,
-                    target_inst,
-                    features=new_run.features,
-                    config=mlif_config,
-                    context=context,
-                )  # TODO: move somewhere else?
-                # TODO: manage required keys here?
-                new_run.add_target(target_inst)
-                new_run.mlif = mlif_inst
+                new_run.add_target_by_name(target_name, context=context)
+                new_run.init_mlif(context=context)
                 new_run.debug = debug
                 new_run.num = n
                 new_runs.append(new_run)

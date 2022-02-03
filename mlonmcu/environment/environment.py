@@ -190,6 +190,15 @@ class Environment:
                 return [framework_config]
         return []
 
+    def lookup_frontend_configs(self, frontend=None):
+        if frontend is None:
+            return self.frontends
+
+        for frontend_config in self.frontends:
+            if frontend_config.name == frontend:
+                return [frontend_config]
+        return []
+
     def lookup_target_configs(self, target=None):
         if target is None:
             return self.targets
@@ -199,7 +208,11 @@ class Environment:
                 return [target_config]
         return []
 
-    # TODO: remove whitespace
+    def has_frontend(self, name):
+        configs = self.lookup_frontend_configs(frontend=name)
+        assert len(configs) <= 1, "TODO"
+        return configs[0].enabled if len(configs) > 0 else False
+
     def has_backend(self, name):
         configs = self.lookup_backend_configs(backend=name)
         assert len(configs) <= 1, "TODO"
@@ -215,6 +228,36 @@ class Environment:
         assert len(configs) <= 1, "TODO"
         return configs[0].enabled if len(configs) > 0 else False
 
+    def get_enabled_frontends(self):
+        ret = []
+        for frontend in self.frontends:
+            if frontend.enabled:
+                ret.append(frontend.name)
+        return ret
+
+    def get_enabled_frameworks(self):
+        ret = []
+        for framework in self.frameworks:
+            if framework.enabled:
+                ret.append(framework.name)
+        return ret
+
+    def get_enabled_backends(self):
+        ret = []
+        for framework in self.frameworks:
+            if framework.enabled:
+                for backend in framework.backends:
+                    if backend.enabled:
+                        ret.append(backend.name)
+        return ret
+
+    def get_enabled_targets(self):
+        ret = []
+        for target in self.targets:
+            if target.enabled:
+                ret.append(target.name)
+        return ret
+
     def get_default_backends(self, framework):
         if framework is None or framework not in self.defaults.default_backends:
             return []
@@ -227,11 +270,7 @@ class Environment:
             return []
         if isinstance(default, str):
             if default == "*":  # Wildcard all enabled frameworks
-                default = [
-                    backend.name
-                    for backend in framework_config.backends
-                    if backend.enabled
-                ]
+                default = self.get_enabled_backends()
             else:
                 default = [default]
         else:
@@ -244,9 +283,7 @@ class Environment:
             return []
         if isinstance(default, str):
             if default == "*":  # Wildcard all enabled frameworks
-                default = [
-                    framework.name for framework in self.frameworks if framework.enabled
-                ]
+                default = self.get_enabled_frameworks()
             else:
                 default = [default]
         else:
@@ -258,19 +295,12 @@ class Environment:
         if default is not None:
             if isinstance(default, str):
                 if default == "*":  # Wildcard all enabled targets
-                    default = [target.name for target in self.targets if target.enabled]
+                    default = self.get_enabled_targets()
                 else:
                     default = [default]
             else:
                 assert isinstance(default, list)
         return default
-
-    def get_enabled_frontends(self):
-        ret = []
-        for frontend in self.frontends:
-            if frontend.enabled:
-                ret.append(frontend.name)
-        return ret
 
 
 class DefaultEnvironment(Environment):

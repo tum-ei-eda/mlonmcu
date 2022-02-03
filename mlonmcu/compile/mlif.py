@@ -7,7 +7,6 @@ from contextlib import closing
 from pathlib import Path
 from typing import List
 
-from mlonmcu.context import MlonMcuContext
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS

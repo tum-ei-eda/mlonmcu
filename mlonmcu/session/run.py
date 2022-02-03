@@ -7,7 +7,12 @@ from enum import IntEnum
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
+from mlonmcu.config import resolve_required_config
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.compile.mlif import MLIF
+from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.target import SUPPORTED_TARGETS
+from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
 
 logger = get_logger()
 
@@ -100,6 +105,19 @@ class Run:
             self._init_directory()
         return new
 
+    def init_component(self, component_cls, context=None):
+        required_keys = component_cls.REQUIRED
+        self.config.update(
+            resolve_required_config(
+                required_keys,
+                features=self.features,
+                config=self.config,
+                cache=context.cache if context else None,
+            )
+        )
+        component_config = self.config.copy()  # TODOL get rid of this
+        return component_cls(features=self.features, config=component_config)
+
     def add_frontend(self, frontend):
         self.frontend = frontend
 
@@ -111,6 +129,58 @@ class Run:
 
     def add_target(self, target):
         self.target = target
+
+    def init_mlif(self, context=None):
+        required_keys = MLIF.REQUIRED
+        self.config.update(
+            resolve_required_config(
+                required_keys,
+                features=self.features,
+                config=self.config,
+                cache=context.cache,
+            )
+        )
+        assert (
+            self.framework is not None
+        ), "Please add a frontend before initializing the MLIF"
+        assert (
+            self.backend is not None
+        ), "Please add a backend before initializing the MLIF"
+        mlif_config = self.config.copy()
+        self.mlif = MLIF(
+            self.framework,
+            self.backend,
+            self.target,
+            features=self.features,
+            config=mlif_config,
+            context=context,
+        )
+
+    def add_model_by_name(self, model_name):
+        pass
+
+    def add_frontend_by_name(self, frontend_name, context=None):
+        assert context is None or context.environment.has_frontend(frontend_name), f"The frontend '{frontend_name}' is not enabled for this environment"
+        self.add_frontend(
+            self.init_component(SUPPORTED_FRONTENDS[frontend_name], context=context)
+        )
+
+    def add_backend_by_name(self, backend_name, context=None):
+        assert context is None or context.environment.has_backend(backend_name), f"The backend '{backend_name}' is not enabled for this environment"
+        self.add_backend(
+            self.init_component(SUPPORTED_BACKENDS[backend_name], context=context)
+        )
+        framework_name = self.backend.framework  # TODO: does this work?
+        assert context.environment.has_framework(framework_name), f"The framework '{framework_name}' is not enabled for this environment"
+        self.add_framework(
+            self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context)
+        )
+
+    def add_target_by_name(self, target_name, context=None):
+        assert context is None or context.environment.has_target(target_name), f"The target '{target_name}' is not enabled for this environment"
+        self.add_target(
+            self.init_component(SUPPORTED_TARGETS[target_name], context=context)
+        )
 
     @property
     def export_optional(self):

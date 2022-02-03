@@ -102,12 +102,8 @@ def _handle(context, args):
         model, frontend = map_frontend_to_model(
             hint, frontends, backend=None
         )  # TODO: we do not yet know the backend...
-        # run = Run(model=model, features=features, config=config)
         run = session.create_run(model=model, features=features, config=config)
-        run.add_frontend(frontend)
-        # session.runs.append(run)
-    # for run in session.runs:
-    #     run.load(context=context)
+        run.add_frontend_by_name(frontend.name, context=context)
 
 
 def handle(args, ctx=None):

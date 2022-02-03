@@ -26,7 +26,7 @@ class MLIF:
 
     FEATURES = ["debug", "validate"]
 
-    DEFAULTS = {"debug": False, "ignore_data": True, "build_dir": None}
+    DEFAULTS = {"debug": False, "ignore_data": True, "build_dir": None, "toolchain": "gcc"}
 
     # REQUIRES = ["mlif.src_dir"]
     REQUIRED = []
@@ -94,6 +94,10 @@ class MLIF:
     def ignore_data(self):
         return bool(self.config["ignore_data"])
 
+    @property
+    def toolchain(self):
+        return str(self.config["toolchain"])
+
     def process_features(self, features):
         if features is None:
             return []
@@ -128,6 +132,7 @@ class MLIF:
     def get_common_cmake_args(self, num=1):
         args = []
         args.append(f"-DNUM_RUNS={num}")
+        args.append(f"-DTOOLCHAIN={self.toolchain}")
         return args
 
     # def prepare(self, model, ignore_data=False):

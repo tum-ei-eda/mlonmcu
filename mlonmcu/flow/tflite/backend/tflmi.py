@@ -142,7 +142,6 @@ size_t {prefix}_outputs();
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/schema/schema_generated.h"
-#include "tensorflow/lite/version.h"
 
 #if defined __GNUC__
 #define ALIGN(X) __attribute__((aligned(X)))

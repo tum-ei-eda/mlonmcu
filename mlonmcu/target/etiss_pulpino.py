@@ -10,7 +10,7 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 from .common import cli, execute
-from .target import Target, RISCVTarget
+from .riscv import RISCVTarget
 from .metrics import Metrics
 
 
@@ -55,21 +55,35 @@ class ETISSPulpinoTarget(RISCVTarget):
             / "bare_etiss_processor"
             / "get_metrics.py"
         )
-        # TODO: self.cmakeToolchainFile = ?
-        # TODO: self.cmakeScript = ?
 
     @property
     def etiss_dir(self):
         return self.config["etiss.install_dir"]
 
-    # TODO: add missing properties
-    #    "gdbserver_enable": False,
-    #    "gdbserver_attach": False,
-    #    "gdbserver_port": 2222,
-    #    "debug_etiss": False,
-    #    "trace_memory": False,
-    #    "extra_args": "",
-    #    "verbose": True,
+    @property
+    def gdbserver_enable(self):
+        return bool(self.config["gdbserver_enable"])
+
+    @property
+    def gdbserver_attach(self):
+        return bool(self.config["gdbserver_attach"])
+
+    @property
+    def gdbserver_port(self):
+        return int(self.config["gdbserver_port"])
+
+    @property
+    def debug_etiss(self):
+        return bool(self.config["debug_etiss"])
+
+    @property
+    def trace_memory(self):
+        return bool(self.config["trace_memory"])
+
+    @property
+    def verbose(self):
+        return bool(self.config["verbose"])
+
     @property
     def rom_start(self):
         return int(self.config["etissvp.rom_start"])
@@ -105,23 +119,21 @@ class ETISSPulpinoTarget(RISCVTarget):
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         etiss_script_args = []
-        if len(self.config["extra_args"]) > 0:
-            etiss_script_args.extend(self.config["extra_args"].split(" "))
+        if len(self.extra_args) > 0:
+            etiss_script_args.extend(self.extra_args.split(" "))
 
         # TODO: this is outdated
         # TODO: validate features (attach xor noattach!)
-        if "etissdbg" in self.features:
+        if self.debug_etiss:
             etiss_script_args.append("gdb")
-        if "attach" in self.features:
+        if self.gdbserver_enable:
             etiss_script_args.append("tgdb")
-        if "noattach" in self.features:
-            if "attach" not in self.features:
-                etiss_script_args.append("tgdb")
-            etiss_script_args.append("noattach")
-        if "trace" in self.features:
+            if not self.gdbserver_attach:
+                etiss_script_args.append("noattach")
+        if self.trace_memory:
             etiss_script_args.append("trace")
             etiss_script_args.append("nodmi")
-        if bool(self.config["verbose"]):
+        if self.verbose:
             etiss_script_args.append("v")
 
         # TODO: working directory?
@@ -165,7 +177,7 @@ class ETISSPulpinoTarget(RISCVTarget):
         return cycles, mips
 
     def get_metrics(self, elf, directory, verbose=False):
-        if "trace" in self.features:
+        if self.trace_memory:
             trace_file = os.path.join(directory, "dBusAccess.csv")
             if os.path.exists(trace_file):
                 os.remove(trace_file)
@@ -229,7 +241,7 @@ class ETISSPulpinoTarget(RISCVTarget):
                 assert "ram_zdata" in data
                 ram_zdata = int(data["ram_zdata"])
                 ram_total = ram_data + ram_zdata
-                if "trace" in self.features:
+                if self.trace_memory:
                     assert "ram_stack" in data
                     ram_stack = int(data["ram_stack"])
                     assert "ram_heap" in data
@@ -249,11 +261,14 @@ class ETISSPulpinoTarget(RISCVTarget):
             metrics.add("ROM misc", rom_misc)
             metrics.add("RAM data", ram_data)
             metrics.add("RAM zero-init data", ram_zdata)
-            if "trace" in self.features:
+            if self.trace_memory:
                 metrics.add("RAM stack", ram_stack)
                 metrics.add("RAM heap", ram_heap)
 
         return metrics
+
+    def get_target_system(self):
+        return self.name
 
     def get_cmake_args(self):
         ret = super().get_cmake_args()

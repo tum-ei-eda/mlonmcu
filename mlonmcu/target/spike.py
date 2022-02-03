@@ -11,7 +11,7 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 from .common import cli, execute
-from .target import Target, RISCVTarget
+from .riscv import RISCVTarget
 from .metrics import Metrics
 
 
@@ -22,6 +22,7 @@ class SpikeTarget(RISCVTarget):
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
+        "enable_vext": False,
         "vlen": 0,  # vectorization=off
         "isa": "rv32gc",  # rv32gcv?
     }
@@ -50,6 +51,10 @@ class SpikeTarget(RISCVTarget):
     def vlen(self):
         return int(self.config["vlen"])
 
+    @property
+    def enable_vext(self):
+        return bool(self.config["enable_vext"])
+
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         spike_args = []
@@ -59,9 +64,9 @@ class SpikeTarget(RISCVTarget):
         if len(self.extra_args) > 0:
             spike_args.extend(self.extra_args.split(" "))
 
-        if "vext" in [feature.name for feature in self.features]:  # TODO: remove this
+        if self.enable_vext:
+            assert self.vlen > 0
             spike_args.append(f"--varch=vlen:{self.vlen},elen:32")
-            raise NotImplementedError
         else:
             assert self.vlen == 0
 

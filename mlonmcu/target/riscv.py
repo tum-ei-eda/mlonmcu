@@ -42,5 +42,6 @@ class RISCVTarget(Target):
         return "generic_riscv"
 
     def get_cmake_args(self):
+        ret = super().get_cmake_args()
         ret.append(f"-DRISCV_ELF_GCC_PREFIX={self.riscv_prefix}")
         return ret

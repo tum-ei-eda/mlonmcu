@@ -11,7 +11,7 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 from .common import cli, execute
-from .target import Target, RISCVTarget
+from .riscv import RISCVTarget
 from .metrics import Metrics
 
 
@@ -67,10 +67,10 @@ class OVPSimTarget(RISCVTarget):
             "--override",
             "riscvOVPsim/cpu/unaligned=T",
         ]
-        if "vext" in [feature.name for feature in self.features]:  # TODO: remove this
-            raise NotImplementedError
         if self.enable_vext:
             assert "V" in self.extensions
+            # if "V" not in self.extensions:
+            #     self.extensions += "V"
             args.extend(
                 [
                     "--override",
@@ -86,6 +86,8 @@ class OVPSimTarget(RISCVTarget):
             )
         if self.enable_fpu:
             assert "F" in self.extensions
+            # if "F" not in self.extensions:
+            #     self.extensions += "F"
         args.extend(
             ["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"]
         )

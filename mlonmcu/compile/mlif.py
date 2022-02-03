@@ -138,7 +138,7 @@ class MLIF:
         # return data_file
         pass
 
-    def configure(self, src, model, num=1, data_file=None, debug=False):
+    def configure(self, src, model, num=1, data_file=None):
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = []
@@ -159,16 +159,16 @@ class MLIF:
             assert data_file is not None, "No data.c file was supplied"
             cmakeArgs.append("-DDATA_SRC=" + str(data_file))
         utils.mkdirs(self.build_dir)
-        utils.cmake(self.mlif_dir, *cmakeArgs, cwd=self.build_dir, debug=debug)
+        utils.cmake(self.mlif_dir, *cmakeArgs, cwd=self.build_dir, debug=self.debug)
 
-    def compile(self, src=None, model=None, num=1, data_file=None, debug=False):
+    def compile(self, src=None, model=None, num=1, data_file=None):
         if src:
-            self.configure(src, model, num=num, data_file=data_file, debug=debug)
+            self.configure(src, model, num=num, data_file=data_file)
         utils.make(self.goal, cwd=self.build_dir)
 
-    def generate_elf(self, src=None, model=None, num=1, data_file=None, debug=False):
+    def generate_elf(self, src=None, model=None, num=1, data_file=None):
         artifacts = []
-        self.compile(src=src, model=model, num=num, data_file=data_file, debug=debug)
+        self.compile(src=src, model=model, num=num, data_file=data_file)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:

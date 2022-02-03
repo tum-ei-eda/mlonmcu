@@ -271,7 +271,7 @@ class Run:
                 artifact.export(self.dir)
                 data_file = Path(self.dir) / "data.c"
         self.mlif.generate_elf(
-            codegen_dir, num=self.num, data_file=data_file, debug=True
+            codegen_dir, num=self.num, data_file=data_file
         )
         self.artifacts_per_stage[RunStage.COMPILE] = self.mlif.artifacts
 

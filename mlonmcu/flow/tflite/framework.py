@@ -48,7 +48,9 @@ class TFLiteFramework(Framework):
         if self.optimized_kernel:
             args.append(f"-DTFLM_OPTIMIZED_KERNEL={self.optimized_kernel}")
         if self.optimized_kernel_inc_dir:
-            args.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={self.optimized_kernel_inc_dir}")
+            args.append(
+                f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={self.optimized_kernel_inc_dir}"
+            )
         if self.optimized_kernel_lib:
             args.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={self.optimized_kernel_lib}")
         return args

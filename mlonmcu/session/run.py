@@ -161,24 +161,32 @@ class Run:
         pass
 
     def add_frontend_by_name(self, frontend_name, context=None):
-        assert context is None or context.environment.has_frontend(frontend_name), f"The frontend '{frontend_name}' is not enabled for this environment"
+        assert context is None or context.environment.has_frontend(
+            frontend_name
+        ), f"The frontend '{frontend_name}' is not enabled for this environment"
         self.add_frontend(
             self.init_component(SUPPORTED_FRONTENDS[frontend_name], context=context)
         )
 
     def add_backend_by_name(self, backend_name, context=None):
-        assert context is None or context.environment.has_backend(backend_name), f"The backend '{backend_name}' is not enabled for this environment"
+        assert context is None or context.environment.has_backend(
+            backend_name
+        ), f"The backend '{backend_name}' is not enabled for this environment"
         self.add_backend(
             self.init_component(SUPPORTED_BACKENDS[backend_name], context=context)
         )
         framework_name = self.backend.framework  # TODO: does this work?
-        assert context.environment.has_framework(framework_name), f"The framework '{framework_name}' is not enabled for this environment"
+        assert context.environment.has_framework(
+            framework_name
+        ), f"The framework '{framework_name}' is not enabled for this environment"
         self.add_framework(
             self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context)
         )
 
     def add_target_by_name(self, target_name, context=None):
-        assert context is None or context.environment.has_target(target_name), f"The target '{target_name}' is not enabled for this environment"
+        assert context is None or context.environment.has_target(
+            target_name
+        ), f"The target '{target_name}' is not enabled for this environment"
         self.add_target(
             self.init_component(SUPPORTED_TARGETS[target_name], context=context)
         )
@@ -271,9 +279,7 @@ class Run:
             if artifact.name == "data.c":
                 artifact.export(self.dir)
                 data_file = Path(self.dir) / "data.c"
-        self.mlif.generate_elf(
-            codegen_dir, num=self.num, data_file=data_file
-        )
+        self.mlif.generate_elf(codegen_dir, num=self.num, data_file=data_file)
         self.artifacts_per_stage[RunStage.COMPILE] = self.mlif.artifacts
 
         self.stage = max(self.stage, RunStage.COMPILE)

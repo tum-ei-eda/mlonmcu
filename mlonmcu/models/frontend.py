@@ -102,24 +102,24 @@ class Frontend(ABC):
                 assert "input_nodes" in network
                 ins = network["input_nodes"]
                 for inp in ins:
-                    assert "example_input" in inp and "path" in inp["example_input"]
-                    in_data_dir = Path(inp["example_input"]["path"])
-                    # TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)
-                    in_path = model_dir / in_data_dir
-                    assert (
-                        in_path.is_dir()
-                    ), f"Input data directory defined in model metadata does not exist: {in_path}"
-                    in_paths.append(in_path)
+                    if "example_input" in inp and "path" in inp["example_input"]:
+                        in_data_dir = Path(inp["example_input"]["path"])
+                        # TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)
+                        in_path = model_dir / in_data_dir
+                        assert (
+                            in_path.is_dir()
+                        ), f"Input data directory defined in model metadata does not exist: {in_path}"
+                        in_paths.append(in_path)
                 assert "output_nodes" in network
                 outs = network["output_nodes"]
                 for outp in outs:
-                    assert "test_output_path" in outp
-                    out_data_dir = Path(outp["test_output_path"])
-                    out_path = model_dir / out_data_dir
-                    assert (
-                        in_path.is_dir()
-                    ), f"Output data directory defined in model metadata does not exist: {out_path}"
-                    out_paths.append(out_path)
+                    if "test_output_path" in outp:
+                        out_data_dir = Path(outp["test_output_path"])
+                        out_path = model_dir / out_data_dir
+                        assert (
+                            in_path.is_dir()
+                        ), f"Output data directory defined in model metadata does not exist: {out_path}"
+                        out_paths.append(out_path)
             else:
                 fallback_in_path = model_dir / "input"
                 if fallback_in_path.is_dir():

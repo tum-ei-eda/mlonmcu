@@ -86,6 +86,8 @@ def lookup_data_buffers(input_paths, output_paths):
             filenames = os.listdir(path)
             for filename in filenames:
                 fmt = Path(filename).suffix[1:]
+                if fmt not in allowed_fmts:
+                    continue
                 if used_fmt is None:
                     used_fmt = fmt
                 else:
@@ -93,8 +95,6 @@ def lookup_data_buffers(input_paths, output_paths):
                         used_fmt == fmt
                     ), "Please only use a single format for inout model data (.bin OR .npy)"
                 base = Path(filename).stem
-                if fmt not in allowed_fmts:
-                    continue
                 if "_" in base:
                     legacy = True
                     assert len(paths) == 1, "Legacy mode only allows a single path"

@@ -11,6 +11,8 @@ from .feature import (
     FeatureBase,
 )
 
+from mlonmcu.utils import is_power_of_two
+
 
 def filter_none(data):
     """Helper function which drop dict items with a None value."""
@@ -139,9 +141,10 @@ class Muriscvnn(SetupFeature, FrameworkFeature):
 
     def get_required_cache_flags(self):
         ret = {}
-        
-        ret["tflmc.exe"] =  ["muriscvnn"]
+
+        ret["tflmc.exe"] = ["muriscvnn"]
         return ret
+
 
 # @before_feature("muriscvnn")  # TODO: implment something like this
 @register_feature("vext")
@@ -164,6 +167,7 @@ class Vext(SetupFeature, TargetFeature):
 
     def get_target_config(self, target):
         assert target in ["spike", "ovpsim"]
+        assert is_power_of_two(self.vlen)
         return {
             f"{target}.enable_vext": True,
             f"{target}.vlen": self.vlen,
@@ -173,7 +177,7 @@ class Vext(SetupFeature, TargetFeature):
         return {
             "muriscvnn.lib": ["vext"],
             "muriscvnn.inc_dir": ["vext"],
-            "tflmc.exe": "vext",
+            "tflmc.exe": ["vext"],
         }
 
 
@@ -208,7 +212,9 @@ class GdbServer(TargetFeature):
     @property
     def attach(self):
         # TODO: implement get_bool_or_none?
-        return bool(self.config["attach"]) if self.config["attach"] is not None else None
+        return (
+            bool(self.config["attach"]) if self.config["attach"] is not None else None
+        )
 
     @property
     def port(self):

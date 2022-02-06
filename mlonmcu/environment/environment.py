@@ -166,6 +166,10 @@ class Environment:
         supported = [feature.supported for feature in configs]
         return any(supported)
 
+    def has_feature(self, name):
+        """An alias for supports_feature."""
+        return self.supports_feature(name)
+
     def lookup_backend_configs(self, backend=None, framework=None):
         configs = []
         for framework_config in self.frameworks:

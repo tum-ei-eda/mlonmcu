@@ -274,8 +274,13 @@ def download_and_extract(url, archive, dest):
         base_name = Path(archive).stem
         if ".tar" in base_name:
             base_name = Path(base_name).stem
-        download(url + archive, tmp_archive)  # TODO: replace by exec(wget)?
+        if url[-1] != "/":
+            url += "/"
+        download(url + archive, tmp_archive)
         extract(tmp_archive, tmp_dir)
-        remove(os.path.join(tmp_dir, tmp_archive))  # Cleanup in tmpdir not neccessary
+        remove(os.path.join(tmp_dir, tmp_archive))
         mkdirs(dest.parent)
-        move(os.path.join(tmp_dir, base_name), dest)
+        if (Path(tmp_dir) / base_name).is_dir():  # Archive contained a subdirectory with the same name
+            move(os.path.join(tmp_dir, base_name), dest)
+        else:
+            move(tmp_dir, dest)

@@ -87,7 +87,7 @@ After a template was chosen, the initial environment file is being generated whi
 
 #### Command line (recommended)
 
-To get started with MLonMCU on the command line first an environment has to be created using the `mlonmcu init` command. As only some usage examples are shown in the following, make sure to check out `mlonmcu init —help` to learn more.
+To get started with MLonMCU on the command line first an environment has to be created using the `mlonmcu init` command. As only some usage examples are shown in the following, make sure to check out `mlonmcu init --help` to learn more.
 
 - Initialize a default environment at the default location (`~/.config/mlonmcu/environments/default` on most UNIX Systems): `mlonmcu init`
 - Initialize an environment inside the current working directory: `mlonmcu init -H .`
@@ -105,7 +105,7 @@ At the moment please stick to the CLI tool!
 Most of the `mlonmcu` subcommands need a MLonMCU environment to operate on. In some cases it can be resolved automatically however it is recommended to pass it explicitly by the user in either of the following ways:
 
 - Point the `MLONMCU_HOME` environment variable to the environment directory which should be used.
-- Use the command line flags `-H` (`—home` or `—hint`) to provide either the path or (if available) the registered name of the environment.
+- Use the command line flags `-H` (`--home` or `--hint`) to provide either the path or (if available) the registered name of the environment.
 
 If none of this was specified, MLonMCU will first look for a valid environment in the current working directory and else fall back to the default environment of the current user (if configured).
 
@@ -145,4 +145,4 @@ Analogous to the command line flags an environment path or name should be provid
 
 ### Environment registry
 
-Optionally environment can be registered in the users home config directory with a given name which enabled referring to them without providing a file path. Use the `—register` and `—name` flags of the `mlonmcu init` command to do so. The command `mlonmcu env` provides useful utilities to list and modify existing entries in the registry file which is typically located at `~/.config/mlonmcu/environments.ini`.
+Optionally environment can be registered in the users home config directory with a given name which enabled referring to them without providing a file path. Use the `--register` and `--name` flags of the `mlonmcu init` command to do so. The command `mlonmcu env` provides useful utilities to list and modify existing entries in the registry file which is typically located at `~/.config/mlonmcu/environments.ini`.

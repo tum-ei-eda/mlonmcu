@@ -110,6 +110,10 @@ class MLIF:
     def num_threads(self):
         return int(self.config["num_threads"])
 
+    @property
+    def model_support_dir(self):
+        return self.config["model_support_dir"]
+
     def process_features(self, features):
         if features is None:
             return []
@@ -163,6 +167,11 @@ class MLIF:
         cmakeArgs.extend(self.backend.get_cmake_args())
         cmakeArgs.extend(self.target.get_cmake_args())
         cmakeArgs.extend(self.get_common_cmake_args(num=num))
+        if self.model_support_dir:
+            cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
+        else:
+            pass
+            # args.append(f"-DMODEL_DIR={?}")
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():

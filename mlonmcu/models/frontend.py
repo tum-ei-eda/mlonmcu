@@ -144,6 +144,13 @@ class Frontend(ABC):
                 }
                 cfg.update(flattened)
 
+        # Detect model support code (Allow overwrite in metadata YAML)
+        support_path = model_dir / "support"
+        if support_path.is_dir():
+            assert cfg is not None
+            # TODO: onlu overwrite if unset?
+            cfg.update({"mlif.model_support_dir": support_path})
+
         return data_artifact
 
     def generate_models(self, model):

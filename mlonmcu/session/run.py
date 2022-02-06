@@ -312,10 +312,12 @@ class Run:
         data_artifact = self.frontend.process_metadata(self.model, cfg=cfg_new)
         if len(cfg_new) > 0:
             for key, value in cfg_new.items():
-                backend, name = key.split(".")[:2]
-                if self.backend is not None and backend == self.backend.name:
+                component, name = key.split(".")[:2]
+                if self.backend is not None and component == self.backend.name:
                     self.backend.config[name] = value
-                    self.config[key] = value
+                elif self.mlif is not None and component == "mlif":
+                    self.mlif.config[name] = value
+                self.config[key] = value
         self.artifacts_per_stage[RunStage.LOAD] = self.frontend.artifacts
         if data_artifact:
             self.artifacts_per_stage[RunStage.LOAD].append(data_artifact)

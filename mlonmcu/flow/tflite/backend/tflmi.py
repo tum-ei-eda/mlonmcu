@@ -160,7 +160,7 @@ size_t {prefix}_outputs();
 #endif
 
 """
-        wrapper_content += """const unsigned char g_model_data[] = { """
+        wrapper_content += """const unsigned char g_model_data[] ALIGN(16) = { """
         wrapper_content += make_hex_array(model_data)
         wrapper_content += """ };
 

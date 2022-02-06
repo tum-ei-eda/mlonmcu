@@ -295,7 +295,7 @@ class MlonMcuContext:
                             return
         logger.info("No cache found in deps directory")
 
-    def get_session(self) -> Session:
+    def get_session(self, resume=False) -> Session:
         """Get an active session if available, else create a new one.
 
         Returns
@@ -303,6 +303,12 @@ class MlonMcuContext:
         Session:
             An active session
         """
+        if resume:
+            assert len(self.sessions) > 0, "There is no recent session available"
+            session = self.sessions[-1]
+            assert False, "The latest session can not be resumed"
+            raise NotImplementedError
+
         if self.session_idx < 0 or not self.sessions[-1].active:
             self.create_session()
         return self.sessions[-1]

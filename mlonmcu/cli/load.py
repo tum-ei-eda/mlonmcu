@@ -97,7 +97,7 @@ def _handle(context, args):
         args.frontend, features=features, config=config, context=context
     )
     model_hints = lookup_models(model_names, frontends=frontends, context=context)
-    session = context.get_session()
+    session = context.get_session(resume=args.resume)
     for hint in model_hints:
         model, frontend = map_frontend_to_model(
             hint, frontends, backend=None

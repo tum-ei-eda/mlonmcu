@@ -71,6 +71,11 @@ def add_flow_options(parser):
         help="Display progress bar (default: %(default)s)",
     )
     flow_parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Try to resume the latest session (default: %(default)s)",
+    )
+    flow_parser.add_argument(
         "--docker",
         action="store_true",
         help="Execute run.py inside docker container (default: %(default)s)",

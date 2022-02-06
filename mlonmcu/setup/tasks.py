@@ -720,6 +720,124 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     context.cache["muriscvnn.lib", flags] = muriscvnnLib
 
 
-# TODO: return True if changed, False if not, or: reurn code: unchanged, changed, error, unknown
+def _validate_spike(context: MlonMcuContext, params=None):
+    if not context.environment.has_target("spike"):
+        return False
+    assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
+    assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
+    return True
 
-# install_dependencies()
+
+@Tasks.provides(["spikepk.src_dir"])
+@Tasks.validate(_validate_spike)
+@Tasks.register(category=TaskType.TARGET)
+def clone_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Clone the spike proxt kernel."""
+    spikepkName = utils.makeDirName("spikepk")
+    spikepkSrcDir = context.environment.paths["deps"].path / "src" / spikepkName
+    user_vars = context.environment.vars
+    if "spike.pk" in user_vars:  # TODO: also check command line flags?
+        return
+    if rebuild or not utils.is_populated(spikepkSrcDir):
+        spikepkRepo = context.environment.repos["spikepk"]
+        utils.clone(spikepkRepo.url, spikepkSrcDir, branch=spikepkRepo.ref)
+    context.cache["spikepk.src_dir"] = spikepkSrcDir
+
+
+@Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.provides(["spikepk.build_dir", "spike.pk"])
+# @Tasks.param("vext", [False, True])
+@Tasks.validate(_validate_spike)
+@Tasks.register(category=TaskType.TARGET)
+def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Build Spike proxy kernel."""
+    if not params:
+        params = {}
+    # flags = utils.makeFlags((params["vext"], "vext"))
+    spikepkName = utils.makeDirName("spikepk")
+    spikepkSrcDir = context.cache["spikepk.src_dir"]
+    spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
+    spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
+    spikepkBin = spikepkInstallDir / "pk"
+    user_vars = context.environment.vars
+    if "spike.pk" in user_vars:  # TODO: also check command line flags?
+        return
+    if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
+        # No need to build a vext and non-vext variant?
+        utils.mkdirs(spikepkBuildDir)
+        gccName = context.cache["riscv_gcc.name"]
+        assert (
+            gccName == "riscv32-unknown-elf"
+        ), "Spike PK requires a non-multilib toolchain!"
+        spikepkArgs = []
+        spikepkArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
+        spikepkArgs.append("--host=" + gccName)
+        spikepkArgs.append("--with-arch=rv32gcv")
+        spikepkArgs.append("--with-abi=ilp32d")
+        env = os.environ.copy()
+        env["PATH"] = (
+            str(Path(context.cache["riscv_gcc.install_dir"]) / "bin")
+            + ":"
+            + env["PATH"]
+        )
+        utils.exec_getout(
+            str(spikepkSrcDir / "configure"),
+            *spikepkArgs,
+            cwd=spikepkBuildDir,
+            env=env,
+            live=verbose,
+        )
+        utils.make(cwd=spikepkBuildDir, live=verbose, env=env)
+        utils.mkdirs(spikepkInstallDir)
+        utils.move(spikepkBuildDir / "pk", spikepkBin)
+    context.cache["spikepk.build_dir"] = spikepkBuildDir
+    context.cache["spike.pk"] = spikepkBin
+
+
+@Tasks.provides(["spike.src_dir"])
+@Tasks.validate(_validate_spike)
+@Tasks.register(category=TaskType.TARGET)
+def clone_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Clone the spike simulator."""
+    spikeName = utils.makeDirName("spike")
+    spikeSrcDir = context.environment.paths["deps"].path / "src" / spikeName
+    user_vars = context.environment.vars
+    if "spike.exe" in user_vars:  # TODO: also check command line flags?
+        return
+    if rebuild or not utils.is_populated(spikeSrcDir):
+        spikeRepo = context.environment.repos["spike"]
+        utils.clone(spikeRepo.url, spikeSrcDir, branch=spikeRepo.ref)
+    context.cache["spike.src_dir"] = spikeSrcDir
+
+@Tasks.needs(["spike.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.provides(["spike.build_dir", "spike.exe"])
+@Tasks.validate(_validate_spike)
+@Tasks.register(category=TaskType.TARGET)
+def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Build Spike simulator."""
+    if not params:
+        params = {}
+    spikeName = utils.makeDirName("spike")
+    spikeSrcDir = context.cache["spike.src_dir"]
+    spikeBuildDir = context.environment.paths["deps"].path / "build" / spikeName
+    spikeInstallDir = context.environment.paths["deps"].path / "install" / spikeName
+    spikeExe = spikeInstallDir / "spike"
+    user_vars = context.environment.vars
+    if "spike.exe" in user_vars:  # TODO: also check command line flags?
+        return
+    if rebuild or not (utils.is_populated(spikeBuildDir) and spikeExe.is_file()):
+        # No need to build a vext and non-vext variant?
+        utils.mkdirs(spikeBuildDir)
+        spikeArgs = []
+        spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
+        utils.exec_getout(
+            str(spikeSrcDir / "configure"),
+            *spikeArgs,
+            cwd=spikeBuildDir,
+            live=verbose,
+        )
+        utils.make(cwd=spikeBuildDir, live=verbose)
+        utils.mkdirs(spikeInstallDir)
+        utils.move(spikeBuildDir / "spike", spikeExe)
+    context.cache["spike.build_dir"] = spikeBuildDir
+    context.cache["spike.exe"] = spikeExe

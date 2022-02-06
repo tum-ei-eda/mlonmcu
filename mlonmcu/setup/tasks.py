@@ -60,9 +60,7 @@ enabled_targets = ["etiss"]
 
 
 def _validate_tensorflow(context: MlonMcuContext, params=None):
-    if "tflm" not in supported_frameworks:
-        return False
-    return True
+    return context.environment.has_framework("tflite")
 
 
 @Tasks.provides(["tf.src_dir"])
@@ -153,7 +151,7 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
     if params:
         if "muriscvnn" in params:
             if params["muriscvnn"]:
-                if "muriscvnn" not in supported_features:
+                if not context.environment.supports_feature("muriscvnn"):
                     return False
     return _validate_tflite_micro_compiler(context, params=params)
 
@@ -472,9 +470,7 @@ def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=F
 
 
 def _validate_tvm(context: MlonMcuContext, params=None):
-    if "tvm" not in supported_frameworks:
-        return False
-    return True
+    return context.environment.has_framework("tvm")
 
 
 @Tasks.provides(["tvm.src_dir"])
@@ -559,9 +555,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 def _validate_utvmcg(context: MlonMcuContext, params=None):
     if not _validate_tvm(context, params=params):
         return False
-    if "tvmcg" not in supported_backends:
-        return False
-    return True
+    return context.environment.has_backend("utvmcg")
 
 
 @Tasks.provides(["utvmcg.src_dir"])

@@ -89,10 +89,8 @@ After a template was chosen, the initial environment file is being generated whi
 
 To get started with MLonMCU on the command line first an environment has to be created using the `mlonmcu init` command. As only some usage examples are shown in the following, make sure to check out `mlonmcu init —help` to learn more.
 
-- Initialize a default environment at the default location (`~/.config/mlonmcu/environments/default` on most UNIX Systems)
-- 
-- Initialize an environment inside the current working directory
-- TODO
+- Initialize a default environment at the default location (`~/.config/mlonmcu/environments/default` on most UNIX Systems): `mlonmcu init`
+- Initialize an environment inside the current working directory: `mlonmcu init -H .`
 
 The tool will ask some questions on the command line interactively.
 
@@ -116,6 +114,7 @@ Example usage:
 ```
 export MLONMCU_HOME=/tmp/home
 mlonmcu models
+```
 
 or
 

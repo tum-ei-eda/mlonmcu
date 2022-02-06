@@ -1,3 +1,4 @@
+import multiprocessing
 from random import randint
 from time import sleep
 from datetime import datetime
@@ -188,8 +189,22 @@ class Session:
                         )
                     else:
                         logger.info(self.prefix + f"Processing stage {run_stage}")
-                    for run in self.runs:
-                        workers.append(executor.submit(_process, run, until=stage))
+                    for i, run in enumerate(self.runs):
+                        if i == 0:
+                            total_threads = min(len(self.runs), num_workers)
+                            cpu_count = multiprocessing.cpu_count()
+                            if (stage >= RunStage.COMPILE) and run.mlif:
+                                total_threads *= run.mlif.num_threads
+                            if total_threads > 2 * cpu_count:
+                                if pbar2:
+                                    print()
+                                logger.warning(f"The chosen configuration leads to a maximum of {total_threads} threads being processed which heavily exceeds the available CPU resources ({cpu_count}). It is recommended to lower the value of 'mlif.num_threads'!")
+                        if run.failing:
+                            logger.warning(
+                                f"Skiping stage '{run_stage}' for failed run"
+                            )
+                        else:
+                            workers.append(executor.submit(_process, run, until=stage))
                     results = _join_workers(workers)
                     workers = []
                     if progress:
@@ -201,7 +216,16 @@ class Session:
                     _init_progress(len(self.runs), msg="Processing all runs")
                 else:
                     logger.info(self.prefix + "Processing all stages")
-                for run in self.runs:
+                for i, run in enumerate(self.runs):
+                    if i == 0:
+                        total_threads = min(len(self.runs), num_workers)
+                        cpu_count = multiprocessing.cpu_count()
+                        if (until >= RunStage.COMPILE) and run.mlif:
+                            total_threads *= run.mlif.num_threads
+                        if total_threads > 2 * cpu_count:
+                            if pbar2:
+                                print()
+                            logger.warning(f"The chosen configuration leads to a maximum of {total_threads} being processed which heavily exceeds the available CPU resources (cpu_count). It is recommended to lower the value of 'mlif.num_threads'!")
                     workers.append(executor.submit(_process, run, until=until))
                 results = _join_workers(workers)
         report = self.get_reports()

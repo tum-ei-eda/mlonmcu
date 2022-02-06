@@ -3,6 +3,7 @@ import sys
 import logging
 import argparse
 import tempfile
+import multiprocessing
 from contextlib import closing
 from pathlib import Path
 from typing import List
@@ -26,7 +27,14 @@ class MLIF:
 
     FEATURES = ["debug", "validate"]
 
-    DEFAULTS = {"debug": False, "ignore_data": True, "build_dir": None, "toolchain": "gcc"}
+    DEFAULTS = {
+        "debug": False,
+        "ignore_data": True,
+        "build_dir": None,
+        "model_support_dir": None,
+        "toolchain": "gcc",
+        "num_threads": multiprocessing.cpu_count(),
+    }
 
     # REQUIRES = ["mlif.src_dir"]
     REQUIRED = []
@@ -97,6 +105,10 @@ class MLIF:
     @property
     def toolchain(self):
         return str(self.config["toolchain"])
+
+    @property
+    def num_threads(self):
+        return int(self.config["num_threads"])
 
     def process_features(self, features):
         if features is None:
@@ -169,7 +181,7 @@ class MLIF:
     def compile(self, src=None, model=None, num=1, data_file=None):
         if src:
             self.configure(src, model, num=num, data_file=data_file)
-        utils.make(self.goal, cwd=self.build_dir)
+        utils.make(self.goal, cwd=self.build_dir, threads=self.num_threads)
 
     def generate_elf(self, src=None, model=None, num=1, data_file=None):
         artifacts = []

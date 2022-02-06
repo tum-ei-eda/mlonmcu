@@ -80,7 +80,8 @@ class Run:
         self.config.update(config if config else {})
         self.features = features if features else []
         self.result = None
-        self.active = False  # TODO: rename to staus with enum?
+        self.active = False  # TODO: rename to staus with enum? or MUTEX!
+        self.failing = False  # -> RunStatus
 
     def _init_directory(self):
         if self.session is None:
@@ -353,7 +354,18 @@ class Run:
             }
             func = stage_funcs[stage]
             if func:
-                func(context=context)
+                self.failing = False
+                try:
+                    func(context=context)
+                except Exception as e:
+                    self.failing = True
+                    self.active = False
+                    logger.exception(e)
+                    run_stage = RunStage(stage).name
+                    logger.error(
+                        self.prefix + f"Run failed at stage '{run_stage}', aborting..."
+                    )
+                    break
             # self.stage = stage  # FIXME: The stage_func should update the stage intead?
         report = self.get_report()
         if export:

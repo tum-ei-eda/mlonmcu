@@ -206,12 +206,12 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     if params:
         if "vext" in params:
             if params["vext"]:
-                if "vext" not in supported_features:
+                if not context.environment.has_feature("vext"):
                     return False
     return True
 
 
-@Tasks.provides(["riscv_gcc.install_dir"])
+@Tasks.provides(["riscv_gcc.install_dir", "riscv_gcc.name"])
 @Tasks.param("vext", [False, True])
 @Tasks.validate(_validate_riscv_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)
@@ -232,31 +232,49 @@ def install_riscv_gcc(
         vext = False
         if "vext" in params:
             vext = params["vext"]
-        riscvVersion = (
-            user_vars["riscv.version"]
-            if "riscv.version" in user_vars
-            else ("8.3.0-2020.04.0" if not vext else "10.2.0-2020.12.8")
-        )
-        riscvDist = (
-            user_vars["riscv.distribution"]
-            if "riscv.distribution" in user_vars
-            else "x86_64-linux-ubuntu14"
-        )
-        if vext:
-            subdir = "v" + ".".join(riscvVersion.split("-")[1].split(".")[:-1])
-            riscvUrl = (
-                "https://static.dev.sifive.com/dev-tools/freedom-tools/" + subdir + "/"
-            )
-            riscvFileName = f"riscv64-unknown-elf-toolchain-{riscvVersion}-{riscvDist}"
+        if "riscv_gcc.dl_url" in user_vars:
+            fullUrlSplit = user_vars["riscv_gcc.dl_url"].split("/")
+            riscvUrl = "/".join(fullUrlSplit[:-1])
+            riscvFileName, riscvFileExtension = fullUrlSplit[-1].split(".", 1)
         else:
-            riscvUrl = "https://static.dev.sifive.com/dev-tools/"
-            riscvFileName = f"riscv64-unknown-elf-gcc-{riscvVersion}-{riscvDist}"
-        riscvArchive = riscvFileName + ".tar.gz"
+            riscvVersion = (
+                user_vars["riscv.version"]
+                if "riscv.version" in user_vars
+                else ("8.3.0-2020.04.0" if not vext else "10.2.0-2020.12.8")
+            )
+            riscvDist = (
+                user_vars["riscv.distribution"]
+                if "riscv.distribution" in user_vars
+                else "x86_64-linux-ubuntu14"
+            )
+            if vext:
+                subdir = "v" + ".".join(riscvVersion.split("-")[1].split(".")[:-1])
+                riscvUrl = (
+                    "https://static.dev.sifive.com/dev-tools/freedom-tools/"
+                    + subdir
+                    + "/"
+                )
+                riscvFileName = (
+                    f"riscv64-unknown-elf-toolchain-{riscvVersion}-{riscvDist}"
+                )
+            else:
+                riscvUrl = "https://static.dev.sifive.com/dev-tools/"
+                riscvFileName = f"riscv64-unknown-elf-gcc-{riscvVersion}-{riscvDist}"
+            riscvFileExtension = "tar.gz"
+        riscvArchive = riscvFileName + "." + riscvFileExtension
         # if rebuild or not utils.is_populated(riscvInstallDir):
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(riscvInstallDir):
             utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir)
+    gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
+    gccName = None
+    for name in gccNames:
+        if (riscvInstallDir / name).is_dir():
+            gccName = name
+            break
+    assert gccName is not None, "Toolchain name could not be dtemined automatically"
     context.cache["riscv_gcc.install_dir", flags] = riscvInstallDir
+    context.cache["riscv_gcc.name", flags] = gccName
 
 
 ########
@@ -631,21 +649,26 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
     return True
 
 
-@Tasks.provides(["muriscvnn.src_dir"])
+@Tasks.provides(["muriscvnn.src_dir", "muriscvnn.inc_dir"])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
 def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Clone the muRISCV-NN project."""
     muriscvnnName = utils.makeDirName("muriscvnn")
     muriscvnnSrcDir = context.environment.paths["deps"].path / "src" / muriscvnnName
+    muriscvnnIncludeDir = muriscvnnSrcDir / "Include"
+    user_vars = context.environment.vars
+    if "muriscvnn.lib" in user_vars:  # TODO: also check command line flags?
+        return
     if rebuild or not utils.is_populated(muriscvnnSrcDir):
         muriscvnnRepo = context.environment.repos["muriscvnn"]
         utils.clone(muriscvnnRepo.url, muriscvnnSrcDir, branch=muriscvnnRepo.ref)
     context.cache["muriscvnn.src_dir"] = muriscvnnSrcDir
+    context.cache["muriscvnn.inc_dir"] = muriscvnnIncludeDir
 
 
-@Tasks.needs(["muriscvnn.src_dir", "etiss.install_dir", "riscv_gcc.install_dir"])
-@Tasks.provides(["muriscvnn.build_dir", "muriscvnn.inc_dir"])
+@Tasks.needs(["muriscvnn.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("vext", [False, True])
 @Tasks.validate(_validate_muriscvnn)
@@ -659,9 +682,21 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
     muriscvnnSrcDir = context.cache["muriscvnn.src_dir"]
     muriscvnnBuildDir = context.environment.paths["deps"].path / "build" / muriscvnnName
-    muriscvnnIncludeDir = muriscvnnBuildDir / "Includes"
-    if rebuild or not utils.is_populated(muriscvnnBuildDir):
+    muriscvnnInstallDir = (
+        context.environment.paths["deps"].path / "install" / muriscvnnName
+    )
+    muriscvnnLib = muriscvnnInstallDir / "libmuriscvnn.a"
+    user_vars = context.environment.vars
+    if "muriscvnn.lib" in user_vars:  # TODO: also check command line flags?
+        return
+    if rebuild or not (
+        utils.is_populated(muriscvnnBuildDir) and muriscvnnLib.is_file()
+    ):
         utils.mkdirs(muriscvnnBuildDir)
+        gccName = context.cache["riscv_gcc.name", flags_]
+        assert (
+            gccName == "riscv32-unknown-elf"
+        ), "muRISCV-NN requires a non-multilib toolchain!"
         muriscvnnArgs = []
         muriscvnnArgs.append(
             "-DRISCV_GCC_PREFIX=" + str(context.cache["riscv_gcc.install_dir", flags_])
@@ -670,6 +705,7 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
         if "vext" in params:
             vext = params["vext"]
         muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
+        muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
         utils.cmake(
             muriscvnnSrcDir,
             *muriscvnnArgs,
@@ -678,8 +714,10 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
             live=verbose,
         )
         utils.make(cwd=muriscvnnBuildDir, live=verbose)
+        utils.mkdirs(muriscvnnInstallDir)
+        utils.move(muriscvnnBuildDir / "Source" / "libmuriscv_nn.a", muriscvnnLib)
     context.cache["muriscvnn.build_dir", flags] = muriscvnnBuildDir
-    context.cache["muriscvnn.inc_dir", flags] = muriscvnnIncludeDir
+    context.cache["muriscvnn.lib", flags] = muriscvnnLib
 
 
 # TODO: return True if changed, False if not, or: reurn code: unchanged, changed, error, unknown

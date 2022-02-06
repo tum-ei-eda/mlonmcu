@@ -177,24 +177,24 @@
                 <span class="k">assert</span> <span class="s2">&quot;input_nodes&quot;</span> <span class="ow">in</span> <span class="n">network</span>
                 <span class="n">ins</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s2">&quot;input_nodes&quot;</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">ins</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="s2">&quot;example_input&quot;</span> <span class="ow">in</span> <span class="n">inp</span> <span class="ow">and</span> <span class="s2">&quot;path&quot;</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">[</span><span class="s2">&quot;example_input&quot;</span><span class="p">]</span>
-                    <span class="n">in_data_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;example_input&quot;</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">])</span>
-                    <span class="c1"># TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)</span>
-                    <span class="n">in_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="n">in_data_dir</span>
-                    <span class="k">assert</span> <span class="p">(</span>
-                        <span class="n">in_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Input data directory defined in model metadata does not exist: </span><span class="si">{</span><span class="n">in_path</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="n">in_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">in_path</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">&quot;example_input&quot;</span> <span class="ow">in</span> <span class="n">inp</span> <span class="ow">and</span> <span class="s2">&quot;path&quot;</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">[</span><span class="s2">&quot;example_input&quot;</span><span class="p">]:</span>
+                        <span class="n">in_data_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;example_input&quot;</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">])</span>
+                        <span class="c1"># TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)</span>
+                        <span class="n">in_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="n">in_data_dir</span>
+                        <span class="k">assert</span> <span class="p">(</span>
+                            <span class="n">in_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+                        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Input data directory defined in model metadata does not exist: </span><span class="si">{</span><span class="n">in_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">in_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">in_path</span><span class="p">)</span>
                 <span class="k">assert</span> <span class="s2">&quot;output_nodes&quot;</span> <span class="ow">in</span> <span class="n">network</span>
                 <span class="n">outs</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s2">&quot;output_nodes&quot;</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outs</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="s2">&quot;test_output_path&quot;</span> <span class="ow">in</span> <span class="n">outp</span>
-                    <span class="n">out_data_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outp</span><span class="p">[</span><span class="s2">&quot;test_output_path&quot;</span><span class="p">])</span>
-                    <span class="n">out_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="n">out_data_dir</span>
-                    <span class="k">assert</span> <span class="p">(</span>
-                        <span class="n">in_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Output data directory defined in model metadata does not exist: </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="n">out_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">&quot;test_output_path&quot;</span> <span class="ow">in</span> <span class="n">outp</span><span class="p">:</span>
+                        <span class="n">out_data_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outp</span><span class="p">[</span><span class="s2">&quot;test_output_path&quot;</span><span class="p">])</span>
+                        <span class="n">out_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="n">out_data_dir</span>
+                        <span class="k">assert</span> <span class="p">(</span>
+                            <span class="n">in_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+                        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Output data directory defined in model metadata does not exist: </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">out_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fallback_in_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;input&quot;</span>
                 <span class="k">if</span> <span class="n">fallback_in_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
@@ -218,6 +218,13 @@
                     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">backend_options</span><span class="p">[</span><span class="n">backend</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                 <span class="p">}</span>
                 <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">flattened</span><span class="p">)</span>
+
+        <span class="c1"># Detect model support code (Allow overwrite in metadata YAML)</span>
+        <span class="n">support_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;support&quot;</span>
+        <span class="k">if</span> <span class="n">support_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="n">cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="c1"># TODO: onlu overwrite if unset?</span>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;mlif.model_support_dir&quot;</span><span class="p">:</span> <span class="n">support_path</span><span class="p">})</span>
 
         <span class="k">return</span> <span class="n">data_artifact</span></div>
 

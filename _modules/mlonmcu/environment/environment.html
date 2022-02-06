@@ -241,6 +241,10 @@
         <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">supported</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">]</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">supported</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Environment.has_feature"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_feature">[docs]</a>    <span class="k">def</span> <span class="nf">has_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;An alias for supports_feature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">supports_feature</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Environment.lookup_backend_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_backend_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_backend_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">framework_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
@@ -265,6 +269,15 @@
                 <span class="k">return</span> <span class="p">[</span><span class="n">framework_config</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
+<div class="viewcode-block" id="Environment.lookup_frontend_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_frontend_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_frontend_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">frontend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span>
+
+        <span class="k">for</span> <span class="n">frontend_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">frontend_config</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">frontend</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">frontend_config</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
 <div class="viewcode-block" id="Environment.lookup_target_configs"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_target_configs">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_target_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span>
@@ -274,7 +287,11 @@
                 <span class="k">return</span> <span class="p">[</span><span class="n">target_config</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
-    <span class="c1"># TODO: remove whitespace</span>
+<div class="viewcode-block" id="Environment.has_frontend"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_frontend">[docs]</a>    <span class="k">def</span> <span class="nf">has_frontend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_frontend_configs</span><span class="p">(</span><span class="n">frontend</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">return</span> <span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span></div>
+
 <div class="viewcode-block" id="Environment.has_backend"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_backend">[docs]</a>    <span class="k">def</span> <span class="nf">has_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_backend_configs</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
@@ -290,6 +307,36 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
         <span class="k">return</span> <span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span></div>
 
+<div class="viewcode-block" id="Environment.get_enabled_frontends"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_enabled_frontends">[docs]</a>    <span class="k">def</span> <span class="nf">get_enabled_frontends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">frontend</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="Environment.get_enabled_frameworks"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_enabled_frameworks">[docs]</a>    <span class="k">def</span> <span class="nf">get_enabled_frameworks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">framework</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="Environment.get_enabled_backends"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_enabled_backends">[docs]</a>    <span class="k">def</span> <span class="nf">get_enabled_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">framework</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="Environment.get_enabled_targets"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_enabled_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_enabled_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
 <div class="viewcode-block" id="Environment.get_default_backends"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_default_backends">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">framework</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -302,11 +349,7 @@
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
-                <span class="n">default</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">backend</span><span class="o">.</span><span class="n">name</span>
-                    <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework_config</span><span class="o">.</span><span class="n">backends</span>
-                    <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">enabled</span>
-                <span class="p">]</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_backends</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -319,9 +362,7 @@
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
-                <span class="n">default</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">framework</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span> <span class="k">if</span> <span class="n">framework</span><span class="o">.</span><span class="n">enabled</span>
-                <span class="p">]</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_frameworks</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -333,19 +374,12 @@
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled targets</span>
-                    <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">enabled</span><span class="p">]</span>
+                    <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_targets</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">default</span></div>
-
-<div class="viewcode-block" id="Environment.get_enabled_frontends"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_enabled_frontends">[docs]</a>    <span class="k">def</span> <span class="nf">get_enabled_frontends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">frontend</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ret</span></div></div>
+        <span class="k">return</span> <span class="n">default</span></div></div>
 
 
 <div class="viewcode-block" id="DefaultEnvironment"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.DefaultEnvironment">[docs]</a><span class="k">class</span> <span class="nc">DefaultEnvironment</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>

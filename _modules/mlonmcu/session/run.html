@@ -82,7 +82,12 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.report</span> <span class="kn">import</span> <span class="n">Report</span>  <span class="c1"># TODO: move to mlonmcu.session.report</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.compile.mlif</span> <span class="kn">import</span> <span class="n">MLIF</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.models</span> <span class="kn">import</span> <span class="n">SUPPORTED_FRONTENDS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow</span> <span class="kn">import</span> <span class="n">SUPPORTED_FRAMEWORKS</span><span class="p">,</span> <span class="n">SUPPORTED_BACKENDS</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -150,7 +155,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">features</span> <span class="k">if</span> <span class="n">features</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: rename to staus with enum?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: rename to staus with enum? or MUTEX!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failing</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># -&gt; RunStatus</span>
 
     <span class="k">def</span> <span class="nf">_init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -175,6 +181,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_init_directory</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">new</span></div>
 
+<div class="viewcode-block" id="Run.init_component"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.init_component">[docs]</a>    <span class="k">def</span> <span class="nf">init_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_cls</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">required_keys</span> <span class="o">=</span> <span class="n">component_cls</span><span class="o">.</span><span class="n">REQUIRED</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">resolve_required_config</span><span class="p">(</span>
+                <span class="n">required_keys</span><span class="p">,</span>
+                <span class="n">features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span> <span class="k">if</span> <span class="n">context</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">component_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># TODOL get rid of this</span>
+        <span class="k">return</span> <span class="n">component_cls</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">component_config</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Run.add_frontend"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_frontend">[docs]</a>    <span class="k">def</span> <span class="nf">add_frontend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span> <span class="o">=</span> <span class="n">frontend</span></div>
 
@@ -186,6 +205,66 @@
 
 <div class="viewcode-block" id="Run.add_target"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_target">[docs]</a>    <span class="k">def</span> <span class="nf">add_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span></div>
+
+<div class="viewcode-block" id="Run.init_mlif"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.init_mlif">[docs]</a>    <span class="k">def</span> <span class="nf">init_mlif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">required_keys</span> <span class="o">=</span> <span class="n">MLIF</span><span class="o">.</span><span class="n">REQUIRED</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">resolve_required_config</span><span class="p">(</span>
+                <span class="n">required_keys</span><span class="p">,</span>
+                <span class="n">features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">&quot;Please add a frontend before initializing the MLIF&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">&quot;Please add a backend before initializing the MLIF&quot;</span>
+        <span class="n">mlif_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span> <span class="o">=</span> <span class="n">MLIF</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">mlif_config</span><span class="p">,</span>
+            <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Run.add_model_by_name"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_model_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">add_model_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Run.add_frontend_by_name"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_frontend_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">add_frontend_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_frontend</span><span class="p">(</span>
+            <span class="n">frontend_name</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The frontend &#39;</span><span class="si">{</span><span class="n">frontend_name</span><span class="si">}</span><span class="s2">&#39; is not enabled for this environment&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_frontend</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_FRONTENDS</span><span class="p">[</span><span class="n">frontend_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Run.add_backend_by_name"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_backend_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">add_backend_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_backend</span><span class="p">(</span>
+            <span class="n">backend_name</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The backend &#39;</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">&#39; is not enabled for this environment&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_backend</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_BACKENDS</span><span class="p">[</span><span class="n">backend_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">framework_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">framework</span>  <span class="c1"># TODO: does this work?</span>
+        <span class="k">assert</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span>
+            <span class="n">framework_name</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The framework &#39;</span><span class="si">{</span><span class="n">framework_name</span><span class="si">}</span><span class="s2">&#39; is not enabled for this environment&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_framework</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_FRAMEWORKS</span><span class="p">[</span><span class="n">framework_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Run.add_target_by_name"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_target_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">add_target_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span>
+            <span class="n">target_name</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The target &#39;</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">&#39; is not enabled for this environment&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_target</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_TARGETS</span><span class="p">[</span><span class="n">target_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">export_optional</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -275,9 +354,7 @@
             <span class="k">if</span> <span class="n">artifact</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;data.c&quot;</span><span class="p">:</span>
                 <span class="n">artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
                 <span class="n">data_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;data.c&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="o">.</span><span class="n">generate_elf</span><span class="p">(</span>
-            <span class="n">codegen_dir</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="n">data_file</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="o">.</span><span class="n">generate_elf</span><span class="p">(</span><span class="n">codegen_dir</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="n">data_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="o">.</span><span class="n">artifacts</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">)</span>
@@ -316,10 +393,12 @@
         <span class="n">data_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span><span class="o">.</span><span class="n">process_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">cfg_new</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cfg_new</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cfg_new</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">backend</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">backend</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="n">component</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">component</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">component</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span><span class="o">.</span><span class="n">artifacts</span>
         <span class="k">if</span> <span class="n">data_artifact</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_artifact</span><span class="p">)</span>
@@ -358,7 +437,18 @@
             <span class="p">}</span>
             <span class="n">func</span> <span class="o">=</span> <span class="n">stage_funcs</span><span class="p">[</span><span class="n">stage</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">func</span><span class="p">:</span>
-                <span class="n">func</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failing</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">func</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">failing</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="n">run_stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Run failed at stage &#39;</span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&#39;, aborting...&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">break</span>
             <span class="c1"># self.stage = stage  # FIXME: The stage_func should update the stage intead?</span>
         <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">export</span><span class="p">:</span>

@@ -76,6 +76,8 @@
   <h1>Source code for mlonmcu.flow.tflite.framework</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Definitions for TFLiteFramework.&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.framework</span> <span class="kn">import</span> <span class="n">Framework</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tflite</span> <span class="kn">import</span> <span class="n">TFLiteBackend</span>
 
@@ -84,18 +86,50 @@
     <span class="sd">&quot;&quot;&quot;TFLite Framework specialization.&quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tflite&quot;</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">]</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;optimized_kernel&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;optimized_kernel_inc_dir&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;optimized_kernel_lib&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">]</span>
+
     <span class="n">backends</span> <span class="o">=</span> <span class="n">TFLiteBackend</span><span class="o">.</span><span class="n">registry</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tf_src</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimized_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimized_kernel_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel_lib&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">optimized_kernel_inc_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel_inc_dir&quot;</span><span class="p">]</span>
+
 <div class="viewcode-block" id="TFLiteFramework.get_cmake_args"><a class="viewcode-back" href="../../../../mlonmcu.flow.tflite.html#mlonmcu.flow.tflite.framework.TFLiteFramework.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;tf.src_dir&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
-            <span class="n">tfSrc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can not resolve tf.src_dir&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-DTF_SRC=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tfSrc</span><span class="p">)]</span>  <span class="c1"># TODO: change</span></div></div>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DTF_SRC=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_src</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DTFLM_OPTIMIZED_KERNEL=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_inc_dir</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_inc_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_lib</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DTFLM_OPTIMIZED_KERNEL_LIB=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_lib</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">args</span></div></div>
 </pre></div>
 
            </div>

@@ -56,6 +56,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
 </ul>
@@ -239,13 +240,25 @@
 <tr class="row-odd"><td><p><strong>add_backend</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>add_framework</strong></p></td>
+<tr class="row-even"><td><p><strong>add_backend_by_name</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>add_frontend</strong></p></td>
+<tr class="row-odd"><td><p><strong>add_framework</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>add_target</strong></p></td>
+<tr class="row-even"><td><p><strong>add_frontend</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>add_frontend_by_name</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>add_model_by_name</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>add_target</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>add_target_by_name</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>copy</strong></p></td>
@@ -261,6 +274,12 @@
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>get_report</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>init_component</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>init_mlif</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>toDict</strong></p></td>
@@ -282,6 +301,11 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_backend_by_name">
+<span class="sig-name descname"><span class="pre">add_backend_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_backend_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_backend_by_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_framework">
 <span class="sig-name descname"><span class="pre">add_framework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">framework</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_framework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_framework" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -292,8 +316,23 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_frontend_by_name">
+<span class="sig-name descname"><span class="pre">add_frontend_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frontend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_frontend_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_frontend_by_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_model_by_name">
+<span class="sig-name descname"><span class="pre">add_model_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_model_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_model_by_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_target">
 <span class="sig-name descname"><span class="pre">add_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_target_by_name">
+<span class="sig-name descname"><span class="pre">add_target_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_target_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_target_by_name" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -348,6 +387,16 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.get_report">
 <span class="sig-name descname"><span class="pre">get_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.get_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.get_report" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.init_component">
+<span class="sig-name descname"><span class="pre">init_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.init_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.init_component" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.init_mlif">
+<span class="sig-name descname"><span class="pre">init_mlif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.init_mlif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.init_mlif" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

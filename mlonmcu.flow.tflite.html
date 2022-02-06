@@ -56,6 +56,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
 </ul>
@@ -125,6 +126,16 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tflite.framework.</span></span><span class="sig-name descname"><span class="pre">TFLiteFramework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/framework.html#TFLiteFramework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework" title="mlonmcu.flow.framework.Framework"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.framework.Framework</span></code></a></p>
 <p>TFLite Framework specialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>optimized_kernel</strong></dt><dd></dd>
+<dt><strong>optimized_kernel_inc_dir</strong></dt><dd></dd>
+<dt><strong>optimized_kernel_lib</strong></dt><dd></dd>
+<dt><strong>tf_src</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table class="docutils align-default">
 <colgroup>
@@ -147,6 +158,21 @@
 </tbody>
 </table>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'optimized_kernel':</span> <span class="pre">None,</span> <span class="pre">'optimized_kernel_inc_dir':</span> <span class="pre">None,</span> <span class="pre">'optimized_kernel_lib':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['muriscvnn']</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tf.src_dir']</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.backends">
 <span class="sig-name descname"><span class="pre">backends</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'tflmc':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tflite.backend.tflmc.TFLMCBackend'&gt;,</span> <span class="pre">'tflmi':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend'&gt;}</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.backends" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -159,6 +185,26 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tflite'</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.optimized_kernel">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimized_kernel</span></span><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.optimized_kernel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.optimized_kernel_inc_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimized_kernel_inc_dir</span></span><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.optimized_kernel_inc_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.optimized_kernel_lib">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimized_kernel_lib</span></span><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.optimized_kernel_lib" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.tf_src">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tf_src</span></span><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.tf_src" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

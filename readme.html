@@ -155,18 +155,20 @@
 <p>Also make sure that your default Python is at least v3.7. If the <code class="docutils literal notranslate"><span class="pre">python</span></code> command is not available in your shell or points Python v2.7 check out <code class="docutils literal notranslate"><span class="pre">python-is-python3</span></code>.</p>
 <p><strong>Warning:</strong> It seems like the ETISS tool fails to compile if if find a version of LLVM 11 on your system which does not include Clang 11. The best workaround for now is to (if possible) remove those tools from your system: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">remove</span> <span class="pre">llvm-11*</span> <span class="pre">clang-11*</span></code> (See issue #1)</p>
 <p>Next, make sure to install all package dependencies into a fresh virtual Python environment</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="o">.</span><span class="n">venv</span>  <span class="c1"># Feel free to choose a different directory or use a conda environment</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>python -m venv .venv  # Feel free to choose a different directory or use a conda environment
 
-<span class="c1"># Run this whenever your have updated the repository</span>
-<span class="n">source</span> <span class="o">.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+# Run this whenever your have updated the repository
+source .venv/bin/activate
+pip install -r requirements.txt
 
-<span class="c1"># Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">ipynb</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+Warning: It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
-<span class="c1"># Optional (only for development)</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements_dev</span><span class="o">.</span><span class="n">txt</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">docs</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
+pip install -r ipynb/requirements.txt
+
+# Optional (only for development)
+pip install -r requirements_dev.txt
+pip install -r docs/requirements.txt
 </pre></div>
 </div>
 <p>Then you should be able to install the <code class="docutils literal notranslate"><span class="pre">mlonmcu</span></code> python package like this</p>

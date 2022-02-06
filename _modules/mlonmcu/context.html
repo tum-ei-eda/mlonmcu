@@ -370,7 +370,7 @@
                             <span class="k">return</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No cache found in deps directory&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MlonMcuContext.get_session"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
+<div class="viewcode-block" id="MlonMcuContext.get_session"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get an active session if available, else create a new one.</span>
 
 <span class="sd">        Returns</span>
@@ -378,6 +378,12 @@
 <span class="sd">        Session:</span>
 <span class="sd">            An active session</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">resume</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;There is no recent session available&quot;</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;The latest session can not be resumed&quot;</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_idx</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">create_session</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>

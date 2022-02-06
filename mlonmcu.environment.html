@@ -56,6 +56,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
 </ul>
@@ -255,8 +256,8 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_backend</span></code>(name)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_feature</span></code>(name)</p></td>
+<td><p>An alias for supports_feature.</p></td>
 </tr>
 </tbody>
 </table>
@@ -278,28 +279,46 @@
 <tr class="row-even"><td><p><strong>get_default_targets</strong></p></td>
 <td></td>
 </tr>
+<tr class="row-odd"><td><p><strong>get_enabled_backends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_enabled_frameworks</strong></p></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><p><strong>get_enabled_frontends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_enabled_targets</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>has_backend</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>has_framework</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>has_target</strong></p></td>
+<tr class="row-odd"><td><p><strong>has_frontend</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_backend_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>has_target</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
+<tr class="row-odd"><td><p><strong>lookup_backend_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_feature_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>lookup_framework_configs</strong></p></td>
+<tr class="row-odd"><td><p><strong>lookup_feature_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>lookup_framework_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_frontend_configs</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>lookup_frontend_feature_configs</strong></p></td>
@@ -340,8 +359,8 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.environment.environment.Environment.has_backend" title="mlonmcu.environment.environment.Environment.has_backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_backend</span></code></a>(name)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.environment.environment.Environment.has_feature" title="mlonmcu.environment.environment.Environment.has_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_feature</span></code></a>(name)</p></td>
+<td><p>An alias for supports_feature.</p></td>
 </tr>
 </tbody>
 </table>
@@ -363,28 +382,46 @@
 <tr class="row-even"><td><p><strong>get_default_targets</strong></p></td>
 <td></td>
 </tr>
+<tr class="row-odd"><td><p><strong>get_enabled_backends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_enabled_frameworks</strong></p></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><p><strong>get_enabled_frontends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_enabled_targets</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>has_backend</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>has_framework</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>has_target</strong></p></td>
+<tr class="row-odd"><td><p><strong>has_frontend</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_backend_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>has_target</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
+<tr class="row-odd"><td><p><strong>lookup_backend_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_feature_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>lookup_framework_configs</strong></p></td>
+<tr class="row-odd"><td><p><strong>lookup_feature_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>lookup_framework_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_frontend_configs</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>lookup_frontend_feature_configs</strong></p></td>
@@ -425,8 +462,23 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.get_enabled_backends">
+<span class="sig-name descname"><span class="pre">get_enabled_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.get_enabled_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.get_enabled_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.get_enabled_frameworks">
+<span class="sig-name descname"><span class="pre">get_enabled_frameworks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.get_enabled_frameworks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.get_enabled_frameworks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.get_enabled_frontends">
 <span class="sig-name descname"><span class="pre">get_enabled_frontends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.get_enabled_frontends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.get_enabled_frontends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.get_enabled_targets">
+<span class="sig-name descname"><span class="pre">get_enabled_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.get_enabled_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.get_enabled_targets" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -435,8 +487,19 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.has_feature">
+<span class="sig-name descname"><span class="pre">has_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.has_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.has_feature" title="Permalink to this definition"></a></dt>
+<dd><p>An alias for supports_feature.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.has_framework">
 <span class="sig-name descname"><span class="pre">has_framework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.has_framework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.has_framework" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.has_frontend">
+<span class="sig-name descname"><span class="pre">has_frontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.has_frontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.has_frontend" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -473,6 +536,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_framework_feature_configs">
 <span class="sig-name descname"><span class="pre">lookup_framework_feature_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_framework_feature_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_framework_feature_configs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.environment.environment.Environment.lookup_frontend_configs">
+<span class="sig-name descname"><span class="pre">lookup_frontend_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/environment/environment.html#Environment.lookup_frontend_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.environment.environment.Environment.lookup_frontend_configs" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -521,8 +589,8 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_backend</span></code>(name)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_feature</span></code>(name)</p></td>
+<td><p>An alias for supports_feature.</p></td>
 </tr>
 </tbody>
 </table>
@@ -544,28 +612,46 @@
 <tr class="row-even"><td><p><strong>get_default_targets</strong></p></td>
 <td></td>
 </tr>
+<tr class="row-odd"><td><p><strong>get_enabled_backends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_enabled_frameworks</strong></p></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><p><strong>get_enabled_frontends</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_enabled_targets</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>has_backend</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>has_framework</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>has_target</strong></p></td>
+<tr class="row-odd"><td><p><strong>has_frontend</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_backend_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>has_target</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
+<tr class="row-odd"><td><p><strong>lookup_backend_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_feature_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>lookup_backend_feature_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>lookup_framework_configs</strong></p></td>
+<tr class="row-odd"><td><p><strong>lookup_feature_configs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<tr class="row-even"><td><p><strong>lookup_framework_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>lookup_framework_feature_configs</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>lookup_frontend_configs</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>lookup_frontend_feature_configs</strong></p></td>

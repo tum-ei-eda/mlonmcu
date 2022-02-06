@@ -204,7 +204,6 @@
 
         <span class="n">model_data</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">model_buf</span><span class="p">:</span>
-            <span class="n">model_buf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># ignore first byte?</span>
             <span class="n">model_data</span> <span class="o">=</span> <span class="n">model_buf</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
         <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -219,7 +218,6 @@
 <span class="s2">#include &quot;tensorflow/lite/micro/micro_interpreter.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/micro/micro_mutable_op_resolver.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/schema/schema_generated.h&quot;</span>
-<span class="s2">#include &quot;tensorflow/lite/version.h&quot;</span>
 
 <span class="s2">#if defined __GNUC__</span>
 <span class="s2">#define ALIGN(X) __attribute__((aligned(X)))</span>
@@ -238,7 +236,7 @@
 <span class="s2">#endif</span>
 
 <span class="s2">&quot;&quot;&quot;</span>
-        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;const unsigned char g_model_data[] = { &quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;const unsigned char g_model_data[] ALIGN(16) = { &quot;&quot;&quot;</span>
         <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="n">make_hex_array</span><span class="p">(</span><span class="n">model_data</span><span class="p">)</span>
         <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot; };</span>
 

@@ -69,6 +69,14 @@ mlonmcu.report module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.utils module
+--------------------
+
+.. automodule:: mlonmcu.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.version module
 ----------------------
 

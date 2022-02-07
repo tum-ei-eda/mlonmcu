@@ -32,7 +32,8 @@ def filter_config(config, prefix, defaults, required_keys):
 
     for key in cfg:
         if key not in list(defaults.keys()) + required_keys:
-            logger.warn("Backend received an unknown config key: %s", key)
+            #logger.warn("Component received an unknown config key: %s", key)
+            pass
 
     return cfg
 

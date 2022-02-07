@@ -13,6 +13,7 @@ logger = get_logger()
 from .common import cli, execute
 from .riscv import RISCVTarget
 from .metrics import Metrics
+from .elf import get_results
 
 
 class OVPSimTarget(RISCVTarget):
@@ -144,6 +145,23 @@ class OVPSimTarget(RISCVTarget):
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
         metrics.add("MIPS", cycles, optional=True)
+        static_mem = get_results(elf)
+        rom_ro, rom_code, rom_misc, ram_data, ram_zdata = (
+            static_mem["rom_rodata"],
+            static_mem["rom_code"],
+            static_mem["rom_misc"],
+            static_mem["ram_data"],
+            static_mem["ram_zdata"],
+        )
+        rom_total = rom_ro + rom_code + rom_misc
+        ram_total = ram_data + ram_zdata
+        metrics.add("Total ROM", rom_total)
+        metrics.add("Total RAM", ram_total)
+        metrics.add("ROM read-only", rom_ro)
+        metrics.add("ROM code", rom_code)
+        metrics.add("ROM misc", rom_misc)
+        metrics.add("RAM data", ram_data)
+        metrics.add("RAM zero-init data", ram_zdata)
 
         return metrics
 

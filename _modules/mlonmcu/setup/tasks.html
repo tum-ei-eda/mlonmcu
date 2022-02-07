@@ -648,7 +648,7 @@
 <span class="k">def</span> <span class="nf">_validate_utvmcg</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_backend</span><span class="p">(</span><span class="s2">&quot;utvmcg&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_backend</span><span class="p">(</span><span class="s2">&quot;tvmcg&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="clone_utvm_staticrt_codegen"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_utvm_staticrt_codegen">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;utvmcg.src_dir&quot;</span><span class="p">])</span>
@@ -669,7 +669,7 @@
 <div class="viewcode-block" id="build_utvm_staticrt_codegen"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_utvm_staticrt_codegen">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;utvmcg.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;utvmcg.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-<span class="c1"># @Tasks.validate(_validate_utvmcg)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_utvmcg</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">build_utvm_staticrt_codegen</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>

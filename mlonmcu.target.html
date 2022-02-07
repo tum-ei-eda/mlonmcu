@@ -180,6 +180,8 @@ args</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
+<dt><strong>abi</strong></dt><dd></dd>
+<dt><strong>arch</strong></dt><dd></dd>
 <dt><strong>cycle_time_ps</strong></dt><dd></dd>
 <dt><strong>debug_etiss</strong></dt><dd></dd>
 <dt><strong>etiss_dir</strong></dt><dd></dd>
@@ -189,6 +191,7 @@ args</p>
 <dt><strong>gdbserver_port</strong></dt><dd></dd>
 <dt><strong>ram_size</strong></dt><dd></dd>
 <dt><strong>ram_start</strong></dt><dd></dd>
+<dt><strong>riscv_basename</strong></dt><dd></dd>
 <dt><strong>riscv_prefix</strong></dt><dd></dd>
 <dt><strong>rom_size</strong></dt><dd></dd>
 <dt><strong>rom_start</strong></dt><dd></dd>
@@ -247,7 +250,7 @@ args</p>
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'debug_etiss':</span> <span class="pre">False,</span> <span class="pre">'etissvp.cycle_time_ps':</span> <span class="pre">31250,</span> <span class="pre">'etissvp.ram_size':</span> <span class="pre">67108864,</span> <span class="pre">'etissvp.ram_start':</span> <span class="pre">8388608,</span> <span class="pre">'etissvp.rom_size':</span> <span class="pre">8388608,</span> <span class="pre">'etissvp.rom_start':</span> <span class="pre">0,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'gdbserver_attach':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_enable':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_port':</span> <span class="pre">2222,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'trace_memory':</span> <span class="pre">False,</span> <span class="pre">'verbose':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'debug_etiss':</span> <span class="pre">False,</span> <span class="pre">'etissvp.cycle_time_ps':</span> <span class="pre">31250,</span> <span class="pre">'etissvp.ram_size':</span> <span class="pre">67108864,</span> <span class="pre">'etissvp.ram_start':</span> <span class="pre">8388608,</span> <span class="pre">'etissvp.rom_size':</span> <span class="pre">8388608,</span> <span class="pre">'etissvp.rom_start':</span> <span class="pre">0,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'gdbserver_attach':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_enable':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_port':</span> <span class="pre">2222,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'trace_memory':</span> <span class="pre">False,</span> <span class="pre">'verbose':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -257,7 +260,7 @@ args</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.REQUIRED">
-<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['riscv_gcc.install_dir',</span> <span class="pre">'etiss.install_dir']</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['riscv_gcc.install_dir',</span> <span class="pre">'riscv_gcc.name',</span> <span class="pre">'etiss.install_dir']</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.ETISSPulpinoTarget.REQUIRED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -520,7 +523,7 @@ args</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.target.target.Target.generate_metrics">
-<span class="sig-name descname"><span class="pre">generate_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/target.html#Target.generate_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.target.Target.generate_metrics" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/target.html#Target.generate_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.target.Target.generate_metrics" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

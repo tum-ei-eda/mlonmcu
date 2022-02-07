@@ -152,6 +152,7 @@
         <span class="n">model</span><span class="p">,</span>
         <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
         <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">arena_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">ops</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -218,7 +219,11 @@
 <span class="s2">#include &quot;tensorflow/lite/micro/micro_interpreter.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/micro/micro_mutable_op_resolver.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/schema/schema_generated.h&quot;</span>
-
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">legacy</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;#include &quot;tensorflow/lite/version.h&quot;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#if defined __GNUC__</span>
 <span class="s2">#define ALIGN(X) __attribute__((aligned(X)))</span>
 <span class="s2">#elif defined _MSC_VER</span>
@@ -371,6 +376,7 @@
         <span class="s2">&quot;custom_ops&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;registrations&quot;</span><span class="p">:</span> <span class="p">{},</span>
         <span class="s2">&quot;ops_resolver&quot;</span><span class="p">:</span> <span class="s2">&quot;mutable&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;legacy&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">TFLiteBackend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
@@ -384,6 +390,10 @@
             <span class="p">[]</span>
         <span class="p">)</span>  <span class="c1"># TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods</span>
         <span class="c1"># TODO: decide if artifacts should be handled by code (str) or file path or binary data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">legacy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;legacy&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="TFLMIBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>

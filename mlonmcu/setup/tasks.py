@@ -573,7 +573,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 def _validate_utvmcg(context: MlonMcuContext, params=None):
     if not _validate_tvm(context, params=params):
         return False
-    return context.environment.has_backend("utvmcg")
+    return context.environment.has_backend("tvmcg")
 
 
 @Tasks.provides(["utvmcg.src_dir"])
@@ -594,7 +594,7 @@ def clone_utvm_staticrt_codegen(
 @Tasks.needs(["utvmcg.src_dir", "tvm.src_dir"])
 @Tasks.provides(["utvmcg.build_dir", "utvmcg.exe"])
 @Tasks.param("dbg", False)
-# @Tasks.validate(_validate_utvmcg)
+@Tasks.validate(_validate_utvmcg)
 @Tasks.register(category=TaskType.BACKEND)
 def build_utvm_staticrt_codegen(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False

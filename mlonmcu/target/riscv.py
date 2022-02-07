@@ -23,12 +23,26 @@ class RISCVTarget(Target):
     DEFAULTS = {
         "timeout_sec": 0,  # disabled
         "extra_args": "",
+        "arch": "rv32gc",
+        "abi": "ilp32d",
     }
-    REQUIRED = ["riscv_gcc.install_dir"]
+    REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name"]
 
     @property
     def riscv_prefix(self):
         return Path(self.config["riscv_gcc.install_dir"])
+
+    @property
+    def riscv_basename(self):
+        return Path(self.config["riscv_gcc.name"])
+
+    @property
+    def arch(self):
+        return str(self.config["arch"])
+
+    @property
+    def abi(self):
+        return str(self.config["abi"])
 
     @property
     def extra_args(self):
@@ -44,4 +58,7 @@ class RISCVTarget(Target):
     def get_cmake_args(self):
         ret = super().get_cmake_args()
         ret.append(f"-DRISCV_ELF_GCC_PREFIX={self.riscv_prefix}")
+        ret.append(f"-DRISCV_ELF_GCC_BASENAME={self.riscv_basename}")
+        ret.append(f"-DRISCV_ARCH={self.arch}")
+        ret.append(f"-DRISCV_ABI={self.abi}")
         return ret

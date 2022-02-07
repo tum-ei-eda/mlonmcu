@@ -24,7 +24,7 @@ class SpikeTarget(RISCVTarget):
         **RISCVTarget.DEFAULTS,
         "enable_vext": False,
         "vlen": 0,  # vectorization=off
-        "isa": "rv32gc",  # rv32gcv?
+        "arch": "rv32gc",  # rv32gcv?
     }
     REQUIRED = RISCVTarget.REQUIRED + ["spike.exe", "spike.pk"]
 
@@ -38,10 +38,6 @@ class SpikeTarget(RISCVTarget):
     @property
     def spike_pk(self):
         return Path(self.config["spike.pk"])
-
-    @property
-    def isa(self):
-        return str(self.config["isa"])
 
     @property
     def extra_args(self):
@@ -59,7 +55,7 @@ class SpikeTarget(RISCVTarget):
         """Use target to execute a executable with given arguments"""
         spike_args = []
 
-        spike_args.append(f"--isa={self.isa}")
+        spike_args.append(f"--isa={self.arch}")
 
         if len(self.extra_args) > 0:
             spike_args.extend(self.extra_args.split(" "))

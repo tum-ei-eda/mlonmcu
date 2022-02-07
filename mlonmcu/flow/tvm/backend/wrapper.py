@@ -398,6 +398,13 @@ tvm_workspace_t app_workspace;
 size_t max_arena_usage = 0;
 #endif
 
+void TVMLogf(const char* msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    DBGPRINTF(msg, args);
+    va_end(args);
+}
+
 tvm_crt_error_t TVMPlatformMemoryAllocate(size_t num_bytes, DLDevice dev, void** out_ptr) {
 #ifdef TVMAOT_DEBUG_ALLOCATIONS
     if (num_bytes > (app_workspace.workspace + app_workspace.workspace_size - app_workspace.next_alloc)) {
@@ -433,13 +440,6 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev) {
 
     mainCode += """
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code) { exit(1); }
-
-void TVMLogf(const char* msg, ...) {
-    va_list args;
-    va_start(args, msg);
-    DBGPRINTF(msg, args);
-    va_end(args);
-}
 
 TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override) { }
 

@@ -403,7 +403,7 @@ class Run:
     def get_all_feature_names(self):
         return [feature.name for feature in self.features]
 
-    def get_all_configs(self):
+    def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
         def has_prefix(key):
             return "." in key
 
@@ -413,16 +413,24 @@ class Run:
             else:
                 assert hasattr(obj, "name")
                 name = obj.name
+            omit_list = []
+            defaults = obj.DEFAULTS
+            for key, value in obj.config.items():
+                if omit_defaults and key in defaults and defaults[key] == value:
+                        omit_list.append(key)
             ret = {
                 key if has_prefix(key) else f"{name}.{key}": value
-                for key, value in obj.config.items()
+                for key, value in obj.config.items() if key not in omit_list
             }
+            if omit_paths:
+                ret = {key: value for key, value in ret.items() if not (isinstance(value, Path) or (isinstance(value, str) and Path(value).exists()))}
             return ret
 
         ret = {}
-        ret.update(
-            {key: value for key, value in self.config.items() if not has_prefix(key)}
-        )  # Only config without a prefix!
+        if not omit_globals:
+            ret.update(
+                {key: value for key, value in self.config.items() if not has_prefix(key)}
+            )  # Only config without a prefix!
         if self.frontend:
             ret.update(config_helper(self.frontend))
         if self.backend:
@@ -456,7 +464,7 @@ class Run:
         pre["Num"] = self.num
         post = {}
         post["Features"] = self.get_all_feature_names()
-        post["Config"] = self.get_all_configs()
+        post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         # if include_sess_idx:
         #     report.session_id = self.session.idx

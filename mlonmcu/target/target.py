@@ -104,7 +104,7 @@ class Target:
         metrics.add("Runtime [s]", diff)
         return metrics
 
-    def generate_metrics(self, elf, verbose=True):
+    def generate_metrics(self, elf, verbose=False):
         artifacts = []
         with tempfile.TemporaryDirectory() as temp_dir:
             metrics = self.get_metrics(elf, temp_dir, verbose=verbose)

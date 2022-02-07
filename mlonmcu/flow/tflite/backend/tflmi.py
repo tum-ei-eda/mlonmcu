@@ -76,6 +76,7 @@ size_t {prefix}_outputs();
         model,
         prefix="model",
         header=True,
+        legacy=False,
         debug_arena=False,
         arena_size=None,
         ops=None,
@@ -142,7 +143,11 @@ size_t {prefix}_outputs();
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/schema/schema_generated.h"
-
+"""
+        if legacy:
+            wrapper_content += """#include "tensorflow/lite/version.h"
+"""
+        wrapper_content += """
 #if defined __GNUC__
 #define ALIGN(X) __attribute__((aligned(X)))
 #elif defined _MSC_VER
@@ -295,6 +300,7 @@ class TFLMIBackend(TFLiteBackend):
         "custom_ops": [],
         "registrations": {},
         "ops_resolver": "mutable",
+        "legacy": False,
     }
 
     REQUIRED = TFLiteBackend.REQUIRED + []
@@ -308,6 +314,10 @@ class TFLMIBackend(TFLiteBackend):
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
+
+    @property
+    def legacy(self):
+        return bool(self.config["legacy"])
 
     def generate_code(self, verbose=False):
         artifacts = []

@@ -166,6 +166,7 @@ class Vext(SetupFeature, TargetFeature):
         return int(self.config["vlen"])
 
     def get_target_config(self, target):
+        # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
         assert target in ["spike", "ovpsim"]
         assert is_power_of_two(self.vlen)
         return {

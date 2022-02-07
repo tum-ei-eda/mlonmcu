@@ -809,6 +809,7 @@ def clone_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
         utils.clone(spikeRepo.url, spikeSrcDir, branch=spikeRepo.ref)
     context.cache["spike.src_dir"] = spikeSrcDir
 
+
 @Tasks.needs(["spike.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
 @Tasks.provides(["spike.build_dir", "spike.exe"])
 @Tasks.validate(_validate_spike)

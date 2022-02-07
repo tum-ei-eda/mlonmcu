@@ -280,7 +280,9 @@ def download_and_extract(url, archive, dest):
         extract(tmp_archive, tmp_dir)
         remove(os.path.join(tmp_dir, tmp_archive))
         mkdirs(dest.parent)
-        if (Path(tmp_dir) / base_name).is_dir():  # Archive contained a subdirectory with the same name
+        if (
+            Path(tmp_dir) / base_name
+        ).is_dir():  # Archive contained a subdirectory with the same name
             move(os.path.join(tmp_dir, base_name), dest)
         else:
             move(tmp_dir, dest)

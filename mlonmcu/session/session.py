@@ -198,7 +198,9 @@ class Session:
                             if total_threads > 2 * cpu_count:
                                 if pbar2:
                                     print()
-                                logger.warning(f"The chosen configuration leads to a maximum of {total_threads} threads being processed which heavily exceeds the available CPU resources ({cpu_count}). It is recommended to lower the value of 'mlif.num_threads'!")
+                                logger.warning(
+                                    f"The chosen configuration leads to a maximum of {total_threads} threads being processed which heavily exceeds the available CPU resources ({cpu_count}). It is recommended to lower the value of 'mlif.num_threads'!"
+                                )
                         if run.failing:
                             logger.warning(
                                 f"Skiping stage '{run_stage}' for failed run"
@@ -225,7 +227,9 @@ class Session:
                         if total_threads > 2 * cpu_count:
                             if pbar2:
                                 print()
-                            logger.warning(f"The chosen configuration leads to a maximum of {total_threads} being processed which heavily exceeds the available CPU resources (cpu_count). It is recommended to lower the value of 'mlif.num_threads'!")
+                            logger.warning(
+                                f"The chosen configuration leads to a maximum of {total_threads} being processed which heavily exceeds the available CPU resources (cpu_count). It is recommended to lower the value of 'mlif.num_threads'!"
+                            )
                     workers.append(executor.submit(_process, run, until=until))
                 results = _join_workers(workers)
         report = self.get_reports()

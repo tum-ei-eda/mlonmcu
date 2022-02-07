@@ -365,6 +365,37 @@ class Memplan(FrameworkFeature):
         ], f"Usupported fetaure '{self.name}' for framework '{framework}'"
         return {"tvm.memplan_enable": self.enabled}
 
+
+@register_feature("usmp")
+class Usmp(BackendFeature):
+    """Unified Static Memory Planning algorithm integrated in TVM"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "algorithm": "greedy_by_conflicts",  # options: greedy_by_conflicts, greedy_by_size, hill_climb
+    }
+
+    def __init__(self, config=None):
+        super().__init__("usmp", config=config)
+
+    @property
+    def algorithm(self):
+        return str(self.config["algorithm"])
+
+    def add_backend_config(self, backend, config):
+        assert backend in [
+            "tvmaot"
+        ], f"Usupported fetaure '{self.name}' for backend '{backend}'"
+        if f"{backend}.extra_pass_config" in config:
+            tmp = config[f"{backend}.extra_pass_config"]
+        elif "extra_pass_config" in config:
+            tmp = config["extra_pass_config"]
+        else:
+            tmp = {}
+        tmp["tir.usmp.enable"] = self.enabled
+        tmp["tir.usmp.algorithm"] = self.algorithm
+        config.update({f"{backend}.extra_pass_config": tmp})
+
     # -> enable this via backend
 
 

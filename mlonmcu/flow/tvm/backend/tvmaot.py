@@ -18,6 +18,7 @@ class TVMAOTBackend(TVMBackend):
     FEATURES = [
         "debug_arena",
         "unpacked_api",
+        "usmp",
     ]
 
     DEFAULTS = {

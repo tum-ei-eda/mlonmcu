@@ -4,6 +4,7 @@ import logging
 import argparse
 import tempfile
 import multiprocessing
+import distutils.util
 from contextlib import closing
 from pathlib import Path
 from typing import List
@@ -30,6 +31,7 @@ class MLIF:
     DEFAULTS = {
         "debug": False,
         "ignore_data": True,
+        "print_output": False,
         "build_dir": None,
         "model_support_dir": None,
         "toolchain": "gcc",
@@ -101,6 +103,11 @@ class MLIF:
     @property
     def ignore_data(self):
         return bool(self.config["ignore_data"])
+
+    @property
+    def print_output(self):
+        # TODO: get rid of this
+        return bool(self.config["print_output"]) if isinstance(self.config["print_output"], (int, bool)) else bool(distutils.util.strtobool(self.config["print_output"]))
 
     @property
     def toolchain(self):
@@ -185,12 +192,12 @@ class MLIF:
             assert data_file is not None, "No data.c file was supplied"
             cmakeArgs.append("-DDATA_SRC=" + str(data_file))
         utils.mkdirs(self.build_dir)
-        utils.cmake(self.mlif_dir, *cmakeArgs, cwd=self.build_dir, debug=self.debug)
+        utils.cmake(self.mlif_dir, *cmakeArgs, cwd=self.build_dir, debug=self.debug, live=self.print_output)
 
     def compile(self, src=None, model=None, num=1, data_file=None):
         if src:
             self.configure(src, model, num=num, data_file=data_file)
-        utils.make(self.goal, cwd=self.build_dir, threads=self.num_threads)
+        utils.make(self.goal, cwd=self.build_dir, threads=self.num_threads, live=self.print_output)
 
     def generate_elf(self, src=None, model=None, num=1, data_file=None):
         artifacts = []

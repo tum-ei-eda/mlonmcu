@@ -13,6 +13,7 @@ from mlonmcu.cli.build import (
     handle as handle_build,
     add_build_options,
     add_model_options,
+    add_flow_options,
 )
 from mlonmcu.cli.load import (
     add_load_options,
@@ -57,6 +58,7 @@ def get_parser(subparsers):
     add_compile_options(parser)
     add_build_options(parser)
     add_load_options(parser)
+    add_flow_options(parser)
     return parser
 
 

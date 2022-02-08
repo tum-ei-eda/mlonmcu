@@ -58,6 +58,13 @@ def get_parser(subparsers):
         action="store_true",
         help="Only print a list of the tasks to be processed and quit (default: %(default)s)",
     )
+    parser.add_argument(
+        "--task",
+        type=str,
+        nargs=1,
+        default=None,
+        help="Invoke a single task manually by name (default: %(default)s)",
+    )
     return parser
 
 
@@ -69,6 +76,12 @@ def handle(args):
             order = installer.get_dependency_order()
             print("The following tasks have been selected:")
             print("\n".join(["- " + key for key in order]))
+        elif args.manual:
+            installer.invoke_single_task(
+                args.task[0],
+                progress=args.progress,
+                rebuild=args.rebuild,
+            )
         else:
             installer.install_dependencies(
                 progress=args.progress,

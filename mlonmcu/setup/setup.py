@@ -73,6 +73,11 @@ class Setup:
         cache_file = self.context.environment.paths["deps"].path / "cache.ini"
         self.context.cache.write_to_file(cache_file)
 
+    def invoke_single_task(self, name, progress=False, write_cache=True, rebuild=False):
+        assert name in self.tasks_factory.registry, f"Invalid task name: {name}"
+        func = self.tasks_factory.registry[name]
+        func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose)
+
     def install_dependencies(
         self,
         progress=False,
@@ -85,7 +90,6 @@ class Setup:
         for task in order:
             func = self.tasks_factory.registry[task]
             func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose)
-            time.sleep(0.1)
             if pbar:
                 pbar.update(1)
         if pbar:

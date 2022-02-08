@@ -92,6 +92,7 @@
 <span class="c1"># TODO: class TargetFactory:</span>
 <span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">execute</span>
 <span class="kn">from</span> <span class="nn">.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span> <span class="nn">.elf</span> <span class="kn">import</span> <span class="n">get_results</span>
 
 
 <div class="viewcode-block" id="Target"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target">[docs]</a><span class="k">class</span> <span class="nc">Target</span><span class="p">:</span>
@@ -177,6 +178,24 @@
         <span class="c1"># size instead of readelf?</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+
+        <span class="n">static_mem</span> <span class="o">=</span> <span class="n">get_results</span><span class="p">(</span><span class="n">elf</span><span class="p">)</span>
+        <span class="n">rom_ro</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">,</span> <span class="n">rom_misc</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">,</span> <span class="n">ram_zdata</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;rom_rodata&quot;</span><span class="p">],</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;rom_code&quot;</span><span class="p">],</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;rom_misc&quot;</span><span class="p">],</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;ram_data&quot;</span><span class="p">],</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;ram_zdata&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">rom_total</span> <span class="o">=</span> <span class="n">rom_ro</span> <span class="o">+</span> <span class="n">rom_code</span> <span class="o">+</span> <span class="n">rom_misc</span>
+        <span class="n">ram_total</span> <span class="o">=</span> <span class="n">ram_data</span> <span class="o">+</span> <span class="n">ram_zdata</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total ROM&quot;</span><span class="p">,</span> <span class="n">rom_total</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total RAM&quot;</span><span class="p">,</span> <span class="n">ram_total</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM read-only&quot;</span><span class="p">,</span> <span class="n">rom_ro</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM code&quot;</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM misc&quot;</span><span class="p">,</span> <span class="n">rom_misc</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM data&quot;</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM zero-init data&quot;</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metrics</span></div>
 
 <div class="viewcode-block" id="Target.generate_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.generate_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">generate_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>

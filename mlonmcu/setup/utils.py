@@ -111,7 +111,9 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
             new_line = line.decode(errors="replace")
             outStr = outStr + new_line
             print(new_line.replace("\n", ""))
-        exit_code = process.poll()
+        exit_code = None
+        while exit_code is None:
+            exit_code = process.poll()
         assert (
             exit_code == 0
         ), "The process returned an non-zero exit code {}! (CMD: `{}`)".format(

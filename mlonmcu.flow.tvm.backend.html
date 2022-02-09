@@ -156,22 +156,28 @@
 <tr class="row-odd"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_tvmc_compile_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_tuning_records_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>invoke_tvmc</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_tvmc_compile_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>invoke_tvmc_compile</strong></p></td>
+<tr class="row-even"><td><p><strong>invoke_tvmc</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>load_model</strong></p></td>
+<tr class="row-odd"><td><p><strong>invoke_tvmc_compile</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>prepare_python_environment</strong></p></td>
+<tr class="row-even"><td><p><strong>load_model</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<tr class="row-odd"><td><p><strong>prepare_python_environment</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>set_tuning_records</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>tune_model</strong></p></td>
@@ -212,6 +218,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_pass_config_tvmc_args">
 <span class="sig-name descname"><span class="pre">get_pass_config_tvmc_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_pass_config_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_pass_config_tvmc_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tuning_records_tvmc_args">
+<span class="sig-name descname"><span class="pre">get_tuning_records_tvmc_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_tuning_records_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tuning_records_tvmc_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -257,6 +268,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.registry">
 <span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.registry" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.set_tuning_records">
+<span class="sig-name descname"><span class="pre">set_tuning_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.set_tuning_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.set_tuning_records" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -326,25 +342,31 @@
 <tr class="row-odd"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_tvmc_compile_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_tuning_records_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_workspace_size_from_metadata</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_tvmc_compile_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>invoke_tvmc</strong></p></td>
+<tr class="row-even"><td><p><strong>get_workspace_size_from_metadata</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>invoke_tvmc_compile</strong></p></td>
+<tr class="row-odd"><td><p><strong>invoke_tvmc</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>load_model</strong></p></td>
+<tr class="row-even"><td><p><strong>invoke_tvmc_compile</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>prepare_python_environment</strong></p></td>
+<tr class="row-odd"><td><p><strong>load_model</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<tr class="row-even"><td><p><strong>prepare_python_environment</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_tuning_records</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>tune_model</strong></p></td>
@@ -458,25 +480,31 @@
 <tr class="row-odd"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_tvmc_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_tuning_records_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_tvmc_compile_args</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>invoke_tvmc</strong></p></td>
+<tr class="row-even"><td><p><strong>get_tvmc_compile_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>invoke_tvmc_compile</strong></p></td>
+<tr class="row-odd"><td><p><strong>invoke_tvmc</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>load_model</strong></p></td>
+<tr class="row-even"><td><p><strong>invoke_tvmc_compile</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>prepare_python_environment</strong></p></td>
+<tr class="row-odd"><td><p><strong>load_model</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<tr class="row-even"><td><p><strong>prepare_python_environment</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_tuning_records</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>tune_model</strong></p></td>
@@ -562,25 +590,31 @@
 <tr class="row-even"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_tvmc_args</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_tuning_records_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_tvmc_compile_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>invoke_tvmc</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_tvmc_compile_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>invoke_tvmc_compile</strong></p></td>
+<tr class="row-even"><td><p><strong>invoke_tvmc</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>load_model</strong></p></td>
+<tr class="row-odd"><td><p><strong>invoke_tvmc_compile</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>prepare_python_environment</strong></p></td>
+<tr class="row-even"><td><p><strong>load_model</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<tr class="row-odd"><td><p><strong>prepare_python_environment</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>set_tuning_records</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>tune_model</strong></p></td>

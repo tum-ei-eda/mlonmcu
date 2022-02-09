@@ -575,7 +575,6 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">use_rpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;use_rpc&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_rpc&quot;</span><span class="p">]))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_rpc&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;use_rpc&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
@@ -583,7 +582,6 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;timeout&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;get_backend_config&quot;</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmrt&quot;</span><span class="p">]</span>  <span class="c1"># TODO: backend in TVM_BACKENDS</span>
         <span class="c1"># TODO: figure out a default path automatically</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>

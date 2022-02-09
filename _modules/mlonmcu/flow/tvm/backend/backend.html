@@ -131,6 +131,10 @@
             <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_timeout&quot;</span><span class="p">],</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span> <span class="o">=</span> <span class="n">TVMTuner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">tuner_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tuning_records_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="TVMBackend.set_tuning_records"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.set_tuning_records">[docs]</a>    <span class="k">def</span> <span class="nf">set_tuning_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tuning_records_file</span> <span class="o">=</span> <span class="n">filepath</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pass_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -182,6 +186,16 @@
             <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--target-c-device&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
         <span class="p">]</span></div>
 
+<div class="viewcode-block" id="TVMBackend.get_tuning_records_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tuning_records_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tuning_records_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;--tuning-records&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tuning_records_file</span><span class="p">),</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_tuning_results</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuning_records_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span></div>
+
 <div class="viewcode-block" id="TVMBackend.get_tvmc_compile_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tvmc_compile_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executor</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mlf&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">executor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;aot&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">],</span> <span class="s2">&quot;Unsupported TVM executor&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_common_tvmc_args</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
@@ -198,6 +212,7 @@
                 <span class="s2">&quot;--opt-level&quot;</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_level</span><span class="p">),</span>
                 <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_input_shapes_tvmc_args</span><span class="p">(),</span>
+                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tuning_records_tvmc_args</span><span class="p">(),</span>
                 <span class="c1"># TODO: also set --model-format? (optional)</span>
             <span class="p">]</span>
         <span class="p">)</span>

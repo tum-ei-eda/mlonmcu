@@ -5,7 +5,6 @@ import tarfile
 from pathlib import Path
 
 from ..tvm_flow import get_parser
-from ..framework import COMMON_TVM_CONFIG
 
 from .backend import TVMBackend
 from mlonmcu.flow.backend import main

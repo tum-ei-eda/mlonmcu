@@ -1,7 +1,5 @@
 import os
 
-from ..framework import COMMON_TVM_CONFIG
-
 # from ..support.load_tflite_model import load_tflite_model
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils

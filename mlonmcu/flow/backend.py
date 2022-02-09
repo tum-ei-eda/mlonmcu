@@ -37,6 +37,7 @@ class Backend(ABC):
         )
         self.context = context
         self.artifacts = []
+        self.tuner = None
 
     def __repr__(self):
         name = type(self).name
@@ -61,6 +62,22 @@ class Backend(ABC):
     @abstractmethod
     def generate_code(self, verbose=False):
         pass
+
+    @property
+    def has_tuner(self):
+        return self.tuner is not None
+
+    def tune_model(self):
+        if not self.has_tuner:
+            raise NotImplementedError("Backend does not support autotuning")
+        self.tuner.tune()
+
+    def export_tuning_results(self, path):
+        if not self.has_tuner:
+            raise NotImplementedError("Backend does not support autotuning")
+        artifact = self.tuner.get_results()
+        # TODO: write tuning report to file...
+        raise NotImplementedError
 
     def export_code(self, path):
         assert (

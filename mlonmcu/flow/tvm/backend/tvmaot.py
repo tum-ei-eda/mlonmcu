@@ -16,6 +16,7 @@ from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
 class TVMAOTBackend(TVMBackend):
 
     FEATURES = [
+        *TVMBackend.FEATURES,
         "debug_arena",
         "unpacked_api",
         "usmp",
@@ -43,8 +44,8 @@ class TVMAOTBackend(TVMBackend):
     def alignment_bytes(self):
         return int(self.config["alignment_bytes"])
 
-    def get_tvmc_args(self):
-        return self.get_common_tvmc_args("aot") + [
+    def get_tvmc_compile_args(self):
+        return super().get_tvmc_compile_args("aot") + [
             "--runtime-crt-system-lib",
             str(0),
             "--target-c-constants-byte-alignment",
@@ -100,7 +101,7 @@ class TVMAOTBackend(TVMBackend):
         dump = ["c", "relay"] if full else []
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            self.invoke_tvmc(out_path, dump=dump, verbose=verbose)
+            self.invoke_tvmc_compile(out_path, dump=dump, verbose=verbose)
             mlf_path = Path(temp_dir) / "mlf"
             tarfile.open(out_path).extractall(mlf_path)
             with open(mlf_path / "metadata.json") as handle:

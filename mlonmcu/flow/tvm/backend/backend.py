@@ -6,6 +6,7 @@ from ..framework import COMMON_TVM_CONFIG
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from .tflite_model_info import get_tflite_model_info
+from .tuner import TVMTuner
 
 
 class TVMBackend(Backend):
@@ -22,6 +23,8 @@ class TVMBackend(Backend):
         "target_device": None,
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
+        "use_tuning_results": False,
+        **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath"]
@@ -41,6 +44,19 @@ class TVMBackend(Backend):
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
         self.verbose = bool(self.config["print_outputs"])
+        tuner_config = {  # This would be more compact with a helper function but for now its fine...
+            "enable": self.config["autotuning_enable"],
+            "results_file": self.config["autotuning_results_file"],
+            "append": self.config["autotuning_append"],
+            "tuner": self.config["autotuning_tuner"],
+            "trials": self.config["autotuning_trials"],
+            "early_stopping": self.config["autotuning_early_stopping"],
+            "num_workers": self.config["autotuning_num_workers"],
+            "max_parallel": self.config["autotuning_max_parallel"],
+            "use_rpc": self.config["autotuning_use_rpc"],
+            "timeout": self.config["autotuning_timeout"],
+        }
+        self.tuner = TVMTuner(self, config=tuner_config)
 
     @property
     def pass_config(self):
@@ -61,6 +77,10 @@ class TVMBackend(Backend):
     @property
     def opt_level(self):
         return self.config["opt_level"]
+
+    @property
+    def use_tuning_results(self):
+        return bool(self.config["use_tuning_results"])
 
     def get_pass_config_tvmc_args(self):
         args = []
@@ -85,72 +105,57 @@ class TVMBackend(Backend):
         )
         return ["--input-shapes", arg]
 
-    def get_common_tvmc_args(self, executor, fmt="mlf", target="c", runtime="crt"):
-        assert executor in ["aot", "graph"], "Unsupported TVM executor"
+    def get_common_tvmc_args(self, target="c"):
         return [
             str(self.model),
-            "-f",
-            fmt,
             "--target",
             target,
-            "--executor",
-            executor,
-            "--runtime",
-            runtime,
-            *self.get_pass_config_tvmc_args(),
-            *self.get_disabled_pass_tvmc_args(),
             *(
                 ["--target-c-device", self.target_device]
                 if self.target_device is not None
                 else []
             ),
-            "--opt-level",
-            str(self.opt_level),
-            *self.get_input_shapes_tvmc_args(),
         ]
 
-    def invoke_tvmc(self, out, command="compile", dump=None, verbose=False):
-        args = self.get_tvmc_args()
+    def get_tvmc_compile_args(self, executor, fmt="mlf", target="c", runtime="crt"):
+        assert executor in ["aot", "graph"], "Unsupported TVM executor"
+        args = self.get_common_tvmc_args(target=target)
+        args.extend(
+            [
+                "-f",
+                fmt,
+                "--executor",
+                executor,
+                "--runtime",
+                runtime,
+                *self.get_pass_config_tvmc_args(),
+                *self.get_disabled_pass_tvmc_args(),
+                "--opt-level",
+                str(self.opt_level),
+                *self.get_input_shapes_tvmc_args(),
+                # TODO: also set --model-format? (optional)
+            ]
+        )
+        return args
+
+    def prepare_python_environment(self):
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(self.config["tvm.pythonpath"])
+        env["TVM_LIBRARY_PATH"] = str(self.config["tvm.build_dir"])
+        return env
+
+    def invoke_tvmc(self, command, *args, verbose=False):
+        # print("invoke_tvmc", command, args, verbose)
+        env = self.prepare_python_environment()
+        utils.python("-m", "tvm.driver.tvmc", command, *args, live=verbose, env=env)
+
+    def invoke_tvmc_compile(self, out, dump=None, verbose=False):
+        args = self.get_tvmc_compile_args()
         args.extend(["--output", str(out)])
         if dump:
             assert isinstance(dump, list)
             args.extend(["--dump-code", ",".join(dump)])
-        env = os.environ.copy()
-        env["PYTHONPATH"] = str(self.config["tvm.pythonpath"])
-        env["TVM_LIBRARY_PATH"] = str(self.config["tvm.build_dir"])
-        utils.python("-m", "tvm.driver.tvmc", command, *args, live=verbose, env=env)
-
-    def get_opt_level(self):
-        # TODO: Make this a helper function?
-        for key, value in self.config:
-            if key.split(".")[-1] == "opt_level":
-                return int(value)
-        return COMMON_TVM_CONFIG["opt_level"]
-
-    def get_target_device(self):
-        # TODO: Make this a helper function?
-        for key, value in self.config:
-            if key.split(".")[-1] == "target_device":
-                return int(value)
-        return COMMON_TVM_CONFIG["target_device"]
-
-    def get_fuse_max_depth(self):
-        # TODO: Make this a helper function?
-        for key, value in self.config:
-            if key.split(".")[-1] == "fuse_max_depth":
-                return int(value)
-        return COMMON_TVM_CONFIG["fuse_max_depth"]
-
-    def get_target_str(self):
-        target_str = "c"
-        target_str += " --runtime=c"
-        if self.target_device:
-            target_str += " --device=" + self.target_device
-        target_str += f" --model=unknown"  # TODO: required?
-        return target_str
-
-    def get_target(self):
-        return tvm.target.Target(self.get_target_str())
+        self.invoke_tvmc("compile", *args, verbose=verbose)
 
     # def __init_subclass__(cls, **kwargs):
     #     super().__init_subclass__(**kwargs)

@@ -464,17 +464,16 @@ class Autotuned(BackendFeature):
     def __init__(self, config=None):
         super().__init__("autotuned", config=config)
 
+    @property
     def results_file(self):
-        return (
-            str(self.config["results_file"]) if "results_file" in self.config else None
-        )
+        return self.config["results_file"] if "results_file" in self.config else None
 
     def get_backend_config(self, backend):
         assert backend in ["tvmaot", "tvmcg", "tvmrt"]  # TODO: backend in TVM_BACKENDS
         # TODO: error handling her eor on backend?
         return filter_none(
             {
-                f"{backend}.autotuning_tuned": self.enabled,
+                f"{backend}.use_tuning_results": self.enabled,
                 f"{backend}.autotuning_results_file": self.results_file,
             }
         )
@@ -493,6 +492,9 @@ class Autotune(BackendFeature):
         "early_stopping": None,
         "num_workers": None,
         "max_parallel": None,
+        "use_rpc": None,
+        "timeout": None,
+        # All None to use the defaults defined in the backend instead
     }
 
     def __init__(self, config=None):
@@ -500,46 +502,51 @@ class Autotune(BackendFeature):
 
     @property
     def results_file(self):
-        return (
-            str(self.config["results_file"]) if "results_file" in self.config else None
-        )
+        return self.config["results_file"] if "results_file" in self.config else None
 
     @property
     def append(self):
-        return bool(self.config["append"]) if "append" in self.config else None
+        return self.config["append"] if "append" in self.config else None
 
     @property
     def tuner(self):
-        return bool(self.config["tuner"]) if "tuner" in self.config else None
+        return self.config["tuner"] if "tuner" in self.config else None
 
     @property
     def trials(self):
-        return int(self.config["trials"]) if "trials" in self.config else None
+        return self.config["trials"] if "trials" in self.config else None
 
     @property
     def early_stopping(self):
         return (
-            int(self.config["early_stopping"])
-            if "early_stopping" in self.config
-            else None
+            self.config["early_stopping"] if "early_stopping" in self.config else None
         )
 
     @property
     def num_workers(self):
-        return int(self.config["num_workers"]) if "num_workers" in self.config else None
+        return self.config["num_workers"] if "num_workers" in self.config else None
 
     @property
     def max_parallel(self):
-        return (
-            int(self.config["max_parallel"]) if "max_parallel" in self.config else None
-        )
+        return self.config["max_parallel"] if "max_parallel" in self.config else None
+
+    @property
+    def use_rpc(self):
+        print("use_rpc", bool(self.config["use_rpc"]))
+        return self.config["use_rpc"] if "use_rpc" in self.config else None
+
+    @property
+    def timeout(self):
+        return self.config["timeout"] if "timeout" in self.config else None
 
     def get_backend_config(self, backend):
+        print("get_backend_config", "backend")
         assert backend in ["tvmaot", "tvmcg", "tvmrt"]  # TODO: backend in TVM_BACKENDS
         # TODO: figure out a default path automatically
         return filter_none(
             {
                 f"{backend}.autotuning_enable": self.enabled,
+                # f"{backend}.autotuning_use_tuned": self.enabled,  # Should Autotuning ==> Autotuned?
                 f"{backend}.autotuning_results_file": self.results_file,
                 f"{backend}.autotuning_append": self.append,
                 f"{backend}.autotuning_tuner": self.tuner,
@@ -547,6 +554,8 @@ class Autotune(BackendFeature):
                 f"{backend}.autotuning_early_stopping": self.early_stopping,
                 f"{backend}.autotuning_num_workers": self.num_workers,
                 f"{backend}.autotuning_max_parallel": self.max_parallel,
+                f"{backend}.autotuning_use_rpc": self.use_rpc,
+                f"{backend}.autotuning_timeout": self.timeout,
             }
         )
 

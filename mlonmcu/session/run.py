@@ -22,11 +22,12 @@ class RunStage(IntEnum):
 
     NOP = 0
     LOAD = 1  # unimplemented
-    BUILD = 2
-    COMPILE = 3
-    RUN = 4
-    POSTPROCESS = 5
-    DONE = 6
+    TUNE = 2
+    BUILD = 3
+    COMPILE = 4
+    RUN = 5
+    POSTPROCESS = 6
+    DONE = 7
 
 
 class Run:
@@ -290,6 +291,36 @@ class Run:
         logger.debug(self.prefix + "Processing stage BUILD")
         assert not self.active, "Parallel processing of the same run is not allowed"
         self.active = True
+        assert self.stage >= RunStage.TUNE
+
+        self.export_stage(
+            RunStage.LOAD, optional=self.export_optional
+        )  # Not required anymore?
+        model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
+        if not model_artifact.exported:
+            model_artifact.export(self.dir)
+        self.backend.load_model(model=model_artifact.path)
+
+        self.export_stage(RunStage.TUNE, optional=self.export_optional)
+        # if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
+        #     assert self.backend.tuner is not None
+        #     tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
+        #     if not tuning_artifact.exported:
+        #         tuning_artifact.export(self.dir)
+        #     self.backend.add_tuning_results(tuning_artifact.path)
+
+        # TODO: allow raw data as well as filepath in backends
+        self.backend.generate_code()
+        self.artifacts_per_stage[RunStage.BUILD] = self.backend.artifacts
+
+        self.stage = max(self.stage, RunStage.BUILD)
+        self.active = False
+
+    def tune(self, context=None):
+        """Tune the run using the choosen backend (if supported)."""
+        logger.debug(self.prefix + "Processing stage TUNE")
+        assert not self.active, "Parallel processing of the same run is not allowed"
+        self.active = True
         assert self.stage >= RunStage.LOAD
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)
@@ -299,10 +330,13 @@ class Run:
 
         # TODO: allow raw data as well as filepath in backends
         self.backend.load_model(model=model_artifact.path)
-        self.backend.generate_code()
-        self.artifacts_per_stage[RunStage.BUILD] = self.backend.artifacts
+        self.backend.tune_model()
+        if self.backend.tuner is not None:
+            self.artifacts_per_stage[RunStage.TUNE] = [self.backend.tuner.get_results()]
+        else:
+            self.artifacts_per_stage[RunStage.TUNE] = []
 
-        self.stage = max(self.stage, RunStage.BUILD)
+        self.stage = max(self.stage, RunStage.TUNE)
         self.active = False
 
     def load(self, context=None):
@@ -355,6 +389,7 @@ class Run:
             stage_funcs = {
                 RunStage.NOP: lambda *args, **kwargs: None,  # stage already done as self.stage shows
                 RunStage.LOAD: self.load,
+                RunStage.TUNE: self.tune,
                 RunStage.BUILD: self.build,
                 RunStage.COMPILE: self.compile,
                 RunStage.RUN: self.run,

@@ -76,9 +76,7 @@ class TaskCache:
         if len(counts) == 0:
             raise RuntimeError("Unable to find a match in the cache")
         m = max(counts)
-        assert (
-            counts.count(m) == 1
-        ), f"For the given set of flags, there are multiple cache matches for the name {name}"
+        assert counts.count(m) == 1, f"For the given set of flags, there are multiple cache matches for the name {name}"
         idx = counts.index(m)
         flag = matches[idx]
         ret = self._vars[name, flag]

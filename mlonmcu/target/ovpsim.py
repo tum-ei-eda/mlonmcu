@@ -82,16 +82,12 @@ class OVPSimTarget(RISCVTarget):
                     "riscvOVPsim/cpu/ELEN=32",
                 ]
             )
-            args.extend(
-                ["--override", f"riscvOVPsim/cpu/mstatus_VS={int(self.enable_vext)}"]
-            )
+            args.extend(["--override", f"riscvOVPsim/cpu/mstatus_VS={int(self.enable_vext)}"])
         if self.enable_fpu:
             assert "F" in self.extensions
             # if "F" not in self.extensions:
             #     self.extensions += "F"
-        args.extend(
-            ["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"]
-        )
+        args.extend(["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"])
         if False:  # ?
             args.append("--trace")
             args.extend(["--port", "3333"])
@@ -137,9 +133,7 @@ class OVPSimTarget(RISCVTarget):
         if verbose:
             out = self.exec(elf, cwd=directory, live=True)
         else:
-            out = self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None
-            )
+            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         cycles, mips = self.parse_stdout(out)
 
         metrics = Metrics()

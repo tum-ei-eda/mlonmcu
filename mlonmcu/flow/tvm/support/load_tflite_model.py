@@ -56,7 +56,5 @@ def load_tflite_model(modelBuf):
         shapes[t.name] = t.shape
         types[t.name] = t.ty
 
-    mod, params = relay.frontend.from_tflite(
-        tflModel, shape_dict=shapes, dtype_dict=types
-    )
+    mod, params = relay.frontend.from_tflite(tflModel, shape_dict=shapes, dtype_dict=types)
     return mod, params, modelInfo

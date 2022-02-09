@@ -48,11 +48,7 @@ def get_available_feature_names(feature_type=None):
 def get_available_features(feature_type=None, feature_name=None):
     """Utility for looking up features."""
     names = get_available_feature_names(feature_type=feature_type)
-    return [
-        REGISTERED_FEATURES[name]
-        for name in names
-        if feature_name is None or name == feature_name
-    ]
+    return [REGISTERED_FEATURES[name] for name in names if feature_name is None or name == feature_name]
 
 
 def get_matching_features(features, feature_type):
@@ -129,9 +125,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature):
         return str(self.config["muriscvnn.inc_dir"])
 
     def get_framework_config(self, framework):
-        assert (
-            framework == "tflite"
-        ), f"Unsupported feature '{self.name}' for framework '{framework}'"
+        assert framework == "tflite", f"Unsupported feature '{self.name}' for framework '{framework}'"
         # TODO: make sure that no other kernels is was set beforehand! -> add_framework_config
         return {
             f"{framework}.optimized_kernel": "cmsis_nn",
@@ -213,9 +207,7 @@ class GdbServer(TargetFeature):
     @property
     def attach(self):
         # TODO: implement get_bool_or_none?
-        return (
-            bool(self.config["attach"]) if self.config["attach"] is not None else None
-        )
+        return bool(self.config["attach"]) if self.config["attach"] is not None else None
 
     @property
     def port(self):
@@ -240,11 +232,7 @@ class ETISSDebug(SetupFeature, TargetFeature):
         super().__init__("etissdbg", config=config)
 
     def get_required_cache_flags(self):
-        return (
-            {"etiss.install_dir": ["debug"], "etissvp.script": ["debug"]}
-            if self.enabled
-            else {}
-        )
+        return {"etiss.install_dir": ["debug"], "etissvp.script": ["debug"]} if self.enabled else {}
 
     def get_target_config(self, target):
         assert target in ["etiss_pulpino"]
@@ -271,16 +259,12 @@ class UnpackedApi(BackendFeature):  # TODO: should this be a feature or config o
         super().__init__("unpacked_api", config=config)
 
     def get_backend_config(self, backend):
-        assert backend in [
-            "tvmaot"
-        ], f"Unsupported feature '{self.name}' for backend '{backend}'"
+        assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
         return {f"{backend}.unpacked_api": self.enabled}
 
 
 @register_feature("packed")
-class Packed(
-    FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature, CompileFeature
-):
+class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature, CompileFeature):
     """Sub-8-bit and sparsity feature for TFLite Micro kernels."""
 
     def __init__(self, config=None):
@@ -290,9 +274,7 @@ class Packed(
         raise NotImplementedError
 
     def get_frontend_config(self, frontend):
-        assert frontend in [
-            "tflite"
-        ], f"Unsupported feature '{self.name} for frontend '{frontend}''"
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name} for frontend '{frontend}''"
         return {f"{frontend}.use_packed_weights": self.enabled}
 
     def get_backend_config(self, backend):
@@ -314,9 +296,7 @@ class Packing(FrontendFeature):
         super().__init__("packing", config=config)
 
     def get_frontend_config(self, frontend):
-        assert frontend in [
-            "tflite"
-        ], f"Unsupported feature '{self.name} for frontend '{frontend}''"
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name} for frontend '{frontend}''"
         raise NotImplementedError
         return {f"{frontend}.pack_weights": self.enabled}
 
@@ -338,9 +318,7 @@ class Fallback(FrameworkFeature, CompileFeature):
         return str(self.config["config_file"]) if "config_file" in self.config else None
 
     def get_framework_config(self, framework):
-        assert framework in [
-            "tvm"
-        ], f"Usupported fetaure '{self.name}' for framework '{framework}'"
+        assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
         raise NotImplementedError
         return filter_none(
             {
@@ -360,9 +338,7 @@ class Memplan(FrameworkFeature):
         super().__init__("memplan", config=config)
 
     def get_framework_config(self, framework):
-        assert framework in [
-            "tvm"
-        ], f"Usupported fetaure '{self.name}' for framework '{framework}'"
+        assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
         return {"tvm.memplan_enable": self.enabled}
 
 
@@ -383,9 +359,7 @@ class Usmp(BackendFeature):
         return str(self.config["algorithm"])
 
     def add_backend_config(self, backend, config):
-        assert backend in [
-            "tvmaot"
-        ], f"Usupported fetaure '{self.name}' for backend '{backend}'"
+        assert backend in ["tvmaot"], f"Usupported fetaure '{self.name}' for backend '{backend}'"
         if f"{backend}.extra_pass_config" in config:
             tmp = config[f"{backend}.extra_pass_config"]
         elif "extra_pass_config" in config:
@@ -407,9 +381,7 @@ class Fusetile(FrameworkFeature):
         super().__init__("fusetile", config=config)
 
     def get_framework_config(self, framework):
-        assert framework in [
-            "tvm"
-        ], f"Usupported fetaure '{self.name}' for framework '{framework}'"
+        assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
         return {"tvm.fusetile_enable": self.enabled}
 
     # -> enable this via backend
@@ -438,9 +410,7 @@ class Visualize(BackendFeature):
         return value
 
     def get_backend_config(self, backend):
-        assert (
-            backend in TVM_BACKENDS  # TODO: undefined!
-        ), f"Unsupported feature '{self.name}' for backend '{backend}'"
+        assert backend in TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"  # TODO: undefined!
         return NotImplementedError
         return filter_none(
             {
@@ -518,9 +488,7 @@ class Autotune(BackendFeature):
 
     @property
     def early_stopping(self):
-        return (
-            self.config["early_stopping"] if "early_stopping" in self.config else None
-        )
+        return self.config["early_stopping"] if "early_stopping" in self.config else None
 
     @property
     def num_workers(self):
@@ -578,6 +546,4 @@ BACKEND_FEATURES = TFLITE_BACKEND_FEATURES + TVM_BACKEND_FEATURES
 # Traget features
 TARGET_FEATURES = ["trace"]
 
-ALL_FEATURES = (
-    FRONTEND_FEATURES + FRAMEWORK_FEATURES + BACKEND_FEATURES + TARGET_FEATURES
-)
+ALL_FEATURES = FRONTEND_FEATURES + FRAMEWORK_FEATURES + BACKEND_FEATURES + TARGET_FEATURES

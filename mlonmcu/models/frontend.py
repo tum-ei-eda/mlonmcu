@@ -30,17 +30,13 @@ class Frontend(ABC):
 
     REQUIRED = []
 
-    def __init__(
-        self, name, input_formats=None, output_formats=None, features=None, config=None
-    ):
+    def __init__(self, name, input_formats=None, output_formats=None, features=None, config=None):
         self.name = name
         self.input_formats = input_formats if input_formats else []
         self.output_formats = output_formats if output_formats else []
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(
-            self.config, self.name, self.DEFAULTS, self.REQUIRED
-        )
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
 
     def __repr__(self):
         probs = []
@@ -58,9 +54,7 @@ class Frontend(ABC):
 
     def supports_formats(self, ins=None, outs=None):
         """Returs true if the frontend can handle at least one combination of input and output formats."""
-        assert (
-            ins is not None or outs is not None
-        ), "Please provide a list of input formats, outputs formats or both"
+        assert ins is not None or outs is not None, "Please provide a list of input formats, outputs formats or both"
         ret = True
         if ins:
             if not isinstance(ins, list):
@@ -128,9 +122,7 @@ class Frontend(ABC):
                 if fallback_out_path.is_dir():
                     out_paths.append(fallback_out_path)
             data_src = get_data_source(in_paths, out_paths)
-            data_artifact = Artifact(
-                "data.c", content=data_src, fmt=ArtifactFormat.SOURCE
-            )
+            data_artifact = Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
         else:
             data_artifact = None
 
@@ -138,10 +130,7 @@ class Frontend(ABC):
             assert cfg is not None
             backend_options = metadata["backends"]
             for backend in backend_options:
-                flattened = {
-                    f"{backend}.{key}": value
-                    for key, value in backend_options[backend].items()
-                }
+                flattened = {f"{backend}.{key}": value for key, value in backend_options[backend].items()}
                 cfg.update(flattened)
 
         # Detect model support code (Allow overwrite in metadata YAML)
@@ -160,31 +149,21 @@ class Frontend(ABC):
         assert count == len(model.formats)
         assert count > 0, f"'{self.name}' frontend expects at least one model"
         max_ins = len(self.input_formats)
-        assert (
-            count <= max_ins
-        ), f"'{self.name}' frontend did not expect more than {max_ins} models"
+        assert count <= max_ins, f"'{self.name}' frontend did not expect more than {max_ins} models"
         formats = model.formats
-        assert self.supports_formats(
-            formats
-        ), f"Invalid model format for '{self.name}' frontend"
+        assert self.supports_formats(formats), f"Invalid model format for '{self.name}' frontend"
 
         artifacts = self.produce_artifacts(model)
         if not isinstance(artifacts, list):
             artifacts = [artifacts]
-        assert (
-            len(artifacts) > 0
-        ), f"'{self.name}' frontend should produce at least one model"
+        assert len(artifacts) > 0, f"'{self.name}' frontend should produce at least one model"
         max_outs = len(self.output_formats)
-        assert (
-            len(artifacts) <= max_outs
-        ), f"'{self.name}' frontend should not return more than {max_outs}"
+        assert len(artifacts) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
 
         self.artifacts = artifacts  # If we want to use the same instance of this Frontend in parallel, we need to get rid of self.artifacts...
 
     def export_models(self, path):
-        assert (
-            len(self.artifacts) > 0
-        ), "No artifacts found, please run generate_models() first"
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_models() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -214,9 +193,7 @@ class SimpleFrontend(Frontend):
         )
 
     def produce_artifacts(self, model):
-        assert (
-            len(self.input_formats) == len(self.output_formats) == len(model.paths) == 1
-        )
+        assert len(self.input_formats) == len(self.output_formats) == len(model.paths) == 1
         artifacts = []
         name = model.name
         path = model.paths[0]
@@ -249,9 +226,7 @@ class TfLiteFrontend(SimpleFrontend):
     # TODO: ModelFormats.OTHER as placeholder for visualization artifacts
 
 
-class PackedFrontend(
-    Frontend
-):  # Inherit from TFLiteFrontend? -> how to do constructor?
+class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do constructor?
 
     FEATURES = Frontend.FEATURES + ["packing", "packed"]
 
@@ -327,9 +302,7 @@ class PackedFrontend(
         if packed_data is None:
             # Do packing
             with tempfile.TemporaryDirectory() as tmpdirname:
-                logger.debug(
-                    "Using temporary directory for packing results: %s", tmpdirname
-                )
+                logger.debug("Using temporary directory for packing results: %s", tmpdirname)
                 packer_exe = self.config["packer_exe"]
                 assert packer_exe is not None
                 in_file = Path(tmpdirname) / "in.tflite"

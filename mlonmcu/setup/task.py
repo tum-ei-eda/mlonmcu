@@ -158,9 +158,7 @@ class TaskFactory:
                     variables = context.cache._vars
                     for key in keys:
                         if key not in variables.keys() or variables[key] is None:
-                            raise RuntimeError(
-                                f"Task '{name}' needs the value of '{key}' which is not set"
-                            )
+                            raise RuntimeError(f"Task '{name}' needs the value of '{key}' which is not set")
                 retval = function(*args, **kwargs)
                 return retval
 
@@ -199,18 +197,14 @@ class TaskFactory:
                 context = args[0]
                 for key in keys:
                     if key in context.cache._vars:
-                        del context.cache._vars[
-                            key
-                        ]  # Unset the value before calling function
+                        del context.cache._vars[key]  # Unset the value before calling function
                 retval = function(*args, **kwargs)
                 if retval is not False:
                     # logger.debug("Checking outputs...")
                     variables = context.cache._vars
                     for key in keys:
                         if key not in variables.keys() or variables[key] is None:
-                            raise RuntimeError(
-                                f"Task '{name}' did not set the value of '{key}'"
-                            )
+                            raise RuntimeError(f"Task '{name}' did not set the value of '{key}'")
                 return retval
 
             self.registry[name] = wrapper
@@ -282,11 +276,7 @@ class TaskFactory:
                                 break
                     retval = function(*args, params=params, rebuild=rebuild, **kwargs)
                     if retval:
-                        keys = [
-                            key
-                            for key, provider in self.providers.items()
-                            if provider == name
-                        ]
+                        keys = [key for key, provider in self.providers.items() if provider == name]
                         for key in keys:
                             if key not in self.changed:
                                 self.changed.append(key)
@@ -320,9 +310,7 @@ class TaskFactory:
                         diff = end - start
                         minutes = int(diff // 60)
                         seconds = int(diff % 60)
-                        duration_str = (
-                            f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
-                        )
+                        duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
                         if not pbar:
                             logger.debug("-> Done (%s)", duration_str)
                         # TODO: move this to helper func
@@ -345,9 +333,7 @@ class TaskFactory:
                         diff = end - start
                         minutes = int(diff // 60)
                         seconds = int(diff % 60)
-                        duration_str = (
-                            f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
-                        )
+                        duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
                         if not pbar:
                             logger.debug("-> Done (%s)", duration_str)
                             # TODO: move this to helper func

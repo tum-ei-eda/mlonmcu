@@ -55,9 +55,7 @@ class Target:
         self.name = name
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(
-            self.config, self.name, self.DEFAULTS, self.REQUIRED
-        )
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         self.inspect_program = "readelf"
         self.inspect_program_args = ["--all"]
         self.env = os.environ
@@ -72,9 +70,7 @@ class Target:
             return []
         features = get_matching_features(features, FeatureType.TARGET)
         for feature in features:
-            assert (
-                feature.name in self.FEATURES
-            ), f"Incompatible feature: {feature.name}"
+            assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.add_target_config(self.name, self.config)
         return features
 
@@ -84,9 +80,7 @@ class Target:
 
     def inspect(self, program: Path, *args, **kwargs):
         """Use target to inspect a executable"""
-        return execute(
-            self.inspect_program, program, *self.inspect_program_args, *args, **kwargs
-        )
+        return execute(self.inspect_program, program, *self.inspect_program_args, *args, **kwargs)
 
     def get_metrics(self, elf, directory, verbose=False):
         # This should not be accurate, just a fallback which should be overwritten
@@ -94,9 +88,7 @@ class Target:
         if verbose:
             out = self.exec(elf, cwd=directory, live=True)
         else:
-            out = self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None
-            )
+            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time
@@ -134,9 +126,7 @@ class Target:
         self.artifacts = artifacts
 
     def export_metrics(self, path):
-        assert (
-            len(self.artifacts) > 0
-        ), "No artifacts found, please run generate_metrics() first"
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_metrics() first"
 
         if not isinstance(path, Path):
             path = Path(path)

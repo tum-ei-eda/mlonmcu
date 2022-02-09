@@ -52,11 +52,7 @@ def list_models(directory, depth=1, formats=None):
         if not os.path.isdir(directory):
             logger.debug("Not a directory: %s", str(directory))
             return []
-        subdirs = [
-            Path(directory) / o
-            for o in os.listdir(directory)
-            if os.path.isdir(os.path.join(directory, o))
-        ]
+        subdirs = [Path(directory) / o for o in os.listdir(directory) if os.path.isdir(os.path.join(directory, o))]
         models = []
         for subdir in subdirs:
             dirname = subdir.name
@@ -83,9 +79,7 @@ def list_models(directory, depth=1, formats=None):
                     submodels.remove(main_model)
 
                     main_base = main_model.split("/")[-1]
-                    main_metadata = find_metadata(
-                        Path(directory) / dirname, model_name=main_base
-                    )
+                    main_metadata = find_metadata(Path(directory) / dirname, model_name=main_base)
 
                     models.append(
                         Model(
@@ -99,9 +93,7 @@ def list_models(directory, depth=1, formats=None):
 
                 for submodel in submodels:
                     sub_base = submodel.split("/")[-1]
-                    submodel_metadata = find_metadata(
-                        Path(directory) / dirname, model_name=sub_base
-                    )
+                    submodel_metadata = find_metadata(Path(directory) / dirname, model_name=sub_base)
                     models.append(
                         Model(
                             submodel,
@@ -131,9 +123,7 @@ def list_modelgroups(directory):
                 try:
                     content = yaml.safe_load(yamlfile)
                     for groupname, groupmodels in content.items():
-                        assert isinstance(
-                            groupmodels, list
-                        ), "Modelgroups should be defined as a YAML list"
+                        assert isinstance(groupmodels, list), "Modelgroups should be defined as a YAML list"
                         modelgroup = ModelGroup(groupname, groupmodels)
                         groups.append(modelgroup)
                 except yaml.YAMLError as err:
@@ -240,16 +230,12 @@ def print_summary(context, detailed=False):
 
     directories = get_model_directories(context)
 
-    models, groups, duplicates, group_duplicates = lookup_models_and_groups(
-        directories, formats
-    )
+    models, groups, duplicates, group_duplicates = lookup_models_and_groups(directories, formats)
 
     print("Models Summary\n")
     print_paths(directories)
     print_models(models, duplicates=duplicates, detailed=detailed)
-    print_groups(
-        groups, duplicates=group_duplicates, all_models=models, detailed=detailed
-    )
+    print_groups(groups, duplicates=group_duplicates, all_models=models, detailed=detailed)
 
 
 def unpack_modelgroups(names, groups):
@@ -271,12 +257,8 @@ def lookup_models(names, frontends=None, context=None):
         raise NotImplementedError
         # frontends = ?
     # allowed_ext = [frontend.fmt.extension for frontend in frontends]
-    allowed_fmts = list(
-        dict.fromkeys(sum([frontend.input_formats for frontend in frontends], []))
-    )  # Remove duplicates
-    allowed_exts = [
-        fmt.extension for fmt in allowed_fmts
-    ]  # There should nit be duplicates
+    allowed_fmts = list(dict.fromkeys(sum([frontend.input_formats for frontend in frontends], [])))  # Remove duplicates
+    allowed_exts = [fmt.extension for fmt in allowed_fmts]  # There should nit be duplicates
 
     if context:
         directories = get_model_directories(context)
@@ -301,9 +283,7 @@ def lookup_models(names, frontends=None, context=None):
         else:
             assert context is not None, "Context is required for passing models by name"
             assert len(model_names) > 0, "List of available models is empty"
-            assert (
-                name in model_names
-            ), f"Could not find a model or group matching the name: {name}"
+            assert name in model_names, f"Could not find a model or group matching the name: {name}"
             index = model_names.index(name)
             hint = models[index]
             hints.append(hint)
@@ -320,14 +300,10 @@ def map_frontend_to_model(model, frontends, backend=None):
         assert len(ins) > 0
         # TODO: instead of picking the first frontend which at least one match, determine the highest overlap
         if any(in_fmt in model_fmts for in_fmt in ins):
-            if len(backend_fmts) == 0 or any(
-                out_fmt in backend_fmts for out_fmt in outs
-            ):
+            if len(backend_fmts) == 0 or any(out_fmt in backend_fmts for out_fmt in outs):
                 new_model = model  # TODO: deepcopy?
                 for i, fmt in enumerate(model_fmts):
-                    if (
-                        fmt not in ins
-                    ):  # Only keep those formqts which are supported by the chosen frontend
+                    if fmt not in ins:  # Only keep those formqts which are supported by the chosen frontend
                         path = model.paths[model_fmts.index(fmt)]
                         new_model.formats.remove(fmt)
                         new_model.paths.remove(path)

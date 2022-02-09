@@ -50,9 +50,7 @@ def set_log_file(path, level=logging.DEBUG, rotate=False):
     """Enable logging to a file."""
     logger = logging.getLogger("mlonmcu")
     if rotate:
-        file_handler = logging.handlers.TimedRotatingFileHandler(
-            filename=path, when="midnight", backupCount=30
-        )
+        file_handler = logging.handlers.TimedRotatingFileHandler(filename=path, when="midnight", backupCount=30)
     else:
         file_handler = logging.FileHandler(path, mode="a")
     file_handler.setFormatter(get_formatter())

@@ -63,9 +63,7 @@ def execute(
             exit_code = None
             while exit_code is None:
                 exit_code = process.poll()
-            assert (
-                exit_code == 0
-            ), "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+            assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
     else:
@@ -118,9 +116,7 @@ def add_common_options(parser: argparse.ArgumentParser, target):
 def init_target_features(names, config):
     features = []
     for name in names:
-        feature_classes = get_available_features(
-            feature_type=FeatureType.TARGET, feature_name=name
-        )
+        feature_classes = get_available_features(feature_type=FeatureType.TARGET, feature_name=name)
         for feature_class in feature_classes:
             features.append(feature_class(config=config))
     return features
@@ -150,15 +146,9 @@ def cli(target, args: List[str] = None):
     exec_parser.set_defaults(func=_handle_execute)
     add_common_options(exec_parser, target)
     exec_group = exec_parser.add_argument_group("Exec options")
-    exec_group.add_argument(
-        "program", metavar="EXE", type=str, help="The program which should be executed"
-    )
-    exec_group.add_argument(
-        "extra_args", metavar="ARG", nargs="*", help="Additional arguments"
-    )
-    inspect_parser = subparsers.add_parser(
-        "inspect", description="Inspect program with target"
-    )
+    exec_group.add_argument("program", metavar="EXE", type=str, help="The program which should be executed")
+    exec_group.add_argument("extra_args", metavar="ARG", nargs="*", help="Additional arguments")
+    inspect_parser = subparsers.add_parser("inspect", description="Inspect program with target")
 
     def _handle_inspect(args):
         config = extract_config(args)
@@ -170,9 +160,7 @@ def cli(target, args: List[str] = None):
     inspect_parser.set_defaults(func=_handle_inspect)
     add_common_options(inspect_parser, target)
     inspect_group = inspect_parser.add_argument_group("Inspect options")
-    inspect_group.add_argument(
-        "program", metavar="EXE", type=str, help="The program which should be inspected"
-    )
+    inspect_group.add_argument("program", metavar="EXE", type=str, help="The program which should be inspected")
     if args:
         args = parser.parse_args(args)
     else:

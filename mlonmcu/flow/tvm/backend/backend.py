@@ -30,9 +30,7 @@ class TVMBackend(Backend):
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath"]
 
     def __init__(self, features=None, config=None, context=None):
-        super().__init__(
-            framework="tvm", features=features, config=config, context=context
-        )
+        super().__init__(framework="tvm", features=features, config=config, context=context)
 
         self.model = None  # Actual filename!
         self.model_info = None
@@ -97,12 +95,7 @@ class TVMBackend(Backend):
     def get_input_shapes_tvmc_args(self):
         if self.input_shapes is None:
             return []
-        arg = " ".join(
-            [
-                f"{name}:[" + ",".join(list(map(str, dims))) + "]"
-                for name, dims in self.input_shapes.items()
-            ]
-        )
+        arg = " ".join([f"{name}:[" + ",".join(list(map(str, dims))) + "]" for name, dims in self.input_shapes.items()])
         return ["--input-shapes", arg]
 
     def get_common_tvmc_args(self, target="c"):
@@ -110,11 +103,7 @@ class TVMBackend(Backend):
             str(self.model),
             "--target",
             target,
-            *(
-                ["--target-c-device", self.target_device]
-                if self.target_device is not None
-                else []
-            ),
+            *(["--target-c-device", self.target_device] if self.target_device is not None else []),
         ]
 
     def get_tvmc_compile_args(self, executor, fmt="mlf", target="c", runtime="crt"):
@@ -167,6 +156,4 @@ class TVMBackend(Backend):
         with open(model, "rb") as handle:
             model_buf = handle.read()
             self.model_info = get_tflite_model_info(model_buf)
-            self.input_shapes = {
-                tensor.name: tensor.shape for tensor in self.model_info.inTensors
-            }
+            self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.inTensors}

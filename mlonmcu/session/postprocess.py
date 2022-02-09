@@ -6,11 +6,7 @@ class PostProcess:
         duplicates_map = df.duplicated(subset=cols, keep=False)
         if cols:
             duplicates_map = duplicates_map[cols]
-        groups = (
-            duplicates_map.groupby(list(duplicates_map))
-            .apply(lambda x: tuple(x.index))
-            .tolist()
-        )
+        groups = duplicates_map.groupby(list(duplicates_map)).apply(lambda x: tuple(x.index)).tolist()
         return groups
 
 
@@ -19,9 +15,7 @@ class AverageCyclesPostprocess(PostProcess):
         super().__init__("average_cycles")
 
     def process(self, df):
-        groups = self.match_rows(
-            df, cols=["Model", "Backend", "Target", "Features", "Config"]
-        )
+        groups = self.match_rows(df, cols=["Model", "Backend", "Target", "Features", "Config"])
         df_new = pd.DataFrame(columns=df.columns)
         for group in groups:
             group = list(group)

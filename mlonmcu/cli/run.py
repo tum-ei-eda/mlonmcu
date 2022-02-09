@@ -101,8 +101,5 @@ def handle(args):
                     if a.model == b.model and a.backend == b.backend and a.num < b.num
                 ]
 
-            pairs = [
-                (session.runs.index(a), session.runs.index(b))
-                for a, b in find_run_pairs(session.runs)
-            ]
+            pairs = [(session.runs.index(a), session.runs.index(b)) for a, b in find_run_pairs(session.runs)]
             print("pairs", pairs)

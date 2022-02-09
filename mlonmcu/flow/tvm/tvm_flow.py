@@ -269,9 +269,7 @@ def get_parser():
       - RISCV_DIR (default: /usr/local/research/projects/SystemDesign/tools/riscv/current, read only)
 """,
     )
-    parser.add_argument(
-        "model", metavar="MODEL", type=str, nargs=1, help="Model to process"
-    )
+    parser.add_argument("model", metavar="MODEL", type=str, nargs=1, help="Model to process")
     # TODO: support non-.tflite models!
     parser.add_argument(
         "--codegen",

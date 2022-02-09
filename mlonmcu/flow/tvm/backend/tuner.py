@@ -93,22 +93,14 @@ class TVMTuner:
             [
                 "--tuner",
                 self.tuner,
-                *(
-                    ["--early-stopping", str(self.early_stopping)]
-                    if self.early_stopping > 0
-                    else []
-                ),
+                *(["--early-stopping", str(self.early_stopping)] if self.early_stopping > 0 else []),
                 "--parallel",
                 str(self.max_parallel),
                 "--timeout",
                 str(self.timeout * self.max_parallel),
                 "--trials",
                 str(self.trials),
-                *(
-                    ["--tuning-records", self.results_file]
-                    if self.results_file is not None
-                    else []
-                ),
+                *(["--tuning-records", self.results_file] if self.results_file is not None else []),
                 *self.get_rpc_args(),
             ]
         )
@@ -184,9 +176,7 @@ class TVMTuner:
 
     def tune(self):
         if self.num_workers > 1:
-            raise NotImplementedError(
-                "Tuning multiple tasks at once is currently not supported in TVM!"
-            )
+            raise NotImplementedError("Tuning multiple tasks at once is currently not supported in TVM!")
 
         # TODO: try block with proper cleanup
         if self.use_rpc:
@@ -210,9 +200,7 @@ class TVMTuner:
         if self.use_rpc:
             self.shutdown_rpc()
 
-        artifact = Artifact(
-            "tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT
-        )
+        artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
 
         self.artifact = artifact
 

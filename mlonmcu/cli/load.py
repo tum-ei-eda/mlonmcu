@@ -38,9 +38,7 @@ def add_load_options(parser):
 
 def get_parser(subparsers):
     """ "Define and return a subparser for the load subcommand."""
-    parser = subparsers.add_parser(
-        "load", description="Load model using the ML on MCU flow."
-    )
+    parser = subparsers.add_parser("load", description="Load model using the ML on MCU flow.")
     parser.set_defaults(func=handle)
     add_model_options(parser)
     add_common_options(parser)
@@ -82,9 +80,7 @@ def init_frontends(frontend_names, features, config, context=None):
             print("Frontend could not be initialized. Continuing with next one...")
             continue
         frontends.append(frontend)
-    assert (
-        len(frontends) > 0
-    ), "Could not initialize at least one frontend for the given set of features"
+    assert len(frontends) > 0, "Could not initialize at least one frontend for the given set of features"
     return frontends
 
 
@@ -93,9 +89,7 @@ def _handle(context, args):
     config = context.environment.vars
     new_config, features = extract_config_and_init_features(args)
     config.update(new_config)
-    frontends = init_frontends(
-        args.frontend, features=features, config=config, context=context
-    )
+    frontends = init_frontends(args.frontend, features=features, config=config, context=context)
     model_hints = lookup_models(model_names, frontends=frontends, context=context)
     session = context.get_session(resume=args.resume)
     for hint in model_hints:

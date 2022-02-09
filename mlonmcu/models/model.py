@@ -21,9 +21,7 @@ class ModelFormats(Enum):
 
 
 class Model:
-    def __init__(
-        self, name, paths, alt=None, formats=ModelFormats.TFLITE, metadata=None
-    ):
+    def __init__(self, name, paths, alt=None, formats=ModelFormats.TFLITE, metadata=None):
         self.name = name
         self.paths = paths
         if not isinstance(self.paths, list):

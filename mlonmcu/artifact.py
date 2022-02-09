@@ -74,15 +74,11 @@ class Artifact:
     def export(self, dest, extract=False):
         filename = Path(dest) / self.name
         if self.fmt in [ArtifactFormat.TEXT, ArtifactFormat.SOURCE]:
-            assert (
-                not extract
-            ), "extract option is only available for ArtifactFormat.MLF"
+            assert not extract, "extract option is only available for ArtifactFormat.MLF"
             with open(filename, "w") as handle:
                 handle.write(self.content)
         elif self.fmt in [ArtifactFormat.RAW, ArtifactFormat.BIN]:
-            assert (
-                not extract
-            ), "extract option is only available for ArtifactFormat.MLF"
+            assert not extract, "extract option is only available for ArtifactFormat.MLF"
             with open(filename, "wb") as handle:
                 handle.write(self.raw)
         elif self.fmt in [ArtifactFormat.MLF]:
@@ -92,9 +88,7 @@ class Artifact:
                 utils.extract(filename, dest)
                 os.remove(filename)
         elif self.fmt in [ArtifactFormat.PATH]:
-            assert (
-                not extract
-            ), "extract option is only available for ArtifactFormat.MLF"
+            assert not extract, "extract option is only available for ArtifactFormat.MLF"
             utils.copy(self.path, filename)
         else:
             raise NotImplementedError

@@ -151,17 +151,9 @@ class TVMAOTBackend(TVMBackend):
                     self.prefix,
                     api="c" if self.unpacked_api else "packed",
                 )
-                artifacts.append(
-                    Artifact(
-                        "aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE
-                    )
-                )
+                artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
                 header_src = generate_wrapper_header()
-                artifacts.append(
-                    Artifact(
-                        "tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE
-                    )
-                )
+                artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
         # assert self.target
         self.artifacts = artifacts
 

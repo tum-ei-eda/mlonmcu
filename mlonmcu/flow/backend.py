@@ -32,9 +32,7 @@ class Backend(ABC):
         self.framework = framework
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(
-            self.config, self.name, self.DEFAULTS, self.REQUIRED
-        )
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         self.context = context
         self.artifacts = []
         self.tuner = None
@@ -49,9 +47,7 @@ class Backend(ABC):
             return []
         features = get_matching_features(features, FeatureType.BACKEND)
         for feature in features:
-            assert (
-                feature.name in self.FEATURES
-            ), f"Incompatible feature: {feature.name}"
+            assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.add_backend_config(self.name, self.config)
         return features
 
@@ -80,9 +76,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     def export_code(self, path):
-        assert (
-            len(self.artifacts) > 0
-        ), "No artifacts found, please run generate_code() first"
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_code() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -101,9 +95,7 @@ class Backend(ABC):
                 #     logger.info(f"Exporting artifact: {artifact.name}")
                 #     outfile.write(artifact.content)
         else:
-            assert (
-                path.parent.is_dir()
-            ), "The parent directory does not exist. Make sure to create if beforehand."
+            assert path.parent.is_dir(), "The parent directory does not exist. Make sure to create if beforehand."
             # Warning: the first artifact is considered as main
             # We need to ensure that all further artifacts share the same prefix
             main_prefix = None
@@ -136,9 +128,7 @@ def get_parser(backend_name, features, required, defaults):
         formatter_class=argparse.RawTextHelpFormatter,
         # epilog="""Use environment variables to overwrite default paths:""",
     )
-    parser.add_argument(
-        "model", metavar="MODEL", type=str, nargs=1, help="Model to process"
-    )
+    parser.add_argument("model", metavar="MODEL", type=str, nargs=1, help="Model to process")
     parser.add_argument(
         "--output",
         "-o",
@@ -180,10 +170,7 @@ def get_parser(backend_name, features, required, defaults):
 Allowed options:
 """
         + "\n".join(
-            [
-                f"- [{backend_name}].{key} (Default: {value})"
-                for key, value in defaults.items()
-            ]
+            [f"- [{backend_name}].{key} (Default: {value})" for key, value in defaults.items()]
             + [f"- {key} (required)" for key in required]
         ),
     )
@@ -193,9 +180,7 @@ Allowed options:
 def init_backend_features(names, config):
     features = []
     for name in names:
-        feature_classes = get_supported_features(
-            feature_type=FeatureType.BACKEND, feature_name=name
-        )
+        feature_classes = get_supported_features(feature_type=FeatureType.BACKEND, feature_name=name)
         for feature_class in feature_classes:
             features.append(feature_class(config=config))
     return features

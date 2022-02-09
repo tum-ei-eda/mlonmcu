@@ -21,9 +21,7 @@ class FeatureBase(ABC):
     def __init__(self, name, config=None):
         self.name = name
         self.config = config if config else {}
-        self.config = filter_config(
-            self.config, self.name, self.DEFAULTS, self.REQUIRED
-        )
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
 
     @property
     def enabled(self):
@@ -33,11 +31,7 @@ class FeatureBase(ABC):
         def helper(key):
             return key.split(f"{self.name}.")[-1]
 
-        return {
-            helper(key): value
-            for key, value in config.items()
-            if f"{self.name}." in key
-        }
+        return {helper(key): value for key, value in config.items() if f"{self.name}." in key}
 
     def __repr__(self):
         return type(self).__name__ + f"({self.name})"

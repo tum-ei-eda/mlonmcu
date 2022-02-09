@@ -28,9 +28,7 @@ class Corstone300Target(Target):
     REQUIRED = ["corstone300.exe"]
 
     def __init__(self, features=None, config=None, context=None):
-        super().__init__(
-            "corstone300", features=features, config=config, context=context
-        )
+        super().__init__("corstone300", features=features, config=config, context=context)
 
     @property
     def ethosu_num_macs(self):
@@ -93,9 +91,7 @@ class Corstone300Target(Target):
         if verbose:
             out = self.exec(elf, cwd=directory, live=True)
         else:
-            out = self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None
-            )
+            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         _ = self.parse_stdout(out)
 
         metrics = Metrics()

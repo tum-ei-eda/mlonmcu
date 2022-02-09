@@ -332,10 +332,7 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
                 for i, t in enumerate(tensors):
                     ret += "char " + names[i] + "[" + str(t.size) + "];\n"
                 ret += f"void* {direction}puts[] = {{" + ", ".join(names) + "};\n"
-                ret += (
-                    f"struct {prefix}_{direction}puts {prefix}_{direction}puts = {{"
-                    + "\n"
-                )
+                ret += f"struct {prefix}_{direction}puts {prefix}_{direction}puts = {{" + "\n"
                 for i, tensor in enumerate(tensors):
                     if out:
                         assert len(tensors) == 1

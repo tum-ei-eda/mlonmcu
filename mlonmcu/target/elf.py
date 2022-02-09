@@ -82,9 +82,7 @@ def printSz(sz, unknown_msg=""):
 
 def parse_cmdline():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "elf", metavar="ELF", type=str, nargs=1, help="The target ELF file"
-    )
+    parser.add_argument("elf", metavar="ELF", type=str, nargs=1, help="The target ELF file")
     parser.add_argument(
         "--out",
         "-o",

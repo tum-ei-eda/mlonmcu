@@ -92,9 +92,7 @@ class SpikeTarget(RISCVTarget):
         if verbose:
             out = self.exec(elf, cwd=directory, live=True)
         else:
-            out = self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None
-            )
+            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         cycles = self.parse_stdout(out)
 
         metrics = Metrics()

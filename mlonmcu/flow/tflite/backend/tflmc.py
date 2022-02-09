@@ -46,26 +46,18 @@ class TFLMCBackend(TFLiteBackend):
             # Lookup cache
             raise NotImplementedError
         with tempfile.TemporaryDirectory() as tmpdirname:
-            logger.debug(
-                "Using temporary directory for codegen results: %s", tmpdirname
-            )
+            logger.debug("Using temporary directory for codegen results: %s", tmpdirname)
             args = []
             args.append(str(self.model))
             args.append(str(Path(tmpdirname) / f"{self.prefix}.cc"))
             args.append(f"{self.prefix}_")
             utils.exec_getout(tflmc_exe, *args, live=verbose)
-            files = [
-                f
-                for f in os.listdir(tmpdirname)
-                if os.path.isfile(os.path.join(tmpdirname, f))
-            ]
+            files = [f for f in os.listdir(tmpdirname) if os.path.isfile(os.path.join(tmpdirname, f))]
             # TODO: ensure that main file is processed first
             for filename in files:
                 with open(Path(tmpdirname) / filename, "r") as handle:
                     content = handle.read()
-                    artifacts.append(
-                        Artifact(filename, content=content, fmt=ArtifactFormat.SOURCE)
-                    )
+                    artifacts.append(Artifact(filename, content=content, fmt=ArtifactFormat.SOURCE))
 
         self.artifacts = artifacts
 

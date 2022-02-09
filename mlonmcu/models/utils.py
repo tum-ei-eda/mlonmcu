@@ -24,38 +24,14 @@ def make_hex_array(filename, mode="bin"):
 def fill_data_source(in_bufs, out_bufs):
     out = '#include "ml_interface.h"\n'
     out += "#include <stddef.h>\n"
-    out += (
-        "const int num_data_buffers_in = "
-        + str(sum([len(buf) for buf in in_bufs]))
-        + ";\n"
-    )
-    out += (
-        "const int num_data_buffers_out = "
-        + str(sum([len(buf) for buf in out_bufs]))
-        + ";\n"
-    )
+    out += "const int num_data_buffers_in = " + str(sum([len(buf) for buf in in_bufs])) + ";\n"
+    out += "const int num_data_buffers_out = " + str(sum([len(buf) for buf in out_bufs])) + ";\n"
     for i, buf in enumerate(in_bufs):
         for j in range(len(buf)):
-            out += (
-                "const unsigned char data_buffer_in_"
-                + str(i)
-                + "_"
-                + str(j)
-                + "[] = {"
-                + buf[j]
-                + "};\n"
-            )
+            out += "const unsigned char data_buffer_in_" + str(i) + "_" + str(j) + "[] = {" + buf[j] + "};\n"
     for i, buf in enumerate(out_bufs):
         for j in range(len(buf)):
-            out += (
-                "const unsigned char data_buffer_out_"
-                + str(i)
-                + "_"
-                + str(j)
-                + "[] = {"
-                + buf[j]
-                + "};\n"
-            )
+            out += "const unsigned char data_buffer_out_" + str(i) + "_" + str(j) + "[] = {" + buf[j] + "};\n"
 
     var_in = "const unsigned char *const data_buffers_in[] = {"
     var_insz = "const size_t data_size_in[] = {"
@@ -91,9 +67,7 @@ def lookup_data_buffers(input_paths, output_paths):
                 if used_fmt is None:
                     used_fmt = fmt
                 else:
-                    assert (
-                        used_fmt == fmt
-                    ), "Please only use a single format for inout model data (.bin OR .npy)"
+                    assert used_fmt == fmt, "Please only use a single format for inout model data (.bin OR .npy)"
                 base = Path(filename).stem
                 if "_" in base:
                     legacy = True

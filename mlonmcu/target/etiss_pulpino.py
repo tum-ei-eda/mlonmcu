@@ -37,24 +37,15 @@ class ETISSPulpinoTarget(RISCVTarget):
     REQUIRED = RISCVTarget.REQUIRED + ["etiss.install_dir"]
 
     def __init__(self, features=None, config=None, context=None):
-        super().__init__(
-            "etiss_pulpino", features=features, config=config, context=context
-        )
+        super().__init__("etiss_pulpino", features=features, config=config, context=context)
         # self.etiss_dir = lookup_etiss(cfg=config, env=self.env, context=self.context)
         # assert len(self.etiss_dir) > 0
         # self.riscv_prefix = lookup_riscv_prefix(
         #     cfg=config, env=self.env, context=self.context
         # )
         # assert len(self.riscv_prefix) > 0
-        self.etiss_script = (
-            Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "run_helper.sh"
-        )
-        self.metrics_script = (
-            Path(self.etiss_dir)
-            / "examples"
-            / "bare_etiss_processor"
-            / "get_metrics.py"
-        )
+        self.etiss_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "run_helper.sh"
+        self.metrics_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "get_metrics.py"
 
     @property
     def etiss_dir(self):
@@ -191,9 +182,7 @@ class ETISSPulpinoTarget(RISCVTarget):
         if verbose:
             out = self.exec(elf, cwd=directory, live=True)
         else:
-            out = self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None
-            )
+            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         total_cycles, mips = self.parse_stdout(out)
 
         get_metrics_args = [elf]

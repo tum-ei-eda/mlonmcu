@@ -39,7 +39,5 @@ def handle(args):
     if hasattr(args, "flow_func"):
         args.flow_func(args)
     else:
-        print(
-            "Invalid command. Check 'mlonmcu flow --help' for the available subcommands!"
-        )
+        print("Invalid command. Check 'mlonmcu flow --help' for the available subcommands!")
         sys.exit(1)

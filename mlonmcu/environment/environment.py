@@ -51,9 +51,7 @@ class Environment:
         if frontend:
             names = [frontend.name for frontend in self.frontends]
             index = names.index(frontend)
-            assert (
-                index is not None
-            ), f"Frontend {frontend} not found in environment config"
+            assert index is not None, f"Frontend {frontend} not found in environment config"
             configs.extend(_feature_helper(self.frontends[index], name))
         else:
             for frontend in self.frontends:
@@ -65,9 +63,7 @@ class Environment:
         if framework:
             names = [framework.name for framework in self.frameworks]
             index = names.index(framework)
-            assert (
-                index is not None
-            ), f"Framework {framework} not found in environment config"
+            assert index is not None, f"Framework {framework} not found in environment config"
             configs.extend(_feature_helper(self.frameworks[index], name))
         else:
             for framework in self.frameworks:
@@ -86,18 +82,12 @@ class Environment:
         if framework:
             names = [framework.name for framework in self.frameworks]
             index = names.index(framework)
-            assert (
-                index is not None
-            ), f"Framework {framework} not found in environment config"
+            assert index is not None, f"Framework {framework} not found in environment config"
             if backend:
                 names_ = [backend.name for backend in self.frameworks[index].backends]
                 index_ = names_.index(backend)
-                assert (
-                    index_ is not None
-                ), f"Backend {backend} not found in environment config"
-                configs.extend(
-                    _feature_helper(self.frameworks[index].backends[index], name)
-                )
+                assert index_ is not None, f"Backend {backend} not found in environment config"
+                configs.extend(_feature_helper(self.frameworks[index].backends[index], name))
             else:
                 for backend in self.frameworks[index].backends:
                     configs.extend(_feature_helper(backend, name))
@@ -106,12 +96,8 @@ class Environment:
                 if backend:
                     names_ = [backend.name for backend in framework.backends]
                     index_ = names_.index(backend)
-                    assert (
-                        index_ is not None
-                    ), f"Backend {backend} not found in environment config"
-                    configs.extend(
-                        _feature_helper(self.frameworks[index].backends[index], name)
-                    )
+                    assert index_ is not None, f"Backend {backend} not found in environment config"
+                    configs.extend(_feature_helper(self.frameworks[index].backends[index], name))
                 else:
                     for backend in framework.backends:
                         configs.extend(_feature_helper(backend, name))
@@ -143,19 +129,11 @@ class Environment:
     ):
         configs = []
         if kind == FeatureType.FRONTEND or kind is None:
-            configs.extend(
-                self.lookup_frontend_feature_configs(name=name, frontend=frontend)
-            )
+            configs.extend(self.lookup_frontend_feature_configs(name=name, frontend=frontend))
         if kind == FeatureType.FRAMEWORK or kind is None:
-            configs.extend(
-                self.lookup_framework_feature_configs(name=name, framework=framework)
-            )
+            configs.extend(self.lookup_framework_feature_configs(name=name, framework=framework))
         if kind == FeatureType.BACKEND or kind is None:
-            configs.extend(
-                self.lookup_backend_feature_configs(
-                    name=name, framework=framework, backend=backend
-                )
-            )
+            configs.extend(self.lookup_backend_feature_configs(name=name, framework=framework, backend=backend))
         if kind == FeatureType.TARGET or kind is None:
             configs.extend(self.lookup_target_feature_configs(name=name, target=target))
 
@@ -173,9 +151,7 @@ class Environment:
     def lookup_backend_configs(self, backend=None, framework=None):
         configs = []
         for framework_config in self.frameworks:
-            if not framework_config.enabled or (
-                framework is not None and framework_config.name != framework
-            ):
+            if not framework_config.enabled or (framework is not None and framework_config.name != framework):
                 continue
             if backend is None:
                 configs.extend(framework_config.backends)
@@ -266,9 +242,7 @@ class Environment:
         if framework is None or framework not in self.defaults.default_backends:
             return []
         default = self.defaults.default_backends[framework]
-        framework_names = [
-            framework_config.name for framework_config in self.frameworks
-        ]
+        framework_names = [framework_config.name for framework_config in self.frameworks]
         framework_config = self.frameworks[framework_names.index(framework)]
         if default is None:
             return []
@@ -327,9 +301,7 @@ class DefaultEnvironment(Environment):
             ],
         }
         self.repos = {
-            "tensorflow": RepoConfig(
-                "https://github.com/tensorflow/tensorflow.git", ref="v2.5.2"
-            ),
+            "tensorflow": RepoConfig("https://github.com/tensorflow/tensorflow.git", ref="v2.5.2"),
             "tflite_micro_compiler": RepoConfig(
                 "https://github.com/cpetig/tflite_micro_compiler.git", ref="master"
             ),  # TODO: freeze ref?
@@ -339,9 +311,7 @@ class DefaultEnvironment(Environment):
             "utvm_staticrt_codegen": RepoConfig(
                 "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git", ref="master"
             ),  # TODO: freeze ref?
-            "etiss": RepoConfig(
-                "https://github.com/tum-ei-eda/etiss.git", ref="master"
-            ),  # TODO: freeze ref?
+            "etiss": RepoConfig("https://github.com/tum-ei-eda/etiss.git", ref="master"),  # TODO: freeze ref?
         }
         self.frameworks = [
             FrameworkConfig(
@@ -352,9 +322,7 @@ class DefaultEnvironment(Environment):
                     BackendConfig("tflmi", enabled=True, features=[]),
                 ],
                 features=[
-                    FrameworkFeatureConfig(
-                        "muriscvnn", framework="tflm", supported=False
-                    ),
+                    FrameworkFeatureConfig("muriscvnn", framework="tflm", supported=False),
                 ],
             ),
             FrameworkConfig(
@@ -365,18 +333,14 @@ class DefaultEnvironment(Environment):
                         "tvmaot",
                         enabled=True,
                         features=[
-                            BackendFeatureConfig(
-                                "unpacked_api", backend="tvmaot", supported=True
-                            ),
+                            BackendFeatureConfig("unpacked_api", backend="tvmaot", supported=True),
                         ],
                     ),
                     BackendConfig("tvmrt", enabled=True, features=[]),
                     BackendConfig("tvmcg", enabled=True, features=[]),
                 ],
                 features=[
-                    FrameworkFeatureConfig(
-                        "memplan", framework="utvm", supported=False
-                    ),
+                    FrameworkFeatureConfig("memplan", framework="utvm", supported=False),
                 ],
             ),
         ]
@@ -387,9 +351,7 @@ class DefaultEnvironment(Environment):
                 "tflite",
                 enabled=True,
                 features=[
-                    FrontendFeatureConfig(
-                        "packing", frontend="tflite", supported=False
-                    ),
+                    FrontendFeatureConfig("packing", frontend="tflite", supported=False),
                 ],
             ),
         ]
@@ -400,15 +362,9 @@ class DefaultEnvironment(Environment):
             TargetConfig(
                 "etiss_pulpino",
                 features=[
-                    TargetFeatureConfig(
-                        "debug", target="etiss_pulpino", supported=True
-                    ),
-                    TargetFeatureConfig(
-                        "attach", target="etiss_pulpino", supported=True
-                    ),
-                    TargetFeatureConfig(
-                        "trace", target="etiss_pulpino", supported=True
-                    ),
+                    TargetFeatureConfig("debug", target="etiss_pulpino", supported=True),
+                    TargetFeatureConfig("attach", target="etiss_pulpino", supported=True),
+                    TargetFeatureConfig("trace", target="etiss_pulpino", supported=True),
                 ],
             ),
             TargetConfig(

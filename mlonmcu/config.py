@@ -8,11 +8,7 @@ def remove_config_prefix(config, prefix, skip=[]):
     def helper(key):
         return key.split(f"{prefix}.")[-1]
 
-    return {
-        helper(key): value
-        for key, value in config.items()
-        if f"{prefix}." in key and key not in skip
-    }
+    return {helper(key): value for key, value in config.items() if f"{prefix}." in key and key not in skip}
 
 
 def filter_config(config, prefix, defaults, required_keys):
@@ -32,7 +28,7 @@ def filter_config(config, prefix, defaults, required_keys):
 
     for key in cfg:
         if key not in list(defaults.keys()) + required_keys:
-            #logger.warn("Component received an unknown config key: %s", key)
+            # logger.warn("Component received an unknown config key: %s", key)
             pass
 
     return cfg
@@ -69,21 +65,15 @@ def resolve_required_config(required_keys, features=None, config=None, cache=Non
     cache_flags = get_cache_flags(features) if features else {}
     for key in required_keys:
         if config is None or key not in config:
-            assert (
-                cache is not None
-            ), "No dependency cache was provided. Either provide a cache or config."
+            assert cache is not None, "No dependency cache was provided. Either provide a cache or config."
             if len(cache) == 0:
-                raise RuntimeError(
-                    "The dependency cache is empty! Make sure `to run `mlonmcu` setup first.`"
-                )
+                raise RuntimeError("The dependency cache is empty! Make sure `to run `mlonmcu` setup first.`")
             flags = cache_flags.get(key, ())
             if (key, flags) in cache:
                 value = cache[key, flags]
                 ret[key] = value
             else:
-                raise RuntimeError(
-                    f"Dependency cache miss for required key '{key}'. Try re-running `mlonmcu setup`."
-                )
+                raise RuntimeError(f"Dependency cache miss for required key '{key}'. Try re-running `mlonmcu setup`.")
         else:
             ret[key] = config[key]
 

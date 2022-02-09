@@ -142,12 +142,8 @@ class Run:
                 cache=context.cache,
             )
         )
-        assert (
-            self.framework is not None
-        ), "Please add a frontend before initializing the MLIF"
-        assert (
-            self.backend is not None
-        ), "Please add a backend before initializing the MLIF"
+        assert self.framework is not None, "Please add a frontend before initializing the MLIF"
+        assert self.backend is not None, "Please add a backend before initializing the MLIF"
         mlif_config = self.config.copy()
         self.mlif = MLIF(
             self.framework,
@@ -165,32 +161,24 @@ class Run:
         assert context is None or context.environment.has_frontend(
             frontend_name
         ), f"The frontend '{frontend_name}' is not enabled for this environment"
-        self.add_frontend(
-            self.init_component(SUPPORTED_FRONTENDS[frontend_name], context=context)
-        )
+        self.add_frontend(self.init_component(SUPPORTED_FRONTENDS[frontend_name], context=context))
 
     def add_backend_by_name(self, backend_name, context=None):
         assert context is None or context.environment.has_backend(
             backend_name
         ), f"The backend '{backend_name}' is not enabled for this environment"
-        self.add_backend(
-            self.init_component(SUPPORTED_BACKENDS[backend_name], context=context)
-        )
+        self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
         framework_name = self.backend.framework  # TODO: does this work?
         assert context.environment.has_framework(
             framework_name
         ), f"The framework '{framework_name}' is not enabled for this environment"
-        self.add_framework(
-            self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context)
-        )
+        self.add_framework(self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context))
 
     def add_target_by_name(self, target_name, context=None):
         assert context is None or context.environment.has_target(
             target_name
         ), f"The target '{target_name}' is not enabled for this environment"
-        self.add_target(
-            self.init_component(SUPPORTED_TARGETS[target_name], context=context)
-        )
+        self.add_target(self.init_component(SUPPORTED_TARGETS[target_name], context=context))
 
     @property
     def export_optional(self):
@@ -236,14 +224,10 @@ class Run:
         assert not self.active, "Parallel processing of the same run is not allowed"
         # TODO: Extract run metrics (cycles, runtime, memory usage,...)
         self.active = True  # TODO: move to self.set_active(stage), self.set_done(stage), self.set_failed(stage)
-        assert (
-            self.stage >= RunStage.RUN
-        )  # Alternative: allow to trigger previous stages recursively as a fallback
+        assert self.stage >= RunStage.RUN  # Alternative: allow to trigger previous stages recursively as a fallback
 
         self.export_stage(RunStage.RUN, optional=self.export_optional)
-        self.result = (
-            None  # Artifact(f"metrics.csv", data=df, fmt=ArtifactFormat.DATAFRAME)
-        )
+        self.result = None  # Artifact(f"metrics.csv", data=df, fmt=ArtifactFormat.DATAFRAME)
 
         self.stage = max(self.stage, RunStage.POSTPROCESS)
         self.active = False
@@ -293,9 +277,7 @@ class Run:
         self.active = True
         assert self.stage >= RunStage.TUNE
 
-        self.export_stage(
-            RunStage.LOAD, optional=self.export_optional
-        )  # Not required anymore?
+        self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
         model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
         if not model_artifact.exported:
             model_artifact.export(self.dir)
@@ -405,9 +387,7 @@ class Run:
                     self.active = False
                     logger.exception(e)
                     run_stage = RunStage(stage).name
-                    logger.error(
-                        self.prefix + f"Run failed at stage '{run_stage}', aborting..."
-                    )
+                    logger.error(self.prefix + f"Run failed at stage '{run_stage}', aborting...")
                     break
             # self.stage = stage  # FIXME: The stage_func should update the stage intead?
         report = self.get_report()
@@ -426,11 +406,7 @@ class Run:
     @property
     def prefix(self):
         return (
-            (
-                f"[session-{self.session.idx}] [run-{self.idx}] "
-                if self.session
-                else f"[run-{self.idx}]"
-            )
+            (f"[session-{self.session.idx}] [run-{self.idx}] " if self.session else f"[run-{self.idx}]")
             if self.idx is not None
             else ""
         )
@@ -452,13 +428,18 @@ class Run:
             defaults = obj.DEFAULTS
             for key, value in obj.config.items():
                 if omit_defaults and key in defaults and defaults[key] == value:
-                        omit_list.append(key)
+                    omit_list.append(key)
             ret = {
                 key if has_prefix(key) else f"{name}.{key}": value
-                for key, value in obj.config.items() if key not in omit_list
+                for key, value in obj.config.items()
+                if key not in omit_list
             }
             if omit_paths:
-                ret = {key: value for key, value in ret.items() if not (isinstance(value, Path) or (isinstance(value, str) and Path(value).exists()))}
+                ret = {
+                    key: value
+                    for key, value in ret.items()
+                    if not (isinstance(value, Path) or (isinstance(value, str) and Path(value).exists()))
+                }
             return ret
 
         ret = {}

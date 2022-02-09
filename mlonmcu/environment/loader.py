@@ -101,25 +101,13 @@ def load_environment_from_file(filename, base):
                         if "features" in backend:
                             for key3 in backend["features"]:
                                 supported = bool(backend["features"][key3])
-                                backend_features.append(
-                                    BackendFeatureConfig(
-                                        key3, backend=key2, supported=supported
-                                    )
-                                )
-                        backends.append(
-                            BackendConfig(
-                                key2, enabled=enabled2, features=backend_features
-                            )
-                        )
+                                backend_features.append(BackendFeatureConfig(key3, backend=key2, supported=supported))
+                        backends.append(BackendConfig(key2, enabled=enabled2, features=backend_features))
                 framework_features = []
                 if "features" in framework:
                     for key2 in framework["features"]:
                         supported = bool(framework["features"][key2])
-                        framework_features.append(
-                            FrameworkFeatureConfig(
-                                key2, framework=key, supported=supported
-                            )
-                        )
+                        framework_features.append(FrameworkFeatureConfig(key2, framework=key, supported=supported))
                 frameworks.append(
                     FrameworkConfig(
                         key,
@@ -143,14 +131,8 @@ def load_environment_from_file(filename, base):
                 if "features" in frontend:
                     for key2 in frontend["features"]:
                         supported = bool(frontend["features"][key2])
-                        frontend_features.append(
-                            FrontendFeatureConfig(
-                                key2, frontend=key, supported=supported
-                            )
-                        )
-                frontends.append(
-                    FrontendConfig(key, enabled=enabled, features=frontend_features)
-                )
+                        frontend_features.append(FrontendFeatureConfig(key2, frontend=key, supported=supported))
+                frontends.append(FrontendConfig(key, enabled=enabled, features=frontend_features))
         else:
             frontends = None
         default_target = None
@@ -167,12 +149,8 @@ def load_environment_from_file(filename, base):
                 if "features" in target:
                     for key2 in target["features"]:
                         supported = bool(target["features"][key2])
-                        target_features.append(
-                            TargetFeatureConfig(key2, target=key, supported=supported)
-                        )
-                targets.append(
-                    TargetConfig(key, enabled=enabled, features=target_features)
-                )
+                        target_features.append(TargetFeatureConfig(key2, target=key, supported=supported))
+                targets.append(TargetConfig(key, enabled=enabled, features=target_features))
         else:
             targets = None
         if "vars" in loaded:

@@ -29,9 +29,7 @@ class TFLMICodegen:
 
     def make_op_registrations(self, ops, custom_ops):
         out = (
-            "static tflite::MicroMutableOpResolver<"
-            + str(len(ops) + len(custom_ops))
-            + "> resolver(error_reporter);\n"
+            "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver(error_reporter);\n"
         )
         for op in ops:
             out += "  if (resolver.Add" + op + "() != kTfLiteOk) {\n    return;\n  }\n"
@@ -85,11 +83,7 @@ size_t {prefix}_outputs();
         ops_resolver=None,
     ):
 
-        arena_size = (
-            arena_size
-            if arena_size is not None
-            else TFLMIBackend.DEFAULTS["arena_size"]
-        )
+        arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]
         ops = ops if ops else TFLMIBackend.DEFAULTS["ops"]
         if len(ops) > 0:
 
@@ -121,9 +115,7 @@ size_t {prefix}_outputs();
         )  # TODO: Dict or list?
         if len(registrations) > 0:
             raise NotImplementedError
-        ops_resolver = (
-            ops_resolver if ops_resolver else TFLMIBackend.DEFAULTS["ops_resolver"]
-        )
+        ops_resolver = ops_resolver if ops_resolver else TFLMIBackend.DEFAULTS["ops_resolver"]
         if ops_resolver != "mutable":
             raise NotImplementedError
 
@@ -156,9 +148,7 @@ size_t {prefix}_outputs();
 #define ALIGN(X) __align(X)
 #endif
 """
-        if (
-            debug_arena
-        ):  # This will enable the feature only if it is not overwritten by the user/compiler
+        if debug_arena:  # This will enable the feature only if it is not overwritten by the user/compiler
             wrapper_content += """
 #ifndef DEBUG_ARENA_USAGE
 #define DEBUG_ARENA_USAGE 1
@@ -331,11 +321,7 @@ class TFLMIBackend(TFLiteBackend):
             debug_arena=debug_arena,
             **config_map,
         )
-        artifacts.append(
-            Artifact(
-                f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE
-            )
-        )
+        artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE))
         artifacts.append(
             Artifact(
                 f"{self.prefix}.cc.h",

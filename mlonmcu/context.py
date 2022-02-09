@@ -120,11 +120,7 @@ def get_ids(directory: Path) -> List[int]:
     if not directory.is_dir():
         return []
 
-    ids = [
-        int(o)
-        for o in os.listdir(directory)
-        if os.path.isdir(directory / o) and not os.path.islink(directory / o)
-    ]
+    ids = [int(o) for o in os.listdir(directory) if os.path.isdir(directory / o) and not os.path.islink(directory / o)]
     return sorted(ids)  # TODO: sort by session datetime?
 
 
@@ -218,9 +214,7 @@ def setup_logging(environment):
     to_file = defaults.log_to_file
     rotate = defaults.log_rotate
     if to_file:
-        assert (
-            "logs" in environment.paths
-        ), "To use a logfile, define a logging directory in your environment.yml"
+        assert "logs" in environment.paths, "To use a logfile, define a logging directory in your environment.yml"
         directory = environment.paths["logs"].path
         if not directory.is_dir():
             directory.mkdir()
@@ -252,9 +246,7 @@ class MlonMcuContext:
     def __init__(self, name: str = None, path: str = None, lock: bool = False):
         env_file = resolve_environment_file(name=name, path=path)
         assert env_file is not None, "Unable to find a MLonMCU environment"
-        self.environment = UserEnvironment.from_file(
-            env_file
-        )  # TODO: move to __enter__
+        self.environment = UserEnvironment.from_file(env_file)  # TODO: move to __enter__
         setup_logging(self.environment)
         self.lock = lock
         self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
@@ -316,17 +308,13 @@ class MlonMcuContext:
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")
         if self.lockfile.is_locked:
-            raise RuntimeError(
-                f"Current context is locked via: {self.lockfile.lock_file}"
-            )
+            raise RuntimeError(f"Current context is locked via: {self.lockfile.lock_file}")
         if self.lock:
             logger.debug("Locking context")
             try:
                 self.lockfile.acquire(timeout=0)
             except filelock.Timeout as err:
-                raise RuntimeError(
-                    "Lock on current context could not be aquired."
-                ) from err
+                raise RuntimeError("Lock on current context could not be aquired.") from err
         self.load_cache()
         return self
 

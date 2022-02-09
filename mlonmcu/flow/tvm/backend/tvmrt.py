@@ -40,9 +40,7 @@ class TVMRTBackend(TVMBackend):
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None
-        with open(
-            Path(path) / "executor-config" / "graph" / "graph.json", "r"
-        ) as handle:
+        with open(Path(path) / "executor-config" / "graph" / "graph.json", "r") as handle:
             graph = handle.read()
         params = None
         with open(Path(path) / "parameters" / "default.params", "rb") as handle:
@@ -99,20 +97,10 @@ class TVMRTBackend(TVMBackend):
                 workspace_size = self.arena_size
                 assert workspace_size >= 0
                 graph, params = self.get_graph_and_params_from_mlf(mlf_path)
-                wrapper_src = generate_tvmrt_wrapper(
-                    graph, params, self.model_info, workspace_size
-                )
-                artifacts.append(
-                    Artifact(
-                        "rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE
-                    )
-                )
+                wrapper_src = generate_tvmrt_wrapper(graph, params, self.model_info, workspace_size)
+                artifacts.append(Artifact("rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
                 header_src = generate_wrapper_header()
-                artifacts.append(
-                    Artifact(
-                        "tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE
-                    )
-                )
+                artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
 
         # prepare -> common?
         # invoke_tvmc -> common?

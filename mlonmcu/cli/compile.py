@@ -48,9 +48,7 @@ def add_compile_options(parser):
 
 def get_parser(subparsers):
     """ "Define and return a subparser for the compile subcommand."""
-    parser = subparsers.add_parser(
-        "compile", description="Compile model using ML on MCU flow."
-    )
+    parser = subparsers.add_parser("compile", description="Compile model using ML on MCU flow.")
     parser.set_defaults(func=handle)
     add_model_options(parser)
     add_common_options(parser)
@@ -75,9 +73,7 @@ def _handle(context, args):
         assert len(targets) > 0, "TODO"
 
     debug = args.debug
-    assert (
-        len(context.sessions) > 0
-    )  # TODO: automatically request session if no active one is available
+    assert len(context.sessions) > 0  # TODO: automatically request session if no active one is available
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:

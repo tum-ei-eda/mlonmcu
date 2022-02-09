@@ -35,35 +35,28 @@ def create_environment_dict(environment):
         else [str(config.path) for config in path_config]
         for path, path_config in environment.paths.items()
     }  # TODO: allow relative paths
-    data["repos"] = {
-        repo: vars(repo_config) for repo, repo_config in environment.repos.items()
-    }
+    data["repos"] = {repo: vars(repo_config) for repo, repo_config in environment.repos.items()}
     data["frameworks"] = {
-        "default": environment.defaults.default_framework
-        if environment.defaults.default_framework
-        else None,
+        "default": environment.defaults.default_framework if environment.defaults.default_framework else None,
         **{
             framework.name: {
                 "enabled": framework.enabled,
                 "backends": {
                     "default": environment.defaults.default_backends[framework.name]
-                    if environment.defaults.default_backends
-                    and environment.defaults.default_backends[framework.name]
+                    if environment.defaults.default_backends and environment.defaults.default_backends[framework.name]
                     else None,
                     **{
                         backend.name: {
                             "enabled": backend.enabled,
                             "features": {
-                                backend_feature.name: backend_feature.supported
-                                for backend_feature in backend.features
+                                backend_feature.name: backend_feature.supported for backend_feature in backend.features
                             },
                         }
                         for backend in framework.backends
                     },
                 },
                 "features": {
-                    framework_feature.name: framework_feature.supported
-                    for framework_feature in framework.features
+                    framework_feature.name: framework_feature.supported for framework_feature in framework.features
                 },
             }
             for framework in environment.frameworks
@@ -75,8 +68,7 @@ def create_environment_dict(environment):
             frontend.name: {
                 "enabled": frontend.enabled,
                 "features": {
-                    frontend_feature.name: frontend_feature.supported
-                    for frontend_feature in frontend.features
+                    frontend_feature.name: frontend_feature.supported for frontend_feature in frontend.features
                 },
             }
             for frontend in environment.frontends
@@ -87,10 +79,7 @@ def create_environment_dict(environment):
         **{
             target.name: {
                 "enabled": target.enabled,
-                "features": {
-                    target_feature.name: target_feature.supported
-                    for target_feature in target.features
-                },
+                "features": {target_feature.name: target_feature.supported for target_feature in target.features},
             }
             for target in environment.targets
         },

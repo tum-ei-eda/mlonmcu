@@ -43,14 +43,10 @@ def handle(args):
     envs = lookup_user_environments(envs_file)
     count = len(envs)
     if not envs or count == 0:
-        print(
-            "No mlonmcu environments were found for the current user. You can create a new one using `mlonmcu init`"
-        )
+        print("No mlonmcu environments were found for the current user. You can create a new one using `mlonmcu init`")
     else:
         print(f"Found {count} mlonmcu environment(s):")
         for env in envs:
             print(f"    - {env.name} ({env.path})")
 
-        print(
-            "Point the environment variable MLONMCU_HOME to a environment directory to get started"
-        )
+        print("Point the environment variable MLONMCU_HOME to a environment directory to get started")

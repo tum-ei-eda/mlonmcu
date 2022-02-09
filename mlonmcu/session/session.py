@@ -170,9 +170,7 @@ class Session:
                     results.append(w.result())
                 except Exception as e:
                     logger.exception(e)
-                    logger.error(
-                        "An exception was thrown by a worker during simulation"
-                    )
+                    logger.error("An exception was thrown by a worker during simulation")
             if progress:
                 _close_progress()
             return results
@@ -184,9 +182,7 @@ class Session:
                 for stage in range(until + 1):
                     run_stage = RunStage(stage).name
                     if progress:
-                        _init_progress(
-                            len(self.runs), msg=f"Processing stage {run_stage}"
-                        )
+                        _init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
                     else:
                         logger.info(self.prefix + f"Processing stage {run_stage}")
                     for i, run in enumerate(self.runs):
@@ -202,9 +198,7 @@ class Session:
                                     f"The chosen configuration leads to a maximum of {total_threads} threads being processed which heavily exceeds the available CPU resources ({cpu_count}). It is recommended to lower the value of 'mlif.num_threads'!"
                                 )
                         if run.failing:
-                            logger.warning(
-                                f"Skiping stage '{run_stage}' for failed run"
-                            )
+                            logger.warning(f"Skiping stage '{run_stage}' for failed run")
                         else:
                             workers.append(executor.submit(_process, run, until=stage))
                     results = _join_workers(workers)

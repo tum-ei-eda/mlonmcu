@@ -35,9 +35,7 @@ def clone_models_repo(
     git.Repo.clone_from(url, dest)
 
 
-def clone_sw_repo(
-    dest, url="https://github.com/tum-ei-eda/mlonmcu-sw.git"
-):  # TODO: how to get submodule url/ref?
+def clone_sw_repo(dest, url="https://github.com/tum-ei-eda/mlonmcu-sw.git"):  # TODO: how to get submodule url/ref?
     git.Repo.clone_from(url, dest)
 
 
@@ -63,9 +61,7 @@ def create_venv_directory(base, hidden=True):
     dirname = ".venv" if hidden else "venv"
     venv_dir = base / dirname
     venv.create(venv_dir)
-    print(
-        f"Virtual environment was created in {venv_dir}. Make sure to activate it before using mlonmcu."
-    )
+    print(f"Virtual environment was created in {venv_dir}. Make sure to activate it before using mlonmcu.")
 
 
 def initialize_environment(
@@ -115,8 +111,7 @@ def initialize_environment(
             print("The directory is not empty!", end=" - ")
             # TODO: check for mlonmcu project files, if yes ask for overwrite instead
             if not allow_exists or (
-                allow_exists is None
-                and not ask_user("Use anyway?", default=False, interactive=interactive)
+                allow_exists is None and not ask_user("Use anyway?", default=False, interactive=interactive)
             ):
                 print("Aborting...")
                 sys.exit(1)
@@ -130,19 +125,13 @@ def initialize_environment(
         print("Created directory.")
     print(f"Creating environment.yml based on template '{template}'.")
     # TODO: create and maintain environments.yml in user directory?
-    write_environment_yaml_from_template(
-        os.path.join(target_dir, "environment.yml"), template, home_dir=target_dir
-    )
+    write_environment_yaml_from_template(os.path.join(target_dir, "environment.yml"), template, home_dir=target_dir)
 
     # FIXME: controversial?
     if create_venv is None:
         if not in_virtualenv():
-            print(
-                "It is strongly recommended to use mlonmcu inside a virtual Python environment."
-            )
-            if ask_user(
-                "Create one automatically?", default=False, interactive=interactive
-            ):
+            print("It is strongly recommended to use mlonmcu inside a virtual Python environment.")
+            if ask_user("Create one automatically?", default=False, interactive=interactive):
                 # TODO: create venv
                 create_venv_directory(target_dir)
         else:
@@ -202,14 +191,10 @@ def initialize_environment(
         env_names = get_environment_names()
         if final_name in env_names:
             alternative_name = get_alternative_name(final_name, env_names)
-            print(
-                f"An environment with the name '{final_name}' already exists. Using '{alternative_name}' instead"
-            )
+            print(f"An environment with the name '{final_name}' already exists. Using '{alternative_name}' instead")
             final_name = alternative_name
         # TODO: interactively ask the user
         print("Adding new environment to environments file.")
         register_environment(final_name, target_dir)
 
-    print(
-        f"Finished. Please add `export MLONMCU_HOME={target_dir}` to your shell configuration to use it anywhere"
-    )
+    print(f"Finished. Please add `export MLONMCU_HOME={target_dir}` to your shell configuration to use it anywhere")

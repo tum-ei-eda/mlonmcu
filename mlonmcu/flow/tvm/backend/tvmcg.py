@@ -24,9 +24,7 @@ class TVMCGBackend(TVMRTBackend):
         for op in metadata["memory"]["functions"]["operator_functions"]:
             max_workspace = max(
                 max_workspace,
-                op["workspace"][0]["workspace_size_bytes"]
-                if len(op["workspace"]) > 0
-                else 0,
+                op["workspace"][0]["workspace_size_bytes"] if len(op["workspace"]) > 0 else 0,
             )
         return max_workspace
 
@@ -46,25 +44,17 @@ class TVMCGBackend(TVMRTBackend):
                     with open(mlf_path / "metadata.json") as handle:
                         metadata = json.load(handle)
                     tvmcg_exe = self.config["utvmcg.exe"]
-                    graph_json_file = (
-                        mlf_path / "executor-config" / "graph" / "graph.json"
-                    )
+                    graph_json_file = mlf_path / "executor-config" / "graph" / "graph.json"
                     params_bin_file = mlf_path / "parameters" / "default.params"
-                    max_workspace_size = self.get_max_workspace_size_from_metadata(
-                        metadata
-                    )
+                    max_workspace_size = self.get_max_workspace_size_from_metadata(metadata)
                     args = []
                     args.append(graph_json_file)
                     args.append(params_bin_file)
                     args.append(out_file)
                     args.append(str(max_workspace_size))
-                    utils.exec_getout(
-                        tvmcg_exe, *args, live=verbose, print_output=False
-                    )
+                    utils.exec_getout(tvmcg_exe, *args, live=verbose, print_output=False)
                     codegen_src = open(out_file, "r").read()
-                    artifact = Artifact(
-                        "staticrt.c", content=codegen_src, fmt=ArtifactFormat.SOURCE
-                    )
+                    artifact = Artifact("staticrt.c", content=codegen_src, fmt=ArtifactFormat.SOURCE)
                 break
         assert artifact is not None, "Failed to find MLF artifact"
         artifacts.append(artifact)

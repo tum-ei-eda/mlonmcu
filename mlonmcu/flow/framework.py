@@ -17,9 +17,7 @@ class Framework(ABC):
     def __init__(self, features=None, config=None, backends={}):
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(
-            self.config, self.name, self.DEFAULTS, self.REQUIRED
-        )
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         self.backends = backends  # TODO: get rid of this
 
     def process_features(self, features):
@@ -27,9 +25,7 @@ class Framework(ABC):
             return []
         features = get_matching_features(features, FeatureType.FRAMEWORK)
         for feature in features:
-            assert (
-                feature.name in self.FEATURES
-            ), f"Incompatible feature: {feature.name}"
+            assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.add_framework_config(self.name, self.config)
         return features
 

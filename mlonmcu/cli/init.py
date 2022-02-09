@@ -14,9 +14,7 @@ from mlonmcu.environment.init import initialize_environment
 
 def get_parser(subparsers):
     """ "Define and return a subparser for the init subcommand."""
-    parser = subparsers.add_parser(
-        "init", description="Initialize ML on MCU environment."
-    )
+    parser = subparsers.add_parser("init", description="Initialize ML on MCU environment.")
     parser.set_defaults(func=handle)
     parser.add_argument(
         "-n",
@@ -42,9 +40,7 @@ def get_parser(subparsers):
         nargs="?",
         type=str,
         default=get_environments_dir(),
-        help="Environment directory (default: "
-        + os.path.join(get_environments_dir(), "{NAME}")
-        + ")",
+        help="Environment directory (default: " + os.path.join(get_environments_dir(), "{NAME}") + ")",
     )
     parser.add_argument(
         "--non-interactive",

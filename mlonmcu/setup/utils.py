@@ -101,12 +101,7 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
     logger.debug("- Executing: " + str(args))
     outStr = ""
     if live:
-        process = subprocess.Popen(
-            [i for i in args],
-            **kwargs,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT
-        )
+        process = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in process.stdout:
             new_line = line.decode(errors="replace")
             outStr = outStr + new_line
@@ -114,19 +109,13 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
         exit_code = None
         while exit_code is None:
             exit_code = process.poll()
-        assert (
-            exit_code == 0
-        ), "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+        assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
             exit_code, " ".join(list(map(str, args)))
         )
     else:
         try:
             p = subprocess.run(
-                [i for i in args],
-                **kwargs,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
+                [i for i in args], **kwargs, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
             )
             outStr = p.stdout.decode(errors="replace")
             if print_output:
@@ -183,9 +172,7 @@ def clone(
             repo.remotes.origin.set_url(url)
             repo.remotes.origin.fetch()
             repo.git.checkout(branch)
-            repo.git.pull(
-                "origin", branch
-            )  # This should also work for specific commits
+            repo.git.pull("origin", branch)  # This should also work for specific commits
     else:
         if branch:
             Repo.clone_from(url, dest, branch=branch, recursive=recursive)
@@ -193,14 +180,7 @@ def clone(
             Repo.clone_from(url, dest, recursive=recursive)
 
 
-def make(
-    *args,
-    threads=multiprocessing.cpu_count(),
-    use_ninja=False,
-    cwd=None,
-    verbose=False,
-    **kwargs
-):
+def make(*args, threads=multiprocessing.cpu_count(), use_ninja=False, cwd=None, verbose=False, **kwargs):
     if cwd is None:
         raise RuntimeError("Please always pass a cwd to make()")
     if isinstance(cwd, Path):
@@ -282,9 +262,7 @@ def download_and_extract(url, archive, dest):
         extract(tmp_archive, tmp_dir)
         remove(os.path.join(tmp_dir, tmp_archive))
         mkdirs(dest.parent)
-        if (
-            Path(tmp_dir) / base_name
-        ).is_dir():  # Archive contained a subdirectory with the same name
+        if (Path(tmp_dir) / base_name).is_dir():  # Archive contained a subdirectory with the same name
             move(os.path.join(tmp_dir, base_name), dest)
         else:
             move(tmp_dir, dest)

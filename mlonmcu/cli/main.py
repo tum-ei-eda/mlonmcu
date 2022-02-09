@@ -30,9 +30,7 @@ def main(args=None):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     # parser.add_argument('_', nargs='*')
-    parser.add_argument(
-        "-V", "--version", action="version", version="mlonmcu " + __version__
-    )
+    parser.add_argument("-V", "--version", action="version", version="mlonmcu " + __version__)
     subparsers = parser.add_subparsers(dest="subcommand")  # this line changed
     init_parser = init.get_parser(subparsers)
     setup_parser = setup.get_parser(subparsers)

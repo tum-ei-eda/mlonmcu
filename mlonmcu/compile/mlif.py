@@ -36,14 +36,13 @@ class MLIF:
         "model_support_dir": None,
         "toolchain": "gcc",
         "num_threads": multiprocessing.cpu_count(),
+        "prebuild_lib_path": None,
     }
 
     # REQUIRES = ["mlif.src_dir"]
     REQUIRED = []
 
-    def __init__(
-        self, framework, backend, target, features=None, config=None, context=None
-    ):
+    def __init__(self, framework, backend, target, features=None, config=None, context=None):
         self.framework = framework  # TODO: required? or self.target.framework?
         self.backend = backend
         self.target = target
@@ -54,9 +53,7 @@ class MLIF:
         self.config = filter_config(self.config, "mlif", self.DEFAULTS, self.REQUIRED)
         self.context = context
         self.goal = "generic_mlif"
-        flags = [self.framework.name, self.backend.name, self.target.name] + [
-            feature.name for feature in self.features
-        ]
+        flags = [self.framework.name, self.backend.name, self.target.name] + [feature.name for feature in self.features]
         dir_name = utils.makeDirName("mlif", flags=flags)
         self.tempdir = None
         if self.config["build_dir"]:
@@ -87,13 +84,9 @@ class MLIF:
                 # self.mlif_dir = context.environment.paths[
                 #     "sw"
                 # ]  # TODO: clone on environment init!
-                self.mlif_dir = (
-                    Path(context.environment.home) / "sw"
-                )  # TODO: Define in env paths
+                self.mlif_dir = Path(context.environment.home) / "sw"  # TODO: Define in env paths
             else:
-                raise RuntimeError(
-                    "Please define the value of 'mlif.src_dir' or pass a context"
-                )
+                raise RuntimeError("Please define the value of 'mlif.src_dir' or pass a context")
         self.validate()
 
     @property
@@ -107,7 +100,11 @@ class MLIF:
     @property
     def print_output(self):
         # TODO: get rid of this
-        return bool(self.config["print_output"]) if isinstance(self.config["print_output"], (int, bool)) else bool(distutils.util.strtobool(self.config["print_output"]))
+        return (
+            bool(self.config["print_output"])
+            if isinstance(self.config["print_output"], (int, bool))
+            else bool(distutils.util.strtobool(self.config["print_output"]))
+        )
 
     @property
     def toolchain(self):
@@ -121,14 +118,16 @@ class MLIF:
     def model_support_dir(self):
         return self.config["model_support_dir"]
 
+    @property
+    def prebuild_lib_dir(self):
+        return self.config["prebuild_lib_dir"]
+
     def process_features(self, features):
         if features is None:
             return []
         features = get_matching_features(features, FeatureType.COMPILE)
         for feature in features:
-            assert (
-                feature.name in self.FEATURES
-            ), f"Incompatible feature: {feature.name}"
+            assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.add_compile_config(self.config)
         return features
 
@@ -192,12 +191,23 @@ class MLIF:
             assert data_file is not None, "No data.c file was supplied"
             cmakeArgs.append("-DDATA_SRC=" + str(data_file))
         utils.mkdirs(self.build_dir)
-        utils.cmake(self.mlif_dir, *cmakeArgs, cwd=self.build_dir, debug=self.debug, live=self.print_output)
+        utils.cmake(
+            self.mlif_dir,
+            *cmakeArgs,
+            cwd=self.build_dir,
+            debug=self.debug,
+            live=self.print_output,
+        )
 
     def compile(self, src=None, model=None, num=1, data_file=None):
         if src:
             self.configure(src, model, num=num, data_file=data_file)
-        utils.make(self.goal, cwd=self.build_dir, threads=self.num_threads, live=self.print_output)
+        utils.make(
+            self.goal,
+            cwd=self.build_dir,
+            threads=self.num_threads,
+            live=self.print_output,
+        )
 
     def generate_elf(self, src=None, model=None, num=1, data_file=None):
         artifacts = []
@@ -211,9 +221,7 @@ class MLIF:
         self.artifacts = artifacts
 
     def export_elf(self, path):
-        assert (
-            len(self.artifacts) > 0
-        ), "No artifacts found, please run generate_elf() first"
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -334,13 +342,9 @@ def create_mlif_from_args(args):
     backend = get_backend_by_name(args.backend, features=features, config=config)
     assert args.backend is not None, "The target must be set"
     target = get_target_by_name(args.target, features=features, config=config)
-    framework = get_framework_by_name(
-        backend.framework, features=features, config=config
-    )
+    framework = get_framework_by_name(backend.framework, features=features, config=config)
     if args.out:
-        assert (
-            "mlif.build_dir" not in config
-        ), "The value of 'mlif.build_dir' should be set with the --out-dir argument"
+        assert "mlif.build_dir" not in config, "The value of 'mlif.build_dir' should be set with the --out-dir argument"
         config["mlif.build_dir"] = Path(args.out)
     return MLIF(framework, backend, target, features=features, config=config)
 
@@ -361,9 +365,7 @@ def main(args=None):
     add_common_options(configure_parser)
     add_configure_options(configure_parser)
 
-    compile_parser = subparsers.add_parser(
-        "compile", description="Inspect program with target"
-    )
+    compile_parser = subparsers.add_parser("compile", description="Inspect program with target")
 
     def _handle_compile(args):
         with closing(create_mlif_from_args(args)) as mlif_inst:

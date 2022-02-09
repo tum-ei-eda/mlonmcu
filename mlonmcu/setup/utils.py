@@ -1,4 +1,5 @@
 import os
+import signal
 import sys
 import multiprocessing
 import subprocess
@@ -102,24 +103,37 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
     outStr = ""
     if live:
         process = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        for line in process.stdout:
-            new_line = line.decode(errors="replace")
-            outStr = outStr + new_line
-            print(new_line.replace("\n", ""))
-        exit_code = None
-        while exit_code is None:
-            exit_code = process.poll()
-        assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-            exit_code, " ".join(list(map(str, args)))
-        )
+        try:
+            for line in process.stdout:
+                new_line = line.decode(errors="replace")
+                outStr = outStr + new_line
+                print(new_line.replace("\n", ""))
+            exit_code = None
+            while exit_code is None:
+                exit_code = process.poll()
+            assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+                exit_code, " ".join(list(map(str, args)))
+            )
+        except KeyboardInterrupt as e:
+            logger.debug("Interrupted subprocess. Sending SIGINT signal...")
+            pid = process.pid
+            os.kill(pid, signal.SIGINT)
+
     else:
         try:
-            p = subprocess.run(
-                [i for i in args], **kwargs, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-            )
-            outStr = p.stdout.decode(errors="replace")
-            if print_output:
+            p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            outStr = p.communicate()[0].decode(errors="replace")
+            exit_code = p.poll()
+            # outStr = p.stdout.decode(errors="replace")
+            if print_output or exit_code > 0:
                 logger.debug(outStr)
+            assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+                exit_code, " ".join(list(map(str, args)))
+            )
+        except KeyboardInterrupt as e:
+            logger.debug("Interrupted subprocess. Sending SIGINT signal...")
+            pid = p.pid
+            os.kill(pid, signal.SIGINT)
         except subprocess.CalledProcessError as e:
             outStr = e.output.decode(errors="replace")
             logger.error(outStr)

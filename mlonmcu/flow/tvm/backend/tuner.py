@@ -1,9 +1,18 @@
 import tempfile
+import os
+import psutil
+import time
+import signal
+import random
 import multiprocessing
 from pathlib import Path
 
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
+
+
+def spawn_server(args, env, verbose):
+    utils.python("-m", "tvm.exec.rpc_server", *args, live=verbose, env=env)
 
 
 class TVMTuner:
@@ -26,12 +35,17 @@ class TVMTuner:
         self.config = config if config is not None else {}
         self.artifact = None
         self.hostname = "127.0.0.1"  # localhost
-        self.port = 9000
-        self.port_end = 10000
+        self.port = random.randint(9000, 9500)
+        self.port_end = self.port + 100
         self.key = "mlonmcu"  # constant
         self.tracker = None
         self.servers = []
+        self.pool = None
         # TODO: Support non-local runners in the future -> deploy simulator on cluster
+
+    @property
+    def enable(self):
+        return bool(self.config["enable"])
 
     @property
     def results_file(self):
@@ -75,7 +89,6 @@ class TVMTuner:
         return int(self.config["timeout"])
 
     def get_rpc_args(self):
-        print("get_rpc_args", self.use_rpc)
         return (
             [
                 "--rpc-key",
@@ -129,33 +142,35 @@ class TVMTuner:
 
         self.tracker = multiprocessing.Process(target=spawn_tracker)
         self.tracker.start()
+        time.sleep(5)
 
     def shutdown_rpc_tracker(self):
         assert self.tracker is not None and self.tracker.is_alive()
-        self.tracker.terminate()
+        # self.tracker.terminate()
+        pid = self.tracker.pid
+        os.kill(pid, signal.SIGINT)
 
     def start_rpc_servers(self, verbose=False):
         assert len(self.servers) == 0
 
-        def spawn_server():
-            args = [
-                "--host",
-                self.hostname,
-                "--port",
-                str(self.port),
-                "--port-end",
-                str(self.port_end),
-                "--tracker",
-                self.hostname + ":" + str(self.port),
-                "--key",
-                self.key,
-                # --silent not required as muted anyway...
-            ]
-            env = self.backend.prepare_python_environment()
-            utils.python("-m", "tvm.exec.rpc_server", *args, live=verbose, env=env)
+        args = [
+            "--host",
+            self.hostname,
+            "--port",
+            str(self.port),
+            "--port-end",
+            str(self.port_end),
+            "--tracker",
+            self.hostname + ":" + str(self.port),
+            "--key",
+            self.key,
+            "--no-fork",  # required?
+            # --silent not required as muted anyway...
+        ]
+        env = self.backend.prepare_python_environment()
 
         for _ in range(self.max_parallel):
-            server = multiprocessing.Process(target=spawn_server)
+            server = multiprocessing.Process(target=spawn_server, args=(args, env, verbose))
             self.servers.append(server)
 
         for server in self.servers:
@@ -164,7 +179,9 @@ class TVMTuner:
     def shutdown_rpc_servers(self):
         assert len(self.servers) > 0
         for server in self.servers:
-            server.terminate()
+            # server.terminate()
+            pid = server.pid
+            os.kill(pid, signal.SIGINT)
 
     def setup_rpc(self, verbose=False):
         self.start_rpc_tracker(verbose=verbose)
@@ -175,30 +192,35 @@ class TVMTuner:
         self.shutdown_rpc_tracker()
 
     def tune(self):
-        if self.num_workers > 1:
-            raise NotImplementedError("Tuning multiple tasks at once is currently not supported in TVM!")
-
-        # TODO: try block with proper cleanup
-        if self.use_rpc:
-            self.setup_rpc()
-
         content = ""
-        if self.append:
-            if self.results_file is not None:
-                with open(self.results_file, "r") as handle:
+        if self.enable:
+            if self.num_workers > 1:
+                raise NotImplementedError("Tuning multiple tasks at once is currently not supported in TVM!")
+
+            # try:
+            # TODO: try block with proper cleanup
+            if self.use_rpc:
+                self.setup_rpc()
+
+            if self.append:
+                if self.results_file is not None:
+                    with open(self.results_file, "r") as handle:
+                        content = handle.read()
+
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                with open(out_file, "w") as handle:
+                    handle.write(content)
+                    # TODO: newline or not?
+                self.invoke_tvmc_tune(out_file)
+                with open(out_file, "r") as handle:
                     content = handle.read()
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            out_file = Path(tmp_dir) / "tuning_results.log.txt"
-            with open(out_file, "w") as handle:
-                handle.write(content)
-                # TODO: newline or not?
-            self.invoke_tvmc_tune(out_file)
-            with open(out_file, "r") as handle:
+            if self.use_rpc:
+                self.shutdown_rpc()
+        else:
+            assert self.results_file is not None and Path(self.results_file).is_file()
+            with open(self.results_file, "r") as handle:
                 content = handle.read()
-
-        if self.use_rpc:
-            self.shutdown_rpc()
 
         artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
 

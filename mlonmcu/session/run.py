@@ -282,14 +282,13 @@ class Run:
         if not model_artifact.exported:
             model_artifact.export(self.dir)
         self.backend.load_model(model=model_artifact.path)
-
         self.export_stage(RunStage.TUNE, optional=self.export_optional)
-        # if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
-        #     assert self.backend.tuner is not None
-        #     tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
-        #     if not tuning_artifact.exported:
-        #         tuning_artifact.export(self.dir)
-        #     self.backend.add_tuning_results(tuning_artifact.path)
+        if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
+            assert self.backend.tuner is not None
+            tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
+            if not tuning_artifact.exported:
+                tuning_artifact.export(self.dir)
+            self.backend.set_tuning_records(tuning_artifact.path)
 
         # TODO: allow raw data as well as filepath in backends
         self.backend.generate_code()

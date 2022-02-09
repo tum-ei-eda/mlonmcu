@@ -55,6 +55,10 @@ class TVMBackend(Backend):
             "timeout": self.config["autotuning_timeout"],
         }
         self.tuner = TVMTuner(self, config=tuner_config)
+        self.tuning_records_file = None
+
+    def set_tuning_records(self, filepath):
+        self.tuning_records_file = filepath
 
     @property
     def pass_config(self):
@@ -106,6 +110,16 @@ class TVMBackend(Backend):
             *(["--target-c-device", self.target_device] if self.target_device is not None else []),
         ]
 
+    def get_tuning_records_tvmc_args(self, target="c"):
+        return (
+            [
+                "--tuning-records",
+                str(self.tuning_records_file),
+            ]
+            if self.use_tuning_results and self.tuning_records_file is not None
+            else []
+        )
+
     def get_tvmc_compile_args(self, executor, fmt="mlf", target="c", runtime="crt"):
         assert executor in ["aot", "graph"], "Unsupported TVM executor"
         args = self.get_common_tvmc_args(target=target)
@@ -122,6 +136,7 @@ class TVMBackend(Backend):
                 "--opt-level",
                 str(self.opt_level),
                 *self.get_input_shapes_tvmc_args(),
+                *self.get_tuning_records_tvmc_args(),
                 # TODO: also set --model-format? (optional)
             ]
         )

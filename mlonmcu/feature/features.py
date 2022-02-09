@@ -500,7 +500,6 @@ class Autotune(BackendFeature):
 
     @property
     def use_rpc(self):
-        print("use_rpc", bool(self.config["use_rpc"]))
         return self.config["use_rpc"] if "use_rpc" in self.config else None
 
     @property
@@ -508,7 +507,6 @@ class Autotune(BackendFeature):
         return self.config["timeout"] if "timeout" in self.config else None
 
     def get_backend_config(self, backend):
-        print("get_backend_config", "backend")
         assert backend in ["tvmaot", "tvmcg", "tvmrt"]  # TODO: backend in TVM_BACKENDS
         # TODO: figure out a default path automatically
         return filter_none(

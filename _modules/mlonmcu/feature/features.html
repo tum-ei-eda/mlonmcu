@@ -123,11 +123,7 @@
 <div class="viewcode-block" id="get_available_features"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.get_available_features">[docs]</a><span class="k">def</span> <span class="nf">get_available_features</span><span class="p">(</span><span class="n">feature_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">feature_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Utility for looking up features.&quot;&quot;&quot;</span>
     <span class="n">names</span> <span class="o">=</span> <span class="n">get_available_feature_names</span><span class="p">(</span><span class="n">feature_type</span><span class="o">=</span><span class="n">feature_type</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="n">REGISTERED_FEATURES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
-        <span class="k">if</span> <span class="n">feature_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="n">feature_name</span>
-    <span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">REGISTERED_FEATURES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">feature_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="n">feature_name</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="get_matching_features"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.get_matching_features">[docs]</a><span class="k">def</span> <span class="nf">get_matching_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">feature_type</span><span class="p">):</span>
@@ -204,9 +200,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">framework</span> <span class="o">==</span> <span class="s2">&quot;tflite&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">framework</span> <span class="o">==</span> <span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="c1"># TODO: make sure that no other kernels is was set beforehand! -&gt; add_framework_config</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel&quot;</span><span class="p">:</span> <span class="s2">&quot;cmsis_nn&quot;</span><span class="p">,</span>
@@ -288,9 +282,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: implement get_bool_or_none?</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;attach&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;attach&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;attach&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;attach&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -315,11 +307,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">],</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]}</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span>
-            <span class="k">else</span> <span class="p">{}</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">],</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="k">else</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">]</span>
@@ -346,16 +334,12 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;unpacked_api&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvmaot&quot;</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.unpacked_api&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;packed&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Packed</span><span class="p">(</span>
-    <span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">BackendFeature</span><span class="p">,</span> <span class="n">SetupFeature</span><span class="p">,</span> <span class="n">CompileFeature</span>
-<span class="p">):</span>
+<span class="k">class</span> <span class="nc">Packed</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">BackendFeature</span><span class="p">,</span> <span class="n">SetupFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Sub-8-bit and sparsity feature for TFLite Micro kernels.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -365,9 +349,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tflite&quot;</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> for frontend &#39;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">&#39;&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> for frontend &#39;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">&#39;&#39;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.use_packed_weights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
@@ -389,9 +371,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;packing&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tflite&quot;</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> for frontend &#39;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">&#39;&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> for frontend &#39;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">&#39;&#39;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.pack_weights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
@@ -413,9 +393,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="s2">&quot;config_file&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvm&quot;</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
@@ -435,9 +413,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;memplan&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvm&quot;</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tvm.memplan_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
 
@@ -458,9 +434,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvmaot&quot;</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
             <span class="n">tmp</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="s2">&quot;extra_pass_config&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
@@ -482,9 +456,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;fusetile&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvm&quot;</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tvm.fusetile_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
     <span class="c1"># -&gt; enable this via backend</span>
@@ -513,9 +485,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">backend</span> <span class="ow">in</span> <span class="n">TVM_BACKENDS</span>  <span class="c1"># TODO: undefined!</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">TVM_BACKENDS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>  <span class="c1"># TODO: undefined!</span>
         <span class="k">return</span> <span class="ne">NotImplementedError</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
@@ -593,9 +563,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">early_stopping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;early_stopping&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;early_stopping&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;early_stopping&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;early_stopping&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -653,9 +621,7 @@
 <span class="c1"># Traget features</span>
 <span class="n">TARGET_FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span>
 
-<span class="n">ALL_FEATURES</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">FRONTEND_FEATURES</span> <span class="o">+</span> <span class="n">FRAMEWORK_FEATURES</span> <span class="o">+</span> <span class="n">BACKEND_FEATURES</span> <span class="o">+</span> <span class="n">TARGET_FEATURES</span>
-<span class="p">)</span>
+<span class="n">ALL_FEATURES</span> <span class="o">=</span> <span class="n">FRONTEND_FEATURES</span> <span class="o">+</span> <span class="n">FRAMEWORK_FEATURES</span> <span class="o">+</span> <span class="n">BACKEND_FEATURES</span> <span class="o">+</span> <span class="n">TARGET_FEATURES</span>
 </pre></div>
 
            </div>

@@ -105,9 +105,7 @@
 
 <div class="viewcode-block" id="TFLMICodegen.make_op_registrations"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.make_op_registrations">[docs]</a>    <span class="k">def</span> <span class="nf">make_op_registrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;static tflite::MicroMutableOpResolver&lt;&quot;</span>
-            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_ops</span><span class="p">))</span>
-            <span class="o">+</span> <span class="s2">&quot;&gt; resolver(error_reporter);</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;static tflite::MicroMutableOpResolver&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_ops</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;&gt; resolver(error_reporter);</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;  if (resolver.Add&quot;</span> <span class="o">+</span> <span class="n">op</span> <span class="o">+</span> <span class="s2">&quot;() != kTfLiteOk) {</span><span class="se">\n</span><span class="s2">    return;</span><span class="se">\n</span><span class="s2">  }</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -161,11 +159,7 @@
         <span class="n">ops_resolver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 
-        <span class="n">arena_size</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">arena_size</span>
-            <span class="k">if</span> <span class="n">arena_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
+        <span class="n">arena_size</span> <span class="o">=</span> <span class="n">arena_size</span> <span class="k">if</span> <span class="n">arena_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="k">if</span> <span class="n">ops</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
@@ -197,9 +191,7 @@
         <span class="p">)</span>  <span class="c1"># TODO: Dict or list?</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">registrations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-        <span class="n">ops_resolver</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">ops_resolver</span> <span class="k">if</span> <span class="n">ops_resolver</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops_resolver&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
+        <span class="n">ops_resolver</span> <span class="o">=</span> <span class="n">ops_resolver</span> <span class="k">if</span> <span class="n">ops_resolver</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops_resolver&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ops_resolver</span> <span class="o">!=</span> <span class="s2">&quot;mutable&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -232,9 +224,7 @@
 <span class="s2">#define ALIGN(X) __align(X)</span>
 <span class="s2">#endif</span>
 <span class="s2">&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">debug_arena</span>
-        <span class="p">):</span>  <span class="c1"># This will enable the feature only if it is not overwritten by the user/compiler</span>
+        <span class="k">if</span> <span class="n">debug_arena</span><span class="p">:</span>  <span class="c1"># This will enable the feature only if it is not overwritten by the user/compiler</span>
             <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#ifndef DEBUG_ARENA_USAGE</span>
 <span class="s2">#define DEBUG_ARENA_USAGE 1</span>
@@ -407,11 +397,7 @@
             <span class="n">debug_arena</span><span class="o">=</span><span class="n">debug_arena</span><span class="p">,</span>
             <span class="o">**</span><span class="n">config_map</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">Artifact</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.cc&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_code</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.cc&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_code</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">))</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">Artifact</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.cc.h&quot;</span><span class="p">,</span>

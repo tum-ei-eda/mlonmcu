@@ -110,9 +110,7 @@
     <span class="n">git</span><span class="o">.</span><span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="clone_sw_repo"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.clone_sw_repo">[docs]</a><span class="k">def</span> <span class="nf">clone_sw_repo</span><span class="p">(</span>
-    <span class="n">dest</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://github.com/tum-ei-eda/mlonmcu-sw.git&quot;</span>
-<span class="p">):</span>  <span class="c1"># TODO: how to get submodule url/ref?</span>
+<div class="viewcode-block" id="clone_sw_repo"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.clone_sw_repo">[docs]</a><span class="k">def</span> <span class="nf">clone_sw_repo</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://github.com/tum-ei-eda/mlonmcu-sw.git&quot;</span><span class="p">):</span>  <span class="c1"># TODO: how to get submodule url/ref?</span>
     <span class="n">git</span><span class="o">.</span><span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span></div>
 
 
@@ -138,9 +136,7 @@
     <span class="n">dirname</span> <span class="o">=</span> <span class="s2">&quot;.venv&quot;</span> <span class="k">if</span> <span class="n">hidden</span> <span class="k">else</span> <span class="s2">&quot;venv&quot;</span>
     <span class="n">venv_dir</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="n">dirname</span>
     <span class="n">venv</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">venv_dir</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Virtual environment was created in </span><span class="si">{</span><span class="n">venv_dir</span><span class="si">}</span><span class="s2">. Make sure to activate it before using mlonmcu.&quot;</span>
-    <span class="p">)</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Virtual environment was created in </span><span class="si">{</span><span class="n">venv_dir</span><span class="si">}</span><span class="s2">. Make sure to activate it before using mlonmcu.&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="initialize_environment"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.initialize_environment">[docs]</a><span class="k">def</span> <span class="nf">initialize_environment</span><span class="p">(</span>
@@ -190,8 +186,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The directory is not empty!&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; - &quot;</span><span class="p">)</span>
             <span class="c1"># TODO: check for mlonmcu project files, if yes ask for overwrite instead</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_exists</span> <span class="ow">or</span> <span class="p">(</span>
-                <span class="n">allow_exists</span> <span class="ow">is</span> <span class="kc">None</span>
-                <span class="ow">and</span> <span class="ow">not</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">&quot;Use anyway?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span>
+                <span class="n">allow_exists</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">&quot;Use anyway?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span>
             <span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Aborting...&quot;</span><span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -205,19 +200,13 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created directory.&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating environment.yml based on template &#39;</span><span class="si">{</span><span class="n">template</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
     <span class="c1"># TODO: create and maintain environments.yml in user directory?</span>
-    <span class="n">write_environment_yaml_from_template</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="s2">&quot;environment.yml&quot;</span><span class="p">),</span> <span class="n">template</span><span class="p">,</span> <span class="n">home_dir</span><span class="o">=</span><span class="n">target_dir</span>
-    <span class="p">)</span>
+    <span class="n">write_environment_yaml_from_template</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="s2">&quot;environment.yml&quot;</span><span class="p">),</span> <span class="n">template</span><span class="p">,</span> <span class="n">home_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">)</span>
 
     <span class="c1"># FIXME: controversial?</span>
     <span class="k">if</span> <span class="n">create_venv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">in_virtualenv</span><span class="p">():</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;It is strongly recommended to use mlonmcu inside a virtual Python environment.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">ask_user</span><span class="p">(</span>
-                <span class="s2">&quot;Create one automatically?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span>
-            <span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;It is strongly recommended to use mlonmcu inside a virtual Python environment.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">&quot;Create one automatically?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
                 <span class="c1"># TODO: create venv</span>
                 <span class="n">create_venv_directory</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -277,17 +266,13 @@
         <span class="n">env_names</span> <span class="o">=</span> <span class="n">get_environment_names</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">final_name</span> <span class="ow">in</span> <span class="n">env_names</span><span class="p">:</span>
             <span class="n">alternative_name</span> <span class="o">=</span> <span class="n">get_alternative_name</span><span class="p">(</span><span class="n">final_name</span><span class="p">,</span> <span class="n">env_names</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;An environment with the name &#39;</span><span class="si">{</span><span class="n">final_name</span><span class="si">}</span><span class="s2">&#39; already exists. Using &#39;</span><span class="si">{</span><span class="n">alternative_name</span><span class="si">}</span><span class="s2">&#39; instead&quot;</span>
-            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An environment with the name &#39;</span><span class="si">{</span><span class="n">final_name</span><span class="si">}</span><span class="s2">&#39; already exists. Using &#39;</span><span class="si">{</span><span class="n">alternative_name</span><span class="si">}</span><span class="s2">&#39; instead&quot;</span><span class="p">)</span>
             <span class="n">final_name</span> <span class="o">=</span> <span class="n">alternative_name</span>
         <span class="c1"># TODO: interactively ask the user</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Adding new environment to environments file.&quot;</span><span class="p">)</span>
         <span class="n">register_environment</span><span class="p">(</span><span class="n">final_name</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Finished. Please add `export MLONMCU_HOME=</span><span class="si">{</span><span class="n">target_dir</span><span class="si">}</span><span class="s2">` to your shell configuration to use it anywhere&quot;</span>
-    <span class="p">)</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Finished. Please add `export MLONMCU_HOME=</span><span class="si">{</span><span class="n">target_dir</span><span class="si">}</span><span class="s2">` to your shell configuration to use it anywhere&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

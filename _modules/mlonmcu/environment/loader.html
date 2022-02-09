@@ -176,25 +176,13 @@
                         <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">:</span>
                             <span class="k">for</span> <span class="n">key3</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
                                 <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">backend</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key3</span><span class="p">])</span>
-                                <span class="n">backend_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="n">BackendFeatureConfig</span><span class="p">(</span>
-                                        <span class="n">key3</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">key2</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span>
-                                    <span class="p">)</span>
-                                <span class="p">)</span>
-                        <span class="n">backends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">BackendConfig</span><span class="p">(</span>
-                                <span class="n">key2</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled2</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">backend_features</span>
-                            <span class="p">)</span>
-                        <span class="p">)</span>
+                                <span class="n">backend_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BackendFeatureConfig</span><span class="p">(</span><span class="n">key3</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">key2</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">))</span>
+                        <span class="n">backends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BackendConfig</span><span class="p">(</span><span class="n">key2</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled2</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">backend_features</span><span class="p">))</span>
                 <span class="n">framework_features</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">framework</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">framework</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
                         <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">framework</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key2</span><span class="p">])</span>
-                        <span class="n">framework_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">FrameworkFeatureConfig</span><span class="p">(</span>
-                                <span class="n">key2</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span>
-                            <span class="p">)</span>
-                        <span class="p">)</span>
+                        <span class="n">framework_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FrameworkFeatureConfig</span><span class="p">(</span><span class="n">key2</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">))</span>
                 <span class="n">frameworks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">FrameworkConfig</span><span class="p">(</span>
                         <span class="n">key</span><span class="p">,</span>
@@ -218,14 +206,8 @@
                 <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">frontend</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">frontend</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
                         <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">frontend</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key2</span><span class="p">])</span>
-                        <span class="n">frontend_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">FrontendFeatureConfig</span><span class="p">(</span>
-                                <span class="n">key2</span><span class="p">,</span> <span class="n">frontend</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span>
-                            <span class="p">)</span>
-                        <span class="p">)</span>
-                <span class="n">frontends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">FrontendConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">frontend_features</span><span class="p">)</span>
-                <span class="p">)</span>
+                        <span class="n">frontend_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FrontendFeatureConfig</span><span class="p">(</span><span class="n">key2</span><span class="p">,</span> <span class="n">frontend</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">))</span>
+                <span class="n">frontends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FrontendConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">frontend_features</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">frontends</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">default_target</span> <span class="o">=</span> <span class="kc">None</span>
@@ -242,12 +224,8 @@
                 <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">target</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
                         <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key2</span><span class="p">])</span>
-                        <span class="n">target_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="n">key2</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">)</span>
-                        <span class="p">)</span>
-                <span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">TargetConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">target_features</span><span class="p">)</span>
-                <span class="p">)</span>
+                        <span class="n">target_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="n">key2</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">))</span>
+                <span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TargetConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">target_features</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">targets</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="s2">&quot;vars&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>

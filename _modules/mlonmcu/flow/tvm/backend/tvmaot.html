@@ -227,17 +227,9 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span>
                     <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpacked_api</span> <span class="k">else</span> <span class="s2">&quot;packed&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">Artifact</span><span class="p">(</span>
-                        <span class="s2">&quot;aot_wrapper.c&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;aot_wrapper.c&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">))</span>
                 <span class="n">header_src</span> <span class="o">=</span> <span class="n">generate_wrapper_header</span><span class="p">()</span>
-                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">Artifact</span><span class="p">(</span>
-                        <span class="s2">&quot;tvm_wrapper.h&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">header_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;tvm_wrapper.h&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">header_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">))</span>
         <span class="c1"># assert self.target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div></div>
 

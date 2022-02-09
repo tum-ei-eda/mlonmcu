@@ -217,12 +217,8 @@
                 <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="s2">&quot;Please add a frontend before initializing the MLIF&quot;</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="s2">&quot;Please add a backend before initializing the MLIF&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Please add a frontend before initializing the MLIF&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Please add a backend before initializing the MLIF&quot;</span>
         <span class="n">mlif_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mlif</span> <span class="o">=</span> <span class="n">MLIF</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span>
@@ -240,32 +236,24 @@
         <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_frontend</span><span class="p">(</span>
             <span class="n">frontend_name</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The frontend &#39;</span><span class="si">{</span><span class="n">frontend_name</span><span class="si">}</span><span class="s2">&#39; is not enabled for this environment&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_frontend</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_FRONTENDS</span><span class="p">[</span><span class="n">frontend_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_frontend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_FRONTENDS</span><span class="p">[</span><span class="n">frontend_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Run.add_backend_by_name"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_backend_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">add_backend_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_backend</span><span class="p">(</span>
             <span class="n">backend_name</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The backend &#39;</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">&#39; is not enabled for this environment&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_backend</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_BACKENDS</span><span class="p">[</span><span class="n">backend_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_backend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_BACKENDS</span><span class="p">[</span><span class="n">backend_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">))</span>
         <span class="n">framework_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">framework</span>  <span class="c1"># TODO: does this work?</span>
         <span class="k">assert</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span>
             <span class="n">framework_name</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The framework &#39;</span><span class="si">{</span><span class="n">framework_name</span><span class="si">}</span><span class="s2">&#39; is not enabled for this environment&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_framework</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_FRAMEWORKS</span><span class="p">[</span><span class="n">framework_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_framework</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_FRAMEWORKS</span><span class="p">[</span><span class="n">framework_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Run.add_target_by_name"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_target_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">add_target_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span>
             <span class="n">target_name</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The target &#39;</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">&#39; is not enabled for this environment&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_target</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_TARGETS</span><span class="p">[</span><span class="n">target_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_target</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_TARGETS</span><span class="p">[</span><span class="n">target_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">))</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">export_optional</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -311,14 +299,10 @@
         <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
         <span class="c1"># TODO: Extract run metrics (cycles, runtime, memory usage,...)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># TODO: move to self.set_active(stage), self.set_done(stage), self.set_failed(stage)</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span>
-        <span class="p">)</span>  <span class="c1"># Alternative: allow to trigger previous stages recursively as a fallback</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span>  <span class="c1"># Alternative: allow to trigger previous stages recursively as a fallback</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="kc">None</span>  <span class="c1"># Artifact(f&quot;metrics.csv&quot;, data=df, fmt=ArtifactFormat.DATAFRAME)</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Artifact(f&quot;metrics.csv&quot;, data=df, fmt=ArtifactFormat.DATAFRAME)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
@@ -368,9 +352,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span>
-            <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span>
-        <span class="p">)</span>  <span class="c1"># Not required anymore?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>  <span class="c1"># Not required anymore?</span>
         <span class="n">model_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">model_artifact</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
             <span class="n">model_artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
@@ -480,9 +462,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                     <span class="n">run_stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Run failed at stage &#39;</span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&#39;, aborting...&quot;</span>
-                    <span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Run failed at stage &#39;</span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&#39;, aborting...&quot;</span><span class="p">)</span>
                     <span class="k">break</span>
             <span class="c1"># self.stage = stage  # FIXME: The stage_func should update the stage intead?</span>
         <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span>
@@ -501,11 +481,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;[session-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] [run-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] &quot;</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span>
-                <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;[run-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">]&quot;</span>
-            <span class="p">)</span>
+            <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[session-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] [run-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;[run-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="p">)</span>
@@ -527,13 +503,18 @@
             <span class="n">defaults</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">DEFAULTS</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">omit_defaults</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">defaults</span> <span class="ow">and</span> <span class="n">defaults</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
-                        <span class="n">omit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                    <span class="n">omit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">key</span> <span class="k">if</span> <span class="n">has_prefix</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">value</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">omit_list</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">omit_list</span>
             <span class="p">}</span>
             <span class="k">if</span> <span class="n">omit_paths</span><span class="p">:</span>
-                <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()))}</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">key</span><span class="p">:</span> <span class="n">value</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()))</span>
+                <span class="p">}</span>
             <span class="k">return</span> <span class="n">ret</span>
 
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>

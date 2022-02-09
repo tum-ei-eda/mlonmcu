@@ -127,11 +127,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not a directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
             <span class="k">return</span> <span class="p">[]</span>
-        <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">o</span>
-            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">o</span><span class="p">))</span>
-        <span class="p">]</span>
+        <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">o</span><span class="p">))]</span>
         <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
             <span class="n">dirname</span> <span class="o">=</span> <span class="n">subdir</span><span class="o">.</span><span class="n">name</span>
@@ -158,9 +154,7 @@
                     <span class="n">submodels</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">main_model</span><span class="p">)</span>
 
                     <span class="n">main_base</span> <span class="o">=</span> <span class="n">main_model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">main_metadata</span> <span class="o">=</span> <span class="n">find_metadata</span><span class="p">(</span>
-                        <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">main_base</span>
-                    <span class="p">)</span>
+                    <span class="n">main_metadata</span> <span class="o">=</span> <span class="n">find_metadata</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">main_base</span><span class="p">)</span>
 
                     <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Model</span><span class="p">(</span>
@@ -174,9 +168,7 @@
 
                 <span class="k">for</span> <span class="n">submodel</span> <span class="ow">in</span> <span class="n">submodels</span><span class="p">:</span>
                     <span class="n">sub_base</span> <span class="o">=</span> <span class="n">submodel</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">submodel_metadata</span> <span class="o">=</span> <span class="n">find_metadata</span><span class="p">(</span>
-                        <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">sub_base</span>
-                    <span class="p">)</span>
+                    <span class="n">submodel_metadata</span> <span class="o">=</span> <span class="n">find_metadata</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">sub_base</span><span class="p">)</span>
                     <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Model</span><span class="p">(</span>
                             <span class="n">submodel</span><span class="p">,</span>
@@ -206,9 +198,7 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">content</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yamlfile</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">groupname</span><span class="p">,</span> <span class="n">groupmodels</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
-                            <span class="n">groupmodels</span><span class="p">,</span> <span class="nb">list</span>
-                        <span class="p">),</span> <span class="s2">&quot;Modelgroups should be defined as a YAML list&quot;</span>
+                        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">groupmodels</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;Modelgroups should be defined as a YAML list&quot;</span>
                         <span class="n">modelgroup</span> <span class="o">=</span> <span class="n">ModelGroup</span><span class="p">(</span><span class="n">groupname</span><span class="p">,</span> <span class="n">groupmodels</span><span class="p">)</span>
                         <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modelgroup</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
@@ -315,16 +305,12 @@
 
     <span class="n">directories</span> <span class="o">=</span> <span class="n">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
-    <span class="n">models</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">duplicates</span><span class="p">,</span> <span class="n">group_duplicates</span> <span class="o">=</span> <span class="n">lookup_models_and_groups</span><span class="p">(</span>
-        <span class="n">directories</span><span class="p">,</span> <span class="n">formats</span>
-    <span class="p">)</span>
+    <span class="n">models</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">duplicates</span><span class="p">,</span> <span class="n">group_duplicates</span> <span class="o">=</span> <span class="n">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">formats</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Models Summary</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">print_paths</span><span class="p">(</span><span class="n">directories</span><span class="p">)</span>
     <span class="n">print_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="n">duplicates</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="n">detailed</span><span class="p">)</span>
-    <span class="n">print_groups</span><span class="p">(</span>
-        <span class="n">groups</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="n">group_duplicates</span><span class="p">,</span> <span class="n">all_models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="n">detailed</span>
-    <span class="p">)</span></div>
+    <span class="n">print_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="n">group_duplicates</span><span class="p">,</span> <span class="n">all_models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="n">detailed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="unpack_modelgroups"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.unpack_modelgroups">[docs]</a><span class="k">def</span> <span class="nf">unpack_modelgroups</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
@@ -346,12 +332,8 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="c1"># frontends = ?</span>
     <span class="c1"># allowed_ext = [frontend.fmt.extension for frontend in frontends]</span>
-    <span class="n">allowed_fmts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">frontend</span><span class="o">.</span><span class="n">input_formats</span> <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="n">frontends</span><span class="p">],</span> <span class="p">[]))</span>
-    <span class="p">)</span>  <span class="c1"># Remove duplicates</span>
-    <span class="n">allowed_exts</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">fmt</span><span class="o">.</span><span class="n">extension</span> <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">allowed_fmts</span>
-    <span class="p">]</span>  <span class="c1"># There should nit be duplicates</span>
+    <span class="n">allowed_fmts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">frontend</span><span class="o">.</span><span class="n">input_formats</span> <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="n">frontends</span><span class="p">],</span> <span class="p">[])))</span>  <span class="c1"># Remove duplicates</span>
+    <span class="n">allowed_exts</span> <span class="o">=</span> <span class="p">[</span><span class="n">fmt</span><span class="o">.</span><span class="n">extension</span> <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">allowed_fmts</span><span class="p">]</span>  <span class="c1"># There should nit be duplicates</span>
 
     <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">directories</span> <span class="o">=</span> <span class="n">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
@@ -376,9 +358,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Context is required for passing models by name&quot;</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;List of available models is empty&quot;</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">name</span> <span class="ow">in</span> <span class="n">model_names</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Could not find a model or group matching the name: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">model_names</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Could not find a model or group matching the name: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">model_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">hint</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
             <span class="n">hints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
@@ -395,14 +375,10 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ins</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="c1"># TODO: instead of picking the first frontend which at least one match, determine the highest overlap</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">in_fmt</span> <span class="ow">in</span> <span class="n">model_fmts</span> <span class="k">for</span> <span class="n">in_fmt</span> <span class="ow">in</span> <span class="n">ins</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">backend_fmts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
-                <span class="n">out_fmt</span> <span class="ow">in</span> <span class="n">backend_fmts</span> <span class="k">for</span> <span class="n">out_fmt</span> <span class="ow">in</span> <span class="n">outs</span>
-            <span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">backend_fmts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">out_fmt</span> <span class="ow">in</span> <span class="n">backend_fmts</span> <span class="k">for</span> <span class="n">out_fmt</span> <span class="ow">in</span> <span class="n">outs</span><span class="p">):</span>
                 <span class="n">new_model</span> <span class="o">=</span> <span class="n">model</span>  <span class="c1"># TODO: deepcopy?</span>
                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model_fmts</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="p">(</span>
-                        <span class="n">fmt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ins</span>
-                    <span class="p">):</span>  <span class="c1"># Only keep those formqts which are supported by the chosen frontend</span>
+                    <span class="k">if</span> <span class="n">fmt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ins</span><span class="p">:</span>  <span class="c1"># Only keep those formqts which are supported by the chosen frontend</span>
                         <span class="n">path</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="n">model_fmts</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">fmt</span><span class="p">)]</span>
                         <span class="n">new_model</span><span class="o">.</span><span class="n">formats</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
                         <span class="n">new_model</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>

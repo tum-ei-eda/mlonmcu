@@ -90,17 +90,13 @@
 
 
 <div class="viewcode-block" id="get_template_names"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.templates.get_template_names">[docs]</a><span class="k">def</span> <span class="nf">get_template_names</span><span class="p">():</span>
-    <span class="n">template_files</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span>
-        <span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;templates&quot;</span><span class="p">)</span>
-    <span class="p">)</span>
+    <span class="n">template_files</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;templates&quot;</span><span class="p">))</span>
     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.yml.j2&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">template_files</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">names</span></div>
 
 
 <div class="viewcode-block" id="get_template_text"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.templates.get_template_text">[docs]</a><span class="k">def</span> <span class="nf">get_template_text</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span>
-        <span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;templates&quot;</span><span class="p">,</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.yml.j2&quot;</span><span class="p">)</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;templates&quot;</span><span class="p">,</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.yml.j2&quot;</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="fill_template"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.templates.fill_template">[docs]</a><span class="k">def</span> <span class="nf">fill_template</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{}):</span>
@@ -114,9 +110,7 @@
 
 
 <div class="viewcode-block" id="fill_environment_yaml"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.templates.fill_environment_yaml">[docs]</a><span class="k">def</span> <span class="nf">fill_environment_yaml</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">home_dir</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">fill_template</span><span class="p">(</span>
-        <span class="n">template_name</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;home_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">home_dir</span><span class="p">),</span> <span class="s2">&quot;config_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_config_dir</span><span class="p">())}</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">fill_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;home_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">home_dir</span><span class="p">),</span> <span class="s2">&quot;config_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_config_dir</span><span class="p">())})</span></div>
 
 
 <div class="viewcode-block" id="write_environment_yaml_from_template"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.templates.write_environment_yaml_from_template">[docs]</a><span class="k">def</span> <span class="nf">write_environment_yaml_from_template</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">template_name</span><span class="p">,</span> <span class="n">home_dir</span><span class="p">):</span>

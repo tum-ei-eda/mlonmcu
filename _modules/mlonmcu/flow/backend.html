@@ -108,9 +108,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="o">=</span> <span class="n">framework</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">filter_config</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">filter_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span> <span class="o">=</span> <span class="kc">None</span>
@@ -125,9 +123,7 @@
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">get_matching_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FEATURES</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Incompatible feature: </span><span class="si">{</span><span class="n">feature</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">assert</span> <span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Incompatible feature: </span><span class="si">{</span><span class="n">feature</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">feature</span><span class="o">.</span><span class="n">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">features</span></div>
 
@@ -156,9 +152,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="Backend.export_code"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.Backend.export_code">[docs]</a>    <span class="k">def</span> <span class="nf">export_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="p">),</span> <span class="s2">&quot;No artifacts found, please run generate_code() first&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;No artifacts found, please run generate_code() first&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -177,9 +171,7 @@
                 <span class="c1">#     logger.info(f&quot;Exporting artifact: {artifact.name}&quot;)</span>
                 <span class="c1">#     outfile.write(artifact.content)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
-            <span class="p">),</span> <span class="s2">&quot;The parent directory does not exist. Make sure to create if beforehand.&quot;</span>
+            <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="s2">&quot;The parent directory does not exist. Make sure to create if beforehand.&quot;</span>
             <span class="c1"># Warning: the first artifact is considered as main</span>
             <span class="c1"># We need to ensure that all further artifacts share the same prefix</span>
             <span class="n">main_prefix</span> <span class="o">=</span> <span class="kc">None</span>
@@ -212,9 +204,7 @@
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawTextHelpFormatter</span><span class="p">,</span>
         <span class="c1"># epilog=&quot;&quot;&quot;Use environment variables to overwrite default paths:&quot;&quot;&quot;,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;MODEL&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Model to process&quot;</span>
-    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;MODEL&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Model to process&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
@@ -256,10 +246,7 @@
 <span class="s2">Allowed options:</span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;- [</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">].</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> (Default: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="p">]</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;- [</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">].</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> (Default: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
             <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> (required)&quot;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required</span><span class="p">]</span>
         <span class="p">),</span>
     <span class="p">)</span>
@@ -269,9 +256,7 @@
 <div class="viewcode-block" id="init_backend_features"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.init_backend_features">[docs]</a><span class="k">def</span> <span class="nf">init_backend_features</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
     <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-        <span class="n">feature_classes</span> <span class="o">=</span> <span class="n">get_supported_features</span><span class="p">(</span>
-            <span class="n">feature_type</span><span class="o">=</span><span class="n">FeatureType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">,</span> <span class="n">feature_name</span><span class="o">=</span><span class="n">name</span>
-        <span class="p">)</span>
+        <span class="n">feature_classes</span> <span class="o">=</span> <span class="n">get_supported_features</span><span class="p">(</span><span class="n">feature_type</span><span class="o">=</span><span class="n">FeatureType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">,</span> <span class="n">feature_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">feature_class</span> <span class="ow">in</span> <span class="n">feature_classes</span><span class="p">:</span>
             <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_class</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">features</span></div>

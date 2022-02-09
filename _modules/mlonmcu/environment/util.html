@@ -83,11 +83,7 @@
 
 <div class="viewcode-block" id="get_base_prefix_compat"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.util.get_base_prefix_compat">[docs]</a><span class="k">def</span> <span class="nf">get_base_prefix_compat</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Get base/real prefix, or sys.prefix if there is none.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;base_prefix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;real_prefix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="ow">or</span> <span class="n">sys</span><span class="o">.</span><span class="n">prefix</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;base_prefix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;real_prefix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sys</span><span class="o">.</span><span class="n">prefix</span></div>
 
 
 <div class="viewcode-block" id="in_virtualenv"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.util.in_virtualenv">[docs]</a><span class="k">def</span> <span class="nf">in_virtualenv</span><span class="p">():</span>

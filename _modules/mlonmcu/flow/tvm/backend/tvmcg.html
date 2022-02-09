@@ -100,9 +100,7 @@
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">][</span><span class="s2">&quot;operator_functions&quot;</span><span class="p">]:</span>
             <span class="n">max_workspace</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
                 <span class="n">max_workspace</span><span class="p">,</span>
-                <span class="n">op</span><span class="p">[</span><span class="s2">&quot;workspace&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;workspace_size_bytes&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;workspace&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
-                <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="n">op</span><span class="p">[</span><span class="s2">&quot;workspace&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;workspace_size_bytes&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;workspace&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">max_workspace</span></div>
 
@@ -122,25 +120,17 @@
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;metadata.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                         <span class="n">metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
                     <span class="n">tvmcg_exe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">]</span>
-                    <span class="n">graph_json_file</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;executor-config&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph.json&quot;</span>
-                    <span class="p">)</span>
+                    <span class="n">graph_json_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;executor-config&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph.json&quot;</span>
                     <span class="n">params_bin_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;parameters&quot;</span> <span class="o">/</span> <span class="s2">&quot;default.params&quot;</span>
-                    <span class="n">max_workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_workspace_size_from_metadata</span><span class="p">(</span>
-                        <span class="n">metadata</span>
-                    <span class="p">)</span>
+                    <span class="n">max_workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_workspace_size_from_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
                     <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">graph_json_file</span><span class="p">)</span>
                     <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">params_bin_file</span><span class="p">)</span>
                     <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_file</span><span class="p">)</span>
                     <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">max_workspace_size</span><span class="p">))</span>
-                    <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
-                        <span class="n">tvmcg_exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span>
-                    <span class="p">)</span>
+                    <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="n">tvmcg_exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                     <span class="n">codegen_src</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-                    <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
-                        <span class="s2">&quot;staticrt.c&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">codegen_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span>
-                    <span class="p">)</span>
+                    <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;staticrt.c&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">codegen_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">)</span>
                 <span class="k">break</span>
         <span class="k">assert</span> <span class="n">artifact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to find MLF artifact&quot;</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>

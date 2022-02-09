@@ -97,11 +97,12 @@
 
     <span class="n">NOP</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">LOAD</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># unimplemented</span>
-    <span class="n">BUILD</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">COMPILE</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">RUN</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">POSTPROCESS</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="n">DONE</span> <span class="o">=</span> <span class="mi">6</span></div>
+    <span class="n">TUNE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">BUILD</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">COMPILE</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">RUN</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">POSTPROCESS</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">DONE</span> <span class="o">=</span> <span class="mi">7</span></div>
 
 
 <div class="viewcode-block" id="Run"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run">[docs]</a><span class="k">class</span> <span class="nc">Run</span><span class="p">:</span>
@@ -365,6 +366,36 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage BUILD&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span>
+            <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span>
+        <span class="p">)</span>  <span class="c1"># Not required anymore?</span>
+        <span class="n">model_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">model_artifact</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
+            <span class="n">model_artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
+        <span class="c1"># if len(self.artifacts_per_stage[RunStage.TUNE]) &gt; 0:</span>
+        <span class="c1">#     assert self.backend.tuner is not None</span>
+        <span class="c1">#     tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]</span>
+        <span class="c1">#     if not tuning_artifact.exported:</span>
+        <span class="c1">#         tuning_artifact.export(self.dir)</span>
+        <span class="c1">#     self.backend.add_tuning_results(tuning_artifact.path)</span>
+
+        <span class="c1"># TODO: allow raw data as well as filepath in backends</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">generate_code</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">artifacts</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Run.tune"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.tune">[docs]</a>    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tune the run using the choosen backend (if supported).&quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage TUNE&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
@@ -374,10 +405,13 @@
 
         <span class="c1"># TODO: allow raw data as well as filepath in backends</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">generate_code</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">artifacts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tune_model</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tuner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tuner</span><span class="o">.</span><span class="n">get_results</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Run.load"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -430,6 +464,7 @@
             <span class="n">stage_funcs</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span><span class="p">:</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># stage already done as self.stage shows</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+                <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tune</span><span class="p">,</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">,</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">,</span>

@@ -229,6 +229,9 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.run" title="mlonmcu.session.run.Run.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([context])</p></td>
 <td><p>Run the 'run' using the defined target.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.tune" title="mlonmcu.session.run.Run.tune"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tune</span></code></a>([context])</p></td>
+<td><p>Tune the run using the choosen backend (if supported).</p></td>
+</tr>
 </tbody>
 </table>
 <table class="docutils align-default">
@@ -434,6 +437,12 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.tune">
+<span class="sig-name descname"><span class="pre">tune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.tune"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.tune" title="Permalink to this definition"></a></dt>
+<dd><p>Tune the run using the choosen backend (if supported).</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.write_run_file">
 <span class="sig-name descname"><span class="pre">write_run_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.write_run_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.write_run_file" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -447,17 +456,17 @@
 <p>Type describing the stages a run can have.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.RunStage.BUILD">
-<span class="sig-name descname"><span class="pre">BUILD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.BUILD" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">BUILD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.BUILD" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.RunStage.COMPILE">
-<span class="sig-name descname"><span class="pre">COMPILE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.COMPILE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">COMPILE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.COMPILE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.RunStage.DONE">
-<span class="sig-name descname"><span class="pre">DONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.DONE" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.DONE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -472,12 +481,17 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.RunStage.POSTPROCESS">
-<span class="sig-name descname"><span class="pre">POSTPROCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.POSTPROCESS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">POSTPROCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.POSTPROCESS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.RunStage.RUN">
-<span class="sig-name descname"><span class="pre">RUN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.RUN" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">RUN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.RUN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.session.run.RunStage.TUNE">
+<span class="sig-name descname"><span class="pre">TUNE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#mlonmcu.session.run.RunStage.TUNE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

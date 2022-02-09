@@ -113,10 +113,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
+<dt><strong>has_tuner</strong></dt><dd></dd>
 <dt><strong>name</strong></dt><dd></dd>
 <dt><strong>opt_level</strong></dt><dd></dd>
 <dt><strong>pass_config</strong></dt><dd></dd>
 <dt><strong>target_device</strong></dt><dd></dd>
+<dt><strong>use_tuning_results</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -133,53 +135,53 @@
 <tr class="row-even"><td><p><strong>export_code</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>generate_code</strong></p></td>
+<tr class="row-odd"><td><p><strong>export_tuning_results</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_cmake_args</strong></p></td>
+<tr class="row-even"><td><p><strong>generate_code</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_common_tvmc_args</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_disabled_pass_tvmc_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_common_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_fuse_max_depth</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_disabled_pass_tvmc_args</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>get_input_shapes_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_opt_level</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_tvmc_compile_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_target</strong></p></td>
+<tr class="row-odd"><td><p><strong>invoke_tvmc</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_target_device</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_target_str</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>invoke_tvmc</strong></p></td>
+<tr class="row-even"><td><p><strong>invoke_tvmc_compile</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>load_model</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<tr class="row-even"><td><p><strong>prepare_python_environment</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>tune_model</strong></p></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -194,7 +196,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_common_tvmc_args">
-<span class="sig-name descname"><span class="pre">get_common_tvmc_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mlf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runtime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'crt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_common_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_common_tvmc_args" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_common_tvmc_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_common_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_common_tvmc_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -203,18 +205,8 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_fuse_max_depth">
-<span class="sig-name descname"><span class="pre">get_fuse_max_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_fuse_max_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_fuse_max_depth" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_input_shapes_tvmc_args">
 <span class="sig-name descname"><span class="pre">get_input_shapes_tvmc_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_input_shapes_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_input_shapes_tvmc_args" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_opt_level">
-<span class="sig-name descname"><span class="pre">get_opt_level</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_opt_level"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_opt_level" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -223,23 +215,18 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target">
-<span class="sig-name descname"><span class="pre">get_target</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target_device">
-<span class="sig-name descname"><span class="pre">get_target_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_target_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target_device" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target_str">
-<span class="sig-name descname"><span class="pre">get_target_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_target_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target_str" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tvmc_compile_args">
+<span class="sig-name descname"><span class="pre">get_tvmc_compile_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mlf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runtime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'crt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_tvmc_compile_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tvmc_compile_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc">
-<span class="sig-name descname"><span class="pre">invoke_tvmc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'compile'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.invoke_tvmc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">invoke_tvmc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.invoke_tvmc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc_compile">
+<span class="sig-name descname"><span class="pre">invoke_tvmc_compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.invoke_tvmc_compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc_compile" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -262,6 +249,11 @@
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pass_config</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.pass_config" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.prepare_python_environment">
+<span class="sig-name descname"><span class="pre">prepare_python_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.prepare_python_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.prepare_python_environment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.registry">
 <span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.registry" title="Permalink to this definition"></a></dt>
@@ -270,6 +262,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.target_device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_device</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.target_device" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.use_tuning_results">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_tuning_results</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.use_tuning_results" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -286,10 +283,12 @@
 <dd class="field-odd"><dl class="simple">
 <dt><strong>alignment_bytes</strong></dt><dd></dd>
 <dt><strong>arena_size</strong></dt><dd></dd>
+<dt><strong>has_tuner</strong></dt><dd></dd>
 <dt><strong>opt_level</strong></dt><dd></dd>
 <dt><strong>pass_config</strong></dt><dd></dd>
 <dt><strong>target_device</strong></dt><dd></dd>
 <dt><strong>unpacked_api</strong></dt><dd></dd>
+<dt><strong>use_tuning_results</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -306,40 +305,28 @@
 <tr class="row-even"><td><p><strong>export_code</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>generate_code</strong></p></td>
+<tr class="row-odd"><td><p><strong>export_tuning_results</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_cmake_args</strong></p></td>
+<tr class="row-even"><td><p><strong>generate_code</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_common_tvmc_args</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_disabled_pass_tvmc_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_common_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_fuse_max_depth</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_disabled_pass_tvmc_args</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>get_input_shapes_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_opt_level</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_target</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_target_device</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_target_str</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_tvmc_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_tvmc_compile_args</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>get_workspace_size_from_metadata</strong></p></td>
@@ -348,22 +335,31 @@
 <tr class="row-even"><td><p><strong>invoke_tvmc</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>load_model</strong></p></td>
+<tr class="row-odd"><td><p><strong>invoke_tvmc_compile</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>load_model</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>prepare_python_environment</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>tune_model</strong></p></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'alignment_bytes':</span> <span class="pre">4,</span> <span class="pre">'arena_size':</span> <span class="pre">None,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'unpacked_api':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'alignment_bytes':</span> <span class="pre">4,</span> <span class="pre">'arena_size':</span> <span class="pre">None,</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'unpacked_api':</span> <span class="pre">False,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug_arena',</span> <span class="pre">'unpacked_api',</span> <span class="pre">'usmp']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'debug_arena',</span> <span class="pre">'unpacked_api',</span> <span class="pre">'usmp']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -382,8 +378,8 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_tvmc_args">
-<span class="sig-name descname"><span class="pre">get_tvmc_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmaot.html#TVMAOTBackend.get_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_tvmc_args" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_tvmc_compile_args">
+<span class="sig-name descname"><span class="pre">get_tvmc_compile_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmaot.html#TVMAOTBackend.get_tvmc_compile_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_tvmc_compile_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -414,9 +410,11 @@
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>arena_size</strong></dt><dd></dd>
+<dt><strong>has_tuner</strong></dt><dd></dd>
 <dt><strong>opt_level</strong></dt><dd></dd>
 <dt><strong>pass_config</strong></dt><dd></dd>
 <dt><strong>target_device</strong></dt><dd></dd>
+<dt><strong>use_tuning_results</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -433,19 +431,19 @@
 <tr class="row-even"><td><p><strong>export_code</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>generate_code</strong></p></td>
+<tr class="row-odd"><td><p><strong>export_tuning_results</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_cmake_args</strong></p></td>
+<tr class="row-even"><td><p><strong>generate_code</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_common_tvmc_args</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_disabled_pass_tvmc_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_common_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_fuse_max_depth</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_disabled_pass_tvmc_args</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>get_graph_and_params_from_mlf</strong></p></td>
@@ -457,31 +455,31 @@
 <tr class="row-even"><td><p><strong>get_max_workspace_size_from_metadata</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_opt_level</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_target</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_target_device</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_target_str</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>get_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>invoke_tvmc</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_tvmc_compile_args</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>invoke_tvmc</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>invoke_tvmc_compile</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>load_model</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<tr class="row-odd"><td><p><strong>prepare_python_environment</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>tune_model</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -519,9 +517,11 @@
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>arena_size</strong></dt><dd></dd>
+<dt><strong>has_tuner</strong></dt><dd></dd>
 <dt><strong>opt_level</strong></dt><dd></dd>
 <dt><strong>pass_config</strong></dt><dd></dd>
 <dt><strong>target_device</strong></dt><dd></dd>
+<dt><strong>use_tuning_results</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -538,19 +538,19 @@
 <tr class="row-even"><td><p><strong>export_code</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>generate_code</strong></p></td>
+<tr class="row-odd"><td><p><strong>export_tuning_results</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_cmake_args</strong></p></td>
+<tr class="row-even"><td><p><strong>generate_code</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_common_tvmc_args</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_disabled_pass_tvmc_args</strong></p></td>
+<tr class="row-even"><td><p><strong>get_common_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>get_fuse_max_depth</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_disabled_pass_tvmc_args</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>get_graph_and_params_from_mlf</strong></p></td>
@@ -559,43 +559,43 @@
 <tr class="row-odd"><td><p><strong>get_input_shapes_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_opt_level</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_target</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_target_device</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_target_str</strong></p></td>
+<tr class="row-even"><td><p><strong>get_pass_config_tvmc_args</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>get_tvmc_args</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>invoke_tvmc</strong></p></td>
+<tr class="row-even"><td><p><strong>get_tvmc_compile_args</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>invoke_tvmc</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>invoke_tvmc_compile</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>load_model</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>process_features</strong></p></td>
+<tr class="row-even"><td><p><strong>prepare_python_environment</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>tune_model</strong></p></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arena_size':</span> <span class="pre">1048576,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arena_size':</span> <span class="pre">1048576,</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug_arena']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'debug_arena']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

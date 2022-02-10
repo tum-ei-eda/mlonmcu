@@ -11,7 +11,7 @@ class TFLiteFramework(Framework):
 
     name = "tflite"
 
-    FEATURES = ["muriscvnn"]
+    FEATURES = ["muriscvnn", "cmsisnn"]
 
     DEFAULTS = {
         "optimized_kernel": None,

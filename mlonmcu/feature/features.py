@@ -139,6 +139,77 @@ class Muriscvnn(SetupFeature, FrameworkFeature):
         ret["tflmc.exe"] = ["muriscvnn"]
         return ret
 
+@register_feature("cmsisnn")
+class Cmsisnn(SetupFeature, FrameworkFeature):
+    """CMSIS-NN kernels for TFLite Micro/TVM"""
+
+    REQUIRED = ["cmsisnn.lib", "cmsisnn.dir"]
+
+    def __init__(self, config=None):
+        super().__init__("cmsisnn", config=config)
+
+    @property
+    def cmsisnn_lib(self):
+        return str(self.config["cmsisnn.lib"])
+
+    @property
+    def cmsisnn_dir(self):
+        return str(self.config["cmsisnn.dir"])
+
+    def get_framework_config(self, framework):
+        assert framework == "tflite", f"Unsupported feature '{self.name}' for framework '{framework}'"
+        return {
+            f"{framework}.optimized_kernel": "cmsis_nn",
+            f"{framework}.optimized_kernel_lib": self.cmsisnn_lib,
+            f"{framework}.optimized_kernel_inc_dir": self.cmsisnn_dir,
+        }
+
+    def get_required_cache_flags(self):
+        ret = {}
+        ret["tflmc.exe"] = ["cmsisnn"]
+        return ret
+
+@register_feature("cmsisnnbyoc")
+class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
+    """CMSIS-NN kernels for TVM using BYOC wrappers."""
+
+    REQUIRED = ["cmsisnn.lib", "cmsisnn.dir"]
+
+    def __init__(self, config=None):
+        super().__init__("cmsisnnbyoc", config=config)
+
+    @property
+    def cmsisnn_lib(self):
+        return str(self.config["cmsisnn.lib"])
+
+    @property
+    def cmsisnn_dir(self):
+        return str(self.config["cmsisnn.dir"])
+
+    def get_framework_config(self, framework):
+        assert framework == "tvm", f"Unsupported feature '{self.name}' for framework '{framework}'"
+        include_dirs = [
+            self.cmsisnn_dir,
+            str(Path(self.cmsisnn_dir) / "CMSIS" / "Core" / "Include"),
+            str(Path(self.cmsisnn_dir) / "CMSIS" / "NN" / "Include"),
+            str(Path(self.cmsisnn_dir) / "CMSIS" / "DSP" / "Include"),
+        ]
+        return {
+            f"{framework}.extra_libs": [self.cmsisnn_lib],
+            f"{framework}.extra_incs": include_dirs,
+        }
+
+    def get_backend_config(self, backend):
+        assert backend in ["tvmaot", "tvmrt", "tvmcg"], f"Unsupported feature '{self.name}' for backend '{backend}'"
+        return {
+            f"{backend}.extra_kernel": "cmsis-nn",
+        }
+
+    def get_required_cache_flags(self):
+        ret = {}
+        ret["tvm.build_dir"] = ["cmsisnn"]
+        return ret
+
 
 # @before_feature("muriscvnn")  # TODO: implment something like this
 @register_feature("vext")

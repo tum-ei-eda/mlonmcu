@@ -13,12 +13,13 @@ class TVMBackend(Backend):
 
     name = None
 
-    FEATURES = ["autotune", "autotuned"]
+    FEATURES = ["autotune", "autotuned", "cmsisnnbyoc"]
 
     DEFAULTS = {
         "print_outputs": False,
         "opt_level": 3,
         "target_device": None,
+        "extra_target": None,
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
         "use_tuning_results": False,
@@ -75,6 +76,10 @@ class TVMBackend(Backend):
         return self.config["target_device"]
 
     @property
+    def extra_target(self):
+        return self.config["extra_target"]
+
+    @property
     def opt_level(self):
         return self.config["opt_level"]
 
@@ -101,6 +106,9 @@ class TVMBackend(Backend):
         return ["--input-shapes", arg]
 
     def get_common_tvmc_args(self, target="c"):
+        if self.extra_target:
+            # TODO: support multiple ones, currently only single one...
+            target = ",".join([self.extra_target, target])
         return [
             str(self.model),
             "--target",

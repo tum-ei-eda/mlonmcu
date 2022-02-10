@@ -28,19 +28,30 @@ class HostX86Target(Target):
         self.gdb_path = "gdb"
         self.gdb_server_path = "gdbserver"
 
-    def exec(self, program, *args, **kwargs):
-        if "attach" in self.features and "noattach" not in self.features:
-            return execute(self.gdb_path, program, *args, **kwargs)
-        if "noattach" in self.features:
-            port = int(self.config["gdbserver_port"])
-            comm = f"host:{port}"
-            return execute(self.gdb_server_path, comm, program, *args, **kwargs)
+    def gdbserver_enable(self):
+        return bool(self.config["gdbserver_enable"])
 
+    def gdbserver_attach(self):
+        return bool(self.config["gdbserver_attach"])
+
+    def gdbserver_port(self):
+        return int(self.config["gdbserver_port"])
+
+    def exec(self, program, *args, **kwargs):
         def make_executable(exe):
             f = Path(exe)
             f.chmod(f.stat().st_mode | stat.S_IEXEC)
 
         make_executable(program)
+        # if "attach" in self.features and "noattach" not in self.features:
+        if self.gdbserver_enable:
+            if self.gdbserver_attach:
+                raise NotImplementedError
+                # return execute(self.gdb_path, program, *args, **kwargs)
+            else:
+                comm = f"127.0.0.1:{self.gdbserver_port}"
+                return execute(self.gdb_server_path, comm, program, *args, **kwargs)
+
         return execute(program, *args, **kwargs)
 
 

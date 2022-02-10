@@ -218,7 +218,10 @@ class TVMTuner:
             if self.use_rpc:
                 self.shutdown_rpc()
         else:
-            assert self.results_file is not None and Path(self.results_file).is_file()
+            if self.results_file is None:
+                self.artifact = None
+                return
+            assert Path(self.results_file).is_file()
             with open(self.results_file, "r") as handle:
                 content = handle.read()
 

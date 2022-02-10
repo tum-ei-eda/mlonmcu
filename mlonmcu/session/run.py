@@ -313,7 +313,11 @@ class Run:
         self.backend.load_model(model=model_artifact.path)
         self.backend.tune_model()
         if self.backend.tuner is not None:
-            self.artifacts_per_stage[RunStage.TUNE] = [self.backend.tuner.get_results()]
+            res = self.backend.tuner.get_results()
+            if res:
+                self.artifacts_per_stage[RunStage.TUNE] = [res]
+            else:
+                self.artifacts_per_stage[RunStage.TUNE] = []
         else:
             self.artifacts_per_stage[RunStage.TUNE] = []
 

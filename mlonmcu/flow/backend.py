@@ -65,7 +65,8 @@ class Backend(ABC):
 
     def tune_model(self):
         if not self.has_tuner:
-            raise NotImplementedError("Backend does not support autotuning")
+            return
+            # raise NotImplementedError("Backend does not support autotuning")
         self.tuner.tune()
 
     def set_tuning_records(self, filepath):

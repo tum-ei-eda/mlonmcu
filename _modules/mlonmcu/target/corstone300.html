@@ -100,15 +100,21 @@
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ethosu&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;cortex-m55&quot;</span><span class="p">,</span>  <span class="c1"># Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz), Warning: FVP is still M55 based!</span>
         <span class="s2">&quot;timeout_sec&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># disabled</span>
         <span class="s2">&quot;enable_ethosu&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;ethosu_num_macs&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
         <span class="s2">&quot;extra_args&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;corstone300.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">,</span> <span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">]</span>  <span class="c1"># Actually cmsisnn.dir points to the root CMSIS_5 directory</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;corstone300.exe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">,</span>
+    <span class="p">]</span>  <span class="c1"># Actually cmsisnn.dir points to the root CMSIS_5 directory</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enable_ethosu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_ethosu&quot;</span><span class="p">])</span>
@@ -149,7 +155,7 @@
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
             <span class="s2">&quot;mps3_board.uart0.unbuffered_output=1&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mps3_board.uart0.shutdown_tag=</span><span class="se">\&quot;</span><span class="s2">EXITTHESIM</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;mps3_board.uart0.shutdown_tag=&quot;EXITTHESIM&quot;&#39;</span><span class="p">,</span>
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
             <span class="s2">&quot;cpu0.CFGDTCMSZ=15&quot;</span><span class="p">,</span>  <span class="c1"># ?</span>
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
@@ -161,7 +167,7 @@
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;ethosu.num_macs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ethosu_num_macs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;ethosu.extra_args=</span><span class="se">\&quot;</span><span class="s2">--fast</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;ethosu.extra_args=&quot;--fast&quot;&#39;</span><span class="p">,</span>
         <span class="p">]</span></div>
 
 <div class="viewcode-block" id="Corstone300Target.exec"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

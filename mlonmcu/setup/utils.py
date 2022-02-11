@@ -244,7 +244,7 @@ def extract(archive, dest):
     if ext == "zip":
         with zipfile.ZipFile(archive) as zip_file:
             zip_file.extractall(dest)
-    elif ext in ["tar", "gz", "xz"]:
+    elif ext in ["tar", "gz", "xz", "tgz", "bz2"]:
         with tarfile.open(archive) as tar_file:
             tar_file.extractall(dest)
     else:

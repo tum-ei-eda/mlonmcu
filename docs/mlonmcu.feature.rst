@@ -20,6 +20,14 @@ mlonmcu.feature.features module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.feature.type module
+---------------------------
+
+.. automodule:: mlonmcu.feature.type
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

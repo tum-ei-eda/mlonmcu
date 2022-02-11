@@ -8,47 +8,46 @@ mlonmcu.setup.cache module
 --------------------------
 
 .. automodule:: mlonmcu.setup.cache
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-mlonmcu.setup.install module
-----------------------------
+mlonmcu.setup.setup module
+--------------------------
 
-.. automodule:: mlonmcu.setup.install
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: mlonmcu.setup.setup
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 mlonmcu.setup.task module
 -------------------------
 
 .. automodule:: mlonmcu.setup.task
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 mlonmcu.setup.tasks module
 --------------------------
 
 .. automodule:: mlonmcu.setup.tasks
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 mlonmcu.setup.utils module
 --------------------------
 
 .. automodule:: mlonmcu.setup.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: mlonmcu.setup
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

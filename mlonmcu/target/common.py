@@ -23,9 +23,10 @@ def execute(
     **kwargs,
 ) -> str:
     """Wrapper for running a program in a subprocess.
+
     Parameters
     ----------
-    args
+    args : list
         The actual command.
     ignore_output : bool
         Do not get the stdout and stderr or the subprocess.
@@ -35,8 +36,9 @@ def execute(
         Function which should be used to print sysout messages.
     err_func : Callable
         Function which should be used to print errors.
-    kwargs:
+    kwargs: dict
         Arbitrary keyword arguments passed through to the subprocess.
+
     Returns
     -------
     out : str

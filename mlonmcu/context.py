@@ -23,13 +23,13 @@ def lookup_environment() -> Environment:
 
     This function is used if neither a name nor a path of the environment was specified by the user.
     The lookup follows a predefined order:
-      - Check current working directory
-      - Check MLONMCU_HOME environment variable
-      - Default environment for current user
+    - Check current working directory
+    - Check MLONMCU_HOME environment variable
+    - Default environment for current user
 
     Returns
     -------
-    environment
+    environment : Path
         The environment (if the lookup was successful).
     """
     logger.debug("Starting lookup for mlonmcu environment")
@@ -185,7 +185,7 @@ def resolve_environment_file(name: str = None, path: str = None) -> Path:
 
     Returns
     -------
-    Path:
+    Path :
         Path to the found environment.yml (if sucessful)
     """
     if name and path:

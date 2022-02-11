@@ -38,8 +38,8 @@ def resolve_required_config(required_keys, features=None, config=None, cache=Non
     """Utility which iterates over a set of given config keys and
     resolves their values using the passed config and/or cache.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     required_keys : List[str]
 
     features : List[Feature]
@@ -51,6 +51,7 @@ def resolve_required_config(required_keys, features=None, config=None, cache=Non
 
     Returns
     -------
+    result : dict
 
     """
 

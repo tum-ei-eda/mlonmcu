@@ -121,7 +121,7 @@ def build_tensorflow(context: MlonMcuContext, params=None, rebuild=False, verbos
 def _validate_tflite_micro_compiler(context: MlonMcuContext, params=None):
     if not _validate_tensorflow(context, params=params):
         return False
-    if "tflmc" not in enabled_backends:
+    if not context.environment.has_backend("tflmc"):
         return False
     return True
 

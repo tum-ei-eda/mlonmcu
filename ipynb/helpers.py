@@ -3,7 +3,7 @@ import os
 
 def find_newest_report():
     home = os.getenv("MLONMCU_HOME")
-    list_of_files = glob.glob(os.path.join(home, "out", "*")) # * means all if need specific format then *.csv
+    list_of_files = glob.glob(os.path.join(home, "results", "*")) # * means all if need specific format then *.csv
     latest_file = max(list_of_files, key=os.path.getctime)
     return latest_file
 

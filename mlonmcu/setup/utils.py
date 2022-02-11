@@ -191,7 +191,10 @@ def clone(
             repo.git.pull("origin", branch)  # This should also work for specific commits
     else:
         if branch:
-            Repo.clone_from(url, dest, branch=branch, recursive=recursive)
+            repo = Repo.clone_from(url, dest, recursive=recursive, no_checkout=True)
+            repo.git.checkout(branch)
+            if recursive:
+                output = repo.git.submodule('update', '--init', '--recursive')
         else:
             Repo.clone_from(url, dest, recursive=recursive)
 

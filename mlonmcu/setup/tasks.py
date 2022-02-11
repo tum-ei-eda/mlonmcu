@@ -153,6 +153,7 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
 @Tasks.param("muriscvnn", [False, True])
 @Tasks.param("dbg", False)
+@Tasks.param("arch", ["x86"])  # TODO: compile for arm/riscv in the future
 @Tasks.validate(_validate_build_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
 def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
@@ -216,6 +217,7 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
     if "riscv_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
         # TODO: WARNING
         riscvInstallDir = user_vars["riscv_gcc.install_dir"]
+        # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
     else:
         vext = False
         if "vext" in params:
@@ -615,7 +617,7 @@ def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     muriscvnnIncludeDir = muriscvnnSrcDir / "Include"
     user_vars = context.environment.vars
     if "muriscvnn.lib" in user_vars:  # TODO: also check command line flags?
-        return
+        return False
     if rebuild or not utils.is_populated(muriscvnnSrcDir):
         muriscvnnRepo = context.environment.repos["muriscvnn"]
         utils.clone(muriscvnnRepo.url, muriscvnnSrcDir, branch=muriscvnnRepo.ref)
@@ -624,9 +626,11 @@ def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
 
 
 @Tasks.needs(["muriscvnn.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+# @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
 @Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("vext", [False, True])
+# @Tasks.param("target_arch", ["x86", "riscv", "arm"])  # TODO: implement
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
 def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
@@ -642,7 +646,7 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     muriscvnnLib = muriscvnnInstallDir / "libmuriscvnn.a"
     user_vars = context.environment.vars
     if "muriscvnn.lib" in user_vars:  # TODO: also check command line flags?
-        return
+        return False
     if rebuild or not (utils.is_populated(muriscvnnBuildDir) and muriscvnnLib.is_file()):
         utils.mkdirs(muriscvnnBuildDir)
         gccName = context.cache["riscv_gcc.name", flags_]
@@ -685,7 +689,7 @@ def clone_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
     spikepkSrcDir = context.environment.paths["deps"].path / "src" / spikepkName
     user_vars = context.environment.vars
     if "spike.pk" in user_vars:  # TODO: also check command line flags?
-        return
+        return False
     if rebuild or not utils.is_populated(spikepkSrcDir):
         spikepkRepo = context.environment.repos["spikepk"]
         utils.clone(spikepkRepo.url, spikepkSrcDir, branch=spikepkRepo.ref)
@@ -709,7 +713,7 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
     spikepkBin = spikepkInstallDir / "pk"
     user_vars = context.environment.vars
     if "spike.pk" in user_vars:  # TODO: also check command line flags?
-        return
+        return False
     if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikepkBuildDir)
@@ -745,7 +749,7 @@ def clone_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
     spikeSrcDir = context.environment.paths["deps"].path / "src" / spikeName
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
-        return
+        return False
     if rebuild or not utils.is_populated(spikeSrcDir):
         spikeRepo = context.environment.repos["spike"]
         utils.clone(spikeRepo.url, spikeSrcDir, branch=spikeRepo.ref)
@@ -767,7 +771,7 @@ def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
     spikeExe = spikeInstallDir / "spike"
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
-        return
+        return False
     if rebuild or not (utils.is_populated(spikeBuildDir) and spikeExe.is_file()):
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikeBuildDir)
@@ -784,3 +788,140 @@ def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
     context.cache["spike.exe"] = spikeExe
+
+
+def _validate_cmsisnn(context: MlonMcuContext, params=None):
+    return context.environment.has_feature("cmsisnn") or context.environment.has_feature("cmsisnnbyoc")
+
+
+def _validate_cmsis(context: MlonMcuContext, params=None):
+    return _validate_cmsisnn(context, params=params) or context.environment.has_target("corstone300")
+
+
+@Tasks.provides(["cmsisnn.dir"])
+@Tasks.validate(_validate_cmsis)
+@Tasks.register(category=TaskType.MISC)
+def clone_cmsis(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """CMSIS repository."""
+    cmsisName = utils.makeDirName("cmsis")
+    cmsisSrcDir = context.environment.paths["deps"].path / "src" / cmsisName
+    # TODO: allow to skip this if cmsisnn.dir+cmsisnn.lib are provided by the user and corstone is not used -> move those checks to validate?
+    if rebuild or not utils.is_populated(cmsisSrcDir):
+        cmsisRepo = context.environment.repos["cmsis"]
+        utils.clone(cmsisRepo.url, cmsisSrcDir, branch=cmsisRepo.ref, refresh=rebuild)
+    context.cache["cmsisnn.dir"] = cmsisSrcDir
+
+
+@Tasks.needs(["cmsisnn.dir"])
+@Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
+@Tasks.provides(["cmsisnn.lib"])
+@Tasks.param("dbg", [False, True])
+@Tasks.param("target_arch", ["x86", "riscv", "arm"])
+@Tasks.param("mvei", False)  # TODO: build?
+@Tasks.param("dsp", False)  # TODO: build?
+@Tasks.validate(_validate_cmsisnn)
+@Tasks.register(category=TaskType.OPT)  # TODO: rename to TaskType.FEATURE?
+def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    flags = utils.makeFlags(
+        (params["target_arch"], params["target_arch"]),
+        (params["mvei"], "mvei"),
+        (params["dsp"], "dsp"),
+        (params["dbg"], "dbg"),
+    )
+    cmsisnnName = utils.makeDirName("cmsisnn", flags=flags)
+    cmsisnnBuildDir = context.environment.paths["deps"].path / "build" / cmsisnnName
+    cmsisnnInstallDir = context.environment.paths["deps"].path / "install" / cmsisnnName
+    cmsisnnLib = cmsisnnInstallDir / "libcmsis-nn.a"
+    cmsisSrcDir = context.cache["cmsisnn.dir"]
+    cmsisnnSrcDir = cmsisSrcDir / "CMSIS" / "NN"
+    if rebuild or not utils.is_populated(cmsisnnBuildDir) or not cmsisnnLib.is_file():
+        utils.mkdirs(cmsisnnBuildDir)
+        cmakeArgs = []
+        env = os.environ.copy()
+        # utils.cmake("-DTF_SRC=" + str(tfSrcDir), str(tflmcSrcDir), debug=params["dbg"], cwd=tflmcBuildDir)
+        if params["target_arch"] == "arm":
+            toolchainFile = cmsisSrcDir / "CMSIS" / "DSP" / "Toolchain" / "GCC.cmake"
+            armCpu = "cortex-m55"  # TODO: make this variable?
+            cmakeArgs.append(f"-DARM_CPU={armCpu}")
+            cmakeArgs.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchainFile}")
+            armBinDir = Path(context.cache["arm_gcc.install_dir"]) / "bin"
+            old = env["PATH"]
+            env["PATH"] = f"{armBinDir}:{old}"
+        elif params["target_arch"] == "riscv":
+            riscvPrefix = context.cache["riscv_gcc.install_dir"]
+            riscvBasename = context.cache["riscv_gcc.name"]
+            cmakeArgs.append(f"-DCMAKE_C_COMPILER={riscvPrefix}/bin/{riscvBasename}-gcc")
+            # cmakeArgs.append("-DCMAKE_CXX_COMPILER={riscvprefix}/bin/{riscvBasename}-g++")
+            # cmakeArgs.append("-DCMAKE_ASM_COMPILER={riscvprefix}/bin/{riscvBasename}-gcc")
+            # cmakeArgs.append("-DCMAKE_EXE_LINKER_FLAGS=\"'-march=rv32gc' '-mabi=ilp32d'\"")  # TODO: How about vext?
+            # cmakeArgs.append("-E env LDFLAGS=\"-march=rv32gc -mabi=ilp32d\"")
+            # cmakeArgs.append("-E env LDFLAGS=\"-march=rv32gc -mabi=ilp32d\"")
+            env["LDFLAGS"] = "-march=rv32gc -mabi=ilp32d"
+            cmakeArgs.append("-DCMAKE_SYSTEM_NAME=Generic")
+            # TODO: how about linker, objcopy, ar?
+        elif params["target_arch"] == "x86":
+            pass
+        else:
+            arch = params["target_arch"]
+            raise ValueError(f"Target architecture '{arch}' is not supported")
+
+        utils.cmake(
+            *cmakeArgs,
+            str(cmsisnnSrcDir),
+            debug=params["dbg"],
+            cwd=cmsisnnBuildDir,
+            live=verbose,
+            env=env,
+        )
+        utils.make(cwd=cmsisnnBuildDir, live=verbose)
+        utils.mkdirs(cmsisnnInstallDir)
+        utils.move(cmsisnnBuildDir / "Source" / "libcmsis-nn.a", cmsisnnLib)
+    context.cache["cmsisnn.lib", flags] = cmsisnnLib
+
+
+def _validate_corstone300(context: MlonMcuContext, params=None):
+    return context.environment.has_target("corstone300")
+
+
+@Tasks.provides(["arm_gcc.install_dir"])
+@Tasks.validate(_validate_corstone300)
+@Tasks.register(category=TaskType.TARGET)
+def install_arm_gcc(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Download and install GNU compiler toolchain from ARM."""
+    armName = utils.makeDirName("arm_gcc")
+    armInstallDir = context.environment.paths["deps"].path / "install" / armName
+    user_vars = context.environment.vars
+    if "arm_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
+        # armInstallDir = user_vars["riscv_gcc.install_dir"]
+        return False
+    else:
+        if not utils.is_populated(armInstallDir):
+            armUrl = "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/"
+            armFileName = "gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux"
+            armArchive = armFileName + ".tar.bz2"
+            utils.download_and_extract(armUrl, armArchive, armInstallDir)
+    context.cache["arm_gcc.install_dir"] = armInstallDir
+
+
+@Tasks.provides(["corstone300.exe"])
+@Tasks.validate(_validate_corstone300)
+@Tasks.register(category=TaskType.TARGET)
+def install_corstone300(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Download and install corstone300 FVP from ARM."""
+    fvpName = utils.makeDirName("corstone300")
+    fvpInstallDir = context.environment.paths["deps"].path / "install" / fvpName
+    fvpSubDir = fvpInstallDir / "fvp"
+    fvpExe = fvpSubDir / "models" / "Linux64_GCC-6.4" / "FVP_Corstone_SSE-300_Ethos-U55"
+    user_vars = context.environment.vars
+    if "corstone300.exe" in user_vars:  # TODO: also check command line flags?
+        # fvpExe = user_vars["corstone300.exe"]
+        return False
+    else:
+        if not fvpExe.is_file():
+            fvpUrl = "https://developer.arm.com/-/media/Arm%20Developer%20Community/Downloads/OSS/FVP/Corstone-300/"
+            fvpFileName = "FVP_Corstone_SSE-300_11.16_26"
+            fvpArchive = fvpFileName + ".tgz"
+            utils.download_and_extract(fvpUrl, fvpArchive, fvpInstallDir)
+            fvpScript = fvpInstallDir / "FVP_Corstone_SSE-300.sh"
+            utils.exec(fvpScript, "--i-agree-to-the-contained-eula", "--no-interactive", "-d", fvpSubDir)
+    context.cache["corstone300.exe"] = fvpExe

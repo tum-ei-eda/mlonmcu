@@ -45,14 +45,7 @@ jobs:
     - name: Initialize MLonMCU environment
       run: |
         source .venv/bin/activate
-        mlonmcu init home/ --non-interactive --template ${{ matrix.template }} --skip-sw
-    - name: Create symlinks (WIP)
-      run: |
-        cd home
-        mkdir -p models
-        cp -r ../models/* models
-        mkdir -p sw
-        cp -r ../sw/* sw
+        mlonmcu init home/ --non-interactive --template ${{ matrix.template }} --clone-models
     - name: Setup MLonMCU dependencies
       run: |
         source .venv/bin/activate

@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
@@ -108,21 +111,6 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.AverageCyclesPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.</span></span><span class="sig-name descname"><span class="pre">AverageCyclesPostprocess</span></span><a class="reference internal" href="_modules/mlonmcu/session/postprocess.html#AverageCyclesPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.AverageCyclesPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.PostProcess" title="mlonmcu.session.postprocess.PostProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.PostProcess</span></code></a></p>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 58%" />
-<col style="width: 42%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>match_rows</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.AverageCyclesPostprocess.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess.html#AverageCyclesPostprocess.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.AverageCyclesPostprocess.process" title="Permalink to this definition"></a></dt>
@@ -134,21 +122,6 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.DetailedCyclesPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.</span></span><span class="sig-name descname"><span class="pre">DetailedCyclesPostprocess</span></span><a class="reference internal" href="_modules/mlonmcu/session/postprocess.html#DetailedCyclesPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.DetailedCyclesPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.PostProcess" title="mlonmcu.session.postprocess.PostProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.PostProcess</span></code></a></p>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 58%" />
-<col style="width: 42%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>match_rows</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.DetailedCyclesPostprocess.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess.html#DetailedCyclesPostprocess.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.DetailedCyclesPostprocess.process" title="Permalink to this definition"></a></dt>
@@ -160,18 +133,6 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.PostProcess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.</span></span><span class="sig-name descname"><span class="pre">PostProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess.html#PostProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.PostProcess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 58%" />
-<col style="width: 42%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>match_rows</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.PostProcess.match_rows">
 <span class="sig-name descname"><span class="pre">match_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess.html#PostProcess.match_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.PostProcess.match_rows" title="Permalink to this definition"></a></dt>
@@ -190,112 +151,6 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.run.</span></span><span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archived</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A run is single model/backend/framework/target combination with a given set of features and configs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>export_optional</strong></dt><dd></dd>
-<dt><strong>prefix</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.build" title="mlonmcu.session.run.Run.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build</span></code></a>([context])</p></td>
-<td><p>Process the run using the choosen backend.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.compile" title="mlonmcu.session.run.Run.compile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile</span></code></a>([context])</p></td>
-<td><p>Compile the target software for the run.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.export" title="mlonmcu.session.run.Run.export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code></a>([path, optional])</p></td>
-<td><p>Write a run configuration to a disk.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.from_file" title="mlonmcu.session.run.Run.from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code></a>(path)</p></td>
-<td><p>Restore a run object which was written to the disk.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.load" title="mlonmcu.session.run.Run.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>([context])</p></td>
-<td><p>Load the model using the given frontend.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.postprocess" title="mlonmcu.session.run.Run.postprocess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">postprocess</span></code></a>([context])</p></td>
-<td><p>Run the 'run' using the defined target.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.process" title="mlonmcu.session.run.Run.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>([until, export, context])</p></td>
-<td><p>Process the run until a given stage.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.run" title="mlonmcu.session.run.Run.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([context])</p></td>
-<td><p>Run the 'run' using the defined target.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.session.run.Run.tune" title="mlonmcu.session.run.Run.tune"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tune</span></code></a>([context])</p></td>
-<td><p>Tune the run using the choosen backend (if supported).</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 71%" />
-<col style="width: 29%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>add_backend</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>add_backend_by_name</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>add_framework</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>add_frontend</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>add_frontend_by_name</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>add_model</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>add_model_by_name</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>add_target</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>add_target_by_name</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>copy</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>export_stage</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_all_configs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_all_feature_names</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_report</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>init_component</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>init_mlif</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>toDict</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>write_run_file</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'export_optional':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -511,44 +366,6 @@
 <dt class="sig sig-object py" id="mlonmcu.session.session.Session">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.session.</span></span><span class="sig-name descname"><span class="pre">Session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'unnamed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archived</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/session.html#Session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.session.Session" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>active</strong></dt><dd></dd>
-<dt><strong>prefix</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 66%" />
-<col style="width: 34%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>close</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>create_run</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>enumerate_runs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_reports</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>open</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process_runs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>request_run_idx</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.session.Session.active">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">active</span></span><a class="headerlink" href="#mlonmcu.session.session.Session.active" title="Permalink to this definition"></a></dt>

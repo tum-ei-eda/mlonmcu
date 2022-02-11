@@ -42,6 +42,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
@@ -89,12 +92,12 @@
 
 <div class="viewcode-block" id="init_config_dir"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.config.init_config_dir">[docs]</a><span class="k">def</span> <span class="nf">init_config_dir</span><span class="p">():</span>
     <span class="n">config_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">get_config_dir</span><span class="p">())</span>
-    <span class="n">config_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">config_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;environments&quot;</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">]</span>
     <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;environments.ini&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
         <span class="n">environments_dir</span> <span class="o">=</span> <span class="n">config_dir</span> <span class="o">/</span> <span class="n">subdir</span>
-        <span class="n">environments_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">environments_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">config_dir</span> <span class="o">/</span> <span class="n">file</span>
         <span class="n">filepath</span><span class="o">.</span><span class="n">touch</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>

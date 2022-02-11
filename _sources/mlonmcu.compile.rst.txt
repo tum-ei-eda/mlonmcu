@@ -4,14 +4,6 @@ mlonmcu.compile package
 Submodules
 ----------
 
-mlonmcu.compile.inout module
-----------------------------
-
-.. automodule:: mlonmcu.compile.inout
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.compile.mlif module
 ---------------------------
 

@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
@@ -107,18 +110,13 @@
 <li class="toctree-l1"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html">mlonmcu.flow.tvm.backend package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.backend">mlonmcu.flow.tvm.backend.backend module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tflite_model_info">mlonmcu.flow.tvm.backend.tflite_model_info module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tuner">mlonmcu.flow.tvm.backend.tuner module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmaot">mlonmcu.flow.tvm.backend.tvmaot module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmcg">mlonmcu.flow.tvm.backend.tvmcg module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmrt">mlonmcu.flow.tvm.backend.tvmrt module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.wrapper">mlonmcu.flow.tvm.backend.wrapper module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="mlonmcu.flow.tvm.wrapper.html">mlonmcu.flow.tvm.wrapper package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.wrapper.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.wrapper.html#mlonmcu-flow-tvm-wrapper-aot-wrapper-module">mlonmcu.flow.tvm.wrapper.aot_wrapper module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.wrapper.html#mlonmcu-flow-tvm-wrapper-codegen-wrapper-module">mlonmcu.flow.tvm.wrapper.codegen_wrapper module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.wrapper.html#mlonmcu-flow-tvm-wrapper-runtime-wrapper-module">mlonmcu.flow.tvm.wrapper.runtime_wrapper module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.wrapper.html#module-mlonmcu.flow.tvm.wrapper">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -135,36 +133,6 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tvm.framework.</span></span><span class="sig-name descname"><span class="pre">TVMFramework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/framework.html#TVMFramework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework" title="mlonmcu.flow.framework.Framework"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.framework.Framework</span></code></a></p>
 <p>TVM Framework specialization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>extra_incs</strong></dt><dd></dd>
-<dt><strong>extra_libs</strong></dt><dd></dd>
-<dt><strong>tvm_src</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 71%" />
-<col style="width: 29%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>add_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.framework.TVMFramework.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra_incs':</span> <span class="pre">[],</span> <span class="pre">'extra_libs':</span> <span class="pre">[]}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.DEFAULTS" title="Permalink to this definition"></a></dt>

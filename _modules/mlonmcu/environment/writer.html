@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.environment.writer &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.environment.writer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.environment.writer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="kn">from</span> <span class="nn">.environment</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># def load_environment_from_file(filename):</span>
+<span class="c1">#     &quot;&quot;&quot;Utility to initialize a mlonmcu environment from a YAML file.&quot;&quot;&quot;</span>
+<span class="c1">#     if isinstance(filename, str):</span>
+<span class="c1">#         filename = pathlib.Path(filename)</span>
+<span class="c1">#     with open(filename, encoding=&quot;utf-8&quot;) as yaml_file:</span>
+<span class="c1">#         data = yaml.safe_load(yaml_file)</span>
+<span class="c1">#         if data:</span>
+<span class="c1">#             if &quot;home&quot; in data:</span>
+<span class="c1">#                 print(data[&quot;home&quot;], filename.parent)</span>
+<span class="c1">#                 assert os.path.realpath(data[&quot;home&quot;]) == os.path.realpath(filename.parent)</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 data[&quot;home&quot;] = filename.parent</span>
+<span class="c1">#             env = Environment(data)</span>
+<span class="c1">#             return env</span>
+<span class="c1">#         raise RuntimeError(f&quot;Error opening environment file: {filename}&quot;)</span>
+<span class="c1">#     return None</span>
+
+
+<div class="viewcode-block" id="create_environment_dict"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.writer.create_environment_dict">[docs]</a><span class="k">def</span> <span class="nf">create_environment_dict</span><span class="p">(</span><span class="n">environment</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">home</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_level</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_to_file</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">path_config</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_config</span><span class="p">,</span> <span class="n">PathConfig</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">path_config</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">path_config</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>  <span class="c1"># TODO: allow relative paths</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;repos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">repo</span><span class="p">:</span> <span class="nb">vars</span><span class="p">(</span><span class="n">repo_config</span><span class="p">)</span> <span class="k">for</span> <span class="n">repo</span><span class="p">,</span> <span class="n">repo_config</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;frameworks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_framework</span> <span class="k">if</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_framework</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">framework</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="s2">&quot;backends&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span> <span class="ow">and</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                    <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">backend</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="n">backend_feature</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">backend_feature</span><span class="o">.</span><span class="n">supported</span> <span class="k">for</span> <span class="n">backend_feature</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">features</span>
+                            <span class="p">},</span>
+                        <span class="p">}</span>
+                        <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">backends</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="n">framework_feature</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">framework_feature</span><span class="o">.</span><span class="n">supported</span> <span class="k">for</span> <span class="n">framework_feature</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">features</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">frameworks</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;frontends&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># &quot;default&quot;: None,  # unimplemented?</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">frontend</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">frontend</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="n">frontend_feature</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">frontend_feature</span><span class="o">.</span><span class="n">supported</span> <span class="k">for</span> <span class="n">frontend_feature</span> <span class="ow">in</span> <span class="n">frontend</span><span class="o">.</span><span class="n">features</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">frontends</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;targets&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_target</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">target</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">target_feature</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">target_feature</span><span class="o">.</span><span class="n">supported</span> <span class="k">for</span> <span class="n">target_feature</span> <span class="ow">in</span> <span class="n">target</span><span class="o">.</span><span class="n">features</span><span class="p">},</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">targets</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="write_environment_to_file"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.writer.write_environment_to_file">[docs]</a><span class="k">def</span> <span class="nf">write_environment_to_file</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Utility to initialize a mlonmcu environment from a YAML file.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">create_environment_dict</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yaml_file</span><span class="p">:</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">yaml_file</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

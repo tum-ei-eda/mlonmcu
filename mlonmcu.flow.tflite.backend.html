@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
@@ -110,50 +113,6 @@
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.backend.backend.TFLiteBackend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tflite.backend.backend.</span></span><span class="sig-name descname"><span class="pre">TFLiteBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/backend/backend.html#TFLiteBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.backend.backend.TFLiteBackend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend" title="mlonmcu.flow.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.backend.Backend</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>has_tuner</strong></dt><dd></dd>
-<dt><strong>name</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 71%" />
-<col style="width: 29%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>add_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>export_code</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>export_tuning_results</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_code</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>load_model</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>set_tuning_records</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>tune_model</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.backend.backend.TFLiteBackend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.backend.backend.TFLiteBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -188,49 +147,6 @@
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.backend.tflmc.TFLMCBackend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tflite.backend.tflmc.</span></span><span class="sig-name descname"><span class="pre">TFLMCBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/backend/tflmc.html#TFLMCBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.backend.tflmc.TFLMCBackend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.tflite.backend.backend.TFLiteBackend" title="mlonmcu.flow.tflite.backend.backend.TFLiteBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.tflite.backend.backend.TFLiteBackend</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>has_tuner</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 71%" />
-<col style="width: 29%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>add_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>export_code</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>export_tuning_results</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_code</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>load_model</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>set_tuning_records</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>tune_model</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.backend.tflmc.TFLMCBackend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'custom_ops':</span> <span class="pre">[],</span> <span class="pre">'debug_arena':</span> <span class="pre">False,</span> <span class="pre">'registrations':</span> <span class="pre">{}}</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.backend.tflmc.TFLMCBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -265,50 +181,6 @@
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tflite.backend.tflmi.</span></span><span class="sig-name descname"><span class="pre">TFLMIBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/backend/tflmi.html#TFLMIBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.tflite.backend.backend.TFLiteBackend" title="mlonmcu.flow.tflite.backend.backend.TFLiteBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.tflite.backend.backend.TFLiteBackend</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>has_tuner</strong></dt><dd></dd>
-<dt><strong>legacy</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 71%" />
-<col style="width: 29%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>add_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>export_code</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>export_tuning_results</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_code</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>load_model</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>set_tuning_records</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>tune_model</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arena_size':</span> <span class="pre">65536,</span> <span class="pre">'custom_ops':</span> <span class="pre">[],</span> <span class="pre">'legacy':</span> <span class="pre">False,</span> <span class="pre">'ops':</span> <span class="pre">[],</span> <span class="pre">'ops_resolver':</span> <span class="pre">'mutable',</span> <span class="pre">'registrations':</span> <span class="pre">{}}</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -345,27 +217,6 @@
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tflite.backend.tflmi.</span></span><span class="sig-name descname"><span class="pre">TFLMICodegen</span></span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/backend/tflmi.html#TFLMICodegen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 72%" />
-<col style="width: 28%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>generate_header</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_wrapper</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>makeCustomOpPrototypes</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>make_op_registrations</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.generate_header">
 <span class="sig-name descname"><span class="pre">generate_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'model'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/backend/tflmi.html#TFLMICodegen.generate_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.generate_header" title="Permalink to this definition"></a></dt>

@@ -8,6 +8,9 @@ Welcome to ML on MCU's documentation!
    readme
    installation
    usage
+   design
+   environments
+   logging
    docs
    contributing
    authors

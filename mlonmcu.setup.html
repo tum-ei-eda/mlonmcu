@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
@@ -111,32 +114,6 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Task cache used to store dependency paths for the current and furture sessions.</p>
 <p>This can be interpreted as a “modded” dictionary which takes a key + some flags.</p>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.cache.TaskCache.find_best_match" title="mlonmcu.setup.cache.TaskCache.find_best_match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_best_match</span></code></a>(name[, flags])</p></td>
-<td><p>Utility whih tries to resolve the cache entry with the beste match.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 64%" />
-<col style="width: 36%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>read_from_file</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>write_to_file</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.setup.cache.TaskCache.find_best_match">
 <span class="sig-name descname"><span class="pre">find_best_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/cache.html#TaskCache.find_best_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.cache.TaskCache.find_best_match" title="Permalink to this definition"></a></dt>
@@ -171,8 +148,60 @@
 <dd></dd></dl>
 
 </section>
-<section id="mlonmcu-setup-install-module">
-<h2>mlonmcu.setup.install module<a class="headerlink" href="#mlonmcu-setup-install-module" title="Permalink to this headline"></a></h2>
+<section id="module-mlonmcu.setup.setup">
+<span id="mlonmcu-setup-setup-module"></span><h2>mlonmcu.setup.setup module<a class="headerlink" href="#module-mlonmcu.setup.setup" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.setup.</span></span><span class="sig-name descname"><span class="pre">Setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks_factory=&lt;mlonmcu.setup.task.TaskFactory</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>MLonMCU dependency management interface.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'print_outputs':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.setup.setup.Setup.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.setup.setup.Setup.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.setup.setup.Setup.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.get_dependency_order">
+<span class="sig-name descname"><span class="pre">get_dependency_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup.get_dependency_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup.get_dependency_order" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.install_dependencies">
+<span class="sig-name descname"><span class="pre">install_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup.install_dependencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup.install_dependencies" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.invoke_single_task">
+<span class="sig-name descname"><span class="pre">invoke_single_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup.invoke_single_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup.invoke_single_task" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.process_features">
+<span class="sig-name descname"><span class="pre">process_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup.process_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup.process_features" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.setup_progress_bar">
+<span class="sig-name descname"><span class="pre">setup_progress_bar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enabled</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup.setup_progress_bar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup.setup_progress_bar" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.write_cache_file">
+<span class="sig-name descname"><span class="pre">write_cache_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup.write_cache_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup.write_cache_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-mlonmcu.setup.task">
 <span id="mlonmcu-setup-task-module"></span><h2>mlonmcu.setup.task module<a class="headerlink" href="#module-mlonmcu.setup.task" title="Permalink to this headline"></a></h2>
@@ -200,36 +229,6 @@
 </dl>
 </dd>
 </dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.needs" title="mlonmcu.setup.task.TaskFactory.needs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">needs</span></code></a>(keys[, force])</p></td>
-<td><p>Decorator which registers the artifacts a task needs to be processed.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.optional" title="mlonmcu.setup.task.TaskFactory.optional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optional</span></code></a>(keys)</p></td>
-<td><p>Decorator for optional task requirements.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.param" title="mlonmcu.setup.task.TaskFactory.param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">param</span></code></a>(flag, options)</p></td>
-<td><p>Decorator which registers available task parameters.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.provides" title="mlonmcu.setup.task.TaskFactory.provides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">provides</span></code></a>(keys)</p></td>
-<td><p>Decorator which registers what a task provides.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.register" title="mlonmcu.setup.task.TaskFactory.register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register</span></code></a>([category])</p></td>
-<td><p>Decorator which actually registers a task in the registry.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.reset_changes" title="mlonmcu.setup.task.TaskFactory.reset_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_changes</span></code></a>()</p></td>
-<td><p>Reset all pending changes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskFactory.validate" title="mlonmcu.setup.task.TaskFactory.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>(func)</p></td>
-<td><p>Decorator which registers validattion functions for a task.</p></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.setup.task.TaskFactory.needs">
 <span class="sig-name descname"><span class="pre">needs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskFactory.needs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskFactory.needs" title="Permalink to this definition"></a></dt>
@@ -294,21 +293,6 @@
 </dl>
 </dd>
 </dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskGraph.get_graph" title="mlonmcu.setup.task.TaskGraph.get_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_graph</span></code></a>()</p></td>
-<td><p>Get nodes and edges of the task graph.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.setup.task.TaskGraph.get_order" title="mlonmcu.setup.task.TaskGraph.get_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_order</span></code></a>()</p></td>
-<td><p>Get execution order of tasks via topological sorting.</p></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.setup.task.TaskGraph.get_graph">
 <span class="sig-name descname"><span class="pre">get_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/task.html#TaskGraph.get_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.task.TaskGraph.get_graph" title="Permalink to this definition"></a></dt>

@@ -42,6 +42,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
@@ -101,8 +104,10 @@
 <li><a href="mlonmcu/environment/loader.html">mlonmcu.environment.loader</a></li>
 <li><a href="mlonmcu/environment/templates.html">mlonmcu.environment.templates</a></li>
 <li><a href="mlonmcu/environment/util.html">mlonmcu.environment.util</a></li>
+<li><a href="mlonmcu/environment/writer.html">mlonmcu.environment.writer</a></li>
 <li><a href="mlonmcu/feature/feature.html">mlonmcu.feature.feature</a></li>
 <li><a href="mlonmcu/feature/features.html">mlonmcu.feature.features</a></li>
+<li><a href="mlonmcu/feature/type.html">mlonmcu.feature.type</a></li>
 <li><a href="mlonmcu/flow.html">mlonmcu.flow</a></li>
 <ul><li><a href="mlonmcu/flow/backend.html">mlonmcu.flow.backend</a></li>
 <li><a href="mlonmcu/flow/framework.html">mlonmcu.flow.framework</a></li>
@@ -111,9 +116,12 @@
 <li><a href="mlonmcu/flow/tflite/backend/tflmi.html">mlonmcu.flow.tflite.backend.tflmi</a></li>
 <li><a href="mlonmcu/flow/tflite/framework.html">mlonmcu.flow.tflite.framework</a></li>
 <li><a href="mlonmcu/flow/tvm/backend/backend.html">mlonmcu.flow.tvm.backend.backend</a></li>
+<li><a href="mlonmcu/flow/tvm/backend/tflite_model_info.html">mlonmcu.flow.tvm.backend.tflite_model_info</a></li>
+<li><a href="mlonmcu/flow/tvm/backend/tuner.html">mlonmcu.flow.tvm.backend.tuner</a></li>
 <li><a href="mlonmcu/flow/tvm/backend/tvmaot.html">mlonmcu.flow.tvm.backend.tvmaot</a></li>
 <li><a href="mlonmcu/flow/tvm/backend/tvmcg.html">mlonmcu.flow.tvm.backend.tvmcg</a></li>
 <li><a href="mlonmcu/flow/tvm/backend/tvmrt.html">mlonmcu.flow.tvm.backend.tvmrt</a></li>
+<li><a href="mlonmcu/flow/tvm/backend/wrapper.html">mlonmcu.flow.tvm.backend.wrapper</a></li>
 <li><a href="mlonmcu/flow/tvm/framework.html">mlonmcu.flow.tvm.framework</a></li>
 <li><a href="mlonmcu/flow/tvm/tvm_flow.html">mlonmcu.flow.tvm.tvm_flow</a></li>
 </ul><li><a href="mlonmcu/logging.html">mlonmcu.logging</a></li>
@@ -123,17 +131,25 @@
 <li><a href="mlonmcu/models/metadata.html">mlonmcu.models.metadata</a></li>
 <li><a href="mlonmcu/models/model.html">mlonmcu.models.model</a></li>
 <li><a href="mlonmcu/models/options.html">mlonmcu.models.options</a></li>
+<li><a href="mlonmcu/models/utils.html">mlonmcu.models.utils</a></li>
 <li><a href="mlonmcu/report.html">mlonmcu.report</a></li>
 <li><a href="mlonmcu/session/postprocess.html">mlonmcu.session.postprocess</a></li>
 <li><a href="mlonmcu/session/run.html">mlonmcu.session.run</a></li>
 <li><a href="mlonmcu/session/session.html">mlonmcu.session.session</a></li>
 <li><a href="mlonmcu/setup/cache.html">mlonmcu.setup.cache</a></li>
+<li><a href="mlonmcu/setup/setup.html">mlonmcu.setup.setup</a></li>
 <li><a href="mlonmcu/setup/task.html">mlonmcu.setup.task</a></li>
 <li><a href="mlonmcu/setup/tasks.html">mlonmcu.setup.tasks</a></li>
 <li><a href="mlonmcu/setup/utils.html">mlonmcu.setup.utils</a></li>
 <li><a href="mlonmcu/target/common.html">mlonmcu.target.common</a></li>
+<li><a href="mlonmcu/target/corstone300.html">mlonmcu.target.corstone300</a></li>
+<li><a href="mlonmcu/target/elf.html">mlonmcu.target.elf</a></li>
 <li><a href="mlonmcu/target/etiss_pulpino.html">mlonmcu.target.etiss_pulpino</a></li>
 <li><a href="mlonmcu/target/host_x86.html">mlonmcu.target.host_x86</a></li>
+<li><a href="mlonmcu/target/metrics.html">mlonmcu.target.metrics</a></li>
+<li><a href="mlonmcu/target/ovpsim.html">mlonmcu.target.ovpsim</a></li>
+<li><a href="mlonmcu/target/riscv.html">mlonmcu.target.riscv</a></li>
+<li><a href="mlonmcu/target/spike.html">mlonmcu.target.spike</a></li>
 <li><a href="mlonmcu/target/target.html">mlonmcu.target.target</a></li>
 <li><a href="mlonmcu/utils.html">mlonmcu.utils</a></li>
 </ul>

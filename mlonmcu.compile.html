@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
@@ -102,9 +105,6 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 </section>
-<section id="mlonmcu-compile-inout-module">
-<h2>mlonmcu.compile.inout module<a class="headerlink" href="#mlonmcu-compile-inout-module" title="Permalink to this headline"></a></h2>
-</section>
 <section id="module-mlonmcu.compile.mlif">
 <span id="mlonmcu-compile-mlif-module"></span><h2>mlonmcu.compile.mlif module<a class="headerlink" href="#module-mlonmcu.compile.mlif" title="Permalink to this headline"></a></h2>
 <dl class="py class">
@@ -112,63 +112,6 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.compile.mlif.</span></span><span class="sig-name descname"><span class="pre">MLIF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">framework</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/compile/mlif.html#MLIF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Model Library Interface class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>debug</strong></dt><dd></dd>
-<dt><strong>ignore_data</strong></dt><dd></dd>
-<dt><strong>model_support_dir</strong></dt><dd></dd>
-<dt><strong>num_threads</strong></dt><dd></dd>
-<dt><strong>prebuild_lib_dir</strong></dt><dd></dd>
-<dt><strong>print_output</strong></dt><dd></dd>
-<dt><strong>toolchain</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.compile.mlif.MLIF.get_common_cmake_args" title="mlonmcu.compile.mlif.MLIF.get_common_cmake_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_common_cmake_args</span></code></a>([num])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mlonmcu.compile.mlif.MLIF.prepare" title="mlonmcu.compile.mlif.MLIF.prepare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 67%" />
-<col style="width: 33%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>close</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>compile</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>configure</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>export_elf</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>generate_elf</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>validate</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.compile.mlif.MLIF.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_output':</span> <span class="pre">False,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc'}</span></em><a class="headerlink" href="#mlonmcu.compile.mlif.MLIF.DEFAULTS" title="Permalink to this definition"></a></dt>

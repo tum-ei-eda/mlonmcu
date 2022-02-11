@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Important Terms and Design Decisions (RFC) &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Environments" href="environments.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Important Terms and Design Decisions (RFC)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#motivation-and-goals">Motivation and Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fundamentals">Fundamentals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#features-and-configuration">Features and Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#contexts-and-environments">Contexts and Environments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#session-management-run-definition">Session Management/Run Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#artifacts-handling">Artifacts Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#abstraction-at-various-levels">Abstraction at Various Levels</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Important Terms and Design Decisions (RFC)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/design.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="important-terms-and-design-decisions-rfc">
+<h1>Important Terms and Design Decisions (RFC)<a class="headerlink" href="#important-terms-and-design-decisions-rfc" title="Permalink to this headline"></a></h1>
+<p>MLonMCU offers a hand full of high level interfaces as well as a large number of internally used objects. You may use this document as a Glossary to understand the meaning of these some core concepts of the MLonMCU software infrastructure.</p>
+<section id="motivation-and-goals">
+<h2>Motivation and Goals<a class="headerlink" href="#motivation-and-goals" title="Permalink to this headline"></a></h2>
+<p>MLonMCU is basically a reimplemented version of a TinyML benchmarking project which was used internally before for about one year.</p>
+<p>The open source design was approached with the following set of goals in mind:</p>
+<ul class="simple">
+<li><p>Split up previously used all-time growing Python script into a hierarchical Python package</p></li>
+<li><p>Dependency management should be mostly invisible to the user without interfering with other software installed on the system</p></li>
+<li><p>In addition to revamping the existing command line interface, a Python API should be integrated to ease scripting and access to intermediate results.</p></li>
+<li><p>Increase scalability of large benchmarking tasks by inherently supporting parallelisms in multiple dimensions (Model x Backend x Features x Targets)</p></li>
+<li><p>Improve expandability by providing “Plugin” interfaces for various features.</p></li>
+<li><p>Ability to support further targets and architecture as well as real Hardware</p></li>
+<li><p>Improve Code Quality by adding unit and integration tests and extensive CI/CD applications.</p></li>
+<li><p>Provide a common interface to all supported backends by adding wrappers for their Command Line Interfaces</p></li>
+<li><p>Offer a large number of examples and extensive documentation to enable the TinyML community to get started with MLonMCU easily</p></li>
+<li><p>Ensure reproducibility of research results by improved logging and import options and isolated environments.</p></li>
+</ul>
+</section>
+<section id="fundamentals">
+<h2>Fundamentals<a class="headerlink" href="#fundamentals" title="Permalink to this headline"></a></h2>
+<section id="features-and-configuration">
+<h3>Features and Configuration<a class="headerlink" href="#features-and-configuration" title="Permalink to this headline"></a></h3>
+<p>Two types of options can be found in a large number of classes in the MLonMCU Package: <code class="docutils literal notranslate"><span class="pre">features</span> <span class="pre">:</span> <span class="pre">List[Feature]</span></code> and <code class="docutils literal notranslate"><span class="pre">config</span> <span class="pre">:</span> <span class="pre">Dict</span></code>. This design decision leads to unified command line interfaces and less framework/backend/target/frontend/feature specific code in higher levels of the codebase. A baseline requirement for all classes which implement those two concepts is the definition of the class variables <code class="docutils literal notranslate"><span class="pre">FEATURES</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFAULTS</span></code> and <code class="docutils literal notranslate"><span class="pre">REQUIRED</span></code> .</p>
+<p>Learn more about these features here.</p>
+</section>
+<section id="contexts-and-environments">
+<h3>Contexts and Environments<a class="headerlink" href="#contexts-and-environments" title="Permalink to this headline"></a></h3>
+<p>TODO</p>
+</section>
+<section id="session-management-run-definition">
+<h3>Session Management/Run Definition<a class="headerlink" href="#session-management-run-definition" title="Permalink to this headline"></a></h3>
+</section>
+<section id="artifacts-handling">
+<h3>Artifacts Handling<a class="headerlink" href="#artifacts-handling" title="Permalink to this headline"></a></h3>
+<p>TODO</p>
+</section>
+<section id="abstraction-at-various-levels">
+<h3>Abstraction at Various Levels<a class="headerlink" href="#abstraction-at-various-levels" title="Permalink to this headline"></a></h3>
+<p>Inheritance is used at multiple levels in the MLonMCU project to introduce abstract interfaces for important objects.</p>
+<p>Here ere the most relevant examples:</p>
+<ul class="simple">
+<li><p><strong>Backend:</strong> A backend is a wrapper for a specific code generator</p></li>
+<li><p><strong>Framework:</strong> The used framework is implicitly defined by the backend.</p></li>
+<li><p><strong>Target:</strong> This contains definitions to interface with read hardware or a simulator.</p></li>
+<li><p><strong>Frontend:</strong> Loading and converting models of various types and features is done by the Frontend classes.</p></li>
+<li><p><strong>Feature:</strong> As features are a property of the aforementioned classes, they can have multiple base classes, e.g. <code class="docutils literal notranslate"><span class="pre">FrameworkFeature</span></code>, <code class="docutils literal notranslate"><span class="pre">TargetFeature</span></code></p></li>
+</ul>
+<p>There are two exceptions to this scheme:</p>
+<p><strong>MLIF class</strong>: The CMake code which is used in the MLonMCU flow could be replaced relatively easily as long the alternative is offering similar command line options or overwrites parts of the MLIF class definition. If this becomes the case, a abstract base class inherited by the new class Wes well as MLIF can be added. The only way why it does not yet exist is because I did not yet came up with a suitable name for this base class. If you have something better than <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">Compile</span></code> in mind, please raise an issue to discuss your proposal.</p>
+<p><strong>Setup class</strong>: At the current point in time, it is quiet unrealistic, that the current dependency resolution mechanism would be replaced by an alternative tool. However there is at least one options which shall be evaluated in the future (See CK). We than might need to discuss how to rename the currently very generic Name <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">Setup</span></code> of the original approach by a new name and what the base class should be called.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="environments.html" class="btn btn-neutral float-right" title="Environments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

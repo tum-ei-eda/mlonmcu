@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
@@ -126,37 +129,6 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tflite.framework.</span></span><span class="sig-name descname"><span class="pre">TFLiteFramework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tflite/framework.html#TFLiteFramework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework" title="mlonmcu.flow.framework.Framework"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.framework.Framework</span></code></a></p>
 <p>TFLite Framework specialization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>optimized_kernel</strong></dt><dd></dd>
-<dt><strong>optimized_kernel_inc_dir</strong></dt><dd></dd>
-<dt><strong>optimized_kernel_lib</strong></dt><dd></dd>
-<dt><strong>tf_src</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 71%" />
-<col style="width: 29%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>add_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_cmake_args</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>remove_config_prefix</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflite.framework.TFLiteFramework.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'optimized_kernel':</span> <span class="pre">None,</span> <span class="pre">'optimized_kernel_inc_dir':</span> <span class="pre">None,</span> <span class="pre">'optimized_kernel_lib':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.tflite.framework.TFLiteFramework.DEFAULTS" title="Permalink to this definition"></a></dt>

@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">mlonmcu</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a></li>
@@ -112,14 +115,11 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.compile.html">mlonmcu.compile package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.compile.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlonmcu.compile.html#mlonmcu-compile-inout-module">mlonmcu.compile.inout module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.compile.html#module-mlonmcu.compile.mlif">mlonmcu.compile.mlif module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.compile.html#module-mlonmcu.compile">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.data.html">mlonmcu.data package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="mlonmcu.data.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlonmcu.data.html#mlonmcu-data-utils-module">mlonmcu.data.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.data.html#module-mlonmcu.data">Module contents</a></li>
 </ul>
 </li>
@@ -132,6 +132,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.loader">mlonmcu.environment.loader module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.templates">mlonmcu.environment.templates module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.util">mlonmcu.environment.util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.writer">mlonmcu.environment.writer module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment">Module contents</a></li>
 </ul>
 </li>
@@ -139,6 +140,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.feature.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.feature.html#module-mlonmcu.feature.feature">mlonmcu.feature.feature module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.feature.html#module-mlonmcu.feature.features">mlonmcu.feature.features module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.feature.html#module-mlonmcu.feature.type">mlonmcu.feature.type module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.feature.html#module-mlonmcu.feature">Module contents</a></li>
 </ul>
 </li>
@@ -160,6 +162,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.metadata">mlonmcu.models.metadata module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.model">mlonmcu.models.model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.options">mlonmcu.models.options module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.utils">mlonmcu.models.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models">Module contents</a></li>
 </ul>
 </li>
@@ -175,7 +178,7 @@
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html">mlonmcu.setup package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.cache">mlonmcu.setup.cache module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu-setup-install-module">mlonmcu.setup.install module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.setup">mlonmcu.setup.setup module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.task">mlonmcu.setup.task module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.tasks">mlonmcu.setup.tasks module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#module-mlonmcu.setup.utils">mlonmcu.setup.utils module</a></li>
@@ -185,8 +188,14 @@
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.target.html">mlonmcu.target package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.common">mlonmcu.target.common module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.corstone300">mlonmcu.target.corstone300 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.elf">mlonmcu.target.elf module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.etiss_pulpino">mlonmcu.target.etiss_pulpino module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.host_x86">mlonmcu.target.host_x86 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.metrics">mlonmcu.target.metrics module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.ovpsim">mlonmcu.target.ovpsim module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.riscv">mlonmcu.target.riscv module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.spike">mlonmcu.target.spike module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.target">mlonmcu.target.target module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target">Module contents</a></li>
 </ul>

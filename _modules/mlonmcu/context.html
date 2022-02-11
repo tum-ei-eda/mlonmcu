@@ -42,6 +42,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
@@ -98,13 +101,13 @@
 
 <span class="sd">    This function is used if neither a name nor a path of the environment was specified by the user.</span>
 <span class="sd">    The lookup follows a predefined order:</span>
-<span class="sd">      - Check current working directory</span>
-<span class="sd">      - Check MLONMCU_HOME environment variable</span>
-<span class="sd">      - Default environment for current user</span>
+<span class="sd">    - Check current working directory</span>
+<span class="sd">    - Check MLONMCU_HOME environment variable</span>
+<span class="sd">    - Default environment for current user</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    environment</span>
+<span class="sd">    environment : Path</span>
 <span class="sd">        The environment (if the lookup was successful).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting lookup for mlonmcu environment&quot;</span><span class="p">)</span>
@@ -260,7 +263,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Path:</span>
+<span class="sd">    Path :</span>
 <span class="sd">        Path to the found environment.yml (if sucessful)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">path</span><span class="p">:</span>

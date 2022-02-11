@@ -42,6 +42,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
@@ -113,8 +116,8 @@
     <span class="sd">&quot;&quot;&quot;Utility which iterates over a set of given config keys and</span>
 <span class="sd">    resolves their values using the passed config and/or cache.</span>
 
-<span class="sd">    Arguments</span>
-<span class="sd">    ---------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    required_keys : List[str]</span>
 
 <span class="sd">    features : List[Feature]</span>
@@ -126,6 +129,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
+<span class="sd">    result : dict</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

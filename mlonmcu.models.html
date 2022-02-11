@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="mlonmcu.session package" href="mlonmcu.session.html" />
-    <link rel="prev" title="mlonmcu.flow.tvm.wrapper package" href="mlonmcu.flow.tvm.wrapper.html" /> 
+    <link rel="prev" title="mlonmcu.flow.tvm.backend package" href="mlonmcu.flow.tvm.backend.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
@@ -108,48 +111,6 @@
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">Frontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_formats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_formats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>use_inout_data</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mlonmcu.models.frontend.Frontend.supports_formats" title="mlonmcu.models.frontend.Frontend.supports_formats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">supports_formats</span></code></a>([ins, outs])</p></td>
-<td><p>Returs true if the frontend can handle at least one combination of input and output formats.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 68%" />
-<col style="width: 32%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>export_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process_metadata</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>produce_artifacts</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -207,48 +168,6 @@
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.ONNXFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">ONNXFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#ONNXFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.ONNXFrontend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.SimpleFrontend</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>use_inout_data</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">supports_formats</span></code>([ins, outs])</p></td>
-<td><p>Returs true if the frontend can handle at least one combination of input and output formats.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 68%" />
-<col style="width: 32%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>export_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process_metadata</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>produce_artifacts</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.ONNXFrontend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.ONNXFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -270,51 +189,6 @@
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.PackedFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">PackedFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#PackedFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.PackedFrontend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.Frontend</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>check</strong></dt><dd></dd>
-<dt><strong>ignore_existing</strong></dt><dd></dd>
-<dt><strong>use_inout_data</strong></dt><dd></dd>
-<dt><strong>use_packed</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">supports_formats</span></code>([ins, outs])</p></td>
-<td><p>Returs true if the frontend can handle at least one combination of input and output formats.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 68%" />
-<col style="width: 32%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>export_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process_metadata</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>produce_artifacts</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.PackedFrontend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'check':</span> <span class="pre">False,</span> <span class="pre">'fake_pack':</span> <span class="pre">False,</span> <span class="pre">'ignore_existing':</span> <span class="pre">True,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'use_packed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.PackedFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -357,48 +231,6 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">SimpleFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#SimpleFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.SimpleFrontend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.Frontend</span></code></a></p>
 <p>An abstract frontend with equivalent input and output formats.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>use_inout_data</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">supports_formats</span></code>([ins, outs])</p></td>
-<td><p>Returs true if the frontend can handle at least one combination of input and output formats.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 68%" />
-<col style="width: 32%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>export_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process_metadata</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>produce_artifacts</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.SimpleFrontend.produce_artifacts">
 <span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#SimpleFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.SimpleFrontend.produce_artifacts" title="Permalink to this definition"></a></dt>
@@ -410,48 +242,6 @@
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">TfLiteFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.SimpleFrontend</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>use_inout_data</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">supports_formats</span></code>([ins, outs])</p></td>
-<td><p>Returs true if the frontend can handle at least one combination of input and output formats.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 68%" />
-<col style="width: 32%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>export_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>generate_models</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>process_features</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>process_metadata</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>produce_artifacts</strong></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_graph':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -568,31 +358,6 @@
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model.</span></span><span class="sig-name descname"><span class="pre">ModelFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extensions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlonmcu.models.model.ModelFormat" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>extensions</strong></dt><dd><p>Alias for field number 1</p>
-</dd>
-<dt><strong>value</strong></dt><dd><p>Alias for field number 0</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code>(value, /)</p></td>
-<td><p>Return number of occurrences of value.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code>(value[, start, stop])</p></td>
-<td><p>Return first index of value.</p></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormat.extensions">
 <span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormat.extensions" title="Permalink to this definition"></a></dt>
@@ -676,6 +441,29 @@
 <dd></dd></dl>
 
 </section>
+<section id="module-mlonmcu.models.utils">
+<span id="mlonmcu-models-utils-module"></span><h2>mlonmcu.models.utils module<a class="headerlink" href="#module-mlonmcu.models.utils" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.utils.fill_data_source">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.utils.</span></span><span class="sig-name descname"><span class="pre">fill_data_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_bufs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_bufs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/utils.html#fill_data_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.utils.fill_data_source" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.utils.get_data_source">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.utils.</span></span><span class="sig-name descname"><span class="pre">get_data_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/utils.html#get_data_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.utils.get_data_source" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.utils.lookup_data_buffers">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.utils.</span></span><span class="sig-name descname"><span class="pre">lookup_data_buffers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/utils.html#lookup_data_buffers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.utils.lookup_data_buffers" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.utils.make_hex_array">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.utils.</span></span><span class="sig-name descname"><span class="pre">make_hex_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bin'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/utils.html#make_hex_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.utils.make_hex_array" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
 <section id="module-mlonmcu.models">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.models" title="Permalink to this headline"></a></h2>
 </section>
@@ -685,7 +473,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="mlonmcu.flow.tvm.wrapper.html" class="btn btn-neutral float-left" title="mlonmcu.flow.tvm.wrapper package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.flow.tvm.backend.html" class="btn btn-neutral float-left" title="mlonmcu.flow.tvm.backend package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="mlonmcu.session.html" class="btn btn-neutral float-right" title="mlonmcu.session package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

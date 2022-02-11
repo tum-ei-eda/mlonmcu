@@ -45,6 +45,9 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
@@ -264,6 +267,11 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="mlonmcu.environment.html#module-mlonmcu.environment.writer"><code class="xref">mlonmcu.environment.writer</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="mlonmcu.feature.html#module-mlonmcu.feature"><code class="xref">mlonmcu.feature</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -275,6 +283,11 @@
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="mlonmcu.feature.html#module-mlonmcu.feature.features"><code class="xref">mlonmcu.feature.features</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="mlonmcu.feature.html#module-mlonmcu.feature.type"><code class="xref">mlonmcu.feature.type</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -344,6 +357,16 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tflite_model_info"><code class="xref">mlonmcu.flow.tvm.backend.tflite_model_info</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tuner"><code class="xref">mlonmcu.flow.tvm.backend.tuner</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmaot"><code class="xref">mlonmcu.flow.tvm.backend.tvmaot</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -359,17 +382,17 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.wrapper"><code class="xref">mlonmcu.flow.tvm.backend.wrapper</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm.framework"><code class="xref">mlonmcu.flow.tvm.framework</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm.tvm_flow"><code class="xref">mlonmcu.flow.tvm.tvm_flow</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="mlonmcu.flow.tvm.wrapper.html#module-mlonmcu.flow.tvm.wrapper"><code class="xref">mlonmcu.flow.tvm.wrapper</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -429,6 +452,11 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="mlonmcu.models.html#module-mlonmcu.models.utils"><code class="xref">mlonmcu.models.utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="mlonmcu.html#module-mlonmcu.report"><code class="xref">mlonmcu.report</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -469,6 +497,11 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="mlonmcu.setup.html#module-mlonmcu.setup.setup"><code class="xref">mlonmcu.setup.setup</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="mlonmcu.setup.html#module-mlonmcu.setup.task"><code class="xref">mlonmcu.setup.task</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -494,12 +527,42 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="mlonmcu.target.html#module-mlonmcu.target.corstone300"><code class="xref">mlonmcu.target.corstone300</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="mlonmcu.target.html#module-mlonmcu.target.elf"><code class="xref">mlonmcu.target.elf</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="mlonmcu.target.html#module-mlonmcu.target.etiss_pulpino"><code class="xref">mlonmcu.target.etiss_pulpino</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="mlonmcu.target.html#module-mlonmcu.target.host_x86"><code class="xref">mlonmcu.target.host_x86</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="mlonmcu.target.html#module-mlonmcu.target.metrics"><code class="xref">mlonmcu.target.metrics</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="mlonmcu.target.html#module-mlonmcu.target.ovpsim"><code class="xref">mlonmcu.target.ovpsim</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="mlonmcu.target.html#module-mlonmcu.target.riscv"><code class="xref">mlonmcu.target.riscv</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="mlonmcu.target.html#module-mlonmcu.target.spike"><code class="xref">mlonmcu.target.spike</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>

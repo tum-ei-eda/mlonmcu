@@ -8,6 +8,7 @@ from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config
+from mlonmcu.models.lookup import lookup_models
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.compile.mlif import MLIF
 from mlonmcu.models import SUPPORTED_FRONTENDS
@@ -120,6 +121,9 @@ class Run:
         component_config = self.config.copy()  # TODOL get rid of this
         return component_cls(features=self.features, config=component_config)
 
+    def add_model(self, model):
+        self.model = model
+
     def add_frontend(self, frontend):
         self.frontend = frontend
 
@@ -154,17 +158,21 @@ class Run:
             context=context,
         )
 
-    def add_model_by_name(self, model_name):
-        pass
+    def add_model_by_name(self, model_name, context=None):
+        assert context is not None, "Please supply a context"
+        assert self.frontend is not None, "Add a frontend to the run before adding a model"
+        model_hints = lookup_models([model_name], frontends=[self.frontend], context=context)
+        assert len(model_hints) > 0, f"Model with name '{model_name}' not found"
+        self.add_model(model_hints[0])
 
     def add_frontend_by_name(self, frontend_name, context=None):
-        assert context is None or context.environment.has_frontend(
+        assert context is not None and context.environment.has_frontend(
             frontend_name
         ), f"The frontend '{frontend_name}' is not enabled for this environment"
         self.add_frontend(self.init_component(SUPPORTED_FRONTENDS[frontend_name], context=context))
 
     def add_backend_by_name(self, backend_name, context=None):
-        assert context is None or context.environment.has_backend(
+        assert context is not None and context.environment.has_backend(
             backend_name
         ), f"The backend '{backend_name}' is not enabled for this environment"
         self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
@@ -175,10 +183,12 @@ class Run:
         self.add_framework(self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context))
 
     def add_target_by_name(self, target_name, context=None):
-        assert context is None or context.environment.has_target(
+        assert context is not None and context.environment.has_target(
             target_name
         ), f"The target '{target_name}' is not enabled for this environment"
         self.add_target(self.init_component(SUPPORTED_TARGETS[target_name], context=context))
+        if self.mlif is None:
+            self.init_mlif(context=context)
 
     @property
     def export_optional(self):

@@ -125,8 +125,10 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
             outStr = p.communicate()[0].decode(errors="replace")
             exit_code = p.poll()
             # outStr = p.stdout.decode(errors="replace")
-            if print_output or exit_code > 0:
+            if print_output:
                 logger.debug(outStr)
+            elif exit_code > 0:
+                logger.error(outStr)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )

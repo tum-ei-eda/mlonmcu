@@ -22,15 +22,21 @@ class Corstone300Target(Target):
     FEATURES = ["ethosu"]
 
     DEFAULTS = {
+        "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz), Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
         "enable_ethosu": False,
         "ethosu_num_macs": 256,
         "extra_args": "",
     }
-    REQUIRED = ["corstone300.exe", "cmsisnn.dir", "arm_gcc.install_dir"]  # Actually cmsisnn.dir points to the root CMSIS_5 directory
+    REQUIRED = [
+        "corstone300.exe",
+        "cmsisnn.dir",
+        "arm_gcc.install_dir",
+    ]  # Actually cmsisnn.dir points to the root CMSIS_5 directory
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__("corstone300", features=features, config=config, context=context)
+
     @property
     def enable_ethosu(self):
         return bool(self.config["enable_ethosu"])
@@ -71,7 +77,7 @@ class Corstone300Target(Target):
             "-C",
             "mps3_board.uart0.unbuffered_output=1",
             "-C",
-            "mps3_board.uart0.shutdown_tag=\"EXITTHESIM\"",
+            'mps3_board.uart0.shutdown_tag="EXITTHESIM"',
             "-C",
             "cpu0.CFGDTCMSZ=15",  # ?
             "-C",
@@ -83,7 +89,7 @@ class Corstone300Target(Target):
             "-C",
             f"ethosu.num_macs={self.ethosu_num_macs}",
             "-C",
-            f"ethosu.extra_args=\"--fast\"",
+            f'ethosu.extra_args="--fast"',
         ]
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):

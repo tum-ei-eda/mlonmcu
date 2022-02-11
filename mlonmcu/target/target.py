@@ -82,7 +82,7 @@ class Target:
         """Use target to inspect a executable"""
         return execute(self.inspect_program, program, *self.inspect_program_args, *args, **kwargs)
 
-    def get_metrics(self, elf, directory, verbose=False):
+    def get_metrics(self, elf, directory, verbose=True):
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
         if verbose:

@@ -141,7 +141,8 @@
 
 <div class="viewcode-block" id="Backend.tune_model"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.Backend.tune_model">[docs]</a>    <span class="k">def</span> <span class="nf">tune_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_tuner</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Backend does not support autotuning&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+            <span class="c1"># raise NotImplementedError(&quot;Backend does not support autotuning&quot;)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span><span class="o">.</span><span class="n">tune</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Backend.set_tuning_records"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.Backend.set_tuning_records">[docs]</a>    <span class="k">def</span> <span class="nf">set_tuning_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>

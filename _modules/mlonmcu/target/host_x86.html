@@ -98,24 +98,35 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-        <span class="c1"># TODO: self.cmakeToolchainFile = ?</span>
-        <span class="c1"># TODO: self.cmakeScript = ?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gdb_path</span> <span class="o">=</span> <span class="s2">&quot;gdb&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gdb_server_path</span> <span class="o">=</span> <span class="s2">&quot;gdbserver&quot;</span>
 
-<div class="viewcode-block" id="HostX86Target.exec"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.host_x86.HostX86Target.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;attach&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="ow">and</span> <span class="s2">&quot;noattach&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gdb_path</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;noattach&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
-            <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gdbserver_port&quot;</span><span class="p">])</span>
-            <span class="n">comm</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;host:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gdb_server_path</span><span class="p">,</span> <span class="n">comm</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gdbserver_enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gdbserver_enable&quot;</span><span class="p">])</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gdbserver_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gdbserver_attach&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gdbserver_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gdbserver_port&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="HostX86Target.exec"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.host_x86.HostX86Target.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">make_executable</span><span class="p">(</span><span class="n">exe</span><span class="p">):</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">exe</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mode</span> <span class="o">|</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IEXEC</span><span class="p">)</span>
 
         <span class="n">make_executable</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_enable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_attach</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+                <span class="c1"># return execute(self.gdb_path, program, *args, **kwargs)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">comm</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;127.0.0.1:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_port</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gdb_server_path</span><span class="p">,</span> <span class="n">comm</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 

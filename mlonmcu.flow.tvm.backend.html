@@ -113,6 +113,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
+<dt><strong>extra_target</strong></dt><dd></dd>
 <dt><strong>has_tuner</strong></dt><dd></dd>
 <dt><strong>name</strong></dt><dd></dd>
 <dt><strong>opt_level</strong></dt><dd></dd>
@@ -187,17 +188,22 @@
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'extra_target':</span> <span class="pre">None,</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'cmsisnnbyoc']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir',</span> <span class="pre">'tvm.pythonpath']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.backend.TVMBackend.extra_target">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extra_target</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend.extra_target" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -299,6 +305,7 @@
 <dd class="field-odd"><dl class="simple">
 <dt><strong>alignment_bytes</strong></dt><dd></dd>
 <dt><strong>arena_size</strong></dt><dd></dd>
+<dt><strong>extra_target</strong></dt><dd></dd>
 <dt><strong>has_tuner</strong></dt><dd></dd>
 <dt><strong>opt_level</strong></dt><dd></dd>
 <dt><strong>pass_config</strong></dt><dd></dd>
@@ -376,12 +383,12 @@
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'alignment_bytes':</span> <span class="pre">4,</span> <span class="pre">'arena_size':</span> <span class="pre">None,</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'unpacked_api':</span> <span class="pre">False,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'alignment_bytes':</span> <span class="pre">4,</span> <span class="pre">'arena_size':</span> <span class="pre">None,</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'extra_target':</span> <span class="pre">None,</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'unpacked_api':</span> <span class="pre">False,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'debug_arena',</span> <span class="pre">'unpacked_api',</span> <span class="pre">'usmp']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'debug_arena',</span> <span class="pre">'unpacked_api',</span> <span class="pre">'usmp']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -432,6 +439,7 @@
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>arena_size</strong></dt><dd></dd>
+<dt><strong>extra_target</strong></dt><dd></dd>
 <dt><strong>has_tuner</strong></dt><dd></dd>
 <dt><strong>opt_level</strong></dt><dd></dd>
 <dt><strong>pass_config</strong></dt><dd></dd>
@@ -545,6 +553,7 @@
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>arena_size</strong></dt><dd></dd>
+<dt><strong>extra_target</strong></dt><dd></dd>
 <dt><strong>has_tuner</strong></dt><dd></dd>
 <dt><strong>opt_level</strong></dt><dd></dd>
 <dt><strong>pass_config</strong></dt><dd></dd>
@@ -624,12 +633,12 @@
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arena_size':</span> <span class="pre">1048576,</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arena_size':</span> <span class="pre">1048576,</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'extra_target':</span> <span class="pre">None,</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'debug_arena']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'debug_arena']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

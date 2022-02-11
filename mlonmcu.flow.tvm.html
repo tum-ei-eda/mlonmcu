@@ -135,6 +135,15 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tvm.framework.</span></span><span class="sig-name descname"><span class="pre">TVMFramework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/framework.html#TVMFramework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework" title="mlonmcu.flow.framework.Framework"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.framework.Framework</span></code></a></p>
 <p>TVM Framework specialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>extra_incs</strong></dt><dd></dd>
+<dt><strong>extra_libs</strong></dt><dd></dd>
+<dt><strong>tvm_src</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table class="docutils align-default">
 <colgroup>
@@ -158,17 +167,27 @@
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.framework.TVMFramework.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra_incs':</span> <span class="pre">[],</span> <span class="pre">'extra_libs':</span> <span class="pre">[]}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.framework.TVMFramework.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['cmsisnnbyoc']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.framework.TVMFramework.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.src_dir']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.framework.TVMFramework.extra_incs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extra_incs</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.extra_incs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.framework.TVMFramework.extra_libs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extra_libs</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.extra_libs" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -179,6 +198,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.framework.TVMFramework.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tvm'</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.framework.TVMFramework.tvm_src">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_src</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.framework.TVMFramework.tvm_src" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

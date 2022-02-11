@@ -89,12 +89,13 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="s2">&quot;autotuned&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="s2">&quot;autotuned&quot;</span><span class="p">,</span> <span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;opt_level&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
         <span class="s2">&quot;target_device&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;extra_target&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;disabled_passes&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout</span>
         <span class="s2">&quot;extra_pass_config&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># TODO: some example (fuse_max_depth etc.)</span>
         <span class="s2">&quot;use_tuning_results&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -151,6 +152,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_device&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_target&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">opt_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;opt_level&quot;</span><span class="p">]</span>
 
@@ -177,6 +182,9 @@
         <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--input-shapes&quot;</span><span class="p">,</span> <span class="n">arg</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="TVMBackend.get_common_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_common_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_common_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_target</span><span class="p">:</span>
+            <span class="c1"># TODO: support multiple ones, currently only single one...</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_target</span><span class="p">,</span> <span class="n">target</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
             <span class="s2">&quot;--target&quot;</span><span class="p">,</span>

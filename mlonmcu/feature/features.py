@@ -124,20 +124,28 @@ class Muriscvnn(SetupFeature, FrameworkFeature):
     def muriscvnn_inc_dir(self):
         return str(self.config["muriscvnn.inc_dir"])
 
-    def get_framework_config(self, framework):
+    def add_framework_config(self, framework, config):
         assert framework == "tflite", f"Unsupported feature '{self.name}' for framework '{framework}'"
-        # TODO: make sure that no other kernels is was set beforehand! -> add_framework_config
-        return {
-            f"{framework}.optimized_kernel": "cmsis_nn",
-            f"{framework}.optimized_kernel_lib": self.muriscvnn_lib,
-            f"{framework}.optimized_kernel_inc_dir": self.muriscvnn_inc_dir,
-        }
+        if f"{framework}.optimized_kernel" in config and config[f"{framework}.optimized_kernel"] not in [
+            None,
+            "cmsis_nn",
+        ]:
+            RuntimeError(f"There is already a optimized_kernel selected for framework '{framework}'")
+        else:
+            config[f"{framework}.optimized_kernel"] = "cmsis_nn"
+        libs = config.get(f"{framework}.optimized_kernel_libs", [])
+        libs.append(self.muriscvnn_lib)
+        incs = config.get(f"{framework}.optimized_kernel_inc_dirs", [])
+        incs.append(self.muriscvnn_inc_dir)
+        config[f"{framework}.optimized_kernel_libs"] = libs
+        config[f"{framework}.optimized_kernel_inc_dirs"] = incs
 
     def get_required_cache_flags(self):
         ret = {}
 
         ret["tflmc.exe"] = ["muriscvnn"]
         return ret
+
 
 @register_feature("cmsisnn")
 class Cmsisnn(SetupFeature, FrameworkFeature):
@@ -156,18 +164,27 @@ class Cmsisnn(SetupFeature, FrameworkFeature):
     def cmsisnn_dir(self):
         return str(self.config["cmsisnn.dir"])
 
-    def get_framework_config(self, framework):
+    def add_framework_config(self, framework, config):
         assert framework == "tflite", f"Unsupported feature '{self.name}' for framework '{framework}'"
-        return {
-            f"{framework}.optimized_kernel": "cmsis_nn",
-            f"{framework}.optimized_kernel_lib": self.cmsisnn_lib,
-            f"{framework}.optimized_kernel_inc_dir": self.cmsisnn_dir,
-        }
+        if f"{framework}.optimized_kernel" in config and config[f"{framework}.optimized_kernel"] not in [
+            None,
+            "cmsis_nn",
+        ]:
+            RuntimeError(f"There is already a optimized_kernel selected for framework '{framework}'")
+        else:
+            config[f"{framework}.optimized_kernel"] = "cmsis_nn"
+        libs = config.get(f"{framework}.optimized_kernel_libs", [])
+        libs.append(self.cmsisnn_lib)
+        incs = config.get(f"{framework}.optimized_kernel_inc_dirs", [])
+        incs.append(self.cmsisnn_dir)
+        config[f"{framework}.optimized_kernel_libs"] = libs
+        config[f"{framework}.optimized_kernel_inc_dirs"] = incs
 
     def get_required_cache_flags(self):
         ret = {}
         ret["tflmc.exe"] = ["cmsisnn"]
         return ret
+
 
 @register_feature("cmsisnnbyoc")
 class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
@@ -199,11 +216,12 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
             f"{framework}.extra_incs": include_dirs,
         }
 
-    def get_backend_config(self, backend):
+    def add_backend_config(self, backend, config):
         assert backend in ["tvmaot", "tvmrt", "tvmcg"], f"Unsupported feature '{self.name}' for backend '{backend}'"
-        return {
-            f"{backend}.extra_kernel": "cmsis-nn",
-        }
+        extras = config.get(f"{backend}.extra_kernel", [])
+        if "cmsis-nn" not in extras:
+            extras[f"{backend}.extra_kernel"].append("cmsis-nn")
+        config[f"{backend}.extra_kernel"] = extras
 
     def get_required_cache_flags(self):
         ret = {}
@@ -213,7 +231,7 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 
 # @before_feature("muriscvnn")  # TODO: implment something like this
 @register_feature("vext")
-class Vext(SetupFeature, TargetFeature):
+class Vext(SetupFeature, TargetFeature, CompileFeature):
     """MuriscvNN CMSIS-NN wrappers for TFLite Micro"""
 
     DEFAULTS = {
@@ -238,6 +256,13 @@ class Vext(SetupFeature, TargetFeature):
             f"{target}.enable_vext": True,
             f"{target}.vlen": self.vlen,
         }
+
+    def add_compile_config(self, config):
+        # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
+        if "mlif.toolchain" in config:
+            assert "mlif.toolchain" == "llvm", "Vext requires LLVM target sw"
+        else:
+            config["mlif.toolchain"] = "llvm"
 
     def get_required_cache_flags(self):
         return {

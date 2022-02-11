@@ -1,8 +1,8 @@
-## Important Terms and Design Decisions (RFC)
+# Important Terms and Design Decisions (RFC)
 
 MLonMCU offers a hand full of high level interfaces as well as a large number of internally used objects. You may use this document as a Glossary to understand the meaning of these some core concepts of the MLonMCU software infrastructure.
 
-### Motivation and Goals
+## Motivation and Goals
 
 MLonMCU is basically a reimplemented version of a TinyML benchmarking project which was used internally before for about one year.
 
@@ -19,26 +19,26 @@ The open source design was approached with the following set of goals in mind:
 - Offer a large number of examples and extensive documentation to enable the TinyML community to get started with MLonMCU easily
 - Ensure reproducibility of research results by improved logging and import options and isolated environments.
 
-### Fundamentals
+## Fundamentals
 
-#### Features and Configuration
+### Features and Configuration
 
 Two types of options can be found in a large number of classes in the MLonMCU Package: `features : List[Feature]` and `config : Dict`. This design decision leads to unified command line interfaces and less framework/backend/target/frontend/feature specific code in higher levels of the codebase. A baseline requirement for all classes which implement those two concepts is the definition of the class variables `FEATURES`, `DEFAULTS` and `REQUIRED` .
 
 Learn more about these features here.
 
-#### Contexts and Environments
+### Contexts and Environments
 
 TODO
 
-#### Session Management/Run Definition
+### Session Management/Run Definition
 
-#### Artifacts Handling
+### Artifacts Handling
 
 
 TODO
 
-#### Abstraction at Various Levels
+### Abstraction at Various Levels
 
 Inheritance is used at multiple levels in the MLonMCU project to introduce abstract interfaces for important objects.
 

@@ -1,10 +1,10 @@
-## Environments
+# Environments
 
-### Motivation
+## Motivation
 
 While the base set of features in MLonMCU should work out of the box, there are some reasons for not sticking to predefined default values. Instead of hardcoding values such as repository urls or file paths inside the codebase, they can be completely configured by the user to allow setting up custom environments with very low efforts required. Having multiple MLonMCU environments installed in parallel has further advantages as they are completely isolated from each other an therefore allow using different versions of components and a different set of features. In addition there is a possibility to turn of certain components completely to reduce the installation time. User configuration for the MLonMCU flow which would typically need to be passed via the command line can be instead defined in the environment file which going to be explained next.
 
-### `environment.yml` Explained
+## `environment.yml` Explained
 
 Each MLonMCU environment has a unique directory which can be chosen by the user where dependencies are installed and exports are written to. In this directory which can also be referred as MLonMCU-Home the environment configuration file `environment.yml` can be found. The basic structure of this YAML file can be summarized as follows:
 
@@ -72,7 +72,7 @@ vars:
 While some parts of the file can theoretically be omitted, it is not recommended to do do. Also it has to be noted, that frameworks, backends, targets, frontends and features need to be explicitly enabled in the environment file to be available in the MLonMCU flow.
 
 **Hint:** The `default` property which is available for some components supports wildcards, e.g. instead of providing a single backend name just put in "*" to use all enabled backends of the given framework by default.
-### Environment Templates
+## Environment Templates
 
 There is a set of environment file templates provided with the MLonMCU package which can be chosen from by the user e.g.
 
@@ -83,9 +83,9 @@ There is a set of environment file templates provided with the MLonMCU package w
 
 After a template was chosen, the initial environment file is being generated which can be freely modified by the user afterwards.
 
-### Creating environments 
+## Creating environments 
 
-#### Command line (recommended)
+### Command line (recommended)
 
 To get started with MLonMCU on the command line first an environment has to be created using the `mlonmcu init` command. As only some usage examples are shown in the following, make sure to check out `mlonmcu init --help` to learn more.
 
@@ -94,13 +94,13 @@ To get started with MLonMCU on the command line first an environment has to be c
 
 The tool will ask some questions on the command line interactively.
 
-#### Python API
+### Python API
 
 At the moment please stick to the CLI tool!
 
-### Using environments
+## Using environments
 
-#### Command line
+### Command line
 
 Most of the `mlonmcu` subcommands need a MLonMCU environment to operate on. In some cases it can be resolved automatically however it is recommended to pass it explicitly by the user in either of the following ways:
 
@@ -129,7 +129,7 @@ mlonmcu models -H ./env/
 ```
 
 
-#### Python API
+### Python API
 
 For the best experience a MLonMCU environment should always we wrapped with a `MlonMcuContext` as it provides useful utilities and a locking mechanism which can ensure that only one instance of the environment can be requested at a time.
 
@@ -143,6 +143,6 @@ with mlonmcu.context.MlonMcuContext() as ctx:
 
 Analogous to the command line flags an environment path or name should be provided to use a non-default environment location.
 
-### Environment registry
+## Environment registry
 
 Optionally environment can be registered in the users home config directory with a given name which enabled referring to them without providing a file path. Use the `--register` and `--name` flags of the `mlonmcu init` command to do so. The command `mlonmcu env` provides useful utilities to list and modify existing entries in the registry file which is typically located at `~/.config/mlonmcu/environments.ini`.

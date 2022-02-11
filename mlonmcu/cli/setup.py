@@ -76,7 +76,7 @@ def handle(args):
             order = installer.get_dependency_order()
             print("The following tasks have been selected:")
             print("\n".join(["- " + key for key in order]))
-        elif args.manual:
+        elif args.task:
             installer.invoke_single_task(
                 args.task[0],
                 progress=args.progress,

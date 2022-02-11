@@ -23,17 +23,18 @@ class HostX86Target(Target):
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__("host_x86", features=features, config=config, context=context)
-        # TODO: self.cmakeToolchainFile = ?
-        # TODO: self.cmakeScript = ?
         self.gdb_path = "gdb"
         self.gdb_server_path = "gdbserver"
 
+    @property
     def gdbserver_enable(self):
         return bool(self.config["gdbserver_enable"])
 
+    @property
     def gdbserver_attach(self):
         return bool(self.config["gdbserver_attach"])
 
+    @property
     def gdbserver_port(self):
         return int(self.config["gdbserver_port"])
 
@@ -43,7 +44,6 @@ class HostX86Target(Target):
             f.chmod(f.stat().st_mode | stat.S_IEXEC)
 
         make_executable(program)
-        # if "attach" in self.features and "noattach" not in self.features:
         if self.gdbserver_enable:
             if self.gdbserver_attach:
                 raise NotImplementedError

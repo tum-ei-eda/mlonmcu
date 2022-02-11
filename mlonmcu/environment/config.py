@@ -19,7 +19,7 @@ def init_config_dir():
     files = ["environments.ini"]
     for subdir in subdirs:
         environments_dir = config_dir / subdir
-        environments_dir.mkdir(exist_ok=True)
+        environments_dir.mkdir(exist_ok=True, parents=True)
     for file in files:
         filepath = config_dir / file
         filepath.touch(exist_ok=True)

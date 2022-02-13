@@ -387,64 +387,66 @@ def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=F
     etissvpName = utils.makeDirName("build", flags=flags)
     etissvpSrcDir = context.cache["etissvp.src_dir", flags]
     etissvpBuildDir = etissvpSrcDir / etissvpName
+    etissvpExe = etissvpBuildDir / "main"
 
-    def addMemArgs(args, context=None):  # TODO: find out if this is still required?
-        memMap = (0x0, 0x800000, 0x800000, 0x4000000)
+    if rebuild or not etissvpExe.is_file():
 
-        if context:
-            user_vars = context.environment.vars
-            if "etissvp.rom_start" in user_vars:
-                temp = user_vars["etissvp.rom_start"]
-                if not isinstance(temp, int):
-                    temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                memMap[0] = temp
-            if "etissvp.rom_size" in user_vars:
-                temp = user_vars["etissvp.rom_size"]
-                if not isinstance(temp, int):
-                    temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                memMap[1] = temp
-            if "etissvp.ram_start" in user_vars:
-                temp = user_vars["etissvp.ram_start"]
-                if not isinstance(temp, int):
-                    temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                memMap[2] = temp
-            if "etissvp.ram_size" in user_vars:
-                temp = user_vars["etissvp.ram_size"]
-                if not isinstance(temp, int):
-                    temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                memMap[3] = temp
+        def addMemArgs(args, context=None):  # TODO: find out if this is still required?
+            memMap = (0x0, 0x800000, 0x800000, 0x4000000)
 
-        def checkMemMap(mem):
-            rom_start, rom_size, ram_start, ram_size = mem[0], mem[1], mem[2], mem[3]
-            for val in mem:
-                assert isinstance(val, int)
+            if context:
+                user_vars = context.environment.vars
+                if "etissvp.rom_start" in user_vars:
+                    temp = user_vars["etissvp.rom_start"]
+                    if not isinstance(temp, int):
+                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
+                    memMap[0] = temp
+                if "etissvp.rom_size" in user_vars:
+                    temp = user_vars["etissvp.rom_size"]
+                    if not isinstance(temp, int):
+                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
+                    memMap[1] = temp
+                if "etissvp.ram_start" in user_vars:
+                    temp = user_vars["etissvp.ram_start"]
+                    if not isinstance(temp, int):
+                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
+                    memMap[2] = temp
+                if "etissvp.ram_size" in user_vars:
+                    temp = user_vars["etissvp.ram_size"]
+                    if not isinstance(temp, int):
+                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
+                    memMap[3] = temp
 
-                def is_power_of_two(n):
-                    return n == 0 or (n & (n - 1) == 0)
+            def checkMemMap(mem):
+                rom_start, rom_size, ram_start, ram_size = mem[0], mem[1], mem[2], mem[3]
+                for val in mem:
+                    assert isinstance(val, int)
 
-                assert is_power_of_two(val)
-            assert rom_start + rom_size <= ram_start
+                    def is_power_of_two(n):
+                        return n == 0 or (n & (n - 1) == 0)
 
-        checkMemMap(memMap)
+                    assert is_power_of_two(val)
+                assert rom_start + rom_size <= ram_start
 
-        args.append(f"-DPULPINO_ROM_START={hex(memMap[0])}")
-        args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[1])}")
-        args.append(f"-DPULPINO_ROM_START={hex(memMap[2])}")
-        args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[3])}")
-        return args
+            checkMemMap(memMap)
 
-    etissvpArgs = addMemArgs([], context=context)
-    utils.mkdirs(etissvpBuildDir)
-    utils.cmake(
-        etissvpSrcDir,
-        *etissvpArgs,
-        cwd=etissvpBuildDir,
-        debug=params["dbg"],
-        live=verbose,
-    )
-    utils.make(cwd=etissvpBuildDir, live=verbose)
+            args.append(f"-DPULPINO_ROM_START={hex(memMap[0])}")
+            args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[1])}")
+            args.append(f"-DPULPINO_ROM_START={hex(memMap[2])}")
+            args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[3])}")
+            return args
+
+        etissvpArgs = addMemArgs([], context=context)
+        utils.mkdirs(etissvpBuildDir)
+        utils.cmake(
+            etissvpSrcDir,
+            *etissvpArgs,
+            cwd=etissvpBuildDir,
+            debug=params["dbg"],
+            live=verbose,
+        )
+        utils.make(cwd=etissvpBuildDir, live=verbose)
     context.cache["etissvp.build_dir", flags] = etissvpBuildDir
-    etissvpExe = etissvpBuildDir / "bare_etiss_processor"
     context.cache["etissvp.exe", flags] = etissvpExe
 
 

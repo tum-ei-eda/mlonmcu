@@ -1,6 +1,7 @@
 from mlonmcu.feature.features import (
     get_available_features,
 )  # This does not really belong here
+from mlonmcu.config import resolve_required_config
 
 
 def parse_var(s):
@@ -54,13 +55,24 @@ def extract_config(args):
     return configs
 
 
-def extract_config_and_init_features(args):
+def extract_config_and_init_features(args, context=None):
     feature_names = extract_feature_names(args)
     config = extract_config(args)
     features = []
     for feature_name in feature_names:
         available_features = get_available_features(feature_name=feature_name)
         for feature_cls in available_features:
+            required_keys = feature_cls.REQUIRED
+            if len(required_keys) > 0:
+                assert context is not None
+                config.update(
+                    resolve_required_config(
+                        required_keys,
+                        features=features,  # The order the features are provided is important here!
+                        config=config,
+                        cache=context.cache,
+                    )
+                )
             feature_inst = feature_cls(config=config)
             features.append(feature_inst)
     # How about FeatureType.other?

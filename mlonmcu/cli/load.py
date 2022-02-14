@@ -87,7 +87,7 @@ def init_frontends(frontend_names, features, config, context=None):
 def _handle(context, args):
     model_names = args.models
     config = context.environment.vars
-    new_config, features = extract_config_and_init_features(args)
+    new_config, features = extract_config_and_init_features(args, context=context)
     config.update(new_config)
     frontends = init_frontends(args.frontend, features=features, config=config, context=context)
     model_hints = lookup_models(model_names, frontends=frontends, context=context)

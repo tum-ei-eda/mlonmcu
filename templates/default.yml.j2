@@ -31,14 +31,23 @@ repos:
     url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
     ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
   tvm:
-    url: "https://github.com/apache/tvm.git"
-    ref: 779dc51e1332f417fa4c304b595ce76891dfc33a
+    url: "git@github.com:tum-ei-eda/tvm.git"
+    ref: latest_patched
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
     ref: 36902d32ae760aa3c413ca06189e6515bc28d79c
+  spike:
+    url: "git@github.com:riscv-software-src/riscv-isa-sim.git"
+    ref: master
+  spikepk:
+    url: "git@github.com:riscv-software-src/riscv-pk.git"
+    ref: master
+  cmsis:
+    url: "https://github.com/ARM-software/CMSIS_5.git"
+    ref: 8c60448c0e1e50e426180b26db9bc31ddf774361
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -54,6 +63,9 @@ frameworks:
         enabled: true
         features:
           debug_arena: true
+    features:
+      muriscvnn: false
+      cmsisnn: false
   tvm:
     enabled: true
     backends:
@@ -67,8 +79,13 @@ frameworks:
         features:
           debug_arena: true
           unpacked_api: true
+          usmp: false
       tvmcg:
         enabled: true
+        features:
+          debug_arena: true
+    features
+      cmsisnnbyoc: false
 # Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
 # 
@@ -105,11 +122,12 @@ targets:
     features:
       vext: true
   corstone300:
-    enabled: false
+    enabled: true
     features:
       ethosu: false
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
-  tvm.make_tool: "ninja"
+  # tvm.make_tool: "ninja"
   llvm.version: "11.1.0"
   runs_per_stage: true
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fi89JQF89pEiWwP6aQh7cM4H/rv32gcv.tar.xz"

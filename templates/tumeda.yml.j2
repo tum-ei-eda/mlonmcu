@@ -24,20 +24,20 @@ paths:
     - "{{ config_dir }}/models"
 # Here default clone_urls
 repos:
-  tensorflow:
-    url: "https://github.com/tum-ei-eda/tensorflow.git"
-    ref: tumeda
+  tensorflow:  # TODO: rename to tflite-micro?
+    url: "git@github.com:tensorflow/tflite-micro.git"
+    ref: main
   tflite_micro_compiler:
-    url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
+    url: "git@github.com:PhilippvK/tflite_micro_compiler.git"
     ref: patches
   tvm:
-    url: "https://github.com/tum-ei-eda/tvm.git"
+    url: "git@github.com:tum-ei-eda/tvm.git"
     ref: latest_patched
   utvm_staticrt_codegen:
-    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
+    url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
   etiss:
-    url: "https://github.com/tum-ei-eda/etiss.git"
+    url: "git@github.com:tum-ei-eda/etiss.git"
     ref: master
   muriscvnn:
     url: "git@github.com:fabianpedd/muriscv_nn.git"
@@ -45,28 +45,33 @@ repos:
   packer:
     url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
     ref: main
-
+  spike:
+    url: "git@github.com:riscv-software-src/riscv-isa-sim.git"
+    ref: master
+  spikepk:
+    url: "git@github.com:riscv-software-src/riscv-pk.git"
+    ref: master
+  cmsis:
+    url: "https://github.com/ARM-software/CMSIS_5.git"
+    ref: 8c60448c0e1e50e426180b26db9bc31ddf774361
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
 frameworks:
   default: tvm
-  tflm:
+  tflite:
     enabled: true
     backends:
-      default: tflmc
+      default: tflmi
       tflmc:
-        enabled: true
-        features:
-          muriscvnn: true
+        enabled: false
       tflmi:
         enabled: true
         features:
           debug_arena: true
     features:
       muriscvnn: true
-      features:
-        packed: false
+      cmsisnn: false
   tvm:
     enabled: true
     backends:
@@ -80,10 +85,13 @@ frameworks:
         features:
           debug_arena: true
           unpacked_api: true
+          usmp: false
       tvmcg:
         enabled: true
         features:
           debug_arena: true
+    features
+      cmsisnnbyoc: false
 # Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
 # 
@@ -91,7 +99,7 @@ frontends:
   tflite:
     enabled: true
   packed:
-    enabled: true
+    enabled: false
     features:
       packing: true
       packed: true

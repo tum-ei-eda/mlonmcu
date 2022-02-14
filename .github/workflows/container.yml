@@ -38,6 +38,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lowercase repository url
+        id: lowered
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
       - name: Build and push (CMake)
         uses: docker/build-push-action@v2
         with:
@@ -49,9 +54,9 @@ jobs:
           build-args: |
             ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+          cache-from: type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
+          tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
@@ -64,10 +69,10 @@ jobs:
             ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
-            type=registry,ref=ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
-            type=registry,ref=ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+          tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
   base:
     name: Build base image for users
     runs-on: ubuntu-latest
@@ -87,6 +92,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lowercase repository url
+        id: lowered
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
@@ -96,10 +106,10 @@ jobs:
           push: true
           target: mlonmcu
           cache-from: |
-            type=registry,ref=ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
-            type=registry,ref=ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
+          tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
   bench:
     name: Build large image for benchmarking
     runs-on: ubuntu-latest
@@ -120,6 +130,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lowercase repository url
+        id: lowered
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
@@ -131,8 +146,8 @@ jobs:
           build-args: |
             MLONMCU_TEMPLATE=${{ github.event.inputs.template}}
           cache-from: |
-            type=registry,ref=ghcr.io/${{ github.repository }}-cmake:${{ github.event.inputs.version }}
-            type=registry,ref=ghcr.io/${{ github.repository }}-ci:${{ github.event.inputs.version }}
-            type=registry,ref=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ghcr.io/${{ github.repository }}-bench:${{ github.event.inputs.version }}
+          tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}-bench:${{ github.event.inputs.version }}

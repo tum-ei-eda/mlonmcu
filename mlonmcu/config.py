@@ -34,7 +34,7 @@ def filter_config(config, prefix, defaults, required_keys):
     return cfg
 
 
-def resolve_required_config(required_keys, features=None, config=None, cache=None):
+def resolve_required_config(required_keys, features=None, targets=None, config=None, cache=None):  # TODO: add framework, backend, and frontends as well?
     """Utility which iterates over a set of given config keys and
     resolves their values using the passed config and/or cache.
 
@@ -55,15 +55,16 @@ def resolve_required_config(required_keys, features=None, config=None, cache=Non
 
     """
 
-    def get_cache_flags(features):
+    def get_cache_flags(features, targets):
         result = {}
-        for feature in features:
-            if FeatureType.SETUP in type(feature).types():
-                feature.add_required_cache_flags(result)
+        if features:
+            for feature in features:
+                if FeatureType.SETUP in type(feature).types():
+                    feature.add_required_cache_flags(result)
         return result
 
     ret = {}
-    cache_flags = get_cache_flags(features) if features else {}
+    cache_flags = get_cache_flags(features, targets)
     for key in required_keys:
         if config is None or key not in config:
             assert cache is not None, "No dependency cache was provided. Either provide a cache or config."

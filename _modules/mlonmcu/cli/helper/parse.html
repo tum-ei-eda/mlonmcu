@@ -79,6 +79,7 @@
 <span></span><span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_available_features</span><span class="p">,</span>
 <span class="p">)</span>  <span class="c1"># This does not really belong here</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
 
 
 <div class="viewcode-block" id="parse_var"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.parse_var">[docs]</a><span class="k">def</span> <span class="nf">parse_var</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
@@ -132,13 +133,24 @@
     <span class="k">return</span> <span class="n">configs</span></div>
 
 
-<div class="viewcode-block" id="extract_config_and_init_features"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_config_and_init_features">[docs]</a><span class="k">def</span> <span class="nf">extract_config_and_init_features</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_config_and_init_features"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_config_and_init_features">[docs]</a><span class="k">def</span> <span class="nf">extract_config_and_init_features</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">feature_names</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">feature_names</span><span class="p">:</span>
         <span class="n">available_features</span> <span class="o">=</span> <span class="n">get_available_features</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="n">feature_name</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">feature_cls</span> <span class="ow">in</span> <span class="n">available_features</span><span class="p">:</span>
+            <span class="n">required_keys</span> <span class="o">=</span> <span class="n">feature_cls</span><span class="o">.</span><span class="n">REQUIRED</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">resolve_required_config</span><span class="p">(</span>
+                        <span class="n">required_keys</span><span class="p">,</span>
+                        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>  <span class="c1"># The order the features are provided is important here!</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                        <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
             <span class="n">feature_inst</span> <span class="o">=</span> <span class="n">feature_cls</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
             <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_inst</span><span class="p">)</span>
     <span class="c1"># How about FeatureType.other?</span>

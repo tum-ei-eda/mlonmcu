@@ -114,23 +114,23 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">optimized_kernel_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel_lib&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">optimized_kernel_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel_libs&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">optimized_kernel_inc_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel_inc_dir&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">optimized_kernel_inc_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel_inc_dirs&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="TFLiteFramework.get_cmake_args"><a class="viewcode-back" href="../../../../mlonmcu.flow.tflite.html#mlonmcu.flow.tflite.framework.TFLiteFramework.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">()</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DTF_SRC=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_src</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span><span class="p">:</span>
             <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DTFLM_OPTIMIZED_KERNEL=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_inc_dir</span><span class="p">:</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="s2">&quot;\;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_inc_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_inc_dirs</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="s2">&quot;\;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_inc_dirs</span><span class="p">)</span>
             <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR=</span><span class="si">{</span><span class="n">temp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_lib</span><span class="p">:</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="s2">&quot;\;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_lib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_libs</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="s2">&quot;\;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_libs</span><span class="p">)</span>
             <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DTFLM_OPTIMIZED_KERNEL_LIB=</span><span class="si">{</span><span class="n">temp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">args</span></div></div>
 </pre></div>

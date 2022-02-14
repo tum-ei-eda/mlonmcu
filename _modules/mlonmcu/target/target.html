@@ -224,7 +224,16 @@
 
 <div class="viewcode-block" id="Target.get_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">target_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_system</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-DTARGET_SYSTEM=</span><span class="si">{</span><span class="n">target_system</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-DTARGET_SYSTEM=</span><span class="si">{</span><span class="n">target_system</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Target.get_arch"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_arch">[docs]</a>    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Target.get_required_cache_flags"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_required_cache_flags">[docs]</a>    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;cmsisnn.lib&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_arch</span><span class="p">()]</span>  <span class="c1"># TODO: this should be handled differently (Target arch specific libs), maybe via features or wildcards, boolean flag?</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
 </pre></div>
 
            </div>

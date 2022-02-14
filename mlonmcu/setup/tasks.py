@@ -842,11 +842,12 @@ def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=F
         env = os.environ.copy()
         # utils.cmake("-DTF_SRC=" + str(tfSrcDir), str(tflmcSrcDir), debug=params["dbg"], cwd=tflmcBuildDir)
         if params["target_arch"] == "arm":
-            toolchainFile = cmsisSrcDir / "CMSIS" / "DSP" / "Toolchain" / "GCC.cmake"
+            toolchainFile = cmsisSrcDir / "CMSIS" / "DSP" / "gcc.cmake"
             armCpu = "cortex-m55"  # TODO: make this variable?
             cmakeArgs.append(f"-DARM_CPU={armCpu}")
-            cmakeArgs.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchainFile}")
+            cmakeArgs.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchainFile}")  # Why does this not set CMAKE_C_COMPILER?
             armBinDir = Path(context.cache["arm_gcc.install_dir"]) / "bin"
+            cmakeArgs.append("-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY")
             old = env["PATH"]
             env["PATH"] = f"{armBinDir}:{old}"
         elif params["target_arch"] == "riscv":

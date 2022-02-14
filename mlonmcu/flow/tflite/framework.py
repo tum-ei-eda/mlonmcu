@@ -35,22 +35,22 @@ class TFLiteFramework(Framework):
         return self.config["optimized_kernel"]
 
     @property
-    def optimized_kernel_lib(self):
-        return self.config["optimized_kernel_lib"]
+    def optimized_kernel_libs(self):
+        return self.config["optimized_kernel_libs"]
 
     @property
-    def optimized_kernel_inc_dir(self):
-        return self.config["optimized_kernel_inc_dir"]
+    def optimized_kernel_inc_dirs(self):
+        return self.config["optimized_kernel_inc_dirs"]
 
     def get_cmake_args(self):
         args = super().get_cmake_args()
         args.append(f"-DTF_SRC={self.tf_src}")
         if self.optimized_kernel:
             args.append(f"-DTFLM_OPTIMIZED_KERNEL={self.optimized_kernel}")
-        if self.optimized_kernel_inc_dir:
-            temp = "\;".join(self.optimized_kernel_inc_dir)
+        if self.optimized_kernel_inc_dirs:
+            temp = "\;".join(self.optimized_kernel_inc_dirs)
             args.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={temp}")
-        if self.optimized_kernel_lib:
-            temp = "\;".join(self.optimized_kernel_lib)
+        if self.optimized_kernel_libs:
+            temp = "\;".join(self.optimized_kernel_libs)
             args.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={temp}")
         return args

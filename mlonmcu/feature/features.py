@@ -176,7 +176,13 @@ class Cmsisnn(SetupFeature, FrameworkFeature):
         libs = config.get(f"{framework}.optimized_kernel_libs", [])
         libs.append(self.cmsisnn_lib)
         incs = config.get(f"{framework}.optimized_kernel_inc_dirs", [])
-        incs.append(self.cmsisnn_dir)
+        include_dirs = [
+            self.cmsisnn_dir,
+            str(Path(self.cmsisnn_dir) / "CMSIS" / "Core" / "Include"),
+            str(Path(self.cmsisnn_dir) / "CMSIS" / "NN" / "Include"),
+            str(Path(self.cmsisnn_dir) / "CMSIS" / "DSP" / "Include"),
+        ]
+        incs.extend(include_dirs)
         config[f"{framework}.optimized_kernel_libs"] = libs
         config[f"{framework}.optimized_kernel_inc_dirs"] = incs
 

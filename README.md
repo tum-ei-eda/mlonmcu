@@ -62,7 +62,7 @@ python -m venv .venv  # Feel free to choose a different directory or use a conda
 source .venv/bin/activate
 pip install -r requirements.txt
 
-Warning: It is recommended to have at least version 3.20 of CMake installed for full compatibility!
+**Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
 # Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
 pip install -r ipynb/requirements.txt

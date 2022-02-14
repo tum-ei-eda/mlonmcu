@@ -284,7 +284,7 @@ def download_and_extract(url, archive, dest):
         if (Path(tmp_dir) / base_name).is_dir():  # Archive contains a subdirectory with the same name
             move(os.path.join(tmp_dir, base_name), dest)
         else:
-            contents = list(Path(tmp_dir).glob('*'))
+            contents = list(Path(tmp_dir).glob("*"))
             if len(contents) == 1:
                 tmp_dir_new = Path(tmp_dir) / contents[0]
                 if tmp_dir_new.is_dir():  # Archive contains a single subdirectory with a different name

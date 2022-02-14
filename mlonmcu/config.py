@@ -34,7 +34,9 @@ def filter_config(config, prefix, defaults, required_keys):
     return cfg
 
 
-def resolve_required_config(required_keys, features=None, targets=None, config=None, cache=None):  # TODO: add framework, backend, and frontends as well?
+def resolve_required_config(
+    required_keys, features=None, targets=None, config=None, cache=None
+):  # TODO: add framework, backend, and frontends as well?
     """Utility which iterates over a set of given config keys and
     resolves their values using the passed config and/or cache.
 

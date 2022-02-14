@@ -62,3 +62,6 @@ class RISCVTarget(Target):
         ret.append(f"-DRISCV_ARCH={self.arch}")
         ret.append(f"-DRISCV_ABI={self.abi}")
         return ret
+
+    def get_arch(self):
+        return "riscv"

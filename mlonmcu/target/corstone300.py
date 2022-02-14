@@ -158,6 +158,9 @@ class Corstone300Target(Target):
         ret.append(f"-DARM_COMPILER_PREFIX={self.gcc_prefix}")
         return ret
 
+    def get_arch(self):
+        return "arm"
+
 
 if __name__ == "__main__":
     cli(target=Corstone300Target)

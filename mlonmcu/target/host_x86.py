@@ -54,6 +54,9 @@ class HostX86Target(Target):
 
         return execute(program, *args, **kwargs)
 
+    def get_arch(self):
+        return "x86"
+
 
 if __name__ == "__main__":
     cli(target=HostX86Target)

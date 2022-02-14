@@ -147,3 +147,12 @@ class Target:
     def get_cmake_args(self):
         target_system = self.get_target_system()
         return [f"-DTARGET_SYSTEM={target_system}"]
+
+    def get_arch(self):
+        raise NotImplementedError
+
+    def get_required_cache_flags(self):
+        ret = {}
+
+        ret["cmsisnn.lib"] = [self.get_arch()]  # TODO: this should be handled differently (Target arch specific libs), maybe via features or wildcards, boolean flag?
+        return ret

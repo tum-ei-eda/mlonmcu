@@ -152,7 +152,11 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
 
 
 def _validate_riscv_gcc(context: MlonMcuContext, params=None):
-    if not (context.environment.has_target("etiss_pulpino") or context.environment.has_target("spike") or context.environment.has_target("ovpsim")):
+    if not (
+        context.environment.has_target("etiss_pulpino")
+        or context.environment.has_target("spike")
+        or context.environment.has_target("ovpsim")
+    ):
         return False
     if params:
         if "vext" in params:
@@ -260,7 +264,7 @@ def install_llvm(context: MlonMcuContext, params=None, rebuild=False, verbose=Fa
 
 
 def _validate_etiss(context: MlonMcuContext, params={}):
-    return context.environment.has_target("etiss_pulpino"):
+    return context.environment.has_target("etiss_pulpino")
 
 
 @Tasks.provides(["etiss.src_dir"])

@@ -116,7 +116,7 @@ def add_model_options(parser):
         "models",
         metavar="model",
         type=str,
-        nargs="*",
+        nargs="+",
         default=None,
         help="Model to process",
     )

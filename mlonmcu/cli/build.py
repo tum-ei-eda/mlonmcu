@@ -17,13 +17,14 @@ from mlonmcu.cli.common import (
     kickoff_runs,
 )
 from mlonmcu.config import resolve_required_config
-from mlonmcu.cli.load import handle as handle_load, add_load_options, add_model_options
+from mlonmcu.cli.load import handle as handle_load, add_load_options
 from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
 from mlonmcu.session.run import RunStage
 
 
 def add_build_options(parser):
     # TODO: rename to build_group
+    add_load_options(parser)
     build_parser = parser.add_argument_group("build options")
     build_parser.add_argument(
         "-b",
@@ -44,12 +45,7 @@ def get_parser(subparsers, parent=None):
         add_help=(parent is None),
     )
     parser.set_defaults(flow_func=handle)
-    add_model_options(parser)
-    add_common_options(parser)
-    add_context_options(parser)
     add_build_options(parser)
-    add_load_options(parser)
-    add_flow_options(parser)
     return parser
 
 

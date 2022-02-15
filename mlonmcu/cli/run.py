@@ -13,12 +13,9 @@ from mlonmcu.cli.common import (
     kickoff_runs,
 )
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_FRAMEWORK_BACKENDS
-from mlonmcu.cli.load import add_model_options, add_load_options
-from mlonmcu.cli.build import add_build_options
 from mlonmcu.cli.compile import (
     handle as handle_compile,
     add_compile_options,
-    add_model_options,
 )
 from mlonmcu.flow.backend import Backend
 from mlonmcu.flow.framework import Framework
@@ -30,6 +27,7 @@ from mlonmcu.session.run import RunStage
 
 
 def add_run_options(parser):
+    add_compile_options(parser)
     run_parser = parser.add_argument_group("run options")
     run_parser.add_argument(
         "--attach",
@@ -64,14 +62,7 @@ def get_parser(subparsers):
         description="Run model using ML on MCU flow. This is meant to reproduce the bahavior of the original `run.py` script in older versions of mlonmcu.",
     )
     parser.set_defaults(flow_func=handle)
-    add_model_options(parser)
-    add_common_options(parser)
-    add_context_options(parser)
     add_run_options(parser)
-    add_compile_options(parser)
-    add_build_options(parser)
-    add_load_options(parser)
-    add_flow_options(parser)
     return parser
 
 

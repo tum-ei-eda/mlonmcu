@@ -23,8 +23,11 @@ from mlonmcu.session.run import RunStage
 
 
 def add_load_options(parser):
+    add_common_options(parser)
+    add_context_options(parser)
+    add_flow_options(parser)
+    add_model_options(parser)
     load_parser = parser.add_argument_group("load options")
-    # TODO: move model parser here?
     load_parser.add_argument(
         "--frontend",
         type=str,
@@ -35,16 +38,11 @@ def add_load_options(parser):
         help="Explicitly choose the frontends to use (choices: %(choices)s)",
     )
 
-
 def get_parser(subparsers):
     """ "Define and return a subparser for the load subcommand."""
     parser = subparsers.add_parser("load", description="Load model using the ML on MCU flow.")
     parser.set_defaults(flow_func=handle)
-    add_model_options(parser)
-    add_common_options(parser)
-    add_context_options(parser)
     add_load_options(parser)
-    add_flow_options(parser)
     return parser
 
 

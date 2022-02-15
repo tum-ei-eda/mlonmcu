@@ -12,11 +12,6 @@ from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.cli.build import (
     handle as handle_build,
     add_build_options,
-    add_model_options,
-    add_flow_options,
-)
-from mlonmcu.cli.load import (
-    add_load_options,
 )
 from mlonmcu.config import resolve_required_config
 from mlonmcu.flow.backend import Backend
@@ -25,6 +20,7 @@ from mlonmcu.session.run import RunStage
 
 
 def add_compile_options(parser):
+    add_build_options(parser)
     compile_parser = parser.add_argument_group("compile options")
     compile_parser.add_argument(
         "-d",
@@ -50,13 +46,7 @@ def get_parser(subparsers):
     """ "Define and return a subparser for the compile subcommand."""
     parser = subparsers.add_parser("compile", description="Compile model using ML on MCU flow.")
     parser.set_defaults(flow_func=handle)
-    add_model_options(parser)
-    add_common_options(parser)
-    add_context_options(parser)
     add_compile_options(parser)
-    add_build_options(parser)
-    add_load_options(parser)
-    add_flow_options(parser)
     return parser
 
 

@@ -43,7 +43,7 @@ def get_parser(subparsers, parent=None):
         parents=[parent] if parent else [],
         add_help=(parent is None),
     )
-    parser.set_defaults(func=handle)
+    parser.set_defaults(flow_func=handle)
     add_model_options(parser)
     add_common_options(parser)
     add_context_options(parser)

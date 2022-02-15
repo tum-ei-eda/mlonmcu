@@ -75,11 +75,6 @@ def add_flow_options(parser):
         action="store_true",
         help="Try to resume the latest session (default: %(default)s)",
     )
-    flow_parser.add_argument(
-        "--docker",
-        action="store_true",
-        help="Execute run.py inside docker container (default: %(default)s)",
-    )
 
 
 def add_common_options(parser):
@@ -94,6 +89,11 @@ def add_common_options(parser):
         "--quiet",
         action="store_true",
         help="Reduce number of logging statements to a minimum (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--docker",
+        action="store_true",
+        help="Execute run.py inside docker container (default: %(default)s)",
     )
 
 

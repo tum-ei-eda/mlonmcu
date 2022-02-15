@@ -49,7 +49,7 @@ def add_compile_options(parser):
 def get_parser(subparsers):
     """ "Define and return a subparser for the compile subcommand."""
     parser = subparsers.add_parser("compile", description="Compile model using ML on MCU flow.")
-    parser.set_defaults(func=handle)
+    parser.set_defaults(flow_func=handle)
     add_model_options(parser)
     add_common_options(parser)
     add_context_options(parser)

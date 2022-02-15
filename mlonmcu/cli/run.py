@@ -63,7 +63,7 @@ def get_parser(subparsers):
         "run",
         description="Run model using ML on MCU flow. This is meant to reproduce the bahavior of the original `run.py` script in older versions of mlonmcu.",
     )
-    parser.set_defaults(func=handle)
+    parser.set_defaults(flow_func=handle)
     add_model_options(parser)
     add_common_options(parser)
     add_context_options(parser)

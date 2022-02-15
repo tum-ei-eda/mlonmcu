@@ -39,7 +39,7 @@ def add_load_options(parser):
 def get_parser(subparsers):
     """ "Define and return a subparser for the load subcommand."""
     parser = subparsers.add_parser("load", description="Load model using the ML on MCU flow.")
-    parser.set_defaults(func=handle)
+    parser.set_defaults(flow_func=handle)
     add_model_options(parser)
     add_common_options(parser)
     add_context_options(parser)

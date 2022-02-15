@@ -10,7 +10,7 @@ import mlonmcu.cli.compile as compile_  # compile is a builtin name
 import mlonmcu.cli.debug as debug
 import mlonmcu.cli.test as test
 import mlonmcu.cli.run as run
-from mlonmcu.cli.common import add_flow_options
+from mlonmcu.cli.common import add_flow_options, add_common_options
 
 # from .trace import get_trace_parser
 
@@ -24,6 +24,7 @@ def get_parser(subparsers, parent=None):
         add_help=(parent is None),
     )
     parser.set_defaults(func=handle)
+    add_common_options(parser)
     add_flow_options(parser)
     subparsers = parser.add_subparsers(dest="subcommand2")  # this line changed
     load_parser = load.get_parser(subparsers)

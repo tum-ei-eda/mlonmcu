@@ -1,8 +1,11 @@
 """Console script for mlonmcu."""
 
+import os
 import argparse
 import sys
 import logging
+import subprocess
+import platform
 
 from ..version import __version__
 
@@ -20,7 +23,45 @@ import mlonmcu.cli.check as check
 import mlonmcu.cli.env as env
 import mlonmcu.cli.models as models
 
-from .common import handle_logging_flags
+from .common import handle_logging_flags, add_common_options
+
+
+def handle_docker(args):
+    if args.docker:
+        home = os.environ.get("MLONMCU_HOME")
+        assert (
+            home is not None
+        ), "To use the --docker functionality, please export the MLONMCU_HOME environment variable to a directory which should be mounted by the container"
+        exec_args = sys.argv[1:]
+        exec_args.remove("--docker")
+        docker = subprocess.Popen(
+            [
+                "docker-compose",
+                "-f",
+                "docker/docker-compose.yml",
+                "run",
+                "-e",
+                f"MLONMCU_HOME={home}",
+                "--rm",
+                "mlonmcu",
+                "python3",
+                "-m",
+                "mlonmcu.cli.main",
+                *exec_args,
+            ],
+            env={"MLONMCU_HOME": home},
+        )
+        stdout, stderr = docker.communicate()
+        exit_code = docker.wait()
+        if exit_code > 0:
+            logger.warning(f"Docker compose process completed with exit code: {exit_code}")
+        sys.exit(exit_code)
+
+    if platform.system() in ["Darwin", "Windows"]:
+        raise RuntimeError(
+            "Only Linux is supported at the Moment. If you have Docker installed, you may want to try running this script using the `--docker` flag."
+        )
+
 
 # def main(args):
 def main(args=None):
@@ -31,6 +72,7 @@ def main(args=None):
     )
     # parser.add_argument('_', nargs='*')
     parser.add_argument("-V", "--version", action="version", version="mlonmcu " + __version__)
+    add_common_options(parser)
     subparsers = parser.add_subparsers(dest="subcommand")  # this line changed
     init_parser = init.get_parser(subparsers)
     setup_parser = setup.get_parser(subparsers)
@@ -51,6 +93,8 @@ def main(args=None):
     else:
         args = parser.parse_args()
     handle_logging_flags(args)
+    handle_docker(args)
+
     if hasattr(args, "func"):
         args.func(args)
     else:

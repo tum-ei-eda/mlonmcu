@@ -107,6 +107,10 @@ class ETISSPulpinoTarget(RISCVTarget):
             f.write("\n")
             f.write(f"arch.cpu_cycle_time_ps={self.cycle_time_ps}\n")
 
+            if self.gdbserver_enable:
+                f.write("[Plugin gdbserver]\n")
+                f.write(f"plugin.gdbserver.port={self.gdbserver_port}")
+
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         etiss_script_args = []

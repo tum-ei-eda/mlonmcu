@@ -13,46 +13,6 @@ logger = get_logger()
 
 Tasks = TaskFactory()
 
-# WIP:
-
-# TODO:
-supported_frameworks = ["tflm", "tvm"]
-enabled_frameworks = supported_frameworks
-supported_backends = ["tflmc", "tflmi", "tvmaot", "tvmrt", "tvmcg"]
-enabled_backends = supported_backends
-supported_backend_per_framework = {
-    "tflm": ["tflmc", "tflmi"],
-    "tvm": ["tvmaot", "tvmrt", "tvmcg"],
-}
-supported_features = ["muriscvnn", "vext"]
-enabled_targets = ["etiss"]
-# class TaskCache:
-# class Context:
-#
-#     def __init__(self):
-#         self._vars = {}
-#
-#     def __setitem__(self, name, value):
-#         if not isinstance(name, tuple):
-#             name = (name,frozenset())
-#         else:
-#             assert len(name) == 2
-#             if not isinstance(name[1], frozenset):
-#                 name = (name[0], frozenset(name[1]))
-#         self._vars[name[0]] = value  # Holds latest value
-#         self._vars[name] = value
-#
-#     def __getitem__(self, name):
-#         if not isinstance(name, tuple):
-#             name = (name,frozenset())
-#         else:
-#             assert len(name) == 2
-#             if not isinstance(name[1], frozenset):
-#                 name = (name[0], frozenset(name[1]))
-#         return self._vars[name]
-
-# ctx = MlonMcuContext()
-
 
 ######
 # tf #
@@ -192,7 +152,7 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
 
 
 def _validate_riscv_gcc(context: MlonMcuContext, params=None):
-    if "etiss" not in enabled_targets:
+    if not (context.environment.has_target("etiss_pulpino") or context.environment.has_target("spike") or context.environment.has_target("ovpsim")):
         return False
     if params:
         if "vext" in params:
@@ -265,9 +225,7 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
 
 
 def _validate_llvm(context: MlonMcuContext, params=None):
-    if "tvm" not in enabled_frameworks:
-        return False
-    return True
+    return context.environment.has_framework("tvm")
 
 
 @Tasks.provides(["llvm.install_dir"])
@@ -302,9 +260,7 @@ def install_llvm(context: MlonMcuContext, params=None, rebuild=False, verbose=Fa
 
 
 def _validate_etiss(context: MlonMcuContext, params={}):
-    if "etiss" not in enabled_targets:
-        return False
-    return True
+    return context.environment.has_target("etiss_pulpino"):
 
 
 @Tasks.provides(["etiss.src_dir"])

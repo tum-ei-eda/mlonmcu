@@ -1,0 +1,39 @@
+name: Run Benchmarks
+on:
+  workflow_dispatch:
+    inputs:
+      bench_image:
+        description: 'Base Docker Image'
+        required: true
+        default: "ghcr.io/tum-ei-eda/mlonmcu-bench:latest"
+      bench_cmd:
+        description: 'Benchmarking Command'
+        required: true
+        default: "flow run tinymlperf"
+
+jobs:
+  bench:
+    name: Run a single benchmark
+    runs-on: ubuntu-latest
+    container: "${{ github.event.inputs.bench_image }}"
+    steps:
+    - name: Run Benchmark command in container
+      run: python3 -m mlonmcu.cli.main ${{ github.event.inputs.bench_cmd }}
+    - name: Store cmdline
+      run: echo "${{ github.event.inputs.bench_cmd }}" >> /environment/results/cmd.txt
+    - name: Archive reports
+      uses: actions/upload-artifact@v2
+      with:
+        name: results
+        path: /environment/results/
+    # Pushing results to a branch is not possible right now as we are inside a docker container!
+    # - name: Get date
+    #   run: echo "timestamp=`date +%FT%T`" >> $GITHUB_ENV
+    # - name: Install RSync
+    #   run: apt install -y rsync
+    # - name: Upload results to a special branch
+    #   uses: JamesIves/github-pages-deploy-action@4.1.1
+    #   with:
+    #     folder: /environment/results/
+    #     branch: benchmark_results
+    #     target-folder: ${{ env.timestamp }}/

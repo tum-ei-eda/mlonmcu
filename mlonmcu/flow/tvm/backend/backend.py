@@ -52,6 +52,7 @@ class TVMBackend(Backend):
             "max_parallel": self.config["autotuning_max_parallel"],
             "use_rpc": self.config["autotuning_use_rpc"],
             "timeout": self.config["autotuning_timeout"],
+            "print_outputs": self.config["print_outputs"],
         }
         self.tuner = TVMTuner(self, config=tuner_config)
         self.tuning_records_file = None

@@ -19,6 +19,7 @@ class TVMTuner:
 
     DEFAULTS = {
         "enable": False,
+        "print_outputs": False,
         "results_file": None,
         "append": None,
         "tuner": "ga",  # Options: ga,gridsearch,random,xgb,xgb_knob,xgb-rank
@@ -87,6 +88,10 @@ class TVMTuner:
     @property
     def timeout(self):
         return int(self.config["timeout"])
+
+    @property
+    def print_outputs(self):
+        return bool(self.config["print_outputs"])
 
     def get_rpc_args(self):
         return (
@@ -191,7 +196,10 @@ class TVMTuner:
         self.shutdown_rpc_servers()
         self.shutdown_rpc_tracker()
 
-    def tune(self):
+    def tune(self, verbose=False):
+        if self.print_outputs:
+            verbose = True
+
         content = ""
         if self.enable:
             if self.num_workers > 1:
@@ -200,7 +208,7 @@ class TVMTuner:
             # try:
             # TODO: try block with proper cleanup
             if self.use_rpc:
-                self.setup_rpc()
+                self.setup_rpc(verbose=verbose)
 
             if self.append:
                 if self.results_file is not None:
@@ -212,7 +220,7 @@ class TVMTuner:
                 with open(out_file, "w") as handle:
                     handle.write(content)
                     # TODO: newline or not?
-                self.invoke_tvmc_tune(out_file)
+                self.invoke_tvmc_tune(out_file, verbose=verbose)
                 with open(out_file, "r") as handle:
                     content = handle.read()
             if self.use_rpc:

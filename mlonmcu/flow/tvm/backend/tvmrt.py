@@ -30,7 +30,7 @@ class TVMRTBackend(TVMBackend):
         size = self.config["arena_size"]
         return int(size) if size else None
 
-    def get_tvmc_args(self):
+    def get_tvmc_compile_args(self):
         return super().get_tvmc_compile_args("graph") + [
             "--runtime-crt-system-lib",
             str(1),

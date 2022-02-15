@@ -98,6 +98,7 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;enable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;results_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;append&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;tuner&quot;</span><span class="p">:</span> <span class="s2">&quot;ga&quot;</span><span class="p">,</span>  <span class="c1"># Options: ga,gridsearch,random,xgb,xgb_knob,xgb-rank</span>
@@ -166,6 +167,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_outputs&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="TVMTuner.get_rpc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.get_rpc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_rpc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -270,7 +275,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">shutdown_rpc_servers</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shutdown_rpc_tracker</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="TVMTuner.tune"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.tune">[docs]</a>    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMTuner.tune"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.tune">[docs]</a>    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
+            <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -279,7 +287,7 @@
             <span class="c1"># try:</span>
             <span class="c1"># TODO: try block with proper cleanup</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">setup_rpc</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setup_rpc</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -291,7 +299,7 @@
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
                     <span class="c1"># TODO: newline or not?</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_tune</span><span class="p">(</span><span class="n">out_file</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_tune</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">content</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">:</span>

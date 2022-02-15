@@ -95,13 +95,14 @@
     <span class="n">kickoff_runs</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.load</span> <span class="kn">import</span> <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_load</span><span class="p">,</span> <span class="n">add_load_options</span><span class="p">,</span> <span class="n">add_model_options</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.cli.load</span> <span class="kn">import</span> <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_load</span><span class="p">,</span> <span class="n">add_load_options</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow</span> <span class="kn">import</span> <span class="n">SUPPORTED_BACKENDS</span><span class="p">,</span> <span class="n">SUPPORTED_FRAMEWORKS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">RunStage</span>
 
 
 <div class="viewcode-block" id="add_build_options"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.build.add_build_options">[docs]</a><span class="k">def</span> <span class="nf">add_build_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="c1"># TODO: rename to build_group</span>
+    <span class="n">add_load_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">build_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;build options&quot;</span><span class="p">)</span>
     <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-b&quot;</span><span class="p">,</span>
@@ -122,12 +123,7 @@
         <span class="n">add_help</span><span class="o">=</span><span class="p">(</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">flow_func</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
-    <span class="n">add_model_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">add_build_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_load_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_flow_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span></div>
 
 

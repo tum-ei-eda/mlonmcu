@@ -138,6 +138,11 @@
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_vext&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="OVPSimTarget.get_default_ovpsim_args"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ovpsim.OVPSimTarget.get_default_ovpsim_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_ovpsim_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;V&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extensions&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;V&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;V&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;variant&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;V&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;--variant&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="p">,</span>
@@ -147,9 +152,6 @@
             <span class="s2">&quot;riscvOVPsim/cpu/unaligned=T&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="s2">&quot;V&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span>
-            <span class="c1"># if &quot;V&quot; not in self.extensions:</span>
-            <span class="c1">#     self.extensions += &quot;V&quot;</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>

@@ -315,7 +315,8 @@
 
 <span class="c1"># @before_feature(&quot;muriscvnn&quot;)  # TODO: implment something like this</span>
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Vext</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">TargetFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
+<span class="c1"># class Vext(SetupFeature, TargetFeature, CompileFeature):</span>
+<span class="k">class</span> <span class="nc">Vext</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">TargetFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;MuriscvNN CMSIS-NN wrappers for TFLite Micro&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -341,12 +342,13 @@
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.vlen&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">,</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">add_compile_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="c1"># TODO: enforce llvm toolchain using add_compile_config and CompileFeature?</span>
-        <span class="k">if</span> <span class="s2">&quot;mlif.toolchain&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="s2">&quot;mlif.toolchain&quot;</span> <span class="o">==</span> <span class="s2">&quot;llvm&quot;</span><span class="p">,</span> <span class="s2">&quot;Vext requires LLVM target sw&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;mlif.toolchain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;llvm&quot;</span>
+    <span class="c1"># It would be great if we could enforce an llvm toolchain here</span>
+    <span class="c1"># def add_compile_config(self, config):</span>
+    <span class="c1">#     # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?</span>
+    <span class="c1">#     if &quot;mlif.toolchain&quot; in config:</span>
+    <span class="c1">#         assert &quot;mlif.toolchain&quot; == &quot;llvm&quot;, &quot;Vext requires LLVM target sw&quot;</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         config[&quot;mlif.toolchain&quot;] = &quot;llvm&quot;</span>
 
     <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>

@@ -90,11 +90,6 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.cli.build</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_build</span><span class="p">,</span>
     <span class="n">add_build_options</span><span class="p">,</span>
-    <span class="n">add_model_options</span><span class="p">,</span>
-    <span class="n">add_flow_options</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.load</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">add_load_options</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
@@ -103,6 +98,7 @@
 
 
 <div class="viewcode-block" id="add_compile_options"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.compile.add_compile_options">[docs]</a><span class="k">def</span> <span class="nf">add_compile_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">add_build_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">compile_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;compile options&quot;</span><span class="p">)</span>
     <span class="n">compile_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
@@ -128,13 +124,7 @@
     <span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the compile subcommand.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;compile&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Compile model using ML on MCU flow.&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">flow_func</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
-    <span class="n">add_model_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">add_compile_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_build_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_load_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_flow_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span></div>
 
 

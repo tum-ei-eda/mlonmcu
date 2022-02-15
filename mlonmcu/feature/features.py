@@ -237,7 +237,8 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 
 # @before_feature("muriscvnn")  # TODO: implment something like this
 @register_feature("vext")
-class Vext(SetupFeature, TargetFeature, CompileFeature):
+# class Vext(SetupFeature, TargetFeature, CompileFeature):
+class Vext(SetupFeature, TargetFeature):
     """MuriscvNN CMSIS-NN wrappers for TFLite Micro"""
 
     DEFAULTS = {
@@ -263,12 +264,13 @@ class Vext(SetupFeature, TargetFeature, CompileFeature):
             f"{target}.vlen": self.vlen,
         }
 
-    def add_compile_config(self, config):
-        # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
-        if "mlif.toolchain" in config:
-            assert "mlif.toolchain" == "llvm", "Vext requires LLVM target sw"
-        else:
-            config["mlif.toolchain"] = "llvm"
+    # It would be great if we could enforce an llvm toolchain here
+    # def add_compile_config(self, config):
+    #     # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
+    #     if "mlif.toolchain" in config:
+    #         assert "mlif.toolchain" == "llvm", "Vext requires LLVM target sw"
+    #     else:
+    #         config["mlif.toolchain"] = "llvm"
 
     def get_required_cache_flags(self):
         return {

@@ -60,6 +60,11 @@ class OVPSimTarget(RISCVTarget):
         return bool(self.config["enable_vext"])
 
     def get_default_ovpsim_args(self):
+        if self.enable_vext:
+            if "V" not in self.extensions:
+                self.config["extensions"] += "V"
+            if "V" not in self.variant:
+                self.config["variant"] += "V"
         args = [
             "--variant",
             self.variant,
@@ -69,9 +74,6 @@ class OVPSimTarget(RISCVTarget):
             "riscvOVPsim/cpu/unaligned=T",
         ]
         if self.enable_vext:
-            assert "V" in self.extensions
-            # if "V" not in self.extensions:
-            #     self.extensions += "V"
             args.extend(
                 [
                     "--override",

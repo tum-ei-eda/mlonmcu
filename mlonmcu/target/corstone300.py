@@ -27,6 +27,7 @@ class Corstone300Target(Target):
         "enable_ethosu": False,
         "ethosu_num_macs": 256,
         "extra_args": "",
+        "enable_vext": False,
     }
     REQUIRED = [
         "corstone300.exe",

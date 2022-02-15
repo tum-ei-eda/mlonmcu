@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 import os
 import logging
-import concurrent
+import concurrent.futures
 from tqdm import tqdm
 from .run import RunStage
 

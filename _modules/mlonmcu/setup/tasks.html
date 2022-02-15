@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.setup.tasks &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.setup.tasks</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.setup.tasks</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.setup.task</span> <span class="kn">import</span> <span class="n">TaskFactory</span><span class="p">,</span> <span class="n">TaskType</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+<span class="n">Tasks</span> <span class="o">=</span> <span class="n">TaskFactory</span><span class="p">()</span>
+
+
+<span class="c1">######</span>
+<span class="c1"># tf #</span>
+<span class="c1">######</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_tensorflow</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tflite&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="clone_tensorflow"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_tensorflow">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tensorflow</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_tensorflow</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the TF/TFLM repository.&quot;&quot;&quot;</span>
+    <span class="n">tfName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tf&quot;</span><span class="p">)</span>
+    <span class="n">tfSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">tfName</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tfSrcDir</span><span class="p">):</span>
+        <span class="n">tfRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">tfRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">tfSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">tfRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">rebuild</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tfSrcDir</span></div>
+
+
+<div class="viewcode-block" id="build_tensorflow"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_tensorflow">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tf.dl_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tf.lib_path&quot;</span><span class="p">])</span>
+<span class="c1"># @Tasks.param(&quot;dbg&quot;, False)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tensorflow</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_tensorflow</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download tensorflow dependencies and build lib.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">tfName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tf&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">tfSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">tflmDir</span> <span class="o">=</span> <span class="n">tfSrcDir</span> <span class="o">/</span> <span class="s2">&quot;tensorflow&quot;</span> <span class="o">/</span> <span class="s2">&quot;lite&quot;</span> <span class="o">/</span> <span class="s2">&quot;micro&quot;</span>
+    <span class="n">tflmBuildDir</span> <span class="o">=</span> <span class="n">tflmDir</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span> <span class="o">/</span> <span class="s2">&quot;make&quot;</span>
+    <span class="n">tflmDownloadsDir</span> <span class="o">=</span> <span class="n">tflmBuildDir</span> <span class="o">/</span> <span class="s2">&quot;downloads&quot;</span>
+    <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">]:</span>
+        <span class="n">tflmLib</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tflmBuildDir</span> <span class="o">/</span> <span class="s2">&quot;gen&quot;</span> <span class="o">/</span> <span class="s2">&quot;linux_x86_64&quot;</span> <span class="o">/</span> <span class="s2">&quot;lib&quot;</span> <span class="o">/</span> <span class="s2">&quot;libtensorflow-microlite.a&quot;</span>
+        <span class="p">)</span>  <span class="c1"># FIXME: add _dbg suffix is possible</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tflmLib</span> <span class="o">=</span> <span class="n">tflmBuildDir</span> <span class="o">/</span> <span class="s2">&quot;gen&quot;</span> <span class="o">/</span> <span class="s2">&quot;linux_x86_64&quot;</span> <span class="o">/</span> <span class="s2">&quot;lib&quot;</span> <span class="o">/</span> <span class="s2">&quot;libtensorflow-microlite.a&quot;</span>
+    <span class="c1"># if rebuild or not tflmLib.is_file() or not utils.is_populated(tflmDownloadsDir):</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tflmDownloadsDir</span><span class="p">):</span>
+        <span class="n">tfDbgArg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BUILD_TYPE=debug&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span>
+            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">tflmDir</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span> <span class="o">/</span> <span class="s2">&quot;make&quot;</span> <span class="o">/</span> <span class="s2">&quot;Makefile&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;third_party_downloads&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">tfDbgArg</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">tfSrcDir</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tf.dl_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tflmDownloadsDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tf.lib_path&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tflmLib</span>  <span class="c1"># ignore!</span></div>
+
+
+<span class="c1">#########</span>
+<span class="c1"># tflmc #</span>
+<span class="c1">#########</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_tflite_micro_compiler</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_tensorflow</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_backend</span><span class="p">(</span><span class="s2">&quot;tflmc&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="clone_tflite_micro_compiler"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_tflite_micro_compiler">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tflmc.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tflite_micro_compiler</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_tflite_micro_compiler</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the preinterpreter repository.&quot;&quot;&quot;</span>
+    <span class="n">tflmcName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tflmc&quot;</span><span class="p">)</span>
+    <span class="n">tflmcSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">tflmcName</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tflmcSrcDir</span><span class="p">):</span>
+        <span class="n">tflmcRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;tflite_micro_compiler&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">tflmcRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">tflmcSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">tflmcRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflmc.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tflmcSrcDir</span></div>
+
+
+<span class="k">def</span> <span class="nf">_validate_build_tflite_micro_compiler</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;muriscvnn&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">supports_feature</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">_validate_tflite_micro_compiler</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="build_tflite_micro_compiler"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_tflite_micro_compiler">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;tflmc.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tf.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;muriscvnn.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tflmc.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tflmc.exe&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;arch&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x86&quot;</span><span class="p">])</span>  <span class="c1"># TODO: compile for arm/riscv in the future</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_build_tflite_micro_compiler</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_tflite_micro_compiler</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build the TFLM preinterpreter.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">],</span> <span class="s2">&quot;muriscvnn&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">flags_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">tflmcName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tflmc&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">tflmcBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">tflmcName</span>
+    <span class="n">tflmcInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">tflmcName</span>
+    <span class="n">tflmcExe</span> <span class="o">=</span> <span class="n">tflmcInstallDir</span> <span class="o">/</span> <span class="s2">&quot;compiler&quot;</span>
+    <span class="n">tfSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">,</span> <span class="n">flags_</span><span class="p">]</span>
+    <span class="n">tflmcSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflmc.src_dir&quot;</span><span class="p">,</span> <span class="n">flags_</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tflmcBuildDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">tflmcExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">tflmcBuildDir</span><span class="p">)</span>
+        <span class="c1"># utils.cmake(&quot;-DTF_SRC=&quot; + str(tfSrcDir), str(tflmcSrcDir), debug=params[&quot;dbg&quot;], cwd=tflmcBuildDir)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
+            <span class="s2">&quot;-DTF_SRC=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tfSrcDir</span><span class="p">),</span>
+            <span class="s2">&quot;-DGET_TF_SRC=ON&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">tflmcSrcDir</span><span class="p">),</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">tflmcBuildDir</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">tflmcBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">tflmcInstallDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">tflmcBuildDir</span> <span class="o">/</span> <span class="s2">&quot;compiler&quot;</span><span class="p">,</span> <span class="n">tflmcExe</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflmc.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tflmcBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflmc.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tflmcExe</span></div>
+
+
+<span class="c1">#############</span>
+<span class="c1"># riscv_gcc #</span>
+<span class="c1">#############</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_riscv_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;vext&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="install_riscv_gcc"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.install_riscv_gcc">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_riscv_gcc</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TOOLCHAIN</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">install_riscv_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download and install the RISCV GCC toolchain.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span> <span class="s2">&quot;vext&quot;</span><span class="p">))</span>
+    <span class="n">riscvName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;riscv_gcc&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">riscvInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">riscvName</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;riscv_gcc.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="c1"># TODO: WARNING</span>
+        <span class="n">riscvInstallDir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">]</span>
+        <span class="c1"># This would overwrite the cache.ini entry which is NOT wanted! -&gt; return false but populate gcc_name?</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vext</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s2">&quot;vext&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">vext</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;riscv_gcc.dl_url&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+            <span class="n">fullUrlSplit</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.dl_url&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="n">riscvUrl</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fullUrlSplit</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">riscvFileName</span><span class="p">,</span> <span class="n">riscvFileExtension</span> <span class="o">=</span> <span class="n">fullUrlSplit</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">riscvVersion</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;riscv.version&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;riscv.version&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span>
+                <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;8.3.0-2020.04.0&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">vext</span> <span class="k">else</span> <span class="s2">&quot;10.2.0-2020.12.8&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">riscvDist</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;riscv.distribution&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;riscv.distribution&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="k">else</span> <span class="s2">&quot;x86_64-linux-ubuntu14&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">vext</span><span class="p">:</span>
+                <span class="n">subdir</span> <span class="o">=</span> <span class="s2">&quot;v&quot;</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">riscvVersion</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">riscvUrl</span> <span class="o">=</span> <span class="s2">&quot;https://static.dev.sifive.com/dev-tools/freedom-tools/&quot;</span> <span class="o">+</span> <span class="n">subdir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+                <span class="n">riscvFileName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;riscv64-unknown-elf-toolchain-</span><span class="si">{</span><span class="n">riscvVersion</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">riscvDist</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">riscvUrl</span> <span class="o">=</span> <span class="s2">&quot;https://static.dev.sifive.com/dev-tools/&quot;</span>
+                <span class="n">riscvFileName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;riscv64-unknown-elf-gcc-</span><span class="si">{</span><span class="n">riscvVersion</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">riscvDist</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">riscvFileExtension</span> <span class="o">=</span> <span class="s2">&quot;tar.gz&quot;</span>
+        <span class="n">riscvArchive</span> <span class="o">=</span> <span class="n">riscvFileName</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">riscvFileExtension</span>
+        <span class="c1"># if rebuild or not utils.is_populated(riscvInstallDir):</span>
+        <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">):</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">riscvUrl</span><span class="p">,</span> <span class="n">riscvArchive</span><span class="p">,</span> <span class="n">riscvInstallDir</span><span class="p">)</span>
+    <span class="n">gccNames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;riscv64-unknown-elf&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv32-unknown-elf&quot;</span><span class="p">]</span>
+    <span class="n">gccName</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">gccNames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">riscvInstallDir</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">gccName</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="k">break</span>
+    <span class="k">assert</span> <span class="n">gccName</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Toolchain name could not be dtemined automatically&quot;</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">riscvInstallDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">gccName</span></div>
+
+
+<span class="c1">########</span>
+<span class="c1"># llvm #</span>
+<span class="c1">########</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_llvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="install_llvm"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.install_llvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_llvm</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">MISC</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">install_llvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download and install LLVM.&quot;&quot;&quot;</span>
+    <span class="n">llvmName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;llvm&quot;</span><span class="p">)</span>
+    <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">llvmName</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;llvm.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="c1"># TODO: WARNING</span>
+        <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">llvmVersion</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.version&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;llvm.version&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="k">else</span> <span class="s2">&quot;11.0.1&quot;</span>
+        <span class="n">llvmDist</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.distribution&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;llvm.distribution&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="k">else</span> <span class="s2">&quot;x86_64-linux-gnu-ubuntu-16.04&quot;</span>
+        <span class="p">)</span>
+        <span class="n">llvmUrl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="n">llvmFileName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;clang+llvm-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">llvmDist</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">llvmArchive</span> <span class="o">=</span> <span class="n">llvmFileName</span> <span class="o">+</span> <span class="s2">&quot;.tar.xz&quot;</span>
+        <span class="c1"># if rebuild or not utils.is_populated(llvmInstallDir):</span>
+        <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">llvmInstallDir</span><span class="p">):</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">llvmUrl</span><span class="p">,</span> <span class="n">llvmArchive</span><span class="p">,</span> <span class="n">llvmInstallDir</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">llvmInstallDir</span></div>
+
+
+<span class="c1">#########</span>
+<span class="c1"># etiss #</span>
+<span class="c1">#########</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_etiss</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="clone_etiss"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_etiss">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_etiss</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the ETISS repository.&quot;&quot;&quot;</span>
+    <span class="n">etissName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;etiss&quot;</span><span class="p">)</span>
+    <span class="n">etissSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">etissName</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">etissSrcDir</span><span class="p">):</span>
+        <span class="n">etissRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;etiss&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">etissRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">etissSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">etissRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissSrcDir</span></div>
+
+
+<div class="viewcode-block" id="build_etiss"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_etiss">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_etiss</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build the ETISS simulator.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">etissName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">etissBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">etissName</span>
+    <span class="n">etissInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">etissName</span>
+    <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">etissBuildDir</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">etissBuildDir</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># env[&quot;LLVM_DIR&quot;] = str(llvmInstallDir)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;-DCMAKE_INSTALL_PREFIX=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">etissInstallDir</span><span class="p">),</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">etissBuildDir</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">etissBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissInstallDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissBuildDir</span></div>
+
+
+<div class="viewcode-block" id="install_etiss"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.install_etiss">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss.build_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etissvp.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.lib_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">install_etiss</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Install ETISS.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">etissName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">etissBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span>
+    <span class="n">etissInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span>
+    <span class="n">etissvpSrcDir</span> <span class="o">=</span> <span class="n">etissInstallDir</span> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;bare_etiss_processor&quot;</span>
+    <span class="n">etissLibDir</span> <span class="o">=</span> <span class="n">etissInstallDir</span> <span class="o">/</span> <span class="s2">&quot;lib&quot;</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">etissvpSrcDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">etissLibDir</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">etissBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etissvp.src_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpSrcDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.lib_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissLibDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissInstallDir</span></div>
+    <span class="c1"># return True</span>
+
+
+<div class="viewcode-block" id="build_etissvp"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_etissvp">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etissvp.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etissvp.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.exe&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_etissvp</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build the ETISS virtual prototype.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">etissvpName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">etissvpSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etissvp.src_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span>
+    <span class="n">etissvpBuildDir</span> <span class="o">=</span> <span class="n">etissvpSrcDir</span> <span class="o">/</span> <span class="n">etissvpName</span>
+    <span class="n">etissvpExe</span> <span class="o">=</span> <span class="n">etissvpBuildDir</span> <span class="o">/</span> <span class="s2">&quot;main&quot;</span>
+
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">etissvpExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+
+        <span class="k">def</span> <span class="nf">addMemArgs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># TODO: find out if this is still required?</span>
+            <span class="n">memMap</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0x0</span><span class="p">,</span> <span class="mh">0x800000</span><span class="p">,</span> <span class="mh">0x800000</span><span class="p">,</span> <span class="mh">0x4000000</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
+                <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+                <span class="k">if</span> <span class="s2">&quot;etissvp.rom_start&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;etissvp.rom_start&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                        <span class="n">temp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># This should automatically detect the base via the prefix</span>
+                    <span class="n">memMap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+                <span class="k">if</span> <span class="s2">&quot;etissvp.rom_size&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;etissvp.rom_size&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                        <span class="n">temp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># This should automatically detect the base via the prefix</span>
+                    <span class="n">memMap</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+                <span class="k">if</span> <span class="s2">&quot;etissvp.ram_start&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;etissvp.ram_start&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                        <span class="n">temp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># This should automatically detect the base via the prefix</span>
+                    <span class="n">memMap</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+                <span class="k">if</span> <span class="s2">&quot;etissvp.ram_size&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;etissvp.ram_size&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                        <span class="n">temp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># This should automatically detect the base via the prefix</span>
+                    <span class="n">memMap</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+
+            <span class="k">def</span> <span class="nf">checkMemMap</span><span class="p">(</span><span class="n">mem</span><span class="p">):</span>
+                <span class="n">rom_start</span><span class="p">,</span> <span class="n">rom_size</span><span class="p">,</span> <span class="n">ram_start</span><span class="p">,</span> <span class="n">ram_size</span> <span class="o">=</span> <span class="n">mem</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mem</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mem</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">mem</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">mem</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+
+                    <span class="k">def</span> <span class="nf">is_power_of_two</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+                    <span class="k">assert</span> <span class="n">is_power_of_two</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">rom_start</span> <span class="o">+</span> <span class="n">rom_size</span> <span class="o">&lt;=</span> <span class="n">ram_start</span>
+
+            <span class="n">checkMemMap</span><span class="p">(</span><span class="n">memMap</span><span class="p">)</span>
+
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DPULPINO_ROM_START=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">memMap</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DPULPINO_RAM_SIZE=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">memMap</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DPULPINO_ROM_START=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">memMap</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DPULPINO_RAM_SIZE=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">memMap</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">args</span>
+
+        <span class="n">etissvpArgs</span> <span class="o">=</span> <span class="n">addMemArgs</span><span class="p">([],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">etissvpBuildDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
+            <span class="n">etissvpSrcDir</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">etissvpArgs</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">etissvpBuildDir</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">etissvpBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etissvp.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etissvp.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpExe</span></div>
+
+
+<span class="c1">#######</span>
+<span class="c1"># tvm #</span>
+<span class="c1">#######</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="clone_tvm"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_tvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the TVM repository.&quot;&quot;&quot;</span>
+    <span class="n">tvmName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
+    <span class="n">tvmSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">tvmName</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tvmSrcDir</span><span class="p">):</span>
+        <span class="n">tvmRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">tvmRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">tvmSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">tvmRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmSrcDir</span></div>
+
+
+<div class="viewcode-block" id="build_tvm"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_tvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.lib&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build the TVM framework.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">dbg</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">])</span>
+    <span class="c1"># FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!</span>
+    <span class="c1"># This should help: TVM_LIBRARY_PATH -&gt; tvm.build_dir</span>
+    <span class="n">tvmName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">tvmSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">tvmBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">tvmName</span>
+    <span class="n">tvmLib</span> <span class="o">=</span> <span class="n">tvmBuildDir</span> <span class="o">/</span> <span class="s2">&quot;libtvm.so&quot;</span>
+    <span class="n">tvmPythonPath</span> <span class="o">=</span> <span class="n">tvmSrcDir</span> <span class="o">/</span> <span class="s2">&quot;python&quot;</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tvmBuildDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">tvmLib</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">ninja</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
+            <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+            <span class="k">if</span> <span class="s2">&quot;tvm.make_tool&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;tvm.make_tool&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ninja&quot;</span><span class="p">:</span>
+                    <span class="n">ninja</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">tvmBuildDir</span><span class="p">)</span>
+        <span class="n">cfgFileSrc</span> <span class="o">=</span> <span class="n">tvmSrcDir</span> <span class="o">/</span> <span class="s2">&quot;cmake&quot;</span> <span class="o">/</span> <span class="s2">&quot;config.cmake&quot;</span>
+        <span class="n">cfgFile</span> <span class="o">=</span> <span class="n">tvmBuildDir</span> <span class="o">/</span> <span class="s2">&quot;config.cmake&quot;</span>
+        <span class="n">llvmConfig</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;llvm-config&quot;</span><span class="p">)</span>
+        <span class="n">llvmConfigEscaped</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">llvmConfig</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">/&quot;</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">cfgFileSrc</span><span class="p">,</span> <span class="n">cfgFile</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+            <span class="s2">&quot;sed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;s/USE_MICRO OFF/USE_MICRO ON/g&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+            <span class="s2">&quot;sed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;s/USE_MICRO_STANDALONE_RUNTIME OFF/USE_MICRO_STANDALONE_RUNTIME ON/g&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+            <span class="s2">&quot;sed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;s/USE_LLVM \(OFF\|ON\)/USE_LLVM &quot;</span> <span class="o">+</span> <span class="n">llvmConfigEscaped</span> <span class="o">+</span> <span class="s2">&quot;/g&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span><span class="n">tvmSrcDir</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">tvmBuildDir</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">dbg</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="n">ninja</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">tvmBuildDir</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="n">ninja</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.lib&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmLib</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmPythonPath</span></div>
+
+
+<span class="c1">##########</span>
+<span class="c1"># utvmcg #</span>
+<span class="c1">##########</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_utvmcg</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_backend</span><span class="p">(</span><span class="s2">&quot;tvmcg&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="clone_utvm_staticrt_codegen"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_utvm_staticrt_codegen">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;utvmcg.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_utvmcg</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_utvm_staticrt_codegen</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the uTVM code generator.&quot;&quot;&quot;</span>
+    <span class="n">utvmcgName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;utvmcg&quot;</span><span class="p">)</span>
+    <span class="n">utvmcgSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">utvmcgName</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">utvmcgSrcDir</span><span class="p">):</span>
+        <span class="n">utvmcgRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;utvm_staticrt_codegen&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">utvmcgRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">utvmcgSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">utvmcgRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;utvmcg.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utvmcgSrcDir</span></div>
+
+
+<div class="viewcode-block" id="build_utvm_staticrt_codegen"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_utvm_staticrt_codegen">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;utvmcg.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;utvmcg.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_utvmcg</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">BACKEND</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_utvm_staticrt_codegen</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build the uTVM code generator.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">utvmcgName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;utvmcg&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">utvmcgSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;utvmcg.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">utvmcgBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">utvmcgName</span>
+    <span class="n">utvmcgInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">utvmcgName</span>
+    <span class="n">utvmcgExe</span> <span class="o">=</span> <span class="n">utvmcgInstallDir</span> <span class="o">/</span> <span class="s2">&quot;compiler&quot;</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">utvmcgSrcDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utvmcgExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">utvmcgArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">utvmcgArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DTVM_DIR=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">]))</span>
+        <span class="n">crtConfigPath</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;apps&quot;</span> <span class="o">/</span> <span class="s2">&quot;bundle_deploy&quot;</span> <span class="o">/</span> <span class="s2">&quot;crt_config&quot;</span>
+        <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
+            <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+            <span class="k">if</span> <span class="s2">&quot;tvm.crt_config_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+                <span class="n">crtConfigPath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;tvm.crt_config_dir&quot;</span><span class="p">])</span>
+        <span class="n">utvmcgArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DTVM_CRT_CONFIG_DIR=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">crtConfigPath</span><span class="p">))</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">utvmcgBuildDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
+            <span class="n">utvmcgSrcDir</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">utvmcgArgs</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">utvmcgBuildDir</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">utvmcgBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">utvmcgInstallDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">utvmcgBuildDir</span> <span class="o">/</span> <span class="s2">&quot;utvm_staticrt_codegen&quot;</span><span class="p">,</span> <span class="n">utvmcgExe</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;utvmcg.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">utvmcgBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">utvmcgExe</span></div>
+
+
+<span class="c1">#############</span>
+<span class="c1"># muriscvnn #</span>
+<span class="c1">#############</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_muriscvnn</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">supports_feature</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="s2">&quot;muriscvnn&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">,</span> <span class="s2">&quot;Undefined repository: &#39;muriscvnn&#39;&quot;</span>
+    <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;vext&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="clone_muriscvnn"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_muriscvnn">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;muriscvnn.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_muriscvnn</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">OPT</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_muriscvnn</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the muRISCV-NN project.&quot;&quot;&quot;</span>
+    <span class="n">muriscvnnName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">)</span>
+    <span class="n">muriscvnnSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">muriscvnnName</span>
+    <span class="n">muriscvnnIncludeDir</span> <span class="o">=</span> <span class="n">muriscvnnSrcDir</span> <span class="o">/</span> <span class="s2">&quot;Include&quot;</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;muriscvnn.lib&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">muriscvnnSrcDir</span><span class="p">):</span>
+        <span class="n">muriscvnnRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">muriscvnnRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">muriscvnnSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">muriscvnnRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnnSrcDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnnIncludeDir</span></div>
+
+
+<div class="viewcode-block" id="build_muriscvnn"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_muriscvnn">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;muriscvnn.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">])</span>
+<span class="c1"># @Tasks.optional([&quot;riscv_gcc.install_dir&quot;, &quot;riscv_gcc.name&quot;, &quot;arm_gcc.install_dir&quot;])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;muriscvnn.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="c1"># @Tasks.param(&quot;target_arch&quot;, [&quot;x86&quot;, &quot;riscv&quot;, &quot;arm&quot;])  # TODO: implement</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_muriscvnn</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">OPT</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_muriscvnn</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build muRISCV-NN.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span> <span class="s2">&quot;vext&quot;</span><span class="p">))</span>
+    <span class="n">flags_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span> <span class="s2">&quot;vext&quot;</span><span class="p">))</span>
+    <span class="n">muriscvnnName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">muriscvnnSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">muriscvnnBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">muriscvnnName</span>
+    <span class="n">muriscvnnInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">muriscvnnName</span>
+    <span class="n">muriscvnnLib</span> <span class="o">=</span> <span class="n">muriscvnnInstallDir</span> <span class="o">/</span> <span class="s2">&quot;libmuriscvnn.a&quot;</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;muriscvnn.lib&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">muriscvnnBuildDir</span><span class="p">)</span> <span class="ow">and</span> <span class="n">muriscvnnLib</span><span class="o">.</span><span class="n">is_file</span><span class="p">()):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">muriscvnnBuildDir</span><span class="p">)</span>
+        <span class="n">gccName</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span> <span class="n">flags_</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">gccName</span> <span class="o">==</span> <span class="s2">&quot;riscv32-unknown-elf&quot;</span><span class="p">,</span> <span class="s2">&quot;muRISCV-NN requires a non-multilib toolchain!&quot;</span>
+        <span class="n">muriscvnnArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DRISCV_GCC_PREFIX=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="n">flags_</span><span class="p">]))</span>
+        <span class="n">vext</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s2">&quot;vext&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">vext</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">]</span>
+        <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DUSE_VEXT=&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="n">vext</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span><span class="p">))</span>
+        <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DRISCV_GCC_BASENAME=</span><span class="si">{</span><span class="n">gccName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
+            <span class="n">muriscvnnSrcDir</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">muriscvnnArgs</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">muriscvnnBuildDir</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">muriscvnnBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">muriscvnnInstallDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">muriscvnnBuildDir</span> <span class="o">/</span> <span class="s2">&quot;Source&quot;</span> <span class="o">/</span> <span class="s2">&quot;libmuriscv_nn.a&quot;</span><span class="p">,</span> <span class="n">muriscvnnLib</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnnBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnnLib</span></div>
+
+
+<span class="k">def</span> <span class="nf">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="s2">&quot;spikepk&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">,</span> <span class="s2">&quot;Undefined repository: &#39;spikepk&#39;&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;spike&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">,</span> <span class="s2">&quot;Undefined repository: &#39;spike&#39;&quot;</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="clone_spike_pk"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_spike_pk">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spikepk.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_spike_pk</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the spike proxt kernel.&quot;&quot;&quot;</span>
+    <span class="n">spikepkName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;spikepk&quot;</span><span class="p">)</span>
+    <span class="n">spikepkSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">spikepkName</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;spike.pk&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">spikepkSrcDir</span><span class="p">):</span>
+        <span class="n">spikepkRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;spikepk&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">spikepkRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">spikepkSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">spikepkRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spikepk.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikepkSrcDir</span></div>
+
+
+<div class="viewcode-block" id="build_spike_pk"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_spike_pk">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;spikepk.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spikepk.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk&quot;</span><span class="p">])</span>
+<span class="c1"># @Tasks.param(&quot;vext&quot;, [False, True])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_spike_pk</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build Spike proxy kernel.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># flags = utils.makeFlags((params[&quot;vext&quot;], &quot;vext&quot;))</span>
+    <span class="n">spikepkName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;spikepk&quot;</span><span class="p">)</span>
+    <span class="n">spikepkSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spikepk.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">spikepkBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">spikepkName</span>
+    <span class="n">spikepkInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">spikepkName</span>
+    <span class="n">spikepkBin</span> <span class="o">=</span> <span class="n">spikepkInstallDir</span> <span class="o">/</span> <span class="s2">&quot;pk&quot;</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;spike.pk&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">spikepkBuildDir</span><span class="p">)</span> <span class="ow">and</span> <span class="n">spikepkBin</span><span class="o">.</span><span class="n">is_file</span><span class="p">()):</span>
+        <span class="c1"># No need to build a vext and non-vext variant?</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikepkBuildDir</span><span class="p">)</span>
+        <span class="n">gccName</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">gccName</span> <span class="o">==</span> <span class="s2">&quot;riscv32-unknown-elf&quot;</span><span class="p">,</span> <span class="s2">&quot;Spike PK requires a non-multilib toolchain!&quot;</span>
+        <span class="n">spikepkArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">spikepkArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--prefix=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">]))</span>
+        <span class="n">spikepkArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--host=&quot;</span> <span class="o">+</span> <span class="n">gccName</span><span class="p">)</span>
+        <span class="n">spikepkArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--with-arch=rv32gcv&quot;</span><span class="p">)</span>
+        <span class="n">spikepkArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--with-abi=ilp32d&quot;</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">spikepkSrcDir</span> <span class="o">/</span> <span class="s2">&quot;configure&quot;</span><span class="p">),</span>
+            <span class="o">*</span><span class="n">spikepkArgs</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">spikepkBuildDir</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">spikepkBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikepkInstallDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">spikepkBuildDir</span> <span class="o">/</span> <span class="s2">&quot;pk&quot;</span><span class="p">,</span> <span class="n">spikepkBin</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spikepk.build_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikepkBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.pk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikepkBin</span></div>
+
+
+<div class="viewcode-block" id="clone_spike"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_spike">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the spike simulator.&quot;&quot;&quot;</span>
+    <span class="n">spikeName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span>
+    <span class="n">spikeSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">spikeName</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;spike.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">spikeSrcDir</span><span class="p">):</span>
+        <span class="n">spikeRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">spikeRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">spikeSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">spikeRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeSrcDir</span></div>
+
+
+<div class="viewcode-block" id="build_spike"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_spike">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spike.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.exe&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build Spike simulator.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">spikeName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span>
+    <span class="n">spikeSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">spikeBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">spikeName</span>
+    <span class="n">spikeInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">spikeName</span>
+    <span class="n">spikeExe</span> <span class="o">=</span> <span class="n">spikeInstallDir</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;spike.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">spikeBuildDir</span><span class="p">)</span> <span class="ow">and</span> <span class="n">spikeExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">()):</span>
+        <span class="c1"># No need to build a vext and non-vext variant?</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikeBuildDir</span><span class="p">)</span>
+        <span class="n">spikeArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">spikeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--prefix=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">]))</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">spikeSrcDir</span> <span class="o">/</span> <span class="s2">&quot;configure&quot;</span><span class="p">),</span>
+            <span class="o">*</span><span class="n">spikeArgs</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">spikeBuildDir</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">spikeBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikeInstallDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">spikeBuildDir</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">spikeExe</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.build_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeExe</span></div>
+
+
+<span class="k">def</span> <span class="nf">_validate_cmsisnn</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_cmsis</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_validate_cmsisnn</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="clone_cmsis"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_cmsis">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_cmsis</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">MISC</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_cmsis</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;CMSIS repository.&quot;&quot;&quot;</span>
+    <span class="n">cmsisName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;cmsis&quot;</span><span class="p">)</span>
+    <span class="n">cmsisSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">cmsisName</span>
+    <span class="c1"># TODO: allow to skip this if cmsisnn.dir+cmsisnn.lib are provided by the user and corstone is not used -&gt; move those checks to validate?</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">cmsisSrcDir</span><span class="p">):</span>
+        <span class="n">cmsisRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;cmsis&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">cmsisRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">cmsisSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">cmsisRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">rebuild</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmsisSrcDir</span></div>
+
+
+<div class="viewcode-block" id="build_cmsisnn"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_cmsisnn">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span> <span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;cmsisnn.lib&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;target_arch&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x86&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv&quot;</span><span class="p">,</span> <span class="s2">&quot;arm&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;mvei&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># TODO: build?</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dsp&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># TODO: build?</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_cmsisnn</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">OPT</span><span class="p">)</span>  <span class="c1"># TODO: rename to TaskType.FEATURE?</span>
+<span class="k">def</span> <span class="nf">build_cmsisnn</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_arch&quot;</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_arch&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;mvei&quot;</span><span class="p">],</span> <span class="s2">&quot;mvei&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dsp&quot;</span><span class="p">],</span> <span class="s2">&quot;dsp&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">cmsisnnName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">cmsisnnBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">cmsisnnName</span>
+    <span class="n">cmsisnnInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">cmsisnnName</span>
+    <span class="n">cmsisnnLib</span> <span class="o">=</span> <span class="n">cmsisnnInstallDir</span> <span class="o">/</span> <span class="s2">&quot;libcmsis-nn.a&quot;</span>
+    <span class="n">cmsisSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">]</span>
+    <span class="n">cmsisnnSrcDir</span> <span class="o">=</span> <span class="n">cmsisSrcDir</span> <span class="o">/</span> <span class="s2">&quot;CMSIS&quot;</span> <span class="o">/</span> <span class="s2">&quot;NN&quot;</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">cmsisnnBuildDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">cmsisnnLib</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">cmsisnnBuildDir</span><span class="p">)</span>
+        <span class="n">cmakeArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># utils.cmake(&quot;-DTF_SRC=&quot; + str(tfSrcDir), str(tflmcSrcDir), debug=params[&quot;dbg&quot;], cwd=tflmcBuildDir)</span>
+        <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_arch&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;arm&quot;</span><span class="p">:</span>
+            <span class="n">toolchainFile</span> <span class="o">=</span> <span class="n">cmsisSrcDir</span> <span class="o">/</span> <span class="s2">&quot;CMSIS&quot;</span> <span class="o">/</span> <span class="s2">&quot;DSP&quot;</span> <span class="o">/</span> <span class="s2">&quot;gcc.cmake&quot;</span>
+            <span class="n">armCpu</span> <span class="o">=</span> <span class="s2">&quot;cortex-m55&quot;</span>  <span class="c1"># TODO: make this variable?</span>
+            <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DARM_CPU=</span><span class="si">{</span><span class="n">armCpu</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DCMAKE_TOOLCHAIN_FILE=</span><span class="si">{</span><span class="n">toolchainFile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Why does this not set CMAKE_C_COMPILER?</span>
+            <span class="n">armBinDir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span>
+            <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY&quot;</span><span class="p">)</span>
+            <span class="n">old</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">armBinDir</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">old</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_arch&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;riscv&quot;</span><span class="p">:</span>
+            <span class="n">riscvPrefix</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">]</span>
+            <span class="n">riscvBasename</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">]</span>
+            <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DCMAKE_C_COMPILER=</span><span class="si">{</span><span class="n">riscvPrefix</span><span class="si">}</span><span class="s2">/bin/</span><span class="si">{</span><span class="n">riscvBasename</span><span class="si">}</span><span class="s2">-gcc&quot;</span><span class="p">)</span>
+            <span class="c1"># cmakeArgs.append(&quot;-DCMAKE_CXX_COMPILER={riscvprefix}/bin/{riscvBasename}-g++&quot;)</span>
+            <span class="c1"># cmakeArgs.append(&quot;-DCMAKE_ASM_COMPILER={riscvprefix}/bin/{riscvBasename}-gcc&quot;)</span>
+            <span class="c1"># cmakeArgs.append(&quot;-DCMAKE_EXE_LINKER_FLAGS=\&quot;&#39;-march=rv32gc&#39; &#39;-mabi=ilp32d&#39;\&quot;&quot;)  # TODO: How about vext?</span>
+            <span class="c1"># cmakeArgs.append(&quot;-E env LDFLAGS=\&quot;-march=rv32gc -mabi=ilp32d\&quot;&quot;)</span>
+            <span class="c1"># cmakeArgs.append(&quot;-E env LDFLAGS=\&quot;-march=rv32gc -mabi=ilp32d\&quot;&quot;)</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;LDFLAGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;-march=rv32gc -mabi=ilp32d&quot;</span>
+            <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DCMAKE_SYSTEM_NAME=Generic&quot;</span><span class="p">)</span>
+            <span class="c1"># TODO: how about linker, objcopy, ar?</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_arch&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;x86&quot;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arch</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_arch&quot;</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target architecture &#39;</span><span class="si">{</span><span class="n">arch</span><span class="si">}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">)</span>
+
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">cmakeArgs</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">cmsisnnSrcDir</span><span class="p">),</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">cmsisnnBuildDir</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">cmsisnnBuildDir</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">cmsisnnInstallDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">cmsisnnBuildDir</span> <span class="o">/</span> <span class="s2">&quot;Source&quot;</span> <span class="o">/</span> <span class="s2">&quot;libcmsis-nn.a&quot;</span><span class="p">,</span> <span class="n">cmsisnnLib</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;cmsisnn.lib&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmsisnnLib</span></div>
+
+
+<span class="k">def</span> <span class="nf">_validate_corstone300</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="install_arm_gcc"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.install_arm_gcc">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_corstone300</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">install_arm_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download and install GNU compiler toolchain from ARM.&quot;&quot;&quot;</span>
+    <span class="n">armName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;arm_gcc&quot;</span><span class="p">)</span>
+    <span class="n">armInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">armName</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;arm_gcc.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="c1"># armInstallDir = user_vars[&quot;riscv_gcc.install_dir&quot;]</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">armInstallDir</span><span class="p">):</span>
+            <span class="n">armUrl</span> <span class="o">=</span> <span class="s2">&quot;https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/&quot;</span>
+            <span class="n">armFileName</span> <span class="o">=</span> <span class="s2">&quot;gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux&quot;</span>
+            <span class="n">armArchive</span> <span class="o">=</span> <span class="n">armFileName</span> <span class="o">+</span> <span class="s2">&quot;.tar.bz2&quot;</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">armUrl</span><span class="p">,</span> <span class="n">armArchive</span><span class="p">,</span> <span class="n">armInstallDir</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">armInstallDir</span></div>
+
+
+<div class="viewcode-block" id="install_corstone300"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.install_corstone300">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;corstone300.exe&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_corstone300</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">install_corstone300</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download and install corstone300 FVP from ARM.&quot;&quot;&quot;</span>
+    <span class="n">fvpName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">)</span>
+    <span class="n">fvpInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">fvpName</span>
+    <span class="n">fvpSubDir</span> <span class="o">=</span> <span class="n">fvpInstallDir</span> <span class="o">/</span> <span class="s2">&quot;fvp&quot;</span>
+    <span class="n">fvpExe</span> <span class="o">=</span> <span class="n">fvpSubDir</span> <span class="o">/</span> <span class="s2">&quot;models&quot;</span> <span class="o">/</span> <span class="s2">&quot;Linux64_GCC-6.4&quot;</span> <span class="o">/</span> <span class="s2">&quot;FVP_Corstone_SSE-300_Ethos-U55&quot;</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;corstone300.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="c1"># fvpExe = user_vars[&quot;corstone300.exe&quot;]</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fvpExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">fvpUrl</span> <span class="o">=</span> <span class="s2">&quot;https://developer.arm.com/-/media/Arm%20Developer%20Community/Downloads/OSS/FVP/Corstone-300/&quot;</span>
+            <span class="n">fvpFileName</span> <span class="o">=</span> <span class="s2">&quot;FVP_Corstone_SSE-300_11.16_26&quot;</span>
+            <span class="n">fvpArchive</span> <span class="o">=</span> <span class="n">fvpFileName</span> <span class="o">+</span> <span class="s2">&quot;.tgz&quot;</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">fvpUrl</span><span class="p">,</span> <span class="n">fvpArchive</span><span class="p">,</span> <span class="n">fvpInstallDir</span><span class="p">)</span>
+            <span class="n">fvpScript</span> <span class="o">=</span> <span class="n">fvpInstallDir</span> <span class="o">/</span> <span class="s2">&quot;FVP_Corstone_SSE-300.sh&quot;</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">fvpScript</span><span class="p">,</span> <span class="s2">&quot;--i-agree-to-the-contained-eula&quot;</span><span class="p">,</span> <span class="s2">&quot;--no-interactive&quot;</span><span class="p">,</span> <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="n">fvpSubDir</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;corstone300.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fvpExe</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

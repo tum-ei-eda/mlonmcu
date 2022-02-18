@@ -11,7 +11,7 @@ def validate_name(name):
     return True
 
 
-def get_environments_map():  # FIXME: use ini file!
+def get_environments_map():
     result = {}
     environments_file = get_environments_file()
     if os.path.isfile(environments_file):
@@ -40,7 +40,7 @@ def get_alternative_name(name, names):
     return current
 
 
-def register_environment(name, path):
+def register_environment(name, path, overwrite=False):
     validate_name(name)
     if not os.path.isabs(path):
         raise RuntimeError("Not an absolute path")
@@ -55,7 +55,7 @@ def register_environment(name, path):
     config.read(environments_file)
     now = dt.now()
     created = now.strftime("%Y%d%mT%H%M%S")
-    if name in config.sections():
+    if name in config.sections() and not overwrite:
         raise RuntimeError(f"Environment with name {name} does already exist")
     config[name] = {"path": path, "created": created}
     environments_file = get_environments_file()

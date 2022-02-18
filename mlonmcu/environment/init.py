@@ -59,6 +59,7 @@ def initialize_environment(
     register=None,
     template=None,
 ):
+    overwrite = False
     assert template != None
     print("Initializing ML on MCU environment")
     use_default_dir = directory == get_environments_dir()
@@ -68,6 +69,7 @@ def initialize_environment(
     else:
         if use_default_dir:
             final_name = DEFAULTS["environment"]
+            has_name = True
         else:
             final_name = "unamed"
     if use_default_dir:
@@ -94,12 +96,13 @@ def initialize_environment(
         if len(os.listdir(target_dir)) > 0:
             print("The directory is not empty!", end=" - ")
             # TODO: check for mlonmcu project files, if yes ask for overwrite instead
-            if not allow_exists or (
+            if allow_exists == False or (
                 allow_exists is None and not ask_user("Use anyway?", default=False, interactive=interactive)
             ):
                 print("Aborting...")
                 sys.exit(1)
         print("Using existing directory.")
+        overwrite = True
     else:
         print("The directory does not exist!", end=" - ")
         if not ask_user("Create directory?", default=True, interactive=interactive):
@@ -173,12 +176,12 @@ def initialize_environment(
                 print("Initialized empty environments file.")
 
         env_names = get_environment_names()
-        if final_name in env_names:
+        if final_name in env_names and not overwrite:
             alternative_name = get_alternative_name(final_name, env_names)
             print(f"An environment with the name '{final_name}' already exists. Using '{alternative_name}' instead")
             final_name = alternative_name
         # TODO: interactively ask the user
         print("Adding new environment to environments file.")
-        register_environment(final_name, target_dir)
+        register_environment(final_name, target_dir, overwrite=overwrite)
 
     print(f"Finished. Please add `export MLONMCU_HOME={target_dir}` to your shell configuration to use it anywhere")

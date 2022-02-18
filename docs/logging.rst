@@ -1,2 +1,2 @@
-.. include:: ../LOGGING.md
+.. include:: LOGGING.md
    :parser: myst_parser.sphinx_

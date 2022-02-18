@@ -130,6 +130,7 @@ class ETISSPulpinoTarget(RISCVTarget):
             etiss_script_args.append("nodmi")
         if self.verbose:
             etiss_script_args.append("v")
+        # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
 
         # TODO: working directory?
         etiss_ini = os.path.join(cwd, "custom.ini")

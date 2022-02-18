@@ -11,12 +11,9 @@ from mlonmcu.environment.config import get_environments_dir, DEFAULTS, env_subdi
 from mlonmcu.utils import in_virtualenv
 from mlonmcu.environment.init import initialize_environment
 
-
-def get_parser(subparsers):
-    """ "Define and return a subparser for the init subcommand."""
-    parser = subparsers.add_parser("init", description="Initialize ML on MCU environment.")
-    parser.set_defaults(func=handle)
-    parser.add_argument(
+def add_init_options(parser):
+    init_parser = parser.add_argument_group("init options")
+    init_parser.add_argument(
         "-n",
         "--name",
         metavar="NAME",
@@ -25,7 +22,7 @@ def get_parser(subparsers):
         default="",
         help="Environment name (default: %(default)s)",
     )
-    parser.add_argument(
+    init_parser.add_argument(
         "-t",
         "--template",
         metavar="TEMPLATE",
@@ -35,52 +32,58 @@ def get_parser(subparsers):
         default=DEFAULTS["template"],
         help="Environment template (default: %(default)s, allowed: %(choices)s)",
     )
-    parser.add_argument(
+    init_parser.add_argument(
         "DIR",
         nargs="?",
         type=str,
         default=get_environments_dir(),
         help="Environment directory (default: " + os.path.join(get_environments_dir(), "{NAME}") + ")",
     )
-    parser.add_argument(
+    init_parser.add_argument(
         "--non-interactive",
         dest="non_interactive",
         action="store_true",
         help="Do not ask questions interactively",
     )
-    parser.add_argument(
+    init_parser.add_argument(
         "--venv",
         default=None,
         action="store_true",
         help="Create virtual python environment",
     )
-    parser.add_argument(
+    init_parser.add_argument(
         "--clone-models",
         dest="clone_models",
         default=None,
         action="store_true",
         help="Clone models directory into environment",
     )
-    parser.add_argument(
+    init_parser.add_argument(
         "--skip-sw",
         dest="skip_sw",
         default=None,
         action="store_true",
         help="Clone sw directory into environment",
     )
-    parser.add_argument(
+    init_parser.add_argument(
         "--register",
         default=None,
         action="store_true",
         help="Add environment to the list of environment for the current user",
     )
-    parser.add_argument(
+    init_parser.add_argument(
         "--allow-exists",
         dest="allow_exists",
         default=None,
         action="store_true",
         help="Allow overwriting an existing environment directory",
     )
+
+def get_parser(subparsers):
+    """ "Define and return a subparser for the init subcommand."""
+    parser = subparsers.add_parser("init", description="Initialize ML on MCU environment.")
+    parser.set_defaults(func=handle)
+    add_init_options(parser)
     return parser
 
 

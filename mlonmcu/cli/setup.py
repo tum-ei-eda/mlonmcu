@@ -10,14 +10,9 @@ from mlonmcu.cli.common import (
 )
 from .helper.parse import extract_config_and_init_features
 
-
-def get_parser(subparsers):
-    """ "Define and return a subparser for the setup subcommand."""
-    parser = subparsers.add_parser("setup", description="Setup ML on MCU dependencies.")
-    parser.set_defaults(func=handle)
-    add_common_options(parser)
-    add_context_options(parser)
-    parser.add_argument(
+def add_setup_options(parser):
+    setup_parser = parser.add_argument_group("setup options")
+    setup_parser.add_argument(
         "-f",
         "--feature",
         type=str,
@@ -27,7 +22,7 @@ def get_parser(subparsers):
         choices=[],  # FIXME: only setup features?
         help="Enabled features for setup (choices: %(choices)s)",
     )
-    parser.add_argument(
+    setup_parser.add_argument(
         "-c",
         "--config",
         metavar="KEY=VALUE",
@@ -40,31 +35,39 @@ def get_parser(subparsers):
         'foo="this is a sentence". Note that '
         "values are always treated as strings.",
     )
-    parser.add_argument(
+    setup_parser.add_argument(
         "-p",
         "--progress",
         action="store_true",
         help="Display progress bar (default: %(default)s)",
     )
-    parser.add_argument(
+    setup_parser.add_argument(
         "-r",
         "--rebuild",
         action="store_true",
         help="Trigger a rebuild/refresh of already installed dependencies (default: %(default)s)",
     )
-    parser.add_argument(
+    setup_parser.add_argument(
         "-l",
         "--list",
         action="store_true",
         help="Only print a list of the tasks to be processed and quit (default: %(default)s)",
     )
-    parser.add_argument(
+    setup_parser.add_argument(
         "--task",
         type=str,
         nargs=1,
         default=None,
         help="Invoke a single task manually by name (default: %(default)s)",
     )
+
+def get_parser(subparsers):
+    """ "Define and return a subparser for the setup subcommand."""
+    parser = subparsers.add_parser("setup", description="Setup ML on MCU dependencies.")
+    parser.set_defaults(func=handle)
+    add_common_options(parser)
+    add_context_options(parser)
+    add_setup_options(parser)
     return parser
 
 

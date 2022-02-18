@@ -19,7 +19,6 @@ import mlonmcu.cli.init as init
 import mlonmcu.cli.setup as setup
 import mlonmcu.cli.flow as flow
 import mlonmcu.cli.cleanup as cleanup
-import mlonmcu.cli.check as check
 import mlonmcu.cli.export as export
 import mlonmcu.cli.env as env
 import mlonmcu.cli.models as models
@@ -78,17 +77,9 @@ def main(args=None):
     init_parser = init.get_parser(subparsers)
     setup_parser = setup.get_parser(subparsers)
     flow_parser = flow.get_parser(subparsers)
-    # TODO: hide load,build,compile,run,debug,test behind flow subcommand?
-    # trace_parser = get_trace_parser(subparsers)  # Handled as a flag to run subcommand or target-feature
-    # TODO: cleanup
     cleanup_parser = cleanup.get_parser(subparsers)
-    # TODO: check
-    check_parser = check.get_parser(subparsers)
-    # TODO: run
-    # TODO: env
     export_parser = export.get_parser(subparsers)
     env_parser = env.get_parser(subparsers)
-    # TODO: models
     models_parser = models.get_parser(subparsers)
     if args:
         args = parser.parse_args(args)

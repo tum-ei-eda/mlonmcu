@@ -2,6 +2,10 @@ from pathlib import Path
 import pandas as pd
 
 
+pd.set_option("display.max_columns", None)
+pd.set_option("display.width", 0)
+
+
 class Report:
     def __init__(self):
         self.df = pd.DataFrame()

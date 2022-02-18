@@ -1,3 +1,5 @@
+import os
+import shutil
 import time
 from tqdm import tqdm
 
@@ -30,6 +32,29 @@ class Setup:
         self.context = context
         self.tasks_factory = tasks_factory
         self.verbose = bool(self.config["print_outputs"])
+
+    def clean_cache(self, interactive=True):
+        assert self.context is not None
+        deps_dir = self.context.environment.lookup_path("deps").path
+        cache_file = deps_dir / "cache.ini"
+        if cache_file.is_file():
+            print(f"The dependency cache file ({cache_file}) will be removed.")
+            if ask_user("Are your sure?", default=not interactive, interactive=interactive):
+                print(f"Removing {cache_file} ...")
+                os.remove(cache_file)
+
+    def clean_dependencies(self, interactive=True):
+        assert self.context is not None
+        self.clean_cache(interactive=interactive)
+        deps_dir = self.context.environment.lookup_path("deps").path
+        subdirs = ["src", "build", "install"]
+        print(f"All dependencies will be removed from {deps_dir}.")
+        if ask_user("Are your sure?", default=not interactive, interactive=interactive):
+            for subdir in subdirs:
+                full_path = deps_dir / subdir
+                print(f"Removing contents of {full_path} ...")
+                shutil.rmtree(full_path)
+                full_path.mkdir(exist_ok=True)
 
     def process_features(self, features):
         if features is None:

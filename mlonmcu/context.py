@@ -1,6 +1,7 @@
 """Definition if the contextmanager for mlonmcu environments."""
 
 import os
+import shutil
 from typing import List, Union
 from pathlib import Path
 import filelock
@@ -330,6 +331,37 @@ class MlonMcuContext:
     def is_clean(self):
         """Return true if all sessions in the context are inactive"""
         return not any(sess.active for sess in self.sessions)
+
+    # WARNING: this will remove the actual session directories!
+    def cleanup_sessions(self, keep=10, interactive=True):
+        """Utility to cleanup old sessions from the disk."""
+        assert self.is_clean
+        all_sessions = self.sessions
+        # print("all_sessions", all_sessions)
+        to_keep = all_sessions[-keep:] if keep > 0 else []
+        to_remove = self.sessions[:-keep] if keep > 0 else self.sessions
+        count = len(to_remove)
+        if count > 0:
+            temp_dir = self.environment.lookup_path("temp").path
+            sessions_dir = temp_dir / "sessions"
+            print(f"The following {count} sessions will be removed from the environments temp directory ({temp_dir}):")
+            print(" ".join([str(session.idx) for session in to_remove]))
+
+            if ask_user("Are your sure?", default=not interactive, interactive=interactive):
+                for session in to_remove:
+                    session_dir = sessions_dir / str(session.idx)
+                    if not session_dir.is_dir():
+                        # Skip / Dir does not exist
+                        continue
+                    shutil.rmtree(session_dir)
+                self.sessions = to_keep
+                self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
+                print("Done")
+            else:
+                print("Aborted")
+        else:
+            print("No sessions selected for removal")
+        # We currently do not support rewirting the indices to start from scratch again as this would lead to inconsitencies with the path in the report/cmake build dirtectory
 
     def __exit__(self, exception_type, exception_value, traceback):
         logger.debug("Exit MlonMcuContext")

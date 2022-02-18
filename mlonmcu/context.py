@@ -1,7 +1,9 @@
 """Definition if the contextmanager for mlonmcu environments."""
 
+import sys
 import os
 import shutil
+import tempfile
 from typing import List, Union
 from pathlib import Path
 import filelock
@@ -11,6 +13,7 @@ from mlonmcu.logging import get_logger, set_log_file
 from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
+import mlonmcu.setup.utils as utils
 
 from mlonmcu.environment.environment import Environment, UserEnvironment
 
@@ -160,13 +163,16 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
         run_ids = get_ids(runs_directory)
         runs = []
         for rid in run_ids:
-            run_file = runs_directory / str(rid) / "run.txt"
+            run_directory = runs_directory / str(rid)
+            run_file = run_directory / "run.txt"
             # run = Run.from_file(run_file)  # TODO: actually implement run restore
             run = Run()  # TODO: fix
             run.archived = True
+            run.dir = run_directory
             runs.append(run)
         session = Session(idx=sid, archived=True, dir=session_directory)
         session.runs = runs
+        session.dir = session_directory
         sessions.append(session)
     return sessions
 
@@ -362,6 +368,73 @@ class MlonMcuContext:
         else:
             print("No sessions selected for removal")
         # We currently do not support rewirting the indices to start from scratch again as this would lead to inconsitencies with the path in the report/cmake build dirtectory
+
+    def export(self, dest, session_ids=None, run_ids=None, interactive=True):
+        dest = Path(dest)
+        if (dest.is_file() and dest.exists()) or (dest.is_dir() and utils.is_populated(dest)):
+            if not ask_user("Destination is already populated! Overwrite?", default=True, interactive=interactive):
+                print("Aborted")
+                return
+        dest_, ext = os.path.splitext(dest)
+        if session_ids is None:
+            # Can not select all sessions, fall back to latest session
+            session_ids = [-1]
+
+        if run_ids is not None:
+            assert len(session_ids) == 1, "Can only choose runs of a single session"
+
+
+        def find_session(sid):
+            if len(self.sessions) == 0:
+                return None
+
+            if sid == -1:
+                assert len(self.sessions) > 0
+                return self.sessions[-1]
+
+            for session in self.sessions:
+                if session.idx == sid:
+                    return session
+            return None
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            tmpdir = Path(tmpdirname)
+            for sid in session_ids:
+                session = find_session(sid)
+                if session is None:
+                    print(f"Lookup for session id {sid} failed. Available:", " ".join([str(s.idx) for s in self.sessions]))
+                    sys.exit(1)
+                if len(session_ids) == 1:
+                    base = tmpdir
+                else:
+                    base = tmpdir / str(sid)
+                if run_ids is None:
+                    src = session.dir / "runs"
+                    shutil.copytree(src, base, dirs_exist_ok=True, symlinks=True)  # Warning: dirs_exist_ok=True requires python 3.8+
+                else:
+                    base = base / "runs"
+                    for rid in run_ids:
+                        if rid >= len(session.runs):
+                            print(f"Lookup for run id {rid} failed in session {sid}. Available:", " ".join([str(i) for i in range(len(session.runs))]))
+                            sys.exit(1)
+                        run = session.runs[rid]  # TODO: We currently do not check if the index actually exists
+                        if len(run_ids) == 1 and len(session_ids) == 1:
+                            run_base = tmpdir
+                        else:
+                            run_base = base / str(rid)
+                        src = run.dir
+                        shutil.copytree(src, run_base, dirs_exist_ok=True)  # Warning: dirs_exist_ok=True requires python 3.8+
+            if ext in [".zip", ".tar"]:
+                print(f"Creating archive: {dest}")
+                shutil.make_archive(dest_, ext[1:], tmpdirname)
+            else:
+                print(f"Creating directory: {dest}")
+                if dest.is_dir():
+                    shutil.rmtree(dest)  # Cleanup old contents
+                # dest.mkdir(exist_ok=True)
+                shutil.move(tmpdirname, str(dest))
+        print("Done")
+
 
     def __exit__(self, exception_type, exception_value, traceback):
         logger.debug("Exit MlonMcuContext")

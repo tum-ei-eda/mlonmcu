@@ -65,7 +65,7 @@ class Session:
         run = Run(*args, idx=idx, session=self, **kwargs)
         self.runs.append(run)
         # TODO: move this to a helper function
-        run_link = run.dir.parent / "latest"
+        run_link = run.dir.parent / "latest"  # TODO: Create relative symlink using os.path.relpath for portability
         if os.path.islink(run_link):
             os.unlink(run_link)
         os.symlink(run.dir, run_link)

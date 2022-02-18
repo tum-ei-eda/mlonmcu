@@ -20,6 +20,7 @@ import mlonmcu.cli.setup as setup
 import mlonmcu.cli.flow as flow
 import mlonmcu.cli.cleanup as cleanup
 import mlonmcu.cli.check as check
+import mlonmcu.cli.export as export
 import mlonmcu.cli.env as env
 import mlonmcu.cli.models as models
 
@@ -85,6 +86,7 @@ def main(args=None):
     check_parser = check.get_parser(subparsers)
     # TODO: run
     # TODO: env
+    export_parser = export.get_parser(subparsers)
     env_parser = env.get_parser(subparsers)
     # TODO: models
     models_parser = models.get_parser(subparsers)

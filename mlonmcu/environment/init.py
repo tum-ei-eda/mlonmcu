@@ -14,7 +14,7 @@ from .config import (
     init_config_dir,
 )
 from .templates import write_environment_yaml_from_template
-from .util import in_virtualenv
+from mlonmcu.utils import in_virtualenv, ask_user
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
@@ -37,22 +37,6 @@ def clone_models_repo(
 
 def clone_sw_repo(dest, url="https://github.com/tum-ei-eda/mlonmcu-sw.git"):  # TODO: how to get submodule url/ref?
     git.Repo.clone_from(url, dest)
-
-
-def ask_user(text, default: bool, yes_keys=["y", "j"], no_keys=["n"], interactive=True):
-    assert len(yes_keys) > 0 and len(no_keys) > 0
-    if not interactive:
-        return default
-    if default:
-        suffix = " [{}/{}] ".format(yes_keys[0].upper(), no_keys[0].lower())
-    else:
-        suffix = " [{}/{}] ".format(yes_keys[0].lower(), no_keys[0].upper())
-    message = text + suffix
-    answer = input(message)
-    if default:
-        return answer.lower() not in no_keys and answer.upper() not in no_keys
-    else:
-        return not (answer.lower() not in yes_keys and answer.upper() not in yes_keys)
 
 
 def create_venv_directory(base, hidden=True):

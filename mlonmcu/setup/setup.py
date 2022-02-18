@@ -7,6 +7,7 @@ from mlonmcu.feature.features import get_matching_features
 from mlonmcu.config import filter_config
 from .tasks import Tasks
 from .task import TaskGraph
+from mlonmcu.utils import ask_user
 
 logger = get_logger()
 

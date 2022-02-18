@@ -8,7 +8,7 @@ import jinja2
 
 from mlonmcu.environment.templates import get_template_names
 from mlonmcu.environment.config import get_environments_dir, DEFAULTS, env_subdirs
-from mlonmcu.environment.util import in_virtualenv
+from mlonmcu.utils import in_virtualenv
 from mlonmcu.environment.init import initialize_environment
 
 

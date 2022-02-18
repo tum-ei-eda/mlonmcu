@@ -4,7 +4,11 @@ from datetime import datetime as dt
 
 # TODO: EnvironmentList/Factory/Registry? also via code?
 from .config import get_environments_file
-from .util import validate_name
+
+
+def validate_name(name):
+    # TODO: regex for valid names without spaces etc
+    return True
 
 
 def get_environments_map():  # FIXME: use ini file!

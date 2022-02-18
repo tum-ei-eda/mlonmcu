@@ -5,6 +5,7 @@ from typing import List, Union
 from pathlib import Path
 import filelock
 
+from mlonmcu.utils import ask_user
 from mlonmcu.logging import get_logger, set_log_file
 from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session

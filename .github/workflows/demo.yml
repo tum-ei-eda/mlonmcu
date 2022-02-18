@@ -54,8 +54,11 @@ jobs:
       run: |
         source .venv/bin/activate
         mlonmcu flow run sine_model -H home/ -v
+        mlonmcu export -H home/ session.zip
     - name: Remove dependencies (too large for artifact)
-      run: rm -rf home/deps/{src,build,install}
+      run: |
+        source .venv/bin/activate
+        mlonmcu cleanup -H home/ -f --deps
     - name: Archive environment (without deps)
       uses: actions/upload-artifact@v2
       with:

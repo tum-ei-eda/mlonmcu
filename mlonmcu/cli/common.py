@@ -75,6 +75,14 @@ def add_flow_options(parser):
         action="store_true",
         help="Try to resume the latest session (default: %(default)s)",
     )
+    flow_parser.add_argument(  # TODO: move to compile.py?
+        "-l",
+        "--label",
+        type=str,
+        metavar="LABEL",
+        default="unamed",
+        help="Label for the session (default: %(default)s)",
+    )
 
 
 def add_common_options(parser):
@@ -125,6 +133,7 @@ def add_model_options(parser):
 def kickoff_runs(args, until, context):
     assert len(context.sessions) > 0
     session = context.sessions[-1]
+    session.label = args.label
     config = extract_config(args)
     per_stage = True
     if "runs_per_stage" in config:

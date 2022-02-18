@@ -30,9 +30,9 @@ class SessionStatus(Enum):
 
 
 class Session:
-    def __init__(self, alias="unnamed", idx=None, archived=False, dir=None):
+    def __init__(self, label="unnamed", idx=None, archived=False, dir=None):
         timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-        self.alias = alias + "_" + timestamp
+        self.label = label + "_" + timestamp
         self.idx = idx
         self.status = SessionStatus.CREATED
         self.opened_at = None
@@ -230,7 +230,7 @@ class Session:
         report_file = Path(self.dir) / "report.csv"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path
-        results_file = results_dir / f"{self.alias}.csv"
+        results_file = results_dir / f"{self.label}.csv"
         report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
         print_report = True

@@ -46,6 +46,13 @@ class Environment:
     def to_file(self, filename):
         write_environment_to_file(self, filename)
 
+    def lookup_path(self, name):
+        assert name in self.paths, f"Unable to find '{name}' path in environment config"
+        return self.paths[name]
+
+    def lookup_var(self, name, default=None):
+        return self.vars.get(name, default)
+
     def lookup_frontend_feature_configs(self, name=None, frontend=None):
         configs = []
         if frontend:

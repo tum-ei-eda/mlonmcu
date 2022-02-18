@@ -68,6 +68,14 @@ mlonmcu.cli.env module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.cli.export module
+-------------------------
+
+.. automodule:: mlonmcu.cli.export
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.cli.flow module
 -----------------------
 
@@ -136,6 +144,14 @@ mlonmcu.cli.trace module
 ------------------------
 
 .. automodule:: mlonmcu.cli.trace
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.cli.tune module
+-----------------------
+
+.. automodule:: mlonmcu.cli.tune
    :members:
    :undoc-members:
    :show-inheritance:

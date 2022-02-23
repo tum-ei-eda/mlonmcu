@@ -44,26 +44,26 @@ To extend the support of read hardware targets, it would be great if this list w
 
 ## Features
 
-Table
+An extensive overview of the available features in TVM is given in the following table. The types of those features are denoted with a check mark in the respective column.
 
-| Feature                                             | Setup | Frontend | Framework | Backend | Target | Platform/Compile | Other |
-|-----------------------------------------------------|-------|----------|-----------|---------|--------|------------------|-------|
-| Debug Arena Usage (`debug_arena`)                   | x     |          |           |         |        |                  |       |
-| Validate Output Data (`validate`)                   | x     | x        |           |         |        |                  |       |
-| muRISCV-NN (`muriscvnn`)                            | x     | x        |           |         |        |                  |       |
-| CMSIS-NN (`cmsisnn`)                                | x     | x        |           |         |        |                  |       |
-| CMSIS-NN + TVM BYOC (`cmsisnnbyoc`)                 | x     |          |           |         |        |                  |       |
-| Fused TIling for TVM (`fusetile`)                   | x     |          |           |         |        |                  |       |
-| Custom TVM meory planner (`memplan`)                | x     |          |           |         |        |                  |       |
-| Unified Static Memory Planner for TVM (`usmp`) TODO | x     |          |           |         |        |                  |       |
-| V-Extension for RISC-V (`vext`)                     | x     | x        |           |         |        |                  |       |
-| Debug Build (`debug`)                               | x     | x        |           |         |        |                  |       |
-| GDBServer (`gdbserver`)                             | x     |          |           |         |        |                  |       |
-| Debug ETISS VP (`etissdbg`)                         | x     |          |           |         |        |                  |       |
-| Create Memory Trace (`trace`)                       | x     |          |           |         |        |                  |       |
-| Unpacked API (`unpacked_api`)                       | x     |          |           |         |        |                  |       |
-| Autotune TVM Model (`autotune`)                     | x     |          |           |         |        |                  |       |
-| Use Tuning ? (`autotuned`)                          | x     |          |           |         |        |                  |       |
+| Feature                                             | Setup              | Frontend           | Framework          | Backend            | Target             | Platform/Compile   | Other |
+|-----------------------------------------------------|--------------------|--------------------|--------------------|--------------------|--------------------|-------------------------|-------|
+| Debug Arena Usage (`debug_arena`)                   |                    |                    |                    |                    |                    | :white_check_mark: |       |
+| Validate Output Data (`validate`)                   |                    | :white_check_mark: |                    |                    |                    | :white_check_mark: |       |
+| muRISCV-NN (`muriscvnn`)                            | :white_check_mark: |                    | :white_check_mark: |                    |                    |                                    |       |
+| CMSIS-NN (`cmsisnn`)                                | :white_check_mark: |                    | :white_check_mark: |                    |                    |                                    |       |
+| CMSIS-NN + TVM BYOC (`cmsisnnbyoc`)                 |                    |                    |                    | :white_check_mark: |                    |                                    |       |
+| Fused TIling for TVM (`fusetile`)                   |                    |                    |                    | :white_check_mark: |                    |                                    |       |
+| Custom TVM meory planner (`memplan`)                |                    |                    |                    | :white_check_mark: |                    |                                    |       |
+| Unified Static Memory Planner for TVM (`usmp`)      |                    |                    |                    | :white_check_mark: |                    |                                    |       |
+| V-Extension for RISC-V (`vext`)                     | :white_check_mark: |                    |                    |                    | :white_check_mark:<br>(`spike`, `ovpsim`) |                                    |       |
+| Debug Build (`debug`)                               | :white_check_mark: |                    |                    |                    |                    |                  :white_check_mark: |       |
+| GDBServer (`gdbserver`)                             |                    |                    |                    |                    | :white_check_mark: |                                    |       |
+| Debug ETISS VP (`etissdbg`)                         |                    |                    |                    |                    | :white_check_mark:<br>(`etiss_pulpino`) |                                    |       |
+| Create Memory Trace (`trace`)                       |                    |                    |                    |                    | :white_check_mark:<br>(`etiss_pulpino`) |                                    |       |
+| Unpacked API (`unpacked_api`)                       |                    |                    |                    | :white_check_mark:<br>(`tvmaot`) |                    |                                    |       |
+| Autotune TVM Model (`autotune`)                     |                    |                    |                    | :white_check_mark: |                    |                                    |       |
+| Use TVM Tuning Records (`autotuned`)                |                    |                    |                    | :white_check_mark: |                    |                                   |       |
 
 
 ## Managed Dependencies
@@ -119,3 +119,4 @@ The following list gives and overview of the set of dependencies which are curre
 The following dependencies are intentionally NOT managed by MLonMCU:
 
 - OVPSimPlus: The simulator is closed source and needs an individual license for usage (free)
+- ESP-IDF: Make sure you provide a `espidf.path` with the required components installed

@@ -74,6 +74,18 @@ def create_environment_dict(environment):
             for frontend in environment.frontends
         },
     }
+    data["platforms"] = {
+        # "default": None,  # unimplemented?
+        **{
+            platform.name: {
+                "enabled": platform.enabled,
+                "features": {
+                    platform_feature.name: platform_feature.supported for platform_feature in platform.features
+                },
+            }
+            for platform in environment.platforms
+        },
+    }
     data["targets"] = {
         "default": environment.defaults.default_target,
         **{

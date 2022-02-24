@@ -10,4 +10,5 @@ class FeatureType(Enum):
     FRAMEWORK = 3
     BACKEND = 4
     TARGET = 5
-    COMPILE = 6
+    # COMPILE = 6
+    PLATFORM = 6

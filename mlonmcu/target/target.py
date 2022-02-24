@@ -61,6 +61,14 @@ class Target:
         self.env = os.environ
         self.context = context
         self.artifacts = []
+        self.platform = None
+
+    def add_platform(self, platform):
+        self.platform = platform
+
+    @property
+    def supported_platforms(self):
+        return ["mlif"]
 
     def __repr__(self):
         return f"Target({self.name})"

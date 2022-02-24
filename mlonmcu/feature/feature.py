@@ -129,19 +129,19 @@ class TargetFeature(FeatureBase):
         config.update(self.get_target_config(target))
 
 
-class CompileFeature(FeatureBase):
-    """Compile related feature"""
+class PlatformFeature(FeatureBase):
+    """Platform/Compile related feature"""
 
-    feature_type = FeatureType.COMPILE
+    feature_type = FeatureType.PLATFORM
 
     def __init__(self, name, config=None):
         super().__init__(name, config=config)
 
-    def get_compile_config(self):
+    def get_platform_config(self, platform):
         return {}
 
-    def add_compile_config(self, config):
-        config.update(self.get_compile_config())
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
 
     def get_cmake_args(self):
         return []

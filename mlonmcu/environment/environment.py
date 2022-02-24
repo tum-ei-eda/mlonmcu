@@ -28,6 +28,7 @@ class Environment:
         self.repos = {}
         self.frameworks = []
         self.frontends = []
+        self.platforms = []
         self.targets = []
         self.vars = {}
 
@@ -111,6 +112,20 @@ class Environment:
                     backend = None
         return configs
 
+    def lookup_platform_feature_configs(self, name=None, platform=None):
+        configs = []
+        if platform:
+            names = [platform.name for platform in self.platforms]
+            index = names.index(platform)
+            assert (
+                index is not None
+            ), f"Platform {platform} not found in environment config"  # TODO: do not fail, just return empty list
+            configs.extend(_feature_helper(self.platforms[index], name))
+        else:
+            for platform in self.platforms:
+                configs.extend(_feature_helper(platform, name))
+        return configs
+
     def lookup_target_feature_configs(self, name=None, target=None):
         configs = []
         if target:
@@ -132,6 +147,7 @@ class Environment:
         frontend=None,
         framework=None,
         backend=None,
+        platform=None,
         target=None,
     ):
         configs = []
@@ -141,6 +157,8 @@ class Environment:
             configs.extend(self.lookup_framework_feature_configs(name=name, framework=framework))
         if kind == FeatureType.BACKEND or kind is None:
             configs.extend(self.lookup_backend_feature_configs(name=name, framework=framework, backend=backend))
+        if kind == FeatureType.PLATFORM or kind is None:
+            configs.extend(self.lookup_platform_feature_configs(name=name, platform=platform))
         if kind == FeatureType.TARGET or kind is None:
             configs.extend(self.lookup_target_feature_configs(name=name, target=target))
 
@@ -184,6 +202,16 @@ class Environment:
         for frontend_config in self.frontends:
             if frontend_config.name == frontend:
                 return [frontend_config]
+
+    def lookup_platform_configs(self, platform=None, names_only=False):
+        enabled_platforms = _filter_enabled(self.platforms)
+
+        if platform is None:
+            return _extract_names(enabled_platforms) if names_only else enabled_platforms
+        for platform_config in enabled_platforms:
+            if platform_config.name == platform:
+                return [platform_config.name if names_only else platform_config]
+
         return []
 
     def lookup_target_configs(self, target=None):
@@ -209,6 +237,10 @@ class Environment:
         configs = self.lookup_framework_configs(framework=name)
         assert len(configs) <= 1, "TODO"
         return configs[0].enabled if len(configs) > 0 else False
+
+    def has_platform(self, name):
+        configs = self.lookup_platform_configs(platform=name)
+        return len(configs) > 0
 
     def has_target(self, name):
         configs = self.lookup_target_configs(target=name)
@@ -365,6 +397,15 @@ class DefaultEnvironment(Environment):
         self.vars = {
             "TEST": "abc",
         }
+        self.platforms = [
+            PlatformConfig(
+                "mlif",
+                enabled=True,
+                features=[
+                    PlatformFeatureConfig("debug", platform="mlif", supported=True)
+                ]
+            )
+        ]
         self.targets = [
             TargetConfig(
                 "etiss_pulpino",
@@ -395,6 +436,7 @@ class UserEnvironment(DefaultEnvironment):
         repos=None,
         frameworks=None,
         frontends=None,
+        platforms=None,
         targets=None,
         variables=None,
     ):
@@ -416,6 +458,8 @@ class UserEnvironment(DefaultEnvironment):
             self.frameworks = frameworks
         if frontends:
             self.frontends = frontends
+        if platforms:
+            self.platforms = platforms
         if targets:
             self.targets = targets
         if variables:

@@ -10,8 +10,8 @@ from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.target.metrics import Metrics
-from mlonmcu.compile.mlif import MLIF
 from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.platform import SUPPORTED_PLATFORMS
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
 
@@ -55,7 +55,7 @@ class Run:
         frontend=None,
         backend=None,
         target=None,
-        mlif=None,  # TODO: rename
+        platform=None,  # TODO: rename
         features=None,  # TODO: All features combined or explicit run-features -> postprocesses?
         config=None,  # TODO: All config combined or explicit run-config?
         num=1,
@@ -68,7 +68,7 @@ class Run:
         self.frontend = frontend  # Single one or all enabled ones?
         self.framework = framework  # ???
         self.backend = backend
-        self.mlif = mlif
+        self.platform = platform
         self.artifacts_per_stage = {}
         self.num = num
         self.archived = archived
@@ -97,8 +97,8 @@ class Run:
                 os.mkdir(self.dir)
             # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
             # A solution would be to split up the framework runtime libs from the mlif...
-            if self.mlif:
-                self.mlif.build_dir = Path(self.dir) / "mlif"
+            if self.platform:
+                self.platform.set_directory(Path(self.dir) / self.platform.name)
 
     def copy(self):
         new = copy.deepcopy(self)
@@ -107,6 +107,30 @@ class Run:
             new.idx = new_idx
             self._init_directory()
         return new
+
+    # TODO: get rid of this
+    # This is currently required as the platforms needs to access the backend, framework and target...
+    def init_platform(self, platform_cls, context=None):
+        required_keys = platform_cls.REQUIRED
+        self.config.update(
+            resolve_required_config(
+                required_keys,
+                features=self.features,
+                config=self.config,
+                cache=context.cache,
+            )
+        )
+        assert self.framework is not None, "Please add a frontend before initializing the Platform"
+        assert self.backend is not None, "Please add a backend before initializing the Platform"
+        platform_config = self.config.copy()
+        return platform_cls(
+            self.framework,
+            self.backend,
+            self.target,
+            features=self.features,
+            config=platform_config,
+            context=context,
+        )
 
     def init_component(self, component_cls, context=None):
         required_keys = component_cls.REQUIRED
@@ -136,27 +160,9 @@ class Run:
     def add_target(self, target):
         self.target = target
 
-    def init_mlif(self, context=None):
-        required_keys = MLIF.REQUIRED
-        self.config.update(
-            resolve_required_config(
-                required_keys,
-                features=self.features,
-                config=self.config,
-                cache=context.cache,
-            )
-        )
-        assert self.framework is not None, "Please add a frontend before initializing the MLIF"
-        assert self.backend is not None, "Please add a backend before initializing the MLIF"
-        mlif_config = self.config.copy()
-        self.mlif = MLIF(
-            self.framework,
-            self.backend,
-            self.target,
-            features=self.features,
-            config=mlif_config,
-            context=context,
-        )
+    def add_platform(self, platform, context=None):
+        self.platform = platform
+
 
     def add_model_by_name(self, model_name, context=None):
         assert context is not None, "Please supply a context"
@@ -187,8 +193,15 @@ class Run:
             target_name
         ), f"The target '{target_name}' is not enabled for this environment"
         self.add_target(self.init_component(SUPPORTED_TARGETS[target_name], context=context))
-        if self.mlif is None:
-            self.init_mlif(context=context)
+
+    def add_platform_by_name(self, platform_name, context=None):
+        assert context is not None and context.environment.has_platform(
+            platform_name
+        ), f"The platform '{platform_name}' is not enabled for this environment"
+        self.add_platform(self.init_platform(SUPPORTED_PLATFORMS[platform_name], context=context))
+        assert self.platform.name in self.target.supported_platforms
+        self.target.add_platform(self.platform)
+
 
     @property
     def export_optional(self):
@@ -268,14 +281,13 @@ class Run:
 
         self.export_stage(RunStage.BUILD, optional=self.export_optional)
         codegen_dir = self.dir
-        # TODO: MLIF -> self.?
         data_file = None
         for artifact in self.artifacts_per_stage[RunStage.LOAD]:
             if artifact.name == "data.c":
                 artifact.export(self.dir)
                 data_file = Path(self.dir) / "data.c"
-        self.mlif.generate_elf(codegen_dir, num=self.num, data_file=data_file)
-        self.artifacts_per_stage[RunStage.COMPILE] = self.mlif.artifacts
+        self.platform.generate_elf(codegen_dir, num=self.num, data_file=data_file)
+        self.artifacts_per_stage[RunStage.COMPILE] = self.platform.artifacts
 
         self.stage = max(self.stage, RunStage.COMPILE)
         self.active = False
@@ -350,8 +362,8 @@ class Run:
                 component, name = key.split(".")[:2]
                 if self.backend is not None and component == self.backend.name:
                     self.backend.config[name] = value
-                elif self.mlif is not None and component == "mlif":
-                    self.mlif.config[name] = value
+                elif self.platform is not None and component == self.platform.name:
+                    self.platform.config[name] = value
                 self.config[key] = value
         self.artifacts_per_stage[RunStage.LOAD] = self.frontend.artifacts
         if data_artifact:
@@ -468,8 +480,8 @@ class Run:
             ret.update(config_helper(self.framework))
         if self.target:
             ret.update(config_helper(self.target))
-        if self.mlif:
-            ret.update(config_helper(self.mlif, "mlif"))
+        if self.platform:
+            ret.update(config_helper(self.platform, "platform"))
         return ret
 
     def get_report(self):
@@ -488,6 +500,8 @@ class Run:
             pre["Framework"] = self.framework.name
         if self.backend:
             pre["Backend"] = self.backend.name
+        if self.platform:
+            pre["Platform"] = self.platform.name
         if self.target:
             pre["Target"] = self.target.name
         pre["Num"] = self.num

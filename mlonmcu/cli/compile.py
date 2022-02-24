@@ -70,8 +70,13 @@ def _handle(context, args):
         for target_name in targets:
             for n in num:
                 new_run = run.copy()
+                if args.platform:  # TODO: move this somewhere else
+                    print("args.platform", args.platform)
+                    platform_name = args.platform[0]
+                else:
+                    platform_name = "mlif"
                 new_run.add_target_by_name(target_name, context=context)
-                new_run.init_mlif(context=context)
+                new_run.add_platform_by_name(platform_name, context=context)  # TODO: do this implicitly
                 new_run.debug = debug
                 new_run.num = n
                 new_runs.append(new_run)

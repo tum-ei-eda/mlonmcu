@@ -4,7 +4,7 @@ from pathlib import Path
 from .feature import (
     BackendFeature,
     FrameworkFeature,
-    CompileFeature,
+    PlatformFeature,
     FrontendFeature,
     TargetFeature,
     SetupFeature,
@@ -56,7 +56,7 @@ def get_matching_features(features, feature_type):
 
 
 @register_feature("debug_arena")
-class DebugArena(BackendFeature, CompileFeature):
+class DebugArena(BackendFeature, PlatformFeature):
     """Enable verbose printing of arena usage for debugging."""
 
     def __init__(self, config=None):
@@ -71,7 +71,7 @@ class DebugArena(BackendFeature, CompileFeature):
         # TODO: TFLM also compatible?
         return {f"{backend}.debug_arena": self.enabled}
 
-    # def get_compile_config(self):
+    # def get_platform_config(self):
     #    return {"mlif.debug_arena": True}
 
     def get_cmake_args(self):
@@ -80,7 +80,7 @@ class DebugArena(BackendFeature, CompileFeature):
 
 
 @register_feature("validate")
-class Validate(FrontendFeature, CompileFeature):
+class Validate(FrontendFeature, PlatformFeature):
     """Enable validaton of inout and output tensors."""
 
     DEFAULTS = {
@@ -100,8 +100,9 @@ class Validate(FrontendFeature, CompileFeature):
             raise NotImplementedError
         return {f"{frontend}.use_inout_data": True}
 
-    def get_compile_config(self):
-        return {"mlif.ignore_data": False}
+    def get_platform_config(self, platform):
+        assert platform == "mlif", f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {f"{platform}.ignore_data": False}
 
     # def get_cmake_args(self):
     #     pass
@@ -237,7 +238,7 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 
 # @before_feature("muriscvnn")  # TODO: implment something like this
 @register_feature("vext")
-# class Vext(SetupFeature, TargetFeature, CompileFeature):
+# class Vext(SetupFeature, TargetFeature, PlatformFeature):
 class Vext(SetupFeature, TargetFeature):
     """MuriscvNN CMSIS-NN wrappers for TFLite Micro"""
 
@@ -281,7 +282,7 @@ class Vext(SetupFeature, TargetFeature):
 
 
 @register_feature("debug")
-class Debug(SetupFeature, CompileFeature):
+class Debug(SetupFeature, PlatformFeature):
     """Enable debugging ability of target software."""
 
     def __init__(self, config=None):
@@ -290,9 +291,8 @@ class Debug(SetupFeature, CompileFeature):
     def get_required_cache_flags(self):
         return {} if self.enabled else {}  # TODO: remove?
 
-    def get_compile_config(self):
-        # TODO: or dbg (defined in tasks.py)???
-        return {"mlif.debug": self.enabled}
+    def get_platform_config(self, platform):
+        return {f"{platform}.debug": self.enabled}
 
 
 @register_feature("gdbserver")
@@ -368,7 +368,7 @@ class UnpackedApi(BackendFeature):  # TODO: should this be a feature or config o
 
 
 @register_feature("packed")
-class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature, CompileFeature):
+class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature, PlatformFeature):
     """Sub-8-bit and sparsity feature for TFLite Micro kernels."""
 
     def __init__(self, config=None):
@@ -406,7 +406,7 @@ class Packing(FrontendFeature):
 
 
 @register_feature("fallback")
-class Fallback(FrameworkFeature, CompileFeature):
+class Fallback(FrameworkFeature, PlatformFeature):
     """(Unimplemented) TFLite Fallback for unsupported and custom operators in TVM."""
 
     DEFAULTS = {

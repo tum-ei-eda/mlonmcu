@@ -135,6 +135,22 @@ def load_environment_from_file(filename, base):
                 frontends.append(FrontendConfig(key, enabled=enabled, features=frontend_features))
         else:
             frontends = None
+        if "platforms" in loaded:
+            platforms = []
+            for key in loaded["platforms"]:
+                platform = loaded["platforms"][key]
+                if "enabled" in platform:
+                    enabled = platform["enabled"]
+                else:
+                    enabled = True
+                platform_features = []
+                if "features" in platform:
+                    for key2 in platform["features"]:
+                        supported = bool(platform["features"][key2])
+                        platform_features.append(PlatformFeatureConfig(key2, platform=key, supported=supported))
+                platforms.append(PlatformConfig(key, enabled=enabled, features=platform_features))
+        else:
+            platforms = None
         default_target = None
         if "targets" in loaded:
             targets = []
@@ -172,8 +188,8 @@ def load_environment_from_file(filename, base):
             repos=repos,
             frameworks=frameworks,
             frontends=frontends,
+            platforms=platforms,
             targets=targets,
             variables=variables,
         )
         return env
-        # print("env", env)

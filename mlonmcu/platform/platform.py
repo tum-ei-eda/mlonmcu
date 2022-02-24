@@ -8,6 +8,7 @@ import distutils.util
 from contextlib import closing
 from pathlib import Path
 from typing import List
+from filelock import FileLock
 
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
@@ -158,7 +159,10 @@ class TargetPlatform(Platform):
     def monitor(self, timeout=60):
         raise NotImplementedError
 
-    def run(self, timeout):
-        self.flash(timeout=timeout)
-        output = self.monitor(timeout=timeout)
+    def run(self, timeout=120):
+        # Only allow one serial communication at a time
+        with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
+
+            self.flash(timeout=timeout)
+            output = self.monitor(timeout=timeout)
         return output

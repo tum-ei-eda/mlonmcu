@@ -1,4 +1,5 @@
 import os
+import psutil
 import sys
 import shutil
 import logging
@@ -36,6 +37,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         **CompilePlatform.DEFAULTS,
         **TargetPlatform.DEFAULTS,
         "project_template": None,
+        "port": None,
+        "baud": None,
     }
 
     # REQUIRED = ["espidf.dir", "espidf.project_template"]
@@ -70,6 +73,14 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     @property
     def project_template(self):
         return self.config["project_template"]
+
+    @property
+    def port(self):
+        return self.config["port"]
+
+    @property
+    def baud(self):
+        return self.config["baud"]
 
     def close(self):
         if self.tempdir:
@@ -159,6 +170,54 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         utils.exec_getout(*idfArgs, live=self.print_output)
 
     def monitor(self, timeout=60):
+        def _kill_monitor():
+
+            for proc in psutil.process_iter():
+                # check whether the process name matches
+                cmdline =  " ".join(proc.cmdline())
+                if "idf_monitor.py" in cmdline: # TODO: do something less "dangerous"?
+                    proc.kill()
+        def _monitor_helper(*args, verbose=False, start_match=None, end_match=None, timeout=60):
+            # start_match and end_match are inclusive
+            # TODO: implement timeout
+            found_start = (start_match is None)
+            logger.debug("- Executing: " + str(args))
+            outStr = ""
+            process = subprocess.Popen([i for i in args], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            try:
+                exit_code = None
+                for line in process.stdout:
+                    new_line = line.decode(errors="replace")
+                    if verbose:
+                        print(new_line.replace("\n", ""))
+                    if start_match and start_match in new_line:
+                        outStr = new_line
+                        found_start = True
+                    else:
+                        outStr = outStr + new_line
+                    if found_start:
+                        if end_match and end_match in new_line:
+                            _kill_monitor()
+                            process.terminate()
+                            exit_code = 0
+                            # process.kill()
+                            # pid = process.pid
+                            # os.kill(pid, signal.SIGINT)
+                while exit_code is None:
+                    exit_code = process.poll()
+                if not verbose and exit_code != 0:
+                    logger.error(outStr)
+                assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+                    exit_code, " ".join(list(map(str, args)))
+                )
+            except KeyboardInterrupt as e:
+                logger.debug("Interrupted subprocess. Sending SIGINT signal...")
+                _kill_monitor()
+                pid = process.pid
+                os.kill(pid, signal.SIGINT)
+            print("outStr", outStr)
+            return outStr
+
         # TODO: implement timeout
         idfArgs = [
             self.idf_exe,
@@ -168,4 +227,4 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             "monitor",
             *self.get_idf_serial_args(),
         ]
-        utils.exec_getout(*idfArgs, live=self.print_output)
+        return _monitor_helper(*idfArgs, verbose=self.print_output, start_match="MLonMCU: START", end_match="MLonMCU: STOP", timeout=timeout)

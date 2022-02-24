@@ -58,6 +58,7 @@ class Run:
         platform=None,  # TODO: rename
         features=None,  # TODO: All features combined or explicit run-features -> postprocesses?
         config=None,  # TODO: All config combined or explicit run-config?
+        postprocesses=None,
         num=1,
         archived=False,
         session=None,
@@ -73,6 +74,7 @@ class Run:
         self.num = num
         self.archived = archived
         self.session = session
+        self.postprocesses = postprocesses if postprocesses else []
         self.comment = comment
         self.stage = RunStage.NOP  # max executed stage
 
@@ -163,6 +165,8 @@ class Run:
     def add_platform(self, platform, context=None):
         self.platform = platform
 
+    def add_postprocesses(self, postprocesses):
+        self.postprocesses = postprocesses
 
     def add_model_by_name(self, model_name, context=None):
         assert context is not None, "Please supply a context"
@@ -202,6 +206,12 @@ class Run:
         assert self.platform.name in self.target.supported_platforms
         self.target.add_platform(self.platform)
 
+    def add_postprocesses_by_name(self, postprocess_names, context=None):
+        for postprocess_name in postprocess_names:
+            assert context is not None and context.environment.has_postprocess(
+                postprocess_name
+            ), f"The postprocess '{postprocess_name}' is not enabled for this environment"
+            self.add_postprocess(self.init_component(SUPPORTED_POSTPROCESSES[postprocess_name], context=context))
 
     @property
     def export_optional(self):
@@ -439,6 +449,9 @@ class Run:
     def get_all_feature_names(self):
         return [feature.name for feature in self.features]
 
+    def get_all_postprocess_names(self):
+        return [postprocess.name for postprocess in self.postprocesses]
+
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
         def has_prefix(key):
             return "." in key
@@ -508,6 +521,7 @@ class Run:
         post = {}
         post["Features"] = self.get_all_feature_names()
         post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
+        post["Postprocesses"] = self.get_all_postprocess_names()
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         # if include_sess_idx:
         #     report.session_id = self.session.idx

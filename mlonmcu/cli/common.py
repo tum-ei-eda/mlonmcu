@@ -3,6 +3,7 @@ import multiprocessing
 import logging
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.platform import SUPPORTED_PLATFORMS
+from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
 from .helper.parse import extract_config
@@ -42,6 +43,16 @@ def add_flow_options(parser):
         default=None,
         nargs=1,
         help="Explicitly choose the platforms to use (choices: %(choices)s)",
+    )
+    flow_parser.add_argument(
+        # "-p",
+        "--postprocess",
+        type=str,
+        metavar="POSTPROCESS",
+        choices=SUPPORTED_POSTPROCESSES.keys(),
+        default=None,
+        nargs=1,
+        help="Choose the postprocesses to apply (choices: %(choices)s)",
     )
     flow_parser.add_argument(
         "-f",

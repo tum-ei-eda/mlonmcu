@@ -1,0 +1,20 @@
+# docker-compose.yml
+
+version: '3.4'
+services:
+  mlonmcu:
+    image: tumeda/mlonmcu
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+      target: mlonmcu
+      args:
+        ENABLE_CMAKE: "false"
+    working_dir: /data/work/code/ml_on_mcu
+    volumes:
+      - ${MLONMCU_HOME}/:/environment
+    environment:
+      - MLONMCU_HOME=/environment
+    ports:
+      - "2222:2222"
+

@@ -14,7 +14,7 @@ from .riscv import RISCVTarget
 from .metrics import Metrics
 
 
-class ETISSPulpinoTarget(RISCVTarget):
+class EtissPulpinoTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
     FEATURES = ["gdbserver", "etissdbg", "trace"]
@@ -271,4 +271,4 @@ class ETISSPulpinoTarget(RISCVTarget):
 
 
 if __name__ == "__main__":
-    cli(target=ETISSPulpinoTarget)
+    cli(target=EtissPulpinoTarget)

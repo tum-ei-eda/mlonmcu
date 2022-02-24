@@ -1,4 +1,4 @@
-"""MLonMCU RSCV Target definitions"""
+"""MLonMCU RISC-V Target definitions"""
 
 import os
 import re

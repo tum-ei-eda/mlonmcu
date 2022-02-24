@@ -523,10 +523,6 @@ class Run:
         post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
         post["Postprocesses"] = self.get_all_postprocess_names()
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
-        # if include_sess_idx:
-        #     report.session_id = self.session.idx
-        # if ?include_run_idx:
-        #     report.run_idx = self.idx
         self.export_stage(RunStage.RUN, optional=self.export_optional)
         if RunStage.RUN in self.artifacts_per_stage:
             metrics_artifact = self.artifacts_per_stage[RunStage.RUN][0]

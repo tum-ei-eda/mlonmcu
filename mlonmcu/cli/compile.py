@@ -34,12 +34,6 @@ def add_compile_options(parser):
         type=int,
         help="Number of runs in simulation (default: %(default)s)",
     )
-    compile_parser.add_argument(
-        "--ignore-data",
-        dest="ignore_data",
-        action="store_true",
-        help="Do not use MLIF inout data in debug mode (default: %(default)s)",
-    )
 
 
 def get_parser(subparsers):

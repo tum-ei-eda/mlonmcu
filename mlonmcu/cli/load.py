@@ -57,7 +57,7 @@ def init_frontends(frontend_names, features, config, context=None):
         # No need to specify a default, because we just use the provided order in the environment.yml
         assert frontend_names is None, "TODO"
         assert context is not None, "Need context to resolve default frontends"
-        all_frontend_names = context.environment.get_enabled_frontends()
+        all_frontend_names = context.environment.lookup_frontend_configs(names_only=True)
         names.extend(all_frontend_names)
     frontends = []
     for frontend_name in names:

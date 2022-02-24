@@ -18,6 +18,12 @@ def _feature_helper(obj, name):
     else:
         return features
 
+def _extract_names(objs):
+    return [obj.name for obj in objs]
+
+def _filter_enabled(objs):
+    return [obj for obj in objs if obj.enabled]
+
 
 class Environment:
     def __init__(self):
@@ -173,35 +179,44 @@ class Environment:
         """An alias for supports_feature."""
         return self.supports_feature(name)
 
-    def lookup_backend_configs(self, backend=None, framework=None):
+    def lookup_backend_configs(self, backend=None, framework=None, names_only=False):
+        enabled_frameworks = _filter_enabled(self.frameworks)
+
         configs = []
-        for framework_config in self.frameworks:
-            if not framework_config.enabled or (framework is not None and framework_config.name != framework):
+        for framework_config in enabled_frameworks:
+            if framework is not None and framework_config.name != framework:
                 continue
+            enabled_backends = _filter_enabled(framework_config.backends)
             if backend is None:
-                configs.extend(framework_config.backends)
+                configs.extend(enabled_backends)
             else:
-                for backend_config in framework_config.backends:
+                for backend_config in enabled_backends:
                     if backend_config.name == backend:
-                        return [backend_config]
-        return configs
+                        return [backend_config.name if names_only else backend_config]
+        return _extract_names(configs) if names_only else configs
 
-    def lookup_framework_configs(self, framework=None):
+    def lookup_framework_configs(self, framework=None, names_only=False):
+        enabled_frameworks = _filter_enabled(self.frameworks)
+
         if framework is None:
-            return self.frameworks
+            return _extract_names(enabled_frameworks) if names_only else enabled_frameworks
 
-        for framework_config in self.frameworks:
+        for framework_config in enabled_frameworks:
             if framework_config.name == framework:
-                return [framework_config]
+                return [framework_config.name if names_only else framework_config]
+
         return []
 
-    def lookup_frontend_configs(self, frontend=None):
-        if frontend is None:
-            return self.frontends
+    def lookup_frontend_configs(self, frontend=None, names_only=False):
+        enabled_frontends = _filter_enabled(self.frontends)
 
-        for frontend_config in self.frontends:
+        if frontend is None:
+            return _extract_names(enabled_frontends) if names_only else enabled_frontends
+
+        for frontend_config in enabled_frontends:
             if frontend_config.name == frontend:
-                return [frontend_config]
+                return [frontend_config.name if names_only else frontend_config]
+        return []
 
     def lookup_platform_configs(self, platform=None, names_only=False):
         enabled_platforms = _filter_enabled(self.platforms)
@@ -214,29 +229,26 @@ class Environment:
 
         return []
 
-    def lookup_target_configs(self, target=None):
+    def lookup_target_configs(self, target=None, names_only=False):
         if target is None:
-            return self.targets
+            return _extract_names(self.targets) if names_only else self.targets
 
         for target_config in self.targets:
             if target_config.name == target:
-                return [target_config]
+                return [target_config.name if names_only else target_config]
         return []
 
     def has_frontend(self, name):
         configs = self.lookup_frontend_configs(frontend=name)
-        assert len(configs) <= 1, "TODO"
-        return configs[0].enabled if len(configs) > 0 else False
+        return len(configs) > 0
 
     def has_backend(self, name):
         configs = self.lookup_backend_configs(backend=name)
-        assert len(configs) <= 1, "TODO"
-        return configs[0].enabled if len(configs) > 0 else False
+        return len(configs) > 0
 
     def has_framework(self, name):
         configs = self.lookup_framework_configs(framework=name)
-        assert len(configs) <= 1, "TODO"
-        return configs[0].enabled if len(configs) > 0 else False
+        return len(configs) > 0
 
     def has_platform(self, name):
         configs = self.lookup_platform_configs(platform=name)
@@ -244,38 +256,7 @@ class Environment:
 
     def has_target(self, name):
         configs = self.lookup_target_configs(target=name)
-        assert len(configs) <= 1, "TODO"
-        return configs[0].enabled if len(configs) > 0 else False
-
-    def get_enabled_frontends(self):
-        ret = []
-        for frontend in self.frontends:
-            if frontend.enabled:
-                ret.append(frontend.name)
-        return ret
-
-    def get_enabled_frameworks(self):
-        ret = []
-        for framework in self.frameworks:
-            if framework.enabled:
-                ret.append(framework.name)
-        return ret
-
-    def get_enabled_backends(self):
-        ret = []
-        for framework in self.frameworks:
-            if framework.enabled:
-                for backend in framework.backends:
-                    if backend.enabled:
-                        ret.append(backend.name)
-        return ret
-
-    def get_enabled_targets(self):
-        ret = []
-        for target in self.targets:
-            if target.enabled:
-                ret.append(target.name)
-        return ret
+        return len(configs) > 0
 
     def get_default_backends(self, framework):
         if framework is None or framework not in self.defaults.default_backends:

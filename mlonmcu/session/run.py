@@ -494,7 +494,7 @@ class Run:
         if self.target:
             ret.update(config_helper(self.target))
         if self.platform:
-            ret.update(config_helper(self.platform, "platform"))
+            ret.update(config_helper(self.platform))
         return ret
 
     def get_report(self):

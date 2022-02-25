@@ -58,7 +58,6 @@ class Esp32c3Target(Target):
         return ret
 
     def parse_stdout(self, out):
-        print("out", out)
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")

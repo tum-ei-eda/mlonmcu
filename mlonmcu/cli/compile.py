@@ -65,7 +65,6 @@ def _handle(context, args):
             for n in num:
                 new_run = run.copy()
                 if args.platform:  # TODO: move this somewhere else
-                    print("args.platform", args.platform)
                     platform_name = args.platform[0]
                 else:
                     platform_name = "mlif"

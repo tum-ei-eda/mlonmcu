@@ -16,6 +16,7 @@ from .metrics import Metrics
 
 from .elf import get_results
 
+
 class Esp32c3Target(Target):
 
     FEATURES = []
@@ -37,7 +38,6 @@ class Esp32c3Target(Target):
     @property
     def timeout_sec(self):
         return int(self.config["timeout_sec"])
-
 
     def get_board_name(self):
         return self.name
@@ -77,7 +77,7 @@ class Esp32c3Target(Target):
 
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
-        metrics.add("Runtime [s]", time_us/1e6)
+        metrics.add("Runtime [s]", time_us / 1e6)
         static_mem = get_results(elf)
 
         rom_ro, rom_code, rom_misc, ram_data, ram_zdata = (

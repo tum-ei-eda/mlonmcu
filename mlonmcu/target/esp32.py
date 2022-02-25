@@ -37,7 +37,6 @@ class Esp32Target(Target):
     def timeout_sec(self):
         return int(self.config["timeout_sec"])
 
-
     def get_board_name(self):
         return self.name
 

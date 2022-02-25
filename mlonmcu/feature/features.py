@@ -224,7 +224,11 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
         }
 
     def add_backend_config(self, backend, config):
-        assert backend in ["tvmaot", "tvmrt", "tvmcg"], f"Unsupported feature '{self.name}' for backend '{backend}'"
+        assert backend in [
+            "tvmaot",
+            "tvmrt",
+            "tvmcg",
+        ], f"Unsupported feature '{self.name}' for backend '{backend}'"
         extras = config.get(f"{backend}.extra_kernel", [])
         if "cmsis-nn" not in extras:
             extras[f"{backend}.extra_kernel"].append("cmsis-nn")

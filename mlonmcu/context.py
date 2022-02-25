@@ -383,7 +383,6 @@ class MlonMcuContext:
         if run_ids is not None:
             assert len(session_ids) == 1, "Can only choose runs of a single session"
 
-
         def find_session(sid):
             if len(self.sessions) == 0:
                 return None
@@ -402,7 +401,9 @@ class MlonMcuContext:
             for sid in session_ids:
                 session = find_session(sid)
                 if session is None:
-                    print(f"Lookup for session id {sid} failed. Available:", " ".join([str(s.idx) for s in self.sessions]))
+                    print(
+                        f"Lookup for session id {sid} failed. Available:", " ".join([str(s.idx) for s in self.sessions])
+                    )
                     sys.exit(1)
                 if len(session_ids) == 1:
                     base = tmpdir
@@ -410,12 +411,17 @@ class MlonMcuContext:
                     base = tmpdir / str(sid)
                 if run_ids is None:
                     src = session.dir / "runs"
-                    shutil.copytree(src, base, dirs_exist_ok=True, symlinks=True)  # Warning: dirs_exist_ok=True requires python 3.8+
+                    shutil.copytree(
+                        src, base, dirs_exist_ok=True, symlinks=True
+                    )  # Warning: dirs_exist_ok=True requires python 3.8+
                 else:
                     base = base / "runs"
                     for rid in run_ids:
                         if rid >= len(session.runs):
-                            print(f"Lookup for run id {rid} failed in session {sid}. Available:", " ".join([str(i) for i in range(len(session.runs))]))
+                            print(
+                                f"Lookup for run id {rid} failed in session {sid}. Available:",
+                                " ".join([str(i) for i in range(len(session.runs))]),
+                            )
                             sys.exit(1)
                         run = session.runs[rid]  # TODO: We currently do not check if the index actually exists
                         if len(run_ids) == 1 and len(session_ids) == 1:
@@ -423,7 +429,9 @@ class MlonMcuContext:
                         else:
                             run_base = base / str(rid)
                         src = run.dir
-                        shutil.copytree(src, run_base, dirs_exist_ok=True)  # Warning: dirs_exist_ok=True requires python 3.8+
+                        shutil.copytree(
+                            src, run_base, dirs_exist_ok=True
+                        )  # Warning: dirs_exist_ok=True requires python 3.8+
             if ext in [".zip", ".tar"]:
                 print(f"Creating archive: {dest}")
                 shutil.make_archive(dest_, ext[1:], tmpdirname)
@@ -434,7 +442,6 @@ class MlonMcuContext:
                 # dest.mkdir(exist_ok=True)
                 shutil.move(tmpdirname, str(dest))
         print("Done")
-
 
     def __exit__(self, exception_type, exception_value, traceback):
         logger.debug("Exit MlonMcuContext")

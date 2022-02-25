@@ -138,10 +138,12 @@ class BackendFeatureConfig(FeatureConfig):
         super().__init__(name=name, kind=FeatureKind.FRONTEND, supported=supported)
         self.backend = backend
 
+
 class PlatformFeatureConfig(FeatureConfig):
     def __init__(self, name, platform, supported=True):
         super().__init__(name=name, kind=FeatureKind.TARGET, supported=supported)
         self.platform = platform
+
 
 class TargetFeatureConfig(FeatureConfig):
     def __init__(self, name, target, supported=True):
@@ -169,11 +171,13 @@ class FrontendConfig(BaseConfig):
         self.enabled = enabled
         self.features = features
 
+
 class PlatformConfig(BaseConfig):
     def __init__(self, name, enabled=True, features={}):
         self.name = name
         self.enabled = enabled
         self.features = features
+
 
 class TargetConfig(BaseConfig):
     def __init__(self, name, enabled=True, features={}):

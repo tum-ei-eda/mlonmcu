@@ -10,6 +10,7 @@ from mlonmcu.cli.common import (
 )
 from .helper.parse import extract_config_and_init_features
 
+
 def add_setup_options(parser):
     setup_parser = parser.add_argument_group("setup options")
     setup_parser.add_argument(
@@ -60,6 +61,7 @@ def add_setup_options(parser):
         default=None,
         help="Invoke a single task manually by name (default: %(default)s)",
     )
+
 
 def get_parser(subparsers):
     """ "Define and return a subparser for the setup subcommand."""

@@ -8,7 +8,5 @@ from .espidf import EspIdfPlatform
 SUPPORTED_PLATFORMS = {
     "mlif": MlifPlatform,
     "espidf": EspIdfPlatform,
-
     # "arduino": ArduinoPlatform,
 }
-

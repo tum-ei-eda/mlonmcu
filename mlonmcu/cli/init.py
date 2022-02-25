@@ -11,6 +11,7 @@ from mlonmcu.environment.config import get_environments_dir, DEFAULTS, env_subdi
 from mlonmcu.utils import in_virtualenv
 from mlonmcu.environment.init import initialize_environment
 
+
 def add_init_options(parser):
     init_parser = parser.add_argument_group("init options")
     init_parser.add_argument(
@@ -78,6 +79,7 @@ def add_init_options(parser):
         action="store_true",
         help="Allow overwriting an existing environment directory",
     )
+
 
 def get_parser(subparsers):
     """ "Define and return a subparser for the init subcommand."""

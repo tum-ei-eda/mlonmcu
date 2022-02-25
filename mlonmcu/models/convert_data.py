@@ -22,7 +22,13 @@ def write_file(dest, data):
 
 def main():
     if len(sys.argv) != 4:
-        print("Usage:", sys.argv[0], "mode(float, hexstr, int8, image, audio)", "value", "outfile")
+        print(
+            "Usage:",
+            sys.argv[0],
+            "mode(float, hexstr, int8, image, audio)",
+            "value",
+            "outfile",
+        )
         sys.exit(1)
 
     mode, val, dest = sys.argv[1], sys.argv[2], sys.argv[3]

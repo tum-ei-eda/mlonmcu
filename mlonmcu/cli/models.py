@@ -3,6 +3,7 @@
 from mlonmcu.cli.common import add_common_options, add_context_options
 import mlonmcu.models
 
+
 def add_models_options(parser):
     models_parser = parser.add_argument_group("models options")
     models_parser.add_argument(
@@ -11,6 +12,7 @@ def add_models_options(parser):
         action="store_true",
         help="Display more information (default: %(default)s)",
     )
+
 
 def get_parser(subparsers):
     """ "Define and return a subparser for the models subcommand."""

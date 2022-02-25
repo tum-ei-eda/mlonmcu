@@ -7,12 +7,10 @@ from mlonmcu.cli.common import (
     handle_logging_flags,
 )
 
+
 def add_export_options(parser):
     export_parser = parser.add_argument_group("export options")
-    export_parser.add_argument(
-        "destination",
-        help="Path to the output directory or archive"
-    )
+    export_parser.add_argument("destination", help="Path to the output directory or archive")
     export_parser.add_argument(
         "-f",
         "--force",
@@ -42,6 +40,7 @@ def add_export_options(parser):
         action="append",
         help="Which run(s) should be exported (default: all runs of the selected session/latest run id)",
     )
+
 
 def get_parser(subparsers):
     """ "Define and return a subparser for the cleanup subcommand."""

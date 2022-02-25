@@ -18,8 +18,10 @@ def _feature_helper(obj, name):
     else:
         return features
 
+
 def _extract_names(objs):
     return [obj.name for obj in objs]
+
 
 def _filter_enabled(objs):
     return [obj for obj in objs if obj.enabled]
@@ -382,9 +384,7 @@ class DefaultEnvironment(Environment):
             PlatformConfig(
                 "mlif",
                 enabled=True,
-                features=[
-                    PlatformFeatureConfig("debug", platform="mlif", supported=True)
-                ]
+                features=[PlatformFeatureConfig("debug", platform="mlif", supported=True)],
             )
         ]
         self.targets = [

@@ -1,4 +1,3 @@
 """MLonMCU postprocess submodule"""
 
-SUPPORTED_POSTPROCESSES = {
-}
+SUPPORTED_POSTPROCESSES = {}

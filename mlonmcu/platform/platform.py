@@ -73,7 +73,15 @@ class CompilePlatform(Platform):
     REQUIRED = []
 
     def __init__(self, name, framework, backend, target, features=None, config=None, context=None):
-        super().__init__(name, framework, backend, target, features=features, config=config, context=context)
+        super().__init__(
+            name,
+            framework,
+            backend,
+            target,
+            features=features,
+            config=config,
+            context=context,
+        )
         self.name = name
         self.framework = framework  # TODO: required? or self.target.framework?
         self.backend = backend

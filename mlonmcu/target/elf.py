@@ -1,14 +1,12 @@
 #!/usr/bin/env python
+"""ELF File Tool"""
 
 # import os
 # import sys
 import csv
 import argparse
 import humanize
-import elftools.elf.elffile as elffile
-
-# from elftools.elf.constants import SH_FLAGS
-from elftools.elf.sections import SymbolTableSection
+from elftools.elf import elffile
 
 from mlonmcu.logging import get_logger
 
@@ -23,6 +21,7 @@ Heavility inspired by get_metrics.py found in the ETISS repository
 
 
 def parseElf(inFile):
+    """Extract static memory usage details from ELF file by mapping each segment."""
     # TODO: check if this is generic anough for multiple platforms (riscv, arm, x86)
     # TODO: comare results with `riscv32-unknown-elf-size`
     m = {}
@@ -31,7 +30,6 @@ def parseElf(inFile):
     m["rom_misc"] = 0
     m["ram_data"] = 0
     m["ram_zdata"] = 0
-    heapStart = None
 
     ignoreSections = [
         "",
@@ -40,47 +38,73 @@ def parseElf(inFile):
         ".riscv.attributes",
         ".strtab",
         ".shstrtab",
+        ".symtab",
+        ".eh_frame",
+        ".stab",
+        # The following are x86 only:
+        ".interp",
+        ".dynsym",
+        ".dynstr",
+        ".dynamic",
+        ".got",
+    ]
+    ignorePrefixes = [
+        ".gcc_except",
+        ".sdata2",
+        ".debug_",
+        # ARM only:
+        ".ARM",
+        # The following are x86 only:
+        ".note",
+        ".gnu",
+        ".rela",
+        ".plt",
+    ]
+    ignoreSuffixes = [
+        ".table",
     ]
 
     with open(inFile, "rb") as f:
         e = elffile.ELFFile(f)
 
         for s in e.iter_sections():
-            if s.name.startswith(".text"):
+            if s.name.startswith(".text") or s.name.endswith(".text"):
                 m["rom_code"] += s.data_size
             elif s.name.startswith(".srodata"):
                 m["rom_rodata"] += s.data_size
             elif s.name.startswith(".sdata"):
                 m["ram_data"] += s.data_size
-            elif s.name == ".rodata":
+            elif s.name.endswith(".rodata"):
                 m["rom_rodata"] += s.data_size
-            elif s.name == ".vectors" or s.name == ".init_array":
+            elif s.name in [".vectors", ".init_array", ".fini_array", ".eh_frame", "e.h_frame_hdr"]:
                 m["rom_misc"] += s.data_size
-            elif s.name == ".data":
+            elif s.name.endswith(".data"):
                 m["ram_data"] += s.data_size
-            elif s.name == ".bss" or s.name == ".sbss" or s.name == ".shbss":
+            elif s.name == ".bss" or s.name == ".sbss" or s.name == ".shbss" or s.name.endswith(".bss"):
                 m["ram_zdata"] += s.data_size
-            elif s.name.startswith(".gcc_except"):
-                pass
-            elif s.name.startswith(".sdata2"):
-                pass
-            elif s.name.startswith(".debug_"):
-                pass
             elif s.name in ignoreSections:
                 pass
+            elif any(s.name.startswith(prefix) for prefix in ignorePrefixes):
+                pass
+            elif any(s.name.endswith(suffix) for suffix in ignoreSuffixes):
+                pass
+            elif s.data_size == 0:
+                pass  # No warning for empty sections
             else:
-                logger.debug("ignored: " + s.name + " / size: " + str(s.data_size))
+                logger.warning("ignored: %s / size: %d", s.name, s.data_size)
 
     return m
 
 
 def printSz(sz, unknown_msg=""):
+    """Helper function for printing file sizes."""
     if sz is None:
         return f"unknown [{unknown_msg}]" if unknown_msg else "unknown"
     return humanize.naturalsize(sz) + " (" + hex(sz) + ")"
 
 
 def parse_cmdline():
+    """Cmdline interface definition."""
     parser = argparse.ArgumentParser()
     parser.add_argument("elf", metavar="ELF", type=str, nargs=1, help="The target ELF file")
     parser.add_argument(
@@ -100,10 +124,11 @@ def parse_cmdline():
 
 
 def get_results(elfFile):
+    """Converts and returns collected data."""
     staticSizes = parseElf(elfFile)
 
-    romSize = sum([staticSizes[k] for k in staticSizes if k.startswith("rom_")])
-    ramSize = sum([staticSizes[k] for k in staticSizes if k.startswith("ram_")])
+    romSize = sum([size for key, size in staticSizes.items() if key.startswith("rom_")])
+    ramSize = sum([size for key, size in staticSizes.items() if key.startswith("ram_")])
 
     results = {
         "rom": romSize,
@@ -118,6 +143,7 @@ def get_results(elfFile):
 
 
 def print_results(results):
+    """Displaying a fancy overview."""
     print("=== Results ===")
     print("ROM usage:        " + printSz(results["rom"]))
     print("  read-only data: " + printSz(results["rom_rodata"]))
@@ -129,15 +155,17 @@ def print_results(results):
 
 
 def write_csv(filename, results):
+    """Utility for writing a CSV file."""
     # Write metrics to file
-    if csvFile:
-        with open(csvFile, "w") as f:
+    if filename:
+        with open(filename, "w", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=results.keys())
             writer.writeheader()
             writer.writerow(results)
 
 
 def main():
+    """Main entry point for command line usage."""
     elfFile, csvFile = parse_cmdline()
 
     results = get_results(elfFile)

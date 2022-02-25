@@ -438,7 +438,7 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev) {
     mainCode += """
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code) { exit(1); }
 
-TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override) { }
+TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override) { return 0; }
 
 void TVMWrap_Init()
 {

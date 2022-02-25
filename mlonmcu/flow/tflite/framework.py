@@ -54,3 +54,9 @@ class TFLiteFramework(Framework):
             temp = "\;".join(self.optimized_kernel_libs)
             args.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={temp}")
         return args
+
+    # TODO: get_cmake_args -> get_plaform_vars (dict instead of list of strings)
+    def get_espidf_defs(self):
+        if self.extra_incs or self.extra_libs:
+            raise NotImplementedError("Extra incs or libs are currently not supported for esp-idf")
+        return {"TF_DIR": str(self.tf_src)}

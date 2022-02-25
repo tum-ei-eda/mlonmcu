@@ -125,6 +125,13 @@ class Backend(ABC):
     def add_cmake_args(self, args):
         args += self.get_cmake_args()
 
+    def get_espidf_defs(self):
+        assert self.name is not None
+        return {"MLONMCU_BACKEND": self.name}
+
+    def add_espidf_defs(self, defs):
+        defs.update(self.get_espidf_defs())
+
 
 def get_parser(backend_name, features, required, defaults):
     # TODO: add help strings should start with a lower case letter

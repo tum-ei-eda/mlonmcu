@@ -1,26 +1,16 @@
+"""ESP-IDF Platform"""
+
 import os
-import psutil
-import sys
+import signal
 import shutil
-import logging
-import argparse
 import tempfile
-import multiprocessing
 import subprocess
-import distutils.util
-from contextlib import closing
 from pathlib import Path
-from typing import List
 
-from mlonmcu.setup import utils  # TODO: Move one level up?
-from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
-from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
-from mlonmcu.target import SUPPORTED_TARGETS
-from mlonmcu.config import filter_config
-from mlonmcu.feature.features import get_matching_features
-from mlonmcu.feature.type import FeatureType
+import psutil
+
+from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
-
 from mlonmcu.logging import get_logger
 
 from .platform import CompilePlatform, TargetPlatform
@@ -45,12 +35,21 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     REQUIRED = []  # For now just expect the user to be already in an esp-idf environment
 
     def __init__(self, framework, backend, target, features=None, config=None, context=None):
-        super().__init__("espidf", framework=framework, backend=backend, target=target, features=features, config=config, context=context)
+        super().__init__(
+            "espidf",
+            framework=framework,
+            backend=backend,
+            target=target,
+            features=features,
+            config=config,
+            context=context,
+        )
         self.tempdir = None
         self.project_name = "app"
         dir_name = self.name
         # if self.config["project_dir"]:
-        if False:
+        use_provided_dir = False
+        if use_provided_dir:
             self.project_dir = Path(self.config["project_dir"])
         else:
             if context:
@@ -60,11 +59,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 )  # TODO: Need to lock this for parallel builds
             else:
                 logger.info(
-                    "Creating temporary directory because no context was available and 'espidf.project_dir' was not supplied"
+                    "Creating temporary directory because no context was available"
+                    "and 'espidf.project_dir' was not supplied"
                 )
                 self.tempdir = tempfile.TemporaryDirectory()
                 self.project_dir = Path(self.tempdir.name) / dir_name
-                logger.info("Temporary project directory: %s", self.build_dir)
+                logger.info("Temporary project directory: %s", self.project_dir)
         self.idf_exe = "idf.py"
 
     def set_directory(self, directory):
@@ -87,21 +87,54 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             self.tempdir.cleanup()
 
     def check(self):
-        try:
-            subprocess.run([self.idf_exe], shell=True, check=True, stdout=subprocess.PIPE)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"It seems like '{self.idf_exe}' is not available. Make sure to setup your environment!") from e
-
+        if not shutil.which(self.idf_exe):
+            raise RuntimeError(f"It seems like '{self.idf_exe}' is not available. Make sure to setup your environment!")
+        # try:
+        #
+        #     subprocess.run(["which", self.idf_exe], shell=True, check=True, stdout=subprocess.PIPE)
+        # except subprocess.CalledProcessError as e:
+        #     raise RuntimeError(
+        #         f"It seems like '{self.idf_exe}' is not available. Make sure to setup your environment!"
+        #     ) from e
 
     # def prepare(self, model, ignore_data=False):
-    def prepare(self):
+    def prepare(self, src, num=1):
         self.check()
         template_dir = self.project_template
         assert template_dir is not None, "No espidf.project_template was provided"  # TODO: fallback to default one?
         template_dir = Path(template_dir)
         assert template_dir.is_dir(), f"Provided project template does not exists: {template_dir}"
         shutil.copytree(template_dir, self.project_dir)
-        print("self.project_dir", self.project_dir)
+
+        def write_defaults(filename):
+            defs = {}
+            self.framework.add_espidf_defs(defs)
+            self.backend.add_espidf_defs(defs)
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")
+                if self.debug:
+                    f.write("CONFIG_OPTIMIZATION_LEVEL_DEBUG=y\n")
+                    f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y\n")
+                else:
+                    f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y\n")
+                    f.write("CONFIG_OPTIMIZATION_LEVEL_RELEASE=y\n")
+                    optimize_for_size = True
+                    if optimize_for_size:
+                        f.write("CONFIG_COMPILER_OPTIMIZATION_SIZE=y\n")
+                    else:
+                        f.write("CONFIG_COMPILER_OPTIMIZATION_PERF=y\n")
+                watchdog_sec = 60
+                f.write(f"CONFIG_ESP_TASK_WDT_TIMEOUT_S={watchdog_sec}\n")
+                f.write(f'CONFIG_MLONMCU_CODEGEN_DIR="{src}"\n')
+                framework_upper = self.framework.name.upper()
+                f.write(f"CONFIG_MLONMCU_FRAMEWORK_{framework_upper}=y\n")
+                backend_upper = self.backend.name.upper()
+                f.write(f"CONFIG_MLONMCU_BACKEND_{backend_upper}=y\n")
+                f.write(f"CONFIG_MLONMCU_NUM_RUNS={num}\n")
+                for key, value in defs.items():
+                    f.write(f'CONFIG_{key}="{value}"\n')
+
+        write_defaults(self.project_dir / "sdkconfig.defaults")
         idfArgs = [
             self.idf_exe,
             "-C",
@@ -117,7 +150,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     def compile(self, src=None, num=1):
         # TODO: build with cmake options
-        self.prepare()
+        self.prepare(src, num=num)
         # TODO: support self.num_threads (e.g. patch esp-idf)
         idfArgs = [
             self.idf_exe,
@@ -174,16 +207,18 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
             for proc in psutil.process_iter():
                 # check whether the process name matches
-                cmdline =  " ".join(proc.cmdline())
-                if "idf_monitor.py" in cmdline: # TODO: do something less "dangerous"?
+                cmdline = " ".join(proc.cmdline())
+                if "idf_monitor.py" in cmdline:  # TODO: do something less "dangerous"?
                     proc.kill()
+
         def _monitor_helper(*args, verbose=False, start_match=None, end_match=None, timeout=60):
             # start_match and end_match are inclusive
-            # TODO: implement timeout
-            found_start = (start_match is None)
-            logger.debug("- Executing: " + str(args))
+            if timeout:
+                pass  # TODO: implement timeout
+            found_start = start_match is None
+            logger.debug("- Executing: %s", str(args))
             outStr = ""
-            process = subprocess.Popen([i for i in args], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             try:
                 exit_code = None
                 for line in process.stdout:
@@ -200,9 +235,6 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                             _kill_monitor()
                             process.terminate()
                             exit_code = 0
-                            # process.kill()
-                            # pid = process.pid
-                            # os.kill(pid, signal.SIGINT)
                 while exit_code is None:
                     exit_code = process.poll()
                 if not verbose and exit_code != 0:
@@ -210,12 +242,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                     exit_code, " ".join(list(map(str, args)))
                 )
-            except KeyboardInterrupt as e:
+            except KeyboardInterrupt:
                 logger.debug("Interrupted subprocess. Sending SIGINT signal...")
                 _kill_monitor()
                 pid = process.pid
                 os.kill(pid, signal.SIGINT)
-            print("outStr", outStr)
             return outStr
 
         # TODO: implement timeout
@@ -227,4 +258,10 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             "monitor",
             *self.get_idf_serial_args(),
         ]
-        return _monitor_helper(*idfArgs, verbose=self.print_output, start_match="MLonMCU: START", end_match="MLonMCU: STOP", timeout=timeout)
+        return _monitor_helper(
+            *idfArgs,
+            verbose=self.print_output,
+            start_match="MLonMCU: START",
+            end_match="MLonMCU: STOP",
+            timeout=timeout,
+        )

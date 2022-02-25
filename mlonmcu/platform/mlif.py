@@ -1,23 +1,10 @@
-import os
-import sys
-import logging
-import argparse
+"""MLIF Platform"""
 import tempfile
-import multiprocessing
-import distutils.util
-from contextlib import closing
+
 from pathlib import Path
-from typing import List
 
 from mlonmcu.setup import utils  # TODO: Move one level up?
-from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
-from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
-from mlonmcu.target import SUPPORTED_TARGETS
-from mlonmcu.config import filter_config
-from mlonmcu.feature.features import get_matching_features
-from mlonmcu.feature.type import FeatureType
 from mlonmcu.artifact import Artifact, ArtifactFormat
-
 from mlonmcu.logging import get_logger
 
 from .platform import CompilePlatform
@@ -41,9 +28,26 @@ class MlifPlatform(CompilePlatform):
     REQUIRED = []
 
     def __init__(self, framework, backend, target, features=None, config=None, context=None):
-        super().__init__("mlif", framework=framework, backend=backend, target=target, features=features, config=config, context=context)
+        super().__init__(
+            "mlif",
+            framework=framework,
+            backend=backend,
+            target=target,
+            features=features,
+            config=config,
+            context=context,
+        )
         self.goal = "generic_mlif"
-        print("self.framework", self.framework, "self.backend", self.backend, "self.target", self.target, "self.features", self.features)
+        print(
+            "self.framework",
+            self.framework,
+            "self.backend",
+            self.backend,
+            "self.target",
+            self.target,
+            "self.features",
+            self.features,
+        )
         flags = [self.framework.name, self.backend.name, self.target.name] + [feature.name for feature in self.features]
         dir_name = utils.makeDirName("mlif", flags=flags)
         self.tempdir = None
@@ -57,14 +61,15 @@ class MlifPlatform(CompilePlatform):
                 )  # TODO: Need to lock this for parallel builds
             else:
                 logger.info(
-                    "Creating temporary directory because no context was available and 'mlif.build_dir' was not supplied"
+                    "Creating temporary directory because no context was available"
+                    "and 'mlif.build_dir' was not supplied"
                 )
                 self.tempdir = tempfile.TemporaryDirectory()
                 self.build_dir = Path(self.tempdir.name) / dir_name
                 logger.info("Temporary build directory: %s", self.build_dir)
         if "mlif.src_dir" in self.config:
             if self.context:
-                logger.warn("User has overwritten the value of 'mlif.src_dir'")
+                logger.warning("User has overwritten the value of 'mlif.src_dir'")
             self.mlif_dir = Path(self.config["mlif.src_dir"])
         else:
             if context:
@@ -109,7 +114,7 @@ class MlifPlatform(CompilePlatform):
         # return data_file
         pass
 
-    def configure(self, src, model, num=1, data_file=None):
+    def configure(self, src, _model, num=1, data_file=None):
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = []

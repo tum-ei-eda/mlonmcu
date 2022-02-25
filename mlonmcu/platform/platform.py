@@ -1,24 +1,12 @@
-import os
-import sys
-import logging
-import argparse
 import tempfile
 import multiprocessing
 import distutils.util
-from contextlib import closing
 from pathlib import Path
-from typing import List
 from filelock import FileLock
 
-from mlonmcu.setup import utils  # TODO: Move one level up?
-from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
-from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
-from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.artifact import Artifact, ArtifactFormat
-
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
@@ -29,8 +17,7 @@ class Platform:
 
     FEATURES = []
 
-    DEFAULTS = {
-    }
+    DEFAULTS = {}
 
     REQUIRED = []
 
@@ -39,12 +26,11 @@ class Platform:
         self.framework = framework  # TODO: required? or self.target.framework?
         self.backend = backend
         self.target = target
-        self.config = (
-            config if config else {}
-        )  # Warning: this should only be used for passing paths,.. when no co context is provided, NO customization of the build is allowed!
+        self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         self.context = context
+        self.artifacts = []
 
     def set_directory(self, directory):
         raise NotImplementedError
@@ -61,7 +47,6 @@ class Platform:
     def supports_monitor(self):
         return False
 
-
     def process_features(self, features):
         if features is None:
             return []
@@ -70,6 +55,7 @@ class Platform:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.add_platform_config(self.name, self.config)
         return features
+
 
 class CompilePlatform(Platform):
     """Abstract compile platform class."""
@@ -92,9 +78,7 @@ class CompilePlatform(Platform):
         self.framework = framework  # TODO: required? or self.target.framework?
         self.backend = backend
         self.target = target
-        self.config = (
-            config if config else {}
-        )  # Warning: this should only be used for passing paths,.. when no co context is provided, NO customization of the build is allowed!
+        self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         self.context = context
@@ -134,6 +118,7 @@ class CompilePlatform(Platform):
         for artifact in self.artifacts:
             artifact.export(path)
 
+
 class TargetPlatform(Platform):
     """Abstract target platform class."""
 
@@ -165,4 +150,5 @@ class TargetPlatform(Platform):
 
             self.flash(timeout=timeout)
             output = self.monitor(timeout=timeout)
+
         return output

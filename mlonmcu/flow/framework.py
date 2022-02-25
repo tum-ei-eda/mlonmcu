@@ -46,3 +46,9 @@ class Framework(ABC):
 
     def add_cmake_args(self, args):
         args += self.get_cmake_args()
+
+    def get_espidf_defs(self):
+        return {"MLONMCU_FRAMEWORK": self.name}
+
+    def add_espidf_defs(self, defs):
+        defs.update(self.get_espidf_defs())

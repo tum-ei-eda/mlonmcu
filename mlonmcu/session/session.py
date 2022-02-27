@@ -1,5 +1,4 @@
 import multiprocessing
-from random import randint
 from time import sleep
 from datetime import datetime
 import pandas as pd
@@ -119,6 +118,10 @@ class Session:
         workers = []
         pbar = None
         pbar2 = None
+        num_runs = len(self.runs)
+        num_failures = 0
+        stage_failures = {}
+        worker_run_idx = []
 
         def _init_progress(total, msg="Processing..."):
             global pbar
@@ -159,18 +162,27 @@ class Session:
 
         def _process(run, until):
             run.process(until=until, export=export, context=context)
-            # sleep(randint(1, 5))
             if progress:
                 _update_progress()
 
         def _join_workers(workers):
+            nonlocal num_failures
             results = []
-            for w in workers:
+            for i, w in enumerate(workers):
                 try:
                     results.append(w.result())
                 except Exception as e:
                     logger.exception(e)
                     logger.error("An exception was thrown by a worker during simulation")
+                run_index = worker_run_idx[i]
+                run = self.runs[run_index]
+                if run.failing:
+                    num_failures += 1
+                    failed_stage = RunStage(run.stage + 1).name
+                    if failed_stage in stage_failures:
+                        stage_failures[failed_stage].append(run_index)
+                    else:
+                        stage_failures[failed_stage] = [run_index]
             if progress:
                 _close_progress()
             return results
@@ -200,9 +212,11 @@ class Session:
                         if run.failing:
                             logger.warning(f"Skiping stage '{run_stage}' for failed run")
                         else:
+                            worker_run_idx.append(i)
                             workers.append(executor.submit(_process, run, until=stage))
                     results = _join_workers(workers)
                     workers = []
+                    worker_run_idx = []
                     if progress:
                         _update_progress2()
                 if progress:
@@ -224,8 +238,25 @@ class Session:
                             logger.warning(
                                 f"The chosen configuration leads to a maximum of {total_threads} being processed which heavily exceeds the available CPU resources (cpu_count). It is recommended to lower the value of 'mlif.num_threads'!"
                             )
+                    worker_run_idx.append(i)
                     workers.append(executor.submit(_process, run, until=until))
                 results = _join_workers(workers)
+        if num_failures == 0:
+            logger.info("All runs completed successfuly!")
+        elif num_failures == 0:
+            logger.error("All runs have failed to complete!")
+        else:
+            num_success = num_runs - num_failures
+            logger.warning(f"{num_success} out or {num_runs} runs completed successfully!")
+            summary = "\n".join(
+                [
+                    f"\t{stage}: \t{len(failed)} failed run(s): " + " ".join([str(idx) for idx in failed])
+                    for stage, failed in stage_failures.items()
+                    if len(failed) > 0
+                ]
+            )
+            logger.info("Summary:\n" + summary)
+
         report = self.get_reports()
         report_file = Path(self.dir) / "report.csv"
         report.export(report_file)

@@ -38,16 +38,6 @@ class MlifPlatform(CompilePlatform):
             context=context,
         )
         self.goal = "generic_mlif"
-        print(
-            "self.framework",
-            self.framework,
-            "self.backend",
-            self.backend,
-            "self.target",
-            self.target,
-            "self.features",
-            self.features,
-        )
         flags = [self.framework.name, self.backend.name, self.target.name] + [feature.name for feature in self.features]
         dir_name = utils.makeDirName("mlif", flags=flags)
         self.tempdir = None

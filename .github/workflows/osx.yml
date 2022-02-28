@@ -187,7 +187,7 @@ jobs:
     # TODO: caching
     - name: Install dependencies
       run: |
-          brew install make ninja cmake boost
+          brew install make ninja cmake boost coreutils
           echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
     - name: Initialize Virtualenv
       run: |

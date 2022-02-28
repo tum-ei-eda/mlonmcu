@@ -63,8 +63,7 @@ def clone_etiss(
     context.cache["etiss.src_dir"] = etissSrcDir
 
 
-# @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
-@Tasks.needs(["etiss.src_dir"])
+@Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
@@ -79,14 +78,14 @@ def build_etiss(
     etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
     etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
-    # llvmInstallDir = context.cache["llvm.install_dir"]
+    llvmInstallDir = context.cache["llvm.install_dir"]
     user_vars = context.environment.vars
     if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
         return False
     if rebuild or not utils.is_populated(etissBuildDir):
         utils.mkdirs(etissBuildDir)
         env = os.environ.copy()
-        # env["LLVM_DIR"] = str(llvmInstallDir)
+        env["LLVM_DIR"] = str(llvmInstallDir)
         utils.cmake(
             context.cache["etiss.src_dir"],
             "-DCMAKE_INSTALL_PREFIX=" + str(etissInstallDir),

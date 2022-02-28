@@ -146,6 +146,7 @@ postprocesses:
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
   # tvm.make_tool: "ninja"
-  llvm.version: "11.1.0"
   runs_per_stage: true
   # riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fi89JQF89pEiWwP6aQh7cM4H/rv32gcv.tar.xz"
+  llvm.version: "11.0.0"
+  llvm.distribution: "x86_64-apple-darwin"  # TODO: automatically figure this out during setup, let user specify url instead?

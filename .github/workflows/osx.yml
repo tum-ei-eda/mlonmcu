@@ -187,7 +187,8 @@ jobs:
     # TODO: caching
     - name: Install dependencies
       run: |
-          true
+          brew install make
+          brew install ninja
     - name: Initialize Virtualenv
       run: |
         python -m pip install --upgrade pip

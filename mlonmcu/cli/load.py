@@ -87,7 +87,7 @@ def _handle(context, args):
     model_names = args.models
     config = context.environment.vars
     new_config, features = extract_config_and_init_features(args, context=context)
-    postprocesses = args.postprocess
+    postprocesses = args.postprocess if args.postprocess is not None else []
     config.update(new_config)
     frontends = init_frontends(args.frontend, features=features, config=config, context=context)
     model_hints = lookup_models(model_names, frontends=frontends, context=context)

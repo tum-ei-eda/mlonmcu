@@ -232,10 +232,12 @@ class Environment:
         return []
 
     def lookup_target_configs(self, target=None, names_only=False):
-        if target is None:
-            return _extract_names(self.targets) if names_only else self.targets
+        enabled_targets = _filter_enabled(self.targets)
 
-        for target_config in self.targets:
+        if target is None:
+            return _extract_names(enabled_targets) if names_only else enabled_targets
+
+        for target_config in enabled_targets:
             if target_config.name == target:
                 return [target_config.name if names_only else target_config]
         return []

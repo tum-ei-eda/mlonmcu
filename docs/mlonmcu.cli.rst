@@ -20,14 +20,6 @@ mlonmcu.cli.build module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.cli.check module
-------------------------
-
-.. automodule:: mlonmcu.cli.check
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.cli.cleanup module
 --------------------------
 

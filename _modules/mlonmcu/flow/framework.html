@@ -124,7 +124,13 @@
         <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-DFRAMEWORK=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Framework.add_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.add_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">add_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">()</span></div></div>
+        <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Framework.get_espidf_defs"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.get_espidf_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_espidf_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;MLONMCU_FRAMEWORK&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Framework.add_espidf_defs"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.add_espidf_defs">[docs]</a>    <span class="k">def</span> <span class="nf">add_espidf_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
+        <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_espidf_defs</span><span class="p">())</span></div></div>
 </pre></div>
 
            </div>

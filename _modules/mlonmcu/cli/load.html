@@ -116,6 +116,7 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Explicitly choose the frontends to use (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
+
 <div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.load.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the load subcommand.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Load model using the ML on MCU flow.&quot;</span><span class="p">)</span>
@@ -134,7 +135,7 @@
         <span class="c1"># No need to specify a default, because we just use the provided order in the environment.yml</span>
         <span class="k">assert</span> <span class="n">frontend_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
         <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Need context to resolve default frontends&quot;</span>
-        <span class="n">all_frontend_names</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_enabled_frontends</span><span class="p">()</span>
+        <span class="n">all_frontend_names</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_frontend_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">all_frontend_names</span><span class="p">)</span>
     <span class="n">frontends</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">frontend_name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>

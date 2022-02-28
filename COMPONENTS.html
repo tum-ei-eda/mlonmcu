@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Support</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/COMPONENTS.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="support">
+<h1>Support<a class="headerlink" href="#support" title="Permalink to this headline"></a></h1>
+<section id="models-and-frontends">
+<h2>Models and Frontends<a class="headerlink" href="#models-and-frontends" title="Permalink to this headline"></a></h2>
+<p>The types of models which can be processed with MLonMCU are given by the implemented frontends. The Following Table shows the currently supported ones:</p>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Frontend</p></th>
+<th class="head"><p>Formats</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>TFLite</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.tflite</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Here is also a list of frontends with will probably implemented in the furture:</p>
+<ul class="simple">
+<li><p>ONNX (<code class="docutils literal notranslate"><span class="pre">onnx</span></code>)</p></li>
+<li><p>TensorFlow SavedModel (<code class="docutils literal notranslate"><span class="pre">.pb</span></code>)</p></li>
+</ul>
+<p>While you can use your own models we also provide support for the following model zoos which can be cloned from GitHub:</p>
+<ul class="simple">
+<li><p>Model Collection by EDA&#64;TUM (<a class="reference external" href="https://github.com/tum-ei-eda/mlonmcu-models"><code class="docutils literal notranslate"><span class="pre">tum-ei-eda/mlonmcu-models</span></code></a>)</p></li>
+<li><p>ARM Model Zoo (<a class="reference external" href="https://github.com/ARM-software/ML-zoo"><code class="docutils literal notranslate"><span class="pre">ARM-software/ML-zoo</span></code></a>) :warning: Work in Progress :warning:</p></li>
+</ul>
+</section>
+<section id="frameworks-and-backends">
+<h2>Frameworks and Backends<a class="headerlink" href="#frameworks-and-backends" title="Permalink to this headline"></a></h2>
+<p>For each framework supported by MLonMCU, a number of backends is implemented.</p>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Framework</p></th>
+<th class="head"><p>Backends</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>TenflowFlow Lite<br>for Microcontrollers (<code class="docutils literal notranslate"><span class="pre">tflm</span></code>)</p></td>
+<td><p>Default Interpreter (<code class="docutils literal notranslate"><span class="pre">tflmi</span></code>)<br>Offline Compiler (<code class="docutils literal notranslate"><span class="pre">tflmc</span></code>) :warning: Work in Progress :warning:</p></td>
+</tr>
+<tr class="row-odd"><td><p>TVM (<code class="docutils literal notranslate"><span class="pre">tvm</span></code>)</p></td>
+<td><p>AoT Executor (<code class="docutils literal notranslate"><span class="pre">tvmaot</span></code>)<br>Graph Executor (<code class="docutils literal notranslate"><span class="pre">tvmrt</span></code>)<br>Custom Codegenerator (<code class="docutils literal notranslate"><span class="pre">tvmcg</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="platforms-and-targets">
+<h2>Platforms and Targets<a class="headerlink" href="#platforms-and-targets" title="Permalink to this headline"></a></h2>
+<p>While support for some targets (especially simulator based ones) is directly build into MLonMCU, a platform is used for more complivcated targets (e.g. real hardware) to reuse existing Flows for compiling and flashing</p>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Platform</p></th>
+<th class="head"><p>Targets</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Default</p></td>
+<td><p><strong>RISC-V:</strong><br>ETISS/Pulpino (<code class="docutils literal notranslate"><span class="pre">etiss_pulpino</span></code>)<br>Spike (<code class="docutils literal notranslate"><span class="pre">spike</span></code>)<br>VPSimPlus (<code class="docutils literal notranslate"><span class="pre">ovpsim</span></code>)<br><br><strong>ARM:</strong><br>Corstone300 FVP (<code class="docutils literal notranslate"><span class="pre">corstone300</span></code>)<br><br><strong>x86:</strong><br>Host <code class="docutils literal notranslate"><span class="pre">host_x86</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ESP IDF (<code class="docutils literal notranslate"><span class="pre">espidf</span></code>)</p></td>
+<td><p><strong>LX6:</strong><br>ESP32 (<code class="docutils literal notranslate"><span class="pre">esp32</span></code>)<br><br><strong>RISC-V:</strong><br>ESP32-C3 (<code class="docutils literal notranslate"><span class="pre">esp32c3</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p>To extend the support of read hardware targets, it would be great if this list would be extended by some of the following platforms in the furture:</p>
+<ul class="simple">
+<li><p>Arduino Excosystem</p></li>
+<li><p>PlatformIO</p></li>
+<li><p>ZephyrOS</p></li>
+</ul>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline"></a></h2>
+<p>An extensive overview of the available features in TVM is given in the following table. The types of those features are denoted with a check mark in the respective column.</p>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Setup</p></th>
+<th class="head"><p>Frontend</p></th>
+<th class="head"><p>Framework</p></th>
+<th class="head"><p>Backend</p></th>
+<th class="head"><p>Target</p></th>
+<th class="head"><p>Platform/Compile</p></th>
+<th class="head"><p>Other</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Debug Arena Usage (<code class="docutils literal notranslate"><span class="pre">debug_arena</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Validate Output Data (<code class="docutils literal notranslate"><span class="pre">validate</span></code>)</p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>muRISCV-NN (<code class="docutils literal notranslate"><span class="pre">muriscvnn</span></code>)</p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>CMSIS-NN (<code class="docutils literal notranslate"><span class="pre">cmsisnn</span></code>)</p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>CMSIS-NN + TVM BYOC (<code class="docutils literal notranslate"><span class="pre">cmsisnnbyoc</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fused TIling for TVM (<code class="docutils literal notranslate"><span class="pre">fusetile</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Custom TVM meory planner (<code class="docutils literal notranslate"><span class="pre">memplan</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Unified Static Memory Planner for TVM (<code class="docutils literal notranslate"><span class="pre">usmp</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>V-Extension for RISC-V (<code class="docutils literal notranslate"><span class="pre">vext</span></code>)</p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:<br>(<code class="docutils literal notranslate"><span class="pre">spike</span></code>, <code class="docutils literal notranslate"><span class="pre">ovpsim</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Debug Build (<code class="docutils literal notranslate"><span class="pre">debug</span></code>)</p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>GDBServer (<code class="docutils literal notranslate"><span class="pre">gdbserver</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Debug ETISS VP (<code class="docutils literal notranslate"><span class="pre">etissdbg</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:<br>(<code class="docutils literal notranslate"><span class="pre">etiss_pulpino</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Create Memory Trace (<code class="docutils literal notranslate"><span class="pre">trace</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:<br>(<code class="docutils literal notranslate"><span class="pre">etiss_pulpino</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Unpacked API (<code class="docutils literal notranslate"><span class="pre">unpacked_api</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:<br>(<code class="docutils literal notranslate"><span class="pre">tvmaot</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Autotune TVM Model (<code class="docutils literal notranslate"><span class="pre">autotune</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Use TVM Tuning Records (<code class="docutils literal notranslate"><span class="pre">autotuned</span></code>)</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p>:white_check_mark:</p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="managed-dependencies">
+<h2>Managed Dependencies<a class="headerlink" href="#managed-dependencies" title="Permalink to this headline"></a></h2>
+<p>MLonMCU tries to either manage dependencies internally (hidden to the user) or rely on 3rd party platforms to install them.</p>
+<p>The following list gives and overview of the set of dependencies which are currently managed:</p>
+<ul class="simple">
+<li><p>Toolchains</p>
+<ul>
+<li><p>RISC-V GCC Linux Toolchain</p>
+<ul>
+<li><p>Download and extract</p></li>
+</ul>
+</li>
+<li><p>ARM GCC Linux Toolchain</p>
+<ul>
+<li><p>Download and extract</p></li>
+</ul>
+</li>
+<li><p>LLVM</p>
+<ul>
+<li><p>Download and extract</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Targets/Simulators</p>
+<ul>
+<li><p>ETISS</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build ETISS</p></li>
+<li><p>Install ETISS</p></li>
+<li><p>Build <code class="docutils literal notranslate"><span class="pre">bare_etiss_processor</span></code></p></li>
+</ul>
+</li>
+<li><p>Spike</p>
+<ul>
+<li><p>Clone Repositories</p></li>
+<li><p>Build Proxy Kernel</p></li>
+<li><p>Build Simulator</p></li>
+</ul>
+</li>
+<li><p>Corstone-300</p>
+<ul>
+<li><p>Download and extract</p></li>
+<li><p>Install FVP</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Frameworks/Backends</p>
+<ul>
+<li><p>TFLM</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Download 3rd party dependencies</p></li>
+</ul>
+</li>
+<li><p>TFLite Micro Compiler</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build</p></li>
+</ul>
+</li>
+<li><p>TVM</p>
+<ul>
+<li><p>Clone Repository (including 3rd party dependencies)</p></li>
+<li><p>Configure &amp; Build</p></li>
+</ul>
+</li>
+<li><p>uTVM Staticrt Codegen</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Features</p>
+<ul>
+<li><p>muRISCV-NN</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build</p></li>
+</ul>
+</li>
+<li><p>CMSIS(-NN)</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>The following dependencies are intentionally NOT managed by MLonMCU:</p>
+<ul class="simple">
+<li><p>OVPSimPlus: The simulator is closed source and needs an individual license for usage (free)</p></li>
+<li><p>ESP-IDF: Make sure you provide a <code class="docutils literal notranslate"><span class="pre">espidf.path</span></code> with the required components installed</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

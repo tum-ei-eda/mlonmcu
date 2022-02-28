@@ -52,14 +52,6 @@ mlonmcu.environment.templates module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.environment.util module
--------------------------------
-
-.. automodule:: mlonmcu.environment.util
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.environment.writer module
 ---------------------------------
 

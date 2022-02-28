@@ -97,7 +97,7 @@
 <span class="kn">import</span> <span class="nn">mlonmcu.cli.setup</span> <span class="k">as</span> <span class="nn">setup</span>
 <span class="kn">import</span> <span class="nn">mlonmcu.cli.flow</span> <span class="k">as</span> <span class="nn">flow</span>
 <span class="kn">import</span> <span class="nn">mlonmcu.cli.cleanup</span> <span class="k">as</span> <span class="nn">cleanup</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.cli.check</span> <span class="k">as</span> <span class="nn">check</span>
+<span class="kn">import</span> <span class="nn">mlonmcu.cli.export</span> <span class="k">as</span> <span class="nn">export</span>
 <span class="kn">import</span> <span class="nn">mlonmcu.cli.env</span> <span class="k">as</span> <span class="nn">env</span>
 <span class="kn">import</span> <span class="nn">mlonmcu.cli.models</span> <span class="k">as</span> <span class="nn">models</span>
 
@@ -155,16 +155,9 @@
     <span class="n">init_parser</span> <span class="o">=</span> <span class="n">init</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
     <span class="n">setup_parser</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
     <span class="n">flow_parser</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
-    <span class="c1"># TODO: hide load,build,compile,run,debug,test behind flow subcommand?</span>
-    <span class="c1"># trace_parser = get_trace_parser(subparsers)  # Handled as a flag to run subcommand or target-feature</span>
-    <span class="c1"># TODO: cleanup</span>
     <span class="n">cleanup_parser</span> <span class="o">=</span> <span class="n">cleanup</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
-    <span class="c1"># TODO: check</span>
-    <span class="n">check_parser</span> <span class="o">=</span> <span class="n">check</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
-    <span class="c1"># TODO: run</span>
-    <span class="c1"># TODO: env</span>
+    <span class="n">export_parser</span> <span class="o">=</span> <span class="n">export</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
     <span class="n">env_parser</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
-    <span class="c1"># TODO: models</span>
     <span class="n">models_parser</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>

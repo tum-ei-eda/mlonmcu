@@ -82,7 +82,7 @@
 <span class="kn">from</span> <span class="nn">.feature</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BackendFeature</span><span class="p">,</span>
     <span class="n">FrameworkFeature</span><span class="p">,</span>
-    <span class="n">CompileFeature</span><span class="p">,</span>
+    <span class="n">PlatformFeature</span><span class="p">,</span>
     <span class="n">FrontendFeature</span><span class="p">,</span>
     <span class="n">TargetFeature</span><span class="p">,</span>
     <span class="n">SetupFeature</span><span class="p">,</span>
@@ -134,7 +134,7 @@
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">DebugArena</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">DebugArena</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enable verbose printing of arena usage for debugging.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -149,7 +149,7 @@
         <span class="c1"># TODO: TFLM also compatible?</span>
         <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.debug_arena&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
-    <span class="c1"># def get_compile_config(self):</span>
+    <span class="c1"># def get_platform_config(self):</span>
     <span class="c1">#    return {&quot;mlif.debug_arena&quot;: True}</span>
 
     <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -158,7 +158,7 @@
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;validate&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Validate</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Validate</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enable validaton of inout and output tensors.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -178,8 +178,9 @@
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.use_inout_data&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">get_compile_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mlif.ignore_data&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for platform &#39;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.ignore_data&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 
     <span class="c1"># def get_cmake_args(self):</span>
     <span class="c1">#     pass</span>
@@ -301,7 +302,11 @@
         <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmcg&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span>
+        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="n">extras</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_kernel&quot;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">if</span> <span class="s2">&quot;cmsis-nn&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extras</span><span class="p">:</span>
             <span class="n">extras</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_kernel&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;cmsis-nn&quot;</span><span class="p">)</span>
@@ -315,7 +320,7 @@
 
 <span class="c1"># @before_feature(&quot;muriscvnn&quot;)  # TODO: implment something like this</span>
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">)</span>
-<span class="c1"># class Vext(SetupFeature, TargetFeature, CompileFeature):</span>
+<span class="c1"># class Vext(SetupFeature, TargetFeature, PlatformFeature):</span>
 <span class="k">class</span> <span class="nc">Vext</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">TargetFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;MuriscvNN CMSIS-NN wrappers for TFLite Micro&quot;&quot;&quot;</span>
 
@@ -359,7 +364,7 @@
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Debug</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Debug</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enable debugging ability of target software.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -368,9 +373,8 @@
     <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="k">else</span> <span class="p">{}</span>  <span class="c1"># TODO: remove?</span>
 
-    <span class="k">def</span> <span class="nf">get_compile_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># TODO: or dbg (defined in tasks.py)???</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mlif.debug&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.debug&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">)</span>
@@ -446,7 +450,7 @@
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;packed&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Packed</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">BackendFeature</span><span class="p">,</span> <span class="n">SetupFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Packed</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">BackendFeature</span><span class="p">,</span> <span class="n">SetupFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Sub-8-bit and sparsity feature for TFLite Micro kernels.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -484,7 +488,7 @@
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;fallback&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Fallback</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">CompileFeature</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Fallback</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;(Unimplemented) TFLite Fallback for unsupported and custom operators in TVM.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>

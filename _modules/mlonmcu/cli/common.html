@@ -80,6 +80,8 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.platform</span> <span class="kn">import</span> <span class="n">SUPPORTED_PLATFORMS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.session.postprocess</span> <span class="kn">import</span> <span class="n">SUPPORTED_POSTPROCESSES</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_available_feature_names</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_level</span>
 <span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_config</span>
@@ -109,6 +111,26 @@
         <span class="c1"># default=None,</span>
         <span class="c1"># nargs=1,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The target device/architecture (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="c1"># &quot;-p&quot;,</span>
+        <span class="s2">&quot;--platform&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;PLATFORM&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">SUPPORTED_PLATFORMS</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Explicitly choose the platforms to use (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="c1"># &quot;-p&quot;,</span>
+        <span class="s2">&quot;--postprocess&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;POSTPROCESS&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">SUPPORTED_POSTPROCESSES</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Choose the postprocesses to apply (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
@@ -152,6 +174,14 @@
         <span class="s2">&quot;--resume&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Try to resume the latest session (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>  <span class="c1"># TODO: move to compile.py?</span>
+        <span class="s2">&quot;-l&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--label&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;LABEL&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;unamed&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Label for the session (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -203,6 +233,7 @@
 <div class="viewcode-block" id="kickoff_runs"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.kickoff_runs">[docs]</a><span class="k">def</span> <span class="nf">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">label</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">per_stage</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="s2">&quot;runs_per_stage&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>

@@ -76,8 +76,37 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mlonmcu.utils</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="is_power_of_two"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.utils.is_power_of_two">[docs]</a><span></span><span class="k">def</span> <span class="nf">is_power_of_two</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+
+<div class="viewcode-block" id="is_power_of_two"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.utils.is_power_of_two">[docs]</a><span class="k">def</span> <span class="nf">is_power_of_two</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">n</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">!=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="ask_user"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.utils.ask_user">[docs]</a><span class="k">def</span> <span class="nf">ask_user</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">yes_keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;j&quot;</span><span class="p">],</span> <span class="n">no_keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">],</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">yes_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">no_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">interactive</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span>
+    <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot; [</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">yes_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">no_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot; [</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">yes_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">no_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">text</span> <span class="o">+</span> <span class="n">suffix</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">no_keys</span> <span class="ow">and</span> <span class="n">answer</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">no_keys</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">yes_keys</span> <span class="ow">and</span> <span class="n">answer</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">yes_keys</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_base_prefix_compat"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.utils.get_base_prefix_compat">[docs]</a><span class="k">def</span> <span class="nf">get_base_prefix_compat</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Get base/real prefix, or sys.prefix if there is none.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;base_prefix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;real_prefix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sys</span><span class="o">.</span><span class="n">prefix</span></div>
+
+
+<div class="viewcode-block" id="in_virtualenv"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.utils.in_virtualenv">[docs]</a><span class="k">def</span> <span class="nf">in_virtualenv</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Detects if the current python interpreter is from a virtual environment.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_base_prefix_compat</span><span class="p">()</span> <span class="o">!=</span> <span class="n">sys</span><span class="o">.</span><span class="n">prefix</span></div>
 </pre></div>
 
            </div>

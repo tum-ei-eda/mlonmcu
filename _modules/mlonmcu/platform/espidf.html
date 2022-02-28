@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.espidf &mdash; ML on MCU 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.platform.espidf</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.platform.espidf</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;ESP-IDF Platform&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">psutil</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="EspIdfPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform">[docs]</a><span class="k">class</span> <span class="nc">EspIdfPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;ESP-IDF Platform class.&quot;&quot;&quot;</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">CompilePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">TargetPlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;project_template&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;baud&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># REQUIRED = [&quot;espidf.dir&quot;, &quot;espidf.project_template&quot;]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># For now just expect the user to be already in an esp-idf environment</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;espidf&quot;</span><span class="p">,</span>
+            <span class="n">framework</span><span class="o">=</span><span class="n">framework</span><span class="p">,</span>
+            <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">=</span> <span class="s2">&quot;app&quot;</span>
+        <span class="n">dir_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="c1"># if self.config[&quot;project_dir&quot;]:</span>
+        <span class="n">use_provided_dir</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">use_provided_dir</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_dir&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="s2">&quot;temp&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">dir_name</span>
+                <span class="p">)</span>  <span class="c1"># TODO: Need to lock this for parallel builds</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Creating temporary directory because no context was available&quot;</span>
+                    <span class="s2">&quot;and &#39;espidf.project_dir&#39; was not supplied&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="n">dir_name</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Temporary project directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idf_exe</span> <span class="o">=</span> <span class="s2">&quot;idf.py&quot;</span>
+
+<div class="viewcode-block" id="EspIdfPlatform.set_directory"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.set_directory">[docs]</a>    <span class="k">def</span> <span class="nf">set_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">directory</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">project_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_template&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">baud</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;baud&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="EspIdfPlatform.close"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EspIdfPlatform.check"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idf_exe</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;It seems like &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idf_exe</span><span class="si">}</span><span class="s2">&#39; is not available. Make sure to setup your environment!&quot;</span><span class="p">)</span></div>
+        <span class="c1"># try:</span>
+        <span class="c1">#</span>
+        <span class="c1">#     subprocess.run([&quot;which&quot;, self.idf_exe], shell=True, check=True, stdout=subprocess.PIPE)</span>
+        <span class="c1"># except subprocess.CalledProcessError as e:</span>
+        <span class="c1">#     raise RuntimeError(</span>
+        <span class="c1">#         f&quot;It seems like &#39;{self.idf_exe}&#39; is not available. Make sure to setup your environment!&quot;</span>
+        <span class="c1">#     ) from e</span>
+
+    <span class="c1"># def prepare(self, model, ignore_data=False):</span>
+<div class="viewcode-block" id="EspIdfPlatform.prepare"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="n">template_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_template</span>
+        <span class="k">assert</span> <span class="n">template_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;No espidf.project_template was provided&quot;</span>  <span class="c1"># TODO: fallback to default one?</span>
+        <span class="n">template_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">template_dir</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">template_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;Provided project template does not exists: </span><span class="si">{</span><span class="n">template_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">template_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">write_defaults</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">defs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">add_espidf_defs</span><span class="p">(</span><span class="n">defs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">add_espidf_defs</span><span class="p">(</span><span class="n">defs</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_OPTIMIZATION_LEVEL_DEBUG=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_OPTIMIZATION_LEVEL_RELEASE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">optimize_for_size</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="n">optimize_for_size</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_SIZE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_PERF=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">watchdog_sec</span> <span class="o">=</span> <span class="mi">60</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONFIG_ESP_TASK_WDT_TIMEOUT_S=</span><span class="si">{</span><span class="n">watchdog_sec</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CONFIG_MLONMCU_CODEGEN_DIR=&quot;</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">framework_upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONFIG_MLONMCU_FRAMEWORK_</span><span class="si">{</span><span class="n">framework_upper</span><span class="si">}</span><span class="s2">=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">backend_upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONFIG_MLONMCU_BACKEND_</span><span class="si">{</span><span class="n">backend_upper</span><span class="si">}</span><span class="s2">=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONFIG_MLONMCU_NUM_RUNS=</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">defs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CONFIG_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">=&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">write_defaults</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;sdkconfig.defaults&quot;</span><span class="p">)</span>
+        <span class="n">idfArgs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idf_exe</span><span class="p">,</span>
+            <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span>
+            <span class="s2">&quot;set-target&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EspIdfPlatform.get_idf_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_idf_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmake_defs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;CMAKE_BUILD_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;Debug&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="k">else</span> <span class="s2">&quot;Release&quot;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-D</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cmake_defs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="EspIdfPlatform.compile"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># TODO: build with cmake options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+        <span class="c1"># TODO: support self.num_threads (e.g. patch esp-idf)</span>
+        <span class="n">idfArgs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idf_exe</span><span class="p">,</span>
+            <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_cmake_args</span><span class="p">(),</span>
+            <span class="s2">&quot;build&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EspIdfPlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">num</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">elf_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;.elf&quot;</span>
+        <span class="n">elf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">elf_name</span>
+        <span class="c1"># TODO: just use path instead of raw data?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="p">:</span>
+            <span class="c1"># Warning: The porject context will get destroyed afterwards wehen using  a temporory directory</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">elf_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;generic_mlif&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">)</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="n">elf_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">elf_file</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">PATH</span><span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div>
+
+<div class="viewcode-block" id="EspIdfPlatform.get_idf_serial_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_serial_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_idf_serial_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">baud</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">baud</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">args</span></div>
+
+<div class="viewcode-block" id="EspIdfPlatform.flash"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.flash">[docs]</a>    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+        <span class="c1"># TODO: implement timeout</span>
+        <span class="c1"># TODO: make sure that already compiled? -&gt; error or just call compile routine?</span>
+        <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Make sure that the device &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; is connected before you press Enter&quot;</span><span class="p">)</span>
+        <span class="n">idfArgs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idf_exe</span><span class="p">,</span>
+            <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_cmake_args</span><span class="p">(),</span>
+            <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_serial_args</span><span class="p">(),</span>
+        <span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EspIdfPlatform.monitor"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.monitor">[docs]</a>    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_kill_monitor</span><span class="p">():</span>
+
+            <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">psutil</span><span class="o">.</span><span class="n">process_iter</span><span class="p">():</span>
+                <span class="c1"># check whether the process name matches</span>
+                <span class="n">cmdline</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">cmdline</span><span class="p">())</span>
+                <span class="k">if</span> <span class="s2">&quot;idf_monitor.py&quot;</span> <span class="ow">in</span> <span class="n">cmdline</span><span class="p">:</span>  <span class="c1"># TODO: do something less &quot;dangerous&quot;?</span>
+                    <span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">_monitor_helper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+            <span class="c1"># start_match and end_match are inclusive</span>
+            <span class="k">if</span> <span class="n">timeout</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># TODO: implement timeout</span>
+            <span class="n">found_start</span> <span class="o">=</span> <span class="n">start_match</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;- Executing: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+            <span class="n">outStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                    <span class="n">new_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">new_line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">start_match</span> <span class="ow">and</span> <span class="n">start_match</span> <span class="ow">in</span> <span class="n">new_line</span><span class="p">:</span>
+                        <span class="n">outStr</span> <span class="o">=</span> <span class="n">new_line</span>
+                        <span class="n">found_start</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">outStr</span> <span class="o">=</span> <span class="n">outStr</span> <span class="o">+</span> <span class="n">new_line</span>
+                    <span class="k">if</span> <span class="n">found_start</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">end_match</span> <span class="ow">and</span> <span class="n">end_match</span> <span class="ow">in</span> <span class="n">new_line</span><span class="p">:</span>
+                            <span class="n">_kill_monitor</span><span class="p">()</span>
+                            <span class="n">process</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                            <span class="n">exit_code</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="n">exit_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">outStr</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">exit_code</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Interrupted subprocess. Sending SIGINT signal...&quot;</span><span class="p">)</span>
+                <span class="n">_kill_monitor</span><span class="p">()</span>
+                <span class="n">pid</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">pid</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">outStr</span>
+
+        <span class="c1"># TODO: implement timeout</span>
+        <span class="n">idfArgs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idf_exe</span><span class="p">,</span>
+            <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_cmake_args</span><span class="p">(),</span>
+            <span class="s2">&quot;monitor&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_serial_args</span><span class="p">(),</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">_monitor_helper</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">,</span>
+            <span class="n">start_match</span><span class="o">=</span><span class="s2">&quot;MLonMCU: START&quot;</span><span class="p">,</span>
+            <span class="n">end_match</span><span class="o">=</span><span class="s2">&quot;MLonMCU: STOP&quot;</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

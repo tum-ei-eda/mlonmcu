@@ -152,6 +152,18 @@
             <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">frontends</span>
         <span class="p">},</span>
     <span class="p">}</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;platforms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># &quot;default&quot;: None,  # unimplemented?</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">platform</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">platform</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="n">platform_feature</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">platform_feature</span><span class="o">.</span><span class="n">supported</span> <span class="k">for</span> <span class="n">platform_feature</span> <span class="ow">in</span> <span class="n">platform</span><span class="o">.</span><span class="n">features</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">platforms</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;targets&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_target</span><span class="p">,</span>
         <span class="o">**</span><span class="p">{</span>

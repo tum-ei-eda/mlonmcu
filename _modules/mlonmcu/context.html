@@ -78,15 +78,20 @@
   <h1>Source code for mlonmcu.context</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Definition if the contextmanager for mlonmcu environments.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">filelock</span>
 
+<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">ask_user</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_file</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">Run</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.session</span> <span class="kn">import</span> <span class="n">Session</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.setup.cache</span> <span class="kn">import</span> <span class="n">TaskCache</span>
+<span class="kn">import</span> <span class="nn">mlonmcu.setup.utils</span> <span class="k">as</span> <span class="nn">utils</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.environment.environment</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">UserEnvironment</span>
 
@@ -236,13 +241,16 @@
         <span class="n">run_ids</span> <span class="o">=</span> <span class="n">get_ids</span><span class="p">(</span><span class="n">runs_directory</span><span class="p">)</span>
         <span class="n">runs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">rid</span> <span class="ow">in</span> <span class="n">run_ids</span><span class="p">:</span>
-            <span class="n">run_file</span> <span class="o">=</span> <span class="n">runs_directory</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;run.txt&quot;</span>
+            <span class="n">run_directory</span> <span class="o">=</span> <span class="n">runs_directory</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span>
+            <span class="n">run_file</span> <span class="o">=</span> <span class="n">run_directory</span> <span class="o">/</span> <span class="s2">&quot;run.txt&quot;</span>
             <span class="c1"># run = Run.from_file(run_file)  # TODO: actually implement run restore</span>
             <span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="p">()</span>  <span class="c1"># TODO: fix</span>
             <span class="n">run</span><span class="o">.</span><span class="n">archived</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">run_directory</span>
             <span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
         <span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">sid</span><span class="p">,</span> <span class="n">archived</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">session_directory</span><span class="p">)</span>
         <span class="n">session</span><span class="o">.</span><span class="n">runs</span> <span class="o">=</span> <span class="n">runs</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">session_directory</span>
         <span class="n">sessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">sessions</span></div>
 
@@ -407,6 +415,111 @@
     <span class="k">def</span> <span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return true if all sessions in the context are inactive&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">active</span> <span class="k">for</span> <span class="n">sess</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span>
+
+    <span class="c1"># WARNING: this will remove the actual session directories!</span>
+<div class="viewcode-block" id="MlonMcuContext.cleanup_sessions"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.cleanup_sessions">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Utility to cleanup old sessions from the disk.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span>
+        <span class="n">all_sessions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span>
+        <span class="c1"># print(&quot;all_sessions&quot;, all_sessions)</span>
+        <span class="n">to_keep</span> <span class="o">=</span> <span class="n">all_sessions</span><span class="p">[</span><span class="o">-</span><span class="n">keep</span><span class="p">:]</span> <span class="k">if</span> <span class="n">keep</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[:</span><span class="o">-</span><span class="n">keep</span><span class="p">]</span> <span class="k">if</span> <span class="n">keep</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_remove</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">temp_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_path</span><span class="p">(</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+            <span class="n">sessions_dir</span> <span class="o">=</span> <span class="n">temp_dir</span> <span class="o">/</span> <span class="s2">&quot;sessions&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The following </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> sessions will be removed from the environments temp directory (</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">):&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">]))</span>
+
+            <span class="k">if</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">&quot;Are your sure?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="ow">not</span> <span class="n">interactive</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+                    <span class="n">session_dir</span> <span class="o">=</span> <span class="n">sessions_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">session_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                        <span class="c1"># Skip / Dir does not exist</span>
+                        <span class="k">continue</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">session_dir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span> <span class="o">=</span> <span class="n">to_keep</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">session_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">idx</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Aborted&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No sessions selected for removal&quot;</span><span class="p">)</span></div>
+        <span class="c1"># We currently do not support rewirting the indices to start from scratch again as this would lead to inconsitencies with the path in the report/cmake build dirtectory</span>
+
+<div class="viewcode-block" id="MlonMcuContext.export"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">session_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span> <span class="ow">or</span> <span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">dest</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">&quot;Destination is already populated! Overwrite?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Aborted&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="n">dest_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">session_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Can not select all sessions, fall back to latest session</span>
+            <span class="n">session_ids</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">run_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Can only choose runs of a single session&quot;</span>
+
+        <span class="k">def</span> <span class="nf">find_session</span><span class="p">(</span><span class="n">sid</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">sid</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">idx</span> <span class="o">==</span> <span class="n">sid</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">session</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdirname</span><span class="p">:</span>
+            <span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdirname</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">session_ids</span><span class="p">:</span>
+                <span class="n">session</span> <span class="o">=</span> <span class="n">find_session</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Lookup for session id </span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2"> failed. Available:&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">])</span>
+                    <span class="p">)</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">base</span> <span class="o">=</span> <span class="n">tmpdir</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">base</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">run_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">src</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">dir</span> <span class="o">/</span> <span class="s2">&quot;runs&quot;</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span>
+                        <span class="n">src</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">symlinks</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>  <span class="c1"># Warning: dirs_exist_ok=True requires python 3.8+</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">base</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;runs&quot;</span>
+                    <span class="k">for</span> <span class="n">rid</span> <span class="ow">in</span> <span class="n">run_ids</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">rid</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">):</span>
+                            <span class="nb">print</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;Lookup for run id </span><span class="si">{</span><span class="n">rid</span><span class="si">}</span><span class="s2"> failed in session </span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2">. Available:&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">))]),</span>
+                            <span class="p">)</span>
+                            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">run</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="n">rid</span><span class="p">]</span>  <span class="c1"># TODO: We currently do not check if the index actually exists</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">run_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">run_base</span> <span class="o">=</span> <span class="n">tmpdir</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">run_base</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span>
+                        <span class="n">src</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">dir</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span>
+                            <span class="n">src</span><span class="p">,</span> <span class="n">run_base</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="p">)</span>  <span class="c1"># Warning: dirs_exist_ok=True requires python 3.8+</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.zip&quot;</span><span class="p">,</span> <span class="s2">&quot;.tar&quot;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating archive: </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">make_archive</span><span class="p">(</span><span class="n">dest_</span><span class="p">,</span> <span class="n">ext</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">tmpdirname</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating directory: </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>  <span class="c1"># Cleanup old contents</span>
+                <span class="c1"># dest.mkdir(exist_ok=True)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">tmpdirname</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Exit MlonMcuContext&quot;</span><span class="p">)</span>

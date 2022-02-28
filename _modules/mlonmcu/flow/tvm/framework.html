@@ -124,7 +124,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_libs</span><span class="p">:</span>
             <span class="n">temp</span> <span class="o">=</span> <span class="s2">&quot;\;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_libs</span><span class="p">)</span>
             <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DTVM_EXTRA_LIBS=</span><span class="si">{</span><span class="n">temp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-DTVM_SRC=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_src</span><span class="p">)]</span>  <span class="c1"># TODO: change</span></div></div>
+        <span class="k">return</span> <span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-DTVM_SRC=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_src</span><span class="p">)]</span>  <span class="c1"># TODO: change</span></div>
+
+    <span class="c1"># TODO: get_cmake_args -&gt; get_plaform_vars (dict instead of list of strings)</span>
+<div class="viewcode-block" id="TVMFramework.get_espidf_defs"><a class="viewcode-back" href="../../../../mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.get_espidf_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_espidf_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_incs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_libs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Extra incs or libs are currently not supported for esp-idf&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;TVM_DIR&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_src</span><span class="p">)}</span></div></div>
 </pre></div>
 
            </div>

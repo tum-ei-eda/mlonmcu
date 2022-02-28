@@ -111,12 +111,6 @@
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of runs in simulation (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">compile_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--ignore-data&quot;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;ignore_data&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not use MLIF inout data in debug mode (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -148,8 +142,12 @@
         <span class="k">for</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">num</span><span class="p">:</span>
                 <span class="n">new_run</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="p">:</span>  <span class="c1"># TODO: move this somewhere else</span>
+                    <span class="n">platform_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">platform_name</span> <span class="o">=</span> <span class="s2">&quot;mlif&quot;</span>
                 <span class="n">new_run</span><span class="o">.</span><span class="n">add_target_by_name</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-                <span class="n">new_run</span><span class="o">.</span><span class="n">init_mlif</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+                <span class="n">new_run</span><span class="o">.</span><span class="n">add_platform_by_name</span><span class="p">(</span><span class="n">platform_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>  <span class="c1"># TODO: do this implicitly</span>
                 <span class="n">new_run</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
                 <span class="n">new_run</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">n</span>
                 <span class="n">new_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_run</span><span class="p">)</span>

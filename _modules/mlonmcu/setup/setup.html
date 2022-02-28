@@ -76,7 +76,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mlonmcu.setup.setup</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
@@ -85,6 +87,7 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
 <span class="kn">from</span> <span class="nn">.tasks</span> <span class="kn">import</span> <span class="n">Tasks</span>
 <span class="kn">from</span> <span class="nn">.task</span> <span class="kn">import</span> <span class="n">TaskGraph</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">ask_user</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -107,6 +110,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tasks_factory</span> <span class="o">=</span> <span class="n">tasks_factory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_outputs&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Setup.clean_cache"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.clean_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clean_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">deps_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_path</span><span class="p">(</span><span class="s2">&quot;deps&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">cache_file</span> <span class="o">=</span> <span class="n">deps_dir</span> <span class="o">/</span> <span class="s2">&quot;cache.ini&quot;</span>
+        <span class="k">if</span> <span class="n">cache_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The dependency cache file (</span><span class="si">{</span><span class="n">cache_file</span><span class="si">}</span><span class="s2">) will be removed.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">&quot;Are your sure?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="ow">not</span> <span class="n">interactive</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing </span><span class="si">{</span><span class="n">cache_file</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Setup.clean_dependencies"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.clean_dependencies">[docs]</a>    <span class="k">def</span> <span class="nf">clean_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_cache</span><span class="p">(</span><span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span>
+        <span class="n">deps_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_path</span><span class="p">(</span><span class="s2">&quot;deps&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All dependencies will be removed from </span><span class="si">{</span><span class="n">deps_dir</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">&quot;Are your sure?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="ow">not</span> <span class="n">interactive</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
+                <span class="n">full_path</span> <span class="o">=</span> <span class="n">deps_dir</span> <span class="o">/</span> <span class="n">subdir</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing contents of </span><span class="si">{</span><span class="n">full_path</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+                <span class="n">full_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Setup.process_features"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.process_features">[docs]</a>    <span class="k">def</span> <span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

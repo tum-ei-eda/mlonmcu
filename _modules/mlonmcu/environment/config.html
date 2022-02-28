@@ -217,6 +217,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span></div>
 
 
+<div class="viewcode-block" id="PlatformFeatureConfig"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.config.PlatformFeatureConfig">[docs]</a><span class="k">class</span> <span class="nc">PlatformFeatureConfig</span><span class="p">(</span><span class="n">FeatureConfig</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">FeatureKind</span><span class="o">.</span><span class="n">TARGET</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span></div>
+
+
 <div class="viewcode-block" id="TargetFeatureConfig"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.config.TargetFeatureConfig">[docs]</a><span class="k">class</span> <span class="nc">TargetFeatureConfig</span><span class="p">(</span><span class="n">FeatureConfig</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">FeatureKind</span><span class="o">.</span><span class="n">TARGET</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">)</span>
@@ -238,6 +244,13 @@
 
 
 <div class="viewcode-block" id="FrontendConfig"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.config.FrontendConfig">[docs]</a><span class="k">class</span> <span class="nc">FrontendConfig</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">enabled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">features</span></div>
+
+
+<div class="viewcode-block" id="PlatformConfig"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.config.PlatformConfig">[docs]</a><span class="k">class</span> <span class="nc">PlatformConfig</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">{}):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">enabled</span>

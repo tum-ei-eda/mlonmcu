@@ -207,24 +207,24 @@
         <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_target_config</span><span class="p">(</span><span class="n">target</span><span class="p">))</span></div></div>
 
 
-<div class="viewcode-block" id="CompileFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature">[docs]</a><span class="k">class</span> <span class="nc">CompileFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compile related feature&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PlatformFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.PlatformFeature">[docs]</a><span class="k">class</span> <span class="nc">PlatformFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Platform/Compile related feature&quot;&quot;&quot;</span>
 
-    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">COMPILE</span>
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">PLATFORM</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CompileFeature.get_compile_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.get_compile_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_compile_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PlatformFeature.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.PlatformFeature.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="CompileFeature.add_compile_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.add_compile_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_compile_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_compile_config</span><span class="p">())</span></div>
+<div class="viewcode-block" id="PlatformFeature.add_platform_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.PlatformFeature.add_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_config</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="CompileFeature.get_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PlatformFeature.get_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.PlatformFeature.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="CompileFeature.add_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.CompileFeature.add_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">add_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="PlatformFeature.add_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.PlatformFeature.add_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">add_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">()</span></div></div>
 
     <span class="c1"># TODO: alternative mlif.cmake_args appenden?</span>

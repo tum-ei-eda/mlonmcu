@@ -139,16 +139,6 @@
 <dd></dd></dl>
 
 </section>
-<section id="module-mlonmcu.cli.check">
-<span id="mlonmcu-cli-check-module"></span><h2>mlonmcu.cli.check module<a class="headerlink" href="#module-mlonmcu.cli.check" title="Permalink to this headline"></a></h2>
-<p>Command line subcommand for checking the current environment.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="mlonmcu.cli.check.get_parser">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.check.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/check.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.check.get_parser" title="Permalink to this definition"></a></dt>
-<dd><p>“Define and return a subparser for the check subcommand.</p>
-</dd></dl>
-
-</section>
 <section id="module-mlonmcu.cli.cleanup">
 <span id="mlonmcu-cli-cleanup-module"></span><h2>mlonmcu.cli.cleanup module<a class="headerlink" href="#module-mlonmcu.cli.cleanup" title="Permalink to this headline"></a></h2>
 <p>Command line subcommand for cleaning up the current environment.</p>
@@ -157,6 +147,11 @@
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.cleanup.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/cleanup.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.cleanup.get_parser" title="Permalink to this definition"></a></dt>
 <dd><p>“Define and return a subparser for the cleanup subcommand.</p>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.cleanup.handle">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.cleanup.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/cleanup.html#handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.cleanup.handle" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 <section id="module-mlonmcu.cli.common">
@@ -253,6 +248,26 @@
 <dd></dd></dl>
 
 </section>
+<section id="module-mlonmcu.cli.export">
+<span id="mlonmcu-cli-export-module"></span><h2>mlonmcu.cli.export module<a class="headerlink" href="#module-mlonmcu.cli.export" title="Permalink to this headline"></a></h2>
+<p>Command line subcommand for exporting session and runs.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.export.add_export_options">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.export.</span></span><span class="sig-name descname"><span class="pre">add_export_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/export.html#add_export_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.export.add_export_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.export.get_parser">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.export.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/export.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.export.get_parser" title="Permalink to this definition"></a></dt>
+<dd><p>“Define and return a subparser for the cleanup subcommand.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.export.handle">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.export.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/export.html#handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.export.handle" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
 <section id="module-mlonmcu.cli.flow">
 <span id="mlonmcu-cli-flow-module"></span><h2>mlonmcu.cli.flow module<a class="headerlink" href="#module-mlonmcu.cli.flow" title="Permalink to this headline"></a></h2>
 <p>Command line subcommand for invoking the mlonmcu flow.</p>
@@ -272,6 +287,11 @@
 <section id="module-mlonmcu.cli.init">
 <span id="mlonmcu-cli-init-module"></span><h2>mlonmcu.cli.init module<a class="headerlink" href="#module-mlonmcu.cli.init" title="Permalink to this headline"></a></h2>
 <p>Command line subcommand for initializing a mlonmcu environment.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.init.add_init_options">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.init.</span></span><span class="sig-name descname"><span class="pre">add_init_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/init.html#add_init_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.init.add_init_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.cli.init.get_parser">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.init.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/init.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.init.get_parser" title="Permalink to this definition"></a></dt>
@@ -329,6 +349,11 @@
 <span id="mlonmcu-cli-models-module"></span><h2>mlonmcu.cli.models module<a class="headerlink" href="#module-mlonmcu.cli.models" title="Permalink to this headline"></a></h2>
 <p>Command line subcommand for managing models.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.models.add_models_options">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.models.</span></span><span class="sig-name descname"><span class="pre">add_models_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/models.html#add_models_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.models.add_models_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.cli.models.get_parser">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.models.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/models.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.models.get_parser" title="Permalink to this definition"></a></dt>
 <dd><p>“Define and return a subparser for the models subcommand.</p>
@@ -374,6 +399,11 @@
 <span id="mlonmcu-cli-setup-module"></span><h2>mlonmcu.cli.setup module<a class="headerlink" href="#module-mlonmcu.cli.setup" title="Permalink to this headline"></a></h2>
 <p>Command line subcommand for installing a mlonmcu environment.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.setup.add_setup_options">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.setup.</span></span><span class="sig-name descname"><span class="pre">add_setup_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/setup.html#add_setup_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.setup.add_setup_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.cli.setup.get_parser">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.setup.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/setup.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.setup.get_parser" title="Permalink to this definition"></a></dt>
 <dd><p>“Define and return a subparser for the setup subcommand.</p>
@@ -403,6 +433,21 @@
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.trace.</span></span><span class="sig-name descname"><span class="pre">get_trace_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/trace.html#get_trace_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.trace.get_trace_parser" title="Permalink to this definition"></a></dt>
 <dd><p>“Define and return a subparser for the trace subcommand.</p>
 </dd></dl>
+
+</section>
+<section id="module-mlonmcu.cli.tune">
+<span id="mlonmcu-cli-tune-module"></span><h2>mlonmcu.cli.tune module<a class="headerlink" href="#module-mlonmcu.cli.tune" title="Permalink to this headline"></a></h2>
+<p>Command line subcommand for the build process.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.tune.get_parser">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.tune.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/tune.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.tune.get_parser" title="Permalink to this definition"></a></dt>
+<dd><p>“Define and return a subparser for the tune subcommand.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.tune.handle">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.tune.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/tune.html#handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.tune.handle" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 <section id="module-mlonmcu.cli">

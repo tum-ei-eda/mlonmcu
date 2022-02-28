@@ -89,13 +89,9 @@
 <span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_config_and_init_features</span>
 
 
-<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.setup.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the setup subcommand.&quot;&quot;&quot;</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;setup&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Setup ML on MCU dependencies.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
-    <span class="n">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+<div class="viewcode-block" id="add_setup_options"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.setup.add_setup_options">[docs]</a><span class="k">def</span> <span class="nf">add_setup_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">setup_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;setup options&quot;</span><span class="p">)</span>
+    <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--feature&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
@@ -105,7 +101,7 @@
         <span class="n">choices</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># FIXME: only setup features?</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enabled features for setup (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;KEY=VALUE&quot;</span><span class="p">,</span>
@@ -118,31 +114,40 @@
         <span class="s1">&#39;foo=&quot;this is a sentence&quot;. Note that &#39;</span>
         <span class="s2">&quot;values are always treated as strings.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--progress&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Display progress bar (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-r&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--rebuild&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Trigger a rebuild/refresh of already installed dependencies (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-l&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--list&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only print a list of the tasks to be processed and quit (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--task&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Invoke a single task manually by name (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.setup.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the setup subcommand.&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;setup&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Setup ML on MCU dependencies.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
+    <span class="n">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_setup_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span></div>
 
 

@@ -1,16 +1,16 @@
 mlonmcu.session package
 =======================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mlonmcu.session.postprocess
+
 Submodules
 ----------
-
-mlonmcu.session.postprocess module
-----------------------------------
-
-.. automodule:: mlonmcu.session.postprocess
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 mlonmcu.session.progress module
 -------------------------------

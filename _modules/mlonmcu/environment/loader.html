@@ -213,6 +213,22 @@
                 <span class="n">frontends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FrontendConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">frontend_features</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">frontends</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;platforms&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">platforms</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;platforms&quot;</span><span class="p">]:</span>
+                <span class="n">platform</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;platforms&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;enabled&quot;</span> <span class="ow">in</span> <span class="n">platform</span><span class="p">:</span>
+                    <span class="n">enabled</span> <span class="o">=</span> <span class="n">platform</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">platform_features</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="s2">&quot;features&quot;</span> <span class="ow">in</span> <span class="n">platform</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">platform</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
+                        <span class="n">supported</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">platform</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">key2</span><span class="p">])</span>
+                        <span class="n">platform_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PlatformFeatureConfig</span><span class="p">(</span><span class="n">key2</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">))</span>
+                <span class="n">platforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PlatformConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">platform_features</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">platforms</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">default_target</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="s2">&quot;targets&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
             <span class="n">targets</span> <span class="o">=</span> <span class="p">[]</span>
@@ -250,11 +266,11 @@
             <span class="n">repos</span><span class="o">=</span><span class="n">repos</span><span class="p">,</span>
             <span class="n">frameworks</span><span class="o">=</span><span class="n">frameworks</span><span class="p">,</span>
             <span class="n">frontends</span><span class="o">=</span><span class="n">frontends</span><span class="p">,</span>
+            <span class="n">platforms</span><span class="o">=</span><span class="n">platforms</span><span class="p">,</span>
             <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
             <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">env</span></div>
-        <span class="c1"># print(&quot;env&quot;, env)</span>
 </pre></div>
 
            </div>

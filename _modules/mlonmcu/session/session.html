@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
@@ -95,6 +96,8 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">Run</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.report</span> <span class="kn">import</span> <span class="n">Report</span>
+
+<span class="kn">from</span> <span class="nn">.postprocess.postprocess</span> <span class="kn">import</span> <span class="n">SessionPostprocess</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>  <span class="c1"># TODO: rename to get_mlonmcu_logger</span>
 
@@ -152,9 +155,9 @@
     <span class="c1">#      pass</span>
 
 <div class="viewcode-block" id="Session.get_reports"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.get_reports">[docs]</a>    <span class="k">def</span> <span class="nf">get_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">report_dfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">run</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span><span class="o">.</span><span class="n">df</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">]</span>
+        <span class="n">reports</span> <span class="o">=</span> <span class="p">[</span><span class="n">run</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">]</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
-        <span class="n">merged</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">report_dfs</span><span class="p">)</span>
+        <span class="n">merged</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">reports</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">merged</span></div>
 
 <div class="viewcode-block" id="Session.enumerate_runs"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.enumerate_runs">[docs]</a>    <span class="k">def</span> <span class="nf">enumerate_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -336,6 +339,20 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Summary:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">summary</span><span class="p">)</span>
 
         <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reports</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Postprocessing session report&quot;</span><span class="p">)</span>
+        <span class="c1"># Warning: currently we only support one instance of the same type of postprocess, also it will be applied to all rows!</span>
+        <span class="n">session_postprocesses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">postprocess</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">postprocesses</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">postprocess</span><span class="p">,</span> <span class="n">SessionPostprocess</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">postprocess</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">session_postprocesses</span><span class="p">]:</span>
+                        <span class="n">session_postprocesses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">postprocess</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">postprocess</span> <span class="ow">in</span> <span class="n">session_postprocesses</span><span class="p">:</span>
+            <span class="n">artifact</span> <span class="o">=</span> <span class="n">postprocess</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">artifact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Postprocess has an artifact: write to disk!</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Writting postprocess artifact to disk: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">artifact</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
         <span class="n">report_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;report.csv&quot;</span>
         <span class="n">report</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">report_file</span><span class="p">)</span>
         <span class="n">results_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>

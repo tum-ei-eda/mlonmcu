@@ -17,7 +17,9 @@
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Environments" href="environments.html" />
+    <link rel="prev" title="Important Terms and Design Decisions (RFC)" href="design.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,12 +41,19 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#models-and-frontends">Models and Frontends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#frameworks-and-backends">Frameworks and Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#platforms-and-targets">Platforms and Targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managed-dependencies">Managed Dependencies</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
@@ -69,7 +78,7 @@
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
       <li>Components</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/COMPONENTS.md.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/components.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -317,94 +326,46 @@
 <p>MLonMCU tries to either manage dependencies internally (hidden to the user) or rely on 3rd party platforms to install them.</p>
 <p>The following list gives and overview of the set of dependencies which are currently managed:</p>
 <ul class="simple">
-<li><p>Toolchains</p>
-<ul>
-<li><p>RISC-V GCC Linux Toolchain</p>
-<ul>
-<li><p>Download and extract</p></li>
-</ul>
-</li>
-<li><p>ARM GCC Linux Toolchain</p>
-<ul>
-<li><p>Download and extract</p></li>
-</ul>
-</li>
-<li><p>LLVM</p>
-<ul>
-<li><p>Download and extract</p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Targets/Simulators</p>
-<ul>
-<li><p>ETISS</p>
-<ul>
-<li><p>Clone Repository</p></li>
-<li><p>Build ETISS</p></li>
-<li><p>Install ETISS</p></li>
-<li><p>Build <code class="docutils literal notranslate"><span class="pre">bare_etiss_processor</span></code></p></li>
-</ul>
-</li>
-<li><p>Spike</p>
-<ul>
-<li><p>Clone Repositories</p></li>
-<li><p>Build Proxy Kernel</p></li>
-<li><p>Build Simulator</p></li>
-</ul>
-</li>
-<li><p>Corstone-300</p>
-<ul>
-<li><p>Download and extract</p></li>
-<li><p>Install FVP</p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Frameworks/Backends</p>
-<ul>
-<li><p>TFLM</p>
-<ul>
-<li><p>Clone Repository</p></li>
-<li><p>Download 3rd party dependencies</p></li>
-</ul>
-</li>
-<li><p>TFLite Micro Compiler</p>
-<ul>
-<li><p>Clone Repository</p></li>
-<li><p>Build</p></li>
-</ul>
-</li>
-<li><p>TVM</p>
-<ul>
-<li><p>Clone Repository (including 3rd party dependencies)</p></li>
-<li><p>Configure &amp; Build</p></li>
-</ul>
-</li>
-<li><p>uTVM Staticrt Codegen</p>
-<ul>
-<li><p>Clone Repository</p></li>
-<li><p>Build</p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Features</p>
-<ul>
-<li><p>muRISCV-NN</p>
-<ul>
-<li><p>Clone Repository</p></li>
-<li><p>Build</p></li>
-</ul>
-</li>
-<li><p>CMSIS(-NN)</p>
-<ul>
-<li><p>Clone Repository</p></li>
-<li><p>Build</p></li>
-</ul>
-</li>
-</ul>
-</li>
+<li><p>Toolchains
+- RISC-V GCC Linux Toolchain
+- Download and extract
+- ARM GCC Linux Toolchain
+- Download and extract
+- LLVM
+- Download and extract</p></li>
+<li><p>Targets/Simulators
+- ETISS
+- Clone Repository
+- Build ETISS
+- Install ETISS
+- Build <code class="docutils literal notranslate"><span class="pre">bare_etiss_processor</span></code>
+- Spike
+- Clone Repositories
+- Build Proxy Kernel
+- Build Simulator
+- Corstone-300
+- Download and extract
+- Install FVP</p></li>
+<li><p>Frameworks/Backends
+- TFLM
+- Clone Repository
+- Download 3rd party dependencies
+- TFLite Micro Compiler
+- Clone Repository
+- Build
+- TVM
+- Clone Repository (including 3rd party dependencies)
+- Configure &amp; Build
+- uTVM Staticrt Codegen
+- Clone Repository
+- Build</p></li>
+<li><p>Features
+- muRISCV-NN
+- Clone Repository
+- Build
+- CMSIS(-NN)
+- Clone Repository
+- Build</p></li>
 </ul>
 <p>The following dependencies are intentionally NOT managed by MLonMCU:</p>
 <ul class="simple">
@@ -417,7 +378,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="design.html" class="btn btn-neutral float-left" title="Important Terms and Design Decisions (RFC)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="environments.html" class="btn btn-neutral float-right" title="Environments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
@@ -165,6 +166,7 @@
     <span class="n">model_names</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">models</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="n">new_config</span><span class="p">,</span> <span class="n">features</span> <span class="o">=</span> <span class="n">extract_config_and_init_features</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">postprocesses</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">postprocess</span>
     <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_config</span><span class="p">)</span>
     <span class="n">frontends</span> <span class="o">=</span> <span class="n">init_frontends</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">frontend</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="n">model_hints</span> <span class="o">=</span> <span class="n">lookup_models</span><span class="p">(</span><span class="n">model_names</span><span class="p">,</span> <span class="n">frontends</span><span class="o">=</span><span class="n">frontends</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
@@ -175,6 +177,7 @@
         <span class="p">)</span>  <span class="c1"># TODO: we do not yet know the backend...</span>
         <span class="n">run</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="n">run</span><span class="o">.</span><span class="n">add_frontend_by_name</span><span class="p">(</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">run</span><span class="o">.</span><span class="n">add_postprocesses_by_name</span><span class="p">(</span><span class="n">postprocesses</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>  <span class="c1"># TODO do this before load.py?</span>
 
 
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.load.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

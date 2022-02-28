@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
@@ -128,8 +129,7 @@
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;POSTPROCESS&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">SUPPORTED_POSTPROCESSES</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
-        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Choose the postprocesses to apply (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>

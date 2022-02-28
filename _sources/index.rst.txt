@@ -9,6 +9,7 @@ Welcome to ML on MCU's documentation!
    installation
    usage
    design
+   components
    environments
    logging
    docs

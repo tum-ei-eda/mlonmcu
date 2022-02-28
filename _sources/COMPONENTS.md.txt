@@ -1,4 +1,4 @@
-# Support
+# Components
 
 ## Models and Frontends
 
@@ -16,7 +16,7 @@ Here is also a list of frontends with will probably implemented in the furture:
 While you can use your own models we also provide support for the following model zoos which can be cloned from GitHub:
 
 - Model Collection by EDA@TUM ([`tum-ei-eda/mlonmcu-models`](https://github.com/tum-ei-eda/mlonmcu-models))
-- ARM Model Zoo ([`ARM-software/ML-zoo`](https://github.com/ARM-software/ML-zoo)) :warning: Work in Progress :warning:
+- ARM Model Zoo ([`ARM-software/ML-zoo`](https://github.com/ARM-software/ML-zoo)) ⚠️ Work in Progress ⚠️
 
 ## Frameworks and Backends
 
@@ -24,7 +24,7 @@ For each framework supported by MLonMCU, a number of backends is implemented.
 
 | Framework     | Backends                                                                        |
 |---------------|---------------------------------------------------------------------------------|
-| TenflowFlow Lite<br>for Microcontrollers (`tflm`) | Default Interpreter (`tflmi`)<br>Offline Compiler (`tflmc`) :warning: Work in Progress :warning:        |
+| TenflowFlow Lite<br>for Microcontrollers (`tflm`) | Default Interpreter (`tflmi`)<br>Offline Compiler (`tflmc`) ⚠️ Work in Progress ⚠️        |
 | TVM (`tvm`)   | AoT Executor (`tvmaot`)<br>Graph Executor (`tvmrt`)<br>Custom Codegenerator (`tvmcg`) |
 
 ## Platforms and Targets
@@ -48,22 +48,22 @@ An extensive overview of the available features in TVM is given in the following
 
 | Feature                                             | Setup              | Frontend           | Framework          | Backend            | Target             | Platform/Compile   | Other |
 |-----------------------------------------------------|--------------------|--------------------|--------------------|--------------------|--------------------|-------------------------|-------|
-| Debug Arena Usage (`debug_arena`)                   |                    |                    |                    |                    |                    | :white_check_mark: |       |
-| Validate Output Data (`validate`)                   |                    | :white_check_mark: |                    |                    |                    | :white_check_mark: |       |
-| muRISCV-NN (`muriscvnn`)                            | :white_check_mark: |                    | :white_check_mark: |                    |                    |                                    |       |
-| CMSIS-NN (`cmsisnn`)                                | :white_check_mark: |                    | :white_check_mark: |                    |                    |                                    |       |
-| CMSIS-NN + TVM BYOC (`cmsisnnbyoc`)                 |                    |                    |                    | :white_check_mark: |                    |                                    |       |
-| Fused TIling for TVM (`fusetile`)                   |                    |                    |                    | :white_check_mark: |                    |                                    |       |
-| Custom TVM meory planner (`memplan`)                |                    |                    |                    | :white_check_mark: |                    |                                    |       |
-| Unified Static Memory Planner for TVM (`usmp`)      |                    |                    |                    | :white_check_mark: |                    |                                    |       |
-| V-Extension for RISC-V (`vext`)                     | :white_check_mark: |                    |                    |                    | :white_check_mark:<br>(`spike`, `ovpsim`) |                                    |       |
-| Debug Build (`debug`)                               | :white_check_mark: |                    |                    |                    |                    |                  :white_check_mark: |       |
-| GDBServer (`gdbserver`)                             |                    |                    |                    |                    | :white_check_mark: |                                    |       |
-| Debug ETISS VP (`etissdbg`)                         |                    |                    |                    |                    | :white_check_mark:<br>(`etiss_pulpino`) |                                    |       |
-| Create Memory Trace (`trace`)                       |                    |                    |                    |                    | :white_check_mark:<br>(`etiss_pulpino`) |                                    |       |
-| Unpacked API (`unpacked_api`)                       |                    |                    |                    | :white_check_mark:<br>(`tvmaot`) |                    |                                    |       |
-| Autotune TVM Model (`autotune`)                     |                    |                    |                    | :white_check_mark: |                    |                                    |       |
-| Use TVM Tuning Records (`autotuned`)                |                    |                    |                    | :white_check_mark: |                    |                                   |       |
+| Debug Arena Usage (`debug_arena`)                   |                    |                    |                    |                    |                    | ✅ |       |
+| Validate Output Data (`validate`)                   |                    | ✅ |                    |                    |                    | ✅ |       |
+| muRISCV-NN (`muriscvnn`)                            | ✅ |                    | ✅ |                    |                    |                                    |       |
+| CMSIS-NN (`cmsisnn`)                                | ✅ |                    | ✅ |                    |                    |                                    |       |
+| CMSIS-NN + TVM BYOC (`cmsisnnbyoc`)                 |                    |                    |                    | ✅ |                    |                                    |       |
+| Fused TIling for TVM (`fusetile`)                   |                    |                    |                    | ✅ |                    |                                    |       |
+| Custom TVM meory planner (`memplan`)                |                    |                    |                    | ✅ |                    |                                    |       |
+| Unified Static Memory Planner for TVM (`usmp`)      |                    |                    |                    | ✅ |                    |                                    |       |
+| V-Extension for RISC-V (`vext`)                     | ✅ |                    |                    |                    | ✅<br>(`spike`, `ovpsim`) |                                    |       |
+| Debug Build (`debug`)                               | ✅ |                    |                    |                    |                    |                  ✅ |       |
+| GDBServer (`gdbserver`)                             |                    |                    |                    |                    | ✅ |                                    |       |
+| Debug ETISS VP (`etissdbg`)                         |                    |                    |                    |                    | ✅<br>(`etiss_pulpino`) |                                    |       |
+| Create Memory Trace (`trace`)                       |                    |                    |                    |                    | ✅<br>(`etiss_pulpino`) |                                    |       |
+| Unpacked API (`unpacked_api`)                       |                    |                    |                    | ✅<br>(`tvmaot`) |                    |                                    |       |
+| Autotune TVM Model (`autotune`)                     |                    |                    |                    | ✅ |                    |                                    |       |
+| Use TVM Tuning Records (`autotuned`)                |                    |                    |                    | ✅ |                    |                                   |       |
 
 
 ## Managed Dependencies

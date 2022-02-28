@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
@@ -339,6 +340,10 @@
 <div class="viewcode-block" id="Environment.has_target"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_target">[docs]</a>    <span class="k">def</span> <span class="nf">has_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_target_configs</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
+
+    <span class="c1"># def has_postprocess(self, name):  # TODO: actually we do not need to explicitly enable those? environment.yml list the default enabled ones instead of the supported ones in the environment</span>
+    <span class="c1">#     configs = self.lookup_postprocess_configs(postprocess=name)</span>
+    <span class="c1">#     return len(configs) &gt; 0</span>
 
 <div class="viewcode-block" id="Environment.get_default_backends"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.get_default_backends">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">framework</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">:</span>

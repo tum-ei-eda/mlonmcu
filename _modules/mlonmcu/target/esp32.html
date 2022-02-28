@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
@@ -92,6 +93,8 @@
 <span class="kn">from</span> <span class="nn">.target</span> <span class="kn">import</span> <span class="n">Target</span>
 <span class="kn">from</span> <span class="nn">.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 
+<span class="kn">from</span> <span class="nn">.elf</span> <span class="kn">import</span> <span class="n">get_results</span>
+
 
 <div class="viewcode-block" id="Esp32Target"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.esp32.Esp32Target">[docs]</a><span class="k">class</span> <span class="nc">Esp32Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
 
@@ -138,18 +141,42 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cpu_cycles</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unexpected script output (cycles)&quot;</span><span class="p">)</span>
         <span class="n">cycles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_cycles</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
-        <span class="k">return</span> <span class="n">cycles</span></div>
+        <span class="n">cpu_time_us</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Total Time: (.*) us&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cpu_cycles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unexpected script output (time_us)&quot;</span><span class="p">)</span>
+        <span class="n">time_us</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_time_us</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">time_us</span></div>
 
 <div class="viewcode-block" id="Esp32Target.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.esp32.Esp32Target.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">cycles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="n">cycles</span><span class="p">,</span> <span class="n">time_us</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
         <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total Cycles&quot;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">)</span>
-        <span class="n">static_mem</span> <span class="o">=</span> <span class="n">get_results</span><span class="p">(</span><span class="n">elf</span><span class="p">)</span></div></div>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="n">time_us</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+        <span class="n">static_mem</span> <span class="o">=</span> <span class="n">get_results</span><span class="p">(</span><span class="n">elf</span><span class="p">)</span>
+
+        <span class="n">rom_ro</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">,</span> <span class="n">rom_misc</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">,</span> <span class="n">ram_zdata</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;rom_rodata&quot;</span><span class="p">],</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;rom_code&quot;</span><span class="p">],</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;rom_misc&quot;</span><span class="p">],</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;ram_data&quot;</span><span class="p">],</span>
+            <span class="n">static_mem</span><span class="p">[</span><span class="s2">&quot;ram_zdata&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">rom_total</span> <span class="o">=</span> <span class="n">rom_ro</span> <span class="o">+</span> <span class="n">rom_code</span> <span class="o">+</span> <span class="n">rom_misc</span>
+        <span class="n">ram_total</span> <span class="o">=</span> <span class="n">ram_data</span> <span class="o">+</span> <span class="n">ram_zdata</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total ROM&quot;</span><span class="p">,</span> <span class="n">rom_total</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total RAM&quot;</span><span class="p">,</span> <span class="n">ram_total</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM read-only&quot;</span><span class="p">,</span> <span class="n">rom_ro</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM code&quot;</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM misc&quot;</span><span class="p">,</span> <span class="n">rom_misc</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM data&quot;</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM zero-init data&quot;</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metrics</span></div></div>
 </pre></div>
 
            </div>

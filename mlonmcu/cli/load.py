@@ -97,6 +97,7 @@ def _handle(context, args):
         )  # TODO: we do not yet know the backend...
         run = session.create_run(model=model, features=features, config=config)
         run.add_frontend_by_name(frontend.name, context=context)
+        run.add_postprocesses_by_name(args.postprocess, context=context)  # TODO do this before load.py?
 
 
 def handle(args, ctx=None):

@@ -14,6 +14,7 @@ from mlonmcu.models import SUPPORTED_FRONTENDS
 from mlonmcu.platform import SUPPORTED_PLATFORMS
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
+from .postprocess import SUPPORTED_POSTPROCESSES
 
 logger = get_logger()
 
@@ -207,11 +208,13 @@ class Run:
         self.target.add_platform(self.platform)
 
     def add_postprocesses_by_name(self, postprocess_names, context=None):
+        l = []
         for postprocess_name in postprocess_names:
-            assert context is not None and context.environment.has_postprocess(
-                postprocess_name
-            ), f"The postprocess '{postprocess_name}' is not enabled for this environment"
-            self.add_postprocess(self.init_component(SUPPORTED_POSTPROCESSES[postprocess_name], context=context))
+            # assert context is not None and context.environment.has_postprocess(
+            #     postprocess_name
+            # ), f"The postprocess '{postprocess_name}' is not enabled for this environment"
+            l.append(self.init_component(SUPPORTED_POSTPROCESSES[postprocess_name], context=context))
+        self.add_postprocesses(l)
 
     @property
     def export_optional(self):
@@ -252,6 +255,21 @@ class Run:
                     artifact.export(self.dir, extract=extract)
 
     def postprocess(self, context=None):  # TODO: drop context arguments?
+        """Postprocess the 'run' using the defined target."""
+        logger.debug(self.prefix + "Processing stage POSTPROCESS")
+        assert not self.active, "Parallel processing of the same run is not allowed"
+        # TODO: Extract run metrics (cycles, runtime, memory usage,...)
+        self.active = True  # TODO: move to self.set_active(stage), self.set_done(stage), self.set_failed(stage)
+        assert self.stage >= RunStage.RUN  # Alternative: allow to trigger previous stages recursively as a fallback
+
+        self.export_stage(RunStage.RUN, optional=self.export_optional)
+        self.result = None  # Artifact(f"metrics.csv", data=df, fmt=ArtifactFormat.DATAFRAME)
+
+        self.stage = max(self.stage, RunStage.POSTPROCESS)
+        self.active = False
+        raise NotImplementedError
+
+    def postprocess_report(self, context=None):  # TODO: drop context arguments?
         """Run the 'run' using the defined target."""
         logger.debug(self.prefix + "Processing stage POSTPROCESS")
         assert not self.active, "Parallel processing of the same run is not allowed"
@@ -410,7 +428,7 @@ class Run:
                 RunStage.BUILD: self.build,
                 RunStage.COMPILE: self.compile,
                 RunStage.RUN: self.run,
-                RunStage.POSTPROCESS: self.postprocess,
+                RunStage.POSTPROCESS: self.postprocess,  # Problem: we eventually also want to invoke a postprocess of a run has failed?
             }
             func = stage_funcs[stage]
             if func:
@@ -529,15 +547,8 @@ class Run:
             metrics = Metrics.from_csv(metrics_artifact.content)
         else:
             metrics = Metrics()
-        report.set(
-            [
-                {
-                    **pre,
-                    **metrics.get_data(include_optional=self.export_optional),
-                    **post,
-                }
-            ]
-        )
+        main = metrics.get_data(include_optional=self.export_optional)
+        report.set(pre=[pre], main=[main] if len(main) > 0 else [], post=[post])
         return report
 
     def export(self, path=None, optional=False):

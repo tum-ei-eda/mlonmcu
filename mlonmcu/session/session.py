@@ -18,6 +18,8 @@ from mlonmcu.session.run import Run
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
 
+from .postprocess.postprocess import SessionPostprocess
+
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 
 
@@ -74,9 +76,9 @@ class Session:
     #      pass
 
     def get_reports(self):
-        report_dfs = [run.get_report().df for run in self.runs]
+        reports = [run.get_report() for run in self.runs]
         merged = Report()
-        merged.df = pd.concat(report_dfs)
+        merged.add(reports)
         return merged
 
     def enumerate_runs(self):
@@ -258,6 +260,16 @@ class Session:
             logger.info("Summary:\n" + summary)
 
         report = self.get_reports()
+        logger.info("Postprocessing session report")
+        # Warning: currently we only support one instance of the same type of postprocess, also it will be applied to all rows!
+        session_postprocesses = []
+        for run in self.runs:
+            for postprocess in run.postprocesses:
+                if isinstance(postprocess, SessionPostprocess):
+                    if postprocess.name not in [p.name for p in session_postprocesses]:
+                        session_postprocesses.append(postprocess)
+        for postprocess in session_postprocesses:
+            postprocess.post_session(report)
         report_file = Path(self.dir) / "report.csv"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path

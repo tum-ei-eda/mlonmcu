@@ -1,38 +1,221 @@
-class PostProcess:
-    def __init__(self, name):
-        self.name = name
+import pandas as pd
+import ast
 
-    def match_rows(self, df, cols=None):
-        duplicates_map = df.duplicated(subset=cols, keep=False)
-        if cols:
-            duplicates_map = duplicates_map[cols]
-        groups = duplicates_map.groupby(list(duplicates_map)).apply(lambda x: tuple(x.index)).tolist()
-        return groups
+from .postprocess import SessionPostprocess
+
+def match_rows(df, cols):
+    groups = df.astype(str).groupby(cols).apply(lambda x: tuple(x.index)).tolist()
+    return groups
+
+class AverageCyclesPostprocess(SessionPostprocess):  # Run postprocess would be more accurate? (But what if a user also wants to average rows with NUM=1?)
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "merge_rows": False,
+    }
+    def __init__(self, features=None, config=None):
+        super().__init__("average_cycles", features=features, config=config)
+
+    @property
+    def merge_rows(self):
+        return bool(self.config["merge_rows"])
+
+    def post_session(self, report):
+        if self.merge_rows:
+            ignore_cols = ["Session", "Run", "Num", "Comment"]
+            combined_df = pd.concat([report.pre_df, report.post_df], axis=1)
+            use_cols = combined_df.columns
+            use_cols = list(filter(lambda elem: elem not in ignore_cols, use_cols))
+            groups = match_rows(combined_df, use_cols)
+            to_drop = []
+            for group in groups:
+                total_num = report.pre_df["Num"][list(group)].sum()
+                total_cycles = report.main_df["Total Cycles"][list(group)].sum()
+                avg_cycles = total_cycles / total_num
+                report.pre_df["Num"][[group[0]]] = total_num
+                report.main_df.loc[group[0], "Average Cycles"] = avg_cycles
+                to_drop.extend(list(group[1:]))
+            report.pre_df.drop(to_drop, inplace=True)
+            report.main_df.drop(to_drop, inplace=True)
+            report.post_df.drop(to_drop, inplace=True)
+            # TODO: rather make a copy of everything and only update orignal if succcessful
+            # df_new = pd.DataFrame(columns=df.columns)
+            # for group in groups:
+            #     group = list(group)
+            #     sub_df = df.iloc[group]
+            #     first = sub_df.iloc[0]
+            #     nums = sub_df["Num"]
+            #     cycles = sub_df["Cycles"]
+            #     avg_cycles = cycles / nums
+            #     first["Cycles"] = avg_cycles
+            #     df_new = pd.concat([df_new, first])
+            # df_new.drop(columns=["Num"])
+        else:
+            report.main_df["Average Cycles"] = report.main_df["Total Cycles"] / report.pre_df["Num"]
 
 
-class AverageCyclesPostprocess(PostProcess):
-    def __init__(self):
-        super().__init__("average_cycles")
+class DetailedCyclesPostprocess(SessionPostprocess):
 
-    def process(self, df):
-        groups = self.match_rows(df, cols=["Model", "Backend", "Target", "Features", "Config"])
-        df_new = pd.DataFrame(columns=df.columns)
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "warn": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("detailed_cycles", features=features, config=config)
+
+    @property
+    def warn(self):
+        return bool(self.config["warn"])
+
+
+    def get_detailed_cycles(self, low_num, low_cycles, high_num, high_cycles):
+        assert high_cycles > low_cycles
+        assert high_num > low_num
+        diff_cycles = high_cycles - low_cycles
+        diff_num = high_num - low_num
+        invoke_cycles = int(float(diff_cycles) / (diff_num))
+        setup_cycles = low_cycles - (invoke_cycles * low_num)
+        return setup_cycles, invoke_cycles
+
+    def post_session(self, report):
+        ignore_cols = ["Session", "Run", "Num", "Comment"]
+        combined_df = pd.concat([report.pre_df, report.post_df], axis=1)
+        print("combined_df", combined_df)
+        use_cols = combined_df.columns
+        use_cols = list(filter(lambda elem: elem not in ignore_cols, use_cols))
+        print("use_cols", use_cols)
+        groups = match_rows(combined_df, use_cols)
+        print("groups", groups)
+        to_drop = []
         for group in groups:
-            group = list(group)
-            sub_df = df.iloc[group]
-            first = sub_df.iloc[0]
-            nums = sub_df["Num"]
-            cycles = sub_df["Cycles"]
-            avg_cycles = cycles / nums
-            first["Cycles"] = avg_cycles
-            df_new = pd.concat([df_new, first])
-        df_new.drop(columns=["Num"])
-        return df
+            if len(group) == 1:
+                continue
+                if self.warn:
+                    logger.warning("Unable to find a suitable pair for extracting detailed cycle counts")
+            print("group", group)
+            # group_nums = report.main_df["Num"][list(group)]
+            # print("group_nums", group_nums)
+            #total_num = report.pre_df["Num"][list(group)].sum()
+            #print("total_num", total_num)
+            #total_cycles = report.main_df["Total Cycles"][list(group)].sum()
+            #print("total_cycles", total_cycles)
+            #avg_cycles = total_cycles / total_num
+            max_idx = report.pre_df["Num"][list(group)].idxmax()
+            print("max_idx", max_idx)
+            min_idx = report.pre_df["Num"][list(group)].idxmin()
+            print("min_idx", min_idx)
+            assert max_idx != min_idx
+            max_cycles = report.main_df["Total Cycles"][max_idx]
+            print("max_cycles", max_cycles)
+            min_cycles = report.main_df["Total Cycles"][min_idx]
+            print("min_cycles", min_cycles)
+            max_num = report.pre_df["Num"][max_idx]
+            print("max_cycles", max_cycles)
+            min_num = report.pre_df["Num"][min_idx]
+            print("min_cycles", min_cycles)
+            setup_cycles, invoke_cycles = self.get_detailed_cycles(min_num, min_cycles, max_num, max_cycles)
+            print("setup_cycles", setup_cycles)
+            print("invoke_cycles", invoke_cycles)
+            #report.pre_df["Num"][[group[0]]] = total_num
+            report.main_df.loc[max_idx, "Setup Cycles"] = setup_cycles
+            report.main_df.loc[max_idx, "Invoke Cycles"] = invoke_cycles
+            to_drop.extend([idx for idx in group if idx != max_idx])
+            print("to_drop", to_drop)
+        print("to_drop", to_drop)
+        report.pre_df.drop(to_drop, inplace=True)
+        report.main_df.drop(to_drop, inplace=True)
+        report.post_df.drop(to_drop, inplace=True)
+        # TODO: rather make a copy of everything and only update orignal if succcessful
+        # df_new = pd.DataFrame(columns=df.columns)
+        # for group in groups:
+        #     group = list(group)
+        #     sub_df = df.iloc[group]
+        #     first = sub_df.iloc[0]
+        #     nums = sub_df["Num"]
+        #     cycles = sub_df["Cycles"]
+        #     avg_cycles = cycles / nums
+        #     first["Cycles"] = avg_cycles
+        #     df_new = pd.concat([df_new, first])
+        # df_new.drop(columns=["Num"])
 
 
-class DetailedCyclesPostprocess(PostProcess):
-    def __init__(self):
-        super().__init__("detailed_cycles")
+class FilterColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
-    def process(self, df):
-        return NotImplementedError
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "keep": None,
+        "drop": None,
+        "drop_nan": True,
+        "drop_const": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("filter_cols", features=features, config=config)
+
+    @property
+    def keep(self):
+       cfg =  self.config["keep"]
+       if isinstance(cfg, str):
+           return ast.literal_eval(cfg)
+       return cfg
+
+    @property
+    def drop(self):
+       cfg =  self.config["drop"]
+       if isinstance(cfg, str):
+           return ast.literal_eval(cfg)
+       return cfg
+
+    @property
+    def drop_nan(self):
+       return bool(self.config["drop_nan"])
+
+    @property
+    def drop_const(self):
+       return bool(self.config["drop_const"])
+
+    def post_session(self, report):
+        def _filter_df(df, keep, drop, drop_nan=False, drop_const=False):
+            if drop_nan:
+               df.dropna(axis=1, how="all", inplace=True)
+            if drop_const:
+               df = df.loc[:, (df != df.iloc[0]).any()]
+            if not (keep is None or drop is None):
+                raise RuntimeError("'drop' and 'keep' can not be defined at the same time")
+            if keep is not None:
+                drop_cols = [name for name in df.columns if name not in keep]
+            elif drop is not None:
+                drop_cols = [name for name in df.columns if name in drop]
+            else:
+                drop_cols = []
+            return df.drop(columns=drop_cols)
+
+        report.pre_df = _filter_df(report.pre_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const)
+        report.main_df = _filter_df(report.main_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const)
+        report.post_df = _filter_df(report.post_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const)
+
+
+class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
+
+    def __init__(self, features=None, config=None):
+        super().__init__("features2cols", features=features, config=config)
+
+    def post_session(self, df):
+        pass
+
+class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
+
+    def __init__(self, features=None, config=None):
+        super().__init__("config2cols", features=features, config=config)
+
+    def post_session(self, df):
+        pass
+
+class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
+
+    def __init__(self, features=None, config=None):
+        super().__init__("bytes2kb", features=features, config=config)
+
+    def post_session(self, df):
+        pass

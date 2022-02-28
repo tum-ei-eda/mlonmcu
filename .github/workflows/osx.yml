@@ -187,9 +187,8 @@ jobs:
     # TODO: caching
     - name: Install dependencies
       run: |
-          brew install make
+          brew install make ninja cmake boost
           echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
-          brew install ninja
     - name: Initialize Virtualenv
       run: |
         python -m pip install --upgrade pip

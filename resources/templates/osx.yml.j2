@@ -25,31 +25,31 @@ paths:
 # Here default clone_urls
 repos:
   tensorflow:  # TODO: rename to tflite-micro?
-    url: "git@github.com:tensorflow/tflite-micro.git"
+    url: "https://github.com/tensorflow/tflite-micro.git"
     ref: main
   tflite_micro_compiler:
-    url: "git@github.com:PhilippvK/tflite_micro_compiler.git"
+    url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
     ref: patches
   tvm:
-    url: "git@github.com:tum-ei-eda/tvm.git"
+    url: "https://github.com/tum-ei-eda/tvm.git"
     ref: latest_patched
   utvm_staticrt_codegen:
-    url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
+    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
   etiss:
-    url: "git@github.com:tum-ei-eda/etiss.git"
+    url: "https://github.com/tum-ei-eda/etiss.git"
     ref: master
   muriscvnn:
-    url: "git@github.com:fabianpedd/muriscv_nn.git"
+    url: "https://github.com/fabianpedd/muriscv_nn.git"
     ref: main
   packer:
-    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
+    url: "https://gitlab.lrz.de/de-tum-ei-eda-esl/tflite-pack.git"
     ref: main
   spike:
-    url: "git@github.com:riscv-software-src/riscv-isa-sim.git"
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: master
   spikepk:
-    url: "git@github.com:riscv-software-src/riscv-pk.git"
+    url: "https://github.com/riscv-software-src/riscv-pk.git"
     ref: master
   cmsis:
     url: "https://github.com/ARM-software/CMSIS_5.git"
@@ -71,7 +71,7 @@ frameworks:
         features:
           debug_arena: true
     features:
-      muriscvnn: true
+      muriscvnn: false
       cmsisnn: true
   tvm:
     enabled: true

@@ -269,7 +269,11 @@ class Session:
                     if postprocess.name not in [p.name for p in session_postprocesses]:
                         session_postprocesses.append(postprocess)
         for postprocess in session_postprocesses:
-            postprocess.post_session(report)
+            artifact = postprocess.post_session(report)
+            if artifact is not None:
+                # Postprocess has an artifact: write to disk!
+                logger.debug("Writting postprocess artifact to disk: %s", artifact.name)
+                artifact.export(self.dir)
         report_file = Path(self.dir) / "report.csv"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path

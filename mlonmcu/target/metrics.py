@@ -27,7 +27,11 @@ class Metrics:
             self.optional_keys.append(name)
 
     def get_data(self, include_optional=False):
-        return {key: ast.literal_eval(value) if isinstance(value, str) else value for key, value in self.data.items() if key not in self.optional_keys or include_optional}
+        return {
+            key: ast.literal_eval(value) if isinstance(value, str) else value
+            for key, value in self.data.items()
+            if key not in self.optional_keys or include_optional
+        }
 
     def to_csv(self, include_optional=False):
         data = self.get_data(include_optional=include_optional)

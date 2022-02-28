@@ -1,18 +1,27 @@
 import pandas as pd
+import tempfile
+from pathlib import Path
+import matplotlib.pyplot as plt
+from mlonmcu.artifact import Artifact, ArtifactFormat
 import ast
 
 from .postprocess import SessionPostprocess
+
 
 def match_rows(df, cols):
     groups = df.astype(str).groupby(cols).apply(lambda x: tuple(x.index)).tolist()
     return groups
 
-class AverageCyclesPostprocess(SessionPostprocess):  # Run postprocess would be more accurate? (But what if a user also wants to average rows with NUM=1?)
+
+class AverageCyclesPostprocess(
+    SessionPostprocess
+):  # Run postprocess would be more accurate? (But what if a user also wants to average rows with NUM=1?)
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
         "merge_rows": False,
     }
+
     def __init__(self, features=None, config=None):
         super().__init__("average_cycles", features=features, config=config)
 
@@ -68,7 +77,6 @@ class DetailedCyclesPostprocess(SessionPostprocess):
     def warn(self):
         return bool(self.config["warn"])
 
-
     def get_detailed_cycles(self, low_num, low_cycles, high_num, high_cycles):
         assert high_cycles > low_cycles
         assert high_num > low_num
@@ -96,11 +104,11 @@ class DetailedCyclesPostprocess(SessionPostprocess):
             print("group", group)
             # group_nums = report.main_df["Num"][list(group)]
             # print("group_nums", group_nums)
-            #total_num = report.pre_df["Num"][list(group)].sum()
-            #print("total_num", total_num)
-            #total_cycles = report.main_df["Total Cycles"][list(group)].sum()
-            #print("total_cycles", total_cycles)
-            #avg_cycles = total_cycles / total_num
+            # total_num = report.pre_df["Num"][list(group)].sum()
+            # print("total_num", total_num)
+            # total_cycles = report.main_df["Total Cycles"][list(group)].sum()
+            # print("total_cycles", total_cycles)
+            # avg_cycles = total_cycles / total_num
             max_idx = report.pre_df["Num"][list(group)].idxmax()
             print("max_idx", max_idx)
             min_idx = report.pre_df["Num"][list(group)].idxmin()
@@ -117,7 +125,7 @@ class DetailedCyclesPostprocess(SessionPostprocess):
             setup_cycles, invoke_cycles = self.get_detailed_cycles(min_num, min_cycles, max_num, max_cycles)
             print("setup_cycles", setup_cycles)
             print("invoke_cycles", invoke_cycles)
-            #report.pre_df["Num"][[group[0]]] = total_num
+            # report.pre_df["Num"][[group[0]]] = total_num
             report.main_df.loc[max_idx, "Setup Cycles"] = setup_cycles
             report.main_df.loc[max_idx, "Invoke Cycles"] = invoke_cycles
             to_drop.extend([idx for idx in group if idx != max_idx])
@@ -146,8 +154,8 @@ class FilterColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         **SessionPostprocess.DEFAULTS,
         "keep": None,
         "drop": None,
-        "drop_nan": True,
-        "drop_const": True,
+        "drop_nan": False,
+        "drop_const": False,
     }
 
     def __init__(self, features=None, config=None):
@@ -155,32 +163,32 @@ class FilterColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
     @property
     def keep(self):
-       cfg =  self.config["keep"]
-       if isinstance(cfg, str):
-           return ast.literal_eval(cfg)
-       return cfg
+        cfg = self.config["keep"]
+        if isinstance(cfg, str):
+            return ast.literal_eval(cfg)
+        return cfg
 
     @property
     def drop(self):
-       cfg =  self.config["drop"]
-       if isinstance(cfg, str):
-           return ast.literal_eval(cfg)
-       return cfg
+        cfg = self.config["drop"]
+        if isinstance(cfg, str):
+            return ast.literal_eval(cfg)
+        return cfg
 
     @property
     def drop_nan(self):
-       return bool(self.config["drop_nan"])
+        return bool(self.config["drop_nan"])
 
     @property
     def drop_const(self):
-       return bool(self.config["drop_const"])
+        return bool(self.config["drop_const"])
 
     def post_session(self, report):
         def _filter_df(df, keep, drop, drop_nan=False, drop_const=False):
             if drop_nan:
-               df.dropna(axis=1, how="all", inplace=True)
+                df.dropna(axis=1, how="all", inplace=True)
             if drop_const:
-               df = df.loc[:, (df != df.iloc[0]).any()]
+                df = df.loc[:, (df != df.iloc[0]).any()]
             if not (keep is None or drop is None):
                 raise RuntimeError("'drop' and 'keep' can not be defined at the same time")
             if keep is not None:
@@ -191,31 +199,110 @@ class FilterColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
                 drop_cols = []
             return df.drop(columns=drop_cols)
 
-        report.pre_df = _filter_df(report.pre_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const)
-        report.main_df = _filter_df(report.main_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const)
-        report.post_df = _filter_df(report.post_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const)
+        report.pre_df = _filter_df(
+            report.pre_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const
+        )
+        report.main_df = _filter_df(
+            report.main_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const
+        )
+        report.post_df = _filter_df(
+            report.post_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const
+        )
 
 
 class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
-
     def __init__(self, features=None, config=None):
         super().__init__("features2cols", features=features, config=config)
 
-    def post_session(self, df):
-        pass
+    def post_session(self, report):
+        df = report.post_df
+        if "Features" not in df.columns:
+            return
+        feature_df = pd.concat(
+            [
+                df["Features"].apply(lambda x: pd.Series({"feature_" + feature_name: feature_name in x}))
+                for feature_name in list(set(df["Features"].sum()))
+            ],
+            axis=1,
+        )
+        tmp_df = df.drop(columns=["Features"])
+        new_df = pd.concat([tmp_df, feature_df], axis=1)
+        report.post_df = new_df
+
 
 class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
-
     def __init__(self, features=None, config=None):
         super().__init__("config2cols", features=features, config=config)
 
-    def post_session(self, df):
-        pass
+    def post_session(self, report):
+        df = report.post_df
+        if "Config" not in df.columns:
+            return
+        config_df = df["Config"].apply(pd.Series).add_prefix("config_")
+        tmp_df = df.drop(columns=["Config"])
+        new_df = pd.concat([tmp_df, config_df], axis=1)
+        report.post_df = new_df
+
 
 class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
-
     def __init__(self, features=None, config=None):
         super().__init__("bytes2kb", features=features, config=config)
 
-    def post_session(self, df):
-        pass
+    def post_session(self, report):
+        df = report.main_df
+        match_strs = ["ROM", "RAM"]
+        cols = list(
+            filter(lambda x: any(s in x for s in match_strs), df.columns)
+        )  # Only scale columns related to memory
+        cols = [col for col in cols if "kB" not in col]  # Do not scale columns with are already in kB
+
+        for col in cols:
+            df[col] = df[col] / 1000.0
+            df.rename(columns={col: col + " [kB]"}, inplace=True)
+
+        report.main_df = df
+
+
+class VisualizePostprocess(SessionPostprocess):
+    """A very simple example on how to generate a plot of the results using a postprocess."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "format": "png",
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("visualize", features=features, config=config)
+
+    @property
+    def format(self):
+        return self.config["format"]
+
+    def post_session(self, report):
+        df = pd.concat([report.pre_df, report.main_df], axis=1)
+
+        if self.format != "png":
+            raise NotImplementedError("Currently only supports PNG")
+
+        import matplotlib.pyplot as plt
+
+        COLS = ["Total Cycles", "Total ROM", "Total RAM"]
+        fig, axes = plt.subplots(ncols=len(COLS))
+        plt.rcParams["figure.figsize"] = (15, 3)  # (w, h)
+        for i, col in enumerate(COLS):
+            new_df = df[[col]].astype(float)
+            bar_names_df = (
+                df["Session"].astype(str) + "_" + df["Run"].astype(str)
+            )  # ideally we would use model/backend/target names here...
+            new_df.index = bar_names_df
+            new_df.plot(kind="bar", ax=axes[i])
+
+        data = None
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            fig_path = Path(tmpdirname) / "plot.png"
+            fig.savefig(fig_path)
+            with open(fig_path, "rb") as handle:
+                data = handle.read()
+
+        artifact = Artifact("plot.png", raw=data, fmt=ArtifactFormat.RAW)
+        return artifact

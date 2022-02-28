@@ -52,9 +52,9 @@ class Report:
         self.set_post(post)
 
     def add(self, reports):
-       if not isinstance(reports, list):
-           reports = [reports]
-       for report in reports:
-           self.pre_df = pd.concat([self.pre_df, report.pre_df], axis=0).reset_index(drop=True)
-           self.main_df = pd.concat([self.main_df, report.main_df], axis=0).reset_index(drop=True)
-           self.post_df = pd.concat([self.post_df, report.post_df], axis=0).reset_index(drop=True)
+        if not isinstance(reports, list):
+            reports = [reports]
+        for report in reports:
+            self.pre_df = pd.concat([self.pre_df, report.pre_df], axis=0).reset_index(drop=True)
+            self.main_df = pd.concat([self.main_df, report.main_df], axis=0).reset_index(drop=True)
+            self.post_df = pd.concat([self.post_df, report.post_df], axis=0).reset_index(drop=True)

@@ -513,6 +513,8 @@ class Run:
             ret.update(config_helper(self.target))
         if self.platform:
             ret.update(config_helper(self.platform))
+        for postprocess in self.postprocesses:
+            ret.update(config_helper(postprocess))
         return ret
 
     def get_report(self):

@@ -1,5 +1,6 @@
 from mlonmcu.config import filter_config
 
+
 class Postprocess:
 
     FEATURES = []
@@ -25,10 +26,11 @@ class Postprocess:
         #     feature.add_target_config(self.name, self.config)
         # return features
 
-class SessionPostprocess(Postprocess):
 
+class SessionPostprocess(Postprocess):
     def post_session(self, report):
         pass
+
 
 # TODO: support run and stage postprocesses
 # class RunPostprocess(Postprocess):
@@ -40,4 +42,3 @@ class SessionPostprocess(Postprocess):
 #
 #     def post_stage(self, stage):
 #         pass
-

@@ -87,6 +87,7 @@ def _handle(context, args):
     model_names = args.models
     config = context.environment.vars
     new_config, features = extract_config_and_init_features(args, context=context)
+    postprocesses = args.postprocess
     config.update(new_config)
     frontends = init_frontends(args.frontend, features=features, config=config, context=context)
     model_hints = lookup_models(model_names, frontends=frontends, context=context)
@@ -97,7 +98,7 @@ def _handle(context, args):
         )  # TODO: we do not yet know the backend...
         run = session.create_run(model=model, features=features, config=config)
         run.add_frontend_by_name(frontend.name, context=context)
-        run.add_postprocesses_by_name(args.postprocess, context=context)  # TODO do this before load.py?
+        run.add_postprocesses_by_name(postprocesses, context=context)  # TODO do this before load.py?
 
 
 def handle(args, ctx=None):

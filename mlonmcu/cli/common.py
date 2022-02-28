@@ -50,8 +50,7 @@ def add_flow_options(parser):
         type=str,
         metavar="POSTPROCESS",
         choices=SUPPORTED_POSTPROCESSES.keys(),
-        default=None,
-        nargs=1,
+        action="append",
         help="Choose the postprocesses to apply (choices: %(choices)s)",
     )
     flow_parser.add_argument(

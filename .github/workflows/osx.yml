@@ -170,4 +170,55 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build/html
-
+  demo:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+        template: ["osx"]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    # TODO: caching
+    - name: Install dependencies
+      run: |
+          true
+    - name: Initialize Virtualenv
+      run: |
+        python -m pip install --upgrade pip
+        python -m venv .venv
+    - name: Install dependencies
+      run: |
+        source .venv/bin/activate
+        pip install -r requirements.txt
+    - name: Run package creation
+      run: |
+        source .venv/bin/activate
+        make install
+    - name: Initialize MLonMCU environment
+      run: |
+        source .venv/bin/activate
+        mlonmcu init home/ --non-interactive --template ${{ matrix.template }} --clone-models
+    - name: Setup MLonMCU dependencies
+      run: |
+        source .venv/bin/activate
+        mlonmcu setup -H home/ -v
+    - name: Run MLonMCU flow
+      run: |
+        source .venv/bin/activate
+        mlonmcu flow run sine_model -H home/ -v
+        mlonmcu export -H home/ session.zip
+    - name: Remove dependencies (too large for artifact)
+      run: |
+        source .venv/bin/activate
+        mlonmcu cleanup -H home/ -f --deps
+    - name: Archive environment (without deps)
+      uses: actions/upload-artifact@v2
+      with:
+        name: mlonmcu_home
+        path: home/

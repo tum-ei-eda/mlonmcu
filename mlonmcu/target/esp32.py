@@ -14,6 +14,8 @@ from .common import cli, execute
 from .target import Target
 from .metrics import Metrics
 
+from .elf import get_results
+
 
 class Esp32Target(Target):
 
@@ -60,15 +62,39 @@ class Esp32Target(Target):
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")
         cycles = int(float(cpu_cycles.group(1)))
-        return cycles
+        cpu_time_us = re.search(r"Total Time: (.*) us", out)
+        if not cpu_cycles:
+            raise RuntimeError("unexpected script output (time_us)")
+        time_us = int(float(cpu_time_us.group(1)))
+        return cycles, time_us
 
     def get_metrics(self, elf, directory, verbose=False):
         if verbose:
             out = self.exec(elf, cwd=directory, live=True)
         else:
             out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
-        cycles = self.parse_stdout(out)
+        cycles, time_us = self.parse_stdout(out)
 
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
+        metrics.add("Runtime [s]", time_us / 1e6)
         static_mem = get_results(elf)
+
+        rom_ro, rom_code, rom_misc, ram_data, ram_zdata = (
+            static_mem["rom_rodata"],
+            static_mem["rom_code"],
+            static_mem["rom_misc"],
+            static_mem["ram_data"],
+            static_mem["ram_zdata"],
+        )
+        rom_total = rom_ro + rom_code + rom_misc
+        ram_total = ram_data + ram_zdata
+        metrics.add("Total ROM", rom_total)
+        metrics.add("Total RAM", ram_total)
+        metrics.add("ROM read-only", rom_ro)
+        metrics.add("ROM code", rom_code)
+        metrics.add("ROM misc", rom_misc)
+        metrics.add("RAM data", ram_data)
+        metrics.add("RAM zero-init data", ram_zdata)
+
+        return metrics

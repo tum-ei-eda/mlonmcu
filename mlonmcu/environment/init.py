@@ -71,7 +71,7 @@ def initialize_environment(
             final_name = DEFAULTS["environment"]
             has_name = True
         else:
-            final_name = "unamed"
+            final_name = "unnamed"
     if use_default_dir:
         target_dir = os.path.join(directory, final_name)
     else:
@@ -102,7 +102,8 @@ def initialize_environment(
                 print("Aborting...")
                 sys.exit(1)
         print("Using existing directory.")
-        overwrite = True
+        if has_name:  # This is a hack
+            overwrite = True
     else:
         print("The directory does not exist!", end=" - ")
         if not ask_user("Create directory?", default=True, interactive=interactive):

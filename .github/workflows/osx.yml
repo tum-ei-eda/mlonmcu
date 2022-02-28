@@ -188,6 +188,7 @@ jobs:
     - name: Install dependencies
       run: |
           brew install make
+          echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
           brew install ninja
     - name: Initialize Virtualenv
       run: |

@@ -6,170 +6,170 @@ on:
     branches:
       - macos-support
 jobs:
-  build:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        python-version: ["3.8"]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v2
-      id: cache-venv  # name for referring later
-      with:
-        path: |
-          .venv/
-          dist/
-        # The cache key depends on requirements[_dev].txt
-        key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: |
-          ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-
-    - name: Cleanup old artifacts
-      run: |
-        rm -rf .venv  # Clear venv becaus of a cache bug...  
-        make clean
-    - name: Initialize Virtualenv
-      run: |
-        python -m pip install --upgrade pip virtualenv
-        python -m venv .venv
-    - name: Install dependencies
-      run: |
-        source .venv/bin/activate
-        pip install -r requirements.txt
-        pip install wheel
-    - name: Run package creation
-      run: |
-        source .venv/bin/activate
-        make dist
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v2
-      id: cache-venv  # name for referring later
-      with:
-        path: |
-          .venv/
-          dist/
-        # The cache key depends on requirements[_dev].txt
-        key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
-        restore-keys: |
-          build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
-    - name: Archive package
-      uses: actions/upload-artifact@v2
-      with:
-        name: mlonmcu
-        path: dist/
-  coverage:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v2
-      id: cache-venv  # name for referring later
-      with:
-        path: |
-          .venv/
-          dist/
-        # The cache key depends on requirements[_dev].txt
-        key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
-        restore-keys: |
-          build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
-    - name: Initialize Virtualenv
-      run: |
-        python -m pip install --upgrade pip virtualenv
-        python -m venv .venv
-    - name: Install dependencies
-      run: |
-        source .venv/bin/activate
-        pip install -r requirements_dev.txt
-    - name: Install package into virtualenv
-      run: |
-        source .venv/bin/activate
-        make install
-    - name: Run Unit Tests and generate coverage report
-      run: |
-        source .venv/bin/activate
-        make coverage
-    - name: Archive code coverage html report
-      uses: actions/upload-artifact@v2
-      with:
-        name: code-coverage-report
-        path: htmlcov
-    - name: Get coverage percentage (WIP)
-      id: report
-      run: "##[set-output name=percent;]$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')"
-    # - name: Create coverage badge (WIP)
-    #   uses: RubbaBoy/BYOB@v1.2.1
-    #   with:
-    #     NAME: coverage
-    #     LABEL: 'Coverage'
-    #     STATUS: ${{ steps.report.outputs.percent }}
-    #     COLOR: orange
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  docs:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v2
-      id: cache-venv  # name for referring later
-      with:
-        path: |
-          .venv/
-          dist/
-        # The cache key depends on requirements[_dev].txt
-        key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
-        restore-keys: |
-          build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
-    - name: Initialize Virtualenv
-      run: |
-        python -m pip install --upgrade pip virtualenv
-        python -m venv .venv
-    - name: Install dependencies
-      run: | # TODO: get rid of if-else
-        source .venv/bin/activate
-        pip install -r requirements.txt
-        pip install -r docs/requirements.txt
-    - name: Install package into virtualenv
-      run: |
-        source .venv/bin/activate
-        make install
-    - name: Build docs
-      run: |
-        source .venv/bin/activate
-        make docs
-    - name: Deploy docs
-      uses: peaceiris/actions-gh-pages@v3
-      if: ${{ github.ref == 'refs/heads/main' }}
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/_build/html
+#   build:
+#     runs-on: macos-latest
+#     strategy:
+#       matrix:
+#         python-version: ["3.8"]
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Set up Python ${{ matrix.python-version }}
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: ${{ matrix.python-version }}
+#     - uses: actions/cache@v2
+#       id: cache-venv  # name for referring later
+#       with:
+#         path: |
+#           .venv/
+#           dist/
+#         # The cache key depends on requirements[_dev].txt
+#         key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
+#         restore-keys: |
+#           ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-
+#     - name: Cleanup old artifacts
+#       run: |
+#         rm -rf .venv  # Clear venv becaus of a cache bug...  
+#         make clean
+#     - name: Initialize Virtualenv
+#       run: |
+#         python -m pip install --upgrade pip virtualenv
+#         python -m venv .venv
+#     - name: Install dependencies
+#       run: |
+#         source .venv/bin/activate
+#         pip install -r requirements.txt
+#         pip install wheel
+#     - name: Run package creation
+#       run: |
+#         source .venv/bin/activate
+#         make dist
+#   release:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: [3.8]
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Set up Python ${{ matrix.python-version }}
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: ${{ matrix.python-version }}
+#     - uses: actions/cache@v2
+#       id: cache-venv  # name for referring later
+#       with:
+#         path: |
+#           .venv/
+#           dist/
+#         # The cache key depends on requirements[_dev].txt
+#         key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
+#         restore-keys: |
+#           build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
+#     - name: Archive package
+#       uses: actions/upload-artifact@v2
+#       with:
+#         name: mlonmcu
+#         path: dist/
+#   coverage:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: [3.8]
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Set up Python ${{ matrix.python-version }}
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: ${{ matrix.python-version }}
+#     - uses: actions/cache@v2
+#       id: cache-venv  # name for referring later
+#       with:
+#         path: |
+#           .venv/
+#           dist/
+#         # The cache key depends on requirements[_dev].txt
+#         key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
+#         restore-keys: |
+#           build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
+#     - name: Initialize Virtualenv
+#       run: |
+#         python -m pip install --upgrade pip virtualenv
+#         python -m venv .venv
+#     - name: Install dependencies
+#       run: |
+#         source .venv/bin/activate
+#         pip install -r requirements_dev.txt
+#     - name: Install package into virtualenv
+#       run: |
+#         source .venv/bin/activate
+#         make install
+#     - name: Run Unit Tests and generate coverage report
+#       run: |
+#         source .venv/bin/activate
+#         make coverage
+#     - name: Archive code coverage html report
+#       uses: actions/upload-artifact@v2
+#       with:
+#         name: code-coverage-report
+#         path: htmlcov
+#     - name: Get coverage percentage (WIP)
+#       id: report
+#       run: "##[set-output name=percent;]$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')"
+#     # - name: Create coverage badge (WIP)
+#     #   uses: RubbaBoy/BYOB@v1.2.1
+#     #   with:
+#     #     NAME: coverage
+#     #     LABEL: 'Coverage'
+#     #     STATUS: ${{ steps.report.outputs.percent }}
+#     #     COLOR: orange
+#     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#   docs:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: [3.8]
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Set up Python ${{ matrix.python-version }}
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: ${{ matrix.python-version }}
+#     - uses: actions/cache@v2
+#       id: cache-venv  # name for referring later
+#       with:
+#         path: |
+#           .venv/
+#           dist/
+#         # The cache key depends on requirements[_dev].txt
+#         key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
+#         restore-keys: |
+#           build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
+#     - name: Initialize Virtualenv
+#       run: |
+#         python -m pip install --upgrade pip virtualenv
+#         python -m venv .venv
+#     - name: Install dependencies
+#       run: | # TODO: get rid of if-else
+#         source .venv/bin/activate
+#         pip install -r requirements.txt
+#         pip install -r docs/requirements.txt
+#     - name: Install package into virtualenv
+#       run: |
+#         source .venv/bin/activate
+#         make install
+#     - name: Build docs
+#       run: |
+#         source .venv/bin/activate
+#         make docs
+#     - name: Deploy docs
+#       uses: peaceiris/actions-gh-pages@v3
+#       if: ${{ github.ref == 'refs/heads/main' }}
+#       with:
+#         github_token: ${{ secrets.GITHUB_TOKEN }}
+#         publish_dir: ./docs/_build/html
   demo:
     runs-on: macos-latest
     strategy:

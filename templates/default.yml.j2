@@ -100,6 +100,12 @@ frontends:
   onnx:
     enabled: false
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+  espidf:
+    enabled: false
 # List of supported targets in the environment
 targets:
   default: etiss_pulpino

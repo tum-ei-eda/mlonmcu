@@ -886,5 +886,7 @@ def install_corstone300(context: MlonMcuContext, params=None, rebuild=False, ver
             fvpArchive = fvpFileName + ".tgz"
             utils.download_and_extract(fvpUrl, fvpArchive, fvpInstallDir)
             fvpScript = fvpInstallDir / "FVP_Corstone_SSE-300.sh"
-            utils.exec(fvpScript, "--i-agree-to-the-contained-eula", "--no-interactive", "-d", fvpSubDir)
+            utils.exec_getout(
+                fvpScript, "--i-agree-to-the-contained-eula", "--no-interactive", "-d", fvpSubDir, print_output=False
+            )
     context.cache["corstone300.exe"] = fvpExe

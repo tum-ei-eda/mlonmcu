@@ -185,10 +185,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     # TODO: caching
-    - name: Install dependencies
+    - name: Install SW dependencies
       run: |
-          brew install make ninja cmake boost coreutils
+          brew tap riscv-software-src/riscv
+          brew install make ninja cmake boost coreutils gnu-sed install riscv-tools
           echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
+          echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
     - name: Initialize Virtualenv
       run: |
         python -m pip install --upgrade pip

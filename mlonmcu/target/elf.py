@@ -47,6 +47,7 @@ def parseElf(inFile):
         ".dynstr",
         ".dynamic",
         ".got",
+        ".data.rel.ro",
     ]
     ignorePrefixes = [
         ".gcc_except",
@@ -80,8 +81,10 @@ def parseElf(inFile):
                 ".vectors",
                 ".init_array",
                 ".fini_array",
+                ".fini",
+                ".init",
                 ".eh_frame",
-                "e.h_frame_hdr",
+                ".eh_frame_hdr",
             ]:
                 m["rom_misc"] += s.data_size
             elif s.name.endswith(".data"):

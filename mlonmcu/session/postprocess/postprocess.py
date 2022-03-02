@@ -32,13 +32,6 @@ class SessionPostprocess(Postprocess):
         pass
 
 
-# TODO: support run and stage postprocesses
-# class RunPostprocess(Postprocess):
-#
-#     def post_run(self, report):
-#         pass
-#
-# class StagePostprocess(Postprocess):
-#
-#     def post_stage(self, stage):
-#         pass
+class RunPostprocess(Postprocess):
+    def post_run(self, report):
+        pass

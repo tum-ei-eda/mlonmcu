@@ -17,6 +17,7 @@ from mlonmcu.platform import SUPPORTED_PLATFORMS
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
 from .postprocess import SUPPORTED_POSTPROCESSES
+from .postprocess.postprocess import RunPostprocess
 
 logger = get_logger()
 
@@ -450,6 +451,15 @@ class Run:
         if until < start:
             logger.debug(self.prefix + "Nothing to do")
             return self.get_report()
+
+        if start > RunStage.NOP:
+            logger.debug(
+                # self.prefix + "Processing run until stage %s: %s",
+                self.prefix + "Continuing run from stage %s until stage %s",
+                str(RunStage(start).name),
+                str(RunStage(until).name),
+                # str(self),
+            )
         else:
             logger.debug(
                 # self.prefix + "Processing run until stage %s: %s",

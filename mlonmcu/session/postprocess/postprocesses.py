@@ -5,7 +5,10 @@ import matplotlib.pyplot as plt
 from mlonmcu.artifact import Artifact, ArtifactFormat
 import ast
 
-from .postprocess import SessionPostprocess
+from .postprocess import SessionPostprocess, RunPostprocess
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 def match_rows(df, cols):
@@ -13,9 +16,7 @@ def match_rows(df, cols):
     return groups
 
 
-class AverageCyclesPostprocess(
-    SessionPostprocess
-):  # Run postprocess would be more accurate? (But what if a user also wants to average rows with NUM=1?)
+class AverageCyclesPostprocess(SessionPostprocess, RunPostprocess):
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
@@ -29,8 +30,16 @@ class AverageCyclesPostprocess(
     def merge_rows(self):
         return bool(self.config["merge_rows"])
 
+    def post_run(self, report):
+        if not self.merge_rows:
+            if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
+                return
+            report.main_df["Average Cycles"] = report.main_df["Total Cycles"] / report.pre_df["Num"]
+
     def post_session(self, report):
         if self.merge_rows:
+            if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
+                return
             ignore_cols = ["Session", "Run", "Num", "Comment"]
             combined_df = pd.concat([report.pre_df, report.post_df], axis=1)
             use_cols = combined_df.columns
@@ -47,20 +56,6 @@ class AverageCyclesPostprocess(
             report.pre_df.drop(to_drop, inplace=True)
             report.main_df.drop(to_drop, inplace=True)
             report.post_df.drop(to_drop, inplace=True)
-            # TODO: rather make a copy of everything and only update orignal if succcessful
-            # df_new = pd.DataFrame(columns=df.columns)
-            # for group in groups:
-            #     group = list(group)
-            #     sub_df = df.iloc[group]
-            #     first = sub_df.iloc[0]
-            #     nums = sub_df["Num"]
-            #     cycles = sub_df["Cycles"]
-            #     avg_cycles = cycles / nums
-            #     first["Cycles"] = avg_cycles
-            #     df_new = pd.concat([df_new, first])
-            # df_new.drop(columns=["Num"])
-        else:
-            report.main_df["Average Cycles"] = report.main_df["Total Cycles"] / report.pre_df["Num"]
 
 
 class DetailedCyclesPostprocess(SessionPostprocess):
@@ -87,68 +82,38 @@ class DetailedCyclesPostprocess(SessionPostprocess):
         return setup_cycles, invoke_cycles
 
     def post_session(self, report):
+        if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
+            if self.warn:
+                logger.warning(f"Postprocess '{self.name}' was not applied because of missing columns")
+            return
         ignore_cols = ["Session", "Run", "Num", "Comment"]
         combined_df = pd.concat([report.pre_df, report.post_df], axis=1)
-        print("combined_df", combined_df)
         use_cols = combined_df.columns
         use_cols = list(filter(lambda elem: elem not in ignore_cols, use_cols))
-        print("use_cols", use_cols)
         groups = match_rows(combined_df, use_cols)
-        print("groups", groups)
         to_drop = []
         for group in groups:
             if len(group) == 1:
                 continue
                 if self.warn:
                     logger.warning("Unable to find a suitable pair for extracting detailed cycle counts")
-            print("group", group)
-            # group_nums = report.main_df["Num"][list(group)]
-            # print("group_nums", group_nums)
-            # total_num = report.pre_df["Num"][list(group)].sum()
-            # print("total_num", total_num)
-            # total_cycles = report.main_df["Total Cycles"][list(group)].sum()
-            # print("total_cycles", total_cycles)
-            # avg_cycles = total_cycles / total_num
             max_idx = report.pre_df["Num"][list(group)].idxmax()
-            print("max_idx", max_idx)
             min_idx = report.pre_df["Num"][list(group)].idxmin()
-            print("min_idx", min_idx)
             assert max_idx != min_idx
             max_cycles = report.main_df["Total Cycles"][max_idx]
-            print("max_cycles", max_cycles)
             min_cycles = report.main_df["Total Cycles"][min_idx]
-            print("min_cycles", min_cycles)
             max_num = report.pre_df["Num"][max_idx]
-            print("max_cycles", max_cycles)
             min_num = report.pre_df["Num"][min_idx]
-            print("min_cycles", min_cycles)
             setup_cycles, invoke_cycles = self.get_detailed_cycles(min_num, min_cycles, max_num, max_cycles)
-            print("setup_cycles", setup_cycles)
-            print("invoke_cycles", invoke_cycles)
-            # report.pre_df["Num"][[group[0]]] = total_num
             report.main_df.loc[max_idx, "Setup Cycles"] = setup_cycles
             report.main_df.loc[max_idx, "Invoke Cycles"] = invoke_cycles
             to_drop.extend([idx for idx in group if idx != max_idx])
-            print("to_drop", to_drop)
-        print("to_drop", to_drop)
         report.pre_df.drop(to_drop, inplace=True)
         report.main_df.drop(to_drop, inplace=True)
         report.post_df.drop(to_drop, inplace=True)
-        # TODO: rather make a copy of everything and only update orignal if succcessful
-        # df_new = pd.DataFrame(columns=df.columns)
-        # for group in groups:
-        #     group = list(group)
-        #     sub_df = df.iloc[group]
-        #     first = sub_df.iloc[0]
-        #     nums = sub_df["Num"]
-        #     cycles = sub_df["Cycles"]
-        #     avg_cycles = cycles / nums
-        #     first["Cycles"] = avg_cycles
-        #     df_new = pd.concat([df_new, first])
-        # df_new.drop(columns=["Num"])
 
 
-class FilterColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
+class FilterColumnsPostprocess(SessionPostprocess):
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
@@ -287,6 +252,9 @@ class VisualizePostprocess(SessionPostprocess):
         import matplotlib.pyplot as plt
 
         COLS = ["Total Cycles", "Total ROM", "Total RAM"]
+        for col in COLS:
+            if col not in report.main_df.columns:
+                return
         fig, axes = plt.subplots(ncols=len(COLS))
         plt.rcParams["figure.figsize"] = (15, 3)  # (w, h)
         for i, col in enumerate(COLS):
@@ -304,5 +272,5 @@ class VisualizePostprocess(SessionPostprocess):
             with open(fig_path, "rb") as handle:
                 data = handle.read()
 
-        artifact = Artifact("plot.png", raw=data, fmt=ArtifactFormat.RAW)
-        return artifact
+        artifacts = [Artifact("plot.png", raw=data, fmt=ArtifactFormat.RAW)]
+        return artifacts

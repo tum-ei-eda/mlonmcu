@@ -187,8 +187,9 @@ jobs:
     # TODO: caching
     - name: Install SW dependencies
       run: |
-          brew tap riscv-software-src/riscv
-          brew install make ninja cmake boost coreutils gnu-sed riscv-tools
+          # brew tap riscv-software-src/riscv
+          # brew install make ninja cmake boost coreutils gnu-sed riscv-tools
+          brew install make ninja cmake boost coreutils gnu-sed dtc
           echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
           echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
     - name: Initialize Virtualenv

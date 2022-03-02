@@ -49,7 +49,7 @@ def get_parser(subparsers, parent=None):
     return parser
 
 
-def _handle(context, args):
+def _handle(args, context):
     handle_load(args, ctx=context)
     backend_names = args.backend
     if isinstance(backend_names, list) and len(backend_names) > 0:
@@ -77,8 +77,8 @@ def _handle(context, args):
 
 def handle(args, ctx=None):
     if ctx:
-        _handle(ctx, args)
+        _handle(args, ctx)
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-            _handle(context, args)
+            _handle(args, context)
             kickoff_runs(args, RunStage.BUILD, context)

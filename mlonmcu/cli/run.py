@@ -29,30 +29,6 @@ from mlonmcu.session.run import RunStage
 def add_run_options(parser):
     add_compile_options(parser)
     run_parser = parser.add_argument_group("run options")
-    run_parser.add_argument(
-        "--attach",
-        action="store_true",
-        help="Attach debugger to target (default: %(default)s)",
-    )
-    run_parser.add_argument(  # TODO: move to export?
-        "--format",
-        type=str,
-        choices=["xlsx", "xls", "csv"],
-        default="xlsx",
-        help="Report file format (default: %(default)s)",
-    )
-    run_parser.add_argument(
-        "--detailed-cycles",
-        dest="detailed",
-        action="store_true",
-        help="Split total cycles to get the actual inference time as well as setup overhead (default: %(default)s)",
-    )
-    run_parser.add_argument(
-        "--average-cycles",
-        dest="average",
-        action="store_true",
-        help="Divide resulting cycles by the number of runs (default: %(default)s)",
-    )
 
 
 def get_parser(subparsers):
@@ -80,17 +56,6 @@ def get_results(context):
 def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         check_args(context, args)
-        handle_compile(args, ctx=context)
+        handle_compile(args, context)
         kickoff_runs(args, RunStage.RUN, context)
         results = get_results(context)
-        if args.detailed:
-
-            def find_run_pairs(runs):
-                return [
-                    (a, b)
-                    for a, b in itertools.permutations(runs, 2)
-                    if a.model == b.model and a.backend == b.backend and a.num < b.num
-                ]
-
-            pairs = [(session.runs.index(a), session.runs.index(b)) for a, b in find_run_pairs(session.runs)]
-            print("pairs", pairs)

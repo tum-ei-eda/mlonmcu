@@ -44,7 +44,7 @@ def get_parser(subparsers):
     return parser
 
 
-def _handle(context, args):
+def _handle(args, context):
     handle_build(args, ctx=context)
     num = args.num if args.num else [1]
     if isinstance(args.target, list) and len(args.target) > 0:
@@ -83,8 +83,8 @@ def check_args(context, args):
 
 def handle(args, ctx=None):
     if ctx:
-        _handle(ctx, args)
+        _handle(args, ctx)
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-            _handle(context, args)
+            _handle(args, context)
             kickoff_runs(args, RunStage.COMPILE, context)

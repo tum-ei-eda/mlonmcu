@@ -83,11 +83,11 @@ def init_frontends(frontend_names, features, config, context=None):
     return frontends
 
 
-def _handle(context, args):
+def _handle(args, context):
     model_names = args.models
     config = context.environment.vars
     new_config, features = extract_config_and_init_features(args, context=context)
-    postprocesses = args.postprocess if args.postprocess is not None else []
+    postprocesses = list(set(args.postprocess)) if args.postprocess is not None else []
     config.update(new_config)
     frontends = init_frontends(args.frontend, features=features, config=config, context=context)
     model_hints = lookup_models(model_names, frontends=frontends, context=context)
@@ -103,8 +103,8 @@ def _handle(context, args):
 
 def handle(args, ctx=None):
     if ctx:
-        _handle(ctx, args)
+        _handle(args, ctx)
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-            _handle(context, args)
+            _handle(args, context)
             kickoff_runs(args, RunStage.LOAD, context)

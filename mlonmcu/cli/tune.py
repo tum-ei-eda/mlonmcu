@@ -1,4 +1,4 @@
-"""Command line subcommand for the build process."""
+"""Command line subcommand for the tune stage."""
 
 import copy
 
@@ -9,7 +9,6 @@ import mlonmcu.flow.tvm
 from mlonmcu.models.model import Model
 from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session
-from mlonmcu.cli.build import add_build_options  # Currently we do not have specific tune options
 from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,
@@ -18,8 +17,9 @@ from mlonmcu.cli.common import (
     kickoff_runs,
 )
 from mlonmcu.config import resolve_required_config
-from mlonmcu.cli.load import handle as handle_load, add_load_options
-from mlonmcu.cli.build import handle as handle_build, add_build_options
+
+# from mlonmcu.cli.load import handle as handle_load, add_load_options
+from mlonmcu.cli.build import add_build_options, handle as handle_build
 from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
 from mlonmcu.session.run import RunStage
 
@@ -39,8 +39,8 @@ def get_parser(subparsers, parent=None):
 
 def handle(args, ctx=None):
     if ctx:
-        handle_build(ctx, args)
+        handle_build(args, context)
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-            handle_build(context, args)
+            handle_build(args, context)
             kickoff_runs(args, RunStage.TUNE, context)

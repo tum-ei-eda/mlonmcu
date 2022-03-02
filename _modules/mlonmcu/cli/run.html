@@ -107,31 +107,7 @@
 
 <div class="viewcode-block" id="add_run_options"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.run.add_run_options">[docs]</a><span class="k">def</span> <span class="nf">add_run_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">add_compile_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">run_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;run options&quot;</span><span class="p">)</span>
-    <span class="n">run_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--attach&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Attach debugger to target (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">run_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>  <span class="c1"># TODO: move to export?</span>
-        <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;xlsx&quot;</span><span class="p">,</span> <span class="s2">&quot;xls&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">],</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;xlsx&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Report file format (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">run_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--detailed-cycles&quot;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;detailed&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Split total cycles to get the actual inference time as well as setup overhead (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">run_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--average-cycles&quot;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Divide resulting cycles by the number of runs (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="n">run_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;run options&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.run.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
@@ -159,20 +135,9 @@
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.run.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">check_args</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
-        <span class="n">handle_compile</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">handle_compile</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
         <span class="n">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="n">get_results</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">detailed</span><span class="p">:</span>
-
-            <span class="k">def</span> <span class="nf">find_run_pairs</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
-                <span class="k">return</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="n">b</span><span class="o">.</span><span class="n">model</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="n">b</span><span class="o">.</span><span class="n">backend</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">num</span> <span class="o">&lt;</span> <span class="n">b</span><span class="o">.</span><span class="n">num</span>
-                <span class="p">]</span>
-
-            <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">find_run_pairs</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">)]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pairs&quot;</span><span class="p">,</span> <span class="n">pairs</span><span class="p">)</span></div>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">get_results</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

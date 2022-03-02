@@ -257,6 +257,21 @@
                 <span class="n">required_flags</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">required_flags</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">flags</span></div></div>
+
+
+<div class="viewcode-block" id="RunFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.RunFeature">[docs]</a><span class="k">class</span> <span class="nc">RunFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run related feature&quot;&quot;&quot;</span>
+
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">RUN</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RunFeature.get_run_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.RunFeature.get_run_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="RunFeature.add_run_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.RunFeature.add_run_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_run_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_run_config</span><span class="p">())</span></div></div>
 </pre></div>
 
            </div>

@@ -86,14 +86,17 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.report</span> <span class="kn">import</span> <span class="n">Report</span>  <span class="c1"># TODO: move to mlonmcu.session.report</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span><span class="p">,</span> <span class="n">filter_config</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.models.lookup</span> <span class="kn">import</span> <span class="n">lookup_models</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.models</span> <span class="kn">import</span> <span class="n">SUPPORTED_FRONTENDS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.platform</span> <span class="kn">import</span> <span class="n">SUPPORTED_PLATFORMS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow</span> <span class="kn">import</span> <span class="n">SUPPORTED_FRAMEWORKS</span><span class="p">,</span> <span class="n">SUPPORTED_BACKENDS</span>
 <span class="kn">from</span> <span class="nn">.postprocess</span> <span class="kn">import</span> <span class="n">SUPPORTED_POSTPROCESSES</span>
+<span class="kn">from</span> <span class="nn">.postprocess.postprocess</span> <span class="kn">import</span> <span class="n">RunPostprocess</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -114,13 +117,14 @@
 <div class="viewcode-block" id="Run"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run">[docs]</a><span class="k">class</span> <span class="nc">Run</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;A run is single model/backend/framework/target combination with a given set of features and configs.&quot;&quot;&quot;</span>
 
-    <span class="c1"># FEATURES = []</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;export_optional&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;tune_enabled&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="c1"># REQUIRED = []</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="Run.from_file"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
@@ -156,16 +160,71 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocesses</span> <span class="o">=</span> <span class="n">postprocesses</span> <span class="k">if</span> <span class="n">postprocesses</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span>  <span class="c1"># max executed stage</span>
+        <span class="c1"># self.stage = RunStage.NOP  # max executed stage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completed</span> <span class="o">=</span> <span class="p">{</span><span class="n">stage</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">RunStage</span><span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_directory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">DEFAULTS</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">features</span> <span class="k">if</span> <span class="n">features</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_config</span> <span class="o">=</span> <span class="n">filter_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_config</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: rename to staus with enum? or MUTEX!</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">failing</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># -&gt; RunStatus</span>
+        <span class="c1"># self.lock = threading.Lock()  # FIXME: use mutex instead of boolean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locked</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Run.process_features"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.process_features">[docs]</a>    <span class="k">def</span> <span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">get_matching_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">RUN</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Incompatible feature: </span><span class="si">{</span><span class="n">feature</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">feature</span><span class="o">.</span><span class="n">add_run_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">features</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tune_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;tune_enabled&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Run.has_stage"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.has_stage">[docs]</a>    <span class="k">def</span> <span class="nf">has_stage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tune_enabled</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">stage</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocesses</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">DONE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># TODO: Throw error instead?</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">next_stage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">RunStage</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">stage</span><span class="o">.</span><span class="n">value</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">stage</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Run.lock"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.lock">[docs]</a>    <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># ret = self.lock.acquire(timeout=0)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">locked</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locked</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Run.unlock"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.unlock">[docs]</a>    <span class="k">def</span> <span class="nf">unlock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># self.lock.release()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locked</span> <span class="o">=</span> <span class="kc">False</span></div>
 
     <span class="k">def</span> <span class="nf">_init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -334,57 +393,43 @@
                     <span class="n">artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span> <span class="n">extract</span><span class="o">=</span><span class="n">extract</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Run.postprocess"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.postprocess">[docs]</a>    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># TODO: drop context arguments?</span>
-        <span class="sd">&quot;&quot;&quot;Postprocess the &#39;run&#39; using the defined target.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Postprocess the &#39;run&#39;.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage POSTPROCESS&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
-        <span class="c1"># TODO: Extract run metrics (cycles, runtime, memory usage,...)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># TODO: move to self.set_active(stage), self.set_done(stage), self.set_failed(stage)</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span>  <span class="c1"># Alternative: allow to trigger previous stages recursively as a fallback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+        <span class="c1"># assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Artifact(f&quot;metrics.csv&quot;, data=df, fmt=ArtifactFormat.DATAFRAME)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">temp_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">postprocess</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocesses</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">postprocess</span><span class="p">,</span> <span class="n">RunPostprocess</span><span class="p">):</span>
+                <span class="n">artifacts</span> <span class="o">=</span> <span class="n">postprocess</span><span class="o">.</span><span class="n">post_run</span><span class="p">(</span><span class="n">temp_report</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">artifacts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">artifacts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="n">temp_report</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
-<div class="viewcode-block" id="Run.postprocess_report"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.postprocess_report">[docs]</a>    <span class="k">def</span> <span class="nf">postprocess_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># TODO: drop context arguments?</span>
-        <span class="sd">&quot;&quot;&quot;Run the &#39;run&#39; using the defined target.&quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage POSTPROCESS&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
-        <span class="c1"># TODO: Extract run metrics (cycles, runtime, memory usage,...)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># TODO: move to self.set_active(stage), self.set_done(stage), self.set_failed(stage)</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span>  <span class="c1"># Alternative: allow to trigger previous stages recursively as a fallback</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Artifact(f&quot;metrics.csv&quot;, data=df, fmt=ArtifactFormat.DATAFRAME)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Run.run"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># TODO: drop context arguments?</span>
         <span class="sd">&quot;&quot;&quot;Run the &#39;run&#39; using the defined target.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage RUN&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># TODO: do we need self.current_stage and self.max_stage?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
         <span class="c1"># Alternative: drop artifacts of higher stages when re-triggering a lower one?</span>
 
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
         <span class="n">elf_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">generate_metrics</span><span class="p">(</span><span class="n">elf_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">artifacts</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Run.compile"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compile the target software for the run.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage COMPILE&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
         <span class="n">codegen_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span>
@@ -396,42 +441,41 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">generate_elf</span><span class="p">(</span><span class="n">codegen_dir</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="n">data_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">artifacts</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Run.build"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Process the run using the choosen backend.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage BUILD&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>  <span class="c1"># Not required anymore?</span>
         <span class="n">model_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">model_artifact</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
             <span class="n">model_artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tuner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="n">tuning_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">tuning_artifact</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
-                <span class="n">tuning_artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">set_tuning_records</span><span class="p">(</span><span class="n">tuning_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tuner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">tuning_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">tuning_artifact</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
+                    <span class="n">tuning_artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">set_tuning_records</span><span class="p">(</span><span class="n">tuning_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
         <span class="c1"># TODO: allow raw data as well as filepath in backends</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">generate_code</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">artifacts</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Run.tune"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.tune">[docs]</a>    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Tune the run using the choosen backend (if supported).&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage TUNE&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_optional</span><span class="p">)</span>
         <span class="n">model_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -450,15 +494,14 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Run.load"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load the model using the given frontend.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing stage LOAD&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Parallel processing of the same run is not allowed&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="c1"># assert self.stage &gt;= RunStage.NOP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+        <span class="c1"># assert self.completed[RunStage.NOP]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">frontend</span><span class="o">.</span><span class="n">generate_models</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
         <span class="c1"># The following is very very dirty but required to update arena sizes via model metadata...</span>
@@ -476,14 +519,18 @@
         <span class="k">if</span> <span class="n">data_artifact</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_artifact</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Run.process"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Run.process"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="p">[],</span> <span class="n">export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Process the run until a given stage.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">until</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">DONE</span><span class="p">:</span>
             <span class="n">until</span> <span class="o">=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">DONE</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># self.stage hold the max finished stage</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_stage</span>  <span class="c1"># self.stage hold the max finished stage</span>
+        <span class="k">if</span> <span class="n">until</span> <span class="o">&lt;</span> <span class="n">start</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Nothing to do&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="c1"># self.prefix + &quot;Processing run until stage %s: %s&quot;,</span>
@@ -500,14 +547,21 @@
                 <span class="c1"># str(self),</span>
             <span class="p">)</span>
         <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">until</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">skip</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Skipping stage </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">stage</span> <span class="o">&lt;</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Regenerate report if earlier stages are executed</span>
             <span class="n">stage_funcs</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span><span class="p">:</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># stage already done as self.stage shows</span>
+                <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span><span class="p">:</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># stage already done</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tune</span><span class="p">,</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">,</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span>
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">,</span>
-                <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">,</span>  <span class="c1"># Problem: we eventually also want to invoke a postprocess of a run has failed?</span>
+                <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">func</span> <span class="o">=</span> <span class="n">stage_funcs</span><span class="p">[</span><span class="n">stage</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">func</span><span class="p">:</span>
@@ -516,7 +570,8 @@
                     <span class="n">func</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">failing</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">locked</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                     <span class="n">run_stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Run failed at stage &#39;</span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&#39;, aborting...&quot;</span><span class="p">)</span>
@@ -597,6 +652,11 @@
         <span class="k">return</span> <span class="n">ret</span></div>
 
 <div class="viewcode-block" id="Run.get_report"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.get_report">[docs]</a>    <span class="k">def</span> <span class="nf">get_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">report</span>
+                <span class="p">)</span>  <span class="c1"># Use postprocessed report instead of generating a new one (TODO: find a better approach)</span>
         <span class="c1"># TODO: config or args for stuff like (session id) and run id as well as detailed features and configs</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
         <span class="n">pre</span> <span class="o">=</span> <span class="p">{}</span>
@@ -636,8 +696,10 @@
         <span class="sd">&quot;&quot;&quot;Write a run configuration to a disk.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Exporting run to disk&quot;</span><span class="p">)</span>
         <span class="c1"># TODO use proper locks instead of boolean and also lock during export!</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Can not export an active run&quot;</span>
-        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">locked</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next_stage</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">):</span>
+                <span class="k">continue</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_run_file</span><span class="p">()</span></div></div>

@@ -77,7 +77,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mlonmcu.cli.tune</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Command line subcommand for the build process.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Command line subcommand for the tune stage.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
 
@@ -88,7 +88,6 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.models.model</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">Run</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.session</span> <span class="kn">import</span> <span class="n">Session</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.build</span> <span class="kn">import</span> <span class="n">add_build_options</span>  <span class="c1"># Currently we do not have specific tune options</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_common_options</span><span class="p">,</span>
     <span class="n">add_context_options</span><span class="p">,</span>
@@ -97,8 +96,9 @@
     <span class="n">kickoff_runs</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.load</span> <span class="kn">import</span> <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_load</span><span class="p">,</span> <span class="n">add_load_options</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.build</span> <span class="kn">import</span> <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_build</span><span class="p">,</span> <span class="n">add_build_options</span>
+
+<span class="c1"># from mlonmcu.cli.load import handle as handle_load, add_load_options</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.cli.build</span> <span class="kn">import</span> <span class="n">add_build_options</span><span class="p">,</span> <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_build</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow</span> <span class="kn">import</span> <span class="n">SUPPORTED_BACKENDS</span><span class="p">,</span> <span class="n">SUPPORTED_FRAMEWORKS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">RunStage</span>
 
@@ -118,10 +118,10 @@
 
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.tune.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ctx</span><span class="p">:</span>
-        <span class="n">handle_build</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="n">handle_build</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
-            <span class="n">handle_build</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="n">handle_build</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
             <span class="n">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 </pre></div>
 

@@ -80,7 +80,8 @@ class Run:
         self.session = session
         self.postprocesses = postprocesses if postprocesses else []
         self.comment = comment
-        self.stage = RunStage.NOP  # max executed stage
+        # self.stage = RunStage.NOP  # max executed stage
+        self.completed = {stage: True if stage == RunStage.NOP else False for stage in RunStage}
 
         self._init_directory()
         self.target = target
@@ -91,8 +92,10 @@ class Run:
         self.run_features = self.process_features(features)
         self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
         self.result = None
-        self.active = False  # TODO: rename to staus with enum? or MUTEX!
         self.failing = False  # -> RunStatus
+        # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
+        self.locked = False
+        self.report = None
 
     def process_features(self, features):
         if features is None:
@@ -107,6 +110,41 @@ class Run:
     def tune_enabled(self):
         return bool(self.run_config["tune_enabled"])
 
+    def has_stage(self, stage):
+        if stage == RunStage.NOP:
+            return True
+        elif stage == RunStage.LOAD:
+            return self.model is not None and self.frontend is not None
+        elif stage == RunStage.TUNE:
+            return self.tune_enabled and self.backend is not None
+        elif stage == RunStage.BUILD:
+            return self.backend is not None and self.framework is not None
+        elif stage in [RunStage.COMPILE, RunStage.RUN]:
+            return self.target is not None and self.platform is not None
+        elif stage == RunStage.POSTPROCESS:
+            return len(self.postprocesses) > 0
+        elif stage == RunStage.DONE:
+            return False
+        else:
+            return False  # TODO: Throw error instead?
+
+    @property
+    def next_stage(self):
+        for stage in RunStage:
+            if not self.completed[stage.value]:
+                return stage
+        return None
+
+    def lock(self):
+        # ret = self.lock.acquire(timeout=0)
+        ret = not self.locked
+        self.locked = True
+        if not ret:
+            raise RuntimeError("Parallel processing of the same run is not allowed")
+
+    def unlock(self):
+        # self.lock.release()
+        self.locked = False
 
     def _init_directory(self):
         if self.session is None:
@@ -275,57 +313,43 @@ class Run:
                     artifact.export(self.dir, extract=extract)
 
     def postprocess(self, context=None):  # TODO: drop context arguments?
-        """Postprocess the 'run' using the defined target."""
+        """Postprocess the 'run'."""
         logger.debug(self.prefix + "Processing stage POSTPROCESS")
-        assert not self.active, "Parallel processing of the same run is not allowed"
-        # TODO: Extract run metrics (cycles, runtime, memory usage,...)
-        self.active = True  # TODO: move to self.set_active(stage), self.set_done(stage), self.set_failed(stage)
-        assert self.stage >= RunStage.RUN  # Alternative: allow to trigger previous stages recursively as a fallback
+        self.lock()
+        # assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback
 
-        self.export_stage(RunStage.RUN, optional=self.export_optional)
-        self.result = None  # Artifact(f"metrics.csv", data=df, fmt=ArtifactFormat.DATAFRAME)
+        self.artifacts_per_stage[RunStage.POSTPROCESS] = []
+        temp_report = self.get_report()
+        for postprocess in self.postprocesses:
+            if isinstance(postprocess, RunPostprocess):
+                artifacts = postprocess.post_run(temp_report)
+                if artifacts is not None:
+                    self.artifacts_per_stage[RunStage.POSTPROCESS].extend(artifacts)
+        self.report = temp_report
 
-        self.stage = max(self.stage, RunStage.POSTPROCESS)
-        self.active = False
-        raise NotImplementedError
-
-    def postprocess_report(self, context=None):  # TODO: drop context arguments?
-        """Run the 'run' using the defined target."""
-        logger.debug(self.prefix + "Processing stage POSTPROCESS")
-        assert not self.active, "Parallel processing of the same run is not allowed"
-        # TODO: Extract run metrics (cycles, runtime, memory usage,...)
-        self.active = True  # TODO: move to self.set_active(stage), self.set_done(stage), self.set_failed(stage)
-        assert self.stage >= RunStage.RUN  # Alternative: allow to trigger previous stages recursively as a fallback
-
-        self.export_stage(RunStage.RUN, optional=self.export_optional)
-        self.result = None  # Artifact(f"metrics.csv", data=df, fmt=ArtifactFormat.DATAFRAME)
-
-        self.stage = max(self.stage, RunStage.POSTPROCESS)
-        self.active = False
-        raise NotImplementedError
+        self.completed[RunStage.POSTPROCESS] = True
+        self.unlock()
 
     def run(self, context=None):  # TODO: drop context arguments?
         """Run the 'run' using the defined target."""
         logger.debug(self.prefix + "Processing stage RUN")
-        assert not self.active, "Parallel processing of the same run is not allowed"
-        self.active = True  # TODO: do we need self.current_stage and self.max_stage?
+        self.lock()
         # Alternative: drop artifacts of higher stages when re-triggering a lower one?
 
-        assert self.stage >= RunStage.COMPILE
+        assert self.completed[RunStage.COMPILE]
         self.export_stage(RunStage.COMPILE, optional=self.export_optional)
         elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][0]
         self.target.generate_metrics(elf_artifact.path)
         self.artifacts_per_stage[RunStage.RUN] = self.target.artifacts
 
-        self.stage = max(self.stage, RunStage.RUN)
-        self.active = False
+        self.completed[RunStage.RUN] = True
+        self.unlock()
 
     def compile(self, context=None):
         """Compile the target software for the run."""
         logger.debug(self.prefix + "Processing stage COMPILE")
-        assert not self.active, "Parallel processing of the same run is not allowed"
-        self.active = True
-        assert self.stage >= RunStage.BUILD
+        self.lock()
+        assert self.completed[RunStage.BUILD]
 
         self.export_stage(RunStage.BUILD, optional=self.export_optional)
         codegen_dir = self.dir
@@ -337,42 +361,41 @@ class Run:
         self.platform.generate_elf(codegen_dir, num=self.num, data_file=data_file)
         self.artifacts_per_stage[RunStage.COMPILE] = self.platform.artifacts
 
-        self.stage = max(self.stage, RunStage.COMPILE)
-        self.active = False
+        self.completed[RunStage.COMPILE] = True
+        self.unlock()
 
     def build(self, context=None):
         """Process the run using the choosen backend."""
         logger.debug(self.prefix + "Processing stage BUILD")
-        assert not self.active, "Parallel processing of the same run is not allowed"
-        self.active = True
-        assert self.stage >= RunStage.TUNE
+        self.lock()
+        assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
         model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
         if not model_artifact.exported:
             model_artifact.export(self.dir)
         self.backend.load_model(model=model_artifact.path)
-        self.export_stage(RunStage.TUNE, optional=self.export_optional)
-        if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
-            assert self.backend.tuner is not None
-            tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
-            if not tuning_artifact.exported:
-                tuning_artifact.export(self.dir)
-            self.backend.set_tuning_records(tuning_artifact.path)
+        if self.has_stage(RunStage.TUNE):
+            self.export_stage(RunStage.TUNE, optional=self.export_optional)
+            if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
+                assert self.backend.tuner is not None
+                tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
+                if not tuning_artifact.exported:
+                    tuning_artifact.export(self.dir)
+                self.backend.set_tuning_records(tuning_artifact.path)
 
         # TODO: allow raw data as well as filepath in backends
         self.backend.generate_code()
         self.artifacts_per_stage[RunStage.BUILD] = self.backend.artifacts
 
-        self.stage = max(self.stage, RunStage.BUILD)
-        self.active = False
+        self.completed[RunStage.BUILD] = True
+        self.unlock()
 
     def tune(self, context=None):
         """Tune the run using the choosen backend (if supported)."""
         logger.debug(self.prefix + "Processing stage TUNE")
-        assert not self.active, "Parallel processing of the same run is not allowed"
-        self.active = True
-        assert self.stage >= RunStage.LOAD
+        self.lock()
+        assert self.completed[RunStage.LOAD]
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)
         model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
@@ -391,15 +414,14 @@ class Run:
         else:
             self.artifacts_per_stage[RunStage.TUNE] = []
 
-        self.stage = max(self.stage, RunStage.TUNE)
-        self.active = False
+        self.completed[RunStage.TUNE] = True
+        self.unlock()
 
     def load(self, context=None):
         """Load the model using the given frontend."""
         logger.debug(self.prefix + "Processing stage LOAD")
-        assert not self.active, "Parallel processing of the same run is not allowed"
-        self.active = True
-        # assert self.stage >= RunStage.NOP
+        self.lock()
+        # assert self.completed[RunStage.NOP]
 
         self.frontend.generate_models(self.model)
         # The following is very very dirty but required to update arena sizes via model metadata...
@@ -417,22 +439,17 @@ class Run:
         if data_artifact:
             self.artifacts_per_stage[RunStage.LOAD].append(data_artifact)
 
-        self.stage = max(self.stage, RunStage.LOAD)
-        self.active = False
+        self.completed[RunStage.LOAD] = True
+        self.unlock()
 
-    def process(self, until=RunStage.RUN, export=False, context=None):
+    def process(self, until=RunStage.RUN, skip=[], export=False, context=None):
         """Process the run until a given stage."""
         if until == RunStage.DONE:
             until = RunStage.DONE - 1
-        start = self.stage + 1  # self.stage hold the max finished stage
-        if start > RunStage.NOP:
-            logger.debug(
-                # self.prefix + "Processing run until stage %s: %s",
-                self.prefix + "Continuing run from stage %s until stage %s",
-                str(RunStage(start).name),
-                str(RunStage(until).name),
-                # str(self),
-            )
+        start = self.next_stage  # self.stage hold the max finished stage
+        if until < start:
+            logger.debug(self.prefix + "Nothing to do")
+            return self.get_report()
         else:
             logger.debug(
                 # self.prefix + "Processing run until stage %s: %s",
@@ -441,14 +458,21 @@ class Run:
                 # str(self),
             )
         for stage in range(start, until + 1):
+            if not self.has_stage(stage):
+                continue
+            if stage in skip:
+                logger.debug(self.prefix + "Skipping stage %s", str(RunStage(stage).name))
+                continue
+            if stage < RunStage.POSTPROCESS:
+                self.report = None  # Regenerate report if earlier stages are executed
             stage_funcs = {
-                RunStage.NOP: lambda *args, **kwargs: None,  # stage already done as self.stage shows
+                RunStage.NOP: lambda *args, **kwargs: None,  # stage already done
                 RunStage.LOAD: self.load,
                 RunStage.TUNE: self.tune,
                 RunStage.BUILD: self.build,
                 RunStage.COMPILE: self.compile,
                 RunStage.RUN: self.run,
-                RunStage.POSTPROCESS: self.postprocess,  # Problem: we eventually also want to invoke a postprocess of a run has failed?
+                RunStage.POSTPROCESS: self.postprocess,
             }
             func = stage_funcs[stage]
             if func:
@@ -457,7 +481,8 @@ class Run:
                     func(context=context)
                 except Exception as e:
                     self.failing = True
-                    self.active = False
+                    if self.locked:
+                        self.unlock()
                     logger.exception(e)
                     run_stage = RunStage(stage).name
                     logger.error(self.prefix + f"Run failed at stage '{run_stage}', aborting...")
@@ -538,6 +563,11 @@ class Run:
         return ret
 
     def get_report(self):
+        if self.completed[RunStage.POSTPROCESS]:
+            if self.report is not None:
+                return (
+                    self.report
+                )  # Use postprocessed report instead of generating a new one (TODO: find a better approach)
         # TODO: config or args for stuff like (session id) and run id as well as detailed features and configs
         report = Report()
         pre = {}
@@ -577,8 +607,10 @@ class Run:
         """Write a run configuration to a disk."""
         logger.debug(self.prefix + "Exporting run to disk")
         # TODO use proper locks instead of boolean and also lock during export!
-        assert not self.active, "Can not export an active run"
-        for stage in range(self.stage):
+        assert not self.locked
+        for stage in range(self.next_stage):
+            if not self.has_stage(stage):
+                continue
             self.export_stage(stage, optional=optional)
 
         self.write_run_file()

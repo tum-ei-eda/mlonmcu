@@ -162,8 +162,8 @@ class Session:
             if pbar2:
                 pbar2.close()
 
-        def _process(run, until):
-            run.process(until=until, export=export, context=context)
+        def _process(run, until, skip):
+            run.process(until=until, skip=skip, export=export, context=context)
             if progress:
                 _update_progress()
 
@@ -180,7 +180,7 @@ class Session:
                 run = self.runs[run_index]
                 if run.failing:
                     num_failures += 1
-                    failed_stage = RunStage(run.stage + 1).name
+                    failed_stage = RunStage(run.next_stage).name
                     if failed_stage in stage_failures:
                         stage_failures[failed_stage].append(run_index)
                     else:
@@ -189,11 +189,22 @@ class Session:
                 _close_progress()
             return results
 
+        def _used_stages(runs, until):
+            used = []
+            for stage_index in list(range(RunStage.LOAD, until + 1)) + [RunStage.POSTPROCESS]:
+                stage = RunStage(stage_index)
+                if any(run.has_stage(stage) for run in runs):
+                    used.append(stage)
+            return used
+
+        used_stages = _used_stages(self.runs, until)
+        skipped_stages = [stage for stage in RunStage if stage not in used_stages]
+
         with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
             if per_stage:
                 if progress:
-                    _init_progress2(int(until + 1), msg=f"Processing stages")
-                for stage in range(until + 1):
+                    _init_progress2(len(used_stages), msg=f"Processing stages")
+                for stage in used_stages:
                     run_stage = RunStage(stage).name
                     if progress:
                         _init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
@@ -215,7 +226,7 @@ class Session:
                             logger.warning(f"Skiping stage '{run_stage}' for failed run")
                         else:
                             worker_run_idx.append(i)
-                            workers.append(executor.submit(_process, run, until=stage))
+                            workers.append(executor.submit(_process, run, until=stage, skip=skipped_stages))
                     results = _join_workers(workers)
                     workers = []
                     worker_run_idx = []
@@ -243,7 +254,7 @@ class Session:
                                 f"The chosen configuration leads to a maximum of {total_threads} being processed which heavily exceeds the available CPU resources (cpu_count). It is recommended to lower the value of 'mlif.num_threads'!"
                             )
                     worker_run_idx.append(i)
-                    workers.append(executor.submit(_process, run, until=until))
+                    workers.append(executor.submit(_process, run, until=until, skip=skipped_stages))
                 results = _join_workers(workers)
         if num_failures == 0:
             logger.info("All runs completed successfuly!")

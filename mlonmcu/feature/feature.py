@@ -178,3 +178,18 @@ class SetupFeature(FeatureBase):  # TODO: alternative: CacheFeature
                 required_flags[key].append(flags)
             else:
                 required_flags[key] = flags
+
+
+class RunFeature(FeatureBase):
+    """Run related feature"""
+
+    feature_type = FeatureType.RUN
+
+    def __init__(self, name, config=None):
+        super().__init__(name, config=config)
+
+    def get_run_config(self):
+        return {}
+
+    def add_run_config(self, config):
+        config.update(self.get_run_config())

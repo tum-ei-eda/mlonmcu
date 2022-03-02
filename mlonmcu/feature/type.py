@@ -12,3 +12,4 @@ class FeatureType(Enum):
     TARGET = 5
     # COMPILE = 6
     PLATFORM = 6
+    RUN = 7

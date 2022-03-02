@@ -8,6 +8,7 @@ from .feature import (
     FrontendFeature,
     TargetFeature,
     SetupFeature,
+    RunFeature,
     FeatureBase,
 )
 
@@ -558,7 +559,7 @@ class Autotuned(BackendFeature):
 
 
 @register_feature("autotune")
-class Autotune(BackendFeature):
+class Autotune(BackendFeature, RunFeature):
     """Use the TVM autotuner inside the backend to generate tuning logs."""
 
     DEFAULTS = {
@@ -632,6 +633,9 @@ class Autotune(BackendFeature):
                 f"{backend}.autotuning_timeout": self.timeout,
             }
         )
+
+    def get_run_config(self):
+        return {"run.tune_enabled": self.enabled}
 
 
 # Frontend features

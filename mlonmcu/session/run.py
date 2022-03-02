@@ -7,8 +7,10 @@ from enum import IntEnum
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
-from mlonmcu.config import resolve_required_config
+from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.models.lookup import lookup_models
+from mlonmcu.feature.type import FeatureType
+from mlonmcu.feature.features import get_matching_features
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.models import SUPPORTED_FRONTENDS
 from mlonmcu.platform import SUPPORTED_PLATFORMS
@@ -35,13 +37,14 @@ class RunStage(IntEnum):
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
-    # FEATURES = []
+    FEATURES = ["autotune"]
 
     DEFAULTS = {
         "export_optional": False,
+        "tune_enabled": False,
     }
 
-    # REQUIRED = []
+    REQUIRED = []
 
     @classmethod
     def from_file(cls, path):
@@ -84,9 +87,26 @@ class Run:
         self.config = Run.DEFAULTS
         self.config.update(config if config else {})
         self.features = features if features else []
+        self.run_config = config if config else {}
+        self.run_features = self.process_features(features)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
         self.result = None
         self.active = False  # TODO: rename to staus with enum? or MUTEX!
         self.failing = False  # -> RunStatus
+
+    def process_features(self, features):
+        if features is None:
+            return []
+        features = get_matching_features(features, FeatureType.RUN)
+        for feature in features:
+            assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
+            feature.add_run_config(self.run_config)
+        return features
+
+    @property
+    def tune_enabled(self):
+        return bool(self.run_config["tune_enabled"])
+
 
     def _init_directory(self):
         if self.session is None:

@@ -120,14 +120,14 @@ jobs:
     - name: Get coverage percentage (WIP)
       id: report
       run: "##[set-output name=percent;]$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')"
-    # - name: Create coverage badge (WIP)
-    #   uses: RubbaBoy/BYOB@v1.2.1
-    #   with:
-    #     NAME: coverage
-    #     LABEL: 'Coverage'
-    #     STATUS: ${{ steps.report.outputs.percent }}
-    #     COLOR: orange
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create coverage badge (WIP)
+      uses: RubbaBoy/BYOB@v1.2.1
+      with:
+        NAME: coverage
+        LABEL: 'Coverage'
+        STATUS: ${{ steps.report.outputs.percent }}
+        COLOR: orange
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   docs:
     needs: build
     runs-on: ubuntu-latest

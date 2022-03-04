@@ -119,7 +119,7 @@ jobs:
         path: htmlcov
     - name: Get coverage percentage
       id: report
-      run: "##[set-output name=percent;]$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')"
+      run: echo "::set-output name=percent::$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')"
     - name: Test coverage Text
       run: echo "|${{ steps.report.outputs.percent }}|"
     - name: Create coverage badge

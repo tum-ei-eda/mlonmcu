@@ -70,6 +70,7 @@ class TaskType(Enum):
     TARGET = 4
     FRONTEND = 5
     OPT = 6
+    FEATURE = 7
 
 
 class TaskGraph:

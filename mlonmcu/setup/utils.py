@@ -217,6 +217,25 @@ def clone(
             Repo.clone_from(url, dest, recursive=recursive)
 
 
+def apply(
+    repo_dir: Path,
+    patch_file: Path,
+):
+    """Helper function for applying a patch to a repository.
+
+    Parameters
+    ----------
+    repo_dir : Path
+        Clone directory of repository.
+    patch_file : Path
+        Path to patch file.
+    """
+
+    repo = Repo(repo_dir)
+    repo.git.clean("-xdf")  # Undo all changes
+    repo.git.apply(patch_file)
+
+
 def make(*args, threads=multiprocessing.cpu_count(), use_ninja=False, cwd=None, verbose=False, **kwargs):
     if cwd is None:
         raise RuntimeError("Please always pass a cwd to make()")

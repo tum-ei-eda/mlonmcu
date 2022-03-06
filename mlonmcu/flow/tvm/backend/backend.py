@@ -31,7 +31,7 @@ class TVMBackend(Backend):
 
     name = None
 
-    FEATURES = ["autotune", "autotuned", "cmsisnnbyoc"]
+    FEATURES = ["autotune", "autotuned", "cmsisnnbyoc", "disable_legalize"]
 
     DEFAULTS = {
         "print_outputs": False,
@@ -41,6 +41,8 @@ class TVMBackend(Backend):
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
         "use_tuning_results": False,
+        "tvmc_extra_args": [],  # Currently compile subcommand only!
+        "tvmc_custom_script": None,
         **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
@@ -106,6 +108,14 @@ class TVMBackend(Backend):
     def use_tuning_results(self):
         return bool(self.config["use_tuning_results"])
 
+    @property
+    def tvmc_extra_args(self):
+        return self.config["tvmc_extra_args"]
+
+    @property
+    def tvmc_custom_script(self):
+        return self.config["tvmc_custom_script"]
+
     def get_pass_config_tvmc_args(self):
         args = []
         for key, value in self.pass_config.items():
@@ -162,6 +172,7 @@ class TVMBackend(Backend):
                 str(self.opt_level),
                 *self.get_input_shapes_tvmc_args(),
                 *self.get_tuning_records_tvmc_args(),
+                *self.tvmc_extra_args,
                 # TODO: also set --model-format? (optional)
             ]
         )
@@ -176,7 +187,11 @@ class TVMBackend(Backend):
     def invoke_tvmc(self, command, *args, verbose=False):
         # print("invoke_tvmc", command, args, verbose)
         env = self.prepare_python_environment()
-        utils.python("-m", "tvm.driver.tvmc", command, *args, live=verbose, env=env)
+        if self.tvmc_custom_script is None:
+            pre = ["-m", "tvm.driver.tvmc"]
+        else:
+            pre = [self.tvmc_custom_script]
+        utils.python(*pre, command, *args, live=verbose, env=env)
 
     def invoke_tvmc_compile(self, out, dump=None, verbose=False):
         args = self.get_tvmc_compile_args()

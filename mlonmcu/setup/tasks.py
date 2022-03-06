@@ -19,7 +19,6 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
-import logging
 from pathlib import Path
 
 from mlonmcu.setup.task import TaskFactory, TaskType
@@ -65,7 +64,7 @@ def build_tensorflow(context: MlonMcuContext, params=None, rebuild=False, verbos
     if not params:
         params = {}
     flags = utils.makeFlags((params["dbg"], "dbg"))
-    tfName = utils.makeDirName("tf", flags=flags)
+    # tfName = utils.makeDirName("tf", flags=flags)
     tfSrcDir = context.cache["tf.src_dir"]
     tflmDir = tfSrcDir / "tensorflow" / "lite" / "micro"
     tflmBuildDir = tflmDir / "tools" / "make"
@@ -434,24 +433,42 @@ def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=F
 
 
 def _validate_tvm(context: MlonMcuContext, params=None):
+    if "patch" in params and not bool(params["patch"]):
+        if not context.environment.has_feature("disable_legalize"):
+            return False
+
     return context.environment.has_framework("tvm")
 
 
 @Tasks.provides(["tvm.src_dir"])
+@Tasks.optional(["tvm_extensions.src_dir"])
+@Tasks.validate(_validate_tvm)
+@Tasks.param("patch", [False, True])  # This is just a temporary workaround until the patch is hopefully upstreamed
 @Tasks.validate(_validate_tvm)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Clone the TVM repository."""
-    tvmName = utils.makeDirName("tvm")
+    if not params:
+        params = {}
+    patch = params["patch"]
+    flags = utils.makeFlags((patch, "patch"))
+    tvmName = utils.makeDirName("tvm", flags=flags)
     tvmSrcDir = context.environment.paths["deps"].path / "src" / tvmName
+    tvmPythonPath = tvmSrcDir / "python"
     if rebuild or not utils.is_populated(tvmSrcDir):
         tvmRepo = context.environment.repos["tvm"]
         utils.clone(tvmRepo.url, tvmSrcDir, branch=tvmRepo.ref, recursive=True)
-    context.cache["tvm.src_dir"] = tvmSrcDir
+        if patch:
+            extSrcDir = context.cache["tvm_extensions.src_dir"]
+            patchFile = extSrcDir / "tvmc_diff.patch"
+            utils.apply(tvmSrcDir, patchFile)
+
+    context.cache["tvm.src_dir", flags] = tvmSrcDir
+    context.cache["tvm.pythonpath", flags] = tvmPythonPath
 
 
 @Tasks.needs(["tvm.src_dir", "llvm.install_dir"])
-@Tasks.provides(["tvm.build_dir", "tvm.lib", "tvm.pythonpath"])
+@Tasks.provides(["tvm.build_dir", "tvm.lib"])
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_tvm)
 @Tasks.register(category=TaskType.FRAMEWORK)
@@ -464,10 +481,9 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     # FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!
     # This should help: TVM_LIBRARY_PATH -> tvm.build_dir
     tvmName = utils.makeDirName("tvm", flags=flags)
-    tvmSrcDir = context.cache["tvm.src_dir"]
+    tvmSrcDir = context.cache["tvm.src_dir", ()]  # params["patch"] does not affect the build
     tvmBuildDir = context.environment.paths["deps"].path / "build" / tvmName
     tvmLib = tvmBuildDir / "libtvm.so"
-    tvmPythonPath = tvmSrcDir / "python"
     if rebuild or not utils.is_populated(tvmBuildDir) or not tvmLib.is_file():
         ninja = False
         if context:
@@ -506,7 +522,6 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
         utils.make(cwd=tvmBuildDir, use_ninja=ninja, live=verbose)
     context.cache["tvm.build_dir", flags] = tvmBuildDir
     context.cache["tvm.lib", flags] = tvmLib
-    context.cache["tvm.pythonpath"] = tvmPythonPath
 
 
 ##########
@@ -908,3 +923,22 @@ def install_corstone300(context: MlonMcuContext, params=None, rebuild=False, ver
                 fvpScript, "--i-agree-to-the-contained-eula", "--no-interactive", "-d", fvpSubDir, print_output=False
             )
     context.cache["corstone300.exe"] = fvpExe
+
+
+def _validate_tvm_extensions(context: MlonMcuContext, params=None):
+    return _validate_tvm_extensions and context.environment.has_feature("disable_legalize")
+
+
+@Tasks.provides(["tvm_extensions.src_dir", "tvm_extensions.wrapper"])
+@Tasks.validate(_validate_tvm_extensions)
+@Tasks.register(category=TaskType.FEATURE)
+def clone_tvm_extensions(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Clone the TVM extensions repository."""
+    extName = utils.makeDirName("tvm_extensions")
+    extSrcDir = context.environment.paths["deps"].path / "src" / extName
+    extWrapper = extSrcDir / "tvmc_wrapper.py"
+    if rebuild or not utils.is_populated(extSrcDir):
+        extRepo = context.environment.repos["tvm_extensions"]
+        utils.clone(extRepo.url, extSrcDir, branch=extRepo.ref, refresh=rebuild)
+    context.cache["tvm_extensions.src_dir"] = extSrcDir
+    context.cache["tvm_extensions.wrapper"] = extWrapper

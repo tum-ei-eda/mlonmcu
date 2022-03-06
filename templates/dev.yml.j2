@@ -36,6 +36,9 @@ repos:
   utvm_staticrt_codegen:
     url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
+  tvm_extensions:
+    url: "git@github.com:tum-ei-eda/tvm_extensions.git"
+    ref: main
   etiss:
     url: "git@github.com:tum-ei-eda/etiss.git"
     ref: master
@@ -81,16 +84,19 @@ frameworks:
         enabled: true
         features:
           debug_arena: true
+          disable_legalize: true
       tvmaot:
         enabled: true
         features:
           debug_arena: true
           unpacked_api: true
           usmp: true
+          disable_legalize: true
       tvmcg:
         enabled: true
         features:
           debug_arena: true
+          disable_legalize: true
     features:
       cmsisnnbyoc: false
 # Some frontends are eperimental and therefore disabled here

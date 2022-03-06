@@ -437,6 +437,7 @@ class Memplan(FrameworkFeature):
 
     def get_framework_config(self, framework):
         assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
+        raise NotImplementedError
         return {"tvm.memplan_enable": self.enabled}
 
 
@@ -472,7 +473,7 @@ class Usmp(BackendFeature):
 
 
 @register_feature("fusetile")
-class Fusetile(FrameworkFeature):
+class Fusetile(FrameworkFeature):  # TODO: rename to MOIOPT?
     """WIP TVM feature by (@rafzi)"""
 
     def __init__(self, config=None):
@@ -480,6 +481,7 @@ class Fusetile(FrameworkFeature):
 
     def get_framework_config(self, framework):
         assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
+        raise NotImplementedError
         return {"tvm.fusetile_enable": self.enabled}
 
     # -> enable this via backend

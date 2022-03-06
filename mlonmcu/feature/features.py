@@ -90,12 +90,12 @@ class DebugArena(BackendFeature, PlatformFeature):
         # TODO: TFLM also compatible?
         return {f"{backend}.debug_arena": self.enabled}
 
-    # def get_platform_config(self):
-    #    return {"mlif.debug_arena": True}
-
-    def get_cmake_args(self):
-        val = "ON" if self.enabled else "OFF"
-        return [f"-DDEBUG_ARENA={val}"]
+    def get_platform_defs(self, platform):
+        if platform == "espidf":
+            val = "y" if self.enabled else "n"  # TODO: bool to string at later step?
+        else:
+            val = "ON" if self.enabled else "OFF"
+        return {"DEBUG_ARENA": val}
 
 
 @register_feature("validate")
@@ -122,9 +122,6 @@ class Validate(FrontendFeature, PlatformFeature):
     def get_platform_config(self, platform):
         assert platform == "mlif", f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {f"{platform}.ignore_data": False}
-
-    # def get_cmake_args(self):
-    #     pass
 
 
 @register_feature("muriscvnn")
@@ -391,7 +388,7 @@ class UnpackedApi(BackendFeature):  # TODO: should this be a feature or config o
 
 
 @register_feature("packed")
-class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature, PlatformFeature):
+class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature):
     """Sub-8-bit and sparsity feature for TFLite Micro kernels."""
 
     def __init__(self, config=None):
@@ -409,10 +406,6 @@ class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature, Pl
 
     def get_required_cache_flags(self):
         return {"tflmc.exe": ["packed"]}
-
-    def get_cmake_args(self):
-        val = "ON" if self.enabled else "OFF"
-        return [f"-DDEBUG_ARENA={val}"]
 
 
 @register_feature("packing")

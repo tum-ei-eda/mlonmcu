@@ -30,10 +30,24 @@ import psutil
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
+from mlonmcu.target import SUPPORTED_TARGETS
+from mlonmcu.target.target import Target
 
 from .platform import CompilePlatform, TargetPlatform
+from .espidf_target import create_espidf_target
 
 logger = get_logger()
+
+import pkgutil
+import os
+import pkg_resources
+
+def get_project_template(name="project"):
+    espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "platforms", "espidf"))
+    if name not in espidf_templates:
+        return None
+    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("..", "resources", "platforms", "espidf", name))
+    return fname
 
 
 class EspIdfPlatform(CompilePlatform, TargetPlatform):
@@ -45,6 +59,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         **CompilePlatform.DEFAULTS,
         **TargetPlatform.DEFAULTS,
         "project_template": None,
+        "project_dir": None,
         "port": None,
         "baud": None,
     }
@@ -52,22 +67,31 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     # REQUIRED = ["espidf.dir", "espidf.project_template"]
     REQUIRED = []  # For now just expect the user to be already in an esp-idf environment
 
-    def __init__(self, framework, backend, target, features=None, config=None, context=None):
+    # def __init__(self, framework, backend, target, features=None, config=None, context=None):
+    def __init__(self, features=None, config=None):
         super().__init__(
             "espidf",
-            framework=framework,
-            backend=backend,
-            target=target,
+            # Framework=framework,
+            # Backend=backend,
+            # Target=target,
             features=features,
             config=config,
-            context=context,
+            # context=context,
         )
         self.tempdir = None
         self.project_name = "app"
+        self.project_dir = None
+        self.idf_exe = "idf.py"
+
+    def init_directory(self, path=None, context=None):
+        if self.project_dir is not None:
+            self.project_dir.mkdir(exist_ok=True)
+            logger.debug("Project directory already initialized")
+            return
         dir_name = self.name
-        # if self.config["project_dir"]:
-        use_provided_dir = False
-        if use_provided_dir:
+        if path is not None:
+            self.project_dir = Path(path)
+        elif self.config["project_dir"] is not None:
             self.project_dir = Path(self.config["project_dir"])
         else:
             if context:
@@ -76,17 +100,29 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     context.environment.paths["temp"].path / dir_name
                 )  # TODO: Need to lock this for parallel builds
             else:
-                logger.info(
-                    "Creating temporary directory because no context was available"
+                logger.debug(
+                    "Creating temporary directory because no context was available "
                     "and 'espidf.project_dir' was not supplied"
                 )
                 self.tempdir = tempfile.TemporaryDirectory()
                 self.project_dir = Path(self.tempdir.name) / dir_name
-                logger.info("Temporary project directory: %s", self.project_dir)
-        self.idf_exe = "idf.py"
+                logger.debug("Temporary project directory: %s", self.project_dir)
+        self.project_dir.mkdir(exist_ok=True)
 
-    def set_directory(self, directory):
-        self.project_dir = directory
+    def get_supported_targets(self):
+        idfArgs = [self.idf_exe, "--list-targets"]
+        text = utils.exec_getout(*idfArgs, live=self.print_output, print_output=False)
+        target_names = text.split("\n")
+
+        return [name for name in target_names if len(name) > 0]
+
+    def create_target(self, name):
+        assert name in self.get_supported_targets(), f"{name} is not a valid ESP-IDF target"
+        if name in SUPPORTED_TARGETS:
+            base = SUPPORTED_TARGETS[name]
+        else:
+            base = Target
+        return create_espidf_target(name, self, base=base)
 
     @property
     def project_template(self):
@@ -107,27 +143,23 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     def check(self):
         if not shutil.which(self.idf_exe):
             raise RuntimeError(f"It seems like '{self.idf_exe}' is not available. Make sure to setup your environment!")
-        # try:
-        #
-        #     subprocess.run(["which", self.idf_exe], shell=True, check=True, stdout=subprocess.PIPE)
-        # except subprocess.CalledProcessError as e:
-        #     raise RuntimeError(
-        #         f"It seems like '{self.idf_exe}' is not available. Make sure to setup your environment!"
-        #     ) from e
 
     # def prepare(self, model, ignore_data=False):
-    def prepare(self, src, num=1):
+    def prepare(self, target, src, num=1):
+        self.init_directory()
         self.check()
         template_dir = self.project_template
-        assert template_dir is not None, "No espidf.project_template was provided"  # TODO: fallback to default one?
-        template_dir = Path(template_dir)
-        assert template_dir.is_dir(), f"Provided project template does not exists: {template_dir}"
-        shutil.copytree(template_dir, self.project_dir)
+        if template_dir is None:
+            template_dir = get_project_template()
+        else:
+            template_dir = Path(template_dir)
+            if not template_dir.is_dir():
+                template_dir = get_project_template(name=template_dir)
+        assert template_dir is not None, f"Provided project template does not exists: {template_dir}"
+        shutil.copytree(template_dir, self.project_dir, dirs_exist_ok=True)
 
         def write_defaults(filename):
-            defs = {}
-            self.framework.add_espidf_defs(defs)
-            self.backend.add_espidf_defs(defs)
+            defs = self.definitions
             with open(filename, "w", encoding="utf-8") as f:
                 f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")
                 if self.debug:
@@ -144,13 +176,13 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 watchdog_sec = 60
                 f.write(f"CONFIG_ESP_TASK_WDT_TIMEOUT_S={watchdog_sec}\n")
                 f.write(f'CONFIG_MLONMCU_CODEGEN_DIR="{src}"\n')
-                framework_upper = self.framework.name.upper()
-                f.write(f"CONFIG_MLONMCU_FRAMEWORK_{framework_upper}=y\n")
-                backend_upper = self.backend.name.upper()
-                f.write(f"CONFIG_MLONMCU_BACKEND_{backend_upper}=y\n")
                 f.write(f"CONFIG_MLONMCU_NUM_RUNS={num}\n")
                 for key, value in defs.items():
-                    f.write(f'CONFIG_{key}="{value}"\n')
+                    if isinstance(value, bool):
+                        value = 'y' if value else 'n'
+                    else:
+                        value = f'"{value}"'
+                    f.write(f'CONFIG_{key}={value}\n')
 
         write_defaults(self.project_dir / "sdkconfig.defaults")
         idfArgs = [
@@ -158,7 +190,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             "-C",
             self.project_dir,
             "set-target",
-            self.target.name,
+            target.name,
         ]
         utils.exec_getout(*idfArgs, live=self.print_output)
 
@@ -166,9 +198,9 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
         return [f"-D{key}={value}" for key, value in cmake_defs.items()]
 
-    def compile(self, src=None, num=1):
+    def compile(self, target, src=None, num=1):
         # TODO: build with cmake options
-        self.prepare(src, num=num)
+        self.prepare(target, src, num=num)
         # TODO: support self.num_threads (e.g. patch esp-idf)
         idfArgs = [
             self.idf_exe,
@@ -179,11 +211,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         ]
         utils.exec_getout(*idfArgs, live=self.print_output)
 
-    def generate_elf(self, src=None, model=None, num=1, data_file=None):
+    def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         artifacts = []
         if num > 1:
             raise NotImplementedError
-        self.compile(src=src, num=num)
+        self.compile(target, src=src, num=num)
         elf_name = self.project_name + ".elf"
         elf_file = self.project_dir / "build" / elf_name
         # TODO: just use path instead of raw data?
@@ -206,10 +238,10 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             args.extend(["-b", self.baud])
         return args
 
-    def flash(self, timeout=120):
+    def flash(self, target, timeout=120):
         # TODO: implement timeout
         # TODO: make sure that already compiled? -> error or just call compile routine?
-        input(f"Make sure that the device '{self.target.name}' is connected before you press Enter")
+        input(f"Make sure that the device '{target.name}' is connected before you press Enter")
         idfArgs = [
             self.idf_exe,
             "-C",
@@ -220,7 +252,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         ]
         utils.exec_getout(*idfArgs, live=self.print_output)
 
-    def monitor(self, timeout=60):
+    def monitor(self, target, timeout=60):
         def _kill_monitor():
 
             for proc in psutil.process_iter():

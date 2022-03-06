@@ -18,13 +18,9 @@
 #
 """MLonMCU platform submodule"""
 
-from .mlif import MlifPlatform
-from .espidf import EspIdfPlatform
+# pylint: disable=wildcard-import, redefined-builtin
 
-# from .arduino import ArduinoPlatform
+from .platform import register_platform, get_platforms
+from . import _platform
 
-SUPPORTED_PLATFORMS = {
-    "mlif": MlifPlatform,
-    "espidf": EspIdfPlatform,
-    # "arduino": ArduinoPlatform,
-}
+__all__ = ["register_platform", "get_platforms", "_platform"]

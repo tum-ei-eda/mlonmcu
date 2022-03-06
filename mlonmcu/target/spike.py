@@ -46,8 +46,8 @@ class SpikeTarget(RISCVTarget):
     }
     REQUIRED = RISCVTarget.REQUIRED + ["spike.exe", "spike.pk"]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__("spike", features=features, config=config, context=context)
+    def __init__(self, name="spike", features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     @property
     def spike_exe(self):

@@ -21,7 +21,6 @@
 from functools import wraps
 import itertools
 from enum import Enum
-import logging
 import time
 from typing import List, Tuple
 import networkx as nx
@@ -71,6 +70,7 @@ class TaskType(Enum):
     FRONTEND = 5
     OPT = 6
     FEATURE = 7
+    PLATFORM = 8
 
 
 class TaskGraph:

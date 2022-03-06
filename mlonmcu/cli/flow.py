@@ -22,6 +22,8 @@ import sys
 
 import multiprocessing
 
+import mlonmcu.context
+import mlonmcu.platform.lookup
 import mlonmcu.cli.load as load
 import mlonmcu.cli.tune as tune
 import mlonmcu.cli.build as build
@@ -29,7 +31,7 @@ import mlonmcu.cli.compile as compile_  # compile is a builtin name
 import mlonmcu.cli.debug as debug
 import mlonmcu.cli.test as test
 import mlonmcu.cli.run as run
-from mlonmcu.cli.common import add_flow_options, add_common_options
+from mlonmcu.cli.common import add_flow_options, add_common_options, add_context_options
 
 # from .trace import get_trace_parser
 
@@ -44,6 +46,7 @@ def get_parser(subparsers, parent=None):
     )
     parser.set_defaults(func=handle)
     add_common_options(parser)
+    add_context_options(parser)
     add_flow_options(parser)
     subparsers = parser.add_subparsers(dest="subcommand2")  # this line changed
     load_parser = load.get_parser(subparsers)
@@ -55,10 +58,18 @@ def get_parser(subparsers, parent=None):
     test_parser = test.get_parser(subparsers)
 
 
+def handle_list_targets(args):
+    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+        mlonmcu.platform.lookup.print_summary(context=context)
+
+
 def handle(args):
     """Callback function which will be called to process the flow subcommand"""
-    if hasattr(args, "flow_func"):
-        args.flow_func(args)
+    if args.list_targets:
+        handle_list_targets(args)
     else:
-        print("Invalid command. Check 'mlonmcu flow --help' for the available subcommands!")
-        sys.exit(1)
+        if hasattr(args, "flow_func"):
+            args.flow_func(args)
+        else:
+            print("Invalid command. Check 'mlonmcu flow --help' for the available subcommands!")
+            sys.exit(1)

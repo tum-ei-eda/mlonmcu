@@ -53,8 +53,8 @@ class Corstone300Target(Target):
         "arm_gcc.install_dir",
     ]  # Actually cmsisnn.dir points to the root CMSIS_5 directory
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__("corstone300", features=features, config=config, context=context)
+    def __init__(self, name="corstone300", features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     @property
     def enable_ethosu(self):
@@ -171,10 +171,10 @@ class Corstone300Target(Target):
 
         return metrics
 
-    def get_cmake_args(self):
-        ret = super().get_cmake_args()
-        ret.append(f"-DCMSIS_PATH={self.cmsisnn_dir}")
-        ret.append(f"-DARM_COMPILER_PREFIX={self.gcc_prefix}")
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        ret["CMSIS_PATH"] = self.cmsisnn_dir
+        ret["ARM_COMPILER_PREFIX"] = self.gcc_prefix
         return ret
 
     def get_arch(self):

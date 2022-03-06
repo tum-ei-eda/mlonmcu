@@ -39,8 +39,8 @@ class HostX86Target(Target):
         "gdbserver_port": 2222,
     }
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__("host_x86", features=features, config=config, context=context)
+    def __init__(self, name="host_x86", features=None, config=None):
+        super().__init__(name, features=features, config=config)
         self.gdb_path = "gdb"
         self.gdb_server_path = "gdbserver"
 

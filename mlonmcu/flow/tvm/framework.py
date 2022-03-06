@@ -55,18 +55,15 @@ class TVMFramework(Framework):
     def extra_libs(self):
         return self.config["extra_libs"]
 
-    def get_cmake_args(self):
-        args = super().get_cmake_args()
-        if self.extra_incs:
-            temp = "\;".join(self.extra_incs)
-            args.append(f"-DTVM_EXTRA_INCS={temp}")
-        if self.extra_libs:
-            temp = "\;".join(self.extra_libs)
-            args.append(f"-DTVM_EXTRA_LIBS={temp}")
-        return args + ["-DTVM_SRC=" + str(self.tvm_src)]  # TODO: change
-
-    # TODO: get_cmake_args -> get_plaform_vars (dict instead of list of strings)
-    def get_espidf_defs(self):
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
         if self.extra_incs or self.extra_libs:
-            raise NotImplementedError("Extra incs or libs are currently not supported for esp-idf")
-        return {"TVM_DIR": str(self.tvm_src)}
+            assert platform == "mlif", "Extra incs or libs are only supported by 'mlif' platform"
+            if self.extra_incs:
+                temp = r"\;".join(self.extra_incs)
+                ret["TVM_EXTRA_INCS"] = temp
+            if self.extra_libs:
+                temp = r"\;".join(self.extra_libs)
+                ret["TVM_EXTRA_LIBS"] = temp
+        ret["TVM_DIR"] = str(self.tvm_src)
+        return ret

@@ -161,13 +161,11 @@ class PlatformFeature(FeatureBase):
     def add_platform_config(self, platform, config):
         config.update(self.get_platform_config(platform))
 
-    def get_cmake_args(self):
-        return []
+    def get_platform_defs(self, platform):
+        return {}
 
-    def add_cmake_args(self, args):
-        args += self.get_cmake_args()
-
-    # TODO: alternative mlif.cmake_args appenden?
+    def add_platform_defs(self, platform, defs):
+        defs.update(self.get_platform_defs(platform))
 
 
 class SetupFeature(FeatureBase):  # TODO: alternative: CacheFeature

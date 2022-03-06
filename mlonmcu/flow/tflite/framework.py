@@ -60,21 +60,16 @@ class TFLiteFramework(Framework):
     def optimized_kernel_inc_dirs(self):
         return self.config["optimized_kernel_inc_dirs"]
 
-    def get_cmake_args(self):
-        args = super().get_cmake_args()
-        args.append(f"-DTF_SRC={self.tf_src}")
-        if self.optimized_kernel:
-            args.append(f"-DTFLM_OPTIMIZED_KERNEL={self.optimized_kernel}")
-        if self.optimized_kernel_inc_dirs:
-            temp = "\;".join(self.optimized_kernel_inc_dirs)
-            args.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={temp}")
-        if self.optimized_kernel_libs:
-            temp = "\;".join(self.optimized_kernel_libs)
-            args.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={temp}")
-        return args
-
-    # TODO: get_cmake_args -> get_plaform_vars (dict instead of list of strings)
-    def get_espidf_defs(self):
-        if self.extra_incs or self.extra_libs:
-            raise NotImplementedError("Extra incs or libs are currently not supported for esp-idf")
-        return {"TF_DIR": str(self.tf_src)}
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if self.optimized_kernel or self.optimized_kernel_inc_dirs or self.optimized_kernel_libs:
+            if self.optimized_kernel:
+                ret["TFLM_OPTIMIZED_KERNEL"] = self.optimized_kernel
+            if self.optimized_kernel_inc_dirs:
+                temp = "\;".join(self.optimized_kernel_inc_dirs)
+                ret["TFLM_OPTIMIZED_KERNEL_INCLUDE_DIR"] = temp
+            if self.optimized_kernel_libs:
+                temp = "\;".join(self.optimized_kernel_libs)
+                ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
+        ret["TF_DIR"] = str(self.tf_src)
+        return ret

@@ -50,8 +50,8 @@ class OVPSimTarget(RISCVTarget):
     }
     REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__("ovpsim", features=features, config=config, context=context)
+    def __init__(self, name="ovpsim", features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     @property
     def ovpsim_exe(self):

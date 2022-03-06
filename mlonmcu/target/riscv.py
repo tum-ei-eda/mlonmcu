@@ -73,12 +73,12 @@ class RISCVTarget(Target):
     def get_target_system(self):
         return "generic_riscv"
 
-    def get_cmake_args(self):
-        ret = super().get_cmake_args()
-        ret.append(f"-DRISCV_ELF_GCC_PREFIX={self.riscv_prefix}")
-        ret.append(f"-DRISCV_ELF_GCC_BASENAME={self.riscv_basename}")
-        ret.append(f"-DRISCV_ARCH={self.arch}")
-        ret.append(f"-DRISCV_ABI={self.abi}")
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_prefix
+        ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_basename
+        ret["RISCV_ARCH"] = self.arch
+        ret["RISCV_ABI"] = self.abi
         return ret
 
     def get_arch(self):

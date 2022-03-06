@@ -23,5 +23,3 @@ __email__ = "philipp.van-kempen@tum.de"
 
 from mlonmcu.version import __version__
 
-# import mlonmcu.cli
-# import mlonmcu.config

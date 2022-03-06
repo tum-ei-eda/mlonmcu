@@ -427,7 +427,7 @@ class Run:
         if self.backend.tuner is not None:
             res = self.backend.tuner.get_results()
             if res:
-                self.artifacts_per_stage[RunStage.TUNE] = [res]
+                self.artifacts_per_stage[RunStage.TUNE] = res
             else:
                 self.artifacts_per_stage[RunStage.TUNE] = []
         else:

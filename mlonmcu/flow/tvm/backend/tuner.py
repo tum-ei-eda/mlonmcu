@@ -142,10 +142,31 @@ class TVMTuner:
         )
         return args
 
-    def invoke_tvmc_tune(self, out, dump=None, verbose=False):
+    def invoke_tvmc_tune(self, out, verbose=False):
         args = self.get_tvmc_tune_args()
         args.extend(["--output", str(out)])
         self.backend.invoke_tvmc("tune", *args, verbose=verbose)
+
+    def pick_best(self, records, verbose=False):
+        content_best = ""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            in_file = Path(tmp_dir) / "tuning_results.log.txt"
+            with open(in_file, "w") as handle:
+                handle.write(records)
+            out_file = Path(tmp_dir) / "best_tuning_results.log.txt"
+            args = [
+                "--mode",
+                "pick",
+                "--i",
+                in_file,
+                "--o",
+                out_file,
+            ]
+            env = self.backend.prepare_python_environment()
+            utils.python("-m", "tvm.autotvm.record", *args, live=verbose, env=env)
+            with open(out_file, "r") as handle:
+                content_best = handle.read()
+        return content_best
 
     def start_rpc_tracker(self, verbose=False):
         assert self.tracker is None
@@ -215,6 +236,7 @@ class TVMTuner:
         self.shutdown_rpc_tracker()
 
     def tune(self, verbose=False):
+        artifacts = []
         if self.print_outputs:
             verbose = True
 
@@ -252,9 +274,16 @@ class TVMTuner:
                 content = handle.read()
 
         artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
+        artifacts.append(artifact)
 
-        self.artifact = artifact
+        # pick best records
+        content_best = self.pick_best(content, verbose=verbose)
+        if len(content_best) > 0:
+            artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
+            artifacts.append(artifact_)
+
+        self.artifacts = artifacts
 
     def get_results(self):
         # assert self.artifact is not None
-        return self.artifact
+        return self.artifacts

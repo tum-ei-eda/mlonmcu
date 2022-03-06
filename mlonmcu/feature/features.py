@@ -428,35 +428,6 @@ class Packing(FrontendFeature):
         return {f"{frontend}.pack_weights": self.enabled}
 
 
-@register_feature("fallback")
-class Fallback(FrameworkFeature, PlatformFeature):
-    """(Unimplemented) TFLite Fallback for unsupported and custom operators in TVM."""
-
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "config_file": None,
-    }
-
-    def __init__(self, config=None):
-        super().__init__("fallback", config=config)
-
-    @property
-    def config_file(self):
-        return str(self.config["config_file"]) if "config_file" in self.config else None
-
-    def get_framework_config(self, framework):
-        assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
-        raise NotImplementedError
-        return filter_none(
-            {
-                f"{framework}.fallback_enable": self.enabled,
-                f"{framework}.fallback_config_file": self.config_file,
-            }
-        )
-
-    # -> hard to model..., preprocess for tflmc?
-
-
 @register_feature("memplan")
 class Memplan(FrameworkFeature):
     """Custom TVM memory planning feature by (@rafzi)"""

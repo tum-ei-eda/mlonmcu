@@ -10,6 +10,7 @@ jobs:
   build:
     name: Create Release
     runs-on: ubuntu-latest
+    if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

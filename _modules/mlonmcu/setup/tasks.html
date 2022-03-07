@@ -512,7 +512,7 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s2">&quot;patch&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="s2">&quot;patch&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">]):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
 
@@ -1005,7 +1005,7 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_tvm_extensions</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">_validate_tvm_extensions</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="clone_tvm_extensions"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.clone_tvm_extensions">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tvm_extensions.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm_extensions.wrapper&quot;</span><span class="p">])</span>

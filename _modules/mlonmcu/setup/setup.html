@@ -150,7 +150,7 @@
             <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
                 <span class="n">full_path</span> <span class="o">=</span> <span class="n">deps_dir</span> <span class="o">/</span> <span class="n">subdir</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing contents of </span><span class="si">{</span><span class="n">full_path</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">)</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">full_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Setup.process_features"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.process_features">[docs]</a>    <span class="k">def</span> <span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>

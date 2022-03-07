@@ -151,9 +151,9 @@ class Run:
     @property
     def next_stage(self):
         for stage in RunStage:
-            if not self.completed[stage.value]:
+            if not self.completed[stage.value] and self.has_stage(stage):
                 return stage
-        return None
+        return RunStage.DONE
 
     def lock(self):
         # ret = self.lock.acquire(timeout=0)

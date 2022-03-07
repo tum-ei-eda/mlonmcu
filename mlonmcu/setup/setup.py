@@ -71,7 +71,7 @@ class Setup:
             for subdir in subdirs:
                 full_path = deps_dir / subdir
                 print(f"Removing contents of {full_path} ...")
-                shutil.rmtree(full_path)
+                shutil.rmtree(full_path, ignore_errors=True)
                 full_path.mkdir(exist_ok=True)
 
     def process_features(self, features):

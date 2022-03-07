@@ -433,7 +433,7 @@ def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=F
 
 
 def _validate_tvm(context: MlonMcuContext, params=None):
-    if "patch" in params and not bool(params["patch"]):
+    if "patch" in params and bool(params["patch"]):
         if not context.environment.has_feature("disable_legalize"):
             return False
 
@@ -926,7 +926,7 @@ def install_corstone300(context: MlonMcuContext, params=None, rebuild=False, ver
 
 
 def _validate_tvm_extensions(context: MlonMcuContext, params=None):
-    return _validate_tvm_extensions and context.environment.has_feature("disable_legalize")
+    return _validate_tvm(context) and context.environment.has_feature("disable_legalize")
 
 
 @Tasks.provides(["tvm_extensions.src_dir", "tvm_extensions.wrapper"])

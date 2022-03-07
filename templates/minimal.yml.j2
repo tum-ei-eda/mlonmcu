@@ -70,26 +70,23 @@ frameworks:
       muriscvnn: false
       cmsisnn: false
   tvm:
-    enabled: true
+    enabled: false
     backends:
       default: tvmaot
       tvmrt:
         enabled: true
         features:
           debug_arena: true
-          disable_legalize: true
       tvmaot:
         enabled: true
         features:
           debug_arena: true
           unpacked_api: true
           usmp: false
-          disable_legalize: true
       tvmcg:
         enabled: false
         features:
           debug_arena: true
-          disable_legalize: true
     features:
       cmsisnnbyoc: false
 # Some frontends are eperimental and therefore disabled here

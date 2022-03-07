@@ -20,6 +20,7 @@ import tempfile
 from pathlib import Path
 import os
 import copy
+import numpy as np
 from enum import IntEnum
 
 from mlonmcu.logging import get_logger
@@ -629,7 +630,7 @@ class Run:
         else:
             metrics = Metrics()
         main = metrics.get_data(include_optional=self.export_optional)
-        report.set(pre=[pre], main=[main] if len(main) > 0 else [], post=[post])
+        report.set(pre=[pre], main=[main] if len(main) > 0 else {"Incomplete": [True]}, post=[post])
         return report
 
     def export(self, path=None, optional=False):

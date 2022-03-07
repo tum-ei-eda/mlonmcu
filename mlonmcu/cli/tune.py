@@ -59,6 +59,8 @@ def handle(args, ctx=None):
     if ctx:
         handle_build(args, context)
     else:
+        args.features.append("autotune")  # TODO: enable autotuning automatically?
+        # args.features.append("autotuned")  # ?
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
             handle_build(args, context)
             kickoff_runs(args, RunStage.TUNE, context)

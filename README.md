@@ -1,17 +1,20 @@
 # ML on MCU
 
-[![](https://img.shields.io/pypi/v/mlonmcu.svg)](https://pypi.python.org/pypi/mlonmcu)
-[![](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
-[![](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
-![](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-[![made-with-sphinx-doc](https://img.shields.io/badge/Made%20with-Sphinx-1f425f.svg)](https://www.sphinx-doc.org/)
+[![pypi package](https://badge.fury.io/py/mlonmcu.svg)](https://pypi.org/project/mlonmcu)
+[![readthedocs](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
+![covergae](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
 [![GitHub license](https://img.shields.io/github/license/tum-ei-eda/mlonmcu.svg)](https://github.com/tum-ei-eda/mlonmcu/blob/main/LICENSE)
+
+[![cicd workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
+[![demo workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml)
+[![container workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml)
+[![bench workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml)
 
 This project contains research code related to the deployment of inference or learning applications on tiny micro-controllers.
 
 
-* Free software: MIT license
+* Free software: Apache License, Version 2.0
+* Python Package: https://pypi.org/project/mlonmcu/
 * Documentation: https://mlonmcu.readthedocs.io.
 
 

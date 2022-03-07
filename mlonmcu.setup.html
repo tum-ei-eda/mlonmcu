@@ -339,6 +339,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.FEATURE">
+<span class="sig-name descname"><span class="pre">FEATURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.FEATURE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.setup.task.TaskType.FRAMEWORK">
 <span class="sig-name descname"><span class="pre">FRAMEWORK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#mlonmcu.setup.task.TaskType.FRAMEWORK" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -507,6 +512,12 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.tasks.clone_tvm_extensions">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">clone_tvm_extensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#clone_tvm_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.clone_tvm_extensions" title="Permalink to this definition"></a></dt>
+<dd><p>Clone the TVM extensions repository.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.setup.tasks.clone_utvm_staticrt_codegen">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.tasks.</span></span><span class="sig-name descname"><span class="pre">clone_utvm_staticrt_codegen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.html#mlonmcu.context.MlonMcuContext" title="mlonmcu.context.MlonMcuContext"><span class="pre">mlonmcu.context.MlonMcuContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/tasks.html#clone_utvm_staticrt_codegen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.tasks.clone_utvm_staticrt_codegen" title="Permalink to this definition"></a></dt>
 <dd><p>Clone the uTVM code generator.</p>
@@ -545,6 +556,22 @@
 </section>
 <section id="module-mlonmcu.setup.utils">
 <span id="mlonmcu-setup-utils-module"></span><h2>mlonmcu.setup.utils module<a class="headerlink" href="#module-mlonmcu.setup.utils" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.apply">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.apply" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function for applying a patch to a repository.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>repo_dir</strong><span class="classifier">Path</span></dt><dd><p>Clone directory of repository.</p>
+</dd>
+<dt><strong>patch_file</strong><span class="classifier">Path</span></dt><dd><p>Path to patch file.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.setup.utils.clone">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">clone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#clone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.clone" title="Permalink to this definition"></a></dt>

@@ -77,7 +77,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mlonmcu.setup.cache</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Definition of Taks Cache&quot;&quot;&quot;</span>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Definition of Taks Cache&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">configparser</span>
@@ -207,72 +225,6 @@
                 <span class="n">cfg</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
             <span class="n">cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cachefile</span><span class="p">)</span></div></div>
 
-
-<span class="c1"># cache = TaskCache()</span>
-<span class="c1">#</span>
-<span class="c1"># cache[&quot;tf.src_dir&quot;] = &quot;a&quot;</span>
-<span class="c1"># cache[&quot;tf.lib_path&quot;] = &quot;a1&quot;</span>
-<span class="c1"># cache[&quot;tf.lib_path&quot;, {&quot;debug&quot;}] = &quot;a2&quot;</span>
-<span class="c1"># cache[&quot;tf.lib_path&quot;, {&quot;debug&quot;, &quot;muriscvnn&quot;}] = &quot;a3&quot;</span>
-<span class="c1">#</span>
-<span class="c1"># print(&quot;cache&quot;, cache)</span>
-<span class="c1">#</span>
-<span class="c1"># cache.write_to_file(&quot;example.ini&quot;)</span>
-<span class="c1"># cache.read_from_file(&quot;example2.ini&quot;)</span>
-<span class="c1">#</span>
-<span class="c1"># print(&quot;cache2&quot;, cache)</span>
-<span class="c1">#</span>
-<span class="c1">#</span>
-<span class="c1">#</span>
-<span class="c1"># import sys</span>
-<span class="c1"># sys.exit(0)</span>
-<span class="c1">#</span>
-<span class="c1"># FILE = &quot;deps/vars.txt&quot;</span>
-<span class="c1"># OUTFILE = &quot;deps/vars_.txt&quot;</span>
-<span class="c1">#</span>
-<span class="c1"># print(&quot;---&quot;)</span>
-<span class="c1"># result = parse_vars(FILE)</span>
-<span class="c1"># print(&quot;result&quot;, result)</span>
-<span class="c1"># print(&quot;---&quot;)</span>
-
-
-<span class="c1"># cache = TaskCache()</span>
-<span class="c1">#</span>
-<span class="c1"># cache[&quot;tf.src_dir&quot;] = &quot;A&quot;</span>
-<span class="c1"># cache[&quot;tf.src_dir&quot;, {&quot;muriscvnn&quot;}] = &quot;B&quot;</span>
-<span class="c1"># cache[&quot;tf.lib&quot;] = &quot;C&quot;</span>
-<span class="c1"># cache[&quot;tf.lib&quot;, {&quot;debug&quot;}] = &quot;D&quot;</span>
-<span class="c1"># cache[&quot;tf.lib&quot;, {&quot;muriscvnn&quot;}] = &quot;E&quot;</span>
-<span class="c1"># cache[&quot;tf.lib&quot;, {&quot;debug&quot;, &quot;muriscvnn&quot;}] = &quot;F&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmc&quot;, &quot;etiss&quot;}] = &quot;A1&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmi&quot;, &quot;etiss&quot;}] = &quot;A1&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmc&quot;, &quot;etiss&quot;, &quot;debug&quot;}] = &quot;A2&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmi&quot;, &quot;etiss&quot;, &quot;debug&quot;}] = &quot;A2&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmc&quot;, &quot;etiss&quot;, &quot;muriscvnn&quot;}] = &quot;A3&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmi&quot;, &quot;etiss&quot;, &quot;muriscvnn&quot;}] = &quot;A3&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmc&quot;, &quot;etiss&quot;, &quot;debug&quot;, &quot;muriscvnn&quot;}] = &quot;A4&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmi&quot;, &quot;etiss&quot;, &quot;debug&quot;, &quot;muriscvnn&quot;}] = &quot;A4&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmc&quot;, &quot;etiss&quot;, &quot;ifxfast&quot;}] = &quot;A5&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmi&quot;, &quot;etiss&quot;, &quot;ifxfast&quot;}] = &quot;A5&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmc&quot;, &quot;etiss&quot;, &quot;debug&quot;, &quot;ifxfast&quot;}] = &quot;A6&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tflmi&quot;, &quot;etiss&quot;, &quot;debug&quot;, &quot;ifxfast&quot;}] = &quot;A6&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tvmaot&quot;, &quot;etiss&quot;}] = &quot;B1&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tvmrt&quot;, &quot;etiss&quot;}] = &quot;B2&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tvmcg&quot;, &quot;etiss&quot;}] = &quot;B3&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tvmaot&quot;, &quot;etiss&quot;, &quot;debug&quot;}] = &quot;B1&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tvmrt&quot;, &quot;etiss&quot;, &quot;debug&quot;}] = &quot;B2&quot;</span>
-<span class="c1"># cache[&quot;mlif.build_dir&quot;, {&quot;tvmcg&quot;, &quot;etiss&quot;, &quot;debug&quot;}] = &quot;B3&quot;</span>
-<span class="c1">#</span>
-<span class="c1"># print(&quot;cache&quot;, cache)</span>
-<span class="c1">#</span>
-<span class="c1"># def test(name, flags):</span>
-<span class="c1">#     #print(&quot;---&quot;)</span>
-<span class="c1">#     #print(&quot;name&quot;, name)</span>
-<span class="c1">#     #print(&quot;flags&quot;, flags)</span>
-<span class="c1">#     print(&quot;find_best_match&quot;, cache.find_best_match(name, flags=flags))</span>
-<span class="c1">#</span>
-<span class="c1"># test(&quot;tf.src_dir&quot;, [])</span>
-<span class="c1"># test(&quot;mlif.build_dir&quot;, [&quot;tflmi&quot;, &quot;etiss&quot;, &quot;packing&quot;, &quot;debug&quot;, &quot;muriscvnn&quot;])</span>
 </pre></div>
 
            </div>

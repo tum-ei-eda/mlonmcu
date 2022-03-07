@@ -166,10 +166,10 @@
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.load.add_load_options">add_load_options() (in module mlonmcu.cli.load)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_model">add_model() (mlonmcu.session.run.Run method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_model_by_name">add_model_by_name() (mlonmcu.session.run.Run method)</a>
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.common.add_model_options">add_model_options() (in module mlonmcu.cli.common)</a>
@@ -209,6 +209,8 @@
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.alignment_bytes">alignment_bytes (mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend property)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.append">append (mlonmcu.flow.tvm.backend.tuner.TVMTuner property)</a>
+</li>
+      <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.apply">apply() (in module mlonmcu.setup.utils)</a>
 </li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.riscv.RISCVTarget.arch">arch (mlonmcu.target.riscv.RISCVTarget property)</a>
 </li>
@@ -333,6 +335,8 @@
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.tasks.clone_tflite_micro_compiler">clone_tflite_micro_compiler() (in module mlonmcu.setup.tasks)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.tasks.clone_tvm">clone_tvm() (in module mlonmcu.setup.tasks)</a>
+</li>
+      <li><a href="mlonmcu.setup.html#mlonmcu.setup.tasks.clone_tvm_extensions">clone_tvm_extensions() (in module mlonmcu.setup.tasks)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.tasks.clone_utvm_staticrt_codegen">clone_utvm_staticrt_codegen() (in module mlonmcu.setup.tasks)</a>
 </li>
@@ -637,6 +641,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.Feature">Feature (class in mlonmcu.feature.feature)</a>
+</li>
+      <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskType.FEATURE">FEATURE (mlonmcu.setup.task.TaskType attribute)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.BackendFeature.feature_type">feature_type (mlonmcu.feature.feature.BackendFeature attribute)</a>
 
@@ -2482,6 +2488,8 @@
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.config.PathConfig">PathConfig (class in mlonmcu.environment.config)</a>
 </li>
+      <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.pick_best">pick_best() (mlonmcu.flow.tvm.backend.tuner.TVMTuner method)</a>
+</li>
       <li><a href="mlonmcu.platform.html#mlonmcu.platform.platform.Platform">Platform (class in mlonmcu.platform.platform)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.type.FeatureType.PLATFORM">PLATFORM (mlonmcu.feature.type.FeatureType attribute)</a>
@@ -2908,8 +2916,6 @@
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.timeout">timeout (mlonmcu.flow.tvm.backend.tuner.TVMTuner property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.timeout_sec">timeout_sec (mlonmcu.target.corstone300.Corstone300Target property)</a>
 
       <ul>
@@ -2920,6 +2926,8 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.riscv.RISCVTarget.timeout_sec">(mlonmcu.target.riscv.RISCVTarget property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.to_csv">to_csv() (mlonmcu.target.metrics.Metrics method)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.to_file">to_file() (mlonmcu.environment.environment.Environment method)</a>
@@ -2953,6 +2961,10 @@
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend">TVMAOTBackend (class in mlonmcu.flow.tvm.backend.tvmaot)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend">TVMBackend (class in mlonmcu.flow.tvm.backend.backend)</a>
+</li>
+      <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.tvmc_custom_script">tvmc_custom_script (mlonmcu.flow.tvm.backend.backend.TVMBackend property)</a>
+</li>
+      <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.tvmc_extra_args">tvmc_extra_args (mlonmcu.flow.tvm.backend.backend.TVMBackend property)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend">TVMCGBackend (class in mlonmcu.flow.tvm.backend.tvmcg)</a>
 </li>

@@ -78,7 +78,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mlonmcu.flow.tvm.backend.backend</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="c1"># from ..support.load_tflite_model import load_tflite_model</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
@@ -93,7 +111,7 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="s2">&quot;autotuned&quot;</span><span class="p">,</span> <span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="s2">&quot;autotuned&quot;</span><span class="p">,</span> <span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">,</span> <span class="s2">&quot;disable_legalize&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -103,6 +121,8 @@
         <span class="s2">&quot;disabled_passes&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout</span>
         <span class="s2">&quot;extra_pass_config&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># TODO: some example (fuse_max_depth etc.)</span>
         <span class="s2">&quot;use_tuning_results&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Currently compile subcommand only!</span>
+        <span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="p">{(</span><span class="s2">&quot;autotuning_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">TVMTuner</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
     <span class="p">}</span>
 
@@ -168,6 +188,14 @@
     <span class="k">def</span> <span class="nf">use_tuning_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_tuning_results&quot;</span><span class="p">])</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tvmc_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tvmc_custom_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">]</span>
+
 <div class="viewcode-block" id="TVMBackend.get_pass_config_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_pass_config_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_pass_config_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -224,6 +252,7 @@
                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_level</span><span class="p">),</span>
                 <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_input_shapes_tvmc_args</span><span class="p">(),</span>
                 <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tuning_records_tvmc_args</span><span class="p">(),</span>
+                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tvmc_extra_args</span><span class="p">,</span>
                 <span class="c1"># TODO: also set --model-format? (optional)</span>
             <span class="p">]</span>
         <span class="p">)</span>
@@ -238,7 +267,11 @@
 <div class="viewcode-block" id="TVMBackend.invoke_tvmc"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="c1"># print(&quot;invoke_tvmc&quot;, command, args, verbose)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_python_environment</span><span class="p">()</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.driver.tvmc&quot;</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvmc_custom_script</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.driver.tvmc&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tvmc_custom_script</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="o">*</span><span class="n">pre</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TVMBackend.invoke_tvmc_compile"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.invoke_tvmc_compile">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_compile_args</span><span class="p">()</span>

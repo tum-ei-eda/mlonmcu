@@ -24,6 +24,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
@@ -51,7 +53,7 @@ jobs:
           ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-
     - name: Cleanup old artifacts
       run: |
-        rm -rf .venv  # Clear venv becaus of a cache bug...  
+        rm -rf .venv  # Clear venv because of a cache bug...
         make clean
     - name: Initialize Virtualenv
       run: |

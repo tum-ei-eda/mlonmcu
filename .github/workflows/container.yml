@@ -203,7 +203,7 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
-          target: mlonmcu
+          target: mlonmcu-bench
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}

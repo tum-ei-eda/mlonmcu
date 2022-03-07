@@ -50,8 +50,8 @@ class OVPSimTarget(RISCVTarget):
     }
     REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__("ovpsim", features=features, config=config, context=context)
+    def __init__(self, name="ovpsim", features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     @property
     def ovpsim_exe(self):
@@ -140,7 +140,9 @@ class OVPSimTarget(RISCVTarget):
         cpu_cycles = re.search(r"  Simulated instructions:(.*)", out)
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")
-        cycles = int(cpu_cycles.group(1).replace(",", ""))
+            cycles = None
+        else:
+            cycles = int(cpu_cycles.group(1).replace(",", ""))
         mips = None  # TODO: parse mips?
         mips_match = re.search(r"  Simulated MIPS:(.*)", out)
         if mips_match:

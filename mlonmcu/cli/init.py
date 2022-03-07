@@ -78,13 +78,6 @@ def add_init_options(parser):
         help="Clone models directory into environment",
     )
     init_parser.add_argument(
-        "--skip-sw",
-        dest="skip_sw",
-        default=None,
-        action="store_true",
-        help="Clone sw directory into environment",
-    )
-    init_parser.add_argument(
         "--register",
         default=None,
         action="store_true",
@@ -116,7 +109,6 @@ def handle(args):
         create_venv=args.venv,
         interactive=not args.non_interactive,
         clone_models=args.clone_models,
-        skip_sw=args.skip_sw,
         register=args.register,
         template=args.template[0] if isinstance(args.template, list) else args.template,
         allow_exists=args.allow_exists,

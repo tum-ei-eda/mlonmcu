@@ -37,6 +37,7 @@ def execute(
     ignore_output: bool = False,
     live: bool = False,
     print_func: Callable = print,
+    handle_exit = None,
     err_func: Callable = logger.error,
     **kwargs,
 ) -> str:
@@ -83,24 +84,23 @@ def execute(
             exit_code = None
             while exit_code is None:
                 exit_code = process.poll()
+            if handle_exit is not None:
+                exit_code = handle_exit(exit_code)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
     else:
-        try:
-            process = subprocess.run(
-                args,
-                **kwargs,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
-            out_str = process.stdout.decode(errors="replace")
-            print_func(out_str)
-        except subprocess.CalledProcessError as err:
-            out_str = err.output.decode(errors="replace")
-            err_func(out_str)
-            raise
+        p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out_str = p.communicate()[0].decode(errors="replace")
+        exit_code = p.poll()
+        print_func(out_str)
+        if handle_exit is not None:
+            exit_code = handle_exit(exit_code)
+        if exit_code != 0:
+            err_func(out_Str)
+        assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+            exit_code, " ".join(list(map(str, args)))
+        )
 
     return out_str
 

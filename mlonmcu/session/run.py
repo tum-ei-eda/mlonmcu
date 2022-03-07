@@ -20,6 +20,7 @@ import tempfile
 from pathlib import Path
 import os
 import copy
+import numpy as np
 from enum import IntEnum
 
 from mlonmcu.logging import get_logger
@@ -31,7 +32,8 @@ from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.models import SUPPORTED_FRONTENDS
-from mlonmcu.platform import SUPPORTED_PLATFORMS
+
+from mlonmcu.platform import get_platforms
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
 from .postprocess import SUPPORTED_POSTPROCESSES
@@ -150,9 +152,9 @@ class Run:
     @property
     def next_stage(self):
         for stage in RunStage:
-            if not self.completed[stage.value]:
+            if not self.completed[stage.value] and self.has_stage(stage):
                 return stage
-        return None
+        return RunStage.DONE
 
     def lock(self):
         # ret = self.lock.acquire(timeout=0)
@@ -178,7 +180,7 @@ class Run:
             # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
             # A solution would be to split up the framework runtime libs from the mlif...
             if self.platform:
-                self.platform.set_directory(Path(self.dir) / self.platform.name)
+                self.platform.init_directory(path=Path(self.dir) / self.platform.name)
 
     def copy(self):
         new = copy.deepcopy(self)
@@ -203,14 +205,14 @@ class Run:
         assert self.framework is not None, "Please add a frontend before initializing the Platform"
         assert self.backend is not None, "Please add a backend before initializing the Platform"
         platform_config = self.config.copy()
-        return platform_cls(
-            self.framework,
-            self.backend,
-            self.target,
+        platform = platform_cls(
             features=self.features,
             config=platform_config,
-            context=context,
         )
+        self.framework.add_platform_defs(platform.name, platform.definitions)
+        self.backend.add_platform_defs(platform.name, platform.definitions)
+        # self.target.add_platform_defs(platform.name, platform.definitions)
+        return platform
 
     def init_component(self, component_cls, context=None):
         required_keys = component_cls.REQUIRED
@@ -239,6 +241,7 @@ class Run:
 
     def add_target(self, target):
         self.target = target
+        self.target.add_platform_defs(self.platform.name, self.platform.definitions)  # TODO: move to platform?
 
     def add_platform(self, platform, context=None):
         self.platform = platform
@@ -271,18 +274,17 @@ class Run:
         self.add_framework(self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context))
 
     def add_target_by_name(self, target_name, context=None):
-        assert context is not None and context.environment.has_target(
-            target_name
-        ), f"The target '{target_name}' is not enabled for this environment"
-        self.add_target(self.init_component(SUPPORTED_TARGETS[target_name], context=context))
+        # assert context is not None and context.environment.has_target(
+        #     target_name
+        # ), f"The target '{target_name}' is not enabled for this environment"
+        assert self.platform is not None, "Please add a platform to the run before adding the target"
+        self.add_target(self.init_component(self.platform.create_target(target_name), context=context))
 
     def add_platform_by_name(self, platform_name, context=None):
         assert context is not None and context.environment.has_platform(
             platform_name
         ), f"The platform '{platform_name}' is not enabled for this environment"
-        self.add_platform(self.init_platform(SUPPORTED_PLATFORMS[platform_name], context=context))
-        assert self.platform.name in self.target.supported_platforms
-        self.target.add_platform(self.platform)
+        self.add_platform(self.init_platform(get_platforms()[platform_name], context=context))
 
     def add_postprocesses_by_name(self, postprocess_names, context=None):
         l = []
@@ -377,7 +379,7 @@ class Run:
             if artifact.name == "data.c":
                 artifact.export(self.dir)
                 data_file = Path(self.dir) / "data.c"
-        self.platform.generate_elf(codegen_dir, num=self.num, data_file=data_file)
+        self.platform.generate_elf(self.target, codegen_dir, num=self.num, data_file=data_file)
         self.artifacts_per_stage[RunStage.COMPILE] = self.platform.artifacts
 
         self.completed[RunStage.COMPILE] = True
@@ -628,7 +630,7 @@ class Run:
         else:
             metrics = Metrics()
         main = metrics.get_data(include_optional=self.export_optional)
-        report.set(pre=[pre], main=[main] if len(main) > 0 else [], post=[post])
+        report.set(pre=[pre], main=[main] if len(main) > 0 else {"Incomplete": [True]}, post=[post])
         return report
 
     def export(self, path=None, optional=False):

@@ -54,14 +54,8 @@ class EtissPulpinoTarget(RISCVTarget):
     }
     REQUIRED = RISCVTarget.REQUIRED + ["etiss.install_dir"]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__("etiss_pulpino", features=features, config=config, context=context)
-        # self.etiss_dir = lookup_etiss(cfg=config, env=self.env, context=self.context)
-        # assert len(self.etiss_dir) > 0
-        # self.riscv_prefix = lookup_riscv_prefix(
-        #     cfg=config, env=self.env, context=self.context
-        # )
-        # assert len(self.riscv_prefix) > 0
+    def __init__(self, name="etiss_pulpino", features=None, config=None):
+        super().__init__(name, features=features, config=config)
         self.etiss_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "run_helper.sh"
         self.metrics_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "get_metrics.py"
 
@@ -181,12 +175,16 @@ class EtissPulpinoTarget(RISCVTarget):
 
         cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)
         if not cpu_cycles:
-            raise RuntimeError("unexpected script output (cycles)")
-        cycles = int(float(cpu_cycles.group(1)))
+            logger.warning("unexpected script output (cycles)")
+            cycles = None
+        else:
+            cycles = int(float(cpu_cycles.group(1)))
         mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
         if not mips_match:
-            raise RuntimeError("unexpected script output (mips)")
-        mips = int(float(mips_match.group(1)))
+            raise logger.warning("unexpected script output (mips)")
+            mips = None
+        else:
+            mips = int(float(mips_match.group(1)))
 
         return cycles, mips
 
@@ -282,9 +280,9 @@ class EtissPulpinoTarget(RISCVTarget):
     def get_target_system(self):
         return self.name
 
-    def get_cmake_args(self):
-        ret = super().get_cmake_args()
-        ret.append(f"-DETISS_DIR={self.etiss_dir}")
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        ret["ETISS_DIR"] = self.etiss_dir
         return ret
 
 

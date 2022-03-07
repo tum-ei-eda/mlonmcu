@@ -100,7 +100,7 @@ def exec(*args, **kwargs):
     subprocess.run([i for i in args], **kwargs, check=True)
 
 
-def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) -> str:
+def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exit=None, **kwargs) -> str:
     """Execute a process with the given args and using the given kwards as Popen arguments and return the output.
 
     Parameters
@@ -129,6 +129,8 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
             exit_code = None
             while exit_code is None:
                 exit_code = process.poll()
+            if handle_exit is not None:
+                exit_code = handle_exit(exit_code)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
@@ -145,6 +147,8 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, **kwargs) 
             # outStr = p.stdout.decode(errors="replace")
             if print_output:
                 logger.debug(outStr)
+            if handle_exit is not None:
+                exit_code = handle_exit(exit_code)
             if exit_code != 0:
                 logger.error(outStr)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(

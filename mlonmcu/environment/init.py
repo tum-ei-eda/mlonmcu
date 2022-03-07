@@ -53,10 +53,6 @@ def clone_models_repo(
     git.Repo.clone_from(url, dest)
 
 
-def clone_sw_repo(dest, url="https://github.com/tum-ei-eda/mlonmcu-sw.git"):  # TODO: how to get submodule url/ref?
-    git.Repo.clone_from(url, dest)
-
-
 def create_venv_directory(base, hidden=True):
     if not isinstance(base, Path):
         base = Path(base)
@@ -72,7 +68,6 @@ def initialize_environment(
     interactive=True,
     create_venv=None,
     clone_models=None,
-    skip_sw=None,
     allow_exists=None,
     register=None,
     template=None,
@@ -156,25 +151,13 @@ def initialize_environment(
             clone_models is None
             and ask_user(
                 "Clone mlonmcu-models repository into environment?",
-                default=False,
+                default=True,
                 interactive=interactive,
             )
         ):
             clone_models_repo(models_subdir)
         else:
             subdirs.append("models")
-
-    sw_subdir = Path(target_dir) / "sw"
-    if not sw_subdir.is_dir():
-        if (skip_sw == False) or (
-            skip_sw is None
-            and ask_user(
-                "Clone mlonmcu-sw repository into environment?",
-                default=True,
-                interactive=interactive,
-            )
-        ):
-            clone_sw_repo(sw_subdir)
 
     print("Initializing directories in environment:", " ".join(subdirs))
     create_environment_directories(target_dir, subdirs)

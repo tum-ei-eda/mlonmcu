@@ -25,7 +25,6 @@ from pathlib import Path
 from typing import List
 
 
-# from mlonmcu.context import MlonMcuContext
 from mlonmcu.config import filter_config
 from mlonmcu.feature.feature import Feature
 from mlonmcu.feature.type import FeatureType
@@ -56,8 +55,6 @@ class Target:
         List of additional arguments to the inspect_program
     env : os._Environ
         Optinal map of environment variables
-    context : MlonMcuContext
-        Optional context for resolving dependency paths
     """
 
     FEATURES = []
@@ -69,7 +66,6 @@ class Target:
         name: str,
         features: List[Feature] = None,
         config: dict = None,
-        context=None,
     ):
         self.name = name
         self.config = config if config else {}
@@ -78,16 +74,7 @@ class Target:
         self.inspect_program = "readelf"
         self.inspect_program_args = ["--all"]
         self.env = os.environ
-        self.context = context
         self.artifacts = []
-        self.platform = None
-
-    def add_platform(self, platform):
-        self.platform = platform
-
-    @property
-    def supported_platforms(self):
-        return ["mlif"]
 
     def __repr__(self):
         return f"Target({self.name})"
@@ -171,17 +158,11 @@ class Target:
     def get_target_system(self):
         return self.name
 
-    def get_cmake_args(self):
-        target_system = self.get_target_system()
-        return [f"-DTARGET_SYSTEM={target_system}"]
-
     def get_arch(self):
         raise NotImplementedError
 
-    def get_required_cache_flags(self):
-        ret = {}
+    def get_platform_defs(self, platform):
+        return {}
 
-        ret["cmsisnn.lib"] = [
-            self.get_arch()
-        ]  # TODO: this should be handled differently (Target arch specific libs), maybe via features or wildcards, boolean flag?
-        return ret
+    def add_platform_defs(self, platform, defs):
+        defs.update(self.get_platform_defs(platform))

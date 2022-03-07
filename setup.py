@@ -20,7 +20,17 @@
 
 """The setup script."""
 
+import os
 from setuptools import setup, find_packages
+
+
+def resource_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join('..', path, filename))
+    print("paths", paths)
+    return paths
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
@@ -60,7 +70,7 @@ setup(
     keywords='mlonmcu',
     name='mlonmcu',
     packages=find_packages(include=['mlonmcu', 'mlonmcu.*']),
-    package_data={'mlonmcu': ['../templates/*.j2']},
+    package_data={'mlonmcu': ['../templates/*.j2'] + resource_files("resources")},
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/tum-ei-eda/mlonmcu',

@@ -30,6 +30,21 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
+PLATFORM_REGISTRY = {}
+
+
+def register_platform(platform_name, p, override=False):
+    global PLATFORM_REGISTRY
+
+    if platform_name in PLATFORM_REGISTRY and not override:
+        raise RuntimeError(f"Platform {platform_name} is already registered")
+    PLATFORM_REGISTRY[platform_name] = p
+
+
+def get_platforms():
+    return PLATFORM_REGISTRY
+
+
 class Platform:
     """Abstract platform class."""
 
@@ -39,18 +54,23 @@ class Platform:
 
     REQUIRED = []
 
-    def __init__(self, name, framework, backend, target, features=None, config=None, context=None):
+    # def __init__(self, name, framework, backend, target, features=None, config=None, context=None):
+    def __init__(self, name, features=None, config=None):
         self.name = name
-        self.framework = framework  # TODO: required? or self.target.framework?
-        self.backend = backend
-        self.target = target
+        # self.framework = framework  # TODO: required? or self.target.framework?
+        # self.backend = backend
+        # self.target = target
         self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
-        self.context = context
+        # self.context = context
         self.artifacts = []
 
-    def set_directory(self, directory):
+    def init_directory(self, path=None, context=None):
+        raise NotImplementedError
+
+    @staticmethod
+    def create_target(name, features=None, config=None):
         raise NotImplementedError
 
     @property
@@ -74,6 +94,9 @@ class Platform:
             feature.add_platform_config(self.name, self.config)
         return features
 
+    def get_supported_targets(self):
+        return NotImplementedError
+
 
 class CompilePlatform(Platform):
     """Abstract compile platform class."""
@@ -90,24 +113,26 @@ class CompilePlatform(Platform):
 
     REQUIRED = []
 
-    def __init__(self, name, framework, backend, target, features=None, config=None, context=None):
+    # def __init__(self, name, framework, backend, target, features=None, config=None, context=None):
+    def __init__(self, name, features=None, config=None):
         super().__init__(
             name,
-            framework,
-            backend,
-            target,
+            # framework,
+            # backend,
+            # target,
             features=features,
             config=config,
-            context=context,
+            # context=context,
         )
         self.name = name
-        self.framework = framework  # TODO: required? or self.target.framework?
-        self.backend = backend
-        self.target = target
+        # self.framework = framework  # TODO: required? or self.target.framework?
+        # self.backend = backend
+        # self.target = target
         self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
-        self.context = context
+        self.definitions = {}
+        # self.context = context
 
     @property
     def supports_compile(self):
@@ -130,7 +155,7 @@ class CompilePlatform(Platform):
             else bool(distutils.util.strtobool(self.config["print_output"]))
         )
 
-    def generate_elf(self, src=None, model=None, num=1, data_file=None):
+    def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         raise NotImplementedError
 
     def export_elf(self, path):
@@ -164,17 +189,17 @@ class TargetPlatform(Platform):
     def supports_monitor(self):
         return True
 
-    def flash(self, timeout=120):
+    def flash(self, target, timeout=120):
         raise NotImplementedError
 
-    def monitor(self, timeout=60):
+    def monitor(self, target, timeout=60):
         raise NotImplementedError
 
-    def run(self, timeout=120):
+    def run(self, target, timeout=120):
         # Only allow one serial communication at a time
         with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
 
-            self.flash(timeout=timeout)
-            output = self.monitor(timeout=timeout)
+            self.flash(target, timeout=timeout)
+            output = self.monitor(target, timeout=timeout)
 
         return output

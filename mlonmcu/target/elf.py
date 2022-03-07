@@ -66,6 +66,9 @@ def parseElf(inFile):
         ".dynamic",
         ".got",
         ".data.rel.ro",
+        # Espressif
+        ".flash.appdesc",
+        ".iram0.text_end",  # ?
     ]
     ignorePrefixes = [
         ".gcc_except",
@@ -81,6 +84,8 @@ def parseElf(inFile):
     ]
     ignoreSuffixes = [
         ".table",
+        "dummy",
+        "heap_start",
     ]
 
     with open(inFile, "rb") as f:

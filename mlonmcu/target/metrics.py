@@ -46,7 +46,7 @@ class Metrics:
 
     def get_data(self, include_optional=False):
         return {
-            key: ast.literal_eval(value) if isinstance(value, str) else value
+            key: (ast.literal_eval(value) if len(value) > 0 else None) if isinstance(value, str) else value
             for key, value in self.data.items()
             if key not in self.optional_keys or include_optional
         }

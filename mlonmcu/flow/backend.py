@@ -136,19 +136,15 @@ class Backend(ABC):
                     logger.info(f"Exporting artifact: {artifact.name}")
                     outfile.write(artifact.content)
 
-    def get_cmake_args(self):
-        assert self.name is not None
-        return [f"-DBACKEND={self.name}"]
+    def get_platform_defs(self, platform):
+        if platform == "espidf":
+            backend_upper = self.name.upper()
+            return {f"MLONMCU_BACKEND_{backend_upper}": True}
+        else:
+            return {"MLONMCU_BACKEND": self.name}
 
-    def add_cmake_args(self, args):
-        args += self.get_cmake_args()
-
-    def get_espidf_defs(self):
-        assert self.name is not None
-        return {"MLONMCU_BACKEND": self.name}
-
-    def add_espidf_defs(self, defs):
-        defs.update(self.get_espidf_defs())
+    def add_platform_defs(self, platform, defs):
+        defs.update(self.get_platform_defs(platform))
 
 
 def get_parser(backend_name, features, required, defaults):

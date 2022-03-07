@@ -24,8 +24,11 @@ from pathlib import Path
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
+from mlonmcu.target import SUPPORTED_TARGETS
+from mlonmcu.target.target import Target
 
 from .platform import CompilePlatform
+from .mlif_target import get_mlif_targets, create_mlif_target
 
 logger = get_logger()
 
@@ -38,28 +41,38 @@ class MlifPlatform(CompilePlatform):
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
         "ignore_data": True,
+        "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
         "toolchain": "gcc",
         "prebuild_lib_path": None,
     }
 
-    REQUIRED = []
+    REQUIRED = ["mlif.src_dir"]
 
-    def __init__(self, framework, backend, target, features=None, config=None, context=None):
+    # def __init__(self, framework, backend, target, features=None, config=None, context=None):
+    def __init__(self, features=None, config=None):
         super().__init__(
             "mlif",
-            framework=framework,
-            backend=backend,
-            target=target,
+            # framework=framework,
+            # backend=backend,
+            # target=target,
             features=features,
             config=config,
-            context=context,
+            # context=context,
         )
-        self.goal = "generic_mlif"
-        flags = [self.framework.name, self.backend.name, self.target.name] + [feature.name for feature in self.features]
-        dir_name = utils.makeDirName("mlif", flags=flags)
         self.tempdir = None
-        if self.config["build_dir"]:
+        self.build_dir = None
+        self.goal = "generic_mlif"
+
+    def init_directory(self, path=None, context=None):
+        if self.build_dir is not None:
+            self.build_dir.mkdir(exist_ok=True)
+            logger.debug("Build directory already initialized")
+            return
+        dir_name = self.name
+        if path is not None:
+            self.build_dir = Path(path)
+        elif self.config["build_dir"]:
             self.build_dir = Path(self.config["build_dir"])
         else:
             if context:
@@ -68,29 +81,38 @@ class MlifPlatform(CompilePlatform):
                     context.environment.paths["temp"].path / dir_name
                 )  # TODO: Need to lock this for parallel builds
             else:
-                logger.info(
-                    "Creating temporary directory because no context was available"
+                logger.debug(
+                    "Creating temporary directory because no context was available "
                     "and 'mlif.build_dir' was not supplied"
                 )
                 self.tempdir = tempfile.TemporaryDirectory()
                 self.build_dir = Path(self.tempdir.name) / dir_name
                 logger.info("Temporary build directory: %s", self.build_dir)
-        if "mlif.src_dir" in self.config:
-            if self.context:
-                logger.warning("User has overwritten the value of 'mlif.src_dir'")
-            self.mlif_dir = Path(self.config["mlif.src_dir"])
-        else:
-            if context:
-                self.mlif_dir = Path(context.environment.home) / "sw"  # TODO: Define in env paths
-            else:
-                raise RuntimeError("Please define the value of 'mlif.src_dir' or pass a context")
+        self.build_dir.mkdir(exist_ok=True)
 
-    def set_directory(self, directory):
-        self.build_dir = directory
+    def create_target(self, name):
+        assert name in self.get_supported_targets(), f"{name} is not a valid MLIF target"
+        if name in SUPPORTED_TARGETS:
+            base = SUPPORTED_TARGETS[name]
+        else:
+            base = Target
+        return create_mlif_target(name, self, base=base)
+
+    @property
+    def mlif_dir(self):
+        return Path(self.config["mlif.src_dir"])
 
     @property
     def ignore_data(self):
         return bool(self.config["ignore_data"])
+
+    @property
+    def fail_on_error(self):
+        return bool(self.config["fail_on_error"])
+
+    @property
+    def validate_outputs(self):
+        return not self.ignore_data
 
     @property
     def toolchain(self):
@@ -104,6 +126,10 @@ class MlifPlatform(CompilePlatform):
     def prebuild_lib_dir(self):
         return self.config["prebuild_lib_dir"]
 
+    def get_supported_targets(self):
+        target_names = get_mlif_targets()
+        return target_names
+
     def close(self):
         if self.tempdir:
             self.tempdir.cleanup()
@@ -114,21 +140,17 @@ class MlifPlatform(CompilePlatform):
         args.append(f"-DTOOLCHAIN={self.toolchain}")
         return args
 
-    # def prepare(self, model, ignore_data=False):
     def prepare(self):
-        # utils.mkdirs(self.data_dir)
-        # data_file = self.data_dir / "data.c"
-        # write_inout_data(model, data_file, skip=ignore_data)
-        # return data_file
-        pass
+        self.init_directory()
 
-    def configure(self, src, _model, num=1, data_file=None):
+    def configure(self, target, src, _model, num=1, data_file=None):
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = []
-        cmakeArgs.extend(self.framework.get_cmake_args())
-        cmakeArgs.extend(self.backend.get_cmake_args())
-        cmakeArgs.extend(self.target.get_cmake_args())
+        for key, value in self.definitions.items():
+            if isinstance(value, bool):
+                value = "ON" if value else "OFF"
+            cmakeArgs.append(f"-D{key}={value}")
         cmakeArgs.extend(self.get_common_cmake_args(num=num))
         if self.model_support_dir:
             cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
@@ -156,9 +178,9 @@ class MlifPlatform(CompilePlatform):
             live=self.print_output,
         )
 
-    def compile(self, src=None, model=None, num=1, data_file=None):
+    def compile(self, target, src=None, model=None, num=1, data_file=None):
         if src:
-            self.configure(src, model, num=num, data_file=data_file)
+            self.configure(target, src, model, num=num, data_file=data_file)
         utils.make(
             self.goal,
             cwd=self.build_dir,
@@ -166,9 +188,9 @@ class MlifPlatform(CompilePlatform):
             live=self.print_output,
         )
 
-    def generate_elf(self, src=None, model=None, num=1, data_file=None):
+    def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         artifacts = []
-        self.compile(src=src, model=model, num=num, data_file=data_file)
+        self.compile(target, src=src, model=model, num=num, data_file=data_file)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:

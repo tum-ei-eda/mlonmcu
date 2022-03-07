@@ -58,15 +58,12 @@ class Framework(ABC):
         assert isinstance(cls.name, str)
         cls.registry[cls.name] = cls
 
-    def get_cmake_args(self):
-        assert self.name is not None
-        return [f"-DFRAMEWORK={self.name}"]
+    def get_platform_defs(self, platform):
+        if platform == "espidf":
+            framework_upper = self.name.upper()
+            return {f"MLONMCU_FRAMEWORK_{framework_upper}": True}
+        else:
+            return {"MLONMCU_FRAMEWORK": self.name}
 
-    def add_cmake_args(self, args):
-        args += self.get_cmake_args()
-
-    def get_espidf_defs(self):
-        return {"MLONMCU_FRAMEWORK": self.name}
-
-    def add_espidf_defs(self, defs):
-        defs.update(self.get_espidf_defs())
+    def add_platform_defs(self, platform, defs):
+        defs.update(self.get_platform_defs(platform))

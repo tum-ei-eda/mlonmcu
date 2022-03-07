@@ -20,7 +20,8 @@ import os
 import multiprocessing
 import logging
 from mlonmcu.target import SUPPORTED_TARGETS
-from mlonmcu.platform import SUPPORTED_PLATFORMS
+
+from mlonmcu.platform import get_platforms
 from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
@@ -46,18 +47,23 @@ def add_flow_options(parser):
         "--target",
         type=str,
         metavar="TARGET",
-        choices=SUPPORTED_TARGETS.keys(),
+        # choices=SUPPORTED_TARGETS.keys(),
         action="append",
         # default=None,
         # nargs=1,
-        help="The target device/architecture (choices: %(choices)s)",
+        help="The target device/architecture (choices: See --list-targets)",
+    )
+    flow_parser.add_argument(  # TODO: move to compile.py?
+        "--list-targets",
+        action="store_true",
+        help="List the supported targets in the environment",
     )
     flow_parser.add_argument(
         # "-p",
         "--platform",
         type=str,
         metavar="PLATFORM",
-        choices=SUPPORTED_PLATFORMS.keys(),
+        choices=get_platforms().keys(),
         default=None,
         nargs=1,
         help="Explicitly choose the platforms to use (choices: %(choices)s)",

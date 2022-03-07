@@ -942,3 +942,19 @@ def clone_tvm_extensions(context: MlonMcuContext, params=None, rebuild=False, ve
         utils.clone(extRepo.url, extSrcDir, branch=extRepo.ref, refresh=rebuild)
     context.cache["tvm_extensions.src_dir"] = extSrcDir
     context.cache["tvm_extensions.wrapper"] = extWrapper
+
+def _validate_mlif(context: MlonMcuContext, params=None):
+    return context.environment.has_platform("mlif")
+
+
+@Tasks.provides(["mlif.src_dir"])
+@Tasks.validate(_validate_mlif)
+@Tasks.register(category=TaskType.PLATFORM)
+def clone_mlif(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Clone the MLonMCU SW repository."""
+    mlifName = utils.makeDirName("mlif")
+    mlifSrcDir = context.environment.paths["deps"].path / "src" / mlifName
+    if rebuild or not utils.is_populated(mlifSrcDir):
+        mlifRepo = context.environment.repos["mlif"]
+        utils.clone(mlifRepo.url, mlifSrcDir, branch=mlifRepo.ref, refresh=rebuild)
+    context.cache["mlif.src_dir"] = mlifSrcDir

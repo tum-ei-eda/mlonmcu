@@ -102,21 +102,20 @@ def test_environment_register_environment():
 @pytest.mark.parametrize("interactive", [False])  # We do not want to mock the user input here
 @pytest.mark.parametrize("create_venv", [False])  # Already covered above
 @pytest.mark.parametrize("clone_models", [False])  # Already covered above
-@pytest.mark.parametrize("skip_sw", [True])  # Already covered above
 @pytest.mark.parametrize("register", [False, True])  #
 @pytest.mark.parametrize("template", ["default"])
-def test_environment_initialize_environment(interactive, create_venv, clone_models, skip_sw, register, template, fake_environment_directory, fake_working_directory, fake_config_home):
+def test_environment_initialize_environment(interactive, create_venv, clone_models, register, template, fake_environment_directory, fake_working_directory, fake_config_home):
     with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=str.encode("---")) as mocked:
         before = _count_envs(fake_config_home)
-        initialize_environment(fake_environment_directory, "myenv", interactive=interactive, create_venv=create_venv, clone_models=clone_models, skip_sw=skip_sw, register=register, template=template)
-        initialize_environment(fake_working_directory, "another", interactive=interactive, create_venv=create_venv, clone_models=clone_models, skip_sw=skip_sw, register=register, template=template)
+        initialize_environment(fake_environment_directory, "myenv", interactive=interactive, create_venv=create_venv, clone_models=clone_models, register=register, template=template)
+        initialize_environment(fake_working_directory, "another", interactive=interactive, create_venv=create_venv, clone_models=clone_models, register=register, template=template)
         assert _count_envs(fake_config_home) == ((before + 2) if register else before)
 
 def test_environment_initialize_environment_duplicate(fake_environment_directory, fake_working_directory, fake_config_home):
     with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=str.encode("---")) as mocked:
         before = _count_envs(fake_config_home)
-        initialize_environment(fake_environment_directory, "", interactive=False, create_venv=False, clone_models=False, skip_sw=True, register=True, template="default")
-        initialize_environment(fake_working_directory, "", interactive=False, create_venv=False, clone_models=False, skip_sw=True, register=True, template="default")
+        initialize_environment(fake_environment_directory, "", interactive=False, create_venv=False, clone_models=False, register=True, template="default")
+        initialize_environment(fake_working_directory, "", interactive=False, create_venv=False, clone_models=False,  register=True, template="default")
         assert _count_envs(fake_config_home) == (before + 2)
         assert not _has_duplicate_envs(fake_config_home)
 

@@ -28,8 +28,8 @@ class CustomTarget(Target):
 
     FEATURES = ["featureA"]
 
-    def __init__(self, features=[], config={}, context=None):
-        super().__init__("custom", features=features, config=config, context=context)
+    def __init__(self, features=[], config={}, ):
+        super().__init__("custom", features=features, config=config)
         self.inspectProgram = "ls"
         self.inspectprogramArgs = []
 

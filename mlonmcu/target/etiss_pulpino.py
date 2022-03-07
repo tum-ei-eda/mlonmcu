@@ -175,12 +175,16 @@ class EtissPulpinoTarget(RISCVTarget):
 
         cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)
         if not cpu_cycles:
-            raise RuntimeError("unexpected script output (cycles)")
-        cycles = int(float(cpu_cycles.group(1)))
+            logger.warning("unexpected script output (cycles)")
+            cycles = None
+        else:
+            cycles = int(float(cpu_cycles.group(1)))
         mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
         if not mips_match:
-            raise RuntimeError("unexpected script output (mips)")
-        mips = int(float(mips_match.group(1)))
+            raise logger.warning("unexpected script output (mips)")
+            mips = None
+        else:
+            mips = int(float(mips_match.group(1)))
 
         return cycles, mips
 

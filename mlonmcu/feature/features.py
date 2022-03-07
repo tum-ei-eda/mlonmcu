@@ -105,6 +105,7 @@ class Validate(FrontendFeature, PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "allow_missing": True,
+        "fail_on_error": None,
     }
 
     def __init__(self, config=None):
@@ -114,6 +115,10 @@ class Validate(FrontendFeature, PlatformFeature):
     def allow_missing(self):
         return bool(self.config["allow_missing"])
 
+    @property
+    def fail_on_error(self):
+        return self.config["fail_on_error"]
+
     def get_frontend_config(self, frontend):
         if not self.allow_missing:
             raise NotImplementedError
@@ -121,7 +126,10 @@ class Validate(FrontendFeature, PlatformFeature):
 
     def get_platform_config(self, platform):
         assert platform == "mlif", f"Unsupported feature '{self.name}' for platform '{platform}'"
-        return {f"{platform}.ignore_data": False}
+        return filter_none({
+            f"{platform}.ignore_data": False,
+            f"{platform}.fail_on_error": self.fail_on_error,
+        })
 
 
 @register_feature("muriscvnn")

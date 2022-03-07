@@ -41,6 +41,7 @@ class MlifPlatform(CompilePlatform):
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
         "ignore_data": True,
+        "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
         "toolchain": "gcc",
         "prebuild_lib_path": None,
@@ -104,6 +105,14 @@ class MlifPlatform(CompilePlatform):
     @property
     def ignore_data(self):
         return bool(self.config["ignore_data"])
+
+    @property
+    def fail_on_error(self):
+        return bool(self.config["fail_on_error"])
+
+    @property
+    def validate_outputs(self):
+        return not self.ignore_data
 
     @property
     def toolchain(self):

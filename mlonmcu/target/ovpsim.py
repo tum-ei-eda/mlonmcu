@@ -140,7 +140,9 @@ class OVPSimTarget(RISCVTarget):
         cpu_cycles = re.search(r"  Simulated instructions:(.*)", out)
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")
-        cycles = int(cpu_cycles.group(1).replace(",", ""))
+            cycles = None
+        else:
+            cycles = int(cpu_cycles.group(1).replace(",", ""))
         mips = None  # TODO: parse mips?
         mips_match = re.search(r"  Simulated MIPS:(.*)", out)
         if mips_match:

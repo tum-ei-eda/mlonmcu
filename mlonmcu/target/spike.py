@@ -108,8 +108,10 @@ class SpikeTarget(RISCVTarget):
     def parse_stdout(self, out):
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         if not cpu_cycles:
-            raise RuntimeError("unexpected script output (cycles)")
-        cycles = int(float(cpu_cycles.group(1)))
+            logger.warning("unexpected script output (cycles)")
+            cycles = None
+        else:
+            cycles = int(float(cpu_cycles.group(1)))
         mips = None  # TODO: parse mips?
         return cycles
 

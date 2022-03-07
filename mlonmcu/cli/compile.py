@@ -35,6 +35,7 @@ from mlonmcu.config import resolve_required_config
 from mlonmcu.flow.backend import Backend
 from mlonmcu.flow.framework import Framework
 from mlonmcu.session.run import RunStage
+from mlonmcu.platform.lookup import get_platforms_targets
 
 
 def add_compile_options(parser):
@@ -74,6 +75,12 @@ def _handle(args, context):
         targets = context.environment.get_default_targets()
         assert len(targets) > 0, "TODO"
 
+    if args.platform:  # TODO: move this somewhere else
+        platform_names = args.platform
+    else:
+        platform_names = context.environment.lookup_platform_configs(names_only=True)
+    platform_targets = get_platforms_targets(context)
+
     debug = args.debug
     assert len(context.sessions) > 0  # TODO: automatically request session if no active one is available
     session = context.sessions[-1]
@@ -82,10 +89,11 @@ def _handle(args, context):
         for target_name in targets:
             for n in num:
                 new_run = run.copy()
-                if args.platform:  # TODO: move this somewhere else
-                    platform_name = args.platform[0]
-                else:
-                    platform_name = "mlif"
+                platform_name = None
+                for platform in platform_names:
+                    if target_name in platform_targets[platform]:
+                        platform_name = platform
+                assert platform_name is not None, f"Unable to find a suitable platform for the target '{target_name}'"
                 new_run.add_platform_by_name(platform_name, context=context)
                 new_run.add_target_by_name(target_name, context=context)
                 new_run.debug = debug

@@ -15,8 +15,6 @@ This is a list of pending tasks which did not make it into an own issue.
 
 - [ ] Implement: `mlonmcu models [filter]` on cli
 
-- [ ] Add postprocess and visualization features
-
 - [ ] Autotuning for ETISS targets
 
 - [ ] IPYNB: Add Google Colab support?
@@ -26,8 +24,6 @@ This is a list of pending tasks which did not make it into an own issue.
 - [ ] Add more type annotations
 
 - [ ] Finish main README
-
-- [ ] Add table with supported frontends/features/frameworks/backends/targets
 
 - [ ] Explain sessions and runs
 

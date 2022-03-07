@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.lookup &mdash; ML on MCU 0.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.platform.lookup</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.platform.lookup</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.platform</span> <span class="kn">import</span> <span class="n">get_platforms</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
+
+
+<div class="viewcode-block" id="get_platforms_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.get_platforms_targets">[docs]</a><span class="k">def</span> <span class="nf">get_platforms_targets</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+    <span class="n">platform_names</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_platform_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">platform_classes</span> <span class="o">=</span> <span class="n">get_platforms</span><span class="p">()</span>
+    <span class="c1"># To initialize the platform we need to provide a config with required paths.</span>
+    <span class="n">platforms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">platform_name</span> <span class="ow">in</span> <span class="n">platform_names</span><span class="p">:</span>
+        <span class="n">platform_cls</span> <span class="o">=</span> <span class="n">platform_classes</span><span class="p">[</span><span class="n">platform_name</span><span class="p">]</span>
+        <span class="n">required_keys</span> <span class="o">=</span> <span class="n">platform_cls</span><span class="o">.</span><span class="n">REQUIRED</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">resolve_required_config</span><span class="p">(</span>
+            <span class="n">required_keys</span><span class="p">,</span>
+            <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">platform</span> <span class="o">=</span> <span class="n">platform_cls</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">platforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">platform</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">platform</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">()</span> <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">platforms</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="print_platforms"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_platforms">[docs]</a><span class="k">def</span> <span class="nf">print_platforms</span><span class="p">(</span><span class="n">platform_names</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Platforms:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">platform_names</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - &quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_targets">[docs]</a><span class="k">def</span> <span class="nf">print_targets</span><span class="p">(</span><span class="n">platform_targets</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Targets:&quot;</span><span class="p">)</span>
+    <span class="n">target_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">platform_targets</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="k">for</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">target_names</span><span class="p">:</span>
+        <span class="n">target_platforms</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">platform_name</span>
+            <span class="k">for</span> <span class="n">platform_name</span><span class="p">,</span> <span class="n">platform_targets</span> <span class="ow">in</span> <span class="n">platform_targets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">platform_targets</span>
+        <span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - &quot;</span> <span class="o">+</span> <span class="n">target_name</span> <span class="o">+</span> <span class="s2">&quot; [&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_platforms</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_summary"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_summary">[docs]</a><span class="k">def</span> <span class="nf">print_summary</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Platform Targets Summary</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">platform_targets</span> <span class="o">=</span> <span class="n">get_platforms_targets</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">print_platforms</span><span class="p">(</span><span class="n">platform_targets</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="n">print_targets</span><span class="p">(</span><span class="n">platform_targets</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

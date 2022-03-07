@@ -138,6 +138,8 @@
     <span class="k">if</span> <span class="n">ctx</span><span class="p">:</span>
         <span class="n">handle_build</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;autotune&quot;</span><span class="p">)</span>  <span class="c1"># TODO: enable autotuning automatically?</span>
+        <span class="c1"># args.features.append(&quot;autotuned&quot;)  # ?</span>
         <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
             <span class="n">handle_build</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
             <span class="n">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">TUNE</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>

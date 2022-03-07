@@ -104,7 +104,6 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
 
-<span class="c1"># from mlonmcu.context import MlonMcuContext</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.feature</span> <span class="kn">import</span> <span class="n">Feature</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
@@ -135,8 +134,6 @@
 <span class="sd">        List of additional arguments to the inspect_program</span>
 <span class="sd">    env : os._Environ</span>
 <span class="sd">        Optinal map of environment variables</span>
-<span class="sd">    context : MlonMcuContext</span>
-<span class="sd">        Optional context for resolving dependency paths</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[]</span>
@@ -148,7 +145,6 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Feature</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
@@ -157,16 +153,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">inspect_program</span> <span class="o">=</span> <span class="s2">&quot;readelf&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inspect_program_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--all&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="kc">None</span>
-
-<div class="viewcode-block" id="Target.add_platform"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.add_platform">[docs]</a>    <span class="k">def</span> <span class="nf">add_platform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span></div>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">supported_platforms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Target(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -250,20 +237,14 @@
 <div class="viewcode-block" id="Target.get_target_system"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_target_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
-<div class="viewcode-block" id="Target.get_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">target_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_system</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-DTARGET_SYSTEM=</span><span class="si">{</span><span class="n">target_system</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span></div>
-
 <div class="viewcode-block" id="Target.get_arch"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_arch">[docs]</a>    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Target.get_required_cache_flags"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_required_cache_flags">[docs]</a>    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+<div class="viewcode-block" id="Target.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
 
-        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;cmsisnn.lib&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_arch</span><span class="p">()</span>
-        <span class="p">]</span>  <span class="c1"># TODO: this should be handled differently (Target arch specific libs), maybe via features or wildcards, boolean flag?</span>
-        <span class="k">return</span> <span class="n">ret</span></div></div>
+<div class="viewcode-block" id="Target.add_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.add_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">add_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
+        <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>

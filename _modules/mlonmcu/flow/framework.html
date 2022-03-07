@@ -138,18 +138,15 @@
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
 
-<div class="viewcode-block" id="Framework.get_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.get_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-DFRAMEWORK=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span></div>
+<div class="viewcode-block" id="Framework.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;espidf&quot;</span><span class="p">:</span>
+            <span class="n">framework_upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;MLONMCU_FRAMEWORK_</span><span class="si">{</span><span class="n">framework_upper</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;MLONMCU_FRAMEWORK&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="Framework.add_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.add_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">add_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="Framework.get_espidf_defs"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.get_espidf_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_espidf_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;MLONMCU_FRAMEWORK&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span></div>
-
-<div class="viewcode-block" id="Framework.add_espidf_defs"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.add_espidf_defs">[docs]</a>    <span class="k">def</span> <span class="nf">add_espidf_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
-        <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_espidf_defs</span><span class="p">())</span></div></div>
+<div class="viewcode-block" id="Framework.add_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.framework.Framework.add_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">add_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
+        <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>

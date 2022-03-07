@@ -109,6 +109,21 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
+<span class="n">PLATFORM_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="register_platform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.register_platform">[docs]</a><span class="k">def</span> <span class="nf">register_platform</span><span class="p">(</span><span class="n">platform_name</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">PLATFORM_REGISTRY</span>
+
+    <span class="k">if</span> <span class="n">platform_name</span> <span class="ow">in</span> <span class="n">PLATFORM_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Platform </span><span class="si">{</span><span class="n">platform_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
+    <span class="n">PLATFORM_REGISTRY</span><span class="p">[</span><span class="n">platform_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span></div>
+
+
+<div class="viewcode-block" id="get_platforms"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.get_platforms">[docs]</a><span class="k">def</span> <span class="nf">get_platforms</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">PLATFORM_REGISTRY</span></div>
+
+
 <div class="viewcode-block" id="Platform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.Platform">[docs]</a><span class="k">class</span> <span class="nc">Platform</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Abstract platform class.&quot;&quot;&quot;</span>
 
@@ -118,18 +133,23 @@
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># def __init__(self, name, framework, backend, target, features=None, config=None, context=None):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="o">=</span> <span class="n">framework</span>  <span class="c1"># TODO: required? or self.target.framework?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="c1"># self.framework = framework  # TODO: required? or self.target.framework?</span>
+        <span class="c1"># self.backend = backend</span>
+        <span class="c1"># self.target = target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">filter_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
+        <span class="c1"># self.context = context</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="Platform.set_directory"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.Platform.set_directory">[docs]</a>    <span class="k">def</span> <span class="nf">set_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+<div class="viewcode-block" id="Platform.init_directory"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.Platform.init_directory">[docs]</a>    <span class="k">def</span> <span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Platform.create_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.Platform.create_target">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
     <span class="nd">@property</span>
@@ -151,7 +171,10 @@
         <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Incompatible feature: </span><span class="si">{</span><span class="n">feature</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">feature</span><span class="o">.</span><span class="n">add_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">features</span></div></div>
+        <span class="k">return</span> <span class="n">features</span></div>
+
+<div class="viewcode-block" id="Platform.get_supported_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.Platform.get_supported_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ne">NotImplementedError</span></div></div>
 
 
 <div class="viewcode-block" id="CompilePlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform">[docs]</a><span class="k">class</span> <span class="nc">CompilePlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
@@ -169,24 +192,26 @@
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># def __init__(self, name, framework, backend, target, features=None, config=None, context=None):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
-            <span class="n">framework</span><span class="p">,</span>
-            <span class="n">backend</span><span class="p">,</span>
-            <span class="n">target</span><span class="p">,</span>
+            <span class="c1"># framework,</span>
+            <span class="c1"># backend,</span>
+            <span class="c1"># target,</span>
             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+            <span class="c1"># context=context,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="o">=</span> <span class="n">framework</span>  <span class="c1"># TODO: required? or self.target.framework?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="c1"># self.framework = framework  # TODO: required? or self.target.framework?</span>
+        <span class="c1"># self.backend = backend</span>
+        <span class="c1"># self.target = target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">filter_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># self.context = context</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">supports_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -209,7 +234,7 @@
             <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">distutils</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">strtobool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_output&quot;</span><span class="p">]))</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="CompilePlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="CompilePlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="CompilePlatform.export_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform.export_elf">[docs]</a>    <span class="k">def</span> <span class="nf">export_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
@@ -243,18 +268,18 @@
     <span class="k">def</span> <span class="nf">supports_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="TargetPlatform.flash"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.flash">[docs]</a>    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+<div class="viewcode-block" id="TargetPlatform.flash"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.flash">[docs]</a>    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="TargetPlatform.monitor"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.monitor">[docs]</a>    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+<div class="viewcode-block" id="TargetPlatform.monitor"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.monitor">[docs]</a>    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="TargetPlatform.run"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+<div class="viewcode-block" id="TargetPlatform.run"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
         <span class="c1"># Only allow one serial communication at a time</span>
         <span class="k">with</span> <span class="n">FileLock</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s2">&quot;mlonmcu_serial.lock&quot;</span><span class="p">):</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">flash</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flash</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">output</span></div></div>
 </pre></div>

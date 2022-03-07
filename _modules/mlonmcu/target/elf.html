@@ -145,6 +145,9 @@
         <span class="s2">&quot;.dynamic&quot;</span><span class="p">,</span>
         <span class="s2">&quot;.got&quot;</span><span class="p">,</span>
         <span class="s2">&quot;.data.rel.ro&quot;</span><span class="p">,</span>
+        <span class="c1"># Espressif</span>
+        <span class="s2">&quot;.flash.appdesc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;.iram0.text_end&quot;</span><span class="p">,</span>  <span class="c1"># ?</span>
     <span class="p">]</span>
     <span class="n">ignorePrefixes</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;.gcc_except&quot;</span><span class="p">,</span>
@@ -160,6 +163,8 @@
     <span class="p">]</span>
     <span class="n">ignoreSuffixes</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;.table&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dummy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;heap_start&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">inFile</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>

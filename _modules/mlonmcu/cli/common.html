@@ -99,7 +99,8 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.platform</span> <span class="kn">import</span> <span class="n">SUPPORTED_PLATFORMS</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.platform</span> <span class="kn">import</span> <span class="n">get_platforms</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.postprocess</span> <span class="kn">import</span> <span class="n">SUPPORTED_POSTPROCESSES</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_available_feature_names</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_level</span>
@@ -125,18 +126,23 @@
         <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;TARGET&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="n">SUPPORTED_TARGETS</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="c1"># choices=SUPPORTED_TARGETS.keys(),</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
         <span class="c1"># default=None,</span>
         <span class="c1"># nargs=1,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The target device/architecture (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The target device/architecture (choices: See --list-targets)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>  <span class="c1"># TODO: move to compile.py?</span>
+        <span class="s2">&quot;--list-targets&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List the supported targets in the environment&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="c1"># &quot;-p&quot;,</span>
         <span class="s2">&quot;--platform&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;PLATFORM&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="n">SUPPORTED_PLATFORMS</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">get_platforms</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Explicitly choose the platforms to use (choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>

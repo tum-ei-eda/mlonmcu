@@ -107,13 +107,20 @@
 
 <div class="viewcode-block" id="add_export_options"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.export.add_export_options">[docs]</a><span class="k">def</span> <span class="nf">add_export_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">export_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;export options&quot;</span><span class="p">)</span>
-    <span class="n">export_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;destination&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the output directory or archive&quot;</span><span class="p">)</span>
+    <span class="n">export_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;destination&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;exported.zip&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the output directory or archive (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">)</span>
     <span class="n">export_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--force&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite files if the destination already exists (DANGEROUS)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">export_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-l&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--list&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print a summary of all available sessions and runs&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">export_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
@@ -151,6 +158,9 @@
 
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.export.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">sessions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
         <span class="n">dest</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">destination</span>
         <span class="n">interactive</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span>
         <span class="n">sids</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">session</span>

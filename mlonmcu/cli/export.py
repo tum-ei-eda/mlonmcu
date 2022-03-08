@@ -28,13 +28,20 @@ from mlonmcu.cli.common import (
 
 def add_export_options(parser):
     export_parser = parser.add_argument_group("export options")
-    export_parser.add_argument("destination", help="Path to the output directory or archive")
+    export_parser.add_argument("destination", nargs="?", default="exported.zip", help="Path to the output directory or archive (default: %(default)s)")
     export_parser.add_argument(
         "-f",
         "--force",
         default=False,
         action="store_true",
         help="Overwrite files if the destination already exists (DANGEROUS)",
+    )
+    export_parser.add_argument(
+        "-l",
+        "--list",
+        default=False,
+        action="store_true",
+        help="Print a summary of all available sessions and runs",
     )
     export_parser.add_argument(
         "-s",
@@ -72,6 +79,9 @@ def get_parser(subparsers):
 
 def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+        if args.list:
+            context.print_summary(sessions=True, runs=True, labels=True)
+            return 0
         dest = args.destination
         interactive = not args.force
         sids = args.session

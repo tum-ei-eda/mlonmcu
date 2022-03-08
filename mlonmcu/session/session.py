@@ -22,7 +22,6 @@ from datetime import datetime
 import pandas as pd
 
 from enum import Enum
-from datetime import datetime
 import tempfile
 from pathlib import Path
 import os
@@ -50,8 +49,8 @@ class SessionStatus(Enum):
 
 class Session:
     def __init__(self, label="unnamed", idx=None, archived=False, dir=None):
-        timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-        self.label = label + "_" + timestamp
+        self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+        self.label = label + "_" + self.timestamp
         self.idx = idx
         self.status = SessionStatus.CREATED
         self.opened_at = None

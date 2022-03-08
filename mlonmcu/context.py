@@ -387,6 +387,30 @@ class MlonMcuContext:
             print("No sessions selected for removal")
         # We currently do not support rewirting the indices to start from scratch again as this would lead to inconsitencies with the path in the report/cmake build dirtectory
 
+    def get_sessions_runs_idx(self):
+        sessions_dict = {}
+        for session in self.sessions:
+            session_runs_idx = [run.idx if run.idx is not None else i for i, run in enumerate(session.runs)]
+            sessions_dict[session.idx] = session_runs_idx
+        return sessions_dict
+
+    def print_summary(self, sessions=True, runs=False, labels=True):
+        def print_sessions(sessions_runs, with_runs=False, with_labels=True):
+            print("Sessions:")
+            session_index_map = {session.idx: i for i, session in enumerate(self.sessions)}
+            for session, runs in sessions_runs.items():
+                print(f"  - {session}", end="")
+                if with_runs:
+                    print(" (" + self.sessions[session_index_map[session]].label + ")", end="")
+                if with_runs:
+                    print(" [runs: " + " ".join([str(run) for run in runs]) + "]", end="")
+                print()
+
+        print("Context Summary\n")
+        sessions_runs = self.get_sessions_runs_idx()
+        print_sessions(sessions_runs, with_runs=runs, with_labels=labels)
+
+
     def export(self, dest, session_ids=None, run_ids=None, interactive=True):
         dest = Path(dest)
         if (dest.is_file() and dest.exists()) or (dest.is_dir() and utils.is_populated(dest)):

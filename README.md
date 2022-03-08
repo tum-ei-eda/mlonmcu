@@ -56,7 +56,18 @@ Also make sure that your default Python is at least v3.7. If the `python` comman
 
 **Warning:** It seems like the ETISS tool fails to compile if if find a version of LLVM 11 on your system which does not include Clang 11. The best workaround for now is to (if possible) remove those tools from your system: `sudo apt remove llvm-11* clang-11*` (See issue #1)
 
-Next, make sure to install all package dependencies into a fresh virtual Python environment
+Make sure to use a fresh virtual Python environment in the following steps.
+
+##### Install Release from PyPI
+
+**Warning:** As the PyPI package is not always up to date, it is currently recommented to use a self-build version of the package (as explained in the next section)
+
+To use the PIP package, run the following: `pip install mlonmcu` (Add `--user` if you are not using a virtual environment)
+
+
+#### Build Package manually
+
+First, install all relevant dependencies:
 
 ```
 python -m venv .venv  # Feel free to choose a different directory or use a conda environment

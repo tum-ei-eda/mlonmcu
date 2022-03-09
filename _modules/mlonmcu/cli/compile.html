@@ -156,6 +156,7 @@
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="p">:</span>  <span class="c1"># TODO: move this somewhere else</span>
         <span class="n">platform_names</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">platform</span>
+        <span class="n">platform_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">platform_names</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">platform_names</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_platform_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">platform_targets</span> <span class="o">=</span> <span class="n">get_platforms_targets</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
@@ -170,7 +171,8 @@
                 <span class="n">new_run</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">platform_name</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">platform_names</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">platform_targets</span><span class="p">[</span><span class="n">platform</span><span class="p">]:</span>
+                    <span class="n">candidates</span> <span class="o">=</span> <span class="n">platform_targets</span><span class="p">[</span><span class="n">platform</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
                         <span class="n">platform_name</span> <span class="o">=</span> <span class="n">platform</span>
                 <span class="k">assert</span> <span class="n">platform_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unable to find a suitable platform for the target &#39;</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
                 <span class="n">new_run</span><span class="o">.</span><span class="n">add_platform_by_name</span><span class="p">(</span><span class="n">platform_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>

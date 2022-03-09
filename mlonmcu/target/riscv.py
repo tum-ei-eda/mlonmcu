@@ -30,7 +30,6 @@ logger = get_logger()
 
 from .common import cli, execute
 from .target import Target
-from .metrics import Metrics
 
 
 class RISCVTarget(Target):

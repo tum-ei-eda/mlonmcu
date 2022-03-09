@@ -25,6 +25,8 @@ from filelock import FileLock
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.feature.type import FeatureType
+from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.elf import get_results as get_static_mem_usage
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
@@ -146,6 +148,27 @@ class CompilePlatform(Platform):
             if isinstance(self.config["print_outputs"], (int, bool))
             else bool(distutils.util.strtobool(self.config["print_outputs"]))
         )
+
+    def get_metrics(self, elf):
+        static_mem = get_static_mem_usage(elf)
+        rom_ro, rom_code, rom_misc, ram_data, ram_zdata = (
+            static_mem["rom_rodata"],
+            static_mem["rom_code"],
+            static_mem["rom_misc"],
+            static_mem["ram_data"],
+            static_mem["ram_zdata"],
+        )
+        rom_total = rom_ro + rom_code + rom_misc
+        ram_total = ram_data + ram_zdata
+        metrics = Metrics()
+        metrics.add("Total ROM", rom_total)
+        metrics.add("Total RAM", ram_total)
+        metrics.add("ROM read-only", rom_ro)
+        metrics.add("ROM code", rom_code)
+        metrics.add("ROM misc", rom_misc)
+        metrics.add("RAM data", ram_data)
+        metrics.add("RAM zero-init data", ram_zdata)
+        return metrics
 
     def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         raise NotImplementedError

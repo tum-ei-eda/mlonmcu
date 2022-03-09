@@ -192,4 +192,8 @@ class MlifPlatform(CompilePlatform):
             data = handle.read()
             artifact = Artifact("generic_mlif", raw=data, fmt=ArtifactFormat.RAW)
             artifacts.append(artifact)
+        metrics = self.get_metrics(elf_file)
+        content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
+        metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
+        artifacts.append(metrics_artifact)
         self.artifacts = artifacts

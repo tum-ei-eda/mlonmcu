@@ -25,6 +25,7 @@ class Metrics:
     def __init__(self):
         self.data = {}
         self.optional_keys = []
+        self.order = []
 
     @staticmethod
     def from_csv(text):
@@ -36,20 +37,29 @@ class Metrics:
         data = list(reader)[0]
         ret = Metrics()
         ret.data = data
+        ret.order = list(data.keys())
         return ret
 
-    def add(self, name, value, optional=False):
-        assert name not in self.data, "Collumn with the same name already exists in metrics"
+    def add(self, name, value, optional=False, overwrite=False, prepend=False):
+        if not overwrite:
+            assert name not in self.data, "Column with the same name already exists in metrics"
         self.data[name] = value
         if optional:
             self.optional_keys.append(name)
+        if prepend:
+            self.order.insert(0, name)
+        else:
+            self.order.append(name)
+
+    def get(self, name):
+        value = self.data[name]
+        return (ast.literal_eval(value) if len(value) > 0 else None) if isinstance(value, str) else value
+
+    def has(self, name):
+        return name in self.data
 
     def get_data(self, include_optional=False):
-        return {
-            key: (ast.literal_eval(value) if len(value) > 0 else None) if isinstance(value, str) else value
-            for key, value in self.data.items()
-            if key not in self.optional_keys or include_optional
-        }
+        return {key: self.get(key) for key in self.order if key not in self.optional_keys or include_optional}
 
     def to_csv(self, include_optional=False):
         data = self.get_data(include_optional=include_optional)

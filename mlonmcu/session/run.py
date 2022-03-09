@@ -624,11 +624,25 @@ class Run:
         post["Postprocesses"] = self.get_all_postprocess_names()
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         self.export_stage(RunStage.RUN, optional=self.export_optional)
+
+        metrics = Metrics()
+        if RunStage.COMPILE in self.artifacts_per_stage:
+            if len(self.artifacts_per_stage[RunStage.COMPILE]) > 1:  # TODO: look for artifact of type metrics instead
+                compile_metrics_artifact = self.artifacts_per_stage[RunStage.COMPILE][1]
+                compile_metrics = Metrics.from_csv(compile_metrics_artifact.content)
+                metrics = compile_metrics
+
         if RunStage.RUN in self.artifacts_per_stage:
-            metrics_artifact = self.artifacts_per_stage[RunStage.RUN][0]
-            metrics = Metrics.from_csv(metrics_artifact.content)
-        else:
-            metrics = Metrics()
+            run_metrics_artifact = self.artifacts_per_stage[RunStage.RUN][0]
+            run_metrics = Metrics.from_csv(run_metrics_artifact.content)
+            # Combine with compile metrics
+            metrics_data = metrics.get_data()
+            run_metrics_data = run_metrics.get_data()
+            for key, value in metrics_data.items():
+                if key not in run_metrics_data:
+                    run_metrics.add(key, value)
+            metrics = run_metrics
+
         main = metrics.get_data(include_optional=self.export_optional)
         report.set(pre=[pre], main=[main] if len(main) > 0 else {"Incomplete": [True]}, post=[post])
         return report

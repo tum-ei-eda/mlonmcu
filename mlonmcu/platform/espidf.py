@@ -259,6 +259,10 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         else:
             artifact = Artifact(elf_name, path=elf_file, fmt=ArtifactFormat.PATH)
             artifacts.append(artifact)
+        metrics = self.get_metrics(elf_file)
+        content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
+        metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
+        artifacts.append(metrics_artifact)
         self.artifacts = artifacts
 
     def get_idf_serial_args(self):

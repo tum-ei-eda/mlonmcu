@@ -231,7 +231,7 @@ class Session:
                         if i == 0:
                             total_threads = min(len(self.runs), num_workers)
                             cpu_count = multiprocessing.cpu_count()
-                            if (stage >= RunStage.COMPILE) and run.platform:
+                            if (stage == RunStage.COMPILE) and run.platform:
                                 total_threads *= run.platform.num_threads
                             if total_threads > 2 * cpu_count:
                                 if pbar2:

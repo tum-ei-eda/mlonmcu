@@ -28,22 +28,6 @@ mlonmcu.target.elf module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.target.esp32 module
----------------------------
-
-.. automodule:: mlonmcu.target.esp32
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mlonmcu.target.esp32c3 module
------------------------------
-
-.. automodule:: mlonmcu.target.esp32c3
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.target.etiss\_pulpino module
 ------------------------------------
 

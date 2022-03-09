@@ -185,6 +185,18 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write("CONFIG_OPTIMIZATION_LEVEL_DEBUG=y\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y\n")
                 else:
+                    # Trying to reduce the binary size as much as possible (See: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/performance/size.html)
+                    f.write("CONFIG_BOOTLOADER_LOG_LEVEL_NONE=y\n")
+                    f.write("CONFIG_BOOTLOADER_LOG_LEVEL=0\n")
+                    f.write("CONFIG_BOOT_ROM_LOG_ALWAYS_OFF=y\n")
+                    f.write("CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_DISABLE=y\n")
+                    f.write("CONFIG_COMPILER_OPTIMIZATION_ASSERTION_LEVEL=0\n")
+                    f.write("CONFIG_COMPILER_OPTIMIZATION_CHECKS_SILENT=y\n")
+                    f.write("CONFIG_HAL_DEFAULT_ASSERTION_LEVEL=0\n")
+                    f.write("CONFIG_LOG_DEFAULT_LEVEL_NONE=y\n")
+                    f.write("CONFIG_LOG_DEFAULT_LEVEL=0\n")
+                    f.write("ONFIG_LOG_MAXIMUM_LEVEL=0\n")
+                    f.write("CONFIG_NEWLIB_NANO_FORMAT=y\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     f.write("CONFIG_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     optimize_for_size = True

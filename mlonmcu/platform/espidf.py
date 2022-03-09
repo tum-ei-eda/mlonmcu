@@ -19,6 +19,7 @@
 """ESP-IDF Platform"""
 
 import os
+import sys
 import signal
 import shutil
 import tempfile
@@ -64,8 +65,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "baud": None,
     }
 
-    # REQUIRED = ["espidf.dir", "espidf.project_template"]
-    REQUIRED = []  # For now just expect the user to be already in an esp-idf environment
+    REQUIRED = ["espidf.install_dir", "espidf.src_dir"]
 
     # def __init__(self, framework, backend, target, features=None, config=None, context=None):
     def __init__(self, features=None, config=None):
@@ -81,7 +81,27 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.tempdir = None
         self.project_name = "app"
         self.project_dir = None
-        self.idf_exe = "idf.py"
+
+    @property
+    def espidf_install_dir(self):
+        return Path(self.config["espidf.install_dir"])
+
+    @property
+    def espidf_src_dir(self):
+        return Path(self.config["espidf.src_dir"])
+
+    @property
+    def idf_exe(self):
+        return self.espidf_src_dir / "tools" / "idf.py"
+
+
+    def invoke_idf_exe(self, *args, **kwargs):
+        env = {}  # Do not use current virtualenv (TODO: is there a better way?)
+        env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
+        env["PATH"] = str(Path(sys.base_prefix) / "bin")
+        cmd = ". " + str(self.espidf_src_dir / "export.sh") + f"> /dev/null && {self.idf_exe} " + " ".join([str(arg) for arg in args])
+        out = utils.exec_getout(cmd, shell=True, env=env, **kwargs)  # TODO: using shell=True is insecure but right now we can not avoid it?
+        return out
 
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
@@ -110,11 +130,10 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.project_dir.mkdir(exist_ok=True)
 
     def get_supported_targets(self):
-        idfArgs = [self.idf_exe, "--list-targets"]
-        text = utils.exec_getout(*idfArgs, live=self.print_output, print_output=False)
+        text = self.invoke_idf_exe("--list-targets", live=self.print_output, print_output=False)
         target_names = text.split("\n")
 
-        return [name for name in target_names if len(name) > 0]
+        return [name for name in target_names if len(name) > 0 and " " not in name]
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid ESP-IDF target"
@@ -186,13 +205,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
         write_defaults(self.project_dir / "sdkconfig.defaults")
         idfArgs = [
-            self.idf_exe,
             "-C",
             self.project_dir,
             "set-target",
             target.name,
         ]
-        utils.exec_getout(*idfArgs, live=self.print_output)
+        self.invoke_idf_exe(*idfArgs, live=self.print_output)
 
     def get_idf_cmake_args(self):
         cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
@@ -203,13 +221,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.prepare(target, src, num=num)
         # TODO: support self.num_threads (e.g. patch esp-idf)
         idfArgs = [
-            self.idf_exe,
             "-C",
             self.project_dir,
             *self.get_idf_cmake_args(),
             "build",
         ]
-        utils.exec_getout(*idfArgs, live=self.print_output)
+        self.invoke_idf_exe(*idfArgs, live=self.print_output)
 
     def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         artifacts = []
@@ -243,14 +260,13 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         # TODO: make sure that already compiled? -> error or just call compile routine?
         input(f"Make sure that the device '{target.name}' is connected before you press Enter")
         idfArgs = [
-            self.idf_exe,
             "-C",
             self.project_dir,
             *self.get_idf_cmake_args(),
             "flash",
             *self.get_idf_serial_args(),
         ]
-        utils.exec_getout(*idfArgs, live=self.print_output)
+        self.invoke_idf_exe(*idfArgs, live=self.print_output)
 
     def monitor(self, target, timeout=60):
         def _kill_monitor():
@@ -268,7 +284,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             found_start = start_match is None
             logger.debug("- Executing: %s", str(args))
             outStr = ""
-            process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            env = {}  # Do not use current virtualenv (TODO: is there a better way?)
+            env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
+            env["PATH"] = str(Path(sys.base_prefix) / "bin")
+            cmd = ". " + str(self.espidf_src_dir / "export.sh") + f"> /dev/null && {self.idf_exe} " + " ".join([str(arg) for arg in args])
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, env=env)
             try:
                 exit_code = None
                 for line in process.stdout:
@@ -301,7 +321,6 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
         # TODO: implement timeout
         idfArgs = [
-            self.idf_exe,
             "-C",
             self.project_dir,
             *self.get_idf_cmake_args(),

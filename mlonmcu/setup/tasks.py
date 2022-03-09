@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import sys
 from pathlib import Path
 
 from mlonmcu.setup.task import TaskFactory, TaskType
@@ -958,3 +959,48 @@ def clone_mlif(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
         mlifRepo = context.environment.repos["mlif"]
         utils.clone(mlifRepo.url, mlifSrcDir, branch=mlifRepo.ref, refresh=rebuild)
     context.cache["mlif.src_dir"] = mlifSrcDir
+
+def _validate_espidf(context: MlonMcuContext, params=None):
+    return context.environment.has_platform("espidf")
+
+@Tasks.provides(["espidf.src_dir"])
+@Tasks.validate(_validate_espidf)
+@Tasks.register(category=TaskType.PLATFORM)
+def clone_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Clone the ESP-IDF repository."""
+    espidfName = utils.makeDirName("espidf")
+    espidfSrcDir = context.environment.paths["deps"].path / "src" / espidfName
+    user_vars = context.environment.vars
+    if "espidf.src_dir" in user_vars:  # TODO: also check command line flags?
+        return False
+    if rebuild or not utils.is_populated(espidfSrcDir):
+        espidfRepo = context.environment.repos["espidf"]
+        utils.clone(espidfRepo.url, espidfSrcDir, branch=espidfRepo.ref, refresh=rebuild, recursive=True)
+    context.cache["espidf.src_dir"] = espidfSrcDir
+
+
+@Tasks.needs(["espidf.src_dir"])
+@Tasks.provides(["espidf.install_dir"])
+@Tasks.validate(_validate_espidf)
+@Tasks.register(category=TaskType.PLATFORM)
+def install_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Download and install target support for ESP-IDF toolchain."""
+    espidfName = utils.makeDirName("espidf")
+    espidfInstallDir = context.environment.paths["deps"].path / "install" / espidfName
+    espidfSrcDir = context.cache["espidf.src_dir"]  # TODO: This will fail if the espidf.src_dir is user-supplied
+    user_vars = context.environment.vars
+    if "espidf.install_dir" in user_vars:  # TODO: also check command line flags?
+        return False
+    boards = ["all"]
+    if "espidf.boards" in user_vars:
+        boards = user_vars["espidf.boards"]
+    if not isinstance(boards, str):
+        assert isinstance(boards, list)
+        boards = ";".join(boards)
+    if not utils.is_populated(espidfInstallDir) or rebuild:
+        espidfInstallScript = Path(espidfSrcDir) / "install.sh"
+        env = {}  # Do not use current virtualenv (TODO: is there a better way?)
+        env["IDF_TOOLS_PATH"] = str(espidfInstallDir)
+        env["PATH"] = "/usr/bin"
+        utils.exec_getout(espidfInstallScript, boards, live=verbose, env=env)
+    context.cache["espidf.install_dir"] = espidfInstallDir

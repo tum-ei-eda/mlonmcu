@@ -70,6 +70,18 @@ def load_environment_from_file(filename, base):
             log_level = None
             log_to_file = False
             log_rotate = False
+        if "cleanup" in loaded:
+            if "auto" in loaded["cleanup"]:
+                cleanup_auto = bool(loaded["cleanup"]["auto"])
+            else:
+                cleanup_auto = False
+            if "auto" in loaded["cleanup"]:
+                cleanup_keep = int(loaded["cleanup"]["keep"])
+            else:
+                cleanup_keep = 100
+        else:
+            cleanup_auto = False
+            cleanup_keep = 100
         if "paths" in loaded:
             paths = {}
             for key in loaded["paths"]:
@@ -198,6 +210,8 @@ def load_environment_from_file(filename, base):
             default_framework=default_framework,
             default_backends=default_backends,
             default_target=default_target,
+            cleanup_auto=cleanup_auto,
+            cleanup_keep=cleanup_keep,
         )
         env = base(
             home,

@@ -86,6 +86,8 @@ class DefaultsConfig(BaseConfig):
         default_framework=None,
         default_backends={},
         default_target=None,
+        cleanup_auto=False,
+        cleanup_keep=100,
     ):
         self.log_level = log_level
         self.log_to_file = log_to_file
@@ -93,6 +95,8 @@ class DefaultsConfig(BaseConfig):
         self.default_framework = default_framework
         self.default_backends = default_backends
         self.default_target = default_target
+        self.cleanup_auto = cleanup_auto
+        self.cleanup_keep = cleanup_keep
 
 
 class PathConfig(BaseConfig):

@@ -46,6 +46,11 @@ def create_environment_dict(environment):
     data["logging"] = {
         "level": environment.defaults.log_level.name,
         "to_file": environment.defaults.log_to_file,
+        "rotate": environment.defaults.log_rotate,
+    }
+    data["cleanup"] = {
+        "auto": environment.defaults.cleanup_auto,
+        "keep": environment.defaults.cleanup_keep,
     }
     data["paths"] = {
         path: str(path_config.path)

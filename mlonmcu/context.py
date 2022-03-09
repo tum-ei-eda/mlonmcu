@@ -277,6 +277,10 @@ class MlonMcuContext:
         self.lock = lock
         self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
         self.sessions = load_recent_sessions(self.environment)
+        if self.environment.defaults.cleanup_auto:
+            logger.debug("Cleaning up old sessions automaticaly")
+            self.cleanup_sessions(keep=self.environment.defaults.cleanup_keep, interactive=False)
+            self.sessions = load_recent_sessions(self.environment)
         self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
         logger.debug(f"Restored {len(self.sessions)} recent sessions")
         self.cache = TaskCache()
@@ -361,15 +365,17 @@ class MlonMcuContext:
         """Utility to cleanup old sessions from the disk."""
         assert self.is_clean
         all_sessions = self.sessions
-        # print("all_sessions", all_sessions)
         to_keep = all_sessions[-keep:] if keep > 0 else []
         to_remove = self.sessions[:-keep] if keep > 0 else self.sessions
         count = len(to_remove)
         if count > 0:
             temp_dir = self.environment.lookup_path("temp").path
             sessions_dir = temp_dir / "sessions"
-            print(f"The following {count} sessions will be removed from the environments temp directory ({temp_dir}):")
-            print(" ".join([str(session.idx) for session in to_remove]))
+            if interactive:
+                print(
+                    f"The following {count} sessions will be removed from the environments temp directory ({temp_dir}):"
+                )
+                print(" ".join([str(session.idx) for session in to_remove]))
 
             if ask_user("Are your sure?", default=not interactive, interactive=interactive):
                 for session in to_remove:
@@ -380,11 +386,14 @@ class MlonMcuContext:
                     shutil.rmtree(session_dir)
                 self.sessions = to_keep
                 self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
-                print("Done")
+                if interactive:
+                    print("Done")
             else:
-                print("Aborted")
+                if interactive:
+                    print("Aborted")
         else:
-            print("No sessions selected for removal")
+            if interactive:
+                print("No sessions selected for removal")
         # We currently do not support rewirting the indices to start from scratch again as this would lead to inconsitencies with the path in the report/cmake build dirtectory
 
     def get_sessions_runs_idx(self):
@@ -409,7 +418,6 @@ class MlonMcuContext:
         print("Context Summary\n")
         sessions_runs = self.get_sessions_runs_idx()
         print_sessions(sessions_runs, with_runs=runs, with_labels=labels)
-
 
     def export(self, dest, session_ids=None, run_ids=None, interactive=True):
         dest = Path(dest)

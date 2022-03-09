@@ -336,6 +336,8 @@ class DefaultEnvironment(Environment):
             default_framework=None,
             default_backends={},
             default_target=None,
+            cleanup_auto=False,
+            cleanup_keep=100,
         )
         self.paths = {
             "deps": PathConfig("./deps"),

@@ -36,7 +36,7 @@ logger = get_logger()
 class MlifPlatform(CompilePlatform):
     """Model Library Interface Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + ["validate"]
+    FEATURES = CompilePlatform.FEATURES + ["validate", "debug_arena"]
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,

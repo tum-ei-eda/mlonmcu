@@ -35,6 +35,10 @@ class TVMCGBackend(TVMRTBackend):
 
     name = "tvmcg"
 
+    FEATURES = [
+        *TVMBackend.FEATURES,
+    ]
+
     REQUIRED = TVMRTBackend.REQUIRED + ["utvmcg.exe"]
 
     def get_max_workspace_size_from_metadata(self, metadata):

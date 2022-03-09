@@ -84,18 +84,14 @@ class DebugArena(BackendFeature, PlatformFeature):
     def get_backend_config(self, backend):
         assert backend in [
             "tvmaot",
-            "tvmcg",
+            # "tvmcg",  # TODO: implement
             "tvmrt",
+            "tflmi",
         ], f"Unsupported feature '{self.name}' for backend '{backend}'"
-        # TODO: TFLM also compatible?
         return {f"{backend}.debug_arena": self.enabled}
 
     def get_platform_defs(self, platform):
-        if platform == "espidf":
-            val = "y" if self.enabled else "n"  # TODO: bool to string at later step?
-        else:
-            val = "ON" if self.enabled else "OFF"
-        return {"DEBUG_ARENA": val}
+        return {"DEBUG_ARENA_USAGE": self.enabled}  # TODO: add MLONMCU_ prefix for with mlif and espidf
 
 
 @register_feature("validate")
@@ -378,7 +374,7 @@ class Trace(TargetFeature):
     """Enable tracing of all memory accesses in ETISS."""
 
     def __init__(self, config=None):
-        super().__init__("etissdbg", config=config)
+        super().__init__("trace", config=config)
 
     def get_target_config(self, target):
         assert target in ["etiss_pulpino"]
@@ -860,80 +856,6 @@ class Vext(SetupFeature, TargetFeature):
             "muriscvnn.inc_dir": ["vext"],
             "tflmc.exe": ["vext"],
         }
-
-
-@register_feature("debug")
-class Debug(SetupFeature, PlatformFeature):
-    """Enable debugging ability of target software."""
-
-    def __init__(self, config=None):
-        super().__init__("debug", config=config)
-
-    def get_required_cache_flags(self):
-        return {} if self.enabled else {}  # TODO: remove?
-
-    def get_platform_config(self, platform):
-        return {f"{platform}.debug": self.enabled}
-
-
-@register_feature("gdbserver")
-class GdbServer(TargetFeature):
-    """Start debugging session for target software using gdbserver."""
-
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "attach": None,
-        "port": None,
-    }
-
-    def __init__(self, config=None):
-        super().__init__("gdbserver", config=config)
-
-    @property
-    def attach(self):
-        # TODO: implement get_bool_or_none?
-        return bool(self.config["attach"]) if self.config["attach"] is not None else None
-
-    @property
-    def port(self):
-        return int(self.config["port"]) if self.config["port"] is not None else None
-
-    def get_target_config(self, target):
-        assert target in ["host_x86", "etiss_pulpino"]
-        return filter_none(
-            {
-                f"{target}.gdbserver_enable": self.enabled,
-                f"{target}.gdbserver_attach": self.attach,
-                f"{target}.gdbserver_port": self.port,
-            }
-        )
-
-
-@register_feature("etissdbg")
-class ETISSDebug(SetupFeature, TargetFeature):
-    """Debug ETISS internals."""
-
-    def __init__(self, config=None):
-        super().__init__("etissdbg", config=config)
-
-    def get_required_cache_flags(self):
-        return {"etiss.install_dir": ["debug"], "etissvp.script": ["debug"]} if self.enabled else {}
-
-    def get_target_config(self, target):
-        assert target in ["etiss_pulpino"]
-        return {"etiss_pulpino.debug_etiss": self.enabled}
-
-
-@register_feature("trace")
-class Trace(TargetFeature):
-    """Enable tracing of all memory accesses in ETISS."""
-
-    def __init__(self, config=None):
-        super().__init__("etissdbg", config=config)
-
-    def get_target_config(self, target):
-        assert target in ["etiss_pulpino"]
-        return {"etiss_pulpino.trace_memory": self.enabled}
 
 
 @register_feature("unpacked_api")

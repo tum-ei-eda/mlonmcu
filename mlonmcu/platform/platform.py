@@ -61,6 +61,7 @@ class Platform:
         # self.backend = backend
         # self.target = target
         self.config = config if config else {}
+        self.definitions = {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         # self.context = context
@@ -92,6 +93,7 @@ class Platform:
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.add_platform_config(self.name, self.config)
+            feature.add_platform_defs(self.name, self.definitions)
         return features
 
     def get_supported_targets(self):

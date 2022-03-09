@@ -55,7 +55,7 @@ def get_project_template(name="project"):
 class EspIdfPlatform(CompilePlatform, TargetPlatform):
     """ESP-IDF Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + []
+    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["debug_arena"]
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,

@@ -11,6 +11,7 @@ Welcome to ML on MCU's documentation!
    design
    components
    environments
+   postprocess
    logging
    docs
    contributing

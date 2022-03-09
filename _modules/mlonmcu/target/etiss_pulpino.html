@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
@@ -200,6 +201,7 @@
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_enable</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;[Plugin gdbserver]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="c1"># This could also be accomplished using `--plugin.gdbserver.port` on the cmdline</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plugin.gdbserver.port=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="EtissPulpinoTarget.exec"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -236,6 +238,7 @@
                 <span class="n">program</span><span class="p">,</span>
                 <span class="o">*</span><span class="n">etiss_script_args</span><span class="p">,</span>
                 <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -267,7 +270,7 @@
 
         <span class="k">return</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">mips</span></div>
 
-<div class="viewcode-block" id="EtissPulpinoTarget.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="EtissPulpinoTarget.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span><span class="p">:</span>
             <span class="n">trace_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;dBusAccess.csv&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">trace_file</span><span class="p">):</span>
@@ -279,7 +282,7 @@
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">metrics_file</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">metrics_file</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
@@ -292,13 +295,14 @@
         <span class="k">if</span> <span class="n">trace_file</span><span class="p">:</span>
             <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--trace&quot;</span><span class="p">,</span> <span class="n">trace_file</span><span class="p">])</span>
         <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">metrics_file</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sef</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
             <span class="n">out2</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out2</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
                 <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span>
                 <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span>
                 <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -360,8 +364,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 <div class="viewcode-block" id="EtissPulpinoTarget.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ETISS_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_dir</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;PULPINO_ROM_START&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rom_start</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;PULPINO_ROM_SIZE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rom_size</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;PULPINO_RAM_START&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_start</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;PULPINO_RAM_SIZE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_size</span>
         <span class="k">return</span> <span class="n">ret</span></div></div>
 
 

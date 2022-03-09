@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
@@ -689,6 +690,8 @@
 </li>
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.FEATURES">(mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend attribute)</a>
 </li>
+        <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend.FEATURES">(mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend attribute)</a>
+</li>
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend.FEATURES">(mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend attribute)</a>
 </li>
         <li><a href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.FEATURES">(mlonmcu.flow.tvm.framework.TVMFramework attribute)</a>
@@ -874,6 +877,8 @@
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_wrapper_header">generate_wrapper_header() (in module mlonmcu.flow.tvm.backend.wrapper)</a>
 </li>
+      <li><a href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.get">get() (mlonmcu.target.metrics.Metrics method)</a>
+</li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.get_all_configs">get_all_configs() (mlonmcu.session.run.Run method)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.get_all_feature_names">get_all_feature_names() (mlonmcu.session.run.Run method)</a>
@@ -970,9 +975,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend.get_max_workspace_size_from_metadata">get_max_workspace_size_from_metadata() (mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend method)</a>
 </li>
-      <li><a href="mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_metrics">get_metrics() (mlonmcu.target.corstone300.Corstone300Target method)</a>
+      <li><a href="mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform.get_metrics">get_metrics() (mlonmcu.platform.platform.CompilePlatform method)</a>
 
       <ul>
+        <li><a href="mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_metrics">(mlonmcu.target.corstone300.Corstone300Target method)</a>
+</li>
         <li><a href="mlonmcu.target.html#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.get_metrics">(mlonmcu.target.etiss_pulpino.EtissPulpinoTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.html#mlonmcu.target.ovpsim.OVPSimTarget.get_metrics">(mlonmcu.target.ovpsim.OVPSimTarget method)</a>
@@ -1154,13 +1161,15 @@
         <li><a href="mlonmcu.cli.html#mlonmcu.cli.tune.handle">(in module mlonmcu.cli.tune)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.main.handle_docker">handle_docker() (in module mlonmcu.cli.main)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.flow.handle_list_targets">handle_list_targets() (in module mlonmcu.cli.flow)</a>
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.common.handle_logging_flags">handle_logging_flags() (in module mlonmcu.cli.common)</a>
+</li>
+      <li><a href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.has">has() (mlonmcu.target.metrics.Metrics method)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_backend">has_backend() (mlonmcu.environment.environment.Environment method)</a>
 </li>
@@ -2585,10 +2594,14 @@
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.print_models">print_models() (in module mlonmcu.models.lookup)</a>
 </li>
-      <li><a href="mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform.print_output">print_output (mlonmcu.platform.platform.CompilePlatform property)</a>
-</li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.print_outputs">print_outputs (mlonmcu.flow.tvm.backend.tuner.TVMTuner property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform.print_outputs">(mlonmcu.platform.platform.CompilePlatform property)</a>
 </li>
+        <li><a href="mlonmcu.target.html#mlonmcu.target.target.Target.print_outputs">(mlonmcu.target.target.Target property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.print_paths">print_paths() (in module mlonmcu.models.lookup)</a>
 </li>
       <li><a href="mlonmcu.platform.html#mlonmcu.platform.lookup.print_platforms">print_platforms() (in module mlonmcu.platform.lookup)</a>

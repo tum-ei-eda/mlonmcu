@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
@@ -111,6 +112,7 @@
 <span class="n">register_mlif_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">)</span>
 <span class="n">register_mlif_target</span><span class="p">(</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="MlifExitCode"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.MlifExitCode">[docs]</a><span class="k">class</span> <span class="nc">MlifExitCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
     <span class="n">ERROR</span> <span class="o">=</span> <span class="mh">0x10</span>
     <span class="n">INVALID_SIZE</span> <span class="o">=</span> <span class="mh">0x11</span>
@@ -119,6 +121,7 @@
 <div class="viewcode-block" id="MlifExitCode.values"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.MlifExitCode.values">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">cls</span><span class="p">))</span></div></div>
+
 
 <div class="viewcode-block" id="create_mlif_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.create_mlif_target">[docs]</a><span class="k">def</span> <span class="nf">create_mlif_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
     <span class="k">class</span> <span class="nc">MlifTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>  <span class="c1"># This is not ideal as we will have multiple different MlifTarget classes</span>
@@ -135,11 +138,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">validation_result</span> <span class="o">=</span> <span class="kc">None</span>
 
-
         <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="c1"># This is wrapper around the original exec function to catch special return codes thrown by the inout data feature</span>
             <span class="c1"># TODO: catch edge cases: no input data available (skipped) and no return code (real hardware)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">validate_outputs</span><span class="p">:</span>
+
                 <span class="k">def</span> <span class="nf">handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">validation_result</span> <span class="o">=</span> <span class="kc">True</span>
@@ -151,11 +154,12 @@
                             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">fail_on_error</span><span class="p">:</span>
                                 <span class="n">code</span> <span class="o">=</span> <span class="mi">0</span>
                     <span class="k">return</span> <span class="n">code</span>
+
                 <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;handle_exit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">handle_exit</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-            <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">validate_outputs</span><span class="p">:</span>
                 <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Validation&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_result</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">metrics</span>
@@ -165,7 +169,6 @@
             <span class="n">target_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_system</span><span class="p">()</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;TARGET_SYSTEM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_system</span>
             <span class="k">return</span> <span class="n">ret</span>
-
 
     <span class="k">return</span> <span class="n">MlifTarget</span></div>
 </pre></div>

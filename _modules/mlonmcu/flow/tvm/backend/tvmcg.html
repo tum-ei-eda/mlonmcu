@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
@@ -114,6 +115,10 @@
 <div class="viewcode-block" id="TVMCGBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmcg.TVMCGBackend">[docs]</a><span class="k">class</span> <span class="nc">TVMCGBackend</span><span class="p">(</span><span class="n">TVMRTBackend</span><span class="p">):</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tvmcg&quot;</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="o">*</span><span class="n">TVMBackend</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">,</span>
+    <span class="p">]</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">TVMRTBackend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">]</span>
 

@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
@@ -116,12 +117,12 @@
 <p>ESP-IDF Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">None,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_output':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">None,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'debug_arena']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -273,12 +274,12 @@
 <p>Model Library Interface Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'fail_on_error':</span> <span class="pre">False,</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_output':</span> <span class="pre">False,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'fail_on_error':</span> <span class="pre">False,</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'validate']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'validate',</span> <span class="pre">'debug_arena']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -423,7 +424,7 @@
 <p>Abstract compile platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'print_output':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'print_outputs':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -451,14 +452,19 @@
 <span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.generate_elf" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.get_metrics">
+<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.get_metrics" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.num_threads">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_threads</span></span><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.num_threads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.print_output">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_output</span></span><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.print_output" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.print_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_outputs</span></span><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.print_outputs" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

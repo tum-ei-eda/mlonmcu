@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
@@ -134,7 +135,7 @@
 <div class="viewcode-block" id="EspIdfPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform">[docs]</a><span class="k">class</span> <span class="nc">EspIdfPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;ESP-IDF Platform class.&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">CompilePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -147,16 +148,11 @@
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;espidf.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf.src_dir&quot;</span><span class="p">]</span>
 
-    <span class="c1"># def __init__(self, framework, backend, target, features=None, config=None, context=None):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;espidf&quot;</span><span class="p">,</span>
-            <span class="c1"># Framework=framework,</span>
-            <span class="c1"># Backend=backend,</span>
-            <span class="c1"># Target=target,</span>
             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="c1"># context=context,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">=</span> <span class="s2">&quot;app&quot;</span>
@@ -218,7 +214,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.get_supported_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_supported_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="s2">&quot;--list-targets&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="s2">&quot;--list-targets&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">target_names</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s2">&quot; &quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span></div>
@@ -310,7 +306,7 @@
             <span class="s2">&quot;set-target&quot;</span><span class="p">,</span>
             <span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.get_idf_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_idf_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cmake_defs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;CMAKE_BUILD_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;Debug&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="k">else</span> <span class="s2">&quot;Release&quot;</span><span class="p">}</span>
@@ -326,7 +322,7 @@
             <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_cmake_args</span><span class="p">(),</span>
             <span class="s2">&quot;build&quot;</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -343,6 +339,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="n">elf_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">elf_file</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">PATH</span><span class="p">)</span>
             <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">elf_file</span><span class="p">)</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># TODO: store df instead?</span>
+        <span class="n">metrics_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;metrics.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics_artifact</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.get_idf_serial_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_serial_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_idf_serial_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -370,7 +370,7 @@
             <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
             <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_serial_args</span><span class="p">(),</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.monitor"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.monitor">[docs]</a>    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">_kill_monitor</span><span class="p">():</span>
@@ -440,7 +440,7 @@
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">_monitor_helper</span><span class="p">(</span>
             <span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span>
-            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_output</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
             <span class="n">start_match</span><span class="o">=</span><span class="s2">&quot;MLonMCU: START&quot;</span><span class="p">,</span>
             <span class="n">end_match</span><span class="o">=</span><span class="s2">&quot;MLonMCU: STOP&quot;</span><span class="p">,</span>
             <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>

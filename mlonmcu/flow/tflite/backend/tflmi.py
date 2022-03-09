@@ -96,9 +96,9 @@ size_t {prefix}_outputs();
         debug_arena=False,
         arena_size=None,
         ops=None,
-        custom_ops=None,
-        registrations=None,
-        ops_resolver=None,
+        custom_ops=None,  # TODO: implement
+        registrations=None,  # TODO: implement
+        ops_resolver=None,  # TODO: implement
     ):
 
         arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]

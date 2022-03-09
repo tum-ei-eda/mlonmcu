@@ -77,6 +77,7 @@ def _handle(args, context):
 
     if args.platform:  # TODO: move this somewhere else
         platform_names = args.platform
+        platform_names = [x[0] for x in platform_names]
     else:
         platform_names = context.environment.lookup_platform_configs(names_only=True)
     platform_targets = get_platforms_targets(context)
@@ -91,7 +92,8 @@ def _handle(args, context):
                 new_run = run.copy()
                 platform_name = None
                 for platform in platform_names:
-                    if target_name in platform_targets[platform]:
+                    candidates = platform_targets[platform]
+                    if target_name in candidates:
                         platform_name = platform
                 assert platform_name is not None, f"Unable to find a suitable platform for the target '{target_name}'"
                 new_run.add_platform_by_name(platform_name, context=context)

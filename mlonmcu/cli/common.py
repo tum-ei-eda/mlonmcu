@@ -65,6 +65,7 @@ def add_flow_options(parser):
         metavar="PLATFORM",
         choices=get_platforms().keys(),
         default=None,
+        action="append",
         nargs=1,
         help="Explicitly choose the platforms to use (choices: %(choices)s)",
     )

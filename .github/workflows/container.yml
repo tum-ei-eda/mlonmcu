@@ -115,19 +115,19 @@ jobs:
         uses: ASzc/change-string-case-action@v1
         with:
           string: ${{ github.repository }}
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: docker/Dockerfile
-          pull: true
-          push: true
-          target: mlonmcu
-          cache-from: |
-            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
-            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
-          cache-to: type=inline
-          tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
+      # - name: Build and push
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: .
+      #     file: docker/Dockerfile
+      #     pull: true
+      #     push: true
+      #     target: mlonmcu
+      #     cache-from: |
+      #       type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
+      #       type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
+      #     cache-to: type=inline
+      #     tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
       - name: Login to DockerHub
         uses: docker/login-action@v1
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -146,7 +146,6 @@ jobs:
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
-            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
           cache-to: type=inline
           tags: tumeda/mlonmcu:${{ github.event.inputs.version }}
   bench:

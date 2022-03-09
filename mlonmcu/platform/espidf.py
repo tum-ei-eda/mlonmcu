@@ -43,6 +43,7 @@ import pkgutil
 import os
 import pkg_resources
 
+
 def get_project_template(name="project"):
     espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "platforms", "espidf"))
     if name not in espidf_templates:
@@ -94,13 +95,21 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     def idf_exe(self):
         return self.espidf_src_dir / "tools" / "idf.py"
 
-
     def invoke_idf_exe(self, *args, **kwargs):
         env = {}  # Do not use current virtualenv (TODO: is there a better way?)
+        env["IDF_PATH"] = str(self.espidf_src_dir)
         env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
         env["PATH"] = str(Path(sys.base_prefix) / "bin")
-        cmd = ". " + str(self.espidf_src_dir / "export.sh") + f"> /dev/null && {self.idf_exe} " + " ".join([str(arg) for arg in args])
-        out = utils.exec_getout(cmd, shell=True, env=env, **kwargs)  # TODO: using shell=True is insecure but right now we can not avoid it?
+        cmd = (
+            ". "
+            + str(self.espidf_src_dir / "export.sh")
+            + f" && {self.idf_exe} "
+            # + f" > /dev/null && {self.idf_exe} "
+            + " ".join([str(arg) for arg in args])
+        )
+        out = utils.exec_getout(
+            cmd, shell=True, env=env, **kwargs
+        )  # TODO: using shell=True is insecure but right now we can not avoid it?
         return out
 
     def init_directory(self, path=None, context=None):
@@ -210,10 +219,10 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 f.write(f"CONFIG_MLONMCU_NUM_RUNS={num}\n")
                 for key, value in defs.items():
                     if isinstance(value, bool):
-                        value = 'y' if value else 'n'
+                        value = "y" if value else "n"
                     else:
                         value = f'"{value}"'
-                    f.write(f'CONFIG_{key}={value}\n')
+                    f.write(f"CONFIG_{key}={value}\n")
 
         write_defaults(self.project_dir / "sdkconfig.defaults")
         idfArgs = [
@@ -242,8 +251,6 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         artifacts = []
-        if num > 1:
-            raise NotImplementedError
         self.compile(target, src=src, num=num)
         elf_name = self.project_name + ".elf"
         elf_file = self.project_dir / "build" / elf_name
@@ -270,7 +277,13 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     def flash(self, target, timeout=120):
         # TODO: implement timeout
         # TODO: make sure that already compiled? -> error or just call compile routine?
-        input(f"Make sure that the device '{target.name}' is connected before you press Enter")
+        answer = input(
+            f"Make sure that the device '{target.name}' is connected before you press [Enter] (Type 'Abort' to cancel)"
+        )
+        if answer.lower() == "abort":
+            return ""
+        logger.debug("Flashing target software")
+
         idfArgs = [
             "-C",
             self.project_dir,
@@ -297,9 +310,15 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             logger.debug("- Executing: %s", str(args))
             outStr = ""
             env = {}  # Do not use current virtualenv (TODO: is there a better way?)
+            env["IDF_PATH"] = str(self.espidf_src_dir)
             env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
             env["PATH"] = str(Path(sys.base_prefix) / "bin")
-            cmd = ". " + str(self.espidf_src_dir / "export.sh") + f"> /dev/null && {self.idf_exe} " + " ".join([str(arg) for arg in args])
+            cmd = (
+                ". "
+                + str(self.espidf_src_dir / "export.sh")
+                + f"> /dev/null && {self.idf_exe} "
+                + " ".join([str(arg) for arg in args])
+            )
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, env=env)
             try:
                 exit_code = None
@@ -331,6 +350,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 os.kill(pid, signal.SIGINT)
             return outStr
 
+        logger.debug("Monitoring target software")
         # TODO: implement timeout
         idfArgs = [
             "-C",

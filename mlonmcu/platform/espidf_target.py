@@ -5,6 +5,9 @@ from mlonmcu.target.target import Target
 from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.target.elf import get_results
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 def create_espidf_target(name, platform, base=Target):
@@ -44,12 +47,16 @@ def create_espidf_target(name, platform, base=Target):
         def parse_stdout(self, out):
             cpu_cycles = re.search(r"Total Cycles: (.*)", out)
             if not cpu_cycles:
-                raise RuntimeError("unexpected script output (cycles)")
-            cycles = int(float(cpu_cycles.group(1)))
+                logger.warning("unexpected script output (cycles)")
+                cycles = None
+            else:
+                cycles = int(float(cpu_cycles.group(1)))
             cpu_time_us = re.search(r"Total Time: (.*) us", out)
-            if not cpu_cycles:
-                raise RuntimeError("unexpected script output (time_us)")
-            time_us = int(float(cpu_time_us.group(1)))
+            if not cpu_time_us:
+                logger.warning("unexpected script output (time_us)")
+                time_us = None
+            else:
+                time_us = int(float(cpu_time_us.group(1)))
             return cycles, time_us
 
         def get_metrics(self, elf, directory, verbose=False):
@@ -61,7 +68,8 @@ def create_espidf_target(name, platform, base=Target):
 
             metrics = Metrics()
             metrics.add("Total Cycles", cycles)
-            metrics.add("Runtime [s]", time_us / 1e6)
+            time_s = time_us / 1e6 if time_us is not None else time_us
+            metrics.add("Runtime [s]", time_s)
             static_mem = get_results(elf)
 
             rom_ro, rom_code, rom_misc, ram_data, ram_zdata = (

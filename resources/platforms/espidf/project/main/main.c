@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 #include <stdio.h>
+#include <stdint.h>
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -38,11 +39,14 @@ void app_main(void)
     uint64_t us_diff = us_after - us_before;
     int cpu_freq = esp_clk_cpu_freq();
     uint64_t cycles_diff = (cpu_freq / 1000000) * us_diff;
-    printf("CPU Frequency: %d\n", cpu_freq);
-    printf("Total Time: %llu us\n", us_diff);
-    printf("Total Cycles: %llu\n", cycles_diff);
+    // printf("CPU Frequency: %d\n", cpu_freq);
+    // Warning:
+    // 32 bit printf only for newlib nano...
+    // Reason for dividing by 10 is to increase the overflow point for a 160MHz clock from ~26sec to ~260sec
+     printf("Total Time: %u us\n", (uint32_t)us_diff);
+    printf("Total Cycles: %lu0\n", (uint32_t)(cycles_diff/10));
     printf("MLonMCU: STOP\n");
-    printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
+    // printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
     fflush(stdout);
 
     for (int i = 10; i >= 0; i--) {

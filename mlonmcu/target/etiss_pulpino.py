@@ -157,6 +157,7 @@ class EtissPulpinoTarget(RISCVTarget):
                 program,
                 *etiss_script_args,
                 *args,
+                cwd=cwd,
                 **kwargs,
             )
         return ret
@@ -220,6 +221,7 @@ class EtissPulpinoTarget(RISCVTarget):
                 self.metrics_script.resolve(),
                 *get_metrics_args,
                 live=False,
+                cwd=directory,
                 print_func=lambda *args, **kwargs: None,
             )
 
@@ -281,8 +283,13 @@ class EtissPulpinoTarget(RISCVTarget):
         return self.name
 
     def get_platform_defs(self, platform):
+        assert platform == "mlif"
         ret = super().get_platform_defs(platform)
         ret["ETISS_DIR"] = self.etiss_dir
+        ret["PULPINO_ROM_START"] = self.rom_start
+        ret["PULPINO_ROM_SIZE"] = self.rom_size
+        ret["PULPINO_RAM_START"] = self.ram_start
+        ret["PULPINO_RAM_SIZE"] = self.ram_size
         return ret
 
 

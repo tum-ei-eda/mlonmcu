@@ -34,7 +34,6 @@ from mlonmcu.target.metrics import Metrics
 from mlonmcu.models import SUPPORTED_FRONTENDS
 
 from mlonmcu.platform import get_platforms
-from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
 from .postprocess import SUPPORTED_POSTPROCESSES
 from .postprocess.postprocess import RunPostprocess

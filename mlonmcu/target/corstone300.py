@@ -39,6 +39,7 @@ class Corstone300Target(Target):
     FEATURES = ["ethosu"]
 
     DEFAULTS = {
+        **Target.DEFAULTS,
         "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz), Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
         "enable_ethosu": False,

@@ -121,6 +121,7 @@ class EtissPulpinoTarget(RISCVTarget):
 
             if self.gdbserver_enable:
                 f.write("[Plugin gdbserver]\n")
+                # This could also be accomplished using `--plugin.gdbserver.port` on the cmdline
                 f.write(f"plugin.gdbserver.port={self.gdbserver_port}")
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):

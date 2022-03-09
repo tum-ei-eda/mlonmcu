@@ -37,7 +37,7 @@ def execute(
     ignore_output: bool = False,
     live: bool = False,
     print_func: Callable = print,
-    handle_exit = None,
+    handle_exit=None,
     err_func: Callable = logger.error,
     **kwargs,
 ) -> str:

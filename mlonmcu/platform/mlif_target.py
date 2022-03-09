@@ -32,6 +32,7 @@ register_mlif_target("corstone300", Corstone300Target)
 register_mlif_target("spike", SpikeTarget)
 register_mlif_target("ovpsim", OVPSimTarget)
 
+
 class MlifExitCode(IntEnum):
     ERROR = 0x10
     INVALID_SIZE = 0x11
@@ -40,6 +41,7 @@ class MlifExitCode(IntEnum):
     @classmethod
     def values(cls):
         return list(map(int, cls))
+
 
 def create_mlif_target(name, platform, base=Target):
     class MlifTarget(base):  # This is not ideal as we will have multiple different MlifTarget classes
@@ -56,11 +58,11 @@ def create_mlif_target(name, platform, base=Target):
             self.platform = platform
             self.validation_result = None
 
-
         def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
             # This is wrapper around the original exec function to catch special return codes thrown by the inout data feature
             # TODO: catch edge cases: no input data available (skipped) and no return code (real hardware)
             if self.platform.validate_outputs:
+
                 def handle_exit(code):
                     if code == 0:
                         self.validation_result = True
@@ -72,6 +74,7 @@ def create_mlif_target(name, platform, base=Target):
                             if not self.platform.fail_on_error:
                                 code = 0
                     return code
+
                 kwargs["handle_exit"] = handle_exit
             return super().exec(program, *args, cwd=cwd, **kwargs)
 
@@ -86,6 +89,5 @@ def create_mlif_target(name, platform, base=Target):
             target_system = self.get_target_system()
             ret["TARGET_SYSTEM"] = target_system
             return ret
-
 
     return MlifTarget

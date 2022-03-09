@@ -126,10 +126,12 @@ class Validate(FrontendFeature, PlatformFeature):
 
     def get_platform_config(self, platform):
         assert platform == "mlif", f"Unsupported feature '{self.name}' for platform '{platform}'"
-        return filter_none({
-            f"{platform}.ignore_data": False,
-            f"{platform}.fail_on_error": self.fail_on_error,
-        })
+        return filter_none(
+            {
+                f"{platform}.ignore_data": False,
+                f"{platform}.fail_on_error": self.fail_on_error,
+            }
+        )
 
 
 @register_feature("muriscvnn")

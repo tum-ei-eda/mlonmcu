@@ -944,6 +944,7 @@ def clone_tvm_extensions(context: MlonMcuContext, params=None, rebuild=False, ve
     context.cache["tvm_extensions.src_dir"] = extSrcDir
     context.cache["tvm_extensions.wrapper"] = extWrapper
 
+
 def _validate_mlif(context: MlonMcuContext, params=None):
     return context.environment.has_platform("mlif")
 
@@ -960,8 +961,10 @@ def clone_mlif(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
         utils.clone(mlifRepo.url, mlifSrcDir, branch=mlifRepo.ref, refresh=rebuild)
     context.cache["mlif.src_dir"] = mlifSrcDir
 
+
 def _validate_espidf(context: MlonMcuContext, params=None):
     return context.environment.has_platform("espidf")
+
 
 @Tasks.provides(["espidf.src_dir"])
 @Tasks.validate(_validate_espidf)

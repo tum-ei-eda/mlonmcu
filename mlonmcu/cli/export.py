@@ -28,7 +28,12 @@ from mlonmcu.cli.common import (
 
 def add_export_options(parser):
     export_parser = parser.add_argument_group("export options")
-    export_parser.add_argument("destination", nargs="?", default="exported.zip", help="Path to the output directory or archive (default: %(default)s)")
+    export_parser.add_argument(
+        "destination",
+        nargs="?",
+        default="exported.zip",
+        help="Path to the output directory or archive (default: %(default)s)",
+    )
     export_parser.add_argument(
         "-f",
         "--force",

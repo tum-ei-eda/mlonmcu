@@ -21,6 +21,7 @@
 import os
 import tempfile
 import time
+import distutils
 from pathlib import Path
 from typing import List
 
@@ -35,7 +36,6 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 # TODO: class TargetFactory:
 from .common import execute
 from .metrics import Metrics
-from .elf import get_results
 
 
 class Target:
@@ -58,7 +58,10 @@ class Target:
     """
 
     FEATURES = []
-    DEFAULTS = {}
+    DEFAULTS = {
+        "print_outputs": False,
+    }
+
     REQUIRED = []
 
     def __init__(
@@ -75,6 +78,15 @@ class Target:
         self.inspect_program_args = ["--all"]
         self.env = os.environ
         self.artifacts = []
+
+    @property
+    def print_outputs(self):
+        # TODO: get rid of this
+        return (
+            bool(self.config["print_outputs"])
+            if isinstance(self.config["print_outputs"], (int, bool))
+            else bool(distutils.util.strtobool(self.config["print_outputs"]))
+        )
 
     def __repr__(self):
         return f"Target({self.name})"
@@ -96,10 +108,10 @@ class Target:
         """Use target to inspect a executable"""
         return execute(self.inspect_program, program, *self.inspect_program_args, *args, **kwargs)
 
-    def get_metrics(self, elf, directory, verbose=True):
+    def get_metrics(self, elf, directory):
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
-        if verbose:
+        if self.print_outputs:
             out = self.exec(elf, cwd=directory, live=True)
         else:
             out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
@@ -129,10 +141,10 @@ class Target:
         metrics.add("RAM zero-init data", ram_zdata)
         return metrics
 
-    def generate_metrics(self, elf, verbose=False):
+    def generate_metrics(self, elf):
         artifacts = []
         with tempfile.TemporaryDirectory() as temp_dir:
-            metrics = self.get_metrics(elf, temp_dir, verbose=verbose)
+            metrics = self.get_metrics(elf, temp_dir)
             content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
             artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
             # Alternative: artifact = Artifact("metrics.csv", data=df/dict, fmt=ArtifactFormat.DATA)

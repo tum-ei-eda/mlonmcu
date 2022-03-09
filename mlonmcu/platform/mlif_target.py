@@ -78,8 +78,8 @@ def create_mlif_target(name, platform, base=Target):
                 kwargs["handle_exit"] = handle_exit
             return super().exec(program, *args, cwd=cwd, **kwargs)
 
-        def get_metrics(self, elf, directory, verbose=False):
-            metrics = super().get_metrics(elf, directory, verbose=verbose)
+        def get_metrics(self, elf, directory):
+            metrics = super().get_metrics(elf, directory)
             if self.platform.validate_outputs:
                 metrics.add("Validation", self.validation_result)
             return metrics

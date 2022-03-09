@@ -59,8 +59,8 @@ def create_espidf_target(name, platform, base=Target):
                 time_us = int(float(cpu_time_us.group(1)))
             return cycles, time_us
 
-        def get_metrics(self, elf, directory, verbose=False):
-            if verbose:
+        def get_metrics(self, elf, directory):
+            if self.print_outputs:
                 out = self.exec(elf, cwd=directory, live=True)
             else:
                 out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)

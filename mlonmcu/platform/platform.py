@@ -107,7 +107,7 @@ class CompilePlatform(Platform):
 
     DEFAULTS = {
         **Platform.DEFAULTS,
-        "print_output": False,
+        "print_outputs": False,
         "debug": False,
         "build_dir": None,
         "num_threads": multiprocessing.cpu_count(),
@@ -139,12 +139,12 @@ class CompilePlatform(Platform):
         return int(self.config["num_threads"])
 
     @property
-    def print_output(self):
+    def print_outputs(self):
         # TODO: get rid of this
         return (
-            bool(self.config["print_output"])
-            if isinstance(self.config["print_output"], (int, bool))
-            else bool(distutils.util.strtobool(self.config["print_output"]))
+            bool(self.config["print_outputs"])
+            if isinstance(self.config["print_outputs"], (int, bool))
+            else bool(distutils.util.strtobool(self.config["print_outputs"]))
         )
 
     def generate_elf(self, target, src=None, model=None, num=1, data_file=None):

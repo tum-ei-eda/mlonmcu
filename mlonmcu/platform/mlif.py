@@ -170,7 +170,7 @@ class MlifPlatform(CompilePlatform):
             *cmakeArgs,
             cwd=self.build_dir,
             debug=self.debug,
-            live=self.print_output,
+            live=self.print_outputs,
         )
 
     def compile(self, target, src=None, model=None, num=1, data_file=None):
@@ -180,7 +180,7 @@ class MlifPlatform(CompilePlatform):
             self.goal,
             cwd=self.build_dir,
             threads=self.num_threads,
-            live=self.print_output,
+            live=self.print_outputs,
         )
 
     def generate_elf(self, target, src=None, model=None, num=1, data_file=None):

@@ -115,8 +115,8 @@ class SpikeTarget(RISCVTarget):
         mips = None  # TODO: parse mips?
         return cycles
 
-    def get_metrics(self, elf, directory, verbose=False):
-        if verbose:
+    def get_metrics(self, elf, directory):
+        if self.print_outputs:
             out = self.exec(elf, cwd=directory, live=True)
         else:
             out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)

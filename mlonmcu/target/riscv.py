@@ -39,6 +39,7 @@ class RISCVTarget(Target):
     FEATURES = []
 
     DEFAULTS = {
+        **Target.DEFAULTS,
         "timeout_sec": 0,  # disabled
         "extra_args": "",
         "arch": "rv32gc",

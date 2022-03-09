@@ -134,7 +134,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.project_dir.mkdir(exist_ok=True)
 
     def get_supported_targets(self):
-        text = self.invoke_idf_exe("--list-targets", live=self.print_output, print_output=False)
+        text = self.invoke_idf_exe("--list-targets", live=self.print_outputs, print_output=False)
         target_names = text.split("\n")
 
         return [name for name in target_names if len(name) > 0 and " " not in name]
@@ -226,7 +226,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             "set-target",
             target.name,
         ]
-        self.invoke_idf_exe(*idfArgs, live=self.print_output)
+        self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
 
     def get_idf_cmake_args(self):
         cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
@@ -242,7 +242,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             *self.get_idf_cmake_args(),
             "build",
         ]
-        self.invoke_idf_exe(*idfArgs, live=self.print_output)
+        self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
 
     def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         artifacts = []
@@ -286,7 +286,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             "flash",
             *self.get_idf_serial_args(),
         ]
-        self.invoke_idf_exe(*idfArgs, live=self.print_output)
+        self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
 
     def monitor(self, target, timeout=60):
         def _kill_monitor():
@@ -356,7 +356,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         ]
         return _monitor_helper(
             *idfArgs,
-            verbose=self.print_output,
+            verbose=self.print_outputs,
             start_match="MLonMCU: START",
             end_match="MLonMCU: STOP",
             timeout=timeout,

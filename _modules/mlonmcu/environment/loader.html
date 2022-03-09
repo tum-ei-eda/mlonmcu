@@ -149,6 +149,18 @@
             <span class="n">log_level</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">log_to_file</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">log_rotate</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s2">&quot;cleanup&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;auto&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;cleanup&quot;</span><span class="p">]:</span>
+                <span class="n">cleanup_auto</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;cleanup&quot;</span><span class="p">][</span><span class="s2">&quot;auto&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cleanup_auto</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="s2">&quot;auto&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;cleanup&quot;</span><span class="p">]:</span>
+                <span class="n">cleanup_keep</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;cleanup&quot;</span><span class="p">][</span><span class="s2">&quot;keep&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cleanup_keep</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cleanup_auto</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">cleanup_keep</span> <span class="o">=</span> <span class="mi">100</span>
         <span class="k">if</span> <span class="s2">&quot;paths&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
             <span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">]:</span>
@@ -277,6 +289,8 @@
             <span class="n">default_framework</span><span class="o">=</span><span class="n">default_framework</span><span class="p">,</span>
             <span class="n">default_backends</span><span class="o">=</span><span class="n">default_backends</span><span class="p">,</span>
             <span class="n">default_target</span><span class="o">=</span><span class="n">default_target</span><span class="p">,</span>
+            <span class="n">cleanup_auto</span><span class="o">=</span><span class="n">cleanup_auto</span><span class="p">,</span>
+            <span class="n">cleanup_keep</span><span class="o">=</span><span class="n">cleanup_keep</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">base</span><span class="p">(</span>
             <span class="n">home</span><span class="p">,</span>

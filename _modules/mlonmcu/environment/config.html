@@ -165,13 +165,17 @@
         <span class="n">default_framework</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">default_backends</span><span class="o">=</span><span class="p">{},</span>
         <span class="n">default_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cleanup_auto</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">cleanup_keep</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="n">log_level</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_to_file</span> <span class="o">=</span> <span class="n">log_to_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_rotate</span> <span class="o">=</span> <span class="n">log_rotate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_framework</span> <span class="o">=</span> <span class="n">default_framework</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_backends</span> <span class="o">=</span> <span class="n">default_backends</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default_target</span> <span class="o">=</span> <span class="n">default_target</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_target</span> <span class="o">=</span> <span class="n">default_target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_auto</span> <span class="o">=</span> <span class="n">cleanup_auto</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_keep</span> <span class="o">=</span> <span class="n">cleanup_keep</span></div>
 
 
 <div class="viewcode-block" id="PathConfig"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.config.PathConfig">[docs]</a><span class="k">class</span> <span class="nc">PathConfig</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>

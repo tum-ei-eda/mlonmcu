@@ -125,6 +125,11 @@
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_level</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_to_file</span><span class="p">,</span>
+        <span class="s2">&quot;rotate&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_rotate</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;cleanup&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;auto&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">cleanup_auto</span><span class="p">,</span>
+        <span class="s2">&quot;keep&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">cleanup_keep</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">path_config</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>

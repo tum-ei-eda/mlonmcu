@@ -97,7 +97,7 @@ def execute(
         if handle_exit is not None:
             exit_code = handle_exit(exit_code)
         if exit_code != 0:
-            err_func(out_Str)
+            err_func(out_str)
         assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
             exit_code, " ".join(list(map(str, args)))
         )

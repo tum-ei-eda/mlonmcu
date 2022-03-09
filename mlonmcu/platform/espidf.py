@@ -68,16 +68,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     REQUIRED = ["espidf.install_dir", "espidf.src_dir"]
 
-    # def __init__(self, framework, backend, target, features=None, config=None, context=None):
     def __init__(self, features=None, config=None):
         super().__init__(
             "espidf",
-            # Framework=framework,
-            # Backend=backend,
-            # Target=target,
             features=features,
             config=config,
-            # context=context,
         )
         self.tempdir = None
         self.project_name = "app"

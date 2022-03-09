@@ -49,16 +49,11 @@ class MlifPlatform(CompilePlatform):
 
     REQUIRED = ["mlif.src_dir"]
 
-    # def __init__(self, framework, backend, target, features=None, config=None, context=None):
     def __init__(self, features=None, config=None):
         super().__init__(
             "mlif",
-            # framework=framework,
-            # backend=backend,
-            # target=target,
             features=features,
             config=config,
-            # context=context,
         )
         self.tempdir = None
         self.build_dir = None

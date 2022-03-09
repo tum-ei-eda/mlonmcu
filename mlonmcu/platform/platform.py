@@ -115,26 +115,16 @@ class CompilePlatform(Platform):
 
     REQUIRED = []
 
-    # def __init__(self, name, framework, backend, target, features=None, config=None, context=None):
     def __init__(self, name, features=None, config=None):
         super().__init__(
             name,
-            # framework,
-            # backend,
-            # target,
             features=features,
             config=config,
-            # context=context,
         )
         self.name = name
-        # self.framework = framework  # TODO: required? or self.target.framework?
-        # self.backend = backend
-        # self.target = target
         self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
-        self.definitions = {}
-        # self.context = context
 
     @property
     def supports_compile(self):

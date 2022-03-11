@@ -40,7 +40,6 @@ from mlonmcu.environment.config import get_environments_dir
 
 logger = get_logger()
 
-
 def lookup_environment() -> Environment:
     """Helper function to automatically find a suitable environment.
 

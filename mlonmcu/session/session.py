@@ -275,7 +275,7 @@ class Session:
                 results = _join_workers(workers)
         if num_failures == 0:
             logger.info("All runs completed successfuly!")
-        elif num_failures == 0:
+        elif num_failures == num_runs:
             logger.error("All runs have failed to complete!")
         else:
             num_success = num_runs - num_failures
@@ -314,6 +314,8 @@ class Session:
         print_report = True
         if print_report:
             logger.info("Report:\n" + str(report.df))
+
+        return num_failures == 0
 
     def __repr__(self):
         return f"Session(idx={self.idx},status={self.status},runs={self.runs})"

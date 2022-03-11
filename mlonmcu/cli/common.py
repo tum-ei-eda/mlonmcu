@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import os
+import sys
 import multiprocessing
 import logging
 from mlonmcu.target import SUPPORTED_TARGETS
@@ -26,6 +27,10 @@ from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
 from .helper.parse import extract_config
+
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 def handle_logging_flags(args):
@@ -186,7 +191,7 @@ def kickoff_runs(args, until, context):
         per_stage = bool(config["runs_per_stage"])
     elif "runs_per_stage" in context.environment.vars:
         per_stage = bool(context.environment.vars["runs_per_stage"])
-    session.process_runs(
+    success = session.process_runs(
         until=until,
         per_stage=per_stage,
         num_workers=args.parallel,
@@ -194,3 +199,6 @@ def kickoff_runs(args, until, context):
         context=context,
         export=True,
     )
+    if not success:
+        logger.error("At least one error occured!")
+        sys.exit(1)

@@ -22,8 +22,10 @@ import os
 import sys
 import signal
 import shutil
+import serial
 import tempfile
 import subprocess
+import distutils.util
 from pathlib import Path
 
 import psutil
@@ -38,9 +40,6 @@ from .platform import CompilePlatform, TargetPlatform
 from .espidf_target import create_espidf_target
 
 logger = get_logger()
-
-import pkgutil
-import os
 import pkg_resources
 
 
@@ -63,6 +62,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "project_template": None,
         "project_dir": None,
         "port": None,
+        "baud": 115200,
+        "use_idf_monitor": True,
         "wait_for_user": True,
     }
 
@@ -89,6 +90,15 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     @property
     def idf_exe(self):
         return self.espidf_src_dir / "tools" / "idf.py"
+
+    @property
+    def use_idf_monitor(self):
+        # TODO: get rid of this
+        return (
+            bool(self.config["use_idf_monitor"])
+            if isinstance(self.config["use_idf_monitor"], (int, bool))
+            else bool(distutils.util.strtobool(self.config["use_idf_monitor"]))
+        )
 
     @property
     def wait_for_user(self):
@@ -303,77 +313,139 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
 
     def monitor(self, target, timeout=60):
+        if self.use_idf_monitor:
 
-        def _kill_monitor():
+            def _kill_monitor():
 
-            for proc in psutil.process_iter():
-                # check whether the process name matches
-                cmdline = " ".join(proc.cmdline())
-                if "idf_monitor.py" in cmdline:  # TODO: do something less "dangerous"?
-                    proc.kill()
+                for proc in psutil.process_iter():
+                    # check whether the process name matches
+                    cmdline = " ".join(proc.cmdline())
+                    if "idf_monitor.py" in cmdline:  # TODO: do something less "dangerous"?
+                        proc.kill()
 
-        def _monitor_helper(*args, verbose=False, start_match=None, end_match=None, timeout=60):
-            # start_match and end_match are inclusive
-            if timeout:
-                pass  # TODO: implement timeout
-            found_start = start_match is None
-            logger.debug("- Executing: %s", str(args))
-            outStr = ""
-            env = {}  # Do not use current virtualenv (TODO: is there a better way?)
-            env["IDF_PATH"] = str(self.espidf_src_dir)
-            env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
-            env["PATH"] = str(Path(sys.base_prefix) / "bin")
-            cmd = (
-                ". "
-                + str(self.espidf_src_dir / "export.sh")
-                + f"> /dev/null && {self.idf_exe} "
-                + " ".join([str(arg) for arg in args])
-            )
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, env=env)
-            try:
-                exit_code = None
-                for line in process.stdout:
-                    new_line = line.decode(errors="replace")
-                    if verbose:
-                        print(new_line.replace("\n", ""))
-                    if start_match and start_match in new_line:
-                        outStr = new_line
-                        found_start = True
-                    else:
-                        outStr = outStr + new_line
-                    if found_start:
-                        if end_match and end_match in new_line:
-                            _kill_monitor()
-                            process.terminate()
-                            exit_code = 0
-                while exit_code is None:
-                    exit_code = process.poll()
-                if not verbose and exit_code != 0:
-                    logger.error(outStr)
-                assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                    exit_code, " ".join(list(map(str, args)))
+            def _monitor_helper(*args, verbose=False, start_match=None, end_match=None, timeout=60):
+                # start_match and end_match are inclusive
+                if timeout:
+                    pass  # TODO: implement timeout
+                found_start = start_match is None
+                logger.debug("- Executing: %s", str(args))
+                outStr = ""
+                env = {}  # Do not use current virtualenv (TODO: is there a better way?)
+                env["IDF_PATH"] = str(self.espidf_src_dir)
+                env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
+                env["PATH"] = str(Path(sys.base_prefix) / "bin")
+                cmd = (
+                    ". "
+                    + str(self.espidf_src_dir / "export.sh")
+                    + f"> /dev/null && {self.idf_exe} "
+                    + " ".join([str(arg) for arg in args])
                 )
-            except KeyboardInterrupt:
-                logger.debug("Interrupted subprocess. Sending SIGINT signal...")
-                _kill_monitor()
-                pid = process.pid
-                os.kill(pid, signal.SIGINT)
-            os.system("reset")
-            return outStr
+                process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, env=env)
+                try:
+                    exit_code = None
+                    for line in process.stdout:
+                        new_line = line.decode(errors="replace")
+                        if verbose:
+                            print(new_line.replace("\n", ""))
+                        if start_match and start_match in new_line:
+                            outStr = new_line
+                            found_start = True
+                        else:
+                            outStr = outStr + new_line
+                        if found_start:
+                            if end_match and end_match in new_line:
+                                _kill_monitor()
+                                process.terminate()
+                                exit_code = 0
+                    while exit_code is None:
+                        exit_code = process.poll()
+                    if not verbose and exit_code != 0:
+                        logger.error(outStr)
+                    assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+                        exit_code, " ".join(list(map(str, args)))
+                    )
+                except KeyboardInterrupt:
+                    logger.debug("Interrupted subprocess. Sending SIGINT signal...")
+                    _kill_monitor()
+                    pid = process.pid
+                    os.kill(pid, signal.SIGINT)
+                os.system("reset")
+                return outStr
 
-        logger.debug("Monitoring target software")
-        # TODO: implement timeout
-        idfArgs = [
-            "-C",
-            self.project_dir,
-            *self.get_idf_cmake_args(),
-            "monitor",
-            *self.get_idf_serial_args(),
-        ]
-        return _monitor_helper(
-            *idfArgs,
-            verbose=self.print_outputs,
-            start_match="MLonMCU: START",
-            end_match="MLonMCU: STOP",
-            timeout=timeout,
-        )
+            logger.debug("Monitoring target software")
+            # TODO: implement timeout
+            idfArgs = [
+                "-C",
+                self.project_dir,
+                *self.get_idf_cmake_args(),
+                "monitor",
+                *self.get_idf_serial_args(),
+            ]
+            return _monitor_helper(
+                *idfArgs,
+                verbose=self.print_outputs,
+                start_match="MLonMCU: START",
+                end_match="MLonMCU: STOP",
+                timeout=timeout,
+            )
+        else:
+            port = target.port
+            if port is None:
+                # Falling back to 'espidf.baud'
+                assert self.port is not None, f"If using custom serial monitor, please provide '{target.name}.port'"
+                port = self.port
+            baud = target.baud
+            if baud is None:
+                # Falling back to 'espidf.baud'
+                assert self.baud is not None, f"If using custom serial monitor, please provide '{target.name}.baud'"
+                baud = self.baud
+
+            def _monitor_helper2(port, baud, verbose=False, start_match=None, end_match=None, timeout=60):
+                # start_match and end_match are inclusive
+                print(
+                    "port",
+                    port,
+                    "baud",
+                    baud,
+                    "verbose",
+                    verbose,
+                    "start_match",
+                    start_match,
+                    "end_match",
+                    end_match,
+                    "timeout",
+                    timeout,
+                )
+                found_start = start_match is None
+                outStr = ""
+                if timeout:
+                    pass  # TODO: implement timeout
+                with serial.Serial(port, baud) as ser:
+                    while True:
+                        try:
+                            ser_bytes = ser.readline()
+                            new_line = ser_bytes.decode("utf-8", errors="replace")
+                            if verbose:
+                                print(new_line.replace("\n", ""))
+                            if start_match and start_match in new_line:
+                                outStr = new_line
+                                found_start = True
+                            else:
+                                outStr = outStr + new_line
+                            if found_start:
+                                if end_match and end_match in new_line:
+                                    break
+                        except KeyboardInterrupt:
+                            logger.warning("Stopped processing serial port (KeyboardInterrupt)")
+                return outStr
+
+            logger.debug("Monitoring target software")
+            # TODO: implement timeout
+            return _monitor_helper2(
+                port,
+                baud,
+                verbose=self.print_outputs,
+                start_match="MLonMCU: START",
+                end_match="MLonMCU: STOP",
+                timeout=timeout,
+            )

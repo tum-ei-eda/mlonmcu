@@ -18,6 +18,8 @@ def create_espidf_target(name, platform, base=Target):
         DEFAULTS = {
             **base.DEFAULTS,
             "timeout_sec": 0,  # disabled
+            "port": None,
+            "baud": None,
         }
         REQUIRED = base.REQUIRED + []
 
@@ -28,6 +30,14 @@ def create_espidf_target(name, platform, base=Target):
         @property
         def timeout_sec(self):
             return int(self.config["timeout_sec"])
+
+        @property
+        def port(self):
+            return self.config["port"]
+
+        @property
+        def baud(self):
+            return self.config["baud"]
 
         def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
             """Use target to execute a executable with given arguments"""

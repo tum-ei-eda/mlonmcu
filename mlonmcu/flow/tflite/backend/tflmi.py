@@ -299,11 +299,10 @@ class TFLMIBackend(TFLiteBackend):
 
     name = "tflmi"
 
-    FEATURES = ["debug_arena"]
-
     DEFAULTS = {
         **TFLiteBackend.DEFAULTS,
         "arena_size": 2 ** 16,
+        "debug_arena": False,
         "ops": [],
         "custom_ops": [],
         "registrations": {},
@@ -327,16 +326,19 @@ class TFLMIBackend(TFLiteBackend):
     def legacy(self):
         return bool(self.config["legacy"])
 
+    @property
+    def debug_arena(self):
+        return bool(self.config["debug_arena"])
+
     def generate_code(self, verbose=False):
         artifacts = []
         assert self.model is not None
         config_map = {key.split(".")[-1]: value for key, value in self.config.items()}
-        debug_arena = "debug_arena" in self.features
         wrapper_code, header_code = self.codegen.generate_wrapper(
             self.model,
             prefix=self.prefix,
             header=True,
-            debug_arena=debug_arena,
+            debug_arena=self.debug_arena,
             **config_map,
         )
         artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE))

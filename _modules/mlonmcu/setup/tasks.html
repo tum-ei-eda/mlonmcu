@@ -327,7 +327,7 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_llvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="install_llvm"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.install_llvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
@@ -1084,7 +1084,7 @@
         <span class="n">espidfInstallScript</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">espidfSrcDir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;install.sh&quot;</span>
         <span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Do not use current virtualenv (TODO: is there a better way?)</span>
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;IDF_TOOLS_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">espidfInstallDir</span><span class="p">)</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;/usr/bin&quot;</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;/usr/bin:/bin&quot;</span>  <span class="c1"># TODO: find a better way to achieve this</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="n">espidfInstallScript</span><span class="p">,</span> <span class="n">boards</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;espidf.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">espidfInstallDir</span></div>
 </pre></div>

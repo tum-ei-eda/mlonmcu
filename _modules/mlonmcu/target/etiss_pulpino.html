@@ -295,7 +295,7 @@
         <span class="k">if</span> <span class="n">trace_file</span><span class="p">:</span>
             <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--trace&quot;</span><span class="p">,</span> <span class="n">trace_file</span><span class="p">])</span>
         <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">metrics_file</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">sef</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
             <span class="n">out2</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out2</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>

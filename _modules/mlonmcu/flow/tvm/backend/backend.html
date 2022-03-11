@@ -206,7 +206,7 @@
 <div class="viewcode-block" id="TVMBackend.get_disabled_pass_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_disabled_pass_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_disabled_pass_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;disabled_passes&quot;</span><span class="p">]:</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--disable-pass&quot;</span><span class="p">,</span> <span class="n">item</span><span class="p">])</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--disabled-pass&quot;</span><span class="p">,</span> <span class="n">item</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">args</span></div>
 
 <div class="viewcode-block" id="TVMBackend.get_input_shapes_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_input_shapes_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_input_shapes_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

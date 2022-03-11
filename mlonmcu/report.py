@@ -23,6 +23,8 @@ import pandas as pd
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", 0)
 
+SUPPORTED_FMTS = ["csv", "xlsx"]
+
 
 class Report:
     def __init__(self):
@@ -38,12 +40,14 @@ class Report:
 
     def export(self, path):
         ext = Path(path).suffix[1:]
-        assert ext in ["csv"], f"Unsupported report format: {ext}"
+        assert ext in SUPPORTED_FMTS, f"Unsupported report format: {ext}"
+        parent = Path(path).parent
+        if not parent.is_dir():
+            parent.mkdir()
         if ext == "csv":
-            parent = Path(path).parent
-            if not parent.is_dir():
-                parent.mkdir()
             self.df.to_csv(path, index=False)
+        elif ext in ["xlsx", "xls"]:
+            self.df.to_excel(path, index=False)
         else:
             raise RuntimeError()
 

@@ -28,6 +28,7 @@ import os
 import logging
 import concurrent.futures
 from tqdm import tqdm
+from mlonmcu.config import filter_config
 from .run import RunStage
 
 
@@ -49,12 +50,18 @@ class SessionStatus(Enum):
 
 class Session:
 
-    def __init__(self, label="", idx=None, archived=False, dir=None):
+    DEFAULTS = {
+        "report_fmt": "csv",
+    }
+
+    def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         self.label = (
             label if len(label) > 0 else ("unnamed" + "_" + self.timestamp)
         )  # TODO: decide if named sessions should also get a timestamp?
         self.idx = idx
+        self.config = config if config else {}
+        self.config = filter_config(self.config, "session", self.DEFAULTS, [])
         self.status = SessionStatus.CREATED
         self.opened_at = None
         self.closed_at = None
@@ -79,6 +86,10 @@ class Session:
     @property
     def prefix(self):
         return f"[session-{self.idx}] " if self.idx else ""
+
+    @property
+    def report_fmt(self):
+        return str(self.config["report_fmt"])
 
     def create_run(self, *args, **kwargs):
         idx = len(self.runs)
@@ -308,10 +319,10 @@ class Session:
                     # Postprocess has an artifact: write to disk!
                     logger.debug("Writting postprocess artifact to disk: %s", artifact.name)
                     artifact.export(self.dir)
-        report_file = Path(self.dir) / "report.csv"
+        report_file = Path(self.dir) / f"report.{self.report_fmt}"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path
-        results_file = results_dir / f"{self.label}.csv"
+        results_file = results_dir / f"{self.label}.{self.report_fmt}"
         report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
         print_report = True

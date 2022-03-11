@@ -109,7 +109,7 @@ def _handle(args, context):
     config.update(new_config)
     frontends = init_frontends(args.frontend, features=features, config=config, context=context)
     model_hints = lookup_models(model_names, frontends=frontends, context=context)
-    session = context.get_session(resume=args.resume)
+    session = context.get_session(label=args.label, resume=args.resume, config=config)
     for hint in model_hints:
         model, frontend = map_frontend_to_model(
             hint, frontends, backend=None

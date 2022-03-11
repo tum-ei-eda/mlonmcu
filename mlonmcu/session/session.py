@@ -48,9 +48,12 @@ class SessionStatus(Enum):
 
 
 class Session:
-    def __init__(self, label="unnamed", idx=None, archived=False, dir=None):
+
+    def __init__(self, label="", idx=None, archived=False, dir=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-        self.label = label + "_" + self.timestamp
+        self.label = (
+            label if len(label) > 0 else ("unnamed" + "_" + self.timestamp)
+        )  # TODO: decide if named sessions should also get a timestamp?
         self.idx = idx
         self.status = SessionStatus.CREATED
         self.opened_at = None

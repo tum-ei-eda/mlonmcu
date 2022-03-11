@@ -40,6 +40,7 @@ from mlonmcu.environment.config import get_environments_dir
 
 logger = get_logger()
 
+
 def lookup_environment() -> Environment:
     """Helper function to automatically find a suitable environment.
 
@@ -284,14 +285,14 @@ class MlonMcuContext:
         logger.debug(f"Restored {len(self.sessions)} recent sessions")
         self.cache = TaskCache()
 
-    def create_session(self):
+    def create_session(self, label="", config=None):
         """Create a new session in the current context."""
         idx = self.session_idx + 1
         logger.debug("Creating a new session with idx %s", idx)
         temp_directory = self.environment.paths["temp"].path
         sessions_directory = temp_directory / "sessions"
         session_dir = sessions_directory / str(idx)
-        session = Session(idx=idx, dir=session_dir)
+        session = Session(idx=idx, label=label, dir=session_dir, config=config)
         self.sessions.append(session)
         self.session_idx = idx
         # TODO: move this to a helper function
@@ -316,7 +317,7 @@ class MlonMcuContext:
                             return
         logger.info("No cache found in deps directory")
 
-    def get_session(self, resume=False) -> Session:
+    def get_session(self, label="", resume=False, config=None) -> Session:
         """Get an active session if available, else create a new one.
 
         Returns
@@ -331,7 +332,7 @@ class MlonMcuContext:
             raise NotImplementedError
 
         if self.session_idx < 0 or not self.sessions[-1].active:
-            self.create_session()
+            self.create_session(label=label, config=config)
         return self.sessions[-1]
 
     def __enter__(self):

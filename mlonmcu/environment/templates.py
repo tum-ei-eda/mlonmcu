@@ -34,13 +34,13 @@ from .config import get_config_dir
 
 
 def get_template_names():
-    template_files = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "templates"))
+    template_files = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "templates"))
     names = [name.split(".yml.j2")[0] for name in template_files]
     return names
 
 
 def get_template_text(name):
-    return pkgutil.get_data("mlonmcu", os.path.join("..", "templates", name + ".yml.j2"))
+    return pkgutil.get_data("mlonmcu", os.path.join("..", "resources", "templates", name + ".yml.j2"))
 
 
 def fill_template(name, data={}):

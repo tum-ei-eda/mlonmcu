@@ -70,7 +70,7 @@ setup(
     keywords='mlonmcu',
     name='mlonmcu',
     packages=find_packages(include=['mlonmcu', 'mlonmcu.*']),
-    package_data={'mlonmcu': ['../templates/*.j2'] + resource_files("resources")},
+    package_data={"mlonmcu": resource_files("resources")},
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/tum-ei-eda/mlonmcu',

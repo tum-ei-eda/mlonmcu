@@ -54,15 +54,27 @@ lint/black: ## check style with black
 
 lint: lint/flake8 lint/black ## check style
 
-test: ## run tests quickly with the default Python
-	python setup.py test
+test: ## run tests quickly
+	pytest tests
+
+test-full: ## also run more complex tests
+	# pytest --run-slow --run-user-context --run-hardware tests
+	pytest --run-slow --run-user-context tests
 
 test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
 	# coverage run --source mlonmcu setup.py test
+	# coverage run --source mlonmcu -m pytest tests
 	coverage run --source mlonmcu -m pytest tests
+	coverage report -m
+	coverage html
+	$(BROWSER) htmlcov/index.html
+
+coverage-full: ## check code coverage quickly with the default Python
+	# coverage run --source mlonmcu -m pytest --run-slow --run-user-context --run-hardware tests
+	coverage run --source mlonmcu -m pytest --run-slow --run-user-context tests
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html

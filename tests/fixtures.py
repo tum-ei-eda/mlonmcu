@@ -19,7 +19,14 @@
 import os
 import pytest
 import mock
+import tempfile
 import urllib.request
+from pathlib import Path
+from io import BytesIO
+from zipfile import ZipFile
+
+import mlonmcu  # TODO: fix this bad?
+
 
 @pytest.fixture()
 def fake_config_home(tmp_path):
@@ -47,22 +54,25 @@ def fake_working_directory(tmp_path, monkeypatch):
     monkeypatch.chdir(str(cwd))
     yield cwd
 
-import mlonmcu  # TODO: fix this bad?
 
 @pytest.fixture()
 def fake_context():
-    class FakeTaskCache():
+    class FakeTaskCache:
         def __init__(self):
             self._vars = {}
-    class FakeEnvironment():
+
+    class FakeEnvironment:
         def __init__(self):
             self.paths = {}  # TODO: get rid of PathConfig if possible?
-    class FakeContext():
+
+    class FakeContext:
         def __init__(self):
             self.environment = FakeEnvironment()
             self.cache = FakeTaskCache()
+
     context = FakeContext()
     yield context
+
 
 @pytest.fixture()
 def example_elf_file(request, tmp_path):
@@ -71,3 +81,20 @@ def example_elf_file(request, tmp_path):
     url = f"https://github.com/JonathanSalwan/binary-samples/raw/master/{name}"
     urllib.request.urlretrieve(url, elf_path)
     yield str(elf_path)
+
+
+@pytest.fixture()
+def user_context():
+    with mlonmcu.context.MlonMcuContext() as context:
+        yield context
+
+
+@pytest.fixture(scope="session")
+def models_dir():
+    with tempfile.TemporaryDirectory() as tmp_path:
+        url = "https://codeload.github.com/tum-ei-eda/mlonmcu-models/zip/refs/heads/main"
+        resp = urllib.request.urlopen(url)
+        with ZipFile(BytesIO(resp.read())) as zip_file:
+            zip_file.extractall(tmp_path)
+        models_path = Path(tmp_path) / "mlonmcu-models-main"
+        yield models_path

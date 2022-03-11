@@ -44,7 +44,7 @@ void app_main(void)
     // 32 bit printf only for newlib nano...
     // Reason for dividing by 10 is to increase the overflow point for a 160MHz clock from ~26sec to ~260sec
      printf("Total Time: %u us\n", (uint32_t)us_diff);
-    printf("Total Cycles: %lu0\n", (uint32_t)(cycles_diff/10));
+    printf("Total Cycles: %u0\n", (uint32_t)(cycles_diff/10));
     printf("MLonMCU: STOP\n");
     // printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
     fflush(stdout);

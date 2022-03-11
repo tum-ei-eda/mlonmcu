@@ -247,7 +247,7 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
 
 
 def _validate_llvm(context: MlonMcuContext, params=None):
-    return context.environment.has_framework("tvm")
+    return context.environment.has_framework("tvm") or context.environment.has_target("etiss_pulpino")
 
 
 @Tasks.provides(["llvm.install_dir"])

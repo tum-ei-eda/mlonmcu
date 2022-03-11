@@ -63,7 +63,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "project_template": None,
         "project_dir": None,
         "port": None,
-        "baud": None,
+        "wait_for_user": True,
     }
 
     REQUIRED = ["espidf.install_dir", "espidf.src_dir"]
@@ -89,6 +89,15 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     @property
     def idf_exe(self):
         return self.espidf_src_dir / "tools" / "idf.py"
+
+    @property
+    def wait_for_user(self):
+        # TODO: get rid of this
+        return (
+            bool(self.config["wait_for_user"])
+            if isinstance(self.config["wait_for_user"], (int, bool))
+            else bool(distutils.util.strtobool(self.config["wait_for_user"]))
+        )
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = {}  # Do not use current virtualenv (TODO: is there a better way?)
@@ -276,11 +285,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     def flash(self, target, timeout=120):
         # TODO: implement timeout
         # TODO: make sure that already compiled? -> error or just call compile routine?
-        answer = input(
-            f"Make sure that the device '{target.name}' is connected before you press [Enter] (Type 'Abort' to cancel)"
-        )
-        if answer.lower() == "abort":
-            return ""
+        if self.wait_for_user:  # INTERACTIVE
+            answer = input(
+                f"Make sure that the device '{target.name}' is connected before you press [Enter] (Type 'Abort' to cancel)"
+            )
+            if answer.lower() == "abort":
+                return ""
         logger.debug("Flashing target software")
 
         idfArgs = [
@@ -293,6 +303,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
 
     def monitor(self, target, timeout=60):
+
         def _kill_monitor():
 
             for proc in psutil.process_iter():

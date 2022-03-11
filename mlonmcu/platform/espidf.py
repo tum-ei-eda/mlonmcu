@@ -122,7 +122,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             + " ".join([str(arg) for arg in args])
         )
         out = utils.exec_getout(
-            cmd, shell=True, env=env, **kwargs
+            cmd, shell=True, env=env, **kwargs, executable="/bin/bash"
         )  # TODO: using shell=True is insecure but right now we can not avoid it?
         return out
 
@@ -340,7 +340,9 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     + f"> /dev/null && {self.idf_exe} "
                     + " ".join([str(arg) for arg in args])
                 )
-                process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, env=env)
+                process = subprocess.Popen(
+                    cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="bin/bash", env=env
+                )
                 try:
                     exit_code = None
                     for line in process.stdout:

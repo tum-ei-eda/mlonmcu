@@ -20,6 +20,7 @@
 
 import os
 import sys
+import time
 import signal
 import shutil
 import serial
@@ -404,25 +405,29 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
             def _monitor_helper2(port, baud, verbose=False, start_match=None, end_match=None, timeout=60):
                 # start_match and end_match are inclusive
-                print(
-                    "port",
-                    port,
-                    "baud",
-                    baud,
-                    "verbose",
-                    verbose,
-                    "start_match",
-                    start_match,
-                    "end_match",
-                    end_match,
-                    "timeout",
-                    timeout,
-                )
                 found_start = start_match is None
                 outStr = ""
                 if timeout:
                     pass  # TODO: implement timeout
-                with serial.Serial(port, baud) as ser:
+                # The following is a custom initialization sequence inspired by (https://github.com/espressif/esp-idf/blob/4e03a9c34c24ce44921fa48ad1da67fe16162471/tools/idf_monitor_base/serial_reader.py)
+                high = False
+                low = True
+                ser = serial.Serial(port, baud)
+                ser.close()
+                ser.dtr = False
+                ser.rts = False
+                time.sleep(1)
+                ser.dtr = low
+                ser.rts = high
+                ser.dtr = ser.dtr
+                ser.open()
+                ser.dtr = high
+                ser.rts = low
+                ser.dtr = ser.dtr
+                time.sleep(0.002)
+                ser.rts = high
+                ser.dtr = ser.dtr
+                try:
                     while True:
                         try:
                             ser_bytes = ser.readline()
@@ -439,6 +444,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                                     break
                         except KeyboardInterrupt:
                             logger.warning("Stopped processing serial port (KeyboardInterrupt)")
+                finally:
+                    ser.close()
                 return outStr
 
             logger.debug("Monitoring target software")

@@ -35,6 +35,7 @@ class TVMFramework(Framework):
     DEFAULTS = {
         "extra_incs": [],
         "extra_libs": [],
+        "crt_config_dir": None,  # i.e. see mlonmcu/resources/frameworks/tvm/crt_config/
     }
 
     REQUIRED = ["tvm.src_dir"]
@@ -55,6 +56,10 @@ class TVMFramework(Framework):
     def extra_libs(self):
         return self.config["extra_libs"]
 
+    @property
+    def crt_config_dir(self):
+        return self.config["crt_config_dir"]
+
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.extra_incs or self.extra_libs:
@@ -65,5 +70,7 @@ class TVMFramework(Framework):
             if self.extra_libs:
                 temp = r"\;".join(self.extra_libs)
                 ret["TVM_EXTRA_LIBS"] = temp
+        if self.crt_config_dir:
+            ret["TVM_CRT_CONFIG_DIR"] = self.crt_config_dir
         ret["TVM_DIR"] = str(self.tvm_src)
         return ret

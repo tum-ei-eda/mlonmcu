@@ -86,6 +86,7 @@ def parseElf(inFile):
         ".table",
         "dummy",
         "heap_start",
+        ".info",
     ]
 
     with open(inFile, "rb") as f:
@@ -102,6 +103,7 @@ def parseElf(inFile):
                 m["rom_rodata"] += s.data_size
             elif s.name in [
                 ".vectors",
+                "iram0.vectors",
                 ".init_array",
                 ".fini_array",
                 ".fini",

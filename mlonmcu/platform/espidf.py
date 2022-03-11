@@ -341,7 +341,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     + " ".join([str(arg) for arg in args])
                 )
                 process = subprocess.Popen(
-                    cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="bin/bash", env=env
+                    cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash", env=env
                 )
                 try:
                     exit_code = None

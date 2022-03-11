@@ -125,7 +125,7 @@ class TVMBackend(Backend):
     def get_disabled_pass_tvmc_args(self):
         args = []
         for item in self.config["disabled_passes"]:
-            args.extend(["--disable-pass", item])
+            args.extend(["--disabled-pass", item])
         return args
 
     def get_input_shapes_tvmc_args(self):

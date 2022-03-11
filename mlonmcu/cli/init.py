@@ -47,9 +47,11 @@ def add_init_options(parser):
         metavar="TEMPLATE",
         nargs=1,
         type=str,
-        choices=get_template_names(),
+        # choices=get_template_names(),
         default=DEFAULTS["template"],
-        help="Environment template (default: %(default)s, allowed: %(choices)s)",
+        help="Environment template name or path (default: %(default)s, available: "
+        + ", ".join(get_template_names())
+        + ")",
     )
     init_parser.add_argument(
         "DIR",

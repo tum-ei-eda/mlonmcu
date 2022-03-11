@@ -20,6 +20,7 @@
 import pkgutil
 import os
 import jinja2
+from pathlib import Path
 import pkg_resources
 
 from .config import get_config_dir
@@ -43,10 +44,15 @@ def get_template_text(name):
 
 
 def fill_template(name, data={}):
-    template_text = get_template_text(name)
+    if name.endswith(".j2"):  # Template from file
+        assert Path(name).is_file(), f"Template does not exits: {name}"
+        with open(name, "r") as handle:
+            template_text = handle.read()
+    else:  # Template by name
+        template_text = get_template_text(name)
+        template_text = template_text.decode("utf-8")
     if template_text:
-        text = template_text.decode("utf-8")
-        tmpl = jinja2.Template(text)
+        tmpl = jinja2.Template(template_text)
         rendered = tmpl.render(**data)
         return rendered
     return None

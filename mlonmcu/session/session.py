@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import shutil
 import multiprocessing
 from time import sleep
 from datetime import datetime
@@ -331,6 +332,12 @@ class Session:
 
         return num_failures == 0
 
+    def discard(self):
+        self.close()
+        if self.dir.is_dir():
+            logger.debug("Cleaning up discarded session")
+            shutil.rmtree(self.dir)
+
     def __repr__(self):
         return f"Session(idx={self.idx},status={self.status},runs={self.runs})"
 
@@ -348,6 +355,8 @@ class Session:
         else:
             self.status = SessionStatus.CLOSED
         self.closed_at = datetime.now()
+        if self.tempdir:
+            self.tempdir.cleanup()
 
 
 # TODO: implement close()? and use closing contextlib? for tempdir

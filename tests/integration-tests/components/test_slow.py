@@ -14,6 +14,9 @@ import pytest
 #     sleep(10)
 
 
+# TODO: add user_session fixture which handles cleanup via session.discard()
+
+
 # Frontends
 
 DEFAULT_MODELS = ["sine_model"]

@@ -347,6 +347,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 _kill_monitor()
                 pid = process.pid
                 os.kill(pid, signal.SIGINT)
+            os.system("reset")
             return outStr
 
         logger.debug("Monitoring target software")

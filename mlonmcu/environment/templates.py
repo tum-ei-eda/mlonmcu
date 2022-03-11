@@ -25,13 +25,6 @@ import pkg_resources
 
 from .config import get_config_dir
 
-# all_templates = {
-#     "default": None,
-#     "tumeda": None,
-# }
-
-# TODO: TemplateFactory? with register?
-
 
 def get_template_names():
     template_files = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "templates"))
@@ -50,8 +43,11 @@ def fill_template(name, data={}):
             template_text = handle.read()
     else:  # Template by name
         template_text = get_template_text(name)
-        template_text = template_text.decode("utf-8")
     if template_text:
+        try:
+            template_text = template_text.decode("utf-8")
+        except (UnicodeDecodeError):
+            pass
         tmpl = jinja2.Template(template_text)
         rendered = tmpl.render(**data)
         return rendered

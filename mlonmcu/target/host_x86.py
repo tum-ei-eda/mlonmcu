@@ -34,6 +34,7 @@ class HostX86Target(Target):
     FEATURES = ["gdbserver"]
 
     DEFAULTS = {
+        **Target.DEFAULTS,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,

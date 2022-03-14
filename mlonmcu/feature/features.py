@@ -29,7 +29,8 @@ from .feature import (
     RunFeature,
     FeatureBase,
 )
-from mlonmcu.flow import SUPPORTED_TVM_BACKENDS
+# from mlonmcu.flow import SUPPORTED_TVM_BACKENDS
+SUPPORTED_TVM_BACKENDS = ["tvmaot", "tvmrt", "tvmcg"]  # Workaround for cirvular import until we have a backend registry
 
 from mlonmcu.utils import is_power_of_two
 

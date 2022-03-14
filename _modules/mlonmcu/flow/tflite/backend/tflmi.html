@@ -380,11 +380,10 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tflmi&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">]</span>
-
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">TFLiteBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;arena_size&quot;</span><span class="p">:</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">&quot;debug_arena&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;ops&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;custom_ops&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;registrations&quot;</span><span class="p">:</span> <span class="p">{},</span>
@@ -408,16 +407,19 @@
     <span class="k">def</span> <span class="nf">legacy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;legacy&quot;</span><span class="p">])</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">debug_arena</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">])</span>
+
 <div class="viewcode-block" id="TFLMIBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">config_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="n">debug_arena</span> <span class="o">=</span> <span class="s2">&quot;debug_arena&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span>
         <span class="n">wrapper_code</span><span class="p">,</span> <span class="n">header_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codegen</span><span class="o">.</span><span class="n">generate_wrapper</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
             <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span>
             <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">debug_arena</span><span class="o">=</span><span class="n">debug_arena</span><span class="p">,</span>
+            <span class="n">debug_arena</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug_arena</span><span class="p">,</span>
             <span class="o">**</span><span class="n">config_map</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.cc&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_code</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">))</span>

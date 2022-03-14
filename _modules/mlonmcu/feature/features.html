@@ -109,6 +109,8 @@
     <span class="n">RunFeature</span><span class="p">,</span>
     <span class="n">FeatureBase</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="c1"># from mlonmcu.flow import SUPPORTED_TVM_BACKENDS</span>
+<span class="n">SUPPORTED_TVM_BACKENDS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmcg&quot;</span><span class="p">]</span>  <span class="c1"># Workaround for cirvular import until we have a backend registry</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">is_power_of_two</span>
 
@@ -326,11 +328,7 @@
         <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="n">extras</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_kernel&quot;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">if</span> <span class="s2">&quot;cmsis-nn&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extras</span><span class="p">:</span>
             <span class="n">extras</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_kernel&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;cmsis-nn&quot;</span><span class="p">)</span>
@@ -589,7 +587,9 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">TVM_BACKENDS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>  <span class="c1"># TODO: undefined!</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>  <span class="c1"># TODO: undefined!</span>
         <span class="k">return</span> <span class="ne">NotImplementedError</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
@@ -618,7 +618,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;results_file&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;results_file&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmrt&quot;</span><span class="p">]</span>  <span class="c1"># TODO: backend in TVM_BACKENDS</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
         <span class="c1"># TODO: error handling her eor on backend?</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
@@ -686,7 +686,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;timeout&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmrt&quot;</span><span class="p">]</span>  <span class="c1"># TODO: backend in TVM_BACKENDS</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
         <span class="c1"># TODO: figure out a default path automatically</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
@@ -706,286 +706,6 @@
 
     <span class="k">def</span> <span class="nf">get_run_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;run.tune_enabled&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">DebugArena</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Enable verbose printing of arena usage for debugging.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="c1"># TODO: TFLM also compatible?</span>
-        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.debug_arena&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
-
-    <span class="c1"># def get_platform_config(self):</span>
-    <span class="c1">#    return {&quot;mlif.debug_arena&quot;: True}</span>
-
-    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-DDEBUG_ARENA=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;validate&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Validate</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Enable validaton of inout and output tensors.&quot;&quot;&quot;</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;allow_missing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;validate&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">allow_missing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;allow_missing&quot;</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.use_inout_data&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for platform &#39;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.ignore_data&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
-
-    <span class="c1"># def get_cmake_args(self):</span>
-    <span class="c1">#     pass</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Muriscvnn</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">FrameworkFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;MuriscvNN CMSIS-NN wrappers for TFLite Micro&quot;&quot;&quot;</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">,</span> <span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">muriscvnn_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">])</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">muriscvnn_inc_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">add_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">framework</span> <span class="o">==</span> <span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel&quot;</span> <span class="ow">in</span> <span class="n">config</span> <span class="ow">and</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;cmsis_nn&quot;</span><span class="p">,</span>
-        <span class="p">]:</span>
-            <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There is already a optimized_kernel selected for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cmsis_nn&quot;</span>
-        <span class="n">libs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_libs&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">libs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muriscvnn_lib</span><span class="p">)</span>
-        <span class="n">incs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_inc_dirs&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">incs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muriscvnn_inc_dir</span><span class="p">)</span>
-        <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_libs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
-        <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_inc_dirs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">incs</span>
-
-    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;tflmc.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ret</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Cmsisnn</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">FrameworkFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;CMSIS-NN kernels for TFLite Micro/TVM&quot;&quot;&quot;</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmsisnn.lib&quot;</span><span class="p">,</span> <span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cmsisnn_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cmsisnn.lib&quot;</span><span class="p">])</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cmsisnn_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">add_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">framework</span> <span class="o">==</span> <span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel&quot;</span> <span class="ow">in</span> <span class="n">config</span> <span class="ow">and</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;cmsis_nn&quot;</span><span class="p">,</span>
-        <span class="p">]:</span>
-            <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There is already a optimized_kernel selected for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cmsis_nn&quot;</span>
-        <span class="n">libs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_libs&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">libs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_lib</span><span class="p">)</span>
-        <span class="n">incs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_inc_dirs&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">include_dirs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span><span class="p">,</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CMSIS&quot;</span> <span class="o">/</span> <span class="s2">&quot;Core&quot;</span> <span class="o">/</span> <span class="s2">&quot;Include&quot;</span><span class="p">),</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CMSIS&quot;</span> <span class="o">/</span> <span class="s2">&quot;NN&quot;</span> <span class="o">/</span> <span class="s2">&quot;Include&quot;</span><span class="p">),</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CMSIS&quot;</span> <span class="o">/</span> <span class="s2">&quot;DSP&quot;</span> <span class="o">/</span> <span class="s2">&quot;Include&quot;</span><span class="p">),</span>
-        <span class="p">]</span>
-        <span class="n">incs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">include_dirs</span><span class="p">)</span>
-        <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_libs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
-        <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_inc_dirs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">incs</span>
-
-    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;tflmc.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ret</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">CmsisnnByoc</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">BackendFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;CMSIS-NN kernels for TVM using BYOC wrappers.&quot;&quot;&quot;</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmsisnn.lib&quot;</span><span class="p">,</span> <span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cmsisnn_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cmsisnn.lib&quot;</span><span class="p">])</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cmsisnn_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">framework</span> <span class="o">==</span> <span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="n">include_dirs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span><span class="p">,</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CMSIS&quot;</span> <span class="o">/</span> <span class="s2">&quot;Core&quot;</span> <span class="o">/</span> <span class="s2">&quot;Include&quot;</span><span class="p">),</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CMSIS&quot;</span> <span class="o">/</span> <span class="s2">&quot;NN&quot;</span> <span class="o">/</span> <span class="s2">&quot;Include&quot;</span><span class="p">),</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CMSIS&quot;</span> <span class="o">/</span> <span class="s2">&quot;DSP&quot;</span> <span class="o">/</span> <span class="s2">&quot;Include&quot;</span><span class="p">),</span>
-        <span class="p">]</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.extra_libs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_lib</span><span class="p">],</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.extra_incs&quot;</span><span class="p">:</span> <span class="n">include_dirs</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="n">extras</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_kernel&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="k">if</span> <span class="s2">&quot;cmsis-nn&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extras</span><span class="p">:</span>
-            <span class="n">extras</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_kernel&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;cmsis-nn&quot;</span><span class="p">)</span>
-        <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_kernel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extras</span>
-
-    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ret</span>
-
-
-<span class="c1"># @before_feature(&quot;muriscvnn&quot;)  # TODO: implment something like this</span>
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">)</span>
-<span class="c1"># class Vext(SetupFeature, TargetFeature, PlatformFeature):</span>
-<span class="k">class</span> <span class="nc">Vext</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">TargetFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;MuriscvNN CMSIS-NN wrappers for TFLite Micro&quot;&quot;&quot;</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>  <span class="c1"># TODO; define reasonable default? (Or put defaults in target and overwrite of not None)</span>
-    <span class="p">}</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vlen&quot;</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="c1"># TODO: enforce llvm toolchain using add_compile_config and CompileFeature?</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="n">is_power_of_two</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_vext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.vlen&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="c1"># It would be great if we could enforce an llvm toolchain here</span>
-    <span class="c1"># def add_compile_config(self, config):</span>
-    <span class="c1">#     # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?</span>
-    <span class="c1">#     if &quot;mlif.toolchain&quot; in config:</span>
-    <span class="c1">#         assert &quot;mlif.toolchain&quot; == &quot;llvm&quot;, &quot;Vext requires LLVM target sw&quot;</span>
-    <span class="c1">#     else:</span>
-    <span class="c1">#         config[&quot;mlif.toolchain&quot;] = &quot;llvm&quot;</span>
-
-    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;tflmc.exe&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
-        <span class="p">}</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;unpacked_api&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">UnpackedApi</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">):</span>  <span class="c1"># TODO: should this be a feature or config only?</span>
-    <span class="sd">&quot;&quot;&quot;Use unpacked interface api for TVMAOT backend to reduce stack usage.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;unpacked_api&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.unpacked_api&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;packed&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Packed</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">FrontendFeature</span><span class="p">,</span> <span class="n">BackendFeature</span><span class="p">,</span> <span class="n">SetupFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Sub-8-bit and sparsity feature for TFLite Micro kernels.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;packed&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> for frontend &#39;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">&#39;&#39;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.use_packed_weights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tflmc.exe&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;packed&quot;</span><span class="p">]}</span>
-
-    <span class="k">def</span> <span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-DDEBUG_ARENA=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;packing&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Packing</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Sub-8-bit and sparse weight packing for TFLite Frontend.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;packing&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> for frontend &#39;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">&#39;&#39;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.pack_weights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;fallback&quot;</span><span class="p">)</span>
@@ -1017,205 +737,6 @@
     <span class="c1"># -&gt; hard to model..., preprocess for tflmc?</span>
 
 
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;memplan&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Memplan</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Custom TVM memory planning feature by (@rafzi)&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;memplan&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tvm.memplan_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;usmp&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Usmp</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Unified Static Memory Planning algorithm integrated in TVM&quot;&quot;&quot;</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;greedy_by_conflicts&quot;</span><span class="p">,</span>  <span class="c1"># options: greedy_by_conflicts, greedy_by_size, hill_climb</span>
-    <span class="p">}</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;usmp&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">algorithm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-            <span class="n">tmp</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="s2">&quot;extra_pass_config&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-            <span class="n">tmp</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_pass_config&quot;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">tmp</span><span class="p">[</span><span class="s2">&quot;tir.usmp.enable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span>
-        <span class="n">tmp</span><span class="p">[</span><span class="s2">&quot;tir.usmp.algorithm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span><span class="p">:</span> <span class="n">tmp</span><span class="p">})</span>
-
-    <span class="c1"># -&gt; enable this via backend</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;fusetile&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Fusetile</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;WIP TVM feature by (@rafzi)&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;fusetile&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Usupported fetaure &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for framework &#39;</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tvm.fusetile_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
-
-    <span class="c1"># -&gt; enable this via backend</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;visualize&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Visualize</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Visualize TVM relay models.&quot;&quot;&quot;</span>
-
-    <span class="c1"># Bokeh backend has additional python requirements: graphviz, pydot, bokeh &gt;= 2.3.1</span>
-    <span class="c1"># TODO: add tflite visualizer? (Frontend)</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;cli&quot;</span><span class="p">,</span>  <span class="c1"># Alternative: bokeh</span>
-    <span class="p">}</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;visualize&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;mode&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cli&quot;</span><span class="p">,</span> <span class="s2">&quot;bokeh&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">value</span>
-
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">TVM_BACKENDS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>  <span class="c1"># TODO: undefined!</span>
-        <span class="k">return</span> <span class="ne">NotImplementedError</span>
-        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.visualize_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.visualize_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;autotuned&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Autotuned</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Use existing TVM autotuning logs in backend.&quot;&quot;&quot;</span>
-
-    <span class="c1"># TODO: FronendFeature to collect tuning logs or will we store them somewhere else?</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;results_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;autotuned&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">results_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;results_file&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;results_file&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmrt&quot;</span><span class="p">]</span>  <span class="c1"># TODO: backend in TVM_BACKENDS</span>
-        <span class="c1"># TODO: error handling her eor on backend?</span>
-        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.use_tuning_results&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_results_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-
-<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;autotune&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Autotune</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">,</span> <span class="n">RunFeature</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Use the TVM autotuner inside the backend to generate tuning logs.&quot;&quot;&quot;</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;results_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;append&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;tuner&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;trial&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;early_stopping&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;num_workers&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;max_parallel&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;use_rpc&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="c1"># All None to use the defaults defined in the backend instead</span>
-    <span class="p">}</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">results_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;results_file&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;results_file&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;append&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;append&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tuner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tuner&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;tuner&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">trials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;trials&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;trials&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">early_stopping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;early_stopping&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;early_stopping&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">num_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_workers&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;num_workers&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">max_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_parallel&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;max_parallel&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">use_rpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_rpc&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;use_rpc&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;timeout&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmrt&quot;</span><span class="p">]</span>  <span class="c1"># TODO: backend in TVM_BACKENDS</span>
-        <span class="c1"># TODO: figure out a default path automatically</span>
-        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
-                <span class="c1"># f&quot;{backend}.autotuning_use_tuned&quot;: self.enabled,  # Should Autotuning ==&gt; Autotuned?</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_results_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_append&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_tuner&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_trials&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trials</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_early_stopping&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">early_stopping</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_num_workers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_max_parallel&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_parallel</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_use_rpc&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_timeout&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_run_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;run.tune_enabled&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
-
-
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DisableLegalize</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">,</span> <span class="n">SetupFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enable transformation to reduces sizes of intermediate buffers by skipping legalization passes.&quot;&quot;&quot;</span>
@@ -1230,11 +751,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm_extensions.wrapper&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span>
-        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_extra_args&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
             <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_extra_args&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--disable-legalize&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1243,7 +760,7 @@
             <span class="k">assert</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_custom_script&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span>
                 <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_custom_script&quot;</span><span class="p">]</span>
             <span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tvm_extensions_src</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tvm_extensions_wrapper</span>
             <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_custom_script is already set. Can&#39;t enable feature: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_custom_script&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_extensions_wrapper</span>
 

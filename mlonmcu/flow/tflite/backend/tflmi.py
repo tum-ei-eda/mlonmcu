@@ -338,7 +338,6 @@ class TFLMIBackend(TFLiteBackend):
             self.model,
             prefix=self.prefix,
             header=True,
-            debug_arena=self.debug_arena,
             **config_map,
         )
         artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE))

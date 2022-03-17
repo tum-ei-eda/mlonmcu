@@ -399,8 +399,6 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
     out += "\n"
 
     out += writeTensors(model_info.inTensors, model_info.outTensors, modPrefix, api)
-    # workspace_size = 0;
-    print("workspace_size", workspace_size)
 
     logging_code = """
 void TVMLogf(const char* msg, ...) {

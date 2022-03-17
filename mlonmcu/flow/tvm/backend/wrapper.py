@@ -399,8 +399,22 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
     out += "\n"
 
     out += writeTensors(model_info.inTensors, model_info.outTensors, modPrefix, api)
+    # workspace_size = 0;
+    print("workspace_size", workspace_size)
 
-    workspace_code = """
+    logging_code = """
+void TVMLogf(const char* msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    DBGPRINTF(msg, args);
+    va_end(args);
+}
+"""
+
+    out += logging_code
+
+    if workspace_size > 0:
+        workspace_code = """
 #define WORKSPACE_SIZE (${workspaceBytes})
 static uint8_t g_aot_memory[WORKSPACE_SIZE];
 tvm_workspace_t app_workspace;
@@ -408,13 +422,6 @@ tvm_workspace_t app_workspace;
 #ifdef DEBUG_ARENA_USAGE
 size_t max_arena_usage = 0;
 #endif
-
-void TVMLogf(const char* msg, ...) {
-    va_list args;
-    va_start(args, msg);
-    DBGPRINTF(msg, args);
-    va_end(args);
-}
 
 tvm_crt_error_t TVMPlatformMemoryAllocate(size_t num_bytes, DLDevice dev, void** out_ptr) {
 #ifdef TVMAOT_DEBUG_ALLOCATIONS
@@ -443,7 +450,17 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev) {
     return StackMemoryManager_Free(&app_workspace, ptr);
 }
 """
-    out += fill(workspace_code, workspaceBytes=workspace_size)
+        out += fill(workspace_code, workspaceBytes=workspace_size)
+    else:
+        workspace_code = """
+tvm_crt_error_t TVMPlatformMemoryAllocate(size_t num_bytes, DLDevice dev, void** out_ptr) {
+    return kTvmErrorFunctionCallNotImplemented;
+}
+tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev) {
+    return kTvmErrorFunctionCallNotImplemented;
+}
+"""
+        out += workspace_code
 
     mainCode = ""
     if api == "packed":
@@ -456,7 +473,10 @@ TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int ove
 
 void TVMWrap_Init()
 {
-    StackMemoryManager_Init(&app_workspace, g_aot_memory, WORKSPACE_SIZE);
+"""
+    if workspace_size > 0:
+        mainCode += "StackMemoryManager_Init(&app_workspace, g_aot_memory, WORKSPACE_SIZE);"
+    mainCode += """
 }
 
 void *TVMWrap_GetInputPtr(int index)
@@ -514,10 +534,13 @@ void TVMWrap_Run()
     else:
         raise RuntimeError("api can only be 'c' or 'packed'")
 
+    if workspace_size > 0:
+        mainCode += """
+    #if DEBUG_ARENA_USAGE
+        DBGPRINTF("\\nAoT executor arena max usage after model invocation: %lu bytes\\n", max_arena_usage);
+    #endif  // DEBUG_ARENA_USAGE
+"""
     mainCode += """
-#if DEBUG_ARENA_USAGE
-    DBGPRINTF("\\nAoT executor arena max usage after model invocation: %lu bytes\\n", max_arena_usage);
-#endif  // DEBUG_ARENA_USAGE
 }
 
 void *TVMWrap_GetOutputPtr(int index)

@@ -51,7 +51,7 @@ class TVMAOTBackend(TVMBackend):
     @property
     def arena_size(self):
         size = self.config["arena_size"]
-        return int(size) if size else None
+        return int(size) if size is not None else None
 
     @property
     def unpacked_api(self):
@@ -157,7 +157,7 @@ class TVMAOTBackend(TVMBackend):
                     )
             generate_wrapper = True
             if generate_wrapper:
-                if self.arena_size:
+                if self.arena_size is not None:
                     assert self.arena_size >= 0
                     workspace_size = self.arena_size
                 else:

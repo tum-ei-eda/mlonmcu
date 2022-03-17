@@ -1010,5 +1010,5 @@ def install_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=
         env = {}  # Do not use current virtualenv (TODO: is there a better way?)
         env["IDF_TOOLS_PATH"] = str(espidfInstallDir)
         env["PATH"] = "/usr/bin:/bin"  # TODO: find a better way to achieve this
-        utils.exec_getout(espidfInstallScript, boards, live=verbose, env=env)
+        utils.exec_getout(espidfInstallScript, boards, print_output=False, live=verbose, env=env)
     context.cache["espidf.install_dir"] = espidfInstallDir

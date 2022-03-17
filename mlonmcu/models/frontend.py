@@ -148,8 +148,9 @@ class Frontend(ABC):
             assert cfg is not None
             backend_options = metadata["backends"]
             for backend in backend_options:
-                flattened = {f"{backend}.{key}": value for key, value in backend_options[backend].items()}
-                cfg.update(flattened)
+                if backend_options[backend] is not None:
+                    flattened = {f"{backend}.{key}": value for key, value in backend_options[backend].items()}
+                    cfg.update(flattened)
 
         # Detect model support code (Allow overwrite in metadata YAML)
         support_path = model_dir / "support"

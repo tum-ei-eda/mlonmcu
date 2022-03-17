@@ -300,7 +300,6 @@ class Vext(SetupFeature, TargetFeature):
     def get_required_cache_flags(self):
         return {
             "muriscvnn.lib": ["vext"],
-            "muriscvnn.inc_dir": ["vext"],
             "tflmc.exe": ["vext"],
         }
 

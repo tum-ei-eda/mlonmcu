@@ -35,7 +35,7 @@ repos:
     ref: patches
   tvm:
     url: "git@github.com:tum-ei-eda/tvm.git"
-    ref: latest_patched
+    ref: latest
   utvm_staticrt_codegen:
     url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
@@ -113,6 +113,8 @@ frameworks:
 frontends:
   tflite:
     enabled: true
+    features:
+      validate: true
   packed:
     enabled: false
     features:
@@ -121,6 +123,17 @@ frontends:
   onnx:
     enabled: false
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+  espidf:
+    enabled: false
+    features:
+      debug: true
 # List of supported targets in the environment
 targets:
   default: etiss_pulpino

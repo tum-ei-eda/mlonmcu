@@ -35,7 +35,7 @@ repos:
     ref: patches
   tvm:
     url: "git@github.com:tum-ei-eda/tvm.git"
-    ref: latest_patched
+    ref: latest
   utvm_staticrt_codegen:
     url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
@@ -114,6 +114,8 @@ frameworks:
 frontends:
   tflite:
     enabled: true
+    features:
+      validate: true
   packed:
     enabled: false
     features:
@@ -154,8 +156,13 @@ targets:
 platforms:
   mlif:
     enabled: true
+    features:
+      debug: true
+      validate: true
   espidf:
     enabled: true
+    features:
+      debug: true
 postprocesses:
   use:
   # - detailed_cycles

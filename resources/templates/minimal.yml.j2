@@ -35,7 +35,7 @@ repos:
     ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
   tvm:
     url: "https://github.com/tum-ei-eda/tvm.git"
-    ref: latest_patched
+    ref: latest
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
@@ -104,6 +104,8 @@ frameworks:
 frontends:
   tflite:
     enabled: true
+    features:
+      validate: true
   packed:
     enabled: false
     features:
@@ -112,6 +114,17 @@ frontends:
   onnx:
     enabled: false
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+  espidf:
+    enabled: false
+    features:
+      debug: true
 # List of supported targets in the environment
 targets:
   default: host_x86

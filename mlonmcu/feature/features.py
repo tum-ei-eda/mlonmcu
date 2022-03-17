@@ -463,7 +463,9 @@ class Usmp(BackendFeature):
             tmp = {}
         tmp["tir.usmp.enable"] = self.enabled
         tmp["tir.usmp.algorithm"] = self.algorithm
-        config.update({f"{backend}.extra_pass_config": tmp, f"{backend}.arena_size": 0})  # In recent TVM versions USMP will have it's own arena.
+        config.update(
+            {f"{backend}.extra_pass_config": tmp, f"{backend}.arena_size": 0}
+        )  # In recent TVM versions USMP will have it's own arena.
 
     # -> enable this via backend
 

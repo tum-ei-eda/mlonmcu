@@ -359,7 +359,7 @@ class ETISSDebug(SetupFeature, TargetFeature):
         super().__init__("etissdbg", config=config)
 
     def get_required_cache_flags(self):
-        return {"etiss.install_dir": ["debug"], "etissvp.script": ["debug"]} if self.enabled else {}
+        return {"etiss.install_dir": ["dbg"], "etissvp.script": ["dbg"]} if self.enabled else {}
 
     def get_target_config(self, target):
         assert target in ["etiss_pulpino"]

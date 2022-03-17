@@ -282,6 +282,11 @@ def install_llvm(context: MlonMcuContext, params=None, rebuild=False, verbose=Fa
 
 
 def _validate_etiss(context: MlonMcuContext, params={}):
+    if "dbg" in params:
+        dbg = params["dbg"]
+        if dbg:
+            if not context.environment.has_feature("etissdbg"):
+                return False
     return context.environment.has_target("etiss_pulpino")
 
 
@@ -300,7 +305,7 @@ def clone_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 
 @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
-@Tasks.param("dbg", False)
+@Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
 def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
@@ -331,7 +336,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 
 @Tasks.needs(["etiss.build_dir"])
 @Tasks.provides(["etissvp.src_dir", "etiss.lib_dir", "etiss.install_dir"])
-@Tasks.param("dbg", False)
+@Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
 def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
@@ -339,7 +344,7 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=F
     if not params:
         params = {}
     flags = utils.makeFlags((params["dbg"], "dbg"))
-    etissName = utils.makeDirName("etiss", flags=flags)
+    # etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.cache["etiss.build_dir", flags]
     etissInstallDir = context.cache["etiss.install_dir", flags]
     etissvpSrcDir = etissInstallDir / "examples" / "bare_etiss_processor"

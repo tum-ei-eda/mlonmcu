@@ -75,6 +75,12 @@ jobs:
         source .venv/bin/activate
         mlonmcu flow run sine_model -H home/ -v
         mlonmcu export -H home/ session.zip
+    - name: Run complex integration tests (optional)
+      run: |
+        source .venv/bin/activate
+        pip install -r requirements_dev.txt
+        make test-full
+        # TODO: optional
     - name: Remove dependencies (too large for artifact)
       run: |
         source .venv/bin/activate

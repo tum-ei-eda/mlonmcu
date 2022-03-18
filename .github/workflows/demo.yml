@@ -79,6 +79,7 @@ jobs:
       run: |
         source .venv/bin/activate
         pip install -r requirements_dev.txt
+        export MLONMCU_HOME=$(pwd)/home/
         make test-full
         # TODO: optional
     - name: Remove dependencies (too large for artifact)

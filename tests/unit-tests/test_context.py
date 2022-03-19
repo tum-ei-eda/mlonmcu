@@ -26,10 +26,12 @@ def create_minimal_environment_yaml(path):
     with open(path, "w") as f:
         f.write(f"---\nhome: {dirname}")  # Use defaults
 
+
 def create_invalid_environment_yaml(path):
     dirname = path.parent.absolute()
     with open(path, "w") as f:
         f.write(f"---\nhome: {dirname}")  # Use defaults
+
 
 # def test_resolve_environment_file():
 # def test_resolve_environment_file_by_name():
@@ -43,6 +45,7 @@ def create_invalid_environment_yaml(path):
 # def test_load_cache():
 # def test_get_session():
 
+
 def test_open_context(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
@@ -51,6 +54,7 @@ def test_open_context(monkeypatch, fake_environment_directory: Path, fake_config
         assert context
         ctx = context
     assert ctx.is_clean
+
 
 # def test_open_context_by_env(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
 #     monkeypatch.chdir(fake_environment_directory)
@@ -76,6 +80,7 @@ def test_open_context(monkeypatch, fake_environment_directory: Path, fake_config
 #     with mlonmcu.context.MlonMcuContext() as context:
 #         assert context
 
+
 def test_reuse_context(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
@@ -83,6 +88,7 @@ def test_reuse_context(monkeypatch, fake_environment_directory: Path, fake_confi
         assert context
     with mlonmcu.context.MlonMcuContext() as context2:
         assert context2
+
 
 def test_reuse_context_locked(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
@@ -92,6 +98,7 @@ def test_reuse_context_locked(monkeypatch, fake_environment_directory: Path, fak
     with mlonmcu.context.MlonMcuContext(lock=True) as context2:
         assert context2
 
+
 def test_nest_context(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
@@ -99,6 +106,7 @@ def test_nest_context(monkeypatch, fake_environment_directory: Path, fake_config
         assert context
         with mlonmcu.context.MlonMcuContext() as context2:
             assert context2
+
 
 def test_nest_context_locked(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)

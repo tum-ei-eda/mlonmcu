@@ -24,17 +24,23 @@ from mlonmcu.target.target import Target
 from mlonmcu.target.etiss_pulpino import EtissPulpinoTarget
 from mlonmcu.target.host_x86 import HostX86Target
 
+
 class CustomTarget(Target):
 
     FEATURES = ["featureA"]
 
-    def __init__(self, features=[], config={}, ):
+    def __init__(
+        self,
+        features=[],
+        config={},
+    ):
         super().__init__("custom", features=features, config=config)
         self.inspectProgram = "ls"
         self.inspectprogramArgs = []
 
     def exec(self, program, *args, **kwargs):
         return execute(program, *args, **kwargs)
+
 
 # @pytest.mark.parametrize("ignore_output", [False, True])
 # def test_target_common_execute(ignore_output, capsys):
@@ -53,6 +59,7 @@ class CustomTarget(Target):
 def _fake(*args, **kwargs):
     print("FAKE")
 
+
 # @mock.patch('subprocess.run', side_effect=_fake)  # FIXME
 @pytest.mark.parametrize("example_elf_file", ["elf-Linux-x64-bash"], indirect=True)
 def test_target_common_cli_inspect(example_elf_file, capsys):
@@ -60,7 +67,7 @@ def test_target_common_cli_inspect(example_elf_file, capsys):
     out, err = capsys.readouterr()
 
 
-@mock.patch('mlonmcu.target.common.execute', side_effect=_fake)  # FIXME
+@mock.patch("mlonmcu.target.common.execute", side_effect=_fake)  # FIXME
 @pytest.mark.parametrize("example_elf_file", ["elf-Linux-x64-bash"], indirect=True)
 def test_target_custom(mocked_execute, example_elf_file, capsys):
     t = CustomTarget()
@@ -72,7 +79,8 @@ def test_target_custom(mocked_execute, example_elf_file, capsys):
     t.inspect(example_elf_file)
     # mocked_execute.assert_called_once_with("inspect", "program")
 
-@mock.patch('mlonmcu.target.common.execute', side_effect=_fake)  # FIXME
+
+@mock.patch("mlonmcu.target.common.execute", side_effect=_fake)  # FIXME
 @pytest.mark.parametrize("example_elf_file", ["elf-Linux-x64-bash"], indirect=True)
 def test_target_base(mocked_execute, example_elf_file, capsys):
     t = Target("base")
@@ -84,11 +92,14 @@ def test_target_base(mocked_execute, example_elf_file, capsys):
     t.inspect(example_elf_file)
     # mocked_execute.assert_called_once_with("inspect", "program")
 
+
 def has_etiss_pulpino():
     return False
 
+
 def has_riscv():
     return False
+
 
 # TODO: needs etiss and riscv
 @pytest.mark.skipif(not has_etiss_pulpino(), reason="requires etiss_pulpino")
@@ -101,12 +112,15 @@ def test_target_etiss_pulpino(features, example_elf_file, capsys):
 
     t.inspect(example_elf_file)
 
+
 # TODO: needs gdbserver
 def has_gdbserver():
     return False
 
+
 def has_gdb():
     return False
+
 
 @pytest.mark.skipif(not has_gdbserver(), reason="requires gdbserver")
 @pytest.mark.skipif(not has_gdb(), reason="requires gdb")

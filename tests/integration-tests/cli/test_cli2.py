@@ -98,6 +98,7 @@ def _create_valid_environments_file(path):
     # with open(path, "w") as env_file:
     #     env_file.write("""[default]\npath=\"/x/y/z\"\ncreated=\"20211223T08000\"\n\n[custom]\npath=\"/a/b/c\"""")
 
+
 def _create_complex_environments_file(path):
     _write_environments_file(
         path,
@@ -108,6 +109,7 @@ def _create_complex_environments_file(path):
     )
     # with open(path, "w") as env_file:
     #     env_file.write("""[default]\npath=\"/x/y/z\"\ncreated=\"20211223T08000\"\n\n[custom]\npath=\"/a/b/c\"""")
+
 
 def _create_invalid_environments_file(path):
     _write_environments_file(path, {"default": {}})

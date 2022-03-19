@@ -23,12 +23,14 @@ from mlonmcu.setup.setup import Setup
 
 TestTaskFactory = TaskFactory()
 
+
 def _validate_example_task1(context, params={}):
     print("_validate_example_task1", params)
     assert "foo" in params and "bar" in params and "special" in params
     if params["foo"] == 0 or params["bar"] == "B":
         return params["special"]
     return False
+
 
 @TestTaskFactory.provides(["dep0"])
 @TestTaskFactory.param("special", [True, False])
@@ -40,12 +42,14 @@ def example_task1(context, params={}, rebuild=False):
     context.cache._vars["dep0"] = ""
     pass
 
+
 @TestTaskFactory.needs(["dep0"])
 @TestTaskFactory.provides(["dep1"])
 @TestTaskFactory.register(category=TaskType.MISC)
 def example_task2(context, params={}, rebuild=False):
     context.cache._vars["dep1"] = ""
     pass
+
 
 def test_task_registry():
     assert len(TestTaskFactory.registry) == 2
@@ -56,10 +60,12 @@ def test_task_registry():
     assert len(TestTaskFactory.params) == 2
     assert len(TestTaskFactory.params["example_task1"]) == 3
 
+
 def test_task_registry_reset_changes():
     TestTaskFactory.changed = ["dep0"]
     TestTaskFactory.reset_changes()
     assert len(TestTaskFactory.changed) == 0
+
 
 @pytest.mark.parametrize("progress", [False, True])
 @pytest.mark.parametrize("print_output", [False, True])
@@ -74,9 +80,12 @@ def test_setup_install_dependencies(progress, print_output, rebuild, write_cache
     installer = Setup(config=config, context=fake_context, tasks_factory=TestTaskFactory)
     result = installer.install_dependencies(progress=progress, write_cache=write_cache, rebuild=rebuild)
     # assert example_task1_mock.call_count == 3
-    assert TestTaskFactory.registry["example_task1"].call_count == 1  # Due to the mock, the actual wrapper is not executed anymore, params are not considered etc
+    assert (
+        TestTaskFactory.registry["example_task1"].call_count == 1
+    )  # Due to the mock, the actual wrapper is not executed anymore, params are not considered etc
     # assert example_task2_mock.call_count == 1
     assert TestTaskFactory.registry["example_task2"].call_count == 1
+
 
 def test_task_get_combs():
     assert get_combs({}) == []
@@ -103,4 +112,3 @@ def test_task_graph():
     assert len(order) == len(nodes)
     assert order.index("NodeB") > order.index("NodeA") and order.index("NodeB") > order.index("NodeC")
     assert order.index("NodeC") > order.index("NodeA")
-

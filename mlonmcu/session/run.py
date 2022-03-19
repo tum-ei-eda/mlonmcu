@@ -105,7 +105,6 @@ class Run:
         self._init_directory()
         self.target = target
         self.config = config if config else {}
-        print("self.config", self.config)
         self.features = features if features else []
         self.run_config = config if config else {}
         self.run_features = self.process_features(features)

@@ -18,6 +18,7 @@
 #
 import yaml
 import pathlib
+import logging
 
 from .config import PathConfig
 
@@ -26,7 +27,7 @@ def create_environment_dict(environment):
     data = {}
     data["home"] = environment.home
     data["logging"] = {
-        "level": environment.defaults.log_level.name,
+        "level": logging.getLevelName(environment.defaults.log_level),
         "to_file": environment.defaults.log_to_file,
         "rotate": environment.defaults.log_rotate,
     }

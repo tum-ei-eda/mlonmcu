@@ -16,12 +16,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Utility to convert various types of data into MLonMCU compatible raw binary files."""
 import sys
 import struct
 
 
 def convert(mode, val):
+    """Actual convertion function.
+
+    Arguments
+    ---------
+    mode : str
+        The chosen mode.
+    val : str
+        The input data.
+
+    Returns
+    -------
+    data : bytes
+      Raw converted output.
+
+    Raises
+    ------
+    AssertionError
+        If the choses mode does not exist or value has a wrong shape.
+    ValueError
+        If the conversion failed.
+
+    """
     data = b""
+    assert isinstance(val, str), "Input value needs to be a string"
+    assert mode in ["float", "hexstr", "int8"], f"Unsupported mode: {mode}"
+
     if mode == "float":
         for f in val.split(","):
             data += struct.pack("f", float(f))
@@ -34,11 +60,22 @@ def convert(mode, val):
 
 
 def write_file(dest, data):
+    """Utility to save the file to disk.
+
+    Arguments
+    ---------
+    dest: str
+       File destination.
+    data: bytes
+       Raw data to export.
+
+    """
     with open(dest, "wb") as f:
         f.write(data)
 
 
 def main():
+    """Main entry pint handling command line options."""
     if len(sys.argv) != 4:
         print(
             "Usage:",
@@ -51,7 +88,10 @@ def main():
 
     mode, val, dest = sys.argv[1], sys.argv[2], sys.argv[3]
 
-    data = convert(mode, val)
+    try:
+        data = convert(mode, val)
+    except ValueError:
+        print("Conversion Failed")
     write_file(dest, data)
 
 

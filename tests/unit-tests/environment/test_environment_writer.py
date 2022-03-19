@@ -1,0 +1,49 @@
+import logging
+
+from mlonmcu.environment.environment import Environment
+from mlonmcu.environment.config import DefaultsConfig, PathConfig, RepoConfig
+from mlonmcu.environment.writer import create_environment_dict
+
+
+class MyEnvironment(Environment):
+    def __init__(self):
+        self._home = "/foo/bar"
+        self.defaults = DefaultsConfig(
+            log_level=logging.DEBUG,
+            log_to_file=False,
+            log_rotate=False,
+            default_framework=None,
+            default_backends={},
+            default_target=None,
+            cleanup_auto=False,
+            cleanup_keep=100,
+        )
+        self.paths = {"foo": PathConfig("bar"), "foobar": [PathConfig("baz"), PathConfig("baz2")]}
+        self.repos = {"repo1": RepoConfig("repo1url"), "repo2": RepoConfig("repo2url", ref="repo2ref")}
+        self.frameworks = []
+        self.frontends = []
+        self.platforms = []
+        self.targets = []
+        self.vars = {"key": "val"}
+
+
+def test_create_environment_dict():
+    env = MyEnvironment()
+    assert create_environment_dict(env) == {
+        "home": "/foo/bar",
+        "logging": {"level": "DEBUG", "to_file": False, "rotate": False},
+        "cleanup": {"auto": False, "keep": 100},
+        "paths": {
+            "foo": "/home/philipp/src/work/prj/mlonmcu_open_source/mlonmcu_new/bar",
+            "foobar": [
+                "/home/philipp/src/work/prj/mlonmcu_open_source/mlonmcu_new/baz",
+                "/home/philipp/src/work/prj/mlonmcu_open_source/mlonmcu_new/baz2",
+            ],
+        },
+        "repos": {"repo1": {"url": "repo1url", "ref": None}, "repo2": {"url": "repo2url", "ref": "repo2ref"}},
+        "frameworks": {"default": None},
+        "frontends": {},
+        "platforms": {},
+        "targets": {"default": None},
+        "vars": {"key": "val"},
+    }

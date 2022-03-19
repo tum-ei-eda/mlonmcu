@@ -4,8 +4,12 @@ from mlonmcu.platform import get_platforms
 from mlonmcu.config import resolve_required_config
 
 
+def get_platform_names(context):
+    return context.environment.lookup_platform_configs(names_only=True)
+
+
 def get_platforms_targets(context):
-    platform_names = context.environment.lookup_platform_configs(names_only=True)
+    platform_names = get_platform_names(context)
     platform_classes = get_platforms()
     # To initialize the platform we need to provide a config with required paths.
     platforms = []
@@ -23,6 +27,9 @@ def get_platforms_targets(context):
 
 def print_platforms(platform_names):
     print("Platforms:")
+    if len(platform_names) == 0:
+        print("No platforms found")
+        return
     for name in platform_names:
         print("  - " + name)
 
@@ -30,6 +37,9 @@ def print_platforms(platform_names):
 def print_targets(platform_targets):
     print("Targets:")
     target_names = set(itertools.chain(*platform_targets.values()))
+    if len(target_names) == 0:
+        print("No targets found")
+        return
     for target_name in target_names:
         target_platforms = [
             platform_name

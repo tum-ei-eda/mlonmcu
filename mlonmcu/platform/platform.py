@@ -99,7 +99,7 @@ class Platform:
         return features
 
     def get_supported_targets(self):
-        return NotImplementedError
+        return []
 
 
 class CompilePlatform(Platform):

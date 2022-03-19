@@ -29,8 +29,6 @@ import mlonmcu.cli.compile as compile_  # compile is a builtin name
 import mlonmcu.cli.run as run
 from mlonmcu.cli.common import add_flow_options, add_common_options, add_context_options
 
-# from .trace import get_trace_parser
-
 
 def get_parser(subparsers, parent=None):
     """ "Define and return a subparser for the flow subcommand."""

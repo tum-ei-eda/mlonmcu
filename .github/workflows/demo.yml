@@ -23,6 +23,22 @@ name: Usage Demo
 
 on:
   workflow_dispatch:
+    inputs:
+      template:
+        type: choice
+        description: Environment Template
+        options:
+        - default
+        - minimal
+        required: true
+      test:
+        type: boolean
+        description: Run long integration tests
+        required: true
+      artifact:
+        type: boolean
+        description: Upload artifacts
+        required: true
   # push:
   #   branches:
   #     - main
@@ -35,7 +51,6 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
-        template: ["default", "minimal"]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -65,7 +80,7 @@ jobs:
     - name: Initialize MLonMCU environment
       run: |
         source .venv/bin/activate
-        mlonmcu init home/ --non-interactive --template ${{ matrix.template }}
+        mlonmcu init home/ --non-interactive --template ${{ github.event.inputs.template }}
     - name: Setup MLonMCU dependencies
       run: |
         source .venv/bin/activate
@@ -75,19 +90,24 @@ jobs:
         source .venv/bin/activate
         mlonmcu flow run sine_model -H home/ -v
         mlonmcu export -H home/ session.zip
-    - name: Run complex integration tests (optional)
+    - name: Prepare complex integration tests (optional)
       run: |
         source .venv/bin/activate
         pip install -r requirements_dev.txt
-        export MLONMCU_HOME=$(pwd)/home/
-        make test-full
-        # TODO: optional
+      if: ${{ github.event.inputs.test == 'true' }}
+    - name: Run complex integration tests (optional)
+      run: |
+        source .venv/bin/activate
+        MLONMCU_HOME=$(pwd)/home/ make test-full
+      if: ${{ github.event.inputs.test == 'true' }}
     - name: Remove dependencies (too large for artifact)
       run: |
         source .venv/bin/activate
         mlonmcu cleanup -H home/ -f --deps
+      if: ${{ github.event.inputs.artifact == 'true' }}
     - name: Archive environment (without deps)
       uses: actions/upload-artifact@v2
       with:
         name: mlonmcu_home
         path: home/
+      if: ${{ github.event.inputs.artifact == 'true' }}

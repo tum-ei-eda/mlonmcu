@@ -18,7 +18,6 @@
 #
 import sys
 import git
-import logging
 from pathlib import Path
 import venv
 import os
@@ -73,7 +72,7 @@ def initialize_environment(
     template=None,
 ):
     overwrite = False
-    assert template != None
+    assert template is not None
     print("Initializing ML on MCU environment")
     use_default_dir = directory == get_environments_dir()
     has_name = len(name.strip()) > 0
@@ -91,7 +90,7 @@ def initialize_environment(
         target_dir = directory
     target_dir = os.path.abspath(target_dir)
     config_dir = get_config_dir()
-    if use_default_dir or register != False:
+    if use_default_dir or register is not False:
         if not os.path.exists(config_dir):
             print(
                 f"The mlonmcu user config directory {config_dir} does not exist!",
@@ -109,7 +108,7 @@ def initialize_environment(
         if len(os.listdir(target_dir)) > 0:
             print("The directory is not empty!", end=" - ")
             # TODO: check for mlonmcu project files, if yes ask for overwrite instead
-            if allow_exists == False or (
+            if allow_exists is False or (
                 allow_exists is None and not ask_user("Use anyway?", default=False, interactive=interactive)
             ):
                 print("Aborting...")

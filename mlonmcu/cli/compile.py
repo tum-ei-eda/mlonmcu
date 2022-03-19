@@ -18,22 +18,12 @@
 #
 """Command line subcommand for the run process."""
 
-import multiprocessing
-import concurrent
-import copy
-import itertools
-
 import mlonmcu
-from mlonmcu.cli.common import add_common_options, add_context_options, kickoff_runs
-from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_FRAMEWORK_BACKENDS
-from mlonmcu.target import SUPPORTED_TARGETS
+from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.build import (
     handle as handle_build,
     add_build_options,
 )
-from mlonmcu.config import resolve_required_config
-from mlonmcu.flow.backend import Backend
-from mlonmcu.flow.framework import Framework
 from mlonmcu.session.run import RunStage
 from mlonmcu.platform.lookup import get_platforms_targets
 

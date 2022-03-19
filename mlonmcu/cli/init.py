@@ -18,15 +18,10 @@
 #
 """Command line subcommand for initializing a mlonmcu environment."""
 
-import sys
 import os
-import pkg_resources
-import pkgutil
-import jinja2
 
 from mlonmcu.environment.templates import get_template_names
-from mlonmcu.environment.config import get_environments_dir, DEFAULTS, env_subdirs
-from mlonmcu.utils import in_virtualenv
+from mlonmcu.environment.config import get_environments_dir, DEFAULTS
 from mlonmcu.environment.init import initialize_environment
 
 

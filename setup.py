@@ -56,7 +56,8 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    description="This project contains research code related to the deployment of inference or learning applications on tiny micro-controllers.",
+    description="This project contains research code related to the deployment of inference"
+    "or learning applications on tiny micro-controllers.",
     entry_points={
         "console_scripts": [
             "mlonmcu=mlonmcu.cli.main:main",

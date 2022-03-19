@@ -23,14 +23,15 @@
 
 # import unittest
 import pytest
-import unittest
-import os
-import tempfile
+
+# import os
+# import tempfile
 import configparser
 from pathlib import Path
-from pytest_console_scripts import ScriptRunner
-import xdg
-import mock
+
+# from pytest_console_scripts import ScriptRunner
+# import xdg
+# import mock
 
 from mlonmcu.version import __version__
 from mlonmcu.cli.main import main
@@ -65,7 +66,7 @@ from mlonmcu.cli.main import main
 @pytest.mark.script_launch_mode("subprocess")
 def test_version(capsys):
     with pytest.raises(SystemExit) as pytest_exit:
-        ret = main(["--version"])
+        main(["--version"])
     out, err = capsys.readouterr()
     assert pytest_exit.value.code == 0
     assert out == f"mlonmcu {__version__}\n"

@@ -24,12 +24,11 @@ import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-
-logger = get_logger()
-
 from .common import cli, execute
 from .riscv import RISCVTarget
 from .metrics import Metrics
+
+logger = get_logger()
 
 
 class EtissPulpinoTarget(RISCVTarget):

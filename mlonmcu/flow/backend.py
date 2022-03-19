@@ -18,7 +18,6 @@
 #
 import os
 import argparse
-import logging
 from pathlib import Path
 from abc import ABC, abstractmethod
 
@@ -26,7 +25,7 @@ from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.artifact import Artifact
+from mlonmcu.artifact import ArtifactFormat
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
@@ -94,7 +93,7 @@ class Backend(ABC):
     def export_tuning_results(self, path):
         if not self.has_tuner:
             raise NotImplementedError("Backend does not support autotuning")
-        artifact = self.tuner.get_results()
+        # artifact = self.tuner.get_results()
         # TODO: write tuning report to file...
         raise NotImplementedError
 
@@ -110,7 +109,7 @@ class Backend(ABC):
                 path.is_dir()
             ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
             for artifact in self.artifacts:
-                extract = artifact.fmt == ArctifactFormat.MLF
+                extract = artifact.fmt == ArtifactFormat.MLF
                 artifact.export(path, extract=extract)
                 # TODO: move the following to a helper function and share code
                 # dest = path / artifact.name

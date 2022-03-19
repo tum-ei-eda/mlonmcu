@@ -267,8 +267,6 @@ class VisualizePostprocess(SessionPostprocess):
         if self.format != "png":
             raise NotImplementedError("Currently only supports PNG")
 
-        import matplotlib.pyplot as plt
-
         COLS = ["Total Cycles", "Total ROM", "Total RAM"]
         for col in COLS:
             if col not in report.main_df.columns:

@@ -24,7 +24,6 @@ from mlonmcu.setup import setup
 from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,
-    handle_logging_flags,
 )
 from .helper.parse import extract_config_and_init_features
 

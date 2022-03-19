@@ -22,17 +22,17 @@
 
 
 # import unittest
-import pytest
-import unittest
-import os
-import tempfile
-import configparser
-from pathlib import Path
-from pytest_console_scripts import ScriptRunner
-import xdg
-import mock
-
-from mlonmcu.version import __version__
+# import pytest
+# import unittest
+# import os
+# import tempfile
+# import configparser
+# from pathlib import Path
+# from pytest_console_scripts import ScriptRunner
+# import xdg
+# import mock
+#
+# from mlonmcu.version import __version__
 
 # from fixtures import fake_config_home, fake_environment_directory, fake_working_directory
 # @pytest.fixture()

@@ -20,16 +20,12 @@
 
 import sys
 
-import multiprocessing
-
 import mlonmcu.context
 import mlonmcu.platform.lookup
 import mlonmcu.cli.load as load
 import mlonmcu.cli.tune as tune
 import mlonmcu.cli.build as build
 import mlonmcu.cli.compile as compile_  # compile is a builtin name
-import mlonmcu.cli.debug as debug
-import mlonmcu.cli.test as test
 import mlonmcu.cli.run as run
 from mlonmcu.cli.common import add_flow_options, add_common_options, add_context_options
 
@@ -49,13 +45,11 @@ def get_parser(subparsers, parent=None):
     add_context_options(parser)
     add_flow_options(parser)
     subparsers = parser.add_subparsers(dest="subcommand2")  # this line changed
-    load_parser = load.get_parser(subparsers)
-    tune_parser = tune.get_parser(subparsers)
-    build_parser = build.get_parser(subparsers)
-    compile_parser = compile_.get_parser(subparsers)
-    run_parser = run.get_parser(subparsers)
-    debug_parser = debug.get_parser(subparsers)
-    test_parser = test.get_parser(subparsers)
+    load.get_parser(subparsers)
+    tune.get_parser(subparsers)
+    build.get_parser(subparsers)
+    compile_.get_parser(subparsers)
+    run.get_parser(subparsers)
 
 
 def handle_list_targets(args):

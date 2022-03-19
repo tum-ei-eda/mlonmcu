@@ -1,4 +1,3 @@
-from time import sleep
 from mlonmcu.environment.config import PathConfig
 from mlonmcu.session.run import RunStage
 from mlonmcu.feature.features import (
@@ -7,15 +6,6 @@ from mlonmcu.feature.features import (
 from mlonmcu.config import resolve_required_config
 
 import pytest
-
-
-# def test_func_fast():
-#     sleep(0.1)
-#
-#
-# @pytest.mark.slow
-# def test_func_slow():
-#     sleep(10)
 
 
 # TODO: add user_session fixture which handles cleanup via session.discard()

@@ -182,7 +182,7 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
         runs = []
         for rid in run_ids:
             run_directory = runs_directory / str(rid)
-            run_file = run_directory / "run.txt"
+            # run_file = run_directory / "run.txt"
             # run = Run.from_file(run_file)  # TODO: actually implement run restore
             run = Run()  # TODO: fix
             run.archived = True
@@ -327,7 +327,7 @@ class MlonMcuContext:
         """
         if resume:
             assert len(self.sessions) > 0, "There is no recent session available"
-            session = self.sessions[-1]
+            # session = self.sessions[-1]
             assert False, "The latest session can not be resumed"
             raise NotImplementedError
 
@@ -394,7 +394,8 @@ class MlonMcuContext:
         else:
             if interactive:
                 print("No sessions selected for removal")
-        # We currently do not support rewirting the indices to start from scratch again as this would lead to inconsitencies with the path in the report/cmake build dirtectory
+        # We currently do not support rewirting the indices to start from scratch again as this
+        # would lead to inconsitencies with the path in the report/cmake build dirtectory
 
     def get_sessions_runs_idx(self):
         sessions_dict = {}

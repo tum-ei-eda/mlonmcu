@@ -22,8 +22,6 @@ import json
 import tarfile
 from pathlib import Path
 
-from ..tvm_flow import get_parser
-
 from .backend import TVMBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -123,7 +121,7 @@ class TVMAOTBackend(TVMBackend):
             tarfile.open(out_path).extractall(mlf_path)
             with open(mlf_path / "metadata.json") as handle:
                 metadata = json.load(handle)
-            metadata_txt = json.dumps(metadata)
+            # metadata_txt = json.dumps(metadata)
             with open(out_path, "rb") as handle:
                 mlf_data = handle.read()
                 artifacts.append(
@@ -138,9 +136,9 @@ class TVMAOTBackend(TVMBackend):
                 with open(str(out_path) + ".c", "r") as handle:
                     mod_src = handle.read()
                     artifacts.append(
-                        Artifac(
+                        Artifact(
                             f"{self.prefix}.c",
-                            content=mod_str,
+                            content=mod_src,
                             fmt=ArtifactFormat.SOURCE,
                             optional=True,
                         )
@@ -148,7 +146,7 @@ class TVMAOTBackend(TVMBackend):
                 with open(str(out_path) + ".relay", "r") as handle:
                     mod_txt = handle.read()
                     artifacts.append(
-                        Artifac(
+                        Artifact(
                             f"{self.prefix}.relay",
                             content=mod_txt,
                             fmt=ArtifactFormat.TEXT,

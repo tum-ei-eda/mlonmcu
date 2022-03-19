@@ -23,7 +23,6 @@ import mock
 import pytest
 import configparser
 from mlonmcu.environment.init import (
-    clone_models_repo,
     create_environment_directories,
     create_venv_directory,
     ask_user,
@@ -129,7 +128,7 @@ def test_environment_initialize_environment(
     fake_working_directory,
     fake_config_home,
 ):
-    with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=str.encode("---")) as mocked:
+    with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=str.encode("---")):
         before = _count_envs(fake_config_home)
         initialize_environment(
             fake_environment_directory,
@@ -155,7 +154,7 @@ def test_environment_initialize_environment(
 def test_environment_initialize_environment_duplicate(
     fake_environment_directory, fake_working_directory, fake_config_home
 ):
-    with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=str.encode("---")) as mocked:
+    with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=str.encode("---")):
         before = _count_envs(fake_config_home)
         initialize_environment(
             fake_environment_directory,
@@ -185,17 +184,17 @@ def test_environment_initialize_environment_duplicate(
 def test_environment_fill_template():
     with mock.patch(
         "mlonmcu.environment.templates.get_template_text", return_value=str.encode("{{ key }}: {{ value }}")
-    ) as mocked:
+    ):
         assert fill_template("", data={"key": "foo", "value": "bar"}) == "foo: bar"
-    with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=None) as mocked:
-        assert fill_template("", data={"key": "foo", "value": "bar"}) == None
+    with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=None):
+        assert fill_template("", data={"key": "foo", "value": "bar"}) is None
 
 
 def test_environment_write_environment_yaml_from_template(fake_environment_directory, fake_config_home):
     with mock.patch(
         "mlonmcu.environment.templates.get_template_text",
         return_value=str.encode("home: {{ home_dir }}\nconfig: {{ config_dir }}"),
-    ) as mocked:
+    ):
         env_yaml = str(fake_environment_directory / "environment.yml")
         write_environment_yaml_from_template(env_yaml, "", fake_environment_directory)
         assert os.path.isfile(env_yaml)

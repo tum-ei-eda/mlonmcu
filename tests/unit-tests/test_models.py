@@ -133,7 +133,7 @@ def _check_summary_output(
 @pytest.mark.parametrize("detailed", [False, True])
 def test_models_print_summary(detailed, capsys, fake_context, fake_environment_directory, fake_config_home):
     # list empty
-    with mock.patch.dict(fake_context.environment.paths, {"models": []}) as mocked:
+    with mock.patch.dict(fake_context.environment.paths, {"models": []}):
         print_summary(fake_context, detailed=detailed)
         out, err = capsys.readouterr()
         for line in out.split("\n"):
@@ -143,7 +143,7 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
     env_models_dir.mkdir()
 
     # single path, no models
-    with mock.patch.dict(fake_context.environment.paths, {"models": [PathConfig(env_models_dir)]}) as mocked:
+    with mock.patch.dict(fake_context.environment.paths, {"models": [PathConfig(env_models_dir)]}):
         print_summary(fake_context, detailed=detailed)
         out, err = capsys.readouterr()
         _check_summary_output(
@@ -156,7 +156,7 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
     _create_fake_models(env_models_dir, ["model1", "model2"])
 
     # single path, 3 models
-    with mock.patch.dict(fake_context.environment.paths, {"models": [PathConfig(env_models_dir)]}) as mocked:
+    with mock.patch.dict(fake_context.environment.paths, {"models": [PathConfig(env_models_dir)]}):
         print_summary(fake_context, detailed=detailed)
         out, err = capsys.readouterr()
         _check_summary_output(
@@ -172,7 +172,7 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
     # two paths (1 skipped), 3 models
     with mock.patch.dict(
         fake_context.environment.paths, {"models": [PathConfig(env_models_dir), PathConfig(user_models_dir)]}
-    ) as mocked:
+    ):
         print_summary(fake_context, detailed=detailed)
         out, err = capsys.readouterr()
         _check_summary_output(
@@ -191,7 +191,7 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
     with mock.patch.dict(
         fake_context.environment.paths,
         {"models": [PathConfig(fake_environment_directory / "models"), PathConfig(fake_config_home / "models")]},
-    ) as mocked:
+    ):
         print_summary(fake_context, detailed=detailed)
         out, err = capsys.readouterr()
         _check_summary_output(
@@ -209,7 +209,7 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
     with mock.patch.dict(
         fake_context.environment.paths,
         {"models": [PathConfig(fake_environment_directory / "models"), PathConfig(fake_config_home / "models")]},
-    ) as mocked:
+    ):
         print_summary(fake_context, detailed=detailed)
         out, err = capsys.readouterr()
         print("OUT", out)

@@ -23,14 +23,12 @@ import re
 import csv
 from pathlib import Path
 
-# from mlonmcu.context import MlonMcuContext
 from mlonmcu.logging import get_logger
-
-logger = get_logger()
-
 from .common import cli, execute
 from .target import Target
 from .metrics import Metrics
+
+logger = get_logger()
 
 
 class Corstone300Target(Target):
@@ -141,7 +139,7 @@ class Corstone300Target(Target):
             cycles = None
         else:
             cycles = int(float(cpu_cycles.group(1)))
-        mips = None  # TODO: parse mips?
+        # mips = None  # TODO: parse mips?
         return cycles
 
     def get_metrics(self, elf, directory):

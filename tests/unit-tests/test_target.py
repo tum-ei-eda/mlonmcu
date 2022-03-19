@@ -107,7 +107,7 @@ def has_riscv():
 @pytest.mark.parametrize("features", [[], ["etissdbg"], ["attach"], ["noattach"], ["trace"], ["v"]])
 @pytest.mark.parametrize("example_elf_file", ["elf-Linux-ARM64-bash"], indirect=True)
 def test_target_etiss_pulpino(features, example_elf_file, capsys):
-    t = ETISSPulpinoTarget(config={"riscv.dir": "foo", "etiss.dir": "bar"}, features=features)
+    t = EtissPulpinoTarget(config={"riscv.dir": "foo", "etiss.dir": "bar"}, features=features)
     # t.exec("/bin/date")
 
     t.inspect(example_elf_file)

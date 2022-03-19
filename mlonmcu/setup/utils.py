@@ -134,7 +134,7 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exi
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             logger.debug("Interrupted subprocess. Sending SIGINT signal...")
             pid = process.pid
             os.kill(pid, signal.SIGINT)
@@ -154,14 +154,14 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exi
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             logger.debug("Interrupted subprocess. Sending SIGINT signal...")
             pid = p.pid
             os.kill(pid, signal.SIGINT)
         except subprocess.CalledProcessError as e:
             outStr = e.output.decode(errors="replace")
             logger.error(outStr)
-            raise
+            raise e
 
     return outStr
 
@@ -216,7 +216,7 @@ def clone(
             repo = Repo.clone_from(url, dest, recursive=recursive, no_checkout=True)
             repo.git.checkout(branch)
             if recursive:
-                output = repo.git.submodule("update", "--init", "--recursive")
+                repo.git.submodule("update", "--init", "--recursive")
         else:
             Repo.clone_from(url, dest, recursive=recursive)
 

@@ -18,7 +18,6 @@
 #
 import os
 import shutil
-import time
 from tqdm import tqdm
 
 from mlonmcu.logging import get_logger
@@ -141,3 +140,4 @@ class Setup:
         if write_cache:
             self.write_cache_file()
         logger.info("Finished installing dependencies")
+        return True

@@ -16,11 +16,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from pathlib import Path
 import logging
-import yaml
 
-from .config import *
+from .config import (
+    DefaultsConfig,
+    PathConfig,
+    RepoConfig,
+    FrameworkConfig,
+    FrameworkFeatureConfig,
+    BackendConfig,
+    BackendFeatureConfig,
+    TargetConfig,
+    TargetFeatureConfig,
+    PlatformConfig,
+    PlatformFeatureConfig,
+    FrontendConfig,
+    FrontendFeatureConfig,
+)
 from .loader import load_environment_from_file
 from .writer import write_environment_to_file
 
@@ -288,8 +300,8 @@ class Environment:
         if framework is None or framework not in self.defaults.default_backends:
             return []
         default = self.defaults.default_backends[framework]
-        framework_names = [framework_config.name for framework_config in self.frameworks]
-        framework_config = self.frameworks[framework_names.index(framework)]
+        # framework_names = [framework_config.name for framework_config in self.frameworks]
+        # framework_config = self.frameworks[framework_names.index(framework)]
         if default is None:
             return []
         if isinstance(default, str):

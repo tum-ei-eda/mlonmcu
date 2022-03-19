@@ -35,7 +35,6 @@ class Report:
     @property
     def df(self):
         # TODO: handle this properly by either adding NAN or use a single set(pre=, post=, main=) method
-        # assert len(self.pre_df) == len(self.post_df) and len(self.pre_df) == len(self.main_df), "Length mismatch for report dataframe"
         return pd.concat([self.pre_df, self.main_df, self.post_df], axis=1)
 
     def export(self, path):

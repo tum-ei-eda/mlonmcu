@@ -18,25 +18,12 @@
 #
 """Command line subcommand for the run process."""
 
-import multiprocessing
-import concurrent
-import copy
-import itertools
-
 import mlonmcu
-from mlonmcu.cli.common import (
-    add_common_options,
-    add_context_options,
-    add_flow_options,
-    kickoff_runs,
-)
-from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_FRAMEWORK_BACKENDS
+from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.compile import (
     handle as handle_compile,
     add_compile_options,
 )
-from mlonmcu.flow.backend import Backend
-from mlonmcu.flow.framework import Framework
 from mlonmcu.session.run import RunStage
 
 # rom mlonmcu.flow.tflite.framework import TFLiteFramework
@@ -46,7 +33,7 @@ from mlonmcu.session.run import RunStage
 
 def add_run_options(parser):
     add_compile_options(parser)
-    run_parser = parser.add_argument_group("run options")
+    _ = parser.add_argument_group("run options")
 
 
 def get_parser(subparsers):
@@ -65,15 +52,8 @@ def check_args(context, args):
     pass
 
 
-def get_results(context):
-    assert len(context.sessions) > 0
-    session = context.sessions[-1]
-    results = [run.result for run in session.runs]
-
-
 def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         check_args(context, args)
         handle_compile(args, context)
         kickoff_runs(args, RunStage.RUN, context)
-        results = get_results(context)

@@ -20,16 +20,13 @@
 
 import os
 import re
-import csv
 from pathlib import Path
 
-# from mlonmcu.context import MlonMcuContext
 from mlonmcu.logging import get_logger
-
-logger = get_logger()
-
 from .common import cli, execute
 from .target import Target
+
+logger = get_logger()
 
 
 class RISCVTarget(Target):

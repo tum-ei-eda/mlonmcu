@@ -18,9 +18,7 @@
 #
 """Command line subcommand for manaing environments."""
 
-import os
 import configparser
-import xdg
 
 from mlonmcu.environment.config import get_environments_file
 

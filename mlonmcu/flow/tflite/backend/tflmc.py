@@ -19,7 +19,6 @@
 import sys
 import os
 import tempfile
-import logging
 from pathlib import Path
 from .backend import TFLiteBackend
 import mlonmcu.setup.utils as utils

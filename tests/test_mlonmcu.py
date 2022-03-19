@@ -23,7 +23,7 @@
 
 import unittest
 
-from mlonmcu import mlonmcu
+# from mlonmcu import mlonmcu
 
 
 class TestMlonmcu(unittest.TestCase):

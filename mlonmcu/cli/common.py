@@ -20,15 +20,12 @@ import os
 import sys
 import multiprocessing
 import logging
-from mlonmcu.target import SUPPORTED_TARGETS
 
 from mlonmcu.platform import get_platforms
 from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
 from .helper.parse import extract_config
-
-from mlonmcu.logging import get_logger
 
 logger = get_logger()
 

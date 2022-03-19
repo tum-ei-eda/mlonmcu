@@ -17,19 +17,15 @@
 # limitations under the License.
 #
 import tempfile
-from enum import Enum
 from pathlib import Path
 from abc import ABC, abstractmethod
-from collections.abc import Callable
-import logging
-import copy
 
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.models.model import Model, ModelFormats
-from mlonmcu.feature.feature import Feature
+from mlonmcu.models.model import ModelFormats
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.setup import utils
 
 from mlonmcu.logging import get_logger
 
@@ -282,7 +278,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
         return bool(self.config["ignore_existing"])
 
     @property
-    def use_packed(self):
+    def fake_pack(self):
         return bool(self.config["fake_pack"])
 
     @property
@@ -313,7 +309,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
                     packed_data = data_in
                     break
                 elif fmt == ModelFormats.TFLITE:
-                    tflite_data_in = data_in
+                    # tflite_data_in = data_in
                     break
                 else:
                     raise RuntimeError(f"Unexpected model format: {fmt}")

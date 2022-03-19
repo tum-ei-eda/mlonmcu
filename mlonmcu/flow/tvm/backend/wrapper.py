@@ -19,7 +19,6 @@
 """TODO"""
 
 import string
-import struct
 from datetime import datetime
 from math import ceil
 

@@ -18,7 +18,6 @@
 #
 import tempfile
 import os
-import psutil
 import time
 import signal
 import random

@@ -118,7 +118,7 @@ class TaskCache:
                 self[name, flags] = value
 
     def write_to_file(self, filename):
-        d = self._vars
+        # d = self._vars
 
         out = {}  # This will be a dict of dicts
         for key in self._vars:

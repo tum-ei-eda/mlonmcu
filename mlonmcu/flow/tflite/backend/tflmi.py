@@ -141,8 +141,6 @@ size_t {prefix}_outputs();
         with open(model, "rb") as model_buf:
             model_data = model_buf.read()
 
-        code = ""
-
         if header:
             header_content = self.generate_header()
 

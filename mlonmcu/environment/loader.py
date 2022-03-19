@@ -16,12 +16,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
 import yaml
 import pathlib
 import logging
 
-from .config import *
+from .config import (
+    DefaultsConfig,
+    PathConfig,
+    RepoConfig,
+    FrameworkConfig,
+    FrameworkFeatureConfig,
+    BackendConfig,
+    BackendFeatureConfig,
+    TargetConfig,
+    TargetFeatureConfig,
+    PlatformConfig,
+    PlatformFeatureConfig,
+    FrontendConfig,
+    FrontendFeatureConfig,
+)
 
 # def load_environment_from_file(filename):
 #     """Utility to initialize a mlonmcu environment from a YAML file."""

@@ -16,28 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
 import yaml
 import pathlib
 
-from .environment import *
-
-# def load_environment_from_file(filename):
-#     """Utility to initialize a mlonmcu environment from a YAML file."""
-#     if isinstance(filename, str):
-#         filename = pathlib.Path(filename)
-#     with open(filename, encoding="utf-8") as yaml_file:
-#         data = yaml.safe_load(yaml_file)
-#         if data:
-#             if "home" in data:
-#                 print(data["home"], filename.parent)
-#                 assert os.path.realpath(data["home"]) == os.path.realpath(filename.parent)
-#             else:
-#                 data["home"] = filename.parent
-#             env = Environment(data)
-#             return env
-#         raise RuntimeError(f"Error opening environment file: {filename}")
-#     return None
+from .config import PathConfig
 
 
 def create_environment_dict(environment):

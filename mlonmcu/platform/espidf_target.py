@@ -4,7 +4,6 @@ import os
 from mlonmcu.target.target import Target
 from mlonmcu.target.metrics import Metrics
 
-from mlonmcu.target.elf import get_results
 from mlonmcu.logging import get_logger
 
 logger = get_logger()

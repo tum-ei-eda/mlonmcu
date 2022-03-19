@@ -18,14 +18,9 @@
 #
 """Command line subcommand for the load stage."""
 
-import copy
-
 import mlonmcu
 import mlonmcu.flow.tflite
 import mlonmcu.flow.tvm
-from mlonmcu.models.model import Model
-from mlonmcu.session.run import Run
-from mlonmcu.session.session import Session
 from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,

@@ -18,15 +18,11 @@
 #
 import shutil
 import multiprocessing
-from time import sleep
 from datetime import datetime
-import pandas as pd
-
 from enum import Enum
 import tempfile
 from pathlib import Path
 import os
-import logging
 import concurrent.futures
 from tqdm import tqdm
 from mlonmcu.config import filter_config
@@ -148,7 +144,7 @@ class Session:
         self.enumerate_runs()
         assert num_workers > 0, "num_workers can not be < 1"
         workers = []
-        results = []
+        # results = []
         workers = []
         pbar = None
         pbar2 = None
@@ -259,7 +255,7 @@ class Session:
                         else:
                             worker_run_idx.append(i)
                             workers.append(executor.submit(_process, run, until=stage, skip=skipped_stages))
-                    results = _join_workers(workers)
+                    _join_workers(workers)
                     workers = []
                     worker_run_idx = []
                     if progress:
@@ -287,7 +283,7 @@ class Session:
                             )
                     worker_run_idx.append(i)
                     workers.append(executor.submit(_process, run, until=until, skip=skipped_stages))
-                results = _join_workers(workers)
+                _join_workers(workers)
         if num_failures == 0:
             logger.info("All runs completed successfuly!")
         elif num_failures == num_runs:

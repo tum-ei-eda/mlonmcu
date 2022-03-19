@@ -19,7 +19,6 @@
 """ MLonMCU Features API"""
 
 from abc import ABC
-from typing import List
 
 from mlonmcu.config import filter_config
 from .type import FeatureType

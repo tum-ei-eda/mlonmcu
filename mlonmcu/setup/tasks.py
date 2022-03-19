@@ -19,7 +19,6 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
-import sys
 from pathlib import Path
 
 from mlonmcu.setup.task import TaskFactory, TaskType
@@ -316,7 +315,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
     etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
     etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
-    llvmInstallDir = context.cache["llvm.install_dir"]
+    # llvmInstallDir = context.cache["llvm.install_dir"]
     if rebuild or not utils.is_populated(etissBuildDir):
         utils.mkdirs(etissBuildDir)
         env = os.environ.copy()
@@ -401,7 +400,7 @@ def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=F
                     memMap[3] = temp
 
             def checkMemMap(mem):
-                rom_start, rom_size, ram_start, ram_size = mem[0], mem[1], mem[2], mem[3]
+                rom_start, rom_size, ram_start = mem[0], mem[1], mem[2]
                 for val in mem:
                     assert isinstance(val, int)
 

@@ -25,7 +25,6 @@ import tarfile
 
 from .backend import TVMBackend
 from .tvmrt import TVMRTBackend
-from .wrapper import generate_wrapper_header
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils

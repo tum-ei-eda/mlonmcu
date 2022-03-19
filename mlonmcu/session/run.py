@@ -20,7 +20,6 @@ import tempfile
 from pathlib import Path
 import os
 import copy
-import numpy as np
 from enum import IntEnum
 
 from mlonmcu.logging import get_logger
@@ -286,13 +285,13 @@ class Run:
         self.add_platform(self.init_platform(get_platforms()[platform_name], context=context))
 
     def add_postprocesses_by_name(self, postprocess_names, context=None):
-        l = []
+        arr = []
         for postprocess_name in postprocess_names:
             # assert context is not None and context.environment.has_postprocess(
             #     postprocess_name
             # ), f"The postprocess '{postprocess_name}' is not enabled for this environment"
-            l.append(self.init_component(SUPPORTED_POSTPROCESSES[postprocess_name], context=context))
-        self.add_postprocesses(l)
+            arr.append(self.init_component(SUPPORTED_POSTPROCESSES[postprocess_name], context=context))
+        self.add_postprocesses(arr)
 
     @property
     def export_optional(self):

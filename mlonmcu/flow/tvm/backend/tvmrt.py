@@ -18,7 +18,8 @@
 #
 import sys
 import tempfile
-import json
+
+# import json
 import tarfile
 from pathlib import Path
 
@@ -76,9 +77,9 @@ class TVMRTBackend(TVMBackend):
             self.invoke_tvmc_compile(out_path, dump=dump, verbose=verbose)
             mlf_path = Path(temp_dir) / "mlf"
             tarfile.open(out_path).extractall(mlf_path)
-            with open(mlf_path / "metadata.json") as handle:
-                metadata = json.load(handle)
-            metadata_txt = json.dumps(metadata)
+            # with open(mlf_path / "metadata.json") as handle:
+            #     metadata = json.load(handle)
+            # metadata_txt = json.dumps(metadata)
             with open(out_path, "rb") as handle:
                 mlf_data = handle.read()
                 artifacts.append(
@@ -93,9 +94,9 @@ class TVMRTBackend(TVMBackend):
                 with open(str(out_path) + ".c", "r") as handle:
                     mod_src = handle.read()
                     artifacts.append(
-                        Artifac(
+                        Artifact(
                             f"{self.prefix}.c",
-                            content=mod_str,
+                            content=mod_src,
                             fmt=ArtifactFormat.SOURCE,
                             optional=True,
                         )
@@ -103,7 +104,7 @@ class TVMRTBackend(TVMBackend):
                 with open(str(out_path) + ".relay", "r") as handle:
                     mod_txt = handle.read()
                     artifacts.append(
-                        Artifac(
+                        Artifact(
                             f"{self.prefix}.relay",
                             content=mod_txt,
                             fmt=ArtifactFormat.TEXT,

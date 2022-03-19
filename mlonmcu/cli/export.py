@@ -22,7 +22,6 @@ import mlonmcu.context
 from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,
-    handle_logging_flags,
 )
 
 

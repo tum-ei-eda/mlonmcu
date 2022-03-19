@@ -18,27 +18,11 @@
 #
 """Command line subcommand for the tune stage."""
 
-import copy
-
 import mlonmcu
-from mlonmcu.flow import get_available_backend_names
 import mlonmcu.flow.tflite
 import mlonmcu.flow.tvm
-from mlonmcu.models.model import Model
-from mlonmcu.session.run import Run
-from mlonmcu.session.session import Session
-from mlonmcu.cli.common import (
-    add_common_options,
-    add_context_options,
-    add_model_options,
-    add_flow_options,
-    kickoff_runs,
-)
-from mlonmcu.config import resolve_required_config
-
-# from mlonmcu.cli.load import handle as handle_load, add_load_options
+from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.build import add_build_options, handle as handle_build
-from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
 from mlonmcu.session.run import RunStage
 
 
@@ -57,7 +41,7 @@ def get_parser(subparsers, parent=None):
 
 def handle(args, ctx=None):
     if ctx:
-        handle_build(args, context)
+        handle_build(args, ctx)
     else:
         args.features.append("autotune")  # TODO: enable autotuning automatically?
         # args.features.append("autotuned")  # ?

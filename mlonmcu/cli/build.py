@@ -18,25 +18,12 @@
 #
 """Command line subcommand for the build process."""
 
-import copy
-
 import mlonmcu
 from mlonmcu.flow import get_available_backend_names
 import mlonmcu.flow.tflite
 import mlonmcu.flow.tvm
-from mlonmcu.models.model import Model
-from mlonmcu.session.run import Run
-from mlonmcu.session.session import Session
-from mlonmcu.cli.common import (
-    add_common_options,
-    add_context_options,
-    add_model_options,
-    add_flow_options,
-    kickoff_runs,
-)
-from mlonmcu.config import resolve_required_config
+from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.load import handle as handle_load, add_load_options
-from mlonmcu.flow import SUPPORTED_BACKENDS, SUPPORTED_FRAMEWORKS
 from mlonmcu.session.run import RunStage
 
 

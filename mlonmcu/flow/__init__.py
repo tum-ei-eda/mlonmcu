@@ -18,7 +18,6 @@
 #
 """Flow module for frameworks and backend."""
 
-import mlonmcu
 from mlonmcu.flow.tflite.backend.tflmc import TFLMCBackend
 from mlonmcu.flow.tflite.backend.tflmi import TFLMIBackend
 

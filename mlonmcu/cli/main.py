@@ -21,27 +21,22 @@
 import os
 import argparse
 import sys
-import logging
 import subprocess
 import platform
 
-from ..version import __version__
 
 from mlonmcu.logging import get_logger
-
-logger = get_logger()
-
 import mlonmcu.cli.init as init
-
-# from .init import get_init_parser
 import mlonmcu.cli.setup as setup
 import mlonmcu.cli.flow as flow
 import mlonmcu.cli.cleanup as cleanup
 import mlonmcu.cli.export as export
 import mlonmcu.cli.env as env
 import mlonmcu.cli.models as models
-
 from .common import handle_logging_flags, add_common_options
+from ..version import __version__
+
+logger = get_logger()
 
 
 def handle_docker(args):
@@ -92,13 +87,13 @@ def main(args=None):
     parser.add_argument("-V", "--version", action="version", version="mlonmcu " + __version__)
     add_common_options(parser)
     subparsers = parser.add_subparsers(dest="subcommand")  # this line changed
-    init_parser = init.get_parser(subparsers)
-    setup_parser = setup.get_parser(subparsers)
-    flow_parser = flow.get_parser(subparsers)
-    cleanup_parser = cleanup.get_parser(subparsers)
-    export_parser = export.get_parser(subparsers)
-    env_parser = env.get_parser(subparsers)
-    models_parser = models.get_parser(subparsers)
+    init.get_parser(subparsers)
+    setup.get_parser(subparsers)
+    flow.get_parser(subparsers)
+    cleanup.get_parser(subparsers)
+    export.get_parser(subparsers)
+    env.get_parser(subparsers)
+    models.get_parser(subparsers)
     if args:
         args = parser.parse_args(args)
     else:

@@ -18,4 +18,4 @@
 #
 """TVM framework module."""
 
-from .backend import *
+from .backend import TVMAOTBackend, TVMRTBackend, TVMCGBackend

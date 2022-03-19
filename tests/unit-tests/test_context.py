@@ -115,4 +115,4 @@ def test_nest_context_locked(monkeypatch, fake_environment_directory: Path, fake
         assert context
         with pytest.raises(RuntimeError, match=r".*could\ not\ be\ aquired.*"):
             with mlonmcu.context.MlonMcuContext(lock=True) as context2:
-                pass
+                assert context2

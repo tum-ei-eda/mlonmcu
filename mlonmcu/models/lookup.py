@@ -21,8 +21,6 @@ import os
 import glob
 from itertools import product
 import yaml
-import logging
-from enum import Enum
 
 from .metadata import parse_metadata
 from .model import Model, ModelFormats
@@ -295,7 +293,7 @@ def lookup_models(names, frontends=None, context=None):
                 ext in allowed_exts
             ), f"Unsupported file extension for model which was explicitly passed by path: {ext}"
             paths = [filepath]
-            hint = Model(name, paths, format=ModelFormat.from_extension(ext))
+            hint = Model(name, paths, format=ModelFormats.from_extension(ext))
             # TODO: look for metadata
             hints.append(hint)
         else:

@@ -79,6 +79,7 @@ def test_setup_install_dependencies(progress, print_output, rebuild, write_cache
     config = {"print_output": print_output}
     installer = Setup(config=config, context=fake_context, tasks_factory=TestTaskFactory)
     result = installer.install_dependencies(progress=progress, write_cache=write_cache, rebuild=rebuild)
+    assert result
     # assert example_task1_mock.call_count == 3
     assert (
         TestTaskFactory.registry["example_task1"].call_count == 1
@@ -93,7 +94,6 @@ def test_task_get_combs():
     assert get_combs({"foo": [0]}) == [{"foo": 0}]
     # assert set(get_combs({"foo": [0, 1, 2]})) == set([{"foo": 0}, {"foo": 1}, {"foo": 2}])
     assert get_combs({"foo": [0, 1, 2]}) == [{"foo": 0}, {"foo": 1}, {"foo": 2}]
-    # assert set(get_combs({"foo": [0, 1], "bar": ["A", "B"]})) == set([{"foo": 0, "bar": "A"}, {"foo": 1, "bar": "A"}, {"foo": 0, "bar": "B"}, {"foo": 1, "bar": "B"}])  # order irrelevant
     assert len(get_combs({"foo": [0, 1], "bar": ["A", "B"]})) == 4
     assert len(get_combs({"foo": [0, 1], "bar": ["A", "B"]})[0].items()) == 2
 

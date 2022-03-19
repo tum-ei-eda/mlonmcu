@@ -28,7 +28,7 @@ import tempfile
 import subprocess
 import distutils.util
 from pathlib import Path
-
+import pkg_resources
 import psutil
 
 from mlonmcu.setup import utils
@@ -41,7 +41,6 @@ from .platform import CompilePlatform, TargetPlatform
 from .espidf_target import create_espidf_target
 
 logger = get_logger()
-import pkg_resources
 
 
 def get_project_template(name="project"):

@@ -106,7 +106,7 @@ def test_frontend_tflite(user_context, model_name, models_dir, feature_names, co
 @pytest.mark.parametrize("frontend_name", ["tflite"])
 @pytest.mark.parametrize("feature_names", [[]])
 @pytest.mark.parametrize(
-    "config", [{}, {"arena_size": 2 ** 20, "operators": ["TODO"]}]  # TODO
+    "config", [{}, {"arena_size": 2**20, "operators": ["TODO"]}]  # TODO
 )  # TODO: user should be ablte to overwrite sesstings parsed by frontend
 def test_backend_tflmi(user_context, frontend_name, model_name, models_dir, feature_names, config):
     if not user_context.environment.has_frontend(frontend_name):
@@ -177,7 +177,7 @@ def test_backend_tflmc(user_context, frontend_name, model_name, models_dir, feat
         {},
         {
             **TVM_EXAMPLE_CONFIG_COMMON,
-            "arena_size": 2 ** 20,
+            "arena_size": 2**20,
             "alignment_bytes": 16,
         },
     ],
@@ -220,7 +220,7 @@ def test_backend_tvmaot(user_context, frontend_name, model_name, models_dir, fea
         {},
         {
             **TVM_EXAMPLE_CONFIG_COMMON,
-            "arena_size": 2 ** 20,
+            "arena_size": 2**20,
         },
     ],
 )  # TODO: combine tvm common configs
@@ -263,7 +263,7 @@ def test_backend_tvmrt(user_context, frontend_name, model_name, models_dir, feat
         {},
         {
             **TVM_EXAMPLE_CONFIG_COMMON,
-            "arena_size": 2 ** 20,
+            "arena_size": 2**20,
         },
     ],
 )
@@ -303,7 +303,7 @@ def test_backend_tvmcg(user_context, frontend_name, model_name, models_dir, feat
 @pytest.mark.parametrize("target_name", DEFAULT_MLIF_TARGETS)
 @pytest.mark.parametrize("feature_names", [[]])
 @pytest.mark.parametrize(
-    "config", [{"tflmi.arena_size": 2 ** 17, "tvmaot.arena_size": 2 ** 17}]
+    "config", [{"tflmi.arena_size": 2**17, "tvmaot.arena_size": 2**17}]
 )  # corstone300 has limited RAM, TODO: find a better way!
 def test_platform_mlif(
     user_context, frontend_name, model_name, backend_name, target_name, models_dir, feature_names, config
@@ -347,7 +347,7 @@ def test_platform_mlif(
 @pytest.mark.parametrize("target_name", DEFAULT_MLIF_TARGETS)
 @pytest.mark.parametrize("feature_names", [[]])
 @pytest.mark.parametrize(
-    "config", [{"tflmi.arena_size": 2 ** 17, "tvmaot.arena_size": 2 ** 17}]
+    "config", [{"tflmi.arena_size": 2**17, "tvmaot.arena_size": 2**17}]
 )  # corstone300 has limited RAM, TODO: find a better way!
 def test_target_mlif(
     user_context, frontend_name, model_name, backend_name, target_name, models_dir, feature_names, config
@@ -394,7 +394,7 @@ def test_target_mlif(
 @pytest.mark.parametrize("target_name", DEFAULT_ESPIDF_TARGETS)
 @pytest.mark.parametrize("feature_names", [[]])
 @pytest.mark.parametrize(
-    "config", [{"espidf.wait_for_user": False, "tflmi.arena_size": 2 ** 17, "tvmaot.arena_size": 2 ** 17}]
+    "config", [{"espidf.wait_for_user": False, "tflmi.arena_size": 2**17, "tvmaot.arena_size": 2**17}]
 )
 def test_platform_espidf(
     user_context, frontend_name, model_name, backend_name, target_name, models_dir, feature_names, config
@@ -443,8 +443,8 @@ def test_platform_espidf(
             "espidf.wait_for_user": False,
             "espidf.use_idf_monitor": False,
             "espidf.port": "/dev/ttyUSB0",
-            "tflmi.arena_size": 2 ** 17,  # esp32c3 ram ~300kB
-            "tvmaot.arena_size": 2 ** 17,
+            "tflmi.arena_size": 2**17,  # esp32c3 ram ~300kB
+            "tvmaot.arena_size": 2**17,
         }
     ],
 )

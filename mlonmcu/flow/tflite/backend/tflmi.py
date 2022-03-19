@@ -301,7 +301,7 @@ class TFLMIBackend(TFLiteBackend):
 
     DEFAULTS = {
         **TFLiteBackend.DEFAULTS,
-        "arena_size": 2 ** 20,  # 1 MB
+        "arena_size": 2**20,  # 1 MB
         "debug_arena": False,
         "ops": [],
         "custom_ops": [],

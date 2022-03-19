@@ -18,8 +18,6 @@
 #
 import yaml
 
-from .options import parse_model_options_for_backend
-
 
 def parse_metadata(path):
     content = {}

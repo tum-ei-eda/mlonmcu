@@ -18,7 +18,6 @@
 #
 import os
 
-# from ..support.load_tflite_model import load_tflite_model
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from .tflite_model_info import get_tflite_model_info

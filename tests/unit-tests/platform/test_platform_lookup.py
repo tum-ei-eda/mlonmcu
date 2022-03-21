@@ -17,8 +17,6 @@
 # limitations under the License.
 #
 import mock
-import pytest
-import re
 import mlonmcu.platform.platform
 from mlonmcu.platform.platform import TargetPlatform
 import mlonmcu.platform.lookup

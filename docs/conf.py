@@ -28,7 +28,8 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
-import mlonmcu
+# pylint: disable=wrong-import-position
+import mlonmcu  # noqa: E402
 
 # -- General configuration ---------------------------------------------
 

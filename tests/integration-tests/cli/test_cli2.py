@@ -281,7 +281,8 @@ def test_env_valid(fake_config_home: Path, capsys):
 #     assert ret.success
 #
 # @pytest.mark.script_launch_mode('subprocess')
-# def test_init_local_named_duplicate(script_runner: ScriptRunner, fake_config_home: Path, fake_environment_directory: Path):
+# def test_init_local_named_duplicate(script_runner: ScriptRunner, fake_config_home: Path,
+#         fake_environment_directory: Path):
 #     # _create_invalid_environments_file(fake_config_home / "environments.ini")
 #     ret = script_runner.run('mlonmcu', 'init', str(fake_environment_directory), '--name', 'local')
 #     # ensure initialized
@@ -321,14 +322,16 @@ def test_env_valid(fake_config_home: Path, capsys):
 # # TODO: init cmdline flags for create venv, run setup?, template, list templates
 # # mlonmcu validate? (env directories and environment file + user config consistency)
 #
+# NOP? -> mock task/dependency stuff with a few test tasks
 # @pytest.mark.script_launch_mode('subprocess')
-# def test_setup_default(script_runner: ScriptRunner, fake_environment_directory: Path): # NOP? -> mock task/dependency stuff with a few test tasks
+# def test_setup_default(script_runner: ScriptRunner, fake_environment_directory: Path):
 #     # _create_invalid_environments_file(fake_config_home / "environments.ini")
 #     ret = script_runner.run('mlonmcu', 'setup')
 #     assert ret.success
 #
+# NOP? -> mock task/dependency stuff with a few test tasks
 # @pytest.mark.script_launch_mode('subprocess')
-# def test_flow_default(script_runner: ScriptRunner, fake_environment_directory: Path): # NOP? -> mock task/dependency stuff with a few test tasks
+# def test_flow_default(script_runner: ScriptRunner, fake_environment_directory: Path):
 #     # _create_invalid_environments_file(fake_config_home / "environments.ini")
 #     ret = script_runner.run('mlonmcu', 'flow')
 #     assert ret.success
@@ -398,7 +401,9 @@ def test_env_valid(fake_config_home: Path, capsys):
 # @pytest.mark.script_launch_mode('subprocess')
 # def test_flow_test_batch(script_runner: ScriptRunner, fake_environment_directory: Path):
 #     # _create_invalid_environments_file(fake_config_home / "environments.ini")
-#     ret = script_runner.run('mlonmcu', 'flow', 'test', 'modelA', 'modelB', '--backend' 'backendA', '--backend', 'backendB', '--target', 'targetA', '--target', 'targetB') # TODO: create helper function for crating test batch or single
+#     ret = script_runner.run('mlonmcu', 'flow', 'test', 'modelA', 'modelB', '--backend' 'backendA', '--backend',
+#         'backendB', '--target', 'targetA', '--target', 'targetB')
+#     # TODO: create helper function for creating test batch or single
 #     assert ret.success
 #
 # @pytest.mark.script_launch_mode('subprocess')

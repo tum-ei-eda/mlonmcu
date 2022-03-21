@@ -24,15 +24,15 @@ from pathlib import Path
 
 from mlonmcu.setup import utils
 
-# class ModelLibraryFormatPlus:
-#     pass
-
 # TODO: offer pack/unpack/flatten methods for mlf
 # TODO: implement restore methods
 # TODO: decide if inheritance based scheme would fit better
+# TODO: add artifact flags and lookup utility to find best match
 
 
 class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
+    """Enumeration of artifact types."""
+
     UNKNOWN = 0
     SOURCE = 1
     TEXT = 2
@@ -64,6 +64,7 @@ class Artifact:
     ):
         # TODO: Allow to store filenames as well as raw data
         self.name = name
+        # TODO: too many attributes...
         self.content = content
         self.path = path
         self.data = data
@@ -75,25 +76,37 @@ class Artifact:
 
     @property
     def exported(self):
+        """Returns true if the artifact was writtem to disk."""
         return bool(self.path is not None)
 
     def validate(self):
+        """Checker for artifact attributes for the given format."""
         if self.fmt in [ArtifactFormat.TEXT, ArtifactFormat.SOURCE]:
             assert self.content is not None
         elif self.fmt in [ArtifactFormat.RAW, ArtifactFormat.BIN]:
             assert self.raw is not None
         elif self.fmt in [ArtifactFormat.MLF]:
-            assert self.raw is not None  # TODO: load it via tvm?
+            assert self.raw is not None
         elif self.fmt in [ArtifactFormat.PATH]:
             assert self.path is not None
         else:
             raise NotImplementedError
 
     def export(self, dest, extract=False):
+        """Export the artifact to a given path (file or directory) and update its path.
+
+        Arguments
+        ---------
+        dest : str
+            Path of the destination.
+        extract : bool
+            If archive: extract to destination.
+
+        """
         filename = Path(dest) / self.name
         if self.fmt in [ArtifactFormat.TEXT, ArtifactFormat.SOURCE]:
             assert not extract, "extract option is only available for ArtifactFormat.MLF"
-            with open(filename, "w") as handle:
+            with open(filename, "w", encoding="utf-8") as handle:
                 handle.write(self.content)
         elif self.fmt in [ArtifactFormat.RAW, ArtifactFormat.BIN]:
             assert not extract, "extract option is only available for ArtifactFormat.MLF"
@@ -113,6 +126,7 @@ class Artifact:
         self.path = filename if self.path is None else self.path
 
     def print_summary(self):
+        """Utility to print information about an artifact to the cmdline."""
         print("Format:", self.fmt)
         print("Optional: ", self.optional)
         if self.fmt in [ArtifactFormat.TEXT, ArtifactFormat.SOURCE]:

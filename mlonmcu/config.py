@@ -16,13 +16,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Collection of utilities to manage MLonMCU configs."""
+
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
 
-def remove_config_prefix(config, prefix, skip=[]):
+def remove_config_prefix(config, prefix, skip=None):
+    """Iterate over keys in dict and remove given prefix.
+
+    Arguments
+    ---------
+    config : dict
+        The configuration data.
+    prefix : str
+        The prefix to remove.
+    skip : List[str], optional
+        A list of keys which should not be altered.
+
+    Returns
+    -------
+    ret : dict
+        The transformed configuration.
+
+    """
+    if skip is None:
+        skip = []
+
     def helper(key):
         return key.split(f"{prefix}.")[-1]
 
@@ -30,6 +52,28 @@ def remove_config_prefix(config, prefix, skip=[]):
 
 
 def filter_config(config, prefix, defaults, required_keys):
+    """Filter the global config for a given component prefix.
+
+    Arguments
+    ---------
+    config : dict
+        The configuration data.
+    prefix : str
+        The prefix for the component.
+    defaults : dict
+        The default values used if not overwritten by user.
+    required_keys : list
+        The required keys for the component.
+
+    Returns
+    -------
+    cfg : dict
+        The filteres configuration.
+
+    Raises
+    ------
+    AssertionError: If a required key is missing.
+    """
     cfg = remove_config_prefix(config, prefix, skip=required_keys)
     for required in required_keys:
         value = None
@@ -53,7 +97,7 @@ def filter_config(config, prefix, defaults, required_keys):
 
 
 def resolve_required_config(
-    required_keys, features=None, targets=None, config=None, cache=None
+    required_keys, features=None, config=None, cache=None
 ):  # TODO: add framework, backend, and frontends as well?
     """Utility which iterates over a set of given config keys and
     resolves their values using the passed config and/or cache.
@@ -75,7 +119,7 @@ def resolve_required_config(
 
     """
 
-    def get_cache_flags(features, targets):
+    def get_cache_flags(features):
         result = {}
         if features:
             for feature in features:
@@ -84,7 +128,7 @@ def resolve_required_config(
         return result
 
     ret = {}
-    cache_flags = get_cache_flags(features, targets)
+    cache_flags = get_cache_flags(features)
     for key in required_keys:
         if config is None or key not in config:
             assert cache is not None, "No dependency cache was provided. Either provide a cache or config."

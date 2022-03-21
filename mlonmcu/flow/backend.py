@@ -190,7 +190,7 @@ def get_parser(backend_name, features, required, defaults):
         metavar="KEY=VALUE",
         nargs="+",
         action="append",
-        help=f"""Set a number of key-value pairs
+        help="""Set a number of key-value pairs
 
 Allowed options:
 """

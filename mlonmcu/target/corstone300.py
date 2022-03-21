@@ -106,7 +106,7 @@ class Corstone300Target(Target):
             "-C",
             f"ethosu.num_macs={self.ethosu_num_macs}",
             "-C",
-            f'ethosu.extra_args="--fast"',
+            'ethosu.extra_args="--fast"',
         ]
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):

@@ -231,7 +231,7 @@ class Session:
         with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
             if per_stage:
                 if progress:
-                    _init_progress2(len(used_stages), msg=f"Processing stages")
+                    _init_progress2(len(used_stages), msg="Processing stages")
                 for stage in used_stages:
                     run_stage = RunStage(stage).name
                     if progress:

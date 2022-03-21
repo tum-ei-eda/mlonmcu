@@ -96,11 +96,23 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DefaultsConfig</span><span class="p">,</span>
+    <span class="n">PathConfig</span><span class="p">,</span>
+    <span class="n">RepoConfig</span><span class="p">,</span>
+    <span class="n">FrameworkConfig</span><span class="p">,</span>
+    <span class="n">FrameworkFeatureConfig</span><span class="p">,</span>
+    <span class="n">BackendConfig</span><span class="p">,</span>
+    <span class="n">BackendFeatureConfig</span><span class="p">,</span>
+    <span class="n">TargetConfig</span><span class="p">,</span>
+    <span class="n">TargetFeatureConfig</span><span class="p">,</span>
+    <span class="n">PlatformConfig</span><span class="p">,</span>
+    <span class="n">PlatformFeatureConfig</span><span class="p">,</span>
+    <span class="n">FrontendConfig</span><span class="p">,</span>
+    <span class="n">FrontendFeatureConfig</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.loader</span> <span class="kn">import</span> <span class="n">load_environment_from_file</span>
 <span class="kn">from</span> <span class="nn">.writer</span> <span class="kn">import</span> <span class="n">write_environment_to_file</span>
 
@@ -360,7 +372,9 @@
         <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_target_configs</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
-    <span class="c1"># def has_postprocess(self, name):  # TODO: actually we do not need to explicitly enable those? environment.yml list the default enabled ones instead of the supported ones in the environment</span>
+    <span class="c1"># TODO: actually we do not need to explicitly enable those? environment.yml list the default enabled ones instead</span>
+    <span class="c1"># of the supported ones in the environment</span>
+    <span class="c1"># def has_postprocess(self, name):</span>
     <span class="c1">#     configs = self.lookup_postprocess_configs(postprocess=name)</span>
     <span class="c1">#     return len(configs) &gt; 0</span>
 
@@ -368,8 +382,8 @@
         <span class="k">if</span> <span class="n">framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">framework</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">[</span><span class="n">framework</span><span class="p">]</span>
-        <span class="n">framework_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">framework_config</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">]</span>
-        <span class="n">framework_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">framework_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">framework</span><span class="p">)]</span>
+        <span class="c1"># framework_names = [framework_config.name for framework_config in self.frameworks]</span>
+        <span class="c1"># framework_config = self.frameworks[framework_names.index(framework)]</span>
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>

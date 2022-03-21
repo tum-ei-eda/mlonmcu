@@ -104,15 +104,15 @@
 
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
 
-<span class="c1"># class ModelLibraryFormatPlus:</span>
-<span class="c1">#     pass</span>
-
 <span class="c1"># TODO: offer pack/unpack/flatten methods for mlf</span>
 <span class="c1"># TODO: implement restore methods</span>
 <span class="c1"># TODO: decide if inheritance based scheme would fit better</span>
+<span class="c1"># TODO: add artifact flags and lookup utility to find best match</span>
 
 
 <div class="viewcode-block" id="ArtifactFormat"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.ArtifactFormat">[docs]</a><span class="k">class</span> <span class="nc">ArtifactFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>  <span class="c1"># TODO: ArtifactType, ArtifactKind?</span>
+    <span class="sd">&quot;&quot;&quot;Enumeration of artifact types.&quot;&quot;&quot;</span>
+
     <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">SOURCE</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">TEXT</span> <span class="o">=</span> <span class="mi">2</span>
@@ -144,6 +144,7 @@
     <span class="p">):</span>
         <span class="c1"># TODO: Allow to store filenames as well as raw data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="c1"># TODO: too many attributes...</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">content</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
@@ -155,25 +156,37 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">exported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns true if the artifact was writtem to disk.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Artifact.validate"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checker for artifact attributes for the given format.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">]:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">]:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">]:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># TODO: load it via tvm?</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">PATH</span><span class="p">]:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="Artifact.export"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">extract</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export the artifact to a given path (file or directory) and update its path.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        dest : str</span>
+<span class="sd">            Path of the destination.</span>
+<span class="sd">        extract : bool</span>
+<span class="sd">            If archive: extract to destination.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">]:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="n">extract</span><span class="p">,</span> <span class="s2">&quot;extract option is only available for ArtifactFormat.MLF&quot;</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">]:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="n">extract</span><span class="p">,</span> <span class="s2">&quot;extract option is only available for ArtifactFormat.MLF&quot;</span>
@@ -193,6 +206,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">filename</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span></div>
 
 <div class="viewcode-block" id="Artifact.print_summary"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.print_summary">[docs]</a>    <span class="k">def</span> <span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Utility to print information about an artifact to the cmdline.&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Format:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optional: &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">]:</span>

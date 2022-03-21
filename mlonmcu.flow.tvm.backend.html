@@ -565,6 +565,250 @@
 </section>
 <section id="module-mlonmcu.flow.tvm.backend">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.flow.tvm.backend" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tvm.backend.</span></span><span class="sig-name descname"><span class="pre">TVMAOTBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmaot.html#TVMAOTBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend" title="mlonmcu.flow.tvm.backend.backend.TVMBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.tvm.backend.backend.TVMBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'alignment_bytes':</span> <span class="pre">4,</span> <span class="pre">'arena_size':</span> <span class="pre">None,</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_print_outputs':</span> <span class="pre">False,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'extra_target':</span> <span class="pre">None,</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'unpacked_api':</span> <span class="pre">False,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'disable_legalize',</span> <span class="pre">'debug_arena',</span> <span class="pre">'unpacked_api',</span> <span class="pre">'usmp']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.alignment_bytes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alignment_bytes</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.alignment_bytes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.arena_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arena_size</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.arena_size" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.generate_code">
+<span class="sig-name descname"><span class="pre">generate_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmaot.html#TVMAOTBackend.generate_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.generate_code" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.get_tvmc_compile_args">
+<span class="sig-name descname"><span class="pre">get_tvmc_compile_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmaot.html#TVMAOTBackend.get_tvmc_compile_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.get_tvmc_compile_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.get_workspace_size_from_metadata">
+<span class="sig-name descname"><span class="pre">get_workspace_size_from_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmaot.html#TVMAOTBackend.get_workspace_size_from_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.get_workspace_size_from_metadata" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tvmaot'</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMAOTBackend.unpacked_api">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unpacked_api</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMAOTBackend.unpacked_api" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tvm.backend.</span></span><span class="sig-name descname"><span class="pre">TVMBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend" title="mlonmcu.flow.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.backend.Backend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_print_outputs':</span> <span class="pre">False,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'extra_target':</span> <span class="pre">None,</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'disable_legalize']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir',</span> <span class="pre">'tvm.pythonpath']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.extra_target">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extra_target</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.extra_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.get_common_tvmc_args">
+<span class="sig-name descname"><span class="pre">get_common_tvmc_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_common_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.get_common_tvmc_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.get_disabled_pass_tvmc_args">
+<span class="sig-name descname"><span class="pre">get_disabled_pass_tvmc_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_disabled_pass_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.get_disabled_pass_tvmc_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.get_input_shapes_tvmc_args">
+<span class="sig-name descname"><span class="pre">get_input_shapes_tvmc_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_input_shapes_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.get_input_shapes_tvmc_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.get_pass_config_tvmc_args">
+<span class="sig-name descname"><span class="pre">get_pass_config_tvmc_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_pass_config_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.get_pass_config_tvmc_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.get_tuning_records_tvmc_args">
+<span class="sig-name descname"><span class="pre">get_tuning_records_tvmc_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_tuning_records_tvmc_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.get_tuning_records_tvmc_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.get_tvmc_compile_args">
+<span class="sig-name descname"><span class="pre">get_tvmc_compile_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mlf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runtime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'crt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.get_tvmc_compile_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.get_tvmc_compile_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.invoke_tvmc">
+<span class="sig-name descname"><span class="pre">invoke_tvmc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.invoke_tvmc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.invoke_tvmc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.invoke_tvmc_compile">
+<span class="sig-name descname"><span class="pre">invoke_tvmc_compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.invoke_tvmc_compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.invoke_tvmc_compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.load_model">
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.load_model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.opt_level">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">opt_level</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.opt_level" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.pass_config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pass_config</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.pass_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.prepare_python_environment">
+<span class="sig-name descname"><span class="pre">prepare_python_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.prepare_python_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.prepare_python_environment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.registry" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.set_tuning_records">
+<span class="sig-name descname"><span class="pre">set_tuning_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/backend.html#TVMBackend.set_tuning_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.set_tuning_records" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.target_device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_device</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.target_device" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.tvmc_custom_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvmc_custom_script</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.tvmc_custom_script" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.tvmc_extra_args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvmc_extra_args</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.tvmc_extra_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMBackend.use_tuning_results">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_tuning_results</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMBackend.use_tuning_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMCGBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tvm.backend.</span></span><span class="sig-name descname"><span class="pre">TVMCGBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmcg.html#TVMCGBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMCGBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend" title="mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.tvm.backend.tvmrt.TVMRTBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMCGBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'disable_legalize']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMCGBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMCGBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir',</span> <span class="pre">'tvm.pythonpath',</span> <span class="pre">'utvmcg.exe']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMCGBackend.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMCGBackend.generate_code">
+<span class="sig-name descname"><span class="pre">generate_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmcg.html#TVMCGBackend.generate_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMCGBackend.generate_code" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMCGBackend.get_max_workspace_size_from_metadata">
+<span class="sig-name descname"><span class="pre">get_max_workspace_size_from_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmcg.html#TVMCGBackend.get_max_workspace_size_from_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMCGBackend.get_max_workspace_size_from_metadata" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMCGBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tvmcg'</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMCGBackend.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMRTBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.tvm.backend.</span></span><span class="sig-name descname"><span class="pre">TVMRTBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmrt.html#TVMRTBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMRTBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.tvm.backend.backend.TVMBackend" title="mlonmcu.flow.tvm.backend.backend.TVMBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.flow.tvm.backend.backend.TVMBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMRTBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arena_size':</span> <span class="pre">1048576,</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_print_outputs':</span> <span class="pre">False,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'extra_target':</span> <span class="pre">None,</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMRTBackend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMRTBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'autotuned',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'disable_legalize',</span> <span class="pre">'debug_arena']</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMRTBackend.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMRTBackend.arena_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arena_size</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMRTBackend.arena_size" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMRTBackend.generate_code">
+<span class="sig-name descname"><span class="pre">generate_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmrt.html#TVMRTBackend.generate_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMRTBackend.generate_code" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMRTBackend.get_graph_and_params_from_mlf">
+<span class="sig-name descname"><span class="pre">get_graph_and_params_from_mlf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmrt.html#TVMRTBackend.get_graph_and_params_from_mlf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMRTBackend.get_graph_and_params_from_mlf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMRTBackend.get_tvmc_compile_args">
+<span class="sig-name descname"><span class="pre">get_tvmc_compile_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/tvm/backend/tvmrt.html#TVMRTBackend.get_tvmc_compile_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMRTBackend.get_tvmc_compile_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.backend.TVMRTBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tvmrt'</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.backend.TVMRTBackend.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

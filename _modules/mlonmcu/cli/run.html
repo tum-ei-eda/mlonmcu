@@ -98,25 +98,12 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Command line subcommand for the run process.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">import</span> <span class="nn">concurrent</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-
 <span class="kn">import</span> <span class="nn">mlonmcu</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">add_common_options</span><span class="p">,</span>
-    <span class="n">add_context_options</span><span class="p">,</span>
-    <span class="n">add_flow_options</span><span class="p">,</span>
-    <span class="n">kickoff_runs</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow</span> <span class="kn">import</span> <span class="n">SUPPORTED_FRAMEWORKS</span><span class="p">,</span> <span class="n">SUPPORTED_FRAMEWORK_BACKENDS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="n">kickoff_runs</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.cli.compile</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_compile</span><span class="p">,</span>
     <span class="n">add_compile_options</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.framework</span> <span class="kn">import</span> <span class="n">Framework</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">RunStage</span>
 
 <span class="c1"># rom mlonmcu.flow.tflite.framework import TFLiteFramework</span>
@@ -126,14 +113,15 @@
 
 <div class="viewcode-block" id="add_run_options"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.run.add_run_options">[docs]</a><span class="k">def</span> <span class="nf">add_run_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">add_compile_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">run_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;run options&quot;</span><span class="p">)</span></div>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;run options&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.run.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the run subcommand.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;run&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run model using ML on MCU flow. This is meant to reproduce the bahavior of the original `run.py` script in older versions of mlonmcu.&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run model using ML on MCU flow. This is meant to reproduce the behavior&quot;</span>
+        <span class="o">+</span> <span class="s2">&quot; of the original `run.py` script in older versions of mlonmcu.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">flow_func</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
     <span class="n">add_run_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
@@ -145,18 +133,11 @@
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="get_results"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.run.get_results">[docs]</a><span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">run</span><span class="o">.</span><span class="n">result</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">]</span></div>
-
-
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.run.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">check_args</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
         <span class="n">handle_compile</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
-        <span class="n">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="n">get_results</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
+        <span class="n">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

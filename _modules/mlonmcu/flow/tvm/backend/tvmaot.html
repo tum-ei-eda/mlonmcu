@@ -103,15 +103,13 @@
 <span class="kn">import</span> <span class="nn">tarfile</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">..tvm_flow</span> <span class="kn">import</span> <span class="n">get_parser</span>
-
 <span class="kn">from</span> <span class="nn">.backend</span> <span class="kn">import</span> <span class="n">TVMBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">main</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">.wrapper</span> <span class="kn">import</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">,</span> <span class="n">generate_wrapper_header</span>
 
 
-<div class="viewcode-block" id="TVMAOTBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend">[docs]</a><span class="k">class</span> <span class="nc">TVMAOTBackend</span><span class="p">(</span><span class="n">TVMBackend</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMAOTBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend">[docs]</a><span class="k">class</span> <span class="nc">TVMAOTBackend</span><span class="p">(</span><span class="n">TVMBackend</span><span class="p">):</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span>
         <span class="o">*</span><span class="n">TVMBackend</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">,</span>
@@ -142,7 +140,7 @@
     <span class="k">def</span> <span class="nf">alignment_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;alignment_bytes&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="TVMAOTBackend.get_tvmc_compile_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_tvmc_compile_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMAOTBackend.get_tvmc_compile_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.get_tvmc_compile_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_tvmc_compile_args</span><span class="p">(</span><span class="s2">&quot;aot&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span>
             <span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
@@ -189,10 +187,10 @@
     <span class="c1">#     )</span>
     <span class="c1">#     return target_str</span>
 
-<div class="viewcode-block" id="TVMAOTBackend.get_workspace_size_from_metadata"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_workspace_size_from_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_workspace_size_from_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMAOTBackend.get_workspace_size_from_metadata"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.get_workspace_size_from_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_workspace_size_from_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">][</span><span class="s2">&quot;main&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;workspace_size_bytes&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="TVMAOTBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMAOTBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">full</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Required due to bug in TVM</span>
@@ -204,7 +202,7 @@
             <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">mlf_path</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;metadata.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
-            <span class="n">metadata_txt</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+            <span class="c1"># metadata_txt = json.dumps(metadata)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">mlf_data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                 <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -219,9 +217,9 @@
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.c&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">mod_src</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">Artifac</span><span class="p">(</span>
+                        <span class="n">Artifact</span><span class="p">(</span>
                             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.c&quot;</span><span class="p">,</span>
-                            <span class="n">content</span><span class="o">=</span><span class="n">mod_str</span><span class="p">,</span>
+                            <span class="n">content</span><span class="o">=</span><span class="n">mod_src</span><span class="p">,</span>
                             <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
                             <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="p">)</span>
@@ -229,7 +227,7 @@
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.relay&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">mod_txt</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">Artifac</span><span class="p">(</span>
+                        <span class="n">Artifact</span><span class="p">(</span>
                             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.relay&quot;</span><span class="p">,</span>
                             <span class="n">content</span><span class="o">=</span><span class="n">mod_txt</span><span class="p">,</span>
                             <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>

@@ -96,35 +96,18 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">.environment</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="c1"># def load_environment_from_file(filename):</span>
-<span class="c1">#     &quot;&quot;&quot;Utility to initialize a mlonmcu environment from a YAML file.&quot;&quot;&quot;</span>
-<span class="c1">#     if isinstance(filename, str):</span>
-<span class="c1">#         filename = pathlib.Path(filename)</span>
-<span class="c1">#     with open(filename, encoding=&quot;utf-8&quot;) as yaml_file:</span>
-<span class="c1">#         data = yaml.safe_load(yaml_file)</span>
-<span class="c1">#         if data:</span>
-<span class="c1">#             if &quot;home&quot; in data:</span>
-<span class="c1">#                 print(data[&quot;home&quot;], filename.parent)</span>
-<span class="c1">#                 assert os.path.realpath(data[&quot;home&quot;]) == os.path.realpath(filename.parent)</span>
-<span class="c1">#             else:</span>
-<span class="c1">#                 data[&quot;home&quot;] = filename.parent</span>
-<span class="c1">#             env = Environment(data)</span>
-<span class="c1">#             return env</span>
-<span class="c1">#         raise RuntimeError(f&quot;Error opening environment file: {filename}&quot;)</span>
-<span class="c1">#     return None</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">PathConfig</span>
 
 
 <div class="viewcode-block" id="create_environment_dict"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.writer.create_environment_dict">[docs]</a><span class="k">def</span> <span class="nf">create_environment_dict</span><span class="p">(</span><span class="n">environment</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">home</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logging&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_level</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLevelName</span><span class="p">(</span><span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_level</span><span class="p">),</span>
         <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_to_file</span><span class="p">,</span>
         <span class="s2">&quot;rotate&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">log_rotate</span><span class="p">,</span>
     <span class="p">}</span>

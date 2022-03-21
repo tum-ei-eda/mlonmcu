@@ -98,18 +98,12 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MLonMCU RISC-V Target definitions&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="c1"># from mlonmcu.context import MlonMcuContext</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span> <span class="nn">.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
-
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
-<span class="kn">from</span> <span class="nn">.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
 
 <div class="viewcode-block" id="RISCVTarget"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.riscv.RISCVTarget">[docs]</a><span class="k">class</span> <span class="nc">RISCVTarget</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>

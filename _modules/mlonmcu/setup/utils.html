@@ -214,7 +214,7 @@
             <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">exit_code</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
             <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Interrupted subprocess. Sending SIGINT signal...&quot;</span><span class="p">)</span>
             <span class="n">pid</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">pid</span>
             <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
@@ -234,14 +234,14 @@
             <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">exit_code</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
             <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Interrupted subprocess. Sending SIGINT signal...&quot;</span><span class="p">)</span>
             <span class="n">pid</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">pid</span>
             <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">outStr</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">outStr</span><span class="p">)</span>
-            <span class="k">raise</span>
+            <span class="k">raise</span> <span class="n">e</span>
 
     <span class="k">return</span> <span class="n">outStr</span></div>
 
@@ -296,7 +296,7 @@
             <span class="n">repo</span> <span class="o">=</span> <span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">,</span> <span class="n">no_checkout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">recursive</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;--init&quot;</span><span class="p">,</span> <span class="s2">&quot;--recursive&quot;</span><span class="p">)</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;--init&quot;</span><span class="p">,</span> <span class="s2">&quot;--recursive&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span></div>
 

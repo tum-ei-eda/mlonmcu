@@ -108,7 +108,7 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">distutils.util</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
 <span class="kn">import</span> <span class="nn">psutil</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
@@ -121,7 +121,6 @@
 <span class="kn">from</span> <span class="nn">.espidf_target</span> <span class="kn">import</span> <span class="n">create_espidf_target</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
-<span class="kn">import</span> <span class="nn">pkg_resources</span>
 
 
 <div class="viewcode-block" id="get_project_template"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.get_project_template">[docs]</a><span class="k">def</span> <span class="nf">get_project_template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">):</span>
@@ -289,7 +288,8 @@
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_OPTIMIZATION_LEVEL_DEBUG=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># Trying to reduce the binary size as much as possible (See: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/performance/size.html)</span>
+                    <span class="c1"># Trying to reduce the binary size as much as possible</span>
+                    <span class="c1"># (https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/performance/size.html)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_BOOTLOADER_LOG_LEVEL_NONE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_BOOTLOADER_LOG_LEVEL=0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_BOOT_ROM_LOG_ALWAYS_OFF=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -378,7 +378,8 @@
         <span class="c1"># TODO: make sure that already compiled? -&gt; error or just call compile routine?</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_user</span><span class="p">:</span>  <span class="c1"># INTERACTIVE</span>
             <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Make sure that the device &#39;</span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; is connected before you press [Enter] (Type &#39;Abort&#39; to cancel)&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Make sure that the device &#39;</span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; is connected before you press [Enter]&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot; (Type &#39;Abort&#39; to cancel)&quot;</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;abort&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="s2">&quot;&quot;</span>
@@ -489,7 +490,8 @@
                 <span class="n">outStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
                 <span class="k">if</span> <span class="n">timeout</span><span class="p">:</span>
                     <span class="k">pass</span>  <span class="c1"># TODO: implement timeout</span>
-                <span class="c1"># The following is a custom initialization sequence inspired by (https://github.com/espressif/esp-idf/blob/4e03a9c34c24ce44921fa48ad1da67fe16162471/tools/idf_monitor_base/serial_reader.py)</span>
+                <span class="c1"># The following is a custom initialization sequence inspired by</span>
+                <span class="c1"># (https://github.com/espressif/esp-idf/blob/master/tools/idf_monitor_base/serial_reader.py)</span>
                 <span class="n">high</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">low</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">ser</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baud</span><span class="p">)</span>

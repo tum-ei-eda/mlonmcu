@@ -100,7 +100,6 @@
 <span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">import</span> <span class="nn">struct</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
 
@@ -158,7 +157,7 @@
     <span class="c1"># Determine the number of required pages</span>
     <span class="k">assert</span> <span class="n">workspace_size</span> <span class="o">&gt;=</span> <span class="mi">0</span>
     <span class="n">crtPageSizeLog2</span> <span class="o">=</span> <span class="mi">10</span>
-    <span class="n">crtNumPages</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">workspace_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">crtPageSizeLog2</span><span class="p">))</span>
+    <span class="n">crtNumPages</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">workspace_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">crtPageSizeLog2</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">escapeJson</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -480,8 +479,6 @@
     <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="n">out</span> <span class="o">+=</span> <span class="n">writeTensors</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">inTensors</span><span class="p">,</span> <span class="n">model_info</span><span class="o">.</span><span class="n">outTensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">)</span>
-    <span class="c1"># workspace_size = 0;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;workspace_size&quot;</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">)</span>
 
     <span class="n">logging_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">void TVMLogf(const char* msg, ...) {</span>
@@ -545,7 +542,10 @@
 
     <span class="n">mainCode</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">if</span> <span class="n">api</span> <span class="o">==</span> <span class="s2">&quot;packed&quot;</span><span class="p">:</span>
-        <span class="n">mainCode</span> <span class="o">+=</span> <span class="s2">&quot;int32_t $</span><span class="si">{modPrefix}</span><span class="s2">_run(void* args, void* type_code, int num_args, void* out_value, void* out_type_code, void* resource_handle);</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">mainCode</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="s2">&quot;int32_t $</span><span class="si">{modPrefix}</span><span class="s2">_run(void* args, void* type_code, int num_args,&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot; void* out_value, void* out_type_code, void* resource_handle);</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
 
     <span class="n">mainCode</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code) { exit(1); }</span>

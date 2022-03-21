@@ -44,14 +44,6 @@ mlonmcu.cli.compile module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.cli.debug module
-------------------------
-
-.. automodule:: mlonmcu.cli.debug
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.cli.env module
 ----------------------
 
@@ -120,22 +112,6 @@ mlonmcu.cli.setup module
 ------------------------
 
 .. automodule:: mlonmcu.cli.setup
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mlonmcu.cli.test module
------------------------
-
-.. automodule:: mlonmcu.cli.test
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mlonmcu.cli.trace module
-------------------------
-
-.. automodule:: mlonmcu.cli.trace
    :members:
    :undoc-members:
    :show-inheritance:

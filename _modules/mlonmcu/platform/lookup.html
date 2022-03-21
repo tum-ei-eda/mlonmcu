@@ -84,8 +84,12 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
 
 
+<div class="viewcode-block" id="get_platform_names"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.get_platform_names">[docs]</a><span class="k">def</span> <span class="nf">get_platform_names</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_platform_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="get_platforms_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.get_platforms_targets">[docs]</a><span class="k">def</span> <span class="nf">get_platforms_targets</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
-    <span class="n">platform_names</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_platform_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">platform_names</span> <span class="o">=</span> <span class="n">get_platform_names</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="n">platform_classes</span> <span class="o">=</span> <span class="n">get_platforms</span><span class="p">()</span>
     <span class="c1"># To initialize the platform we need to provide a config with required paths.</span>
     <span class="n">platforms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -103,6 +107,9 @@
 
 <div class="viewcode-block" id="print_platforms"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_platforms">[docs]</a><span class="k">def</span> <span class="nf">print_platforms</span><span class="p">(</span><span class="n">platform_names</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Platforms:&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">platform_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No platforms found&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">platform_names</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - &quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span></div>
 
@@ -110,6 +117,9 @@
 <div class="viewcode-block" id="print_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_targets">[docs]</a><span class="k">def</span> <span class="nf">print_targets</span><span class="p">(</span><span class="n">platform_targets</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Targets:&quot;</span><span class="p">)</span>
     <span class="n">target_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">platform_targets</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No targets found&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
     <span class="k">for</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">target_names</span><span class="p">:</span>
         <span class="n">target_platforms</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">platform_name</span>

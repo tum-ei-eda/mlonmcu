@@ -262,7 +262,7 @@
         <span class="n">runs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">rid</span> <span class="ow">in</span> <span class="n">run_ids</span><span class="p">:</span>
             <span class="n">run_directory</span> <span class="o">=</span> <span class="n">runs_directory</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span>
-            <span class="n">run_file</span> <span class="o">=</span> <span class="n">run_directory</span> <span class="o">/</span> <span class="s2">&quot;run.txt&quot;</span>
+            <span class="c1"># run_file = run_directory / &quot;run.txt&quot;</span>
             <span class="c1"># run = Run.from_file(run_file)  # TODO: actually implement run restore</span>
             <span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="p">()</span>  <span class="c1"># TODO: fix</span>
             <span class="n">run</span><span class="o">.</span><span class="n">archived</span> <span class="o">=</span> <span class="kc">True</span>
@@ -407,7 +407,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">resume</span><span class="p">:</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;There is no recent session available&quot;</span>
-            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># session = self.sessions[-1]</span>
             <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;The latest session can not be resumed&quot;</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -474,7 +474,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No sessions selected for removal&quot;</span><span class="p">)</span></div>
-        <span class="c1"># We currently do not support rewirting the indices to start from scratch again as this would lead to inconsitencies with the path in the report/cmake build dirtectory</span>
+        <span class="c1"># We currently do not support rewirting the indices to start from scratch again as this</span>
+        <span class="c1"># would lead to inconsitencies with the path in the report/cmake build dirtectory</span>
 
 <div class="viewcode-block" id="MlonMcuContext.get_sessions_runs_idx"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.get_sessions_runs_idx">[docs]</a>    <span class="k">def</span> <span class="nf">get_sessions_runs_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sessions_dict</span> <span class="o">=</span> <span class="p">{}</span>

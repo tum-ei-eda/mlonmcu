@@ -84,7 +84,6 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.target.elf</span> <span class="kn">import</span> <span class="n">get_results</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
@@ -129,7 +128,8 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-            <span class="c1"># ESP-IDF actually wants a project directory, but we only get the elf now. As a workaround we assume the elf is right in the build directory inside the project directory</span>
+            <span class="c1"># ESP-IDF actually wants a project directory, but we only get the elf now. As a workaround we</span>
+            <span class="c1"># assume the elf is right in the build directory inside the project directory</span>
 
             <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">ret</span>

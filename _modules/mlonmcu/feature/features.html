@@ -99,6 +99,8 @@
 <span class="sd">&quot;&quot;&quot;Definition of MLonMCU features and the feature registry.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">is_power_of_two</span>
 <span class="kn">from</span> <span class="nn">.feature</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BackendFeature</span><span class="p">,</span>
     <span class="n">FrameworkFeature</span><span class="p">,</span>
@@ -109,10 +111,9 @@
     <span class="n">RunFeature</span><span class="p">,</span>
     <span class="n">FeatureBase</span><span class="p">,</span>
 <span class="p">)</span>
+
 <span class="c1"># from mlonmcu.flow import SUPPORTED_TVM_BACKENDS</span>
 <span class="n">SUPPORTED_TVM_BACKENDS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span> <span class="s2">&quot;tvmcg&quot;</span><span class="p">]</span>  <span class="c1"># Workaround for cirvular import until we have a backend registry</span>
-
-<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">is_power_of_two</span>
 
 
 <div class="viewcode-block" id="filter_none"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.filter_none">[docs]</a><span class="k">def</span> <span class="nf">filter_none</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
@@ -380,7 +381,6 @@
     <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
             <span class="s2">&quot;tflmc.exe&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
         <span class="p">}</span>
 
@@ -440,7 +440,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">],</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">]}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="k">else</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">]</span>
@@ -544,7 +544,9 @@
             <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">tmp</span><span class="p">[</span><span class="s2">&quot;tir.usmp.enable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span>
         <span class="n">tmp</span><span class="p">[</span><span class="s2">&quot;tir.usmp.algorithm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span><span class="p">:</span> <span class="n">tmp</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.arena_size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>  <span class="c1"># In recent TVM versions USMP will have it&#39;s own arena.</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span><span class="p">:</span> <span class="n">tmp</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.arena_size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="p">)</span>  <span class="c1"># In recent TVM versions USMP will have it&#39;s own arena.</span>
 
     <span class="c1"># -&gt; enable this via backend</span>
 

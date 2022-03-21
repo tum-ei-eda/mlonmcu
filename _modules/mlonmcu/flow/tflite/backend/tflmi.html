@@ -103,19 +103,20 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">main</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 
+
 <span class="c1"># TODO: move to another place</span>
-<div class="viewcode-block" id="make_hex_array"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.make_hex_array">[docs]</a><span class="k">def</span> <span class="nf">make_hex_array</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="make_hex_array"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.make_hex_array">[docs]</a><span class="k">def</span> <span class="nf">make_hex_array</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
     <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;0x</span><span class="si">{:02x}</span><span class="s2">, &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="TFLMICodegen"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen">[docs]</a><span class="k">class</span> <span class="nc">TFLMICodegen</span><span class="p">:</span>
+<div class="viewcode-block" id="TFLMICodegen"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.TFLMICodegen">[docs]</a><span class="k">class</span> <span class="nc">TFLMICodegen</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="TFLMICodegen.makeCustomOpPrototypes"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.makeCustomOpPrototypes">[docs]</a>    <span class="k">def</span> <span class="nf">makeCustomOpPrototypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">):</span>
+<div class="viewcode-block" id="TFLMICodegen.makeCustomOpPrototypes"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.TFLMICodegen.makeCustomOpPrototypes">[docs]</a>    <span class="k">def</span> <span class="nf">makeCustomOpPrototypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;namespace tflite {</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">custom_ops</span><span class="p">:</span>
             <span class="n">op_name</span> <span class="o">=</span> <span class="n">op</span>
@@ -126,7 +127,7 @@
         <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;}  //namespace tflite</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="TFLMICodegen.make_op_registrations"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.make_op_registrations">[docs]</a>    <span class="k">def</span> <span class="nf">make_op_registrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">):</span>
+<div class="viewcode-block" id="TFLMICodegen.make_op_registrations"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.TFLMICodegen.make_op_registrations">[docs]</a>    <span class="k">def</span> <span class="nf">make_op_registrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">&quot;static tflite::MicroMutableOpResolver&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_ops</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;&gt; resolver(error_reporter);</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span>
@@ -146,7 +147,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="TFLMICodegen.generate_header"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.generate_header">[docs]</a>    <span class="k">def</span> <span class="nf">generate_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="TFLMICodegen.generate_header"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.TFLMICodegen.generate_header">[docs]</a>    <span class="k">def</span> <span class="nf">generate_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">):</span>
         <span class="n">upper_prefix</span> <span class="o">=</span> <span class="n">prefix</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
         <span class="n">code</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">// This file is generated. Do not edit.</span>
@@ -168,7 +169,7 @@
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">code</span></div>
 
-<div class="viewcode-block" id="TFLMICodegen.generate_wrapper"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMICodegen.generate_wrapper">[docs]</a>    <span class="k">def</span> <span class="nf">generate_wrapper</span><span class="p">(</span>
+<div class="viewcode-block" id="TFLMICodegen.generate_wrapper"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.TFLMICodegen.generate_wrapper">[docs]</a>    <span class="k">def</span> <span class="nf">generate_wrapper</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">,</span>
         <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
@@ -221,8 +222,6 @@
         <span class="n">model_data</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">model_buf</span><span class="p">:</span>
             <span class="n">model_data</span> <span class="o">=</span> <span class="n">model_buf</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-
-        <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
             <span class="n">header_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_header</span><span class="p">()</span>
@@ -376,13 +375,13 @@
             <span class="k">return</span> <span class="n">wrapper_content</span></div></div>
 
 
-<div class="viewcode-block" id="TFLMIBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend">[docs]</a><span class="k">class</span> <span class="nc">TFLMIBackend</span><span class="p">(</span><span class="n">TFLiteBackend</span><span class="p">):</span>
+<div class="viewcode-block" id="TFLMIBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.TFLMIBackend">[docs]</a><span class="k">class</span> <span class="nc">TFLMIBackend</span><span class="p">(</span><span class="n">TFLiteBackend</span><span class="p">):</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tflmi&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">TFLiteBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;arena_size&quot;</span><span class="p">:</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">20</span><span class="p">,</span>  <span class="c1"># 1 MB</span>
+        <span class="s2">&quot;arena_size&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="o">**</span><span class="mi">20</span><span class="p">,</span>  <span class="c1"># 1 MB</span>
         <span class="s2">&quot;debug_arena&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;ops&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;custom_ops&quot;</span><span class="p">:</span> <span class="p">[],</span>
@@ -411,7 +410,7 @@
     <span class="k">def</span> <span class="nf">debug_arena</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="TFLMIBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.backend.tflmi.TFLMIBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="TFLMIBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflite.backend.html#mlonmcu.flow.tflite.TFLMIBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">config_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>

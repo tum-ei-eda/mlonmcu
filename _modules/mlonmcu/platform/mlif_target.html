@@ -139,8 +139,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">validation_result</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="c1"># This is wrapper around the original exec function to catch special return codes thrown by the inout data feature</span>
-            <span class="c1"># TODO: catch edge cases: no input data available (skipped) and no return code (real hardware)</span>
+            <span class="c1"># This is wrapper around the original exec function to catch special return codes thrown by the inout data</span>
+            <span class="c1"># feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">validate_outputs</span><span class="p">:</span>
 
                 <span class="k">def</span> <span class="nf">handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>

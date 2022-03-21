@@ -98,15 +98,10 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Command line subcommand for initializing a mlonmcu environment.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pkg_resources</span>
-<span class="kn">import</span> <span class="nn">pkgutil</span>
-<span class="kn">import</span> <span class="nn">jinja2</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.environment.templates</span> <span class="kn">import</span> <span class="n">get_template_names</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.environment.config</span> <span class="kn">import</span> <span class="n">get_environments_dir</span><span class="p">,</span> <span class="n">DEFAULTS</span><span class="p">,</span> <span class="n">env_subdirs</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">in_virtualenv</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.environment.config</span> <span class="kn">import</span> <span class="n">get_environments_dir</span><span class="p">,</span> <span class="n">DEFAULTS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.environment.init</span> <span class="kn">import</span> <span class="n">initialize_environment</span>
 
 

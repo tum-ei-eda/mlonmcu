@@ -100,17 +100,14 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="c1"># from mlonmcu.context import MlonMcuContext</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
-
 <span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
 <span class="kn">from</span> <span class="nn">.target</span> <span class="kn">import</span> <span class="n">Target</span>
 <span class="kn">from</span> <span class="nn">.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="Corstone300Target"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target">[docs]</a><span class="k">class</span> <span class="nc">Corstone300Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
@@ -120,7 +117,8 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">Target</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;cortex-m55&quot;</span><span class="p">,</span>  <span class="c1"># Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz), Warning: FVP is still M55 based!</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;cortex-m55&quot;</span><span class="p">,</span>  <span class="c1"># Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)</span>
+        <span class="c1"># Warning: FVP is still M55 based!</span>
         <span class="s2">&quot;timeout_sec&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># disabled</span>
         <span class="s2">&quot;enable_ethosu&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;ethosu_num_macs&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
@@ -221,7 +219,7 @@
             <span class="n">cycles</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cycles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_cycles</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
-        <span class="n">mips</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: parse mips?</span>
+        <span class="c1"># mips = None  # TODO: parse mips?</span>
         <span class="k">return</span> <span class="n">cycles</span></div>
 
 <div class="viewcode-block" id="Corstone300Target.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>

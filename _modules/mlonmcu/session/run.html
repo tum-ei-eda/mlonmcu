@@ -100,7 +100,6 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
@@ -185,8 +184,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_directory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">DEFAULTS</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">features</span> <span class="k">if</span> <span class="n">features</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run_config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
@@ -366,17 +364,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_platform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_platform</span><span class="p">(</span><span class="n">get_platforms</span><span class="p">()[</span><span class="n">platform_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Run.add_postprocesses_by_name"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.add_postprocesses_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">add_postprocesses_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">postprocess_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">postprocess_name</span> <span class="ow">in</span> <span class="n">postprocess_names</span><span class="p">:</span>
             <span class="c1"># assert context is not None and context.environment.has_postprocess(</span>
             <span class="c1">#     postprocess_name</span>
             <span class="c1"># ), f&quot;The postprocess &#39;{postprocess_name}&#39; is not enabled for this environment&quot;</span>
-            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_POSTPROCESSES</span><span class="p">[</span><span class="n">postprocess_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_postprocesses</span><span class="p">(</span><span class="n">l</span><span class="p">)</span></div>
+            <span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_component</span><span class="p">(</span><span class="n">SUPPORTED_POSTPROCESSES</span><span class="p">[</span><span class="n">postprocess_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_postprocesses</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">export_optional</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;export_optional&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;export_optional&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">probs</span> <span class="o">=</span> <span class="p">[]</span>

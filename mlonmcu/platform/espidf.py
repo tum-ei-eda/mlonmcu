@@ -208,7 +208,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write("CONFIG_OPTIMIZATION_LEVEL_DEBUG=y\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y\n")
                 else:
-                    # Trying to reduce the binary size as much as possible (See: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/performance/size.html)
+                    # Trying to reduce the binary size as much as possible
+                    # (https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/performance/size.html)
                     f.write("CONFIG_BOOTLOADER_LOG_LEVEL_NONE=y\n")
                     f.write("CONFIG_BOOTLOADER_LOG_LEVEL=0\n")
                     f.write("CONFIG_BOOT_ROM_LOG_ALWAYS_OFF=y\n")
@@ -297,7 +298,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         # TODO: make sure that already compiled? -> error or just call compile routine?
         if self.wait_for_user:  # INTERACTIVE
             answer = input(
-                f"Make sure that the device '{target.name}' is connected before you press [Enter] (Type 'Abort' to cancel)"
+                f"Make sure that the device '{target.name}' is connected before you press [Enter]"
+                + " (Type 'Abort' to cancel)"
             )
             if answer.lower() == "abort":
                 return ""
@@ -408,7 +410,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 outStr = ""
                 if timeout:
                     pass  # TODO: implement timeout
-                # The following is a custom initialization sequence inspired by (https://github.com/espressif/esp-idf/blob/4e03a9c34c24ce44921fa48ad1da67fe16162471/tools/idf_monitor_base/serial_reader.py)
+                # The following is a custom initialization sequence inspired by
+                # (https://github.com/espressif/esp-idf/blob/master/tools/idf_monitor_base/serial_reader.py)
                 high = False
                 low = True
                 ser = serial.Serial(port, baud)

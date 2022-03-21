@@ -20,7 +20,6 @@
 
 import os
 import re
-import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
@@ -38,7 +37,8 @@ class Corstone300Target(Target):
 
     DEFAULTS = {
         **Target.DEFAULTS,
-        "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz), Warning: FVP is still M55 based!
+        "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
+        # Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
         "enable_ethosu": False,
         "ethosu_num_macs": 256,

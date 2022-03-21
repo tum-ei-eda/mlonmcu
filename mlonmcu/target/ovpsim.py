@@ -20,7 +20,6 @@
 
 import os
 import re
-import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
@@ -119,7 +118,7 @@ class OVPSimTarget(RISCVTarget):
         ovpsim_args.extend(self.get_default_ovpsim_args())
 
         if len(self.extra_args) > 0:
-            spike_args.extend(self.extra_args.split(" "))
+            ovpsim_args.extend(self.extra_args.split(" "))
 
         if self.timeout_sec > 0:
             raise NotImplementedError
@@ -133,7 +132,7 @@ class OVPSimTarget(RISCVTarget):
         return ret
 
     def parse_stdout(self, out):
-        cpi = 1
+        # cpi = 1
         cpu_cycles = re.search(r"  Simulated instructions:(.*)", out)
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")

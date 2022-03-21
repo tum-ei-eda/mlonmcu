@@ -215,9 +215,9 @@ class EtissPulpinoTarget(RISCVTarget):
             get_metrics_args.extend(["--trace", trace_file])
         get_metrics_args.extend(["--out", metrics_file])
         if self.print_outputs:
-            out2 = execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
+            execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
         else:
-            out2 = execute(
+            execute(
                 self.metrics_script.resolve(),
                 *get_metrics_args,
                 live=False,

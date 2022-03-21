@@ -805,7 +805,8 @@ def clone_cmsis(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
     """CMSIS repository."""
     cmsisName = utils.makeDirName("cmsis")
     cmsisSrcDir = context.environment.paths["deps"].path / "src" / cmsisName
-    # TODO: allow to skip this if cmsisnn.dir+cmsisnn.lib are provided by the user and corstone is not used -> move those checks to validate?
+    # TODO: allow to skip this if cmsisnn.dir+cmsisnn.lib are provided by the user and corstone is not used
+    # -> move those checks to validate?
     if rebuild or not utils.is_populated(cmsisSrcDir):
         cmsisRepo = context.environment.repos["cmsis"]
         utils.clone(cmsisRepo.url, cmsisSrcDir, branch=cmsisRepo.ref, refresh=rebuild)

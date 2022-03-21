@@ -42,9 +42,10 @@ logger = get_logger()
 def handle_docker(args):
     if args.docker:
         home = os.environ.get("MLONMCU_HOME")
-        assert (
-            home is not None
-        ), "To use the --docker functionality, please export the MLONMCU_HOME environment variable to a directory which should be mounted by the container"
+        assert home is not None, (
+            "To use the --docker functionality, please export the MLONMCU_HOME environment variable"
+            + " to a directory which should be mounted by the container"
+        )
         exec_args = sys.argv[1:]
         exec_args.remove("--docker")
         docker = subprocess.Popen(
@@ -72,7 +73,8 @@ def handle_docker(args):
 
     if platform.system() in ["Darwin", "Windows"]:
         raise RuntimeError(
-            "Only Linux is supported at the Moment. If you have Docker installed, you may want to try running this script using the `--docker` flag."
+            "Only Linux is supported at the Moment. If you have Docker installed, you may want to"
+            + " try running this script using the `--docker` flag."
         )
 
 

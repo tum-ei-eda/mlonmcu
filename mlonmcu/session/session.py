@@ -248,7 +248,9 @@ class Session:
                                 if pbar2:
                                     print()
                                 logger.warning(
-                                    f"The chosen configuration leads to a maximum of {total_threads} threads being processed which heavily exceeds the available CPU resources ({cpu_count}). It is recommended to lower the value of 'mlif.num_threads'!"
+                                    f"The chosen configuration leads to a maximum of {total_threads} threads being"
+                                    + " processed which heavily exceeds the available CPU resources ({cpu_count})."
+                                    + " It is recommended to lower the value of 'mlif.num_threads'!"
                                 )
                         if run.failing:
                             logger.warning(f"Skiping stage '{run_stage}' for failed run")
@@ -279,7 +281,9 @@ class Session:
                             if pbar2:
                                 print()
                             logger.warning(
-                                f"The chosen configuration leads to a maximum of {total_threads} being processed which heavily exceeds the available CPU resources (cpu_count). It is recommended to lower the value of 'mlif.num_threads'!"
+                                f"The chosen configuration leads to a maximum of {total_threads} being processed which"
+                                + " heavily exceeds the available CPU resources (cpu_count)."
+                                + " It is recommended to lower the value of 'mlif.num_threads'!"
                             )
                     worker_run_idx.append(i)
                     workers.append(executor.submit(_process, run, until=until, skip=skipped_stages))
@@ -302,7 +306,8 @@ class Session:
 
         report = self.get_reports()
         logger.info("Postprocessing session report")
-        # Warning: currently we only support one instance of the same type of postprocess, also it will be applied to all rows!
+        # Warning: currently we only support one instance of the same type of postprocess,
+        # also it will be applied to all rows!
         session_postprocesses = []
         for run in self.runs:
             for postprocess in run.postprocesses:

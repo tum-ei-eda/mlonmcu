@@ -87,8 +87,10 @@ class Frontend(ABC):
             return []
         features = get_matching_features(features, FeatureType.FRONTEND)
         for feature in features:
-            assert (  # If this assertion occurs, continue with the next frontend instea dof failing (TODO: create custom exception type)
-                feature.name in self.FEATURES
+            assert (  # If this assertion occurs, continue with the next frontend instea dof failing
+                # (TODO: create custom exception type)
+                feature.name
+                in self.FEATURES
             ), f"Incompatible feature: {feature.name}"
             # Instead we might introduce self.compatible and set it to true at this line
             feature.add_frontend_config(self.name, self.config)
@@ -175,7 +177,8 @@ class Frontend(ABC):
         max_outs = len(self.output_formats)
         assert len(artifacts) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
 
-        self.artifacts = artifacts  # If we want to use the same instance of this Frontend in parallel, we need to get rid of self.artifacts...
+        # If we want to use the same instance of this Frontend in parallel, we need to get rid of self.artifacts...
+        self.artifacts = artifacts
 
     def export_models(self, path):
         assert len(self.artifacts) > 0, "No artifacts found, please run generate_models() first"
@@ -248,7 +251,8 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
     DEFAULTS = {
         **Frontend.DEFAULTS,
         "ignore_existing": True,
-        "fake_pack": False,  # Pretend that every compatible tensor is packable (best case scenerio, TODO: rename to force_pack?)
+        "fake_pack": False,  # Pretend that every compatible tensor is packable
+        # (best case scenerio, TODO: rename to force_pack?)
         "use_packed": True,
         "check": False,  # Unimplemented
     }

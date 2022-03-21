@@ -40,7 +40,8 @@ def get_parser(subparsers):
     """ "Define and return a subparser for the run subcommand."""
     parser = subparsers.add_parser(
         "run",
-        description="Run model using ML on MCU flow. This is meant to reproduce the bahavior of the original `run.py` script in older versions of mlonmcu.",
+        description="Run model using ML on MCU flow. This is meant to reproduce the behavior"
+        + " of the original `run.py` script in older versions of mlonmcu.",
     )
     parser.set_defaults(flow_func=handle)
     add_run_options(parser)

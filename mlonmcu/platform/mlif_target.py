@@ -59,8 +59,8 @@ def create_mlif_target(name, platform, base=Target):
             self.validation_result = None
 
         def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
-            # This is wrapper around the original exec function to catch special return codes thrown by the inout data feature
-            # TODO: catch edge cases: no input data available (skipped) and no return code (real hardware)
+            # This is wrapper around the original exec function to catch special return codes thrown by the inout data
+            # feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))
             if self.platform.validate_outputs:
 
                 def handle_exit(code):

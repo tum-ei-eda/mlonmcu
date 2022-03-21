@@ -104,7 +104,7 @@ class SpikeTarget(RISCVTarget):
             cycles = None
         else:
             cycles = int(float(cpu_cycles.group(1)))
-        mips = None  # TODO: parse mips?
+        # mips = None  # TODO: parse mips?
         return cycles
 
     def get_metrics(self, elf, directory):

@@ -100,7 +100,7 @@ class Target:
             feature.add_target_config(self.name, self.config)
         return features
 
-    def exec(self, program: Path, *args, **kwargs):
+    def exec(self, program: Path, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         raise NotImplementedError
 
@@ -112,9 +112,9 @@ class Target:
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
         if self.print_outputs:
-            out = self.exec(elf, cwd=directory, live=True)
+            self.exec(elf, cwd=directory, live=True)
         else:
-            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
+            self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time

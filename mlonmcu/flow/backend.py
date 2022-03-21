@@ -203,12 +203,13 @@ Allowed options:
 
 
 def init_backend_features(names, config):
-    features = []
-    for name in names:
-        feature_classes = get_supported_features(feature_type=FeatureType.BACKEND, feature_name=name)
-        for feature_class in feature_classes:
-            features.append(feature_class(config=config))
-    return features
+    raise NotImplementedError
+    # features = []
+    # for name in names:
+    #     feature_classes = get_supported_features(feature_type=FeatureType.BACKEND, feature_name=name)
+    #     for feature_class in feature_classes:
+    #         features.append(feature_class(config=config))
+    # return features
 
 
 def main(backend, args=None):

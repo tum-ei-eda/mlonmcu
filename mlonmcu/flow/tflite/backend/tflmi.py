@@ -22,6 +22,7 @@ from .backend import TFLiteBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
+
 # TODO: move to another place
 def make_hex_array(data):
     out = ""

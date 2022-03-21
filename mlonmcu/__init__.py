@@ -22,3 +22,5 @@ __author__ = """TUM Department of Electrical and Computer Engineering - Chair of
 __email__ = "philipp.van-kempen@tum.de"
 
 from mlonmcu.version import __version__
+
+__all__ = ["__version__"]

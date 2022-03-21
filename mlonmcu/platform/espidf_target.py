@@ -48,7 +48,8 @@ def create_espidf_target(name, platform, base=Target):
             if self.timeout_sec > 0:
                 raise NotImplementedError
 
-            # ESP-IDF actually wants a project directory, but we only get the elf now. As a workaround we assume the elf is right in the build directory inside the project directory
+            # ESP-IDF actually wants a project directory, but we only get the elf now. As a workaround we
+            # assume the elf is right in the build directory inside the project directory
 
             ret = self.platform.run(self)
             return ret

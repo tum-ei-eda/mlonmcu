@@ -18,12 +18,9 @@
 #
 """MLonMCU RISC-V Target definitions"""
 
-import os
-import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from .common import cli, execute
 from .target import Target
 
 logger = get_logger()

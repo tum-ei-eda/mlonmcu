@@ -461,7 +461,10 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev) {
 
     mainCode = ""
     if api == "packed":
-        mainCode += "int32_t ${modPrefix}_run(void* args, void* type_code, int num_args, void* out_value, void* out_type_code, void* resource_handle);\n"
+        mainCode += (
+            "int32_t ${modPrefix}_run(void* args, void* type_code, int num_args,"
+            + " void* out_value, void* out_type_code, void* resource_handle);\n"
+        )
 
     mainCode += """
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code) { exit(1); }

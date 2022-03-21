@@ -311,7 +311,7 @@
         <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">per_stage</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                    <span class="n">_init_progress2</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">used_stages</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Processing stages&quot;</span><span class="p">)</span>
+                    <span class="n">_init_progress2</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">used_stages</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing stages&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">used_stages</span><span class="p">:</span>
                     <span class="n">run_stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
                     <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>

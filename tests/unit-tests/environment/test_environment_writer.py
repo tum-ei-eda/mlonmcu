@@ -1,3 +1,4 @@
+import os
 import logging
 
 from mlonmcu.environment.environment import Environment
@@ -34,10 +35,10 @@ def test_create_environment_dict():
         "logging": {"level": "DEBUG", "to_file": False, "rotate": False},
         "cleanup": {"auto": False, "keep": 100},
         "paths": {
-            "foo": "/home/philipp/src/work/prj/mlonmcu_open_source/mlonmcu_new/bar",
+            "foo": os.path.join(os.getcwd(), "bar"),
             "foobar": [
-                "/home/philipp/src/work/prj/mlonmcu_open_source/mlonmcu_new/baz",
-                "/home/philipp/src/work/prj/mlonmcu_open_source/mlonmcu_new/baz2",
+                os.path.join(os.getcwd(), "baz"),
+                os.path.join(os.getcwd(), "baz2"),
             ],
         },
         "repos": {"repo1": {"url": "repo1url", "ref": None}, "repo2": {"url": "repo2url", "ref": "repo2ref"}},

@@ -72,8 +72,7 @@ class Platform:
     def init_directory(self, path=None, context=None):
         raise NotImplementedError
 
-    @staticmethod
-    def create_target(name, features=None, config=None):
+    def create_target(self, name):
         raise NotImplementedError
 
     @property

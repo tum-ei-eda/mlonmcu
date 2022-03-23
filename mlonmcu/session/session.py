@@ -16,29 +16,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Definition of a MLonMCU Run which represents a set of benchmarks in a session."""
+import os
 import shutil
+import tempfile
 import multiprocessing
 from datetime import datetime
 from enum import Enum
-import tempfile
 from pathlib import Path
-import os
 import concurrent.futures
-from tqdm import tqdm
-from mlonmcu.config import filter_config
-from .run import RunStage
 
+from tqdm import tqdm
 
 from mlonmcu.session.run import Run
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
+from mlonmcu.config import filter_config
 
 from .postprocess.postprocess import SessionPostprocess
+from .run import RunStage
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 
 
-class SessionStatus(Enum):
+class SessionStatus(Enum):  # TODO: remove?
+    """Status type for a session."""
+
     CREATED = 0
     OPEN = 1
     CLOSED = 2
@@ -46,6 +49,7 @@ class SessionStatus(Enum):
 
 
 class Session:
+    """A session which wraps around multiple runs in a context."""
 
     DEFAULTS = {
         "report_fmt": "csv",
@@ -82,13 +86,16 @@ class Session:
 
     @property
     def prefix(self):
+        """get prefix property."""
         return f"[session-{self.idx}] " if self.idx else ""
 
     @property
     def report_fmt(self):
+        """get report_fmt property."""
         return str(self.config["report_fmt"])
 
     def create_run(self, *args, **kwargs):
+        """Factory method to create a run and add it to this session."""
         idx = len(self.runs)
         logger.debug("Creating a new run with id %s", idx)
         run = Run(*args, idx=idx, session=self, **kwargs)
@@ -104,12 +111,14 @@ class Session:
     #      pass
 
     def get_reports(self):
+        """Returns a full report which includes all runs in this session."""
         reports = [run.get_report() for run in self.runs]
         merged = Report()
         merged.add(reports)
         return merged
 
     def enumerate_runs(self):
+        """Update run indices."""
         # Find start index
         max_idx = -1
         for run in self.runs:
@@ -119,11 +128,12 @@ class Session:
         for run in self.runs:
             if not run.archived:
                 run.idx = run_idx
-                run._init_directory()
+                run.init_directory()
                 run_idx += 1
         self.next_run_idx = run_idx
 
     def request_run_idx(self):
+        """Return next free run index."""
         ret = self.next_run_idx
         self.next_run_idx += 1
         # TODO: find a better approach for this
@@ -138,6 +148,7 @@ class Session:
         export=False,
         context=None,
     ):
+        """Process a runs in this session until a given stage."""
 
         # TODO: Add configurable callbacks for stage/run complete
 
@@ -146,15 +157,15 @@ class Session:
         workers = []
         # results = []
         workers = []
-        pbar = None
-        pbar2 = None
+        pbar = None  # Outer progress bar
+        pbar2 = None  # Inner progress bar
         num_runs = len(self.runs)
         num_failures = 0
         stage_failures = {}
         worker_run_idx = []
 
-        def _init_progress(total, msg="Processing..."):
-            global pbar
+        def _init_progress(pbar, total, msg="Processing..."):
+            """Helper function to initialize a progress bar for the session."""
             pbar = tqdm(
                 total=total,
                 desc=msg,
@@ -163,39 +174,23 @@ class Session:
                 leave=None,
             )
 
-        def _update_progress(count=1):
-            global pbar
+        def _update_progress(pbar, count=1):
+            """Helper function to update the progress bar for the session."""
             pbar.update(count)
 
-        def _close_progress():
-            global pbar
+        def _close_progress(pbar):
+            """Helper function to close the session progressbar, if available."""
             if pbar:
                 pbar.close()
 
-        def _init_progress2(total, msg="Processing..."):
-            global pbar2
-            pbar2 = tqdm(
-                total=total,
-                desc=msg,
-                ncols=100,
-                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
-            )
-
-        def _update_progress2(count=1):
-            global pbar2
-            pbar2.update(count)
-
-        def _close_progress2():
-            global pbar2
-            if pbar2:
-                pbar2.close()
-
         def _process(run, until, skip):
-            run.process(until=until, skip=skip, export=export, context=context)
+            """Helper function to invoke the run."""
+            run.process(until=until, skip=skip, export=export)
             if progress:
-                _update_progress()
+                _update_progress(pbar)
 
         def _join_workers(workers):
+            """Helper function to collect all worker threads."""
             nonlocal num_failures
             results = []
             for i, w in enumerate(workers):
@@ -214,10 +209,11 @@ class Session:
                     else:
                         stage_failures[failed_stage] = [run_index]
             if progress:
-                _close_progress()
+                _close_progress(pbar)
             return results
 
         def _used_stages(runs, until):
+            """Determines the stages which are used by at least one run."""
             used = []
             for stage_index in list(range(RunStage.LOAD, until + 1)) + [RunStage.POSTPROCESS]:
                 stage = RunStage(stage_index)
@@ -231,13 +227,13 @@ class Session:
         with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
             if per_stage:
                 if progress:
-                    _init_progress2(len(used_stages), msg="Processing stages")
+                    _init_progress(pbar2, len(used_stages), msg="Processing stages")
                 for stage in used_stages:
                     run_stage = RunStage(stage).name
                     if progress:
-                        _init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
+                        _init_progress(pbar, len(self.runs), msg=f"Processing stage {run_stage}")
                     else:
-                        logger.info(self.prefix + f"Processing stage {run_stage}")
+                        logger.info("%s Processing stage %s", self.prefix, run_stage)
                     for i, run in enumerate(self.runs):
                         if i == 0:
                             total_threads = min(len(self.runs), num_workers)
@@ -248,12 +244,14 @@ class Session:
                                 if pbar2:
                                     print()
                                 logger.warning(
-                                    f"The chosen configuration leads to a maximum of {total_threads} threads being"
-                                    + " processed which heavily exceeds the available CPU resources ({cpu_count})."
-                                    + " It is recommended to lower the value of 'mlif.num_threads'!"
+                                    "The chosen configuration leads to a maximum of %d threads being"
+                                    + " processed which heavily exceeds the available CPU resources (%d)."
+                                    + " It is recommended to lower the value of 'mlif.num_threads'!",
+                                    total_threads,
+                                    cpu_count,
                                 )
                         if run.failing:
-                            logger.warning(f"Skiping stage '{run_stage}' for failed run")
+                            logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             worker_run_idx.append(i)
                             workers.append(executor.submit(_process, run, until=stage, skip=skipped_stages))
@@ -261,12 +259,12 @@ class Session:
                     workers = []
                     worker_run_idx = []
                     if progress:
-                        _update_progress2()
+                        _update_progress(pbar2)
                 if progress:
-                    _close_progress2()
+                    _close_progress(pbar2)
             else:
                 if progress:
-                    _init_progress(len(self.runs), msg="Processing all runs")
+                    _init_progress(pbar, len(self.runs), msg="Processing all runs")
                 else:
                     logger.info(self.prefix + "Processing all stages")
                 for i, run in enumerate(self.runs):
@@ -281,9 +279,11 @@ class Session:
                             if pbar2:
                                 print()
                             logger.warning(
-                                f"The chosen configuration leads to a maximum of {total_threads} being processed which"
-                                + " heavily exceeds the available CPU resources (cpu_count)."
-                                + " It is recommended to lower the value of 'mlif.num_threads'!"
+                                "The chosen configuration leads to a maximum of %d being processed which"
+                                + " heavily exceeds the available CPU resources (%d)."
+                                + " It is recommended to lower the value of 'mlif.num_threads'!",
+                                total_threads,
+                                cpu_count,
                             )
                     worker_run_idx.append(i)
                     workers.append(executor.submit(_process, run, until=until, skip=skipped_stages))
@@ -294,7 +294,7 @@ class Session:
             logger.error("All runs have failed to complete!")
         else:
             num_success = num_runs - num_failures
-            logger.warning(f"{num_success} out or {num_runs} runs completed successfully!")
+            logger.warning("%d out or %d runs completed successfully!", num_success, num_runs)
             summary = "\n".join(
                 [
                     f"\t{stage}: \t{len(failed)} failed run(s): " + " ".join([str(idx) for idx in failed])
@@ -302,7 +302,7 @@ class Session:
                     if len(failed) > 0
                 ]
             )
-            logger.info("Summary:\n" + summary)
+            logger.info("Summary:\n%s", summary)
 
         report = self.get_reports()
         logger.info("Postprocessing session report")
@@ -329,11 +329,12 @@ class Session:
         logger.info(self.prefix + "Done processing runs")
         print_report = True
         if print_report:
-            logger.info("Report:\n" + str(report.df))
+            logger.info("Report:\n%s", str(report.df))
 
         return num_failures == 0
 
     def discard(self):
+        """Discard a run and remove its directory."""
         self.close()
         if self.dir.is_dir():
             logger.debug("Cleaning up discarded session")
@@ -344,13 +345,16 @@ class Session:
 
     @property
     def active(self):
+        """Get active property."""
         return self.status == SessionStatus.OPEN
 
     def open(self):
+        """Open this run."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
 
     def close(self, err=None):
+        """Close this run."""
         if err:
             self.status = SessionStatus.ERROR
         else:

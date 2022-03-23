@@ -16,10 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Definitions of base classes for MLonMCU postprocesses."""
 from mlonmcu.config import filter_config
 
 
 class Postprocess:
+    """Abstract postprocess."""
 
     FEATURES = []
 
@@ -34,10 +36,10 @@ class Postprocess:
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
 
     def process_features(self, features):
-        # Currently there is no support for postprocess features
-        return []
+        """Utility which handles postprocess_features."""
+        # Currently there is no support for postprocess features (FIXME)
         # if features is None:
-        #     return []
+        return []
         # features = get_matching_features(features, FeatureType.POSTPROCESS)
         # for feature in features:
         #     assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
@@ -46,10 +48,14 @@ class Postprocess:
 
 
 class SessionPostprocess(Postprocess):
+    """Session postprocess which is applied to multiple runs at the end of a session. (multi-row)"""
+
     def post_session(self, report):
-        pass
+        """Called at the end of a session."""
 
 
 class RunPostprocess(Postprocess):
+    """Run postprocess which is applied to a single run."""
+
     def post_run(self, report):
-        pass
+        """Called at the end of a run."""

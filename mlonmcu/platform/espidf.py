@@ -23,12 +23,13 @@ import sys
 import time
 import signal
 import shutil
-import serial
 import tempfile
 import subprocess
 import distutils.util
 from pathlib import Path
 import pkg_resources
+
+import serial
 import psutil
 
 from mlonmcu.setup import utils

@@ -16,10 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import tempfile
-from pathlib import Path
+"""Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options."""
 import os
 import copy
+import tempfile
+from pathlib import Path
 from enum import IntEnum
 
 from mlonmcu.logging import get_logger
@@ -31,9 +32,9 @@ from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.models import SUPPORTED_FRONTENDS
-
 from mlonmcu.platform import get_platforms
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
+
 from .postprocess import SUPPORTED_POSTPROCESSES
 from .postprocess.postprocess import RunPostprocess
 
@@ -100,9 +101,9 @@ class Run:
         self.postprocesses = postprocesses if postprocesses else []
         self.comment = comment
         # self.stage = RunStage.NOP  # max executed stage
-        self.completed = {stage: True if stage == RunStage.NOP else False for stage in RunStage}
+        self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
-        self._init_directory()
+        self.init_directory()
         self.target = target
         self.config = config if config else {}
         self.features = features if features else []
@@ -116,6 +117,7 @@ class Run:
         self.report = None
 
     def process_features(self, features):
+        """Utility which handles postprocess_features."""
         if features is None:
             return []
         features = get_matching_features(features, FeatureType.RUN)
@@ -126,34 +128,37 @@ class Run:
 
     @property
     def tune_enabled(self):
+        """Get tune_enabled property."""
         return bool(self.run_config["tune_enabled"])
 
     def has_stage(self, stage):
+        """Returns true if the given stage is available for this run."""
         if stage == RunStage.NOP:
             return True
-        elif stage == RunStage.LOAD:
+        if stage == RunStage.LOAD:
             return self.model is not None and self.frontend is not None
-        elif stage == RunStage.TUNE:
+        if stage == RunStage.TUNE:
             return self.tune_enabled and self.backend is not None
-        elif stage == RunStage.BUILD:
+        if stage == RunStage.BUILD:
             return self.backend is not None and self.framework is not None
-        elif stage in [RunStage.COMPILE, RunStage.RUN]:
+        if stage in [RunStage.COMPILE, RunStage.RUN]:
             return self.target is not None and self.platform is not None
-        elif stage == RunStage.POSTPROCESS:
+        if stage == RunStage.POSTPROCESS:
             return len(self.postprocesses) > 0
-        elif stage == RunStage.DONE:
+        if stage == RunStage.DONE:
             return False
-        else:
-            return False  # TODO: Throw error instead?
+        return False  # TODO: Throw error instead?
 
     @property
     def next_stage(self):
+        """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
         for stage in RunStage:
             if not self.completed[stage.value] and self.has_stage(stage):
                 return stage
         return RunStage.DONE
 
     def lock(self):
+        """Aquire a mutex to lock the current run."""
         # ret = self.lock.acquire(timeout=0)
         ret = not self.locked
         self.locked = True
@@ -161,10 +166,12 @@ class Run:
             raise RuntimeError("Parallel processing of the same run is not allowed")
 
     def unlock(self):
+        """Release a mutex to unlock the current run."""
         # self.lock.release()
         self.locked = False
 
-    def _init_directory(self):
+    def init_directory(self):
+        """Initialize the temporary directory for this run."""
         if self.session is None:
             assert not self.archived
             self.tempdir = tempfile.TemporaryDirectory()
@@ -180,16 +187,18 @@ class Run:
                 self.platform.init_directory(path=Path(self.dir) / self.platform.name)
 
     def copy(self):
+        """Create a new run based on this instance."""
         new = copy.deepcopy(self)
         if self.session:
             new_idx = self.session.request_run_idx()
             new.idx = new_idx
-            self._init_directory()
+            self.init_directory()
         return new
 
     # TODO: get rid of this
     # This is currently required as the platforms needs to access the backend, framework and target...
     def init_platform(self, platform_cls, context=None):
+        """Helper function to create and configure a platform instance for this run."""
         required_keys = platform_cls.REQUIRED
         self.config.update(
             resolve_required_config(
@@ -212,6 +221,7 @@ class Run:
         return platform
 
     def init_component(self, component_cls, context=None):
+        """Helper function to create and configure a MLonMCU component instance for this run."""
         required_keys = component_cls.REQUIRED
         self.config.update(
             resolve_required_config(
@@ -225,28 +235,37 @@ class Run:
         return component_cls(features=self.features, config=component_config)
 
     def add_model(self, model):
+        """Setter for the model instance."""
         self.model = model
 
     def add_frontend(self, frontend):
+        """Setter for the frontend instance."""
         self.frontend = frontend
 
     def add_backend(self, backend):
+        """Setter for the backend instance."""
         self.backend = backend
 
     def add_framework(self, framework):
+        """Setter for the framework instance."""
         self.framework = framework
 
     def add_target(self, target):
+        """Setter for the target instance."""
         self.target = target
         self.target.add_platform_defs(self.platform.name, self.platform.definitions)  # TODO: move to platform?
 
     def add_platform(self, platform, context=None):
+        """Setter for the platform instance."""
+        del context  # unused
         self.platform = platform
 
     def add_postprocesses(self, postprocesses):
+        """Setter for the list of postprocesses."""
         self.postprocesses = postprocesses
 
     def add_model_by_name(self, model_name, context=None):
+        """Helper function to initialize and configure a model by its name."""
         assert context is not None, "Please supply a context"
         assert self.frontend is not None, "Add a frontend to the run before adding a model"
         model_hints = lookup_models([model_name], frontends=[self.frontend], context=context)
@@ -254,12 +273,14 @@ class Run:
         self.add_model(model_hints[0])
 
     def add_frontend_by_name(self, frontend_name, context=None):
+        """Helper function to initialize and configure a frontend by its name."""
         assert context is not None and context.environment.has_frontend(
             frontend_name
         ), f"The frontend '{frontend_name}' is not enabled for this environment"
         self.add_frontend(self.init_component(SUPPORTED_FRONTENDS[frontend_name], context=context))
 
     def add_backend_by_name(self, backend_name, context=None):
+        """Helper function to initialize and configure a backend by its name."""
         assert context is not None and context.environment.has_backend(
             backend_name
         ), f"The backend '{backend_name}' is not enabled for this environment"
@@ -271,6 +292,7 @@ class Run:
         self.add_framework(self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context))
 
     def add_target_by_name(self, target_name, context=None):
+        """Helper function to initialize and configure a target by its name."""
         # assert context is not None and context.environment.has_target(
         #     target_name
         # ), f"The target '{target_name}' is not enabled for this environment"
@@ -278,12 +300,14 @@ class Run:
         self.add_target(self.init_component(self.platform.create_target(target_name), context=context))
 
     def add_platform_by_name(self, platform_name, context=None):
+        """Helper function to initialize and configure a platform by its name."""
         assert context is not None and context.environment.has_platform(
             platform_name
         ), f"The platform '{platform_name}' is not enabled for this environment"
         self.add_platform(self.init_platform(get_platforms()[platform_name], context=context))
 
     def add_postprocesses_by_name(self, postprocess_names, context=None):
+        """Helper function to initialize and configure postprocesses by their names."""
         arr = []
         for postprocess_name in postprocess_names:
             # assert context is not None and context.environment.has_postprocess(
@@ -294,6 +318,7 @@ class Run:
 
     @property
     def export_optional(self):
+        """Get export_optional property."""
         return bool(self.run_config["export_optional"])
 
     def __repr__(self):
@@ -315,9 +340,11 @@ class Run:
         return "Run(" + ",".join(probs) + ")"
 
     def toDict(self):
-        raise NotImplementedError  # TODO
+        """Utility not implemented yet. (TODO: remove?)"""
+        raise NotImplementedError
 
     def export_stage(self, stage, optional=False, subdir=False):
+        """Export stage artifacts of this run to its directory."""
         # TODO: per stage subdirs?
         if stage in self.artifacts_per_stage:
             artifacts = self.artifacts_per_stage[stage]
@@ -330,9 +357,9 @@ class Run:
                     extract = artifact.fmt == ArtifactFormat.MLF
                     artifact.export(self.dir, extract=extract)
 
-    def postprocess(self, context=None):  # TODO: drop context arguments?
+    def postprocess(self):
         """Postprocess the 'run'."""
-        logger.debug(self.prefix + "Processing stage POSTPROCESS")
+        logger.debug("%s Processing stage POSTPROCESS", self.prefix)
         self.lock()
         # assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback
 
@@ -348,9 +375,9 @@ class Run:
         self.completed[RunStage.POSTPROCESS] = True
         self.unlock()
 
-    def run(self, context=None):  # TODO: drop context arguments?
+    def run(self):
         """Run the 'run' using the defined target."""
-        logger.debug(self.prefix + "Processing stage RUN")
+        logger.debug("%s Processing stage RUN", self.prefix)
         self.lock()
         # Alternative: drop artifacts of higher stages when re-triggering a lower one?
 
@@ -363,9 +390,9 @@ class Run:
         self.completed[RunStage.RUN] = True
         self.unlock()
 
-    def compile(self, context=None):
+    def compile(self):
         """Compile the target software for the run."""
-        logger.debug(self.prefix + "Processing stage COMPILE")
+        logger.debug("%s Processing stage COMPILE", self.prefix)
         self.lock()
         assert self.completed[RunStage.BUILD]
 
@@ -382,9 +409,9 @@ class Run:
         self.completed[RunStage.COMPILE] = True
         self.unlock()
 
-    def build(self, context=None):
+    def build(self):
         """Process the run using the choosen backend."""
-        logger.debug(self.prefix + "Processing stage BUILD")
+        logger.debug("%s Processing stage BUILD", self.prefix)
         self.lock()
         assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
 
@@ -409,9 +436,9 @@ class Run:
         self.completed[RunStage.BUILD] = True
         self.unlock()
 
-    def tune(self, context=None):
+    def tune(self):
         """Tune the run using the choosen backend (if supported)."""
-        logger.debug(self.prefix + "Processing stage TUNE")
+        logger.debug("%s Processing stage TUNE", self.prefix)
         self.lock()
         assert self.completed[RunStage.LOAD]
 
@@ -435,9 +462,9 @@ class Run:
         self.completed[RunStage.TUNE] = True
         self.unlock()
 
-    def load(self, context=None):
+    def load(self):
         """Load the model using the given frontend."""
-        logger.debug(self.prefix + "Processing stage LOAD")
+        logger.debug("%s Processing stage LOAD", self.prefix)
         self.lock()
         # assert self.completed[RunStage.NOP]
 
@@ -460,19 +487,21 @@ class Run:
         self.completed[RunStage.LOAD] = True
         self.unlock()
 
-    def process(self, until=RunStage.RUN, skip=[], export=False, context=None):
+    def process(self, until=RunStage.RUN, skip=None, export=False):
         """Process the run until a given stage."""
+        skip = skip if skip is not None else []
         if until == RunStage.DONE:
             until = RunStage.DONE - 1
         start = self.next_stage  # self.stage hold the max finished stage
         if until < start:
-            logger.debug(self.prefix + "Nothing to do")
+            logger.debug("%s Nothing to do", self.prefix)
             return self.get_report()
 
         if start > RunStage.NOP:
             logger.debug(
                 # self.prefix + "Processing run until stage %s: %s",
-                self.prefix + "Continuing run from stage %s until stage %s",
+                "%s Continuing run from stage %s until stage %s",
+                self.prefix,
                 str(RunStage(start).name),
                 str(RunStage(until).name),
                 # str(self),
@@ -480,7 +509,8 @@ class Run:
         else:
             logger.debug(
                 # self.prefix + "Processing run until stage %s: %s",
-                self.prefix + "Processing run until stage %s",
+                "%s Processing run until stage %s",
+                self.prefix,
                 str(RunStage(until).name),
                 # str(self),
             )
@@ -488,7 +518,7 @@ class Run:
             if not self.has_stage(stage):
                 continue
             if stage in skip:
-                logger.debug(self.prefix + "Skipping stage %s", str(RunStage(stage).name))
+                logger.debug("%s Skipping stage %s", self.prefix, str(RunStage(stage).name))
                 continue
             if stage < RunStage.POSTPROCESS:
                 self.report = None  # Regenerate report if earlier stages are executed
@@ -505,14 +535,14 @@ class Run:
             if func:
                 self.failing = False
                 try:
-                    func(context=context)
+                    func()
                 except Exception as e:
                     self.failing = True
                     if self.locked:
                         self.unlock()
                     logger.exception(e)
                     run_stage = RunStage(stage).name
-                    logger.error(self.prefix + f"Run failed at stage '{run_stage}', aborting...")
+                    logger.error("%s Run failed at stage '%s', aborting...", self.prefix, run_stage)
                     break
             # self.stage = stage  # FIXME: The stage_func should update the stage intead?
         report = self.get_report()
@@ -523,30 +553,39 @@ class Run:
         return report
 
     def write_run_file(self):
-        logger.debug(self.prefix + "Writing run file")
+        """Create a run.txt file which contains information used to reconstruct the run based
+        on its properties at a later point in time."""
+        logger.debug("%s Writing run file", self.prefix)
         filename = self.dir / "run.txt"
-        with open(filename, "w") as handle:
+        with open(filename, "w", encoding="utf-8") as handle:
             handle.write(str(self))
 
     @property
     def prefix(self):
+        """Get prefix property."""
         return (
-            (f"[session-{self.session.idx}] [run-{self.idx}] " if self.session else f"[run-{self.idx}]")
+            (f"[session-{self.session.idx}] [run-{self.idx}]" if self.session else f"[run-{self.idx}]")
             if self.idx is not None
             else ""
         )
 
     def get_all_feature_names(self):
+        """Return list of feature names for this run."""
         return [feature.name for feature in self.features]
 
     def get_all_postprocess_names(self):
+        """Return list of postprocess names for this run."""
         return [postprocess.name for postprocess in self.postprocesses]
 
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
+        """Return dict with component-specific and global configuration for this run."""
+
         def has_prefix(key):
+            """Returns true if the configuration key does not have global scope."""
             return "." in key
 
         def config_helper(obj, prefix=None):
+            """Helper to access the configuration of a given component object."""
             if prefix:
                 name = prefix
             else:
@@ -590,6 +629,7 @@ class Run:
         return ret
 
     def get_report(self):
+        """Returns teh complete report of this run."""
         if self.completed[RunStage.POSTPROCESS]:
             if self.report is not None:
                 return (
@@ -649,8 +689,9 @@ class Run:
 
     def export(self, path=None, optional=False):
         """Write a run configuration to a disk."""
-        logger.debug(self.prefix + "Exporting run to disk")
-        # TODO use proper locks instead of boolean and also lock during export!
+        logger.debug("%s Exporting run to disk", self.prefix)
+        if path is not None:
+            raise NotImplementedError
         assert not self.locked
         for stage in range(self.next_stage):
             if not self.has_stage(stage):

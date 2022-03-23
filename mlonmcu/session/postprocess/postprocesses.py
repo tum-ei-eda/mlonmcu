@@ -16,25 +16,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import pandas as pd
+"""Collection of (example) postprocesses integrated in MLonMCU."""
+
+import ast
 import tempfile
 from pathlib import Path
+
 import matplotlib.pyplot as plt
+import pandas as pd
+
 from mlonmcu.artifact import Artifact, ArtifactFormat
-import ast
+from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
-from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
 
 def match_rows(df, cols):
+    """Helper function to group similar rows in a dataframe."""
     groups = df.astype(str).groupby(cols).apply(lambda x: tuple(x.index)).tolist()
     return groups
 
 
 class AverageCyclesPostprocess(SessionPostprocess, RunPostprocess):
+    """Postprocess which averages the cycle counts of multiple runs into a single row."""
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
@@ -46,15 +52,18 @@ class AverageCyclesPostprocess(SessionPostprocess, RunPostprocess):
 
     @property
     def merge_rows(self):
+        """Get merge_rows property."""
         return bool(self.config["merge_rows"])
 
     def post_run(self, report):
+        """Called at the end of a run."""
         if not self.merge_rows:
             if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
                 return
             report.main_df["Average Cycles"] = report.main_df["Total Cycles"] / report.pre_df["Num"]
 
     def post_session(self, report):
+        """Called at the end of a session."""
         if self.merge_rows:
             if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
                 return
@@ -76,11 +85,26 @@ class AverageCyclesPostprocess(SessionPostprocess, RunPostprocess):
             report.post_df.drop(to_drop, inplace=True)
 
 
+def get_detailed_cycles(low_num, low_cycles, high_num, high_cycles):
+    """Helper function to split the total cycles of two runs into the setup and incoke cycles."""
+    assert high_cycles > low_cycles
+    assert high_num > low_num
+    diff_cycles = high_cycles - low_cycles
+    diff_num = high_num - low_num
+    invoke_cycles = int(float(diff_cycles) / (diff_num))
+    setup_cycles = low_cycles - (invoke_cycles * low_num)
+    return setup_cycles, invoke_cycles
+
+
 class DetailedCyclesPostprocess(SessionPostprocess):
+    """Postprocess automatically determines the actual setup and inference cycles if enough information is available.
+
+    Condition: there exists at least 2 runs which only differ in their `Num` setting.
+    """
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
-        "warn": True,
+        "warn": False,
     }
 
     def __init__(self, features=None, config=None):
@@ -88,21 +112,14 @@ class DetailedCyclesPostprocess(SessionPostprocess):
 
     @property
     def warn(self):
+        """Get warn property."""
         return bool(self.config["warn"])
 
-    def get_detailed_cycles(self, low_num, low_cycles, high_num, high_cycles):
-        assert high_cycles > low_cycles
-        assert high_num > low_num
-        diff_cycles = high_cycles - low_cycles
-        diff_num = high_num - low_num
-        invoke_cycles = int(float(diff_cycles) / (diff_num))
-        setup_cycles = low_cycles - (invoke_cycles * low_num)
-        return setup_cycles, invoke_cycles
-
     def post_session(self, report):
+        """Called at the end of a session."""
         if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
             if self.warn:
-                logger.warning(f"Postprocess '{self.name}' was not applied because of missing columns")
+                logger.warning("Postprocess %s was not applied because of missing columns", self.name)
             return
         ignore_cols = ["Session", "Run", "Num", "Comment"]
         combined_df = pd.concat([report.pre_df, report.post_df], axis=1)
@@ -112,7 +129,6 @@ class DetailedCyclesPostprocess(SessionPostprocess):
         to_drop = []
         for group in groups:
             if len(group) == 1:
-                continue
                 if self.warn:
                     logger.warning("Unable to find a suitable pair for extracting detailed cycle counts")
             max_idx = report.pre_df["Num"][list(group)].idxmax()
@@ -122,7 +138,7 @@ class DetailedCyclesPostprocess(SessionPostprocess):
             min_cycles = report.main_df["Total Cycles"][min_idx]
             max_num = report.pre_df["Num"][max_idx]
             min_num = report.pre_df["Num"][min_idx]
-            setup_cycles, invoke_cycles = self.get_detailed_cycles(min_num, min_cycles, max_num, max_cycles)
+            setup_cycles, invoke_cycles = get_detailed_cycles(min_num, min_cycles, max_num, max_cycles)
             report.main_df.loc[max_idx, "Setup Cycles"] = setup_cycles
             report.main_df.loc[max_idx, "Invoke Cycles"] = invoke_cycles
             to_drop.extend([idx for idx in group if idx != max_idx])
@@ -132,6 +148,7 @@ class DetailedCyclesPostprocess(SessionPostprocess):
 
 
 class FilterColumnsPostprocess(SessionPostprocess):
+    """Postprocess which can be used to drop unwanted columns from a report."""
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
@@ -146,6 +163,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
 
     @property
     def keep(self):
+        """Get keep property."""
         cfg = self.config["keep"]
         if isinstance(cfg, str):
             return ast.literal_eval(cfg)
@@ -153,6 +171,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
 
     @property
     def drop(self):
+        """Get drop property."""
         cfg = self.config["drop"]
         if isinstance(cfg, str):
             return ast.literal_eval(cfg)
@@ -160,13 +179,17 @@ class FilterColumnsPostprocess(SessionPostprocess):
 
     @property
     def drop_nan(self):
+        """Get drop_nan property."""
         return bool(self.config["drop_nan"])
 
     @property
     def drop_const(self):
+        """Get drop_const property."""
         return bool(self.config["drop_const"])
 
     def post_session(self, report):
+        """Called at the end of a session."""
+
         def _filter_df(df, keep, drop, drop_nan=False, drop_const=False):
             if drop_nan:
                 df.dropna(axis=1, how="all", inplace=True)
@@ -194,6 +217,9 @@ class FilterColumnsPostprocess(SessionPostprocess):
 
 
 class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
+    """Postprocess which can be used to transform (explode) the 'Features' Column
+    in a dataframe for easier filtering."""
+
     def __init__(self, features=None, config=None):
         super().__init__("features2cols", features=features, config=config)
 
@@ -214,10 +240,13 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
 
 class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
+    """Postprocess which can be used to transform (explode) the 'Config' Column in a dataframe for easier filtering."""
+
     def __init__(self, features=None, config=None):
         super().__init__("config2cols", features=features, config=config)
 
     def post_session(self, report):
+        """Called at the end of a session."""
         df = report.post_df
         if "Config" not in df.columns:
             return
@@ -228,10 +257,13 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
 
 class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
+    """Postprocess which can be used to scale the memory related columns from Bytes to KiloBytes."""
+
     def __init__(self, features=None, config=None):
         super().__init__("bytes2kb", features=features, config=config)
 
     def post_session(self, report):
+        """Called at the end of a session."""
         df = report.main_df
         match_strs = ["ROM", "RAM"]
         cols = list(
@@ -259,9 +291,11 @@ class VisualizePostprocess(SessionPostprocess):
 
     @property
     def format(self):
+        """Get format property."""
         return self.config["format"]
 
     def post_session(self, report):
+        """Called at the end of a session."""
         df = pd.concat([report.pre_df, report.main_df], axis=1)
 
         if self.format != "png":
@@ -270,7 +304,7 @@ class VisualizePostprocess(SessionPostprocess):
         COLS = ["Total Cycles", "Total ROM", "Total RAM"]
         for col in COLS:
             if col not in report.main_df.columns:
-                return
+                return []
         fig, axes = plt.subplots(ncols=len(COLS))
         plt.rcParams["figure.figsize"] = (15, 3)  # (w, h)
         for i, col in enumerate(COLS):

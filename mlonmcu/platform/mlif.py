@@ -139,6 +139,7 @@ class MlifPlatform(CompilePlatform):
         self.init_directory()
 
     def configure(self, target, src, _model, num=1, data_file=None):
+        del target
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = []

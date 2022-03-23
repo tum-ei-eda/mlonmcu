@@ -112,9 +112,9 @@ class Target:
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
         if self.print_outputs:
-            self.exec(elf, cwd=directory, live=True)
+            out = self.exec(elf, cwd=directory, live=True)
         else:
-            self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
+            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time
@@ -122,16 +122,20 @@ class Target:
         metrics = Metrics()
         metrics.add("Runtime [s]", diff)
 
-        return metrics
+        return metrics, out
 
     def generate_metrics(self, elf):
         artifacts = []
         with tempfile.TemporaryDirectory() as temp_dir:
-            metrics = self.get_metrics(elf, temp_dir)
+            metrics, out = self.get_metrics(elf, temp_dir)
             content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
             artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
             # Alternative: artifact = Artifact("metrics.csv", data=df/dict, fmt=ArtifactFormat.DATA)
             artifacts.append(artifact)
+        stdout_artifact = Artifact(
+            f"{self.name}_out.log", content=out, fmt=ArtifactsFormat.TEXT
+        )  # TODO: rename to tvmaot_out.log?
+        artifacts.append(stdout_artifact)
         self.artifacts = artifacts
 
     def export_metrics(self, path):

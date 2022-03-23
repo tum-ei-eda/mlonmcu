@@ -166,27 +166,30 @@ class MlifPlatform(CompilePlatform):
             assert data_file is not None, "No data.c file was supplied"
             cmakeArgs.append("-DDATA_SRC=" + str(data_file))
         utils.mkdirs(self.build_dir)
-        utils.cmake(
+        out = utils.cmake(
             self.mlif_dir,
             *cmakeArgs,
             cwd=self.build_dir,
             debug=self.debug,
             live=self.print_outputs,
         )
+        return out
 
     def compile(self, target, src=None, model=None, num=1, data_file=None):
+        out = ""
         if src:
-            self.configure(target, src, model, num=num, data_file=data_file)
-        utils.make(
+            out += self.configure(target, src, model, num=num, data_file=data_file)
+        out += utils.make(
             self.goal,
             cwd=self.build_dir,
             threads=self.num_threads,
             live=self.print_outputs,
         )
+        return out
 
     def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         artifacts = []
-        self.compile(target, src=src, model=model, num=num, data_file=data_file)
+        out = self.compile(target, src=src, model=model, num=num, data_file=data_file)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
@@ -197,4 +200,8 @@ class MlifPlatform(CompilePlatform):
         content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
         metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
         artifacts.append(metrics_artifact)
+        stdout_artifact = Artifact(
+            "mlif_out.log", content=out, fmt=ArtifactsFormat.TEXT
+        )  # TODO: rename to tvmaot_out.log?
+        artifacts.append(stdout_artifact)
         self.artifacts = artifacts

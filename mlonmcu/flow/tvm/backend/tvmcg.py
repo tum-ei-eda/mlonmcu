@@ -73,9 +73,13 @@ class TVMCGBackend(TVMRTBackend):
                     args.append(params_bin_file)
                     args.append(out_file)
                     args.append(str(max_workspace_size))
-                    utils.exec_getout(tvmcg_exe, *args, live=verbose, print_output=False)
+                    out = utils.exec_getout(tvmcg_exe, *args, live=verbose, print_output=False)
                     codegen_src = open(out_file, "r").read()
                     artifact = Artifact("staticrt.c", content=codegen_src, fmt=ArtifactFormat.SOURCE)
+                    stdout_artifact = Artifact(
+                        "tvmcg_out.log", content=out, fmt=ArtifactsFormat.TEXT
+                    )
+                    artifacts.append(stdout_artifact)
                 break
         assert artifact is not None, "Failed to find MLF artifact"
         artifacts.append(artifact)

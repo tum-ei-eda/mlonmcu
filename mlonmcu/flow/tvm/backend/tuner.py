@@ -144,7 +144,7 @@ class TVMTuner:
     def invoke_tvmc_tune(self, out, verbose=False):
         args = self.get_tvmc_tune_args()
         args.extend(["--output", str(out)])
-        self.backend.invoke_tvmc("tune", *args, verbose=verbose)
+        return self.backend.invoke_tvmc("tune", *args, verbose=verbose)
 
     def pick_best(self, records, verbose=False):
         content_best = ""
@@ -259,7 +259,7 @@ class TVMTuner:
                 with open(out_file, "w") as handle:
                     handle.write(content)
                     # TODO: newline or not?
-                self.invoke_tvmc_tune(out_file, verbose=verbose)
+                out = self.invoke_tvmc_tune(out_file, verbose=verbose)
                 with open(out_file, "r") as handle:
                     content = handle.read()
             if self.use_rpc:
@@ -280,6 +280,12 @@ class TVMTuner:
         if len(content_best) > 0:
             artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
             artifacts.append(artifact_)
+
+        if self.enable:
+            stdout_artifact = Artifact(
+                "tvmc_tune_out.log", content=out, fmt=ArtifactsFormat.TEXT
+            )  # TODO: rename to tvmaot_out.log?
+            artifacts.append(stdout_artifact)
 
         self.artifacts = artifacts
 

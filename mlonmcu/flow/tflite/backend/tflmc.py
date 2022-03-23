@@ -68,13 +68,15 @@ class TFLMCBackend(TFLiteBackend):
             args.append(str(self.model))
             args.append(str(Path(tmpdirname) / f"{self.prefix}.cc"))
             args.append(f"{self.prefix}_")
-            utils.exec_getout(tflmc_exe, *args, live=verbose)
+            out = utils.exec_getout(tflmc_exe, *args, live=verbose)
             files = [f for f in os.listdir(tmpdirname) if os.path.isfile(os.path.join(tmpdirname, f))]
             # TODO: ensure that main file is processed first
             for filename in files:
                 with open(Path(tmpdirname) / filename, "r") as handle:
                     content = handle.read()
                     artifacts.append(Artifact(filename, content=content, fmt=ArtifactFormat.SOURCE))
+            stdout_artifact = Artifact("tflmc_out.log", content=out, fmt=ArtifactsFormat.TEXT)
+            artifacts.append(stdout_artifact)
 
         self.artifacts = artifacts
 

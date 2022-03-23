@@ -190,6 +190,7 @@ class EtissPulpinoTarget(RISCVTarget):
         return cycles, mips
 
     def get_metrics(self, elf, directory):
+        out = ""
         if self.trace_memory:
             trace_file = os.path.join(directory, "dBusAccess.csv")
             if os.path.exists(trace_file):
@@ -202,9 +203,9 @@ class EtissPulpinoTarget(RISCVTarget):
             os.remove(metrics_file)
 
         if self.print_outputs:
-            out = self.exec(elf, cwd=directory, live=True)
+            out += self.exec(elf, cwd=directory, live=True)
         else:
-            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
+            out += self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         total_cycles, mips = self.parse_stdout(out)
 
         get_metrics_args = [elf]
@@ -215,9 +216,9 @@ class EtissPulpinoTarget(RISCVTarget):
             get_metrics_args.extend(["--trace", trace_file])
         get_metrics_args.extend(["--out", metrics_file])
         if self.print_outputs:
-            execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
+            out += execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
         else:
-            execute(
+            out += execute(
                 self.metrics_script.resolve(),
                 *get_metrics_args,
                 live=False,
@@ -277,7 +278,7 @@ class EtissPulpinoTarget(RISCVTarget):
                 metrics.add("RAM stack", ram_stack)
                 metrics.add("RAM heap", ram_heap)
 
-        return metrics
+        return metrics, out
 
     def get_target_system(self):
         return self.name

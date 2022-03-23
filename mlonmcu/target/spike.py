@@ -108,16 +108,17 @@ class SpikeTarget(RISCVTarget):
         return cycles
 
     def get_metrics(self, elf, directory):
+        out = ""
         if self.print_outputs:
-            out = self.exec(elf, cwd=directory, live=True)
+            out += self.exec(elf, cwd=directory, live=True)
         else:
-            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
+            out += self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         cycles = self.parse_stdout(out)
 
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
 
-        return metrics
+        return metrics, out
 
 
 if __name__ == "__main__":

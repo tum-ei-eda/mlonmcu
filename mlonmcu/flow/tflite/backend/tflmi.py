@@ -348,6 +348,7 @@ class TFLMIBackend(TFLiteBackend):
                 optional=False,
             )
         )
+        # TODO: stdout_artifact (Would need to invoke TFLMI in subprocess to get stdout)
         self.artifacts = artifacts
 
 

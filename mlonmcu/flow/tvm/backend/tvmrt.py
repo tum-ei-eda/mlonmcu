@@ -74,7 +74,7 @@ class TVMRTBackend(TVMBackend):
         dump = ["c", "relay"] if full else []
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            self.invoke_tvmc_compile(out_path, dump=dump, verbose=verbose)
+            out = self.invoke_tvmc_compile(out_path, dump=dump, verbose=verbose)
             mlf_path = Path(temp_dir) / "mlf"
             tarfile.open(out_path).extractall(mlf_path)
             # with open(mlf_path / "metadata.json") as handle:
@@ -120,6 +120,10 @@ class TVMRTBackend(TVMBackend):
                 artifacts.append(Artifact("rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
                 header_src = generate_wrapper_header()
                 artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
+            stdout_artifact = Artifact(
+                "tvmc_compile_out.log", content=out, fmt=ArtifactsFormat.TEXT
+            )  # TODO: rename to tvmrt_out.log?
+            artifacts.append(stdout_artifact)
 
         # prepare -> common?
         # invoke_tvmc -> common?

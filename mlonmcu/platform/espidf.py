@@ -247,15 +247,17 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             "set-target",
             target.name,
         ]
-        self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
+        out = self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
+        return out
 
     def get_idf_cmake_args(self):
         cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
         return [f"-D{key}={value}" for key, value in cmake_defs.items()]
 
     def compile(self, target, src=None, num=1):
+        out = ""
         # TODO: build with cmake options
-        self.prepare(target, src, num=num)
+        out += self.prepare(target, src, num=num)
         # TODO: support self.num_threads (e.g. patch esp-idf)
         idfArgs = [
             "-C",
@@ -263,11 +265,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             *self.get_idf_cmake_args(),
             "build",
         ]
-        self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
+        out += self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
+        return out
 
     def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
         artifacts = []
-        self.compile(target, src=src, num=num)
+        out = self.compile(target, src=src, num=num)
         elf_name = self.project_name + ".elf"
         elf_file = self.project_dir / "build" / elf_name
         # TODO: just use path instead of raw data?
@@ -284,6 +287,10 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
         metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
         artifacts.append(metrics_artifact)
+        stdout_artifact = Artifact(
+            "espidf_out.log", content=out, fmt=ArtifactsFormat.TEXT  # TODO: split into one file per command
+        )  # TODO: rename to tvmaot_out.log?
+        artifacts.append(stdout_artifact)
         self.artifacts = artifacts
 
     def get_idf_serial_args(self):

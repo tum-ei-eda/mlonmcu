@@ -164,9 +164,9 @@ class Session:
         stage_failures = {}
         worker_run_idx = []
 
-        def _init_progress(pbar, total, msg="Processing..."):
+        def _init_progress(total, msg="Processing..."):
             """Helper function to initialize a progress bar for the session."""
-            pbar = tqdm(
+            return tqdm(
                 total=total,
                 desc=msg,
                 ncols=100,
@@ -183,7 +183,7 @@ class Session:
             if pbar:
                 pbar.close()
 
-        def _process(run, until, skip):
+        def _process(pbar, run, until, skip):
             """Helper function to invoke the run."""
             run.process(until=until, skip=skip, export=export)
             if progress:
@@ -227,11 +227,11 @@ class Session:
         with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
             if per_stage:
                 if progress:
-                    _init_progress(pbar2, len(used_stages), msg="Processing stages")
+                    pbar2 = _init_progress(len(used_stages), msg="Processing stages")
                 for stage in used_stages:
                     run_stage = RunStage(stage).name
                     if progress:
-                        _init_progress(pbar, len(self.runs), msg=f"Processing stage {run_stage}")
+                        pbar = _init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
                     else:
                         logger.info("%s Processing stage %s", self.prefix, run_stage)
                     for i, run in enumerate(self.runs):
@@ -254,7 +254,7 @@ class Session:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             worker_run_idx.append(i)
-                            workers.append(executor.submit(_process, run, until=stage, skip=skipped_stages))
+                            workers.append(executor.submit(_process, pbar, run, until=stage, skip=skipped_stages))
                     _join_workers(workers)
                     workers = []
                     worker_run_idx = []
@@ -264,7 +264,7 @@ class Session:
                     _close_progress(pbar2)
             else:
                 if progress:
-                    _init_progress(pbar, len(self.runs), msg="Processing all runs")
+                    pbar = _init_progress(len(self.runs), msg="Processing all runs")
                 else:
                     logger.info(self.prefix + "Processing all stages")
                 for i, run in enumerate(self.runs):
@@ -286,7 +286,7 @@ class Session:
                                 cpu_count,
                             )
                     worker_run_idx.append(i)
-                    workers.append(executor.submit(_process, run, until=until, skip=skipped_stages))
+                    workers.append(executor.submit(_process, pbar, run, until=until, skip=skipped_stages))
                 _join_workers(workers)
         if num_failures == 0:
             logger.info("All runs completed successfuly!")

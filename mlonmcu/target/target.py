@@ -133,7 +133,7 @@ class Target:
             # Alternative: artifact = Artifact("metrics.csv", data=df/dict, fmt=ArtifactFormat.DATA)
             artifacts.append(artifact)
         stdout_artifact = Artifact(
-            f"{self.name}_out.log", content=out, fmt=ArtifactsFormat.TEXT
+            f"{self.name}_out.log", content=out, fmt=ArtifactFormat.TEXT
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
         self.artifacts = artifacts

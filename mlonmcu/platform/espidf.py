@@ -288,7 +288,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
         artifacts.append(metrics_artifact)
         stdout_artifact = Artifact(
-            "espidf_out.log", content=out, fmt=ArtifactsFormat.TEXT  # TODO: split into one file per command
+            "espidf_out.log", content=out, fmt=ArtifactFormat.TEXT  # TODO: split into one file per command
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
         self.artifacts = artifacts

@@ -170,7 +170,7 @@ class TVMAOTBackend(TVMBackend):
                 header_src = generate_wrapper_header()
                 artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
             stdout_artifact = Artifact(
-                "tvmc_compile_out.log", content=out, fmt=ArtifactsFormat.TEXT
+                "tvmc_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
         # assert self.target

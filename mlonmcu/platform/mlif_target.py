@@ -97,10 +97,10 @@ def create_mlif_target(name, platform, base=Target):
             return super().exec(program, *args, cwd=cwd, **kwargs)
 
         def get_metrics(self, elf, directory):
-            metrics = super().get_metrics(elf, directory)
+            metrics, out = super().get_metrics(elf, directory)
             if self.platform.validate_outputs:
                 metrics.add("Validation", self.validation_result)
-            return metrics
+            return metrics, out
 
         def get_platform_defs(self, platform):
             ret = super().get_platform_defs(platform)

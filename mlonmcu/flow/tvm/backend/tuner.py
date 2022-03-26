@@ -283,7 +283,7 @@ class TVMTuner:
 
         if self.enable:
             stdout_artifact = Artifact(
-                "tvmc_tune_out.log", content=out, fmt=ArtifactsFormat.TEXT
+                "tvmc_tune_out.log", content=out, fmt=ArtifactFormat.TEXT
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
 

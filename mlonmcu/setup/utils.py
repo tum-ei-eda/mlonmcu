@@ -250,7 +250,7 @@ def make(*args, threads=multiprocessing.cpu_count(), use_ninja=False, cwd=None, 
     tool = "ninja" if use_ninja else "make"
     extraArgs.append("-j" + str(threads))
     cmd = [tool] + extraArgs + list(args)
-    exec_getout(*cmd, cwd=cwd, print_output=False, **kwargs)
+    return exec_getout(*cmd, cwd=cwd, print_output=False, **kwargs)
 
 
 def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
@@ -264,7 +264,7 @@ def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
     if use_ninja:
         extraArgs.append("-GNinja")
     cmd = ["cmake", str(src)] + extraArgs + list(args)
-    exec_getout(*cmd, cwd=cwd, print_output=False, **kwargs)
+    return exec_getout(*cmd, cwd=cwd, print_output=False, **kwargs)
 
 
 # def move(a, b):  # TODO: make every utility compatible with Paths!

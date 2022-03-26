@@ -75,7 +75,7 @@ class TFLMCBackend(TFLiteBackend):
                 with open(Path(tmpdirname) / filename, "r") as handle:
                     content = handle.read()
                     artifacts.append(Artifact(filename, content=content, fmt=ArtifactFormat.SOURCE))
-            stdout_artifact = Artifact("tflmc_out.log", content=out, fmt=ArtifactsFormat.TEXT)
+            stdout_artifact = Artifact("tflmc_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
 
         self.artifacts = artifacts

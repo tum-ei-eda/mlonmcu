@@ -190,7 +190,7 @@ class TVMBackend(Backend):
             pre = ["-m", "tvm.driver.tvmc"]
         else:
             pre = [self.tvmc_custom_script]
-        utils.python(*pre, command, *args, live=verbose, env=env)
+        return utils.python(*pre, command, *args, live=verbose, env=env)
 
     def invoke_tvmc_compile(self, out, dump=None, verbose=False):
         args = self.get_tvmc_compile_args()
@@ -198,7 +198,7 @@ class TVMBackend(Backend):
         if dump:
             assert isinstance(dump, list)
             args.extend(["--dump-code", ",".join(dump)])
-        self.invoke_tvmc("compile", *args, verbose=verbose)
+        return self.invoke_tvmc("compile", *args, verbose=verbose)
 
     # def __init_subclass__(cls, **kwargs):
     #     super().__init_subclass__(**kwargs)

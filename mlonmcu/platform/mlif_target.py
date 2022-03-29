@@ -76,12 +76,13 @@ def create_mlif_target(name, platform, base=Target):
             self.platform = platform
             self.validation_result = None
 
-        def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
+        def get_metrics(self, elf, directory, handle_exit=None):
+
             # This is wrapper around the original exec function to catch special return codes thrown by the inout data
             # feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))
-            if self.platform.validate_outputs:
+            if self.platform.validate_outputs and handle_exit is None:
 
-                def handle_exit(code):
+                def _handle_exit(code):
                     if code == 0:
                         self.validation_result = True
                     else:
@@ -93,11 +94,10 @@ def create_mlif_target(name, platform, base=Target):
                                 code = 0
                     return code
 
-                kwargs["handle_exit"] = handle_exit
-            return super().exec(program, *args, cwd=cwd, **kwargs)
+                handle_exit = _handle_exit
 
-        def get_metrics(self, elf, directory):
-            metrics, out = super().get_metrics(elf, directory)
+            metrics, out = super().get_metrics(elf, directory, handle_exit=handle_exit)
+
             if self.platform.validate_outputs:
                 metrics.add("Validation", self.validation_result)
             return metrics, out

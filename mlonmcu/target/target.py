@@ -108,13 +108,15 @@ class Target:
         """Use target to inspect a executable"""
         return execute(self.inspect_program, program, *self.inspect_program_args, *args, **kwargs)
 
-    def get_metrics(self, elf, directory):
+    def get_metrics(self, elf, directory, handle_exit=None):
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
         if self.print_outputs:
-            out = self.exec(elf, cwd=directory, live=True)
+            out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
         else:
-            out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
+            out = self.exec(
+                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+            )
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time

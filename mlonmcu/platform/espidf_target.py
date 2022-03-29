@@ -87,11 +87,13 @@ def create_espidf_target(name, platform, base=Target):
                 time_us = int(float(cpu_time_us.group(1)))
             return cycles, time_us
 
-        def get_metrics(self, elf, directory):
+        def get_metrics(self, elf, directory, handle_exit=None):
             if self.print_outputs:
-                out = self.exec(elf, cwd=directory, live=True)
+                out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
             else:
-                out = self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
+                out = self.exec(
+                    elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                )
             cycles, time_us = self.parse_stdout(out)
 
             metrics = Metrics()

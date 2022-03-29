@@ -162,11 +162,13 @@ class EtissPulpinoTarget(RISCVTarget):
             )
         return ret
 
-    def parse_stdout(self, out):
+    def parse_stdout(self, out, handle_exit=None):
         exit_match = re.search(r"exit called with code: (.*)", out)
         if exit_match:
-            exit_code = exit_match.group(1)
-            if int(exit_code) != 0:
+            exit_code = int(exit_match.group(1))
+            if handle_exit is not None:
+                exit_code = handle_exit(exit_code)
+            if exit_code != 0:
                 logger.error("Execution failed - " + out)
                 raise RuntimeError(f"unexpected exit code: {exit_code}")
         error_match = re.search(r"ETISS: Error: (.*)", out)
@@ -189,7 +191,7 @@ class EtissPulpinoTarget(RISCVTarget):
 
         return cycles, mips
 
-    def get_metrics(self, elf, directory):
+    def get_metrics(self, elf, directory, handle_exit=None):
         out = ""
         if self.trace_memory:
             trace_file = os.path.join(directory, "dBusAccess.csv")
@@ -203,10 +205,12 @@ class EtissPulpinoTarget(RISCVTarget):
             os.remove(metrics_file)
 
         if self.print_outputs:
-            out += self.exec(elf, cwd=directory, live=True)
+            out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
         else:
-            out += self.exec(elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
-        total_cycles, mips = self.parse_stdout(out)
+            out += self.exec(
+                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+            )
+        total_cycles, mips = self.parse_stdout(out, handle_exit=handle_exit)
 
         get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")

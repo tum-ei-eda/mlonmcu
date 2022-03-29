@@ -103,12 +103,13 @@
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">signal</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">serial</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">distutils.util</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">pkg_resources</span>
+
+<span class="kn">import</span> <span class="nn">serial</span>
 <span class="kn">import</span> <span class="nn">psutil</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
@@ -326,15 +327,17 @@
             <span class="s2">&quot;set-target&quot;</span><span class="p">,</span>
             <span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span></div>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.get_idf_cmake_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_cmake_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_idf_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cmake_defs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;CMAKE_BUILD_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;Debug&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="k">else</span> <span class="s2">&quot;Release&quot;</span><span class="p">}</span>
         <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-D</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cmake_defs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.compile"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="c1"># TODO: build with cmake options</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
         <span class="c1"># TODO: support self.num_threads (e.g. patch esp-idf)</span>
         <span class="n">idfArgs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
@@ -342,11 +345,12 @@
             <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_cmake_args</span><span class="p">(),</span>
             <span class="s2">&quot;build&quot;</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span></div>
+        <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
         <span class="n">elf_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;.elf&quot;</span>
         <span class="n">elf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">elf_name</span>
         <span class="c1"># TODO: just use path instead of raw data?</span>
@@ -363,6 +367,10 @@
         <span class="n">content</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># TODO: store df instead?</span>
         <span class="n">metrics_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;metrics.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics_artifact</span><span class="p">)</span>
+        <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+            <span class="s2">&quot;espidf_out.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>  <span class="c1"># TODO: split into one file per command</span>
+        <span class="p">)</span>  <span class="c1"># TODO: rename to tvmaot_out.log?</span>
+        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.get_idf_serial_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_serial_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_idf_serial_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

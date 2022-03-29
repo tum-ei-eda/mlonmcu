@@ -96,29 +96,32 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Definition of a MLonMCU Run which represents a set of benchmarks in a session.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">concurrent.futures</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
-<span class="kn">from</span> <span class="nn">.run</span> <span class="kn">import</span> <span class="n">RunStage</span>
 
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">Run</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.report</span> <span class="kn">import</span> <span class="n">Report</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
 
 <span class="kn">from</span> <span class="nn">.postprocess.postprocess</span> <span class="kn">import</span> <span class="n">SessionPostprocess</span>
+<span class="kn">from</span> <span class="nn">.run</span> <span class="kn">import</span> <span class="n">RunStage</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>  <span class="c1"># TODO: rename to get_mlonmcu_logger</span>
 
 
-<div class="viewcode-block" id="SessionStatus"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.SessionStatus">[docs]</a><span class="k">class</span> <span class="nc">SessionStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="SessionStatus"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.SessionStatus">[docs]</a><span class="k">class</span> <span class="nc">SessionStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>  <span class="c1"># TODO: remove?</span>
+    <span class="sd">&quot;&quot;&quot;Status type for a session.&quot;&quot;&quot;</span>
+
     <span class="n">CREATED</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">OPEN</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">CLOSED</span> <span class="o">=</span> <span class="mi">2</span>
@@ -126,6 +129,7 @@
 
 
 <div class="viewcode-block" id="Session"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session">[docs]</a><span class="k">class</span> <span class="nc">Session</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A session which wraps around multiple runs in a context.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;report_fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
@@ -162,13 +166,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get prefix property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[session-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">report_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get report_fmt property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;report_fmt&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="Session.create_run"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.create_run">[docs]</a>    <span class="k">def</span> <span class="nf">create_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Factory method to create a run and add it to this session.&quot;&quot;&quot;</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating a new run with id </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
         <span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -184,12 +191,14 @@
     <span class="c1">#      pass</span>
 
 <div class="viewcode-block" id="Session.get_reports"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.get_reports">[docs]</a>    <span class="k">def</span> <span class="nf">get_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a full report which includes all runs in this session.&quot;&quot;&quot;</span>
         <span class="n">reports</span> <span class="o">=</span> <span class="p">[</span><span class="n">run</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">]</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
         <span class="n">merged</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">reports</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">merged</span></div>
 
 <div class="viewcode-block" id="Session.enumerate_runs"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.enumerate_runs">[docs]</a>    <span class="k">def</span> <span class="nf">enumerate_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update run indices.&quot;&quot;&quot;</span>
         <span class="c1"># Find start index</span>
         <span class="n">max_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
@@ -199,11 +208,12 @@
         <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">run</span><span class="o">.</span><span class="n">archived</span><span class="p">:</span>
                 <span class="n">run</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">run_idx</span>
-                <span class="n">run</span><span class="o">.</span><span class="n">_init_directory</span><span class="p">()</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">init_directory</span><span class="p">()</span>
                 <span class="n">run_idx</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_run_idx</span> <span class="o">=</span> <span class="n">run_idx</span></div>
 
 <div class="viewcode-block" id="Session.request_run_idx"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.request_run_idx">[docs]</a>    <span class="k">def</span> <span class="nf">request_run_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return next free run index.&quot;&quot;&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_run_idx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_run_idx</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="c1"># TODO: find a better approach for this</span>
@@ -218,6 +228,7 @@
         <span class="n">export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process a runs in this session until a given stage.&quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: Add configurable callbacks for stage/run complete</span>
 
@@ -226,16 +237,16 @@
         <span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># results = []</span>
         <span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">pbar</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">pbar2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">pbar</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Outer progress bar</span>
+        <span class="n">pbar2</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Inner progress bar</span>
         <span class="n">num_runs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span>
         <span class="n">num_failures</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">stage_failures</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">worker_run_idx</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">def</span> <span class="nf">_init_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing...&quot;</span><span class="p">):</span>
-            <span class="k">global</span> <span class="n">pbar</span>
-            <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;Helper function to initialize a progress bar for the session.&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span>
                 <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span>
                 <span class="n">desc</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
                 <span class="n">ncols</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
@@ -243,39 +254,23 @@
                 <span class="n">leave</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_update_progress</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-            <span class="k">global</span> <span class="n">pbar</span>
+        <span class="k">def</span> <span class="nf">_update_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Helper function to update the progress bar for the session.&quot;&quot;&quot;</span>
             <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_close_progress</span><span class="p">():</span>
-            <span class="k">global</span> <span class="n">pbar</span>
+        <span class="k">def</span> <span class="nf">_close_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Helper function to close the session progressbar, if available.&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
                 <span class="n">pbar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="k">def</span> <span class="nf">_init_progress2</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing...&quot;</span><span class="p">):</span>
-            <span class="k">global</span> <span class="n">pbar2</span>
-            <span class="n">pbar2</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span>
-                <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span>
-                <span class="n">desc</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
-                <span class="n">ncols</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-                <span class="n">bar_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{l_bar}{bar}</span><span class="s2">| </span><span class="si">{n_fmt}</span><span class="s2">/</span><span class="si">{total_fmt}</span><span class="s2"> [</span><span class="si">{elapsed}</span><span class="s2">s]&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">_update_progress2</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-            <span class="k">global</span> <span class="n">pbar2</span>
-            <span class="n">pbar2</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">_close_progress2</span><span class="p">():</span>
-            <span class="k">global</span> <span class="n">pbar2</span>
-            <span class="k">if</span> <span class="n">pbar2</span><span class="p">:</span>
-                <span class="n">pbar2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-        <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="p">):</span>
-            <span class="n">run</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skip</span><span class="p">,</span> <span class="n">export</span><span class="o">=</span><span class="n">export</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="n">pbar</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Helper function to invoke the run.&quot;&quot;&quot;</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skip</span><span class="p">,</span> <span class="n">export</span><span class="o">=</span><span class="n">export</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                <span class="n">_update_progress</span><span class="p">()</span>
+                <span class="n">_update_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">_join_workers</span><span class="p">(</span><span class="n">workers</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Helper function to collect all worker threads.&quot;&quot;&quot;</span>
             <span class="k">nonlocal</span> <span class="n">num_failures</span>
             <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">workers</span><span class="p">):</span>
@@ -294,10 +289,11 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">stage_failures</span><span class="p">[</span><span class="n">failed_stage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">run_index</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                <span class="n">_close_progress</span><span class="p">()</span>
+                <span class="n">_close_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">results</span>
 
         <span class="k">def</span> <span class="nf">_used_stages</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">until</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Determines the stages which are used by at least one run.&quot;&quot;&quot;</span>
             <span class="n">used</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">stage_index</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">until</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]:</span>
                 <span class="n">stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">stage_index</span><span class="p">)</span>
@@ -311,13 +307,13 @@
         <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">per_stage</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                    <span class="n">_init_progress2</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">used_stages</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing stages&quot;</span><span class="p">)</span>
+                    <span class="n">pbar2</span> <span class="o">=</span> <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">used_stages</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing stages&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">used_stages</span><span class="p">:</span>
                     <span class="n">run_stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
                     <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                        <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Processing stage </span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">pbar</span> <span class="o">=</span> <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Processing stage </span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Processing stage </span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> Processing stage </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">run_stage</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">):</span>
                         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                             <span class="n">total_threads</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">num_workers</span><span class="p">)</span>
@@ -328,25 +324,27 @@
                                 <span class="k">if</span> <span class="n">pbar2</span><span class="p">:</span>
                                     <span class="nb">print</span><span class="p">()</span>
                                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                    <span class="sa">f</span><span class="s2">&quot;The chosen configuration leads to a maximum of </span><span class="si">{</span><span class="n">total_threads</span><span class="si">}</span><span class="s2"> threads being&quot;</span>
-                                    <span class="o">+</span> <span class="s2">&quot; processed which heavily exceeds the available CPU resources (</span><span class="si">{cpu_count}</span><span class="s2">).&quot;</span>
-                                    <span class="o">+</span> <span class="s2">&quot; It is recommended to lower the value of &#39;mlif.num_threads&#39;!&quot;</span>
+                                    <span class="s2">&quot;The chosen configuration leads to a maximum of </span><span class="si">%d</span><span class="s2"> threads being&quot;</span>
+                                    <span class="o">+</span> <span class="s2">&quot; processed which heavily exceeds the available CPU resources (</span><span class="si">%d</span><span class="s2">).&quot;</span>
+                                    <span class="o">+</span> <span class="s2">&quot; It is recommended to lower the value of &#39;mlif.num_threads&#39;!&quot;</span><span class="p">,</span>
+                                    <span class="n">total_threads</span><span class="p">,</span>
+                                    <span class="n">cpu_count</span><span class="p">,</span>
                                 <span class="p">)</span>
                         <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">failing</span><span class="p">:</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skiping stage &#39;</span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&#39; for failed run&quot;</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Skiping stage &#39;</span><span class="si">%s</span><span class="s2">&#39; for failed run&quot;</span><span class="p">,</span> <span class="n">run_stage</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">worker_run_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                            <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_process</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">stage</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skipped_stages</span><span class="p">))</span>
+                            <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_process</span><span class="p">,</span> <span class="n">pbar</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">stage</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skipped_stages</span><span class="p">))</span>
                     <span class="n">_join_workers</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span>
                     <span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">worker_run_idx</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                        <span class="n">_update_progress2</span><span class="p">()</span>
+                        <span class="n">_update_progress</span><span class="p">(</span><span class="n">pbar2</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                    <span class="n">_close_progress2</span><span class="p">()</span>
+                    <span class="n">_close_progress</span><span class="p">(</span><span class="n">pbar2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                    <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing all runs&quot;</span><span class="p">)</span>
+                    <span class="n">pbar</span> <span class="o">=</span> <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing all runs&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing all stages&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">):</span>
@@ -361,12 +359,14 @@
                             <span class="k">if</span> <span class="n">pbar2</span><span class="p">:</span>
                                 <span class="nb">print</span><span class="p">()</span>
                             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;The chosen configuration leads to a maximum of </span><span class="si">{</span><span class="n">total_threads</span><span class="si">}</span><span class="s2"> being processed which&quot;</span>
-                                <span class="o">+</span> <span class="s2">&quot; heavily exceeds the available CPU resources (cpu_count).&quot;</span>
-                                <span class="o">+</span> <span class="s2">&quot; It is recommended to lower the value of &#39;mlif.num_threads&#39;!&quot;</span>
+                                <span class="s2">&quot;The chosen configuration leads to a maximum of </span><span class="si">%d</span><span class="s2"> being processed which&quot;</span>
+                                <span class="o">+</span> <span class="s2">&quot; heavily exceeds the available CPU resources (</span><span class="si">%d</span><span class="s2">).&quot;</span>
+                                <span class="o">+</span> <span class="s2">&quot; It is recommended to lower the value of &#39;mlif.num_threads&#39;!&quot;</span><span class="p">,</span>
+                                <span class="n">total_threads</span><span class="p">,</span>
+                                <span class="n">cpu_count</span><span class="p">,</span>
                             <span class="p">)</span>
                     <span class="n">worker_run_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                    <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_process</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skipped_stages</span><span class="p">))</span>
+                    <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_process</span><span class="p">,</span> <span class="n">pbar</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skipped_stages</span><span class="p">))</span>
                 <span class="n">_join_workers</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num_failures</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All runs completed successfuly!&quot;</span><span class="p">)</span>
@@ -374,7 +374,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;All runs have failed to complete!&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">num_success</span> <span class="o">=</span> <span class="n">num_runs</span> <span class="o">-</span> <span class="n">num_failures</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num_success</span><span class="si">}</span><span class="s2"> out or </span><span class="si">{</span><span class="n">num_runs</span><span class="si">}</span><span class="s2"> runs completed successfully!&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> out or </span><span class="si">%d</span><span class="s2"> runs completed successfully!&quot;</span><span class="p">,</span> <span class="n">num_success</span><span class="p">,</span> <span class="n">num_runs</span><span class="p">)</span>
             <span class="n">summary</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2">: </span><span class="se">\t</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2"> failed run(s): &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">failed</span><span class="p">])</span>
@@ -382,7 +382,7 @@
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
                 <span class="p">]</span>
             <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Summary:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">summary</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Summary:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
 
         <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reports</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Postprocessing session report&quot;</span><span class="p">)</span>
@@ -409,11 +409,12 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Done processing runs&quot;</span><span class="p">)</span>
         <span class="n">print_report</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Report:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Report:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">num_failures</span> <span class="o">==</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="Session.discard"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Discard a run and remove its directory.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Cleaning up discarded session&quot;</span><span class="p">)</span>
@@ -424,13 +425,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get active property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">SessionStatus</span><span class="o">.</span><span class="n">OPEN</span>
 
 <div class="viewcode-block" id="Session.open"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open this run.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SessionStatus</span><span class="o">.</span><span class="n">OPEN</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opened_at</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Session.close"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close this run.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SessionStatus</span><span class="o">.</span><span class="n">ERROR</span>
         <span class="k">else</span><span class="p">:</span>

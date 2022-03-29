@@ -110,10 +110,12 @@
 </section>
 <section id="module-mlonmcu.session.postprocess.postprocess">
 <span id="mlonmcu-session-postprocess-postprocess-module"></span><h2>mlonmcu.session.postprocess.postprocess module<a class="headerlink" href="#module-mlonmcu.session.postprocess.postprocess" title="Permalink to this headline"></a></h2>
+<p>Definitions of base classes for MLonMCU postprocesses.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocess.Postprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocess.</span></span><span class="sig-name descname"><span class="pre">Postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocess.html#Postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocess.Postprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract postprocess.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocess.Postprocess.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.session.postprocess.postprocess.Postprocess.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -132,7 +134,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocess.Postprocess.process_features">
 <span class="sig-name descname"><span class="pre">process_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocess.html#Postprocess.process_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocess.Postprocess.process_features" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Utility which handles postprocess_features.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -140,10 +143,12 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocess.RunPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocess.</span></span><span class="sig-name descname"><span class="pre">RunPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocess.html#RunPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocess.RunPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.Postprocess" title="mlonmcu.session.postprocess.postprocess.Postprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.Postprocess</span></code></a></p>
+<p>Run postprocess which is applied to a single run.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocess.RunPostprocess.post_run">
 <span class="sig-name descname"><span class="pre">post_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocess.html#RunPostprocess.post_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocess.RunPostprocess.post_run" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a run.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -151,20 +156,24 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocess.SessionPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocess.</span></span><span class="sig-name descname"><span class="pre">SessionPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocess.html#SessionPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.Postprocess" title="mlonmcu.session.postprocess.postprocess.Postprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.Postprocess</span></code></a></p>
+<p>Session postprocess which is applied to multiple runs at the end of a session. (multi-row)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocess.SessionPostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocess.html#SessionPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess.post_session" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-mlonmcu.session.postprocess.postprocesses">
 <span id="mlonmcu-session-postprocess-postprocesses-module"></span><h2>mlonmcu.session.postprocess.postprocesses module<a class="headerlink" href="#module-mlonmcu.session.postprocess.postprocesses" title="Permalink to this headline"></a></h2>
+<p>Collection of (example) postprocesses integrated in MLonMCU.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">AverageCyclesPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#AverageCyclesPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a>, <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.RunPostprocess" title="mlonmcu.session.postprocess.postprocess.RunPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.RunPostprocess</span></code></a></p>
+<p>Postprocess which averages the cycle counts of multiple runs into a single row.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'merge_rows':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -173,17 +182,20 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess.merge_rows">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">merge_rows</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess.merge_rows" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get merge_rows property.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess.post_run">
 <span class="sig-name descname"><span class="pre">post_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#AverageCyclesPostprocess.post_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess.post_run" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a run.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#AverageCyclesPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AverageCyclesPostprocess.post_session" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -191,10 +203,12 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.Bytes2kBPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">Bytes2kBPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#Bytes2kBPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.Bytes2kBPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a></p>
+<p>Postprocess which can be used to scale the memory related columns from Bytes to KiloBytes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.Bytes2kBPostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#Bytes2kBPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.Bytes2kBPostprocess.post_session" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -202,10 +216,12 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">Config2ColumnsPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#Config2ColumnsPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a></p>
+<p>Postprocess which can be used to transform (explode) the ‘Config’ Column in a dataframe for easier filtering.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#Config2ColumnsPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess.post_session" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -213,25 +229,24 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">DetailedCyclesPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#DetailedCyclesPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a></p>
+<p>Postprocess automatically determines the actual setup and inference cycles if enough information is available.</p>
+<p>Condition: there exists at least 2 runs which only differ in their <cite>Num</cite> setting.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'warn':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.DEFAULTS" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.get_detailed_cycles">
-<span class="sig-name descname"><span class="pre">get_detailed_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_cycles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_cycles</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#DetailedCyclesPostprocess.get_detailed_cycles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.get_detailed_cycles" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'warn':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#DetailedCyclesPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.post_session" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.warn">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">warn</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.DetailedCyclesPostprocess.warn" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get warn property.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -239,10 +254,13 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">Features2ColumnsPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#Features2ColumnsPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a></p>
+<p>Postprocess which can be used to transform (explode) the ‘Features’ Column
+in a dataframe for easier filtering.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#Features2ColumnsPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess.post_session" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -250,6 +268,7 @@
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">FilterColumnsPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#FilterColumnsPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a></p>
+<p>Postprocess which can be used to drop unwanted columns from a report.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'drop':</span> <span class="pre">None,</span> <span class="pre">'drop_const':</span> <span class="pre">False,</span> <span class="pre">'drop_nan':</span> <span class="pre">False,</span> <span class="pre">'keep':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.DEFAULTS" title="Permalink to this definition"></a></dt>
@@ -258,27 +277,32 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">drop</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get drop property.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop_const">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">drop_const</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop_const" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get drop_const property.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop_nan">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">drop_nan</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop_nan" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get drop_nan property.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.keep">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">keep</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.keep" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get keep property.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#FilterColumnsPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.post_session" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -295,19 +319,28 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.VisualizePostprocess.format">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.VisualizePostprocess.format" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get format property.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.VisualizePostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#VisualizePostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.VisualizePostprocess.post_session" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.get_detailed_cycles">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">get_detailed_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_cycles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_cycles</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#get_detailed_cycles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.get_detailed_cycles" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to split the total cycles of two runs into the setup and incoke cycles.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.match_rows">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">match_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#match_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.match_rows" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Helper function to group similar rows in a dataframe.</p>
+</dd></dl>
 
 </section>
 <section id="module-mlonmcu.session.postprocess">

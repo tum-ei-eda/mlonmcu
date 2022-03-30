@@ -101,6 +101,6 @@ def create_espidf_target(name, platform, base=Target):
             time_s = time_us / 1e6 if time_us is not None else time_us
             metrics.add("Runtime [s]", time_s)
 
-            return metrics
+            return metrics, out
 
     return EspIdfTarget

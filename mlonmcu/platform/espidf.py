@@ -293,12 +293,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         artifacts.append(stdout_artifact)
         self.artifacts = artifacts
 
-    def get_idf_serial_args(self):
+    def get_idf_serial_args(self, monitor=False):
         args = []
         if self.port:
             args.extend(["-p", self.port])
         if self.baud:
-            args.extend(["-b", self.baud])
+            args.extend(["-B" if monitor else "-b", self.baud])
         return args
 
     def flash(self, target, timeout=120):
@@ -374,7 +374,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     if not verbose and exit_code != 0:
                         logger.error(outStr)
                     assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                        exit_code, " ".join(list(map(str, args)))
+                        exit_code, cmd
                     )
                 except KeyboardInterrupt:
                     logger.debug("Interrupted subprocess. Sending SIGINT signal...")
@@ -391,7 +391,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 self.project_dir,
                 *self.get_idf_cmake_args(),
                 "monitor",
-                *self.get_idf_serial_args(),
+                *self.get_idf_serial_args(monitor=True),
             ]
             return _monitor_helper(
                 *idfArgs,

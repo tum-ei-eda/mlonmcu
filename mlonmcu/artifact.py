@@ -48,6 +48,27 @@ class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
     BIN = 11
 
 
+def lookup_artifacts(artifacts, name=None, fmt=None, flags=None, first_only=False):
+    """Utility to get a matching artifact for a given set of properties."""
+    matches = []
+    # Warning: if neither name, fmt nor flags is provided, the first artifact (multiple=False) or all (multiple=True) are returned
+    for artifact in artifacts:
+        valid = True
+        if name is not None and artifact.name != name:
+            valid = False
+        if fmt is not None and artifact.fmt != fmt:
+            valid = False
+        if flags is not None and not all(
+            flag in artifact.flags for flag in flags
+        ):  # A valid artifact may have more flags than specified
+            valid = False
+        if valid:
+            matches.append(artifact)
+    if len(matches) > 0 and first_only:
+        matches = [matches[0]]
+    return matches
+
+
 class Artifact:
     """Artifact type."""
 
@@ -59,6 +80,7 @@ class Artifact:
         data=None,
         raw=None,
         fmt=ArtifactFormat.UNKNOWN,
+        flags=None,
         archive=False,
         optional=False,
     ):
@@ -70,9 +92,13 @@ class Artifact:
         self.data = data
         self.raw = raw
         self.fmt = fmt
+        self.flags = flags if flags is not None else {}
         self.archive = archive
         self.optional = optional
         self.validate()
+
+    def __repr__(self):
+        return f"Artifact({self.name}, fmt={self.fmt}, flags={self.flags})"
 
     @property
     def exported(self):

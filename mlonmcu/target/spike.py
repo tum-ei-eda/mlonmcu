@@ -70,7 +70,7 @@ class SpikeTarget(RISCVTarget):
         spike_args = []
 
         if self.enable_vext:
-            if "c" not in self.arch:
+            if "v" not in self.arch[2:]:
                 self.config["arch"] += "v"
 
         spike_args.append(f"--isa={self.arch}")

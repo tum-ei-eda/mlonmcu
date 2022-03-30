@@ -20,14 +20,6 @@ mlonmcu.models.frontend module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.models.frontends module
--------------------------------
-
-.. automodule:: mlonmcu.models.frontends
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.models.group module
 ---------------------------
 

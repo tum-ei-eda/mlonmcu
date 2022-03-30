@@ -18,7 +18,7 @@
 #
 import sys
 
-from .backend import TFLiteBackend
+from .backend import TFLMBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -294,12 +294,12 @@ void {prefix}_invoke() {{
             return wrapper_content
 
 
-class TFLMIBackend(TFLiteBackend):
+class TFLMIBackend(TFLMBackend):
 
     name = "tflmi"
 
     DEFAULTS = {
-        **TFLiteBackend.DEFAULTS,
+        **TFLMBackend.DEFAULTS,
         "arena_size": 2**20,  # 1 MB
         "debug_arena": False,
         "ops": [],
@@ -309,7 +309,7 @@ class TFLMIBackend(TFLiteBackend):
         "legacy": False,
     }
 
-    REQUIRED = TFLiteBackend.REQUIRED + []
+    REQUIRED = TFLMBackend.REQUIRED + []
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(features=features, config=config, context=context)

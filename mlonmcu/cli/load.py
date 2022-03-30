@@ -19,8 +19,6 @@
 """Command line subcommand for the load stage."""
 
 import mlonmcu
-import mlonmcu.flow.tflite
-import mlonmcu.flow.tvm
 from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,

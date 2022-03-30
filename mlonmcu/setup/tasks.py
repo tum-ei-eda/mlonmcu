@@ -37,7 +37,7 @@ Tasks = TaskFactory()
 
 
 def _validate_tensorflow(context: MlonMcuContext, params=None):
-    return context.environment.has_framework("tflite")
+    return context.environment.has_framework("tflm")
 
 
 @Tasks.provides(["tf.src_dir"])

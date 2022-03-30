@@ -59,13 +59,13 @@ repos:
     ref: main
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
-    ref: release/v4.3
+    ref: release/v4.4
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
 frameworks:
   default: tvm
-  tflite:
+  tflm:
     enabled: true
     backends:
       default: tflmi

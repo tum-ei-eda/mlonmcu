@@ -151,7 +151,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature):
         return str(self.config["muriscvnn.inc_dir"])
 
     def add_framework_config(self, framework, config):
-        assert framework == "tflite", f"Unsupported feature '{self.name}' for framework '{framework}'"
+        assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
         if f"{framework}.optimized_kernel" in config and config[f"{framework}.optimized_kernel"] not in [
             None,
             "cmsis_nn",
@@ -191,7 +191,7 @@ class Cmsisnn(SetupFeature, FrameworkFeature):
         return str(self.config["cmsisnn.dir"])
 
     def add_framework_config(self, framework, config):
-        assert framework == "tflite", f"Unsupported feature '{self.name}' for framework '{framework}'"
+        assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
         if f"{framework}.optimized_kernel" in config and config[f"{framework}.optimized_kernel"] not in [
             None,
             "cmsis_nn",
@@ -402,7 +402,7 @@ class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature):
         raise NotImplementedError
 
     def get_frontend_config(self, frontend):
-        assert frontend in ["tflite"], f"Unsupported feature '{self.name} for frontend '{frontend}''"
+        assert frontend in ["tflm"], f"Unsupported feature '{self.name} for frontend '{frontend}''"
         return {f"{frontend}.use_packed_weights": self.enabled}
 
     def get_backend_config(self, backend):
@@ -420,7 +420,7 @@ class Packing(FrontendFeature):
         super().__init__("packing", config=config)
 
     def get_frontend_config(self, frontend):
-        assert frontend in ["tflite"], f"Unsupported feature '{self.name} for frontend '{frontend}''"
+        assert frontend in ["tflm"], f"Unsupported feature '{self.name} for frontend '{frontend}''"
         raise NotImplementedError
         return {f"{frontend}.pack_weights": self.enabled}
 

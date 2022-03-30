@@ -20,7 +20,7 @@ import sys
 import os
 import tempfile
 from pathlib import Path
-from .backend import TFLiteBackend
+from .backend import TFLMBackend
 import mlonmcu.setup.utils as utils
 from mlonmcu.flow.backend import main
 from mlonmcu.logging import get_logger
@@ -29,20 +29,20 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 logger = get_logger()
 
 
-class TFLMCBackend(TFLiteBackend):
+class TFLMCBackend(TFLMBackend):
 
     name = "tflmc"
 
     FEATURES = ["debug_arena"]
 
     DEFAULTS = {
-        **TFLiteBackend.DEFAULTS,
+        **TFLMBackend.DEFAULTS,
         "custom_ops": [],
         "registrations": {},
         "debug_arena": False,
     }
 
-    REQUIRED = TFLiteBackend.REQUIRED + ["tflmc.exe"]
+    REQUIRED = TFLMBackend.REQUIRED + ["tflmc.exe"]
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(features=features, config=config, context=context)

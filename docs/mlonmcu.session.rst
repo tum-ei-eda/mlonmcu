@@ -12,14 +12,6 @@ Subpackages
 Submodules
 ----------
 
-mlonmcu.session.progress module
--------------------------------
-
-.. automodule:: mlonmcu.session.progress
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.session.run module
 --------------------------
 

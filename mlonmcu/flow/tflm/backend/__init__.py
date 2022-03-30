@@ -16,8 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""TFLite framework module."""
+from .backend import TFLMBackend
+from .tflmc import TFLMCBackend
+from .tflmi import TFLMIBackend
 
-from .backend import TFLMIBackend, TFLMCBackend, TFLiteBackend
-
-__all__ = ["TFLMIBackend", "TFLMCBackend", "TFLiteBackend"]
+__all__ = ["TFLMBackend", "TFLMCBackend", "TFLMIBackend"]

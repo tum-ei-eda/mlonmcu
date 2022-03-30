@@ -20,14 +20,6 @@ mlonmcu.flow.tvm.framework module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.flow.tvm.tvm\_flow module
----------------------------------
-
-.. automodule:: mlonmcu.flow.tvm.tvm_flow
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

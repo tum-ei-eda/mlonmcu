@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   mlonmcu.flow.tflite
+   mlonmcu.flow.tflm
    mlonmcu.flow.tvm
 
 Submodules

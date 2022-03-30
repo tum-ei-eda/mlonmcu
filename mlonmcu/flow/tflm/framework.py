@@ -16,18 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Definitions for TFLiteFramework."""
+"""Definitions for TFLMFramework."""
 
 from pathlib import Path
 
 from mlonmcu.flow.framework import Framework
-from mlonmcu.flow.tflite import TFLiteBackend
+from mlonmcu.flow.tflm import TFLMBackend
 
 
-class TFLiteFramework(Framework):
-    """TFLite Framework specialization."""
+class TFLMFramework(Framework):
+    """TFLM Framework specialization."""
 
-    name = "tflite"
+    name = "tflm"
 
     FEATURES = ["muriscvnn", "cmsisnn"]
 
@@ -39,7 +39,7 @@ class TFLiteFramework(Framework):
 
     REQUIRED = ["tf.src_dir"]
 
-    backends = TFLiteBackend.registry
+    backends = TFLMBackend.registry
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)

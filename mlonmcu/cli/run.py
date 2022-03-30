@@ -26,10 +26,6 @@ from mlonmcu.cli.compile import (
 )
 from mlonmcu.session.run import RunStage
 
-# rom mlonmcu.flow.tflite.framework import TFLiteFramework
-# from mlonmcu.flow.tvm.framework import TVMFramework
-# from mlonmcu.cli.compile import handle as handle_compile
-
 
 def add_run_options(parser):
     add_compile_options(parser)

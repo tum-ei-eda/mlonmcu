@@ -19,8 +19,6 @@
 """Command line subcommand for the tune stage."""
 
 import mlonmcu
-import mlonmcu.flow.tflite
-import mlonmcu.flow.tvm
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.build import add_build_options, handle as handle_build
 from mlonmcu.session.run import RunStage

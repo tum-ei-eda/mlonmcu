@@ -20,8 +20,6 @@
 
 import mlonmcu
 from mlonmcu.flow import get_available_backend_names
-import mlonmcu.flow.tflite
-import mlonmcu.flow.tvm
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.load import handle as handle_load, add_load_options
 from mlonmcu.session.run import RunStage

@@ -119,7 +119,7 @@ def test_backend_tflmi(user_context, frontend_name, model_name, models_dir, feat
     df = report.df
     assert success
     assert len(df) == 1
-    assert df["Framework"][0] == "tflite"  # TODO: rename to tflm
+    assert df["Framework"][0] == "tflm"  # TODO: rename to tflm
     assert df["Backend"][0] == backend_name
     # TODO: check artifacts
 
@@ -151,7 +151,7 @@ def test_backend_tflmc(user_context, frontend_name, model_name, models_dir, feat
     df = report.df
     assert success
     assert len(df) == 1
-    assert df["Framework"][0] == "tflite"  # TODO: rename to tflm
+    assert df["Framework"][0] == "tflm"  # TODO: rename to tflm
     assert df["Backend"][0] == backend_name
     # TODO: check artifacts
 

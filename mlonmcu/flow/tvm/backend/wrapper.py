@@ -141,6 +141,7 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size):
 #include <tvm/runtime/c_runtime_api.h>
 #include <tvm/runtime/crt/packed_func.h>
 #include <tvm/runtime/crt/crt.h>
+#include <tvm/runtime/crt/error_codes.h>
 #include <tvm/runtime/crt/graph_executor.h>
 #include <tvm/runtime/crt/page_allocator.h>
 #include "printing.h"
@@ -386,6 +387,7 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
 #include <stdarg.h>
 #include <dlpack/dlpack.h>
 #include "tvm/runtime/c_runtime_api.h"
+#include "tvm/runtime/crt/error_codes.h"
 """
     if workspace_size > 0:
         includes += """

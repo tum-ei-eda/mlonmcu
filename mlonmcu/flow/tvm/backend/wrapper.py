@@ -386,7 +386,12 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
 #include <stdarg.h>
 #include <dlpack/dlpack.h>
 #include "tvm/runtime/c_runtime_api.h"
+"""
+    if workspace_size > 0:
+        includes += """
 #include "tvm/runtime/crt/stack_allocator.h"
+"""
+    includes += """
 #include "printing.h"
 """
 

@@ -34,17 +34,15 @@ void app_main(void)
 {
     printf("MLonMCU: START\n");
     uint64_t us_before = esp_timer_get_time();
+    esp_cpu_ccount_t cc_before = esp_cpu_get_ccount();
     mlif_run();
     uint64_t us_after = esp_timer_get_time();
     uint64_t us_diff = us_after - us_before;
-    int cpu_freq = esp_clk_cpu_freq();
-    uint64_t cycles_diff = (cpu_freq / 1000000) * us_diff;
-    // printf("CPU Frequency: %d\n", cpu_freq);
+    esp_cpu_ccount_t cc_after = esp_cpu_get_ccount();
     // Warning:
     // 32 bit printf only for newlib nano...
-    // Reason for dividing by 10 is to increase the overflow point for a 160MHz clock from ~26sec to ~260sec
-     printf("Total Time: %u us\n", (uint32_t)us_diff);
-    printf("Total Cycles: %u0\n", (uint32_t)(cycles_diff/10));
+    printf("Total Time: %u us\n", (uint32_t)us_diff);
+    printf("Total Cycles: %u\n", (uint32_t)(cc_after - cc_before));  // TODO: overflow possible?
     printf("MLonMCU: STOP\n");
     // printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
     fflush(stdout);

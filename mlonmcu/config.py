@@ -145,7 +145,8 @@ def resolve_required_config(
                     )
                 else:
                     raise RuntimeError(
-                        f"Dependency cache miss for required key '{key}' with flags {flags}. Try re-running `mlonmcu setup`."
+                        f"Dependency cache miss for required key '{key}' with flags {flags}."
+                        + " Try re-running `mlonmcu setup`."
                     )
         else:
             ret[key] = config[key]

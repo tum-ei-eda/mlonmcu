@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
 from enum import IntEnum
 
 from mlonmcu.target.target import Target

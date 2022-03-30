@@ -169,6 +169,10 @@ class TVMAOTBackend(TVMBackend):
                 artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
                 header_src = generate_wrapper_header()
                 artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
+            workspace_size_artifact = Artifact(
+                "tvmaot_workspace_size.txt", content=f"{workspace_size}", fmt=ArtifactFormat.TEXT
+            )
+            artifacts.append(workspace_size_artifact)
             stdout_artifact = Artifact(
                 "tvmc_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
             )  # TODO: rename to tvmaot_out.log?

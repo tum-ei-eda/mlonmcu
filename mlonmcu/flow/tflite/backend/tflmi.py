@@ -329,6 +329,10 @@ class TFLMIBackend(TFLiteBackend):
     def debug_arena(self):
         return bool(self.config["debug_arena"])
 
+    @property
+    def arena_size(self):
+        return int(self.config["arena_size"])
+
     def generate_code(self, verbose=False):
         artifacts = []
         assert self.model is not None
@@ -348,6 +352,10 @@ class TFLMIBackend(TFLiteBackend):
                 optional=False,
             )
         )
+        workspace_size_artifact = Artifact(
+            "tflmi_arena_size.txt", content=f"{self.arena_size}", fmt=ArtifactFormat.TEXT
+        )
+        artifacts.append(workspace_size_artifact)
         # TODO: stdout_artifact (Would need to invoke TFLMI in subprocess to get stdout)
         self.artifacts = artifacts
 

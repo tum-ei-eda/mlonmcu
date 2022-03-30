@@ -76,6 +76,10 @@ class TVMCGBackend(TVMRTBackend):
                     out = utils.exec_getout(tvmcg_exe, *args, live=verbose, print_output=False)
                     codegen_src = open(out_file, "r").read()
                     artifact = Artifact("staticrt.c", content=codegen_src, fmt=ArtifactFormat.SOURCE)
+                    workspace_size_artifact = Artifact(
+                        "tvmcg_workspace_size.txt", content=f"{max_workspace_size}", fmt=ArtifactFormat.TEXT
+                    )
+                    artifacts.append(workspace_size_artifact)
                     stdout_artifact = Artifact("tvmcg_out.log", content=out, fmt=ArtifactFormat.TEXT)
                     artifacts.append(stdout_artifact)
                 break

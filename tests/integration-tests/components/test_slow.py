@@ -957,9 +957,7 @@ def test_feature_disable_legalize(
 )  # TODO: Single backend would be fine, but it has to be enabled
 @pytest.mark.parametrize("feature_names", [["autotune"]])
 @pytest.mark.parametrize("config", [{}])
-def test_feature_autotune(
-    user_context, frontend_name, model_name, backend_name, models_dir, feature_names, config
-):
+def test_feature_autotune(user_context, frontend_name, model_name, backend_name, models_dir, feature_names, config):
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -981,6 +979,7 @@ def test_feature_autotune(
     assert len(df) == 1
     assert "autotune" in df["Features"][0]
 
+
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", ["sine_model"])  # TODO: add test model for this, also test with wrong data
@@ -990,9 +989,7 @@ def test_feature_autotune(
 )  # TODO: Single backend would be fine, but it has to be enabled
 @pytest.mark.parametrize("feature_names", [["autotune", "autotuned"]])  # TODO: provide tuning records instead
 @pytest.mark.parametrize("config", [{"tvmaot.print_outputs": True}])
-def test_feature_autotuned(
-    user_context, frontend_name, model_name, backend_name, models_dir, feature_names, config
-):
+def test_feature_autotuned(user_context, frontend_name, model_name, backend_name, models_dir, feature_names, config):
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -1014,6 +1011,7 @@ def test_feature_autotuned(
     assert success
     assert len(df) == 1
     assert "autotuned" in df["Features"][0]
+
 
 # TODO:
 # cmsisnn -> currently broken

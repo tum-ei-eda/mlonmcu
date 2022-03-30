@@ -373,12 +373,12 @@
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div>
 
-<div class="viewcode-block" id="EspIdfPlatform.get_idf_serial_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_serial_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_idf_serial_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="EspIdfPlatform.get_idf_serial_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_serial_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_idf_serial_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">baud</span><span class="p">:</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">baud</span><span class="p">])</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-B&quot;</span> <span class="k">if</span> <span class="n">monitor</span> <span class="k">else</span> <span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">baud</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">args</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.flash"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.flash">[docs]</a>    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
@@ -454,7 +454,7 @@
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">outStr</span><span class="p">)</span>
                     <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="n">exit_code</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
+                        <span class="n">exit_code</span><span class="p">,</span> <span class="n">cmd</span>
                     <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Interrupted subprocess. Sending SIGINT signal...&quot;</span><span class="p">)</span>
@@ -471,7 +471,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span>
                 <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_cmake_args</span><span class="p">(),</span>
                 <span class="s2">&quot;monitor&quot;</span><span class="p">,</span>
-                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_serial_args</span><span class="p">(),</span>
+                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_serial_args</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
             <span class="p">]</span>
             <span class="k">return</span> <span class="n">_monitor_helper</span><span class="p">(</span>
                 <span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span>

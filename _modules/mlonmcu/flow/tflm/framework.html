@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.flow.tflite.framework &mdash; ML on MCU 0.1.1 documentation</title>
+  <title>mlonmcu.flow.tflm.framework &mdash; ML on MCU 0.1.1 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -69,7 +69,7 @@
       <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../../../index.html">Module code</a> &raquo;</li>
           <li><a href="../../flow.html">mlonmcu.flow</a> &raquo;</li>
-      <li>mlonmcu.flow.tflite.framework</li>
+      <li>mlonmcu.flow.tflm.framework</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -78,7 +78,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for mlonmcu.flow.tflite.framework</h1><div class="highlight"><pre>
+  <h1>Source code for mlonmcu.flow.tflm.framework</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
 <span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
 <span class="c1">#</span>
@@ -97,18 +97,18 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Definitions for TFLiteFramework.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Definitions for TFLMFramework.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.framework</span> <span class="kn">import</span> <span class="n">Framework</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflite</span> <span class="kn">import</span> <span class="n">TFLiteBackend</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflm</span> <span class="kn">import</span> <span class="n">TFLMBackend</span>
 
 
-<div class="viewcode-block" id="TFLiteFramework"><a class="viewcode-back" href="../../../../mlonmcu.flow.tflite.html#mlonmcu.flow.tflite.framework.TFLiteFramework">[docs]</a><span class="k">class</span> <span class="nc">TFLiteFramework</span><span class="p">(</span><span class="n">Framework</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;TFLite Framework specialization.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TFLMFramework"><a class="viewcode-back" href="../../../../mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework">[docs]</a><span class="k">class</span> <span class="nc">TFLMFramework</span><span class="p">(</span><span class="n">Framework</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TFLM Framework specialization.&quot;&quot;&quot;</span>
 
-    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tflite&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tflm&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">,</span> <span class="s2">&quot;cmsisnn&quot;</span><span class="p">]</span>
 
@@ -120,7 +120,7 @@
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tf.src_dir&quot;</span><span class="p">]</span>
 
-    <span class="n">backends</span> <span class="o">=</span> <span class="n">TFLiteBackend</span><span class="o">.</span><span class="n">registry</span>
+    <span class="n">backends</span> <span class="o">=</span> <span class="n">TFLMBackend</span><span class="o">.</span><span class="n">registry</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -141,7 +141,7 @@
     <span class="k">def</span> <span class="nf">optimized_kernel_inc_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimized_kernel_inc_dirs&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="TFLiteFramework.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.flow.tflite.html#mlonmcu.flow.tflite.framework.TFLiteFramework.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+<div class="viewcode-block" id="TFLMFramework.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_inc_dirs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_libs</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span><span class="p">:</span>

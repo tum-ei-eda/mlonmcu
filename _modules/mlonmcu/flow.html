@@ -98,17 +98,17 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Flow module for frameworks and backend.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflite.backend.tflmc</span> <span class="kn">import</span> <span class="n">TFLMCBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflite.backend.tflmi</span> <span class="kn">import</span> <span class="n">TFLMIBackend</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflm.backend.tflmc</span> <span class="kn">import</span> <span class="n">TFLMCBackend</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflm.backend.tflmi</span> <span class="kn">import</span> <span class="n">TFLMIBackend</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflite.framework</span> <span class="kn">import</span> <span class="n">TFLiteFramework</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflm.framework</span> <span class="kn">import</span> <span class="n">TFLMFramework</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmaot</span> <span class="kn">import</span> <span class="n">TVMAOTBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmcg</span> <span class="kn">import</span> <span class="n">TVMCGBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmrt</span> <span class="kn">import</span> <span class="n">TVMRTBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.framework</span> <span class="kn">import</span> <span class="n">TVMFramework</span>
 
 <span class="n">SUPPORTED_FRAMEWORKS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;tflite&quot;</span><span class="p">:</span> <span class="n">TFLiteFramework</span><span class="p">,</span>
+    <span class="s2">&quot;tflm&quot;</span><span class="p">:</span> <span class="n">TFLMFramework</span><span class="p">,</span>
     <span class="s2">&quot;tvm&quot;</span><span class="p">:</span> <span class="n">TVMFramework</span><span class="p">,</span>
 <span class="p">}</span>
 
@@ -124,7 +124,7 @@
 <span class="p">}</span>
 
 <span class="n">SUPPORTED_FRAMEWORK_BACKENDS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;tflite&quot;</span><span class="p">:</span> <span class="n">SUPPORTED_TFLITE_BACKENDS</span><span class="p">,</span>
+    <span class="s2">&quot;tflm&quot;</span><span class="p">:</span> <span class="n">SUPPORTED_TFLITE_BACKENDS</span><span class="p">,</span>
     <span class="s2">&quot;tvm&quot;</span><span class="p">:</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">,</span>
 <span class="p">}</span>
 

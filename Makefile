@@ -55,11 +55,11 @@ lint/black: ## check style with black
 lint: lint/flake8 lint/black ## check style
 
 test: ## run tests quickly
-	pytest tests
+	pytest tests -rs
 
 test-full: ## also run more complex tests
 	# pytest --run-slow --run-user-context --run-hardware tests
-	pytest --run-slow --run-user-context tests
+	pytest --run-slow --run-user-context tests -rs
 
 test-all: ## run tests on every Python version with tox
 	tox

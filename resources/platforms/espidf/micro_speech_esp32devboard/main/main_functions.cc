@@ -147,7 +147,7 @@ void loop() {
     printf("Feature generation failed\n");
     return;
   }
-  printf("current_time=%ld\n", current_time);
+  // printf("current_time=%ld\n", current_time);
   previous_time = current_time;
   // If no new audio samples have been received since last time, don't bother
   // running the network model.
@@ -155,7 +155,7 @@ void loop() {
     return;
   }
   uint32_t end1 = xTaskGetTickCount();
-  printf("ticks1=%lu\n", end1-start1);
+  // printf("ticks1=%lu\n", end1-start1);
 
   // Copy feature buffer to input tensor
   for (int i = 0; i < kFeatureElementCount; i++) {
@@ -170,14 +170,13 @@ void loop() {
   // }
   uint32_t start2 = xTaskGetTickCount();
   mlif_invoke();
-  vTaskDelay(13);
   uint32_t end2 = xTaskGetTickCount();
-  printf("ticks2=%lu\n", end2-start2);
+  // printf("ticks2=%lu\n", end2-start2);
 
   // Obtain a pointer to the output tensor
   // TfLiteTensor* output = interpreter->output(0);
   int8_t* output_ptr = (int8_t*)mlif_output_ptr(0);
-  // printf("%4d, \t%d, \t%4d, \t%4d\n", output_ptr[0]+128, output_ptr[1]+128, output_ptr[2]+128, output_ptr[3]+128);
+  printf("%4d, \t%d, \t%4d, \t%4d\n", output_ptr[0]+128, output_ptr[1]+128, output_ptr[2]+128, output_ptr[3]+128);
   // Determine whether a command was recognized based on the output of inference
   const char* found_command = nullptr;
   uint8_t score = 0;
@@ -201,5 +200,5 @@ void loop() {
   RespondToCommand(current_time, found_command, score,
                    is_new_command);
   uint32_t end3 = xTaskGetTickCount();
-  printf("ticks3=%lu\n", end3-start3);
+  // printf("ticks3=%lu\n", end3-start3);
 }

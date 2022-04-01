@@ -153,7 +153,6 @@ int InitAudioRecording() {
 //                              int* audio_samples_size, int16_t** audio_samples) {
 int GetAudioSamples(int start_ms, int duration_ms,
                              int* audio_samples_size, int16_t** audio_samples) {
-  vTaskDelay(10 / portTICK_PERIOD_MS);
   if (!g_is_audio_initialized) {
     int init_status = InitAudioRecording();
     if (init_status != 0) {

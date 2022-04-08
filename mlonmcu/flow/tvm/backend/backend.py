@@ -36,6 +36,9 @@ class TVMBackend(Backend):
         "print_outputs": False,
         "opt_level": 3,
         "target_device": None,
+        "target_mcpu": None,
+        "target_march": None,
+        "target_model": None,
         "extra_target": None,
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
@@ -96,6 +99,18 @@ class TVMBackend(Backend):
         return self.config["target_device"]
 
     @property
+    def target_mcpu(self):
+        return self.config["target_mcpu"]
+
+    @property
+    def target_march(self):
+        return self.config["target_march"]
+
+    @property
+    def target_model(self):
+        return self.config["target_model"]
+
+    @property
     def extra_target(self):
         return self.config["extra_target"]
 
@@ -141,7 +156,11 @@ class TVMBackend(Backend):
             str(self.model),
             "--target",
             target,
+            # TODO: provide a feature which sets these automatically depending on the chosen target
             *(["--target-c-device", self.target_device] if self.target_device is not None else []),
+            *(["--target-c-mcpu", self.target_mcpu] if self.target_mcpu is not None else []),
+            *(["--target-c-march", self.target_march] if self.target_march is not None else []),
+            *(["--target-c-model", self.target_model] if self.target_model is not None else []),
         ]
 
     def get_tuning_records_tvmc_args(self, target="c"):

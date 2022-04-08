@@ -65,10 +65,16 @@ class TVMFramework(Framework):
         if self.extra_incs or self.extra_libs:
             assert platform == "mlif", "Extra incs or libs are only supported by 'mlif' platform"
             if self.extra_incs:
-                temp = r"\;".join(self.extra_incs)
+                if isinstance(self.extra_incs, list):
+                    temp = r"\;".join(self.extra_incs)
+                else:
+                    temp = self.extra_incs
                 ret["TVM_EXTRA_INCS"] = temp
             if self.extra_libs:
-                temp = r"\;".join(self.extra_libs)
+                if isinstance(self.extra_libs, list):
+                    temp = r"\;".join(self.extra_libs)
+                else:
+                    temp = self.extra_libs
                 ret["TVM_EXTRA_LIBS"] = temp
         if self.crt_config_dir:
             ret["TVM_CRT_CONFIG_DIR"] = self.crt_config_dir

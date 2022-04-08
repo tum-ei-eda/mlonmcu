@@ -43,12 +43,12 @@ class ModelFormats(Enum):
                 return fmt
         return None
 
-
     NONE = ModelFormat(0, [])
     TFLITE = ModelFormat(1, ["tflite"])
     PACKED = ModelFormat(2, ["tflm"])
     IPYNB = ModelFormat(3, ["ipynb"])
     ONNX = ModelFormat(4, ["onnx"])
+
 
 def parse_metadata_from_path(path):
     if Path(path).is_file():

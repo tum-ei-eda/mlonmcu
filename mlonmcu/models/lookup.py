@@ -104,7 +104,7 @@ def list_models(directory, depth=1, formats=None, config=None):
                         Model(
                             main_base,
                             [Path(directory) / f"{main_model}.{ext}"],
-                            config = main_config,
+                            config=main_config,
                             alt=main_model,
                             formats=[ModelFormats.TFLITE],
                         )
@@ -121,7 +121,7 @@ def list_models(directory, depth=1, formats=None, config=None):
                         Model(
                             submodel,
                             [Path(directory) / f"{submodel}.{ext}"],
-                            config = submodel_config,
+                            config=submodel_config,
                             formats=[ModelFormats.TFLITE],
                         )
                     )

@@ -17,7 +17,12 @@
 # limitations under the License.
 #
 from enum import Enum
+from pathlib import Path
 from collections import namedtuple
+
+from mlonmcu.config import filter_config
+
+from .metadata import parse_metadata
 
 ModelFormat = namedtuple("ModelFormat", ["value", "extensions"])
 
@@ -31,15 +36,37 @@ class ModelFormats(Enum):
     def extension(self):
         return self.value.extensions[0]
 
+    @classmethod
+    def from_extension(cls, ext):
+        for fmt in cls:
+            if ext in fmt.extensions:
+                return fmt
+        return None
+
+
     NONE = ModelFormat(0, [])
     TFLITE = ModelFormat(1, ["tflite"])
     PACKED = ModelFormat(2, ["tflm"])
     IPYNB = ModelFormat(3, ["ipynb"])
     ONNX = ModelFormat(4, ["onnx"])
 
+def parse_metadata_from_path(path):
+    if Path(path).is_file():
+        metadata = parse_metadata(path)
+        return metadata
+    return None
+
 
 class Model:
-    def __init__(self, name, paths, alt=None, formats=ModelFormats.TFLITE, metadata=None):
+
+    DEFAULTS = {
+        "metadata_path": "definition.yml",
+        "support_path": "support",
+        "inputs_path": "input",
+        "outputs_path": "output",
+    }
+
+    def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
         self.name = name
         self.paths = paths
         if not isinstance(self.paths, list):
@@ -48,7 +75,26 @@ class Model:
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]
-        self.metadata = metadata
+        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, [])
+        self.metadata = parse_metadata_from_path(self.metadata_path)
+
+    @property
+    def metadata_path(self):
+        return self.config["metadata_path"]
+
+    @property
+    def support_path(self):
+        return self.config["support_path"]
+
+    @property
+    def inputs_path(self):
+        # TODO: fall back to metadata
+        return self.config["inputs_path"]
+
+    @property
+    def outputs_path(self):
+        # TODO: fall back to metadata
+        return self.config["outputs_path"]
 
     def __repr__(self):
         if self.alt:

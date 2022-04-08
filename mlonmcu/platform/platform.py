@@ -18,7 +18,6 @@
 #
 import tempfile
 import multiprocessing
-import distutils.util
 from pathlib import Path
 from filelock import FileLock
 
@@ -141,12 +140,7 @@ class CompilePlatform(Platform):
 
     @property
     def print_outputs(self):
-        # TODO: get rid of this
-        return (
-            bool(self.config["print_outputs"])
-            if isinstance(self.config["print_outputs"], (int, bool))
-            else bool(distutils.util.strtobool(self.config["print_outputs"]))
-        )
+        return str2bool(self.config["print_outputs"])
 
     def get_metrics(self, elf):
         static_mem = get_static_mem_usage(elf)

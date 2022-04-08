@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Collection of utilities to manage MLonMCU configs."""
+import distutils.util
 
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.logging import get_logger
@@ -152,3 +153,7 @@ def resolve_required_config(
             ret[key] = config[key]
 
     return ret
+
+
+def str2bool(value):
+    return bool(value) if isinstance(value, (int, bool)) else bool(distutils.util.strtobool(value))

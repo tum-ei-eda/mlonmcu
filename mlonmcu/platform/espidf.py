@@ -25,7 +25,6 @@ import signal
 import shutil
 import tempfile
 import subprocess
-import distutils.util
 from pathlib import Path
 import pkg_resources
 
@@ -37,6 +36,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.target.target import Target
+from mlonmcu.config import str2bool
 
 from .platform import CompilePlatform, TargetPlatform
 from .espidf_target import create_espidf_target
@@ -94,21 +94,14 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def use_idf_monitor(self):
-        # TODO: get rid of this
-        return (
-            bool(self.config["use_idf_monitor"])
-            if isinstance(self.config["use_idf_monitor"], (int, bool))
-            else bool(distutils.util.strtobool(self.config["use_idf_monitor"]))
-        )
+        return str2bool(self.config["use_idf_monitor"])
 
     @property
     def wait_for_user(self):
+        return str2bool(self.config["wait_for_user"])
+
         # TODO: get rid of this
-        return (
-            bool(self.config["wait_for_user"])
-            if isinstance(self.config["wait_for_user"], (int, bool))
-            else bool(distutils.util.strtobool(self.config["wait_for_user"]))
-        )
+        return str2bool(config["flash_only"])
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = {}  # Do not use current virtualenv (TODO: is there a better way?)

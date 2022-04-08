@@ -351,8 +351,9 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
                     ret += "char " + names[i] + "[" + str(t.size) + "];\n"
                 ret += f"void* {direction}puts[] = {{" + ", ".join(names) + "};\n"
                 ret += f"struct {prefix}_{direction}puts {prefix}_{direction}puts = {{" + "\n"
-                for i, tensor in enumerate(tensors):
-                    ret += f"    .{t.name} = {names[i]}," + "\n"
+                for i, t in enumerate(tensors):
+                    tensor_name = t.name.replace(":", "_")
+                    ret += f"    .{tensor_name} = {names[i]}," + "\n"
                 ret += "};\n"
                 return ret
 

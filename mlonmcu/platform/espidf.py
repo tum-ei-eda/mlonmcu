@@ -197,7 +197,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         else:
             template_dir = Path(template_dir)
             if not template_dir.is_dir():
-                template_dir = get_project_template(name=template_dir)
+                template_dir = get_project_template(name=str(template_dir))
         assert template_dir is not None, f"Provided project template does not exists: {template_dir}"
         shutil.copytree(template_dir, self.project_dir, dirs_exist_ok=True)
 

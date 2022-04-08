@@ -691,3 +691,42 @@ class DisableLegalize(BackendFeature, SetupFeature):
 
         ret["tvm.pythonpath"] = ["patch"]
         return ret
+
+
+@register_feature("demo")
+class Demo(BackendFeature, SetupFeature):
+    """Run demo application instead of benchmarking code."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "board": None,
+        "print_stats": False,
+        "print_interval_ms": 5000,
+    }
+
+    REQUIRED = []
+
+    def __init__(self, config=None):
+        super().__init__("demo", config=config)
+
+    @property
+    def board(self):
+        return self.config["board"]
+
+    @property
+    def print_stats(self):
+        return self.config["print_stats"]
+
+    @property
+    def print_interval_ms(self):
+        return self.config["print_interval_ms"]
+
+    def get_platform_defs(self, platform):
+        assert platform in ["espidf"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        # TODO: espidf.demo_mode, disable wdt, runtime stats,
+        return {}
+
+    def get_platform_config(self, platform):
+        assert platform in ["espidf"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        # TODO: espidf.demo_mode, disable wdt, runtime stats,
+        return {}

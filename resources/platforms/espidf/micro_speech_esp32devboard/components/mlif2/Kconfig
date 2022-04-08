@@ -1,0 +1,76 @@
+menu "MLonMCU Options"
+
+    config MLONMCU_CODEGEN_DIR
+        string "Codegen Directory"
+        default "$(CODEGEN_SRC)"
+        help
+            Path to the directory with the codegen results.
+
+    choice MLONMCU_FRAMEWORK
+        prompt "MLonMCU framework"
+        default MLONMCU_FRAMEWORK_TFLM
+        help
+            Choose a MLonMCU framework from the list.
+
+        config MLONMCU_FRAMEWORK_TFLM
+            bool "TFLite Micro"
+        config MLONMCU_FRAMEWORK_TVM
+            bool "TVM"
+    endchoice
+
+    config MLONMCU_FRAMEWORK
+        string
+        default "tflm" if MLONMCU_FRAMEWORK_TFLM
+        default "tvm" if MLONMCU_FRAMEWORK_TVM
+
+    choice MLONMCU_BACKEND
+        prompt "MLonMCU backend"
+        default MLONMCU_BACKEND_TFLMI if MLONMCU_FRAMEWORK_TFLM
+        default MLONMCU_BACKEND_TVMAOT if MLONMCU_FRAMEWORK_TVM
+        help
+            Choose a MLonMCU backend for the chosen framwork.
+
+        config MLONMCU_BACKEND_TFLMI
+            bool "TFLite Micro Default Interpreter"
+            depends on MLONMCU_FRAMEWORK_TFLM
+        config MLONMCU_BACKEND_TFLMC
+            bool "TFLite Micro Compiler"
+            depends on MLONMCU_FRAMEWORK_TFLM
+        config MLONMCU_BACKEND_TVMAOT
+            bool "TVM AoT Executor"
+            depends on MLONMCU_FRAMEWORK_TVM
+        config MLONMCU_BACKEND_TVMRT
+            bool "TVM Graph Executor"
+            depends on MLONMCU_FRAMEWORK_TVM
+        config MLONMCU_BACKEND_TVMCG
+            bool "TVM Custom Codegenerator"
+            depends on MLONMCU_FRAMEWORK_TVM
+    endchoice
+
+    config MLONMCU_BACKEND
+        string
+        default "tflmi" if MLONMCU_BACKEND_TFLMI
+        default "tflmc" if MLONMCU_BACKEND_TFLMC
+        default "tvmaot" if MLONMCU_BACKEND_TVMAOT
+        default "tvmrt" if MLONMCU_BACKEND_TVMRT
+        default "tvmcg" if MLONMCU_BACKEND_TVMCG
+
+    config MLONMCU_NUM_RUNS
+        int "Number of inferences"
+        default 1
+        help
+            How many times the network should be invoked. A negative value maps to a infinite number of runs.
+
+    config MLONMCU_VALIDATE
+        bool "Validate model output data"
+        default false
+        help
+            Compare model outputs with expected results (if available). Only works in DEBUG mode.
+
+    config MLONMCU_MODLE_DIR
+        string "Model Directory"
+        depends on MLONMCU_VALIDATE
+        default "$(MODEL_DIR)"
+        help
+            Directory where model support code and reference data can be found.
+endmenu

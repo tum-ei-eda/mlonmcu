@@ -150,6 +150,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     def get_supported_targets(self):
         text = self.invoke_idf_exe("--list-targets", live=self.print_outputs, print_output=False)
+        # Warning: This will fail if a python executable is NOT available in the system. Aliasing        # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?
         target_names = text.split("\n")
 
         return [name for name in target_names if len(name) > 0 and " " not in name]

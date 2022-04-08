@@ -66,6 +66,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "baud": 115200,
         "use_idf_monitor": True,
         "wait_for_user": True,
+        "flash_only": False,
     }
 
     REQUIRED = ["espidf.install_dir", "espidf.src_dir"]
@@ -100,6 +101,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     def wait_for_user(self):
         return str2bool(self.config["wait_for_user"])
 
+    @property
+    def flash_only(self):
         # TODO: get rid of this
         return str2bool(config["flash_only"])
 
@@ -316,6 +319,9 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
 
     def monitor(self, target, timeout=60):
+        if self.flash_only:
+            return ""
+
         if self.use_idf_monitor:
 
             def _kill_monitor():

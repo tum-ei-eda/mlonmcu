@@ -74,7 +74,7 @@ class TFLMFramework(Framework):
             if self.optimized_kernel_libs:
                 if isinstance(self.optimized_kernel_inc_libs, list):
                     temp = r"\;".join(self.optimized_kernel_libs)
-                else
+                else:
                     temp = self.optimized_kernel_libs
                 ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
         ret["TF_DIR"] = str(self.tf_src)

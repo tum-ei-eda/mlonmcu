@@ -40,6 +40,7 @@ class TVMBackend(Backend):
         "target_march": None,
         "target_model": None,
         "extra_target": None,
+        "desired_layout": None,  # optional: NCHW or NHWC
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
         "use_tuning_results": False,
@@ -113,6 +114,10 @@ class TVMBackend(Backend):
     @property
     def extra_target(self):
         return self.config["extra_target"]
+
+    @property
+    def desired_layout(self):
+        return self.config["desired_layout"]
 
     @property
     def opt_level(self):
@@ -190,6 +195,7 @@ class TVMBackend(Backend):
                 str(self.opt_level),
                 *self.get_input_shapes_tvmc_args(),
                 *self.get_tuning_records_tvmc_args(),
+                *(["--desired-layout", self.desired_layout] if self.desired_layout is not None else []),
                 *self.tvmc_extra_args,
                 # TODO: also set --model-format? (optional)
             ]

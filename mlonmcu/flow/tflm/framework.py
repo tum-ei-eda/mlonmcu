@@ -66,10 +66,16 @@ class TFLMFramework(Framework):
             if self.optimized_kernel:
                 ret["TFLM_OPTIMIZED_KERNEL"] = self.optimized_kernel
             if self.optimized_kernel_inc_dirs:
-                temp = r"\;".join(self.optimized_kernel_inc_dirs)
+                if isinstance(self.optimized_kernel_inc_dirs, list):
+                    temp = r"\;".join(self.optimized_kernel_inc_dirs)
+                else:
+                    temp = self.optimized_kernel_inc_dirs
                 ret["TFLM_OPTIMIZED_KERNEL_INCLUDE_DIR"] = temp
             if self.optimized_kernel_libs:
-                temp = r"\;".join(self.optimized_kernel_libs)
+                if isinstance(self.optimized_kernel_inc_libs, list):
+                    temp = r"\;".join(self.optimized_kernel_libs)
+                else
+                    temp = self.optimized_kernel_libs
                 ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
         ret["TF_DIR"] = str(self.tf_src)
         return ret

@@ -105,7 +105,6 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">distutils.util</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">pkg_resources</span>
 
@@ -117,6 +116,7 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
 
 <span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span>
 <span class="kn">from</span> <span class="nn">.espidf_target</span> <span class="kn">import</span> <span class="n">create_espidf_target</span>
@@ -146,6 +146,7 @@
         <span class="s2">&quot;baud&quot;</span><span class="p">:</span> <span class="mi">115200</span><span class="p">,</span>
         <span class="s2">&quot;use_idf_monitor&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;wait_for_user&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;flash_only&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;espidf.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf.src_dir&quot;</span><span class="p">]</span>
@@ -174,21 +175,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">use_idf_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># TODO: get rid of this</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_idf_monitor&quot;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_idf_monitor&quot;</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">))</span>
-            <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">distutils</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">strtobool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_idf_monitor&quot;</span><span class="p">]))</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_idf_monitor&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">wait_for_user</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;wait_for_user&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">flash_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: get rid of this</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;wait_for_user&quot;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;wait_for_user&quot;</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">))</span>
-            <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">distutils</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">strtobool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;wait_for_user&quot;</span><span class="p">]))</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;flash_only&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="EspIdfPlatform.invoke_idf_exe"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.invoke_idf_exe">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_idf_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Do not use current virtualenv (TODO: is there a better way?)</span>
@@ -403,6 +399,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="EspIdfPlatform.monitor"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.monitor">[docs]</a>    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_idf_monitor</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">_kill_monitor</span><span class="p">():</span>

@@ -15,6 +15,9 @@ limitations under the License.
 
 #include <stdio.h>
 #include "command_responder.h"
+#include "driver/gpio.h"
+#include "pins.h"
+#include "string.h"
 
 // The default implementation writes out the name of the recognized command
 // to the error console. Real applications will want to take some custom
@@ -29,5 +32,22 @@ void RespondToCommand(int32_t current_time, const char* found_command,
     //                      score, current_time);
     printf("Heard %s (%d) @%dms\n", found_command,
                          score, current_time);
+    if (strcmp(found_command, "silence") == 0) {
+      gpio_set_level(GPIO_LED_RED, 0);
+      gpio_set_level(GPIO_LED_GREEN, 0);
+      gpio_set_level(GPIO_LED_BLUE, 0);
+    } else if (strcmp(found_command, "unknown") == 0) {
+      gpio_set_level(GPIO_LED_RED, 0);
+      gpio_set_level(GPIO_LED_GREEN, 0);
+      gpio_set_level(GPIO_LED_BLUE, 1);
+    } else if (strcmp(found_command, "up") == 0) {
+      gpio_set_level(GPIO_LED_RED, 0);
+      gpio_set_level(GPIO_LED_GREEN, 1);
+      gpio_set_level(GPIO_LED_BLUE, 0);
+    } else if (strcmp(found_command, "down") == 0) {
+      gpio_set_level(GPIO_LED_RED, 1);
+      gpio_set_level(GPIO_LED_GREEN, 0);
+      gpio_set_level(GPIO_LED_BLUE, 0);
+    }
   }
 }

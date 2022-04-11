@@ -21,10 +21,12 @@
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/gpio.h"
 #include "esp_system.h"
 #include "esp_timer.h"
 // #include "esp_private/esp_clk.h"
 // #include "esp_spi_flash.h"
+#include "pins.h"
 
 #include "ml_interface.h"
 #include "main_functions.h"
@@ -33,6 +35,12 @@
 
 extern "C" void app_main(void)
 {
+    gpio_reset_pin(GPIO_LED_RED);
+    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_OUTPUT);
+    gpio_reset_pin(GPIO_LED_GREEN);
+    gpio_set_direction(GPIO_LED_GREEN, GPIO_MODE_OUTPUT);
+    gpio_reset_pin(GPIO_LED_BLUE);
+    gpio_set_direction(GPIO_LED_BLUE, GPIO_MODE_OUTPUT);
     printf("MLonMCU: START\n");
     uint64_t us_before = esp_timer_get_time();
     esp_cpu_ccount_t cc_before = esp_cpu_get_ccount();

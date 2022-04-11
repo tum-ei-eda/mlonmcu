@@ -22,7 +22,6 @@ import glob
 from itertools import product
 import yaml
 
-from .metadata import parse_metadata
 from .model import Model, ModelFormats
 from .group import ModelGroup
 
@@ -51,13 +50,13 @@ def find_metadata(directory, model_name=None):
         filename = f"{combination[0]}.{combination[1]}"
         fullpath = directory / filename
         if fullpath.is_file():
+            return fullpath
             # logger.debug("Found match. Ignoring other files")
-            metadata = parse_metadata(fullpath)
-            return metadata
     return None
 
 
-def list_models(directory, depth=1, formats=None):
+def list_models(directory, depth=1, formats=None, config=None):
+    config = config if config is not None else {}
     formats = formats if formats else [ModelFormats.TFLITE]
     assert len(formats) > 0, "No formats peovided for model lookup"
     for fmt in formats:
@@ -95,27 +94,35 @@ def list_models(directory, depth=1, formats=None):
                     submodels.remove(main_model)
 
                     main_base = main_model.split("/")[-1]
-                    main_metadata = find_metadata(Path(directory) / dirname, model_name=main_base)
+                    main_config = {}
+                    main_metadata_path = find_metadata(Path(directory) / dirname, model_name=main_base)
+                    if main_metadata_path:
+                        main_config[f"{main_base}.metadata_path"] = main_metadata_path
+                    main_config.update(config)
 
                     models.append(
                         Model(
                             main_base,
                             [Path(directory) / f"{main_model}.{ext}"],
+                            config=main_config,
                             alt=main_model,
                             formats=[ModelFormats.TFLITE],
-                            metadata=main_metadata,
                         )
                     )
 
                 for submodel in submodels:
                     sub_base = submodel.split("/")[-1]
-                    submodel_metadata = find_metadata(Path(directory) / dirname, model_name=sub_base)
+                    submodel_config = {}
+                    submodel_metadata_path = find_metadata(Path(directory) / dirname, model_name=sub_base)
+                    if submodel_metadata_path:
+                        submodel_config[f"{sub_base}.metadata_path"] = submodel_metadata_path
+                    submodel_config.update(config)
                     models.append(
                         Model(
                             submodel,
                             [Path(directory) / f"{submodel}.{ext}"],
+                            config=submodel_config,
                             formats=[ModelFormats.TFLITE],
-                            metadata=submodel_metadata,
                         )
                     )
 
@@ -287,13 +294,13 @@ def lookup_models(names, frontends=None, context=None):
     hints = []
     for name in names:
         filepath = Path(name)
-        ext = filepath.suffix
+        ext = filepath.suffix[1:]
         if len(ext) > 0 and filepath.is_file():  # Explicit file
             assert (
                 ext in allowed_exts
             ), f"Unsupported file extension for model which was explicitly passed by path: {ext}"
             paths = [filepath]
-            hint = Model(name, paths, format=ModelFormats.from_extension(ext))
+            hint = Model(name, paths, formats=[ModelFormats.from_extension(ext)])
             # TODO: look for metadata
             hints.append(hint)
         else:

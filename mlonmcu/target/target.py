@@ -21,7 +21,6 @@
 import os
 import tempfile
 import time
-import distutils
 from pathlib import Path
 from typing import List
 
@@ -81,12 +80,7 @@ class Target:
 
     @property
     def print_outputs(self):
-        # TODO: get rid of this
-        return (
-            bool(self.config["print_outputs"])
-            if isinstance(self.config["print_outputs"], (int, bool))
-            else bool(distutils.util.strtobool(self.config["print_outputs"]))
-        )
+        return str2bool(self.config["print_outputs"])
 
     def __repr__(self):
         return f"Target({self.name})"

@@ -112,6 +112,7 @@ int RecognizeCommands::ProcessLatestResults(
   for (int i = 0; i < kCategoryCount; ++i) {
     average_scores[i] /= how_many_results;
   }
+  // printf("average_scores %u %u %u %u\n", average_scores[0], average_scores[1], average_scores[2], average_scores[3]);
 
   // Find the current highest scoring category.
   int current_top_index = 0;

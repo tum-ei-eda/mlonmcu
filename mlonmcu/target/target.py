@@ -30,6 +30,7 @@ from mlonmcu.feature.feature import Feature
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.config import str2bool
 
 
 # TODO: class TargetFactory:

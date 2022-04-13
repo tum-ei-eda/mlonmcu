@@ -27,6 +27,7 @@ from mlonmcu.feature.type import FeatureType
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.elf import get_results as get_static_mem_usage
 from mlonmcu.logging import get_logger
+from mlonmcu.config import str2bool
 
 logger = get_logger()
 

@@ -1006,9 +1006,12 @@ def install_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=
         assert isinstance(boards, list)
         boards = ";".join(boards)
     if not utils.is_populated(espidfInstallDir) or rebuild:
-        espidfInstallScript = Path(espidfSrcDir) / "install.sh"
-        env = {}  # Do not use current virtualenv (TODO: is there a better way?)
+        # Using idf_tools.py directory instead of ./install.sh because we
+        # don't want to use espe-idfs python environment
+        espidfInstallScript = Path(espidfSrcDir) / "tools" / "idf_tools.py"
+        targets = ",".join(boards)
+        espidfInstallArgs = [f"--targets={targets}"]
+        env = {}
         env["IDF_TOOLS_PATH"] = str(espidfInstallDir)
-        env["PATH"] = "/usr/bin:/bin"  # TODO: find a better way to achieve this
-        utils.exec_getout(espidfInstallScript, boards, print_output=False, live=verbose, env=env)
+        utils.exec_getout(espidfInstallScript, *espidfInstallArgs, print_output=False, live=verbose, env=env)
     context.cache["espidf.install_dir"] = espidfInstallDir

@@ -110,7 +110,6 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         env = {}  # Do not use current virtualenv (TODO: is there a better way?)
         env["IDF_PATH"] = str(self.espidf_src_dir)
         env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
-        env["PATH"] = str(Path(sys.base_prefix) / "bin")
         cmd = (
             ". "
             + str(self.espidf_src_dir / "export.sh")
@@ -342,7 +341,6 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 env = {}  # Do not use current virtualenv (TODO: is there a better way?)
                 env["IDF_PATH"] = str(self.espidf_src_dir)
                 env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
-                env["PATH"] = str(Path(sys.base_prefix) / "bin")
                 cmd = (
                     ". "
                     + str(self.espidf_src_dir / "export.sh")

@@ -66,7 +66,7 @@ def build_tensorflow(context: MlonMcuContext, params=None, rebuild=False, verbos
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # tfName = utils.makeDirName("tf", flags=flags)
     tfSrcDir = context.cache["tf.src_dir"]
-    tflmDir = tfSrcDir / "tensorflow" / "lite" / "micro"
+    tflmDir = Path(tfSrcDir) / "tensorflow" / "lite" / "micro"
     tflmBuildDir = tflmDir / "tools" / "make"
     tflmDownloadsDir = tflmBuildDir / "downloads"
     if params["dbg"]:

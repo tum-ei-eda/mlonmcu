@@ -104,7 +104,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     @property
     def flash_only(self):
         # TODO: get rid of this
-        return str2bool(config["flash_only"])
+        return str2bool(self.config["flash_only"])
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = os.environ.copy()

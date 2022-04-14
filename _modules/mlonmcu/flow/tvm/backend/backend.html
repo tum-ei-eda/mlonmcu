@@ -117,7 +117,11 @@
         <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;opt_level&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
         <span class="s2">&quot;target_device&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;target_mcpu&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;target_march&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;target_model&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;extra_target&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;desired_layout&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional: NCHW or NHWC</span>
         <span class="s2">&quot;disabled_passes&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout</span>
         <span class="s2">&quot;extra_pass_config&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># TODO: some example (fuse_max_depth etc.)</span>
         <span class="s2">&quot;use_tuning_results&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -177,8 +181,24 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_device&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_mcpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_mcpu&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_march</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_march&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_model&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extra_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_target&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">desired_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;desired_layout&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">opt_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -222,7 +242,11 @@
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
             <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
             <span class="n">target</span><span class="p">,</span>
+            <span class="c1"># TODO: provide a feature which sets these automatically depending on the chosen target</span>
             <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--target-c-device&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--target-c-mcpu&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--target-c-march&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_march</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_march</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--target-c-model&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
         <span class="p">]</span></div>
 
 <div class="viewcode-block" id="TVMBackend.get_tuning_records_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tuning_records_tvmc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tuning_records_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
@@ -252,6 +276,7 @@
                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_level</span><span class="p">),</span>
                 <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_input_shapes_tvmc_args</span><span class="p">(),</span>
                 <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tuning_records_tvmc_args</span><span class="p">(),</span>
+                <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--desired-layout&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_layout</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_layout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
                 <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tvmc_extra_args</span><span class="p">,</span>
                 <span class="c1"># TODO: also set --model-format? (optional)</span>
             <span class="p">]</span>

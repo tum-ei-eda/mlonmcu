@@ -43,8 +43,8 @@ ELSEIF("${MLONMCU_FRAMEWORK}" STREQUAL "tvm")
         ${MLONMCU_CODEGEN_DIR}/codegen/host/src/*.c
         ${MLONMCU_CODEGEN_DIR}/codegen/host/src/*.cc
     )
-    IF(EXISTS ${MLONMCU_CODEGEN_DIR}/codgen/host/include/)
-        LIST(APPEND CODEGEN_INCS ${MLONMCU_CODEGEN_DIR}/codgen/host/include/)
+    IF(EXISTS ${MLONMCU_CODEGEN_DIR}/codegen/host/include/)
+        LIST(APPEND CODEGEN_INCS ${MLONMCU_CODEGEN_DIR}/codegen/host/include/)
     ENDIF()
 
     IF ("${MLONMCU_BACKEND}" STREQUAL "tvmaot")

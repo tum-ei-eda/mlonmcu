@@ -31,17 +31,10 @@
 #include "ml_interface.h"
 #include "main_functions.h"
 
-// TODO: move pre and post stuff to mlif or somewhere else?
-
 extern "C" void app_main(void)
 {
-    gpio_reset_pin(GPIO_LED_RED);
-    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_OUTPUT);
-    gpio_reset_pin(GPIO_LED_GREEN);
-    gpio_set_direction(GPIO_LED_GREEN, GPIO_MODE_OUTPUT);
-    gpio_reset_pin(GPIO_LED_BLUE);
-    gpio_set_direction(GPIO_LED_BLUE, GPIO_MODE_OUTPUT);
     printf("MLonMCU: START\n");
+    gpio_init();
     uint64_t us_before = esp_timer_get_time();
     esp_cpu_ccount_t cc_before = esp_cpu_get_ccount();
     //mlif_run();

@@ -32,6 +32,7 @@ idf_component_register(
   micro_features_generator.cc
   micro_model_settings.cc
   ringbuf.c
+  pins.c
   # TODO: use components?
   microfrontend/lib/fft.cc
   microfrontend/lib/fft_util.cc

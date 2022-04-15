@@ -216,7 +216,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write("CONFIG_HAL_DEFAULT_ASSERTION_LEVEL=0\n")
                     f.write("CONFIG_LOG_DEFAULT_LEVEL_NONE=y\n")
                     f.write("CONFIG_LOG_DEFAULT_LEVEL=0\n")
-                    f.write("ONFIG_LOG_MAXIMUM_LEVEL=0\n")
+                    f.write("CONFIG_LOG_MAXIMUM_LEVEL=0\n")
                     f.write("CONFIG_NEWLIB_NANO_FORMAT=y\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     f.write("CONFIG_OPTIMIZATION_LEVEL_RELEASE=y\n")

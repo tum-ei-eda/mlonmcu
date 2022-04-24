@@ -244,5 +244,8 @@ class TVMBackend(Backend):
                 model_buf = handle.read()
                 self.model_info = get_tflite_model_info(model_buf)
                 self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+        elif fmt == ModelFormats.RELAY:
+            # Warning: the wrapper generateion does currently not work because of the missing possibility to get the relay models input names and shapes
+            self.model_format = "relay"
         else:
             raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{self.name}'")

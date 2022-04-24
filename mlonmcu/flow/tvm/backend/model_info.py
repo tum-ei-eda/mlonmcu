@@ -56,6 +56,10 @@ class TfLiteTensorInfo(TensorInfo):
         dtype = type_lookup[t.Type()]
         super().__init__(name, shape, dtype)
 
+class RelayTensorInfo(TensorInfo):
+    def __init__(self, t, fix_names=False):
+        pass
+
 
 class ModelInfo:
     def __init__(self, in_tensors, out_tensors, fix_names=False):
@@ -79,7 +83,15 @@ class TfLiteModelInfo(ModelInfo):
         super().__init__(in_tensors, out_tensors)
 
 
+class RelayModelInfo(ModelInfo):
+    def __init__(self, text, fix_names=False):
+        pass
+
 def get_tflite_model_info(model_buf):
     tflite_model = tflite.Model.GetRootAsModel(model_buf, 0)
     model_info = TfLiteModelInfo(tflite_model)
+    return model_info
+
+def get_relay_model_info(mod_text):
+    model_info = RelayModelInfo(mod_text)
     return model_info

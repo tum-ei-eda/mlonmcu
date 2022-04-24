@@ -23,6 +23,7 @@ from pathlib import Path
 
 from mlonmcu.utils import is_power_of_two
 from mlonmcu.config import str2bool
+from mlonmcu.artifact import ArtifactFormat
 from .feature import (
     BackendFeature,
     FrameworkFeature,
@@ -521,6 +522,42 @@ class Visualize(BackendFeature):
                 f"{backend}.visualize_mode": self.mode,
             }
         )
+
+@register_feature("relayviz")
+class Relayviz(FrontendFeature):
+    """Visualize TVM relay models."""
+
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "plotter": "term",
+    }
+
+    def __init__(self, config=None):
+        super().__init__("relayviz", config=config)
+
+    @property
+    def plotter(self):
+        return self.config.get("plotter", None)
+
+    def get_frontend_config(self, frontend):
+        assert (
+            frontend in ["relay"]
+        ), f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        return filter_none(
+            {
+                f"{frontend}.visualize_graph": self.enabled,
+                f"{frontend}.relayviz_plotter": self.plotter,
+            }
+        )
+
+    def update_formats(self, frontend, input_formats, output_formats):
+        assert (
+            frontend in ["relay"]
+        ), f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        if self.enabled:
+            output_formats.append(ArtifactFormat.TEXT)
+
 
 
 @register_feature("autotuned")

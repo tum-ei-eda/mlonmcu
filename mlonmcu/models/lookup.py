@@ -294,13 +294,14 @@ def lookup_models(names, frontends=None, context=None):
     hints = []
     for name in names:
         filepath = Path(name)
+        real_name = filepath.stem
         ext = filepath.suffix[1:]
         if len(ext) > 0 and filepath.is_file():  # Explicit file
             assert (
                 ext in allowed_exts
             ), f"Unsupported file extension for model which was explicitly passed by path: {ext}"
             paths = [filepath]
-            hint = Model(name, paths, formats=[ModelFormats.from_extension(ext)])
+            hint = Model(real_name, paths, formats=[ModelFormats.from_extension(ext)])
             # TODO: look for metadata
             hints.append(hint)
         else:

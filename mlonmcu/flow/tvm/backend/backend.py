@@ -20,7 +20,8 @@ import os
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
-from .tflite_model_info import get_tflite_model_info
+from mlonmcu.models.model import ModelFormats
+from .model_info import get_tflite_model_info
 from .tuner import TVMTuner
 
 
@@ -197,7 +198,8 @@ class TVMBackend(Backend):
                 *self.get_tuning_records_tvmc_args(),
                 *(["--desired-layout", self.desired_layout] if self.desired_layout is not None else []),
                 *self.tvmc_extra_args,
-                # TODO: also set --model-format? (optional)
+                "--model-format",
+                self.model_format
             ]
         )
         return args
@@ -232,7 +234,15 @@ class TVMBackend(Backend):
 
     def load_model(self, model):
         self.model = model
-        with open(model, "rb") as handle:
-            model_buf = handle.read()
-            self.model_info = get_tflite_model_info(model_buf)
-            self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.inTensors}
+        # TODO: path model class instead of path!
+        # fmt = self.model.formats[0]
+        ext = os.path.splitext(model)[1][1:]
+        fmt = ModelFormats.from_extension(ext)
+        if fmt == ModelFormats.TFLITE:
+            self.model_format = "tflite"
+            with open(model, "rb") as handle:
+                model_buf = handle.read()
+                self.model_info = get_tflite_model_info(model_buf)
+                self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+        else:
+            raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{self.name}'")

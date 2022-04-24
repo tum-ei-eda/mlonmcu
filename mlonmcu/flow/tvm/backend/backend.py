@@ -21,7 +21,7 @@ import os
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.models.model import ModelFormats
-from .model_info import get_tflite_model_info
+from .model_info import get_tflite_model_info, get_relay_model_info
 from .tuner import TVMTuner
 
 
@@ -243,9 +243,12 @@ class TVMBackend(Backend):
             with open(model, "rb") as handle:
                 model_buf = handle.read()
                 self.model_info = get_tflite_model_info(model_buf)
-                self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
         elif fmt == ModelFormats.RELAY:
             # Warning: the wrapper generateion does currently not work because of the missing possibility to get the relay models input names and shapes
             self.model_format = "relay"
+            with open(model, "r") as handle:
+                mod_text = handle.read()
+            self.model_info = get_relay_model_info(mod_text)
         else:
             raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{self.name}'")
+        self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

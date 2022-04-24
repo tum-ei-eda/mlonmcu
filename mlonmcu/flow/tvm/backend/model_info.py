@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import re
 import tflite
 from tflite.TensorType import TensorType as TType
 
@@ -54,11 +55,12 @@ class TfLiteTensorInfo(TensorInfo):
             TType.INT8: "int8",
         }
         dtype = type_lookup[t.Type()]
-        super().__init__(name, shape, dtype)
+        super().__init__(name, shape, dtype, fix_names=fix_names)
+
 
 class RelayTensorInfo(TensorInfo):
-    def __init__(self, t, fix_names=False):
-        pass
+    def __init__(self, name, shape, dtype, fix_names=False):
+        super().__init__(name, shape, dtype, fix_names=fix_names)
 
 
 class ModelInfo:
@@ -82,10 +84,55 @@ class TfLiteModelInfo(ModelInfo):
             out_tensors.append(TfLiteTensorInfo(t, fix_names=fix_names))
         super().__init__(in_tensors, out_tensors)
 
+def shape_from_str(shape_str):
+    return tuple(map(int, shape_str.replace(" ", "").split(",")))
+
+def parse_relay_main(line):
+    input_tensors = []
+    output_tensors = []
+
+    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(line)
+    for input_tensors_str in input_tensors_strs:
+        res = re.compile(r"%([a-zA-Z0-9]+): Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").match(input_tensors_str)
+        assert res is not None
+        groups = res.groups()
+        assert len(groups) == 3
+        input_name, input_shape_str, input_type = groups
+        input_shape = shape_from_str(input_shape_str)
+        input_tensor = TensorInfo(input_name, input_shape, input_type)
+        input_tensors.append(input_tensor)
+
+    output_tensor_names_str = re.compile(r"output_tensor_names=\[(\".*\")\]").findall(line)
+    output_tensor_names = re.compile(r"\"([a-zA-Z0-9_]+)\"").findall(output_tensor_names_str[0])
+
+    output_tensors_str = re.compile(r"-> (.+) {").findall(line)
+    output_tensor_strs = re.compile(r"Tensor\[\(\d+(?:, \d+)+\), [a-zA-Z0-9_]+\]").findall(output_tensors_str[0])
+
+    assert len(output_tensor_names) == len(output_tensor_strs)
+
+    for i, output_name in enumerate(output_tensor_names):
+        res = re.compile(r"Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").        match(output_tensor_strs[i])
+        assert res is not None
+        groups = res.groups()
+        assert len(groups) == 2
+        output_shape_str, output_type = groups
+        output_shape = shape_from_str(output_shape_str)
+        output_tensor = TensorInfo(output_name, output_shape, output_type)
+        output_tensors.append(output_tensor)
+    return input_tensors, output_tensors
 
 class RelayModelInfo(ModelInfo):
-    def __init__(self, text, fix_names=False):
-        pass
+
+    def __init__(self, mod_text, fix_names=False):
+        in_tensors = None
+        out_tensors = None
+        for line in mod_text.split("\n"):
+            if "def @main(" in line:
+                in_tensors, out_tensors = parse_relay_main(line)
+                break
+        assert in_tensors is not None and out_tensors is not None
+        super().__init__(in_tensors, out_tensors)
+
 
 def get_tflite_model_info(model_buf):
     tflite_model = tflite.Model.GetRootAsModel(model_buf, 0)

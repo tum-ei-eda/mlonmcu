@@ -285,10 +285,8 @@ class RelayFrontend(SimpleFrontend):
         name = model.name
         path = model.paths[0]
         ext = self.input_formats[0].extension
-        print("name", name, "path", path, "ext", ext)
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
             raw = handle.read()
-            print("fff", f"{name}.{ext}")
             artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
 
         if not self.visualize_graph:
@@ -297,7 +295,6 @@ class RelayFrontend(SimpleFrontend):
             assert len(self.output_formats) == 2
 
             def _relayviz(in_file, out_file, plotter_name, env={}):
-                print("relayviz", plotter_name)
                 import sys
                 import os
                 sys.path.append(env["PYTHONPATH"])

@@ -688,12 +688,12 @@
 <p>Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'vlen':</span> <span class="pre">0}</span></em><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'end_to_end_cycles':</span> <span class="pre">False,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'spikepk_extra_args':</span> <span class="pre">[],</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'vlen':</span> <span class="pre">0}</span></em><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['vext']</span></em><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['vext',</span> <span class="pre">'cachesim']</span></em><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -704,6 +704,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.enable_vext">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enable_vext</span></span><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.enable_vext" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.end_to_end_cycles">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end_to_end_cycles</span></span><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.end_to_end_cycles" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -735,6 +740,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.spike_pk">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spike_pk</span></span><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.spike_pk" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.spikepk_extra_args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spikepk_extra_args</span></span><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.spikepk_extra_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

@@ -120,7 +120,10 @@ class SpikeTarget(RISCVTarget):
         return ret
 
     def parse_stdout(self, out):
-        cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+        if self.end_to_end_cycles:
+            cpu_cycles = re.search(r"(\d*) cycles", out)
+        else:
+            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         if not cpu_cycles:
             logger.warning("unexpected script output (cycles)")
             cycles = None

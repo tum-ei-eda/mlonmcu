@@ -199,7 +199,7 @@ class TVMBackend(Backend):
                 *(["--desired-layout", self.desired_layout] if self.desired_layout is not None else []),
                 *self.tvmc_extra_args,
                 "--model-format",
-                self.model_format
+                self.model_format,
             ]
         )
         return args

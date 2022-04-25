@@ -507,9 +507,7 @@ class Visualize(FrontendFeature):
         return self.config["tflite_visualize.exe"]
 
     def get_frontend_config(self, frontend):
-        assert (
-            frontend in ["tflite"]
-        ), f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
         return filter_none(
             {
                 f"{frontend}.visualize_enable": self.enabled,
@@ -518,16 +516,14 @@ class Visualize(FrontendFeature):
         )
 
     def update_formats(self, frontend, input_formats, output_formats):
-        assert (
-            frontend in ["tflite"]
-        ), f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
         if self.enabled:
             output_formats.append(ArtifactFormat.TEXT)
+
 
 @register_feature("relayviz")
 class Relayviz(FrontendFeature):
     """Visualize TVM relay models."""
-
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -542,9 +538,7 @@ class Relayviz(FrontendFeature):
         return self.config.get("plotter", None)
 
     def get_frontend_config(self, frontend):
-        assert (
-            frontend in ["relay"]
-        ), f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        assert frontend in ["relay"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
         return filter_none(
             {
                 f"{frontend}.visualize_graph": self.enabled,
@@ -553,12 +547,9 @@ class Relayviz(FrontendFeature):
         )
 
     def update_formats(self, frontend, input_formats, output_formats):
-        assert (
-            frontend in ["relay"]
-        ), f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        assert frontend in ["relay"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
         if self.enabled:
             output_formats.append(ArtifactFormat.TEXT)
-
 
 
 @register_feature("autotuned")

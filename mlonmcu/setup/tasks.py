@@ -1015,8 +1015,10 @@ def install_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=
         utils.python(espidfInstallScript, *espidfInstallArgs, print_output=False, live=verbose, env=env)
     context.cache["espidf.install_dir"] = espidfInstallDir
 
+
 def _validate_tflite_visualize(context: MlonMcuContext, params=None):
     return context.environment.has_frontend("tflite") and context.environment.has_feature("visualize")
+
 
 @Tasks.provides(["tflite_visualize.exe"])
 @Tasks.validate(_validate_tflite_visualize)

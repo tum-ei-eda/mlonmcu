@@ -44,6 +44,7 @@ class TensorInfo:
             ret *= dim
         return ret
 
+
 class TfLiteTensorInfo(TensorInfo):
     def __init__(self, t, fix_names=False):
         name = t.Name().decode()
@@ -68,6 +69,7 @@ class ModelInfo:
         self.in_tensors = in_tensors
         self.out_tensors = out_tensors
 
+
 class TfLiteModelInfo(ModelInfo):
     def __init__(self, model, fix_names=False):
         assert model.SubgraphsLength() == 1
@@ -84,14 +86,18 @@ class TfLiteModelInfo(ModelInfo):
             out_tensors.append(TfLiteTensorInfo(t, fix_names=fix_names))
         super().__init__(in_tensors, out_tensors)
 
+
 def shape_from_str(shape_str):
     return tuple(map(int, shape_str.replace(" ", "").split(",")))
+
 
 def parse_relay_main(line):
     input_tensors = []
     output_tensors = []
 
-    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(line)
+    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(
+        line
+    )
     for input_tensors_str in input_tensors_strs:
         res = re.compile(r"%([a-zA-Z0-9]+): Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").match(input_tensors_str)
         assert res is not None
@@ -111,7 +117,7 @@ def parse_relay_main(line):
     assert len(output_tensor_names) == len(output_tensor_strs)
 
     for i, output_name in enumerate(output_tensor_names):
-        res = re.compile(r"Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").        match(output_tensor_strs[i])
+        res = re.compile(r"Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").match(output_tensor_strs[i])
         assert res is not None
         groups = res.groups()
         assert len(groups) == 2
@@ -121,8 +127,8 @@ def parse_relay_main(line):
         output_tensors.append(output_tensor)
     return input_tensors, output_tensors
 
-class RelayModelInfo(ModelInfo):
 
+class RelayModelInfo(ModelInfo):
     def __init__(self, mod_text, fix_names=False):
         in_tensors = None
         out_tensors = None
@@ -138,6 +144,7 @@ def get_tflite_model_info(model_buf):
     tflite_model = tflite.Model.GetRootAsModel(model_buf, 0)
     model_info = TfLiteModelInfo(tflite_model)
     return model_info
+
 
 def get_relay_model_info(mod_text):
     model_info = RelayModelInfo(mod_text)

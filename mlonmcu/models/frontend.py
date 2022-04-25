@@ -287,8 +287,8 @@ class TfLiteFrontend(SimpleFrontend):
                 )
                 artifacts.append(tflite_visualize_artifact)
 
-
         return artifacts
+
 
 class RelayFrontend(SimpleFrontend):
 
@@ -341,12 +341,14 @@ class RelayFrontend(SimpleFrontend):
             def _relayviz(in_file, out_file, plotter_name, env={}):
                 import sys
                 import os
+
                 sys.path.append(env["PYTHONPATH"])
                 os.environ["TVM_LIBRARY_PATH"] = env["TVM_LIBRARY_PATH"]
                 from tvm import parser
                 from tvm.contrib import relay_viz
                 from tvm.contrib.relay_viz.terminal import TermPlotter
                 from tvm.contrib.relay_viz.dot import DotPlotter
+
                 if plotter_name == "term":
                     plotter_cls = TermPlotter
                 elif plotter_name == "dot":
@@ -368,7 +370,11 @@ class RelayFrontend(SimpleFrontend):
             ext = "txt" if self.relayviz_plotter == "term" else "pdf"
             with tempfile.TemporaryDirectory() as tmpdirname:
                 out_file = str(Path(tmpdirname) / f"relayviz.{ext}")
-                proc = multiprocessing.Process(target=_relayviz, args=[in_file, out_file, self.relayviz_plotter], kwargs={"env": {"PYTHONPATH": self.tvm_pythonpath, "TVM_LIBRARY_PATH": self.tvm_build_dir}})
+                proc = multiprocessing.Process(
+                    target=_relayviz,
+                    args=[in_file, out_file, self.relayviz_plotter],
+                    kwargs={"env": {"PYTHONPATH": self.tvm_pythonpath, "TVM_LIBRARY_PATH": self.tvm_build_dir}},
+                )
                 proc.start()
                 proc.join()
 
@@ -391,7 +397,6 @@ class RelayFrontend(SimpleFrontend):
                         fmt=ArtifactFormat.RAW,
                     )
                 artifacts.append(relayviz_artifact)
-
 
         return artifacts
 

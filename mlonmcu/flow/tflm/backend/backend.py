@@ -45,4 +45,3 @@ class TFLMBackend(Backend):
         ext = os.path.splitext(model)[1][1:]
         fmt = ModelFormats.from_extension(ext)
         assert fmt == ModelFormats.TFLITE, f"Backend '{self.name}' does not support model format: {fmt.name}"
-

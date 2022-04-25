@@ -18,9 +18,11 @@
 #
 """Definition of MLonMCU features and the feature registry."""
 
+import re
 from pathlib import Path
 
 from mlonmcu.utils import is_power_of_two
+from mlonmcu.config import str2bool
 from .feature import (
     BackendFeature,
     FrameworkFeature,
@@ -730,3 +732,97 @@ class Demo(BackendFeature, SetupFeature):
         assert platform in ["espidf"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         # TODO: espidf.demo_mode, disable wdt, runtime stats,
         return {}
+
+
+@register_feature("cachesim")
+class CacheSim(TargetFeature):
+    """Collect information on cache misses etc. with spike target"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "ic_enable": False,
+        "ic_config": "64:8:32",
+        "dc_enable": False,
+        "dc_config": "64:8:32",
+        "l2_enable": False,
+        "l2_config": "262144:8:32",  # TODO: find a meaningful value
+        "log_misses": False,
+        "detailed": False,
+    }
+
+    REQUIRED = []
+
+    def __init__(self, config=None):
+        super().__init__("cachesim", config=config)
+
+    @property
+    def ic_enable(self):
+        return str2bool(self.config["ic_enable"])
+
+    @property
+    def ic_config(self):
+        return self.config["ic_config"]
+
+    @property
+    def dc_enable(self):
+        return str2bool(self.config["dc_enable"])
+
+    @property
+    def dc_config(self):
+        return self.config["dc_config"]
+
+    @property
+    def l2_enable(self):
+        return str2bool(self.config["l2_enable"])
+
+    @property
+    def l2_config(self):
+        return self.config["l2_config"]
+
+    @property
+    def log_misses(self):
+        return str2bool(self.config["log_misses"])
+
+    @property
+    def detailed(self):
+        return str2bool(self.config["detailed"])
+
+    def add_target_config(self, target, config):
+        assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+            spike_args = config.get(f"{target}.extra_args", [])
+            if self.ic_enable:
+                assert self.ic_config is not None and len(self.ic_config) > 0
+                spike_args.append(f"--ic={self.ic_config}")
+            if self.dc_enable:
+                assert self.dc_config is not None and len(self.dc_config) > 0
+                spike_args.append(f"--dc={self.dc_config}")
+            if self.l2_enable:
+                assert self.l2_config is not None and len(self.l2_config) > 0
+                spike_args.append(f"--l2={self.l2_config}")
+            if self.log_misses:
+                spike_args.append("--log-cache-miss")
+            config.update({f"{target}.extra_args": spike_args})
+
+    def get_target_callback(self, target):
+        assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+
+            def cachesim_callback(stdout, metrics, artifacts):
+                """Callback which parses the targets output and updates the generated metrics and artifacts."""
+                expr = r"(D|I|L2)\$ ((?:Bytes (?:Read|Written))|(?:Read|Write) (?:Accesses|Misses)|(?:Writebacks)|(?:Miss Rate)):\s*(\d+\.?\d*%?)*"
+                matches = re.compile(expr).findall(stdout)
+                prefixes = [
+                    x for (x, y) in zip(["I", "D", "L2"], [self.ic_enable, self.dc_enable, self.l2_enable]) if y
+                ]
+                for groups in matches:
+                    assert len(groups) == 3
+                    prefix, label, value = groups
+                    if not self.detailed:
+                        if "Rate" not in label:
+                            continue
+                    value = int(value) if "%" not in value else float(value[:-1]) / 100
+                    if prefix in prefixes:
+                        metrics.add(f"{prefix}-Cache {label}", value)
+
+            return cachesim_callback

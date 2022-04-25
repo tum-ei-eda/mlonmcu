@@ -531,7 +531,7 @@ class Relayviz(FrontendFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "plotter": "term",
+        "plotter": "term",  # Alternative: dot
     }
 
     def __init__(self, config=None):

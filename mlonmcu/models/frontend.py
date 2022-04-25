@@ -323,7 +323,6 @@ class RelayFrontend(SimpleFrontend):
         return self.config["tvm.pythonpath"]
 
     def produce_artifacts(self, model):
-        print("produce_artifacts")
         assert len(self.input_formats) == len(model.paths) == 1
         artifacts = []
 

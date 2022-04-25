@@ -16,7 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
 from mlonmcu.flow.backend import Backend
+from mlonmcu.models.model import ModelFormats
 
 
 class TFLMBackend(Backend):
@@ -40,3 +42,7 @@ class TFLMBackend(Backend):
 
     def load_model(self, model):
         self.model = model
+        ext = os.path.splitext(model)[1][1:]
+        fmt = ModelFormats.from_extension(ext)
+        assert fmt == ModelFormats.TFLITE, f"Backend '{self.name}' does not support model format: {fmt.name}"
+

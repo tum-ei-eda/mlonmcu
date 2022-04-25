@@ -86,7 +86,7 @@ def init_frontends(frontend_names, features, config, context=None):
         try:
             frontend = frontend_cls(features=features, config=frontend_config)
         except Exception as err:
-            raise RuntimeError() from err
+            # raise RuntimeError() from err  # Comment this in to debug frontend issues
             print("Frontend could not be initialized. Continuing with next one...")
             continue
         frontends.append(frontend)

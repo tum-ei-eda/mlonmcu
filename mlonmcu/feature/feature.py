@@ -145,6 +145,15 @@ class TargetFeature(FeatureBase):
         # TODO: cfg passed to method instead of contructor or self.config = config
         config.update(self.get_target_config(target))
 
+    def get_target_callback(self, target):
+        return None
+
+    def add_target_callback(self, target, callbacks):
+        # TODO: cfg passed to method instead of contructor or self.config = config
+        callback = self.get_target_callback(target)
+        if callback is not None:
+            callbacks.append(callback)
+
 
 class PlatformFeature(FeatureBase):
     """Platform/Compile related feature"""

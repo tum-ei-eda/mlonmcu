@@ -41,6 +41,7 @@ class SpikeTarget(RISCVTarget):
         "enable_vext": False,
         "vlen": 0,  # vectorization=off
         "spikepk_extra_args": [],
+        "end_to_end_cycles": False,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["spike.exe", "spike.pk"]
 
@@ -74,6 +75,10 @@ class SpikeTarget(RISCVTarget):
     def spikepk_extra_args(self):
         return self.config["spikepk_extra_args"]
 
+    @property
+    def end_to_end_cycles(self):
+        return str2bool(self.config["end_to_end_cycles"])
+
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         spike_args = []
@@ -87,6 +92,9 @@ class SpikeTarget(RISCVTarget):
 
         if len(self.extra_args) > 0:
             spike_args.extend(self.extra_args)
+
+        if self.end_to_end_cycles:
+            spikepk_args.append("-s")
 
         if len(self.spikepk_extra_args) > 0:
             spikepk_args.extend(self.spikepk_extra_args.split(" "))

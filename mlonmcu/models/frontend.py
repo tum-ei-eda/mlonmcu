@@ -232,7 +232,7 @@ class TfLiteFrontend(SimpleFrontend):
 
     FEATURES = Frontend.FEATURES + ["visualize"]
 
-    DEFAULTS = {**Frontend.DEFAULTS, "visualize_graph": False}
+    DEFAULTS = {**Frontend.DEFAULTS, "visualize_enable": False, "visualize_script": None}
 
     REQUIRED = Frontend.REQUIRED + []
 
@@ -244,6 +244,51 @@ class TfLiteFrontend(SimpleFrontend):
             config=config,
         )
 
+    @property
+    def visualize_enable(self):
+        return str2bool(self.config["visualize_enable"])
+
+    @property
+    def visualize_script(self):
+        return self.config["visualize_script"]
+
+    def produce_artifacts(self, model):
+        assert len(self.input_formats) == len(model.paths) == 1
+        artifacts = []
+
+        name = model.name
+        path = model.paths[0]
+        ext = self.input_formats[0].extension
+        with open(path, "rb") as handle:
+            raw = handle.read()
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+
+        if not self.visualize_enable:
+            assert len(self.output_formats) == 1
+        else:
+            assert len(self.output_formats) == 2
+
+            assert self.visualize_script is not None
+
+            in_file = model.paths[0]
+            ext = "html"
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                out_file = str(Path(tmpdirname) / f"tflite_visualize.{ext}")
+
+                utils.exec_getout(self.visualize_script, in_file, out_file, print_output=False)
+
+                with open(out_file, "r") as handle:
+                    tflite_visualize_text = handle.read()
+
+                tflite_visualize_artifact = Artifact(
+                    f"tflite_visualize.{ext}",
+                    content=tflite_visualize_text,
+                    fmt=ArtifactFormat.TEXT,
+                )
+                artifacts.append(tflite_visualize_artifact)
+
+
+        return artifacts
 
 class RelayFrontend(SimpleFrontend):
 

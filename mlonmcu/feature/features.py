@@ -490,38 +490,39 @@ class Fusetile(FrameworkFeature):  # TODO: rename to MOIOPT?
 
 
 @register_feature("visualize")
-class Visualize(BackendFeature):
-    """Visualize TVM relay models."""
-
-    # Bokeh backend has additional python requirements: graphviz, pydot, bokeh >= 2.3.1
-    # TODO: add tflite visualizer? (Frontend)
+class Visualize(FrontendFeature):
+    """Visualize TFLite models."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "mode": "cli",  # Alternative: bokeh
     }
+
+    REQUIRED = ["tflite_visualize.exe"]
 
     def __init__(self, config=None):
         super().__init__("visualize", config=config)
 
     @property
-    def mode(self):
-        value = self.config["mode"] if "mode" in self.config else None
-        if value:
-            assert value.lower() in ["cli", "bokeh"]
-        return value
+    def tflite_visualize_exe(self):
+        return self.config["tflite_visualize.exe"]
 
-    def get_backend_config(self, backend):
+    def get_frontend_config(self, frontend):
         assert (
-            backend in SUPPORTED_TVM_BACKENDS
-        ), f"Unsupported feature '{self.name}' for backend '{backend}'"  # TODO: undefined!
-        return NotImplementedError
+            frontend in ["tflite"]
+        ), f"Unsupported feature '{self.name}' for frontend '{frontend}'"
         return filter_none(
             {
-                f"{backend}.visualize_enable": self.enabled,
-                f"{backend}.visualize_mode": self.mode,
+                f"{frontend}.visualize_enable": self.enabled,
+                f"{frontend}.visualize_script": self.tflite_visualize_exe,
             }
         )
+
+    def update_formats(self, frontend, input_formats, output_formats):
+        assert (
+            frontend in ["tflite"]
+        ), f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        if self.enabled:
+            output_formats.append(ArtifactFormat.TEXT)
 
 @register_feature("relayviz")
 class Relayviz(FrontendFeature):

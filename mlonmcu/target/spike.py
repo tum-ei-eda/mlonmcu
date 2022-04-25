@@ -23,6 +23,7 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.config import str2bool
 from .common import cli, execute
 from .riscv import RISCVTarget
 from .metrics import Metrics
@@ -33,12 +34,14 @@ logger = get_logger()
 class SpikeTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["vext"]
+    FEATURES = ["vext", "cachesim"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "enable_vext": False,
         "vlen": 0,  # vectorization=off
+        "spikepk_extra_args": [],
+        "end_to_end_cycles": False,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["spike.exe", "spike.pk"]
 
@@ -55,7 +58,10 @@ class SpikeTarget(RISCVTarget):
 
     @property
     def extra_args(self):
-        return str(self.config["extra_args"])
+        ret = self.config["extra_args"]
+        if isinstance(ret, str):
+            ret = [ret]  # TODO: properly split quoted args
+        return ret
 
     @property
     def enable_vext(self):
@@ -65,9 +71,18 @@ class SpikeTarget(RISCVTarget):
     def vlen(self):
         return int(self.config["vlen"])
 
+    @property
+    def spikepk_extra_args(self):
+        return self.config["spikepk_extra_args"]
+
+    @property
+    def end_to_end_cycles(self):
+        return str2bool(self.config["end_to_end_cycles"])
+
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         spike_args = []
+        spikepk_args = []
 
         if self.enable_vext:
             if "v" not in self.arch[2:]:
@@ -76,7 +91,13 @@ class SpikeTarget(RISCVTarget):
         spike_args.append(f"--isa={self.arch}")
 
         if len(self.extra_args) > 0:
-            spike_args.extend(self.extra_args.split(" "))
+            spike_args.extend(self.extra_args)
+
+        if self.end_to_end_cycles:
+            spikepk_args.append("-s")
+
+        if len(self.spikepk_extra_args) > 0:
+            spikepk_args.extend(self.spikepk_extra_args.split(" "))
 
         if self.enable_vext:
             assert self.vlen > 0
@@ -91,6 +112,7 @@ class SpikeTarget(RISCVTarget):
             self.spike_exe.resolve(),
             *spike_args,
             self.spike_pk.resolve(),
+            *spikepk_args,
             program,
             *args,
             **kwargs,
@@ -98,7 +120,10 @@ class SpikeTarget(RISCVTarget):
         return ret
 
     def parse_stdout(self, out):
-        cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+        if self.end_to_end_cycles:
+            cpu_cycles = re.search(r"(\d*) cycles", out)
+        else:
+            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         if not cpu_cycles:
             logger.warning("unexpected script output (cycles)")
             cycles = None

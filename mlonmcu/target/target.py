@@ -72,6 +72,7 @@ class Target:
     ):
         self.name = name
         self.config = config if config else {}
+        self.callbacks = []
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         self.inspect_program = "readelf"
@@ -93,6 +94,7 @@ class Target:
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.add_target_config(self.name, self.config)
+            feature.add_target_callback(self.name, self.callbacks)
         return features
 
     def exec(self, program: Path, *args, cwd=os.getcwd(), **kwargs):
@@ -125,6 +127,8 @@ class Target:
         artifacts = []
         with tempfile.TemporaryDirectory() as temp_dir:
             metrics, out = self.get_metrics(elf, temp_dir)
+            for callback in self.callbacks:  # TODO: give priorities to determine order?
+                callback(out, metrics, artifacts)
             content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
             artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
             # Alternative: artifact = Artifact("metrics.csv", data=df/dict, fmt=ArtifactFormat.DATA)

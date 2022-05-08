@@ -244,7 +244,8 @@ class TVMBackend(Backend):
                 model_buf = handle.read()
                 self.model_info = get_tflite_model_info(model_buf)
         elif fmt == ModelFormats.RELAY:
-            # Warning: the wrapper generateion does currently not work because of the missing possibility to get the relay models input names and shapes
+            # Warning: the wrapper generateion does currently not work because of the
+            # missing possibility to get the relay models input names and shapes
             self.model_format = "relay"
             with open(model, "r") as handle:
                 mod_text = handle.read()

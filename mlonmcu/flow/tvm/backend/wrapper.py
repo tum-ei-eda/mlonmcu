@@ -76,7 +76,7 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size):
     # Determine the number of required pages
     assert workspace_size >= 0
     crtPageSizeLog2 = 10
-    crtNumPages = ceil(workspace_size / (2 ** crtPageSizeLog2))
+    crtNumPages = ceil(workspace_size / (2**crtPageSizeLog2))
 
     def escapeJson(j):
         return j.replace('"', '\\"').replace("\n", "\\\n")

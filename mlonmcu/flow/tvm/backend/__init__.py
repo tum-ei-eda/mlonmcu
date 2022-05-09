@@ -20,6 +20,6 @@ from .backend import TVMBackend
 from .tvmaot import TVMAOTBackend
 from .tvmcg import TVMCGBackend
 from .tvmrt import TVMRTBackend
+from .tvmllvm import TVMLLVMBackend
 
-
-__all__ = ["TVMBackend", "TVMAOTBackend", "TVMCGBackend", "TVMRTBackend"]
+__all__ = ["TVMBackend", "TVMAOTBackend", "TVMCGBackend", "TVMRTBackend", "TVMLLVMBackend"]

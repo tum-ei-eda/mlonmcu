@@ -297,7 +297,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             args.extend(["-B" if monitor else "-b", self.baud])
         return args
 
-    def flash(self, target, timeout=120):
+    def flash(self, elf, target, timeout=120):
+        # Ignore elf, as we use self.project_dir instead
+        # TODO: add alternative approach which allows passing elf instead
+        if elf is not None:
+            logger.debug("Ignoring ELF file for espidf platform")
         # TODO: implement timeout
         # TODO: make sure that already compiled? -> error or just call compile routine?
         if self.wait_for_user:  # INTERACTIVE

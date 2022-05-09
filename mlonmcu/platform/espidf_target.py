@@ -61,7 +61,7 @@ def create_espidf_target(name, platform, base=Target):
             if len(args) > 0:
                 raise RuntimeError("Program arguments are not supported for real hardware devices")
 
-            assert self.platform is not None, "ESP32 targets needs a platform to execute programs"
+            assert self.platform is not None, "ESP32 targets need a platform to execute programs"
 
             if self.timeout_sec > 0:
                 raise NotImplementedError
@@ -69,7 +69,7 @@ def create_espidf_target(name, platform, base=Target):
             # ESP-IDF actually wants a project directory, but we only get the elf now. As a workaround we
             # assume the elf is right in the build directory inside the project directory
 
-            ret = self.platform.run(self)
+            ret = self.platform.run(program, self)
             return ret
 
         def parse_stdout(self, out):
@@ -87,7 +87,8 @@ def create_espidf_target(name, platform, base=Target):
                 time_us = int(float(cpu_time_us.group(1)))
             return cycles, time_us
 
-        def get_metrics(self, elf, directory, handle_exit=None):
+        def get_metrics(self, elf, directory, handle_exit=None, num=None):
+            assert num is None
             if self.print_outputs:
                 out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
             else:

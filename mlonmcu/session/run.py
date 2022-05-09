@@ -25,6 +25,7 @@ from enum import IntEnum
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
+from mlonmcu.platform.platform import CompilePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.models.lookup import lookup_models
@@ -141,7 +142,9 @@ class Run:
             return self.tune_enabled and self.backend is not None
         if stage == RunStage.BUILD:
             return self.backend is not None and self.framework is not None
-        if stage in [RunStage.COMPILE, RunStage.RUN]:
+        if stage == RunStage.COMPILE:
+            return self.target is not None and self.platform is not None and isinstance(self.platform, CompilePlatform)
+        if stage == RunStage.RUN:
             return self.target is not None and self.platform is not None
         if stage == RunStage.POSTPROCESS:
             return len(self.postprocesses) > 0
@@ -380,11 +383,16 @@ class Run:
         logger.debug("%s Processing stage RUN", self.prefix)
         self.lock()
         # Alternative: drop artifacts of higher stages when re-triggering a lower one?
-
-        assert self.completed[RunStage.COMPILE]
-        self.export_stage(RunStage.COMPILE, optional=self.export_optional)
-        elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][0]
-        self.target.generate_metrics(elf_artifact.path)
+        if self.has_stage(RunStage.COMPILE):
+            assert self.completed[RunStage.COMPILE]
+            self.export_stage(RunStage.COMPILE, optional=self.export_optional)
+            elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][0]
+            self.target.generate_metrics(elf_artifact.path)
+        else:
+            assert self.completed[RunStage.BUILD]  # Used for tvm platform
+            self.export_stage(RunStage.BUILD, optional=self.export_optional)
+            shared_object_artifact = self.artifacts_per_stage[RunStage.BUILD][0]
+            self.target.generate_metrics(shared_object_artifact.path, num=self.num)
         self.artifacts_per_stage[RunStage.RUN] = self.target.artifacts
 
         self.completed[RunStage.RUN] = True

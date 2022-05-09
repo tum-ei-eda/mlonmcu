@@ -104,7 +104,7 @@ class TvmPlatform(TargetPlatform):
 
     @property
     def repeat(self):
-        return self.config["repeat"]    
+        return self.config["repeat"]
 
     @property
     def use_rpc(self):
@@ -112,15 +112,15 @@ class TvmPlatform(TargetPlatform):
 
     @property
     def rpc_key(self):
-        return self.config["rpc_key"]    
+        return self.config["rpc_key"]
 
     @property
     def rpc_hostname(self):
-        return self.config["rpc_hostname"]  
+        return self.config["rpc_hostname"]
 
     @property
     def rpc_port(self):
-        return self.config["rpc_port"] 
+        return self.config["rpc_port"]
 
     @property
     def tvmc_extra_args(self):
@@ -189,8 +189,12 @@ class TvmPlatform(TargetPlatform):
         return [
             path,
             *["--device", device],
-            *get_data_tvmc_args(mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top),
-            *get_bench_tvmc_args(print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=num),
+            *get_data_tvmc_args(
+                mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
+            ),
+            *get_bench_tvmc_args(
+                print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=num
+            ),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
 

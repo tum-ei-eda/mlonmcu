@@ -26,6 +26,7 @@ from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
+
 def name2device(name):
     return name.replace("tvm_", "")
 
@@ -72,10 +73,18 @@ def create_tvm_target(name, platform, base=Target):
             found = False
             for line in out.split("\n"):
                 if found:
-                    match = re.compile(r"\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)").findall(line)
+                    match = re.compile(r"\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)").findall(
+                        line
+                    )
                     assert len(match) == 1
                     groups = match[0]
-                    mean_ms, median_ms, max_ms, min_ms, std_ms = float(groups[0]), float(groups[1]), float(groups[2]), float(groups[3]), float(groups[4])
+                    mean_ms, median_ms, max_ms, min_ms, std_ms = (
+                        float(groups[0]),
+                        float(groups[1]),
+                        float(groups[2]),
+                        float(groups[3]),
+                        float(groups[4]),
+                    )
                     break
                 print("line")
                 if re.compile(r"\s+mean \(ms\)\s+median \(ms\)\s+max \(ms\)\s+min \(ms\)\s+std \(ms\)").match(line):

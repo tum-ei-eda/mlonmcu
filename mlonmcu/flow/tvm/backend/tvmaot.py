@@ -26,6 +26,7 @@ from .backend import TVMBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
+from .tvmc_utils import get_tvmaot_tvmc_args
 
 
 class TVMAOTBackend(TVMBackend):
@@ -59,21 +60,10 @@ class TVMAOTBackend(TVMBackend):
     def alignment_bytes(self):
         return int(self.config["alignment_bytes"])
 
-    def get_tvmc_compile_args(self):
-        return super().get_tvmc_compile_args("aot") + [
-            "--runtime-crt-system-lib",
-            str(0),
-            "--target-c-constants-byte-alignment",
-            str(self.alignment_bytes),
-            "--target-c-workspace-byte-alignment",
-            str(self.alignment_bytes),
-            "--target-c-executor",
-            "aot",
-            "--target-c-unpacked-api",
-            str(int(self.unpacked_api)),
-            "--target-c-interface-api",
-            "c" if self.unpacked_api else "packed",
-        ]
+    def get_tvmc_compile_args(self, out):
+        return super().get_tvmc_compile_args(out, executor="aot") + get_tvmaot_tvmc_args(
+            self.alignment_bytes, self.unpacked_api
+        )
 
     # def resolve_features(self):
     #     unpacked_api = False

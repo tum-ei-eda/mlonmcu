@@ -839,7 +839,10 @@ class CacheSim(TargetFeature):
 
             def cachesim_callback(stdout, metrics, artifacts):
                 """Callback which parses the targets output and updates the generated metrics and artifacts."""
-                expr = r"(D|I|L2)\$ ((?:Bytes (?:Read|Written))|(?:Read|Write) (?:Accesses|Misses)|(?:Writebacks)|(?:Miss Rate)):\s*(\d+\.?\d*%?)*"
+                expr = (
+                    r"(D|I|L2)\$ ((?:Bytes (?:Read|Written))|(?:Read|Write) "
+                    r"(?:Accesses|Misses)|(?:Writebacks)|(?:Miss Rate)):\s*(\d+\.?\d*%?)*"
+                )
                 matches = re.compile(expr).findall(stdout)
                 prefixes = [
                     x for (x, y) in zip(["I", "D", "L2"], [self.ic_enable, self.dc_enable, self.l2_enable]) if y

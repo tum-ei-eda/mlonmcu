@@ -95,6 +95,9 @@ class FrontendFeature(FeatureBase):
     def add_frontend_config(self, frontend, config):
         config.update(self.get_frontend_config(frontend))
 
+    def update_formats(self, frontend, input_formats, output_formats):
+        pass
+
 
 class FrameworkFeature(FeatureBase):
     """Framework related feature"""

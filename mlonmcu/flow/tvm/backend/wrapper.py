@@ -321,12 +321,12 @@ size_t TVMWrap_GetNumOutputs()
 """
     out += fill(
         mainCode,
-        inMeta=getMeta(model_info.inTensors, True),
-        outMeta=getMeta(model_info.outTensors),
-        inSizes=getSizes(model_info.inTensors),
-        outSizes=getSizes(model_info.outTensors),
-        numInputs=len(model_info.inTensors),
-        numOutputs=len(model_info.outTensors),
+        inMeta=getMeta(model_info.in_tensors, True),
+        outMeta=getMeta(model_info.out_tensors),
+        inSizes=getSizes(model_info.in_tensors),
+        outSizes=getSizes(model_info.out_tensors),
+        numInputs=len(model_info.in_tensors),
+        numOutputs=len(model_info.out_tensors),
         numPages=crtNumPages,
         pageSizeLog2=crtPageSizeLog2,
     )
@@ -336,7 +336,7 @@ size_t TVMWrap_GetNumOutputs()
 def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
     modPrefix = f"tvmgen_{mod_name}"
 
-    def writeTensors(inTensors, outTensors, modPrefix, api):
+    def writeTensors(in_tensors, out_tensors, modPrefix, api):
         if api == "c":
             retStr = """
 // Define data for input and output tensors
@@ -357,8 +357,8 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
                 ret += "};\n"
                 return ret
 
-            retStr += writeTensorsHelper(inTensors, modPrefix, False)
-            retStr += writeTensorsHelper(outTensors, modPrefix, True)
+            retStr += writeTensorsHelper(in_tensors, modPrefix, False)
+            retStr += writeTensorsHelper(out_tensors, modPrefix, True)
             return retStr
         elif api == "packed":
             retStr = """
@@ -375,8 +375,8 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
                 ret += f"void* {direction}puts[] = {{" + ", ".join(names) + "};\n"
                 return ret
 
-            retStr += writeTensorsHelper(inTensors, modPrefix, False)
-            retStr += writeTensorsHelper(outTensors, modPrefix, True)
+            retStr += writeTensorsHelper(in_tensors, modPrefix, False)
+            retStr += writeTensorsHelper(out_tensors, modPrefix, True)
             return retStr
         else:
             raise RuntimeError("api has to be either 'c' or 'packed'")
@@ -405,7 +405,7 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
 
     out += "\n"
 
-    out += writeTensors(model_info.inTensors, model_info.outTensors, modPrefix, api)
+    out += writeTensors(model_info.in_tensors, model_info.out_tensors, modPrefix, api)
 
     logging_code = """
 void TVMLogf(const char* msg, ...) {
@@ -570,10 +570,10 @@ size_t TVMWrap_GetNumOutputs()
 """
     out += fill(
         mainCode,
-        inSizes=getSizes(model_info.inTensors),
-        outSizes=getSizes(model_info.outTensors),
-        numInputs=len(model_info.inTensors),
-        numOutputs=len(model_info.outTensors),
+        inSizes=getSizes(model_info.in_tensors),
+        outSizes=getSizes(model_info.out_tensors),
+        numInputs=len(model_info.in_tensors),
+        numOutputs=len(model_info.out_tensors),
         modPrefix=modPrefix,
     )
     return out

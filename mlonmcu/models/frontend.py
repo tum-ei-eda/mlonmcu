@@ -17,13 +17,14 @@
 # limitations under the License.
 #
 import tempfile
+import multiprocessing
 from pathlib import Path
 from abc import ABC, abstractmethod
 
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import ModelFormats
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.config import filter_config
+from mlonmcu.config import filter_config, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
 
@@ -87,13 +88,14 @@ class Frontend(ABC):
             return []
         features = get_matching_features(features, FeatureType.FRONTEND)
         for feature in features:
-            assert (  # If this assertion occurs, continue with the next frontend instea dof failing
+            assert (  # If this assertion occurs, continue with the next frontend instead of failing
                 # (TODO: create custom exception type)
                 feature.name
                 in self.FEATURES
             ), f"Incompatible feature: {feature.name}"
             # Instead we might introduce self.compatible and set it to true at this line
             feature.add_frontend_config(self.name, self.config)
+            feature.update_formats(self.name, self.input_formats, self.output_formats)
         return features
 
     @abstractmethod
@@ -229,7 +231,7 @@ class TfLiteFrontend(SimpleFrontend):
 
     FEATURES = Frontend.FEATURES + ["visualize"]
 
-    DEFAULTS = {**Frontend.DEFAULTS, "visualize_graph": False}
+    DEFAULTS = {**Frontend.DEFAULTS, "visualize_enable": False, "visualize_script": None}
 
     REQUIRED = Frontend.REQUIRED + []
 
@@ -241,7 +243,161 @@ class TfLiteFrontend(SimpleFrontend):
             config=config,
         )
 
-    # TODO: ModelFormats.OTHER as placeholder for visualization artifacts
+    @property
+    def visualize_enable(self):
+        return str2bool(self.config["visualize_enable"])
+
+    @property
+    def visualize_script(self):
+        return self.config["visualize_script"]
+
+    def produce_artifacts(self, model):
+        assert len(self.input_formats) == len(model.paths) == 1
+        artifacts = []
+
+        name = model.name
+        path = model.paths[0]
+        ext = self.input_formats[0].extension
+        with open(path, "rb") as handle:
+            raw = handle.read()
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+
+        if not self.visualize_enable:
+            assert len(self.output_formats) == 1
+        else:
+            assert len(self.output_formats) == 2
+
+            assert self.visualize_script is not None
+
+            in_file = model.paths[0]
+            ext = "html"
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                out_file = str(Path(tmpdirname) / f"tflite_visualize.{ext}")
+
+                utils.exec_getout(self.visualize_script, in_file, out_file, print_output=False)
+
+                with open(out_file, "r") as handle:
+                    tflite_visualize_text = handle.read()
+
+                tflite_visualize_artifact = Artifact(
+                    f"tflite_visualize.{ext}",
+                    content=tflite_visualize_text,
+                    fmt=ArtifactFormat.TEXT,
+                )
+                artifacts.append(tflite_visualize_artifact)
+
+        return artifacts
+
+
+class RelayFrontend(SimpleFrontend):
+
+    FEATURES = Frontend.FEATURES + ["relayviz"]
+
+    DEFAULTS = {**Frontend.DEFAULTS, "visualize_graph": False, "relayviz_plotter": "term"}
+
+    REQUIRED = Frontend.REQUIRED + ["tvm.build_dir", "tvm.pythonpath"]
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "relay",
+            ModelFormats.RELAY,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def visualize_graph(self):
+        return str2bool(self.config["visualize_graph"])
+
+    @property
+    def relayviz_plotter(self):
+        return self.config["relayviz_plotter"]
+
+    @property
+    def tvm_build_dir(self):
+        return self.config["tvm.build_dir"]
+
+    @property
+    def tvm_pythonpath(self):
+        return self.config["tvm.pythonpath"]
+
+    def produce_artifacts(self, model):
+        assert len(self.input_formats) == len(model.paths) == 1
+        artifacts = []
+
+        name = model.name
+        path = model.paths[0]
+        ext = self.input_formats[0].extension
+        with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
+            raw = handle.read()
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+
+        if not self.visualize_graph:
+            assert len(self.output_formats) == 1
+        else:
+            assert len(self.output_formats) == 2
+
+            def _relayviz(in_file, out_file, plotter_name, env={}):
+                import sys
+                import os
+
+                sys.path.append(env["PYTHONPATH"])
+                os.environ["TVM_LIBRARY_PATH"] = env["TVM_LIBRARY_PATH"]
+                from tvm import parser
+                from tvm.contrib import relay_viz
+                from tvm.contrib.relay_viz.terminal import TermPlotter
+                from tvm.contrib.relay_viz.dot import DotPlotter
+
+                if plotter_name == "term":
+                    plotter_cls = TermPlotter
+                elif plotter_name == "dot":
+                    plotter_cls = DotPlotter
+                else:
+                    raise RuntimeError(f"Invalid plotter name: {plotter_name}")
+
+                with open(in_file, "r", encoding="utf-8") as relay_text:
+                    text = relay_text.read()
+
+                mod = parser.fromtext(text)
+
+                plotter_inst = plotter_cls()
+                viz = relay_viz.RelayVisualizer(mod, plotter=plotter_inst)
+                out_file_base = os.path.splitext(out_file)[0]
+                viz.render(filename=out_file_base)
+
+            in_file = model.paths[0]
+            ext = "txt" if self.relayviz_plotter == "term" else "pdf"
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                out_file = str(Path(tmpdirname) / f"relayviz.{ext}")
+                proc = multiprocessing.Process(
+                    target=_relayviz,
+                    args=[in_file, out_file, self.relayviz_plotter],
+                    kwargs={"env": {"PYTHONPATH": self.tvm_pythonpath, "TVM_LIBRARY_PATH": self.tvm_build_dir}},
+                )
+                proc.start()
+                proc.join()
+
+                if self.relayviz_plotter == "term":
+                    with open(out_file, "r") as handle:
+                        relayviz_text = handle.read()
+
+                    relayviz_artifact = Artifact(
+                        f"relayviz.{ext}",
+                        content=relayviz_text,
+                        fmt=ArtifactFormat.TEXT,
+                    )
+                else:
+                    with open(out_file, "rb") as handle:
+                        relayviz_data = handle.read()
+
+                    relayviz_artifact = Artifact(
+                        f"relayviz.{ext}",
+                        raw=relayviz_data,
+                        fmt=ArtifactFormat.RAW,
+                    )
+                artifacts.append(relayviz_artifact)
+
+        return artifacts
 
 
 class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do constructor?

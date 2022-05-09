@@ -23,6 +23,7 @@ from pathlib import Path
 
 from mlonmcu.utils import is_power_of_two
 from mlonmcu.config import str2bool
+from mlonmcu.artifact import ArtifactFormat
 from .feature import (
     BackendFeature,
     FrameworkFeature,
@@ -489,38 +490,66 @@ class Fusetile(FrameworkFeature):  # TODO: rename to MOIOPT?
 
 
 @register_feature("visualize")
-class Visualize(BackendFeature):
-    """Visualize TVM relay models."""
-
-    # Bokeh backend has additional python requirements: graphviz, pydot, bokeh >= 2.3.1
-    # TODO: add tflite visualizer? (Frontend)
+class Visualize(FrontendFeature):
+    """Visualize TFLite models."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "mode": "cli",  # Alternative: bokeh
     }
+
+    REQUIRED = ["tflite_visualize.exe"]
 
     def __init__(self, config=None):
         super().__init__("visualize", config=config)
 
     @property
-    def mode(self):
-        value = self.config["mode"] if "mode" in self.config else None
-        if value:
-            assert value.lower() in ["cli", "bokeh"]
-        return value
+    def tflite_visualize_exe(self):
+        return self.config["tflite_visualize.exe"]
 
-    def get_backend_config(self, backend):
-        assert (
-            backend in SUPPORTED_TVM_BACKENDS
-        ), f"Unsupported feature '{self.name}' for backend '{backend}'"  # TODO: undefined!
-        return NotImplementedError
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
         return filter_none(
             {
-                f"{backend}.visualize_enable": self.enabled,
-                f"{backend}.visualize_mode": self.mode,
+                f"{frontend}.visualize_enable": self.enabled,
+                f"{frontend}.visualize_script": self.tflite_visualize_exe,
             }
         )
+
+    def update_formats(self, frontend, input_formats, output_formats):
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        if self.enabled:
+            output_formats.append(ArtifactFormat.TEXT)
+
+
+@register_feature("relayviz")
+class Relayviz(FrontendFeature):
+    """Visualize TVM relay models."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "plotter": "term",  # Alternative: dot
+    }
+
+    def __init__(self, config=None):
+        super().__init__("relayviz", config=config)
+
+    @property
+    def plotter(self):
+        return self.config.get("plotter", None)
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["relay"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        return filter_none(
+            {
+                f"{frontend}.visualize_graph": self.enabled,
+                f"{frontend}.relayviz_plotter": self.plotter,
+            }
+        )
+
+    def update_formats(self, frontend, input_formats, output_formats):
+        assert frontend in ["relay"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        if self.enabled:
+            output_formats.append(ArtifactFormat.TEXT)
 
 
 @register_feature("autotuned")
@@ -810,7 +839,10 @@ class CacheSim(TargetFeature):
 
             def cachesim_callback(stdout, metrics, artifacts):
                 """Callback which parses the targets output and updates the generated metrics and artifacts."""
-                expr = r"(D|I|L2)\$ ((?:Bytes (?:Read|Written))|(?:Read|Write) (?:Accesses|Misses)|(?:Writebacks)|(?:Miss Rate)):\s*(\d+\.?\d*%?)*"
+                expr = (
+                    r"(D|I|L2)\$ ((?:Bytes (?:Read|Written))|(?:Read|Write) "
+                    r"(?:Accesses|Misses)|(?:Writebacks)|(?:Miss Rate)):\s*(\d+\.?\d*%?)*"
+                )
                 matches = re.compile(expr).findall(stdout)
                 prefixes = [
                     x for (x, y) in zip(["I", "D", "L2"], [self.ic_enable, self.dc_enable, self.l2_enable]) if y

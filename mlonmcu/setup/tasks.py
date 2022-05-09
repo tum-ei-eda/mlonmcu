@@ -1014,3 +1014,28 @@ def install_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=
         env["IDF_TOOLS_PATH"] = str(espidfInstallDir)
         utils.python(espidfInstallScript, *espidfInstallArgs, print_output=False, live=verbose, env=env)
     context.cache["espidf.install_dir"] = espidfInstallDir
+
+
+def _validate_tflite_visualize(context: MlonMcuContext, params=None):
+    return context.environment.has_frontend("tflite") and context.environment.has_feature("visualize")
+
+
+@Tasks.provides(["tflite_visualize.exe"])
+@Tasks.validate(_validate_tflite_visualize)
+@Tasks.register(category=TaskType.FEATURE)
+def download_tflite_vizualize(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Download the visualize.py script for TFLite."""
+    # This script is content of the tensorflow repo (not tflite-micro) and unfortunately not bundled
+    # into the tensorflow python package. Therefore just download this single file form GitHub
+
+    tfLiteVizualizeName = utils.makeDirName("tflite_visualize")
+    tfLiteVizualizeInstallDir = context.environment.paths["deps"].path / "install" / tfLiteVizualizeName
+    tfLiteVizualizeExe = tfLiteVizualizeInstallDir / "visualize.py"
+    user_vars = context.environment.vars
+    if "tflite_visualize.exe" in user_vars:  # TODO: also check command line flags?
+        return False
+    if rebuild or not utils.is_populated(tfLiteVizualizeInstallDir):
+        tfLiteVizualizeInstallDir.mkdir()
+        url = "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/tools/visualize.py"
+        utils.download(url, tfLiteVizualizeExe)
+    context.cache["tflite_visualize.exe"] = tfLiteVizualizeExe

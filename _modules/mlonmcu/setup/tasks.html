@@ -1094,6 +1094,31 @@
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;IDF_TOOLS_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">espidfInstallDir</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="n">espidfInstallScript</span><span class="p">,</span> <span class="o">*</span><span class="n">espidfInstallArgs</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;espidf.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">espidfInstallDir</span></div>
+
+
+<span class="k">def</span> <span class="nf">_validate_tflite_visualize</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_frontend</span><span class="p">(</span><span class="s2">&quot;tflite&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;visualize&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="download_tflite_vizualize"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.download_tflite_vizualize">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tflite_visualize.exe&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tflite_visualize</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FEATURE</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">download_tflite_vizualize</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download the visualize.py script for TFLite.&quot;&quot;&quot;</span>
+    <span class="c1"># This script is content of the tensorflow repo (not tflite-micro) and unfortunately not bundled</span>
+    <span class="c1"># into the tensorflow python package. Therefore just download this single file form GitHub</span>
+
+    <span class="n">tfLiteVizualizeName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tflite_visualize&quot;</span><span class="p">)</span>
+    <span class="n">tfLiteVizualizeInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">tfLiteVizualizeName</span>
+    <span class="n">tfLiteVizualizeExe</span> <span class="o">=</span> <span class="n">tfLiteVizualizeInstallDir</span> <span class="o">/</span> <span class="s2">&quot;visualize.py&quot;</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;tflite_visualize.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tfLiteVizualizeInstallDir</span><span class="p">):</span>
+        <span class="n">tfLiteVizualizeInstallDir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/tools/visualize.py&quot;</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">tfLiteVizualizeExe</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflite_visualize.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tfLiteVizualizeExe</span></div>
 </pre></div>
 
            </div>

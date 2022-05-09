@@ -402,12 +402,12 @@
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="n">out</span> <span class="o">+=</span> <span class="n">fill</span><span class="p">(</span>
         <span class="n">mainCode</span><span class="p">,</span>
-        <span class="n">inMeta</span><span class="o">=</span><span class="n">getMeta</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">inTensors</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
-        <span class="n">outMeta</span><span class="o">=</span><span class="n">getMeta</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">outTensors</span><span class="p">),</span>
-        <span class="n">inSizes</span><span class="o">=</span><span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">inTensors</span><span class="p">),</span>
-        <span class="n">outSizes</span><span class="o">=</span><span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">outTensors</span><span class="p">),</span>
-        <span class="n">numInputs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">inTensors</span><span class="p">),</span>
-        <span class="n">numOutputs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">outTensors</span><span class="p">),</span>
+        <span class="n">inMeta</span><span class="o">=</span><span class="n">getMeta</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="n">outMeta</span><span class="o">=</span><span class="n">getMeta</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">),</span>
+        <span class="n">inSizes</span><span class="o">=</span><span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">),</span>
+        <span class="n">outSizes</span><span class="o">=</span><span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">),</span>
+        <span class="n">numInputs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">),</span>
+        <span class="n">numOutputs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">),</span>
         <span class="n">numPages</span><span class="o">=</span><span class="n">crtNumPages</span><span class="p">,</span>
         <span class="n">pageSizeLog2</span><span class="o">=</span><span class="n">crtPageSizeLog2</span><span class="p">,</span>
     <span class="p">)</span>
@@ -417,7 +417,7 @@
 <div class="viewcode-block" id="generate_tvmaot_wrapper"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_tvmaot_wrapper">[docs]</a><span class="k">def</span> <span class="nf">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
     <span class="n">modPrefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tvmgen_</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="nf">writeTensors</span><span class="p">(</span><span class="n">inTensors</span><span class="p">,</span> <span class="n">outTensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">writeTensors</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">api</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
             <span class="n">retStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">// Define data for input and output tensors</span>
@@ -438,8 +438,8 @@
                 <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;};</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="k">return</span> <span class="n">ret</span>
 
-            <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">inTensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">outTensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">out_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">retStr</span>
         <span class="k">elif</span> <span class="n">api</span> <span class="o">==</span> <span class="s2">&quot;packed&quot;</span><span class="p">:</span>
             <span class="n">retStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -456,8 +456,8 @@
                 <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;void* </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">puts[] = </span><span class="se">{{</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;};</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="k">return</span> <span class="n">ret</span>
 
-            <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">inTensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">outTensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">out_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">retStr</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;api has to be either &#39;c&#39; or &#39;packed&#39;&quot;</span><span class="p">)</span>
@@ -486,7 +486,7 @@
 
     <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-    <span class="n">out</span> <span class="o">+=</span> <span class="n">writeTensors</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">inTensors</span><span class="p">,</span> <span class="n">model_info</span><span class="o">.</span><span class="n">outTensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">+=</span> <span class="n">writeTensors</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">)</span>
 
     <span class="n">logging_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">void TVMLogf(const char* msg, ...) {</span>
@@ -651,10 +651,10 @@
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="n">out</span> <span class="o">+=</span> <span class="n">fill</span><span class="p">(</span>
         <span class="n">mainCode</span><span class="p">,</span>
-        <span class="n">inSizes</span><span class="o">=</span><span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">inTensors</span><span class="p">),</span>
-        <span class="n">outSizes</span><span class="o">=</span><span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">outTensors</span><span class="p">),</span>
-        <span class="n">numInputs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">inTensors</span><span class="p">),</span>
-        <span class="n">numOutputs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">outTensors</span><span class="p">),</span>
+        <span class="n">inSizes</span><span class="o">=</span><span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">),</span>
+        <span class="n">outSizes</span><span class="o">=</span><span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">),</span>
+        <span class="n">numInputs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">),</span>
+        <span class="n">numOutputs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">),</span>
         <span class="n">modPrefix</span><span class="o">=</span><span class="n">modPrefix</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>

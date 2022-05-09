@@ -272,6 +272,52 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">RelayFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#RelayFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.SimpleFrontend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'relayviz_plotter':</span> <span class="pre">'term',</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_graph':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['validate',</span> <span class="pre">'relayviz']</span></em><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir',</span> <span class="pre">'tvm.pythonpath']</span></em><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.produce_artifacts">
+<span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#RelayFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.produce_artifacts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.relayviz_plotter">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">relayviz_plotter</span></span><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.relayviz_plotter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.tvm_build_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_build_dir</span></span><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.tvm_build_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.tvm_pythonpath">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_pythonpath</span></span><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.tvm_pythonpath" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.visualize_graph">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_graph</span></span><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.visualize_graph" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.SimpleFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">SimpleFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#SimpleFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.SimpleFrontend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.Frontend</span></code></a></p>
@@ -289,7 +335,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.SimpleFrontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_graph':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -300,6 +346,21 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.produce_artifacts">
+<span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.produce_artifacts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.visualize_enable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_enable</span></span><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.visualize_enable" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.visualize_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_script</span></span><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.visualize_script" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -465,6 +526,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.RELAY">
+<span class="sig-name descname"><span class="pre">RELAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ModelFormat(value=5,</span> <span class="pre">extensions=['relay'])</span></em><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.RELAY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.TFLITE">
 <span class="sig-name descname"><span class="pre">TFLITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ModelFormat(value=1,</span> <span class="pre">extensions=['tflite'])</span></em><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.TFLITE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -616,7 +682,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.SimpleFrontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_graph':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -627,6 +693,21 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.produce_artifacts">
+<span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.produce_artifacts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.visualize_enable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_enable</span></span><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.visualize_enable" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.visualize_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_script</span></span><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.visualize_script" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

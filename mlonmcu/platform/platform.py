@@ -198,17 +198,17 @@ class TargetPlatform(Platform):
     def supports_monitor(self):
         return True
 
-    def flash(self, target, timeout=120):
+    def flash(self, elf, target, timeout=120):
         raise NotImplementedError
 
     def monitor(self, target, timeout=60):
         raise NotImplementedError
 
-    def run(self, target, timeout=120):
+    def run(self, elf, target, timeout=120):
         # Only allow one serial communication at a time
         with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
 
-            self.flash(target, timeout=timeout)
+            self.flash(elf, target, timeout=timeout)
             output = self.monitor(target, timeout=timeout)
 
         return output

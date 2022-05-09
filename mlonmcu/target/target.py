@@ -105,7 +105,8 @@ class Target:
         """Use target to inspect a executable"""
         return execute(self.inspect_program, program, *self.inspect_program_args, *args, **kwargs)
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, handle_exit=None, num=None):
+        assert num is None
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
         if self.print_outputs:
@@ -123,10 +124,10 @@ class Target:
 
         return metrics, out
 
-    def generate_metrics(self, elf):
+    def generate_metrics(self, elf, num=None):
         artifacts = []
         with tempfile.TemporaryDirectory() as temp_dir:
-            metrics, out = self.get_metrics(elf, temp_dir)
+            metrics, out = self.get_metrics(elf, temp_dir, num=num)
             for callback in self.callbacks:  # TODO: give priorities to determine order?
                 callback(out, metrics, artifacts)
             content = metrics.to_csv(include_optional=True)  # TODO: store df instead?

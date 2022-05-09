@@ -23,7 +23,7 @@ from pathlib import Path
 
 from mlonmcu.utils import is_power_of_two
 from mlonmcu.config import str2bool
-from mlonmcu.artifact import ArtifactFormat
+from mlonmcu.artifact import Artifact, ArtifactFormat
 from .feature import (
     BackendFeature,
     FrameworkFeature,
@@ -858,3 +858,59 @@ class CacheSim(TargetFeature):
                         metrics.add(f"{prefix}-Cache {label}", value)
 
             return cachesim_callback
+
+@register_feature("log_instrs")
+class LogInstructions(TargetFeature):
+    """Enable logging of the executed instructions of a simulator-based target."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "to_file": False
+    }
+
+    def __init__(self, config=None):
+        super().__init__("log_instrs", config=config)
+
+    @property
+    def to_file(self):
+        # TODO: implement get_bool_or_none?
+        return bool(self.config["to_file"]) if self.config["to_file"] is not None else None
+
+    def add_target_config(self, target, config):
+        assert target in ["spike", "etiss_pulpino"]
+        if not self.enabled:
+            return
+        if target == "spike":
+            extra_args_new = config.get("extra_args", [])
+            extra_args_new.append("-l")
+            # if self.to_file:
+            #     extra_args_new.append("--log=?")
+            config.update({"extra_args": extra_args_new})
+        elif target == "etiss_pulpino":
+            plugins_new = config.get("plugins", [])
+            plugins_new.append("PrintInstruction")
+            config.update({f"{target}.plugins": plugins_new})
+
+    def get_target_callback(self, target):
+        assert target in ["spike", "etiss_pulpino"], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+
+            def log_instrs_callback(stdout, metrics, artifacts):
+                """Callback which parses the targets output and updates the generated metrics and artifacts."""
+                if self.to_file:
+                    # TODO: update stdout and remove log_instrs lines
+                    instrs = []
+                    for line in stdout.split("\n"):
+                        if target == "etiss_pulpino":
+                            expr = re.compile(r'0x[a-fA-F0-9]+: .* \[.*\]')
+                        elif target == "spike":
+                            expr = re.compile(r'core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*')
+                        match = expr.match(line)
+                        if match is not None:
+                            instrs.append(line)
+                    instrs_artifact = Artifact(
+                        f"{target}_instrs.log", content="\n".join(instrs), fmt=ArtifactFormat.TEXT
+                    )
+                    artifacts.append(instrs_artifact)
+
+            return log_instrs_callback

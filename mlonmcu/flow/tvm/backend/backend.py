@@ -23,6 +23,15 @@ from mlonmcu.setup import utils
 from mlonmcu.models.model import ModelFormats
 from .model_info import get_tflite_model_info, get_relay_model_info
 from .tuner import TVMTuner
+from .python_utils import prepare_python_environment
+from .tvmc_utils import (
+    get_target_tvmc_args,
+    get_pass_config_tvmc_args,
+    get_disabled_pass_tvmc_args,
+    get_runtime_executor_tvmc_args,
+    get_input_shapes_tvmc_args,
+    get_tuning_records_tvmc_args,
+)
 
 
 class TVMBackend(Backend):
@@ -136,83 +145,52 @@ class TVMBackend(Backend):
     def tvmc_custom_script(self):
         return self.config["tvmc_custom_script"]
 
-    def get_pass_config_tvmc_args(self):
-        args = []
-        for key, value in self.pass_config.items():
-            args.extend(["--pass-config", f"{key}={value}"])
-        return args
+    @property
+    def disabled_passes(self):
+        return self.config["disabled_passes"]
 
-    def get_disabled_pass_tvmc_args(self):
-        args = []
-        for item in self.config["disabled_passes"]:
-            args.extend(["--disabled-pass", item])
-        return args
+    @property
+    def tvm_pythonpath(self):
+        return self.config["tvm.pythonpath"]
 
-    def get_input_shapes_tvmc_args(self):
-        if self.input_shapes is None:
-            return []
-        arg = " ".join([f"{name}:[" + ",".join(list(map(str, dims))) + "]" for name, dims in self.input_shapes.items()])
-        return ["--input-shapes", arg]
+    @property
+    def tvm_build_dir(self):
+        return self.config["tvm.build_dir"]
 
-    def get_common_tvmc_args(self, target="c"):
-        if self.extra_target:
-            # TODO: support multiple ones, currently only single one...
-            target = ",".join([self.extra_target, target])
-        return [
-            str(self.model),
-            "--target",
-            target,
-            # TODO: provide a feature which sets these automatically depending on the chosen target
-            *(["--target-c-device", self.target_device] if self.target_device is not None else []),
-            *(["--target-c-mcpu", self.target_mcpu] if self.target_mcpu is not None else []),
-            *(["--target-c-march", self.target_march] if self.target_march is not None else []),
-            *(["--target-c-model", self.target_model] if self.target_model is not None else []),
-        ]
+    def get_target_details(self):
+        ret = {}
+        if self.target_device:
+            ret["target_device"] = self.target_device
+        if self.target_mcpu:
+            ret["target_mcpu"] = self.target_mcpu
+        if self.target_march:
+            ret["target_march"] = self.target_march
+        if self.target_model:
+            ret["target_model"] = self.target_model
+        return ret
 
-    def get_tuning_records_tvmc_args(self, target="c"):
-        return (
-            [
-                "--tuning-records",
-                str(self.tuning_records_file),
-            ]
-            if self.use_tuning_results and self.tuning_records_file is not None
-            else []
-        )
-
-    def get_tvmc_compile_args(self, executor, fmt="mlf", target="c", runtime="crt"):
+    def get_tvmc_compile_args(self, out, executor=None, fmt="mlf", target="c", runtime="crt", dump=None):
         assert executor in ["aot", "graph"], "Unsupported TVM executor"
-        args = self.get_common_tvmc_args(target=target)
-        args.extend(
-            [
-                "-f",
-                fmt,
-                "--executor",
-                executor,
-                "--runtime",
-                runtime,
-                *self.get_pass_config_tvmc_args(),
-                *self.get_disabled_pass_tvmc_args(),
-                "--opt-level",
-                str(self.opt_level),
-                *self.get_input_shapes_tvmc_args(),
-                *self.get_tuning_records_tvmc_args(),
-                *(["--desired-layout", self.desired_layout] if self.desired_layout is not None else []),
-                *self.tvmc_extra_args,
-                "--model-format",
-                self.model_format,
-            ]
-        )
+        args = [
+            self.model,
+            *get_target_tvmc_args(target, extra_target=self.extra_target, target_details=self.get_target_details()),
+            *get_runtime_executor_tvmc_args(runtime, executor),
+            *get_pass_config_tvmc_args(self.pass_config),
+            *get_disabled_pass_tvmc_args(self.disabled_passes),
+            *get_input_shapes_tvmc_args(self.input_shapes),
+            *get_tuning_records_tvmc_args(self.use_tuning_results, self.tuning_records_file),
+            *(["--desired-layout", self.desired_layout] if self.desired_layout is not None else []),
+            *(["--dump-code", ",".join(dump)] if dump is not None else []),
+            *self.tvmc_extra_args,
+            *["--opt-level", str(self.opt_level)],
+            *["--output", str(out)],
+            *["-f", fmt],
+            *["--model-format", self.model_format],
+        ]
         return args
-
-    def prepare_python_environment(self):
-        env = os.environ.copy()
-        env["PYTHONPATH"] = str(self.config["tvm.pythonpath"])
-        env["TVM_LIBRARY_PATH"] = str(self.config["tvm.build_dir"])
-        return env
 
     def invoke_tvmc(self, command, *args, verbose=False):
-        # print("invoke_tvmc", command, args, verbose)
-        env = self.prepare_python_environment()
+        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:
@@ -220,17 +198,8 @@ class TVMBackend(Backend):
         return utils.python(*pre, command, *args, live=verbose, env=env)
 
     def invoke_tvmc_compile(self, out, dump=None, verbose=False):
-        args = self.get_tvmc_compile_args()
-        args.extend(["--output", str(out)])
-        if dump:
-            assert isinstance(dump, list)
-            args.extend(["--dump-code", ",".join(dump)])
+        args = self.get_tvmc_compile_args(out)
         return self.invoke_tvmc("compile", *args, verbose=verbose)
-
-    # def __init_subclass__(cls, **kwargs):
-    #     super().__init_subclass__(**kwargs)
-    #     assert isinstance(cls.name, str)
-    #     cls.registry[cls.name] = cls
 
     def load_model(self, model):
         self.model = model

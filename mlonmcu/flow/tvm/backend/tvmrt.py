@@ -27,6 +27,7 @@ from .backend import TVMBackend
 from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from .tvmc_utils import get_tvmrt_tvmc_args
 
 
 class TVMRTBackend(TVMBackend):
@@ -49,13 +50,8 @@ class TVMRTBackend(TVMBackend):
         size = self.config["arena_size"]
         return int(size) if size else None
 
-    def get_tvmc_compile_args(self):
-        return super().get_tvmc_compile_args("graph") + [
-            "--runtime-crt-system-lib",
-            str(1),
-            "--executor-graph-link-params",
-            str(0),
-        ]
+    def get_tvmc_compile_args(self, out):
+        return super().get_tvmc_compile_args(out, executor="graph") + get_tvmrt_tvmc_args()
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None

@@ -668,7 +668,9 @@ class Run:
         metrics = Metrics()
         if RunStage.COMPILE in self.artifacts_per_stage:
             if len(self.artifacts_per_stage[RunStage.COMPILE]) > 1:  # TODO: look for artifact of type metrics instead
-                compile_metrics_artifact = lookup_artifacts(self.artifacts_per_stage[RunStage.COMPILE], name="metrics.csv")[0]
+                compile_metrics_artifact = lookup_artifacts(
+                    self.artifacts_per_stage[RunStage.COMPILE], name="metrics.csv"
+                )[0]
                 compile_metrics = Metrics.from_csv(compile_metrics_artifact.content)
                 metrics = compile_metrics
 

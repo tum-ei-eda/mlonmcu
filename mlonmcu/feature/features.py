@@ -859,14 +859,12 @@ class CacheSim(TargetFeature):
 
             return cachesim_callback
 
+
 @register_feature("log_instrs")
 class LogInstructions(TargetFeature):
     """Enable logging of the executed instructions of a simulator-based target."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "to_file": False
-    }
+    DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
     def __init__(self, config=None):
         super().__init__("log_instrs", config=config)
@@ -902,9 +900,9 @@ class LogInstructions(TargetFeature):
                     instrs = []
                     for line in stdout.split("\n"):
                         if target == "etiss_pulpino":
-                            expr = re.compile(r'0x[a-fA-F0-9]+: .* \[.*\]')
+                            expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                         elif target == "spike":
-                            expr = re.compile(r'core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*')
+                            expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
                         match = expr.match(line)
                         if match is not None:
                             instrs.append(line)

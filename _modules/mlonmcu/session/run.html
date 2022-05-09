@@ -104,7 +104,7 @@
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="n">lookup_artifacts</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.report</span> <span class="kn">import</span> <span class="n">Report</span>  <span class="c1"># TODO: move to mlonmcu.session.report</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span><span class="p">,</span> <span class="n">filter_config</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.models.lookup</span> <span class="kn">import</span> <span class="n">lookup_models</span>
@@ -748,12 +748,14 @@
         <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># TODO: look for artifact of type metrics instead</span>
-                <span class="n">compile_metrics_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">compile_metrics_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;metrics.csv&quot;</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">compile_metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">compile_metrics_artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
                 <span class="n">metrics</span> <span class="o">=</span> <span class="n">compile_metrics</span>
 
         <span class="k">if</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">:</span>
-            <span class="n">run_metrics_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">run_metrics_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;metrics.csv&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">run_metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">run_metrics_artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
             <span class="c1"># Combine with compile metrics</span>
             <span class="n">metrics_data</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>

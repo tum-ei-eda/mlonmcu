@@ -103,7 +103,7 @@
 
 <span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">is_power_of_two</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">.feature</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BackendFeature</span><span class="p">,</span>
     <span class="n">FrameworkFeature</span><span class="p">,</span>
@@ -938,6 +938,60 @@
                         <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-Cache </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">cachesim_callback</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LogInstructions</span><span class="p">(</span><span class="n">TargetFeature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enable logging of the executed instructions of a simulator-based target.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: implement get_bool_or_none?</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
+            <span class="n">extra_args_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_args&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-l&quot;</span><span class="p">)</span>
+            <span class="c1"># if self.to_file:</span>
+            <span class="c1">#     extra_args_new.append(&quot;--log=?&quot;)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;extra_args&quot;</span><span class="p">:</span> <span class="n">extra_args_new</span><span class="p">})</span>
+        <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">:</span>
+            <span class="n">plugins_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plugins&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">plugins_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PrintInstruction&quot;</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.plugins&quot;</span><span class="p">:</span> <span class="n">plugins_new</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">get_target_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+
+            <span class="k">def</span> <span class="nf">log_instrs_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;Callback which parses the targets output and updates the generated metrics and artifacts.&quot;&quot;&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                    <span class="c1"># TODO: update stdout and remove log_instrs lines</span>
+                    <span class="n">instrs</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">:</span>
+                            <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[a-fA-F0-9]+: .* \[.*\]&quot;</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
+                            <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*&quot;</span><span class="p">)</span>
+                        <span class="n">match</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">instrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">instrs_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">_instrs.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
+                    <span class="p">)</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instrs_artifact</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">log_instrs_callback</span>
 </pre></div>
 
            </div>

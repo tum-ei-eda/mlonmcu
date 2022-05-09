@@ -114,7 +114,7 @@
 <div class="viewcode-block" id="EtissPulpinoTarget"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget">[docs]</a><span class="k">class</span> <span class="nc">EtissPulpinoTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Target using a Pulpino-like VP running in the ETISS simulator&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="s2">&quot;trace&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="s2">&quot;log_instrs&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -123,6 +123,7 @@
         <span class="s2">&quot;gdbserver_port&quot;</span><span class="p">:</span> <span class="mi">2222</span><span class="p">,</span>
         <span class="s2">&quot;debug_etiss&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;trace_memory&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="c1"># TODO: how to keep this in sync with setup/tasks.py? (point to ETISSPulpinoTarget.DEFAULTS?)</span>
         <span class="s2">&quot;etissvp.rom_start&quot;</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
@@ -161,6 +162,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">trace_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;trace_memory&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;plugins&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">verbose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -228,6 +233,9 @@
         <span class="n">etiss_ini</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="s2">&quot;custom.ini&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_ini</span><span class="p">(</span><span class="n">etiss_ini</span><span class="p">)</span>
         <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span> <span class="o">+</span> <span class="n">etiss_ini</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plugins</span><span class="p">):</span>
+            <span class="n">plugins_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plugins</span><span class="p">)</span>  <span class="c1"># TODO: find out separator</span>
+            <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">plugins_str</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>

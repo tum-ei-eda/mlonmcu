@@ -34,7 +34,7 @@ logger = get_logger()
 class EtissPulpinoTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    FEATURES = ["gdbserver", "etissdbg", "trace"]
+    FEATURES = ["gdbserver", "etissdbg", "trace", "log_instrs"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -43,6 +43,7 @@ class EtissPulpinoTarget(RISCVTarget):
         "gdbserver_port": 2222,
         "debug_etiss": False,
         "trace_memory": False,
+        "plugins": [],
         "verbose": False,
         # TODO: how to keep this in sync with setup/tasks.py? (point to ETISSPulpinoTarget.DEFAULTS?)
         "etissvp.rom_start": 0x0,
@@ -81,6 +82,10 @@ class EtissPulpinoTarget(RISCVTarget):
     @property
     def trace_memory(self):
         return bool(self.config["trace_memory"])
+
+    @property
+    def plugins(self):
+        return self.config["plugins"]
 
     @property
     def verbose(self):
@@ -148,6 +153,9 @@ class EtissPulpinoTarget(RISCVTarget):
         etiss_ini = os.path.join(cwd, "custom.ini")
         self.write_ini(etiss_ini)
         etiss_script_args.append("-i" + etiss_ini)
+        if len(self.plugins):
+            plugins_str = " ".join(self.plugins)  # TODO: find out separator
+            etiss_script_args.extend(["-p", plugins_str])
 
         if self.timeout_sec > 0:
             raise NotImplementedError

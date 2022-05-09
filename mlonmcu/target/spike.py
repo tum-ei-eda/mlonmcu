@@ -34,7 +34,7 @@ logger = get_logger()
 class SpikeTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["vext", "cachesim"]
+    FEATURES = ["vext", "cachesim", "log_instrs"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,

@@ -24,7 +24,7 @@ from pathlib import Path
 from enum import IntEnum
 
 from mlonmcu.logging import get_logger
-from mlonmcu.artifact import ArtifactFormat
+from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.models.lookup import lookup_models
@@ -668,12 +668,14 @@ class Run:
         metrics = Metrics()
         if RunStage.COMPILE in self.artifacts_per_stage:
             if len(self.artifacts_per_stage[RunStage.COMPILE]) > 1:  # TODO: look for artifact of type metrics instead
-                compile_metrics_artifact = self.artifacts_per_stage[RunStage.COMPILE][1]
+                compile_metrics_artifact = lookup_artifacts(
+                    self.artifacts_per_stage[RunStage.COMPILE], name="metrics.csv"
+                )[0]
                 compile_metrics = Metrics.from_csv(compile_metrics_artifact.content)
                 metrics = compile_metrics
 
         if RunStage.RUN in self.artifacts_per_stage:
-            run_metrics_artifact = self.artifacts_per_stage[RunStage.RUN][0]
+            run_metrics_artifact = lookup_artifacts(self.artifacts_per_stage[RunStage.RUN], name="metrics.csv")[0]
             run_metrics = Metrics.from_csv(run_metrics_artifact.content)
             # Combine with compile metrics
             metrics_data = metrics.get_data()

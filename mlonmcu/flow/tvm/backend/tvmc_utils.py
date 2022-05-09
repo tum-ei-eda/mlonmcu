@@ -100,6 +100,7 @@ def get_tvmrt_tvmc_args():
         *["--executor-graph-link-params", str(0)],
     ]
 
+
 def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=10):
     ret = []
     if ins_file is not None:
@@ -115,6 +116,7 @@ def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=10):
         ret.extend(["--print-top", print_top])
 
     return ret
+
 
 def get_bench_tvmc_args(print_time=False, profile=False, end_to_end=False, repeat=1, number=1):
     ret = []
@@ -134,4 +136,4 @@ def get_bench_tvmc_args(print_time=False, profile=False, end_to_end=False, repea
     if number:
         ret.extend(["--number", str(number)])
 
-    return ret    
+    return ret

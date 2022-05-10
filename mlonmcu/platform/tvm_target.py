@@ -51,7 +51,7 @@ def create_tvm_target(name, platform, base=Target):
         def timeout_sec(self):
             return int(self.config["timeout_sec"])
 
-        def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
+        def exec(self, program, *args, num=1, cwd=os.getcwd(), **kwargs):
             """Use target to execute a executable with given arguments"""
             if len(args) > 0:
                 raise RuntimeError("Program arguments are not supported for real hardware devices")
@@ -61,7 +61,7 @@ def create_tvm_target(name, platform, base=Target):
             if self.timeout_sec > 0:
                 raise NotImplementedError
 
-            ret = self.platform.run(program, self)
+            ret = self.platform.run(program, self, num=num)
             return ret
 
         def parse_stdout(self, out):
@@ -86,17 +86,21 @@ def create_tvm_target(name, platform, base=Target):
                         float(groups[4]),
                     )
                     break
-                print("line")
                 if re.compile(r"\s+mean \(ms\)\s+median \(ms\)\s+max \(ms\)\s+min \(ms\)\s+std \(ms\)").match(line):
                     found = True
             return mean_ms, median_ms, max_ms, min_ms, std_ms
 
         def get_metrics(self, elf, directory, handle_exit=None, num=1):
             if self.print_outputs:
-                out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
+                out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit, num=num)
             else:
                 out = self.exec(
-                    elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                    elf,
+                    cwd=directory,
+                    live=False,
+                    print_func=lambda *args, **kwargs: None,
+                    handle_exit=handle_exit,
+                    num=num,
                 )
             mean_ms, _, _, _, _ = self.parse_stdout(out)
 

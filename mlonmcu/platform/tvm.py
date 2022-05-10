@@ -18,22 +18,11 @@
 #
 """TVM Platform"""
 
-import os
-import sys
-import time
-import signal
-import shutil
-import tempfile
-import tarfile
-import subprocess
-from pathlib import Path
-import pkg_resources
 
-import serial
-import psutil
+import tempfile
+from pathlib import Path
 
 from mlonmcu.setup import utils
-from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.target.target import Target
@@ -41,7 +30,7 @@ from mlonmcu.config import str2bool
 from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args, get_rpc_tvmc_args
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 
-from .platform import CompilePlatform, TargetPlatform
+from .platform import TargetPlatform
 from .tvm_target import create_tvm_target
 
 logger = get_logger()
@@ -66,7 +55,7 @@ class TvmPlatform(TargetPlatform):
         "rpc_key": None,
         "rpc_hostname": None,
         "rpc_port": None,
-        "tvmc_extra_args": [],  # Currently compile subcommand only!
+        "tvmc_extra_args": [],
         "tvmc_custom_script": None,
     }
 

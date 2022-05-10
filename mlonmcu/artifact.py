@@ -18,7 +18,6 @@
 #
 """Artifacts defintions internally used to refer to intermediate results."""
 
-import os
 from enum import Enum
 from pathlib import Path
 

@@ -18,14 +18,12 @@
 #
 import sys
 import tempfile
-import json
 import tarfile
 from pathlib import Path
 
 from .backend import TVMBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
-from .tvmc_utils import get_tvmaot_tvmc_args
 
 
 # Warning: This is only ment to be used with the TvmPlatform!

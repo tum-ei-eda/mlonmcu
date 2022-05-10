@@ -198,17 +198,17 @@ class TvmPlatform(TargetPlatform):
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
 
-    def invoke_tvmc(self, command, *args, verbose=False):
+    def invoke_tvmc(self, command, *args):
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:
             pre = [self.tvmc_custom_script]
-        return utils.python(*pre, command, *args, live=verbose, env=env)
+        return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
 
-    def invoke_tvmc_run(self, path, device, num=1, verbose=False):
+    def invoke_tvmc_run(self, path, device, num=1):
         args = self.get_tvmc_run_args(path, device, num=num)
-        return self.invoke_tvmc("run", *args, verbose=verbose)
+        return self.invoke_tvmc("run", *args)
 
     def run(self, elf, target, timeout=120, num=1):
         # TODO: implement timeout

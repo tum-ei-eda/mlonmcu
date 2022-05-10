@@ -333,7 +333,7 @@ class TFLMIBackend(TFLMBackend):
     def arena_size(self):
         return int(self.config["arena_size"])
 
-    def generate_code(self, verbose=False):
+    def generate_code(self):
         artifacts = []
         assert self.model is not None
         config_map = {key.split(".")[-1]: value for key, value in self.config.items()}

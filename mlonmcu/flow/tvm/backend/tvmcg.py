@@ -49,7 +49,7 @@ class TVMCGBackend(TVMRTBackend):
             )
         return max_workspace
 
-    def generate_code(self, verbose=False):
+    def generate_code(self):
         super().generate_code()
         artifacts = self.artifacts
         artifact = None
@@ -73,7 +73,7 @@ class TVMCGBackend(TVMRTBackend):
                     args.append(params_bin_file)
                     args.append(out_file)
                     args.append(str(max_workspace_size))
-                    out = utils.exec_getout(tvmcg_exe, *args, live=verbose, print_output=False)
+                    out = utils.exec_getout(tvmcg_exe, *args, live=self.print_outputs, print_output=False)
                     codegen_src = open(out_file, "r").read()
                     artifact = Artifact("staticrt.c", content=codegen_src, fmt=ArtifactFormat.SOURCE)
                     workspace_size_artifact = Artifact(

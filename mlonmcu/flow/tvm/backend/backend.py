@@ -20,6 +20,7 @@ import os
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
+from mlonmcu.config import str2bool
 from mlonmcu.models.model import ModelFormats
 from .model_info import get_tflite_model_info, get_relay_model_info
 from .tuner import TVMTuner
@@ -73,7 +74,6 @@ class TVMBackend(Backend):
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
-        self.verbose = bool(self.config["print_outputs"])
         tuner_config = {  # This would be more compact with a helper function but for now its fine...
             "enable": self.config["autotuning_enable"],
             "results_file": self.config["autotuning_results_file"],
@@ -157,6 +157,10 @@ class TVMBackend(Backend):
     def tvm_build_dir(self):
         return self.config["tvm.build_dir"]
 
+    @property
+    def print_outputs(self):
+        return str2bool(self.config["print_outputs"])
+
     def get_target_details(self):
         ret = {}
         if self.target_device:
@@ -189,17 +193,17 @@ class TVMBackend(Backend):
         ]
         return args
 
-    def invoke_tvmc(self, command, *args, verbose=False):
+    def invoke_tvmc(self, command, *args):
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:
             pre = [self.tvmc_custom_script]
-        return utils.python(*pre, command, *args, live=verbose, env=env)
+        return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
 
-    def invoke_tvmc_compile(self, out, dump=None, verbose=False):
+    def invoke_tvmc_compile(self, out, dump=None):
         args = self.get_tvmc_compile_args(out)
-        return self.invoke_tvmc("compile", *args, verbose=verbose)
+        return self.invoke_tvmc("compile", *args)
 
     def load_model(self, model):
         self.model = model

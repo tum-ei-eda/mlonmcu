@@ -73,7 +73,7 @@ class Backend(ABC):
         pass
 
     @abstractmethod
-    def generate_code(self, verbose=False):
+    def generate_code(self):
         pass
 
     @property
@@ -230,7 +230,9 @@ def main(backend, args=None):
     features = init_backend_features(features_names, config)
     backend_inst = backend(features=features, config=config)
     backend_inst.load_model(model)
-    backend_inst.generate_code(verbose=args.verbose)
+    if args.verbose:
+        config["print_outputs"] = True
+    backend_inst.generate_code()
     if args.print:
         print("Printing generated artifacts:")
         for artifact in backend_inst.artifacts:

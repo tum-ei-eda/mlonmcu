@@ -99,14 +99,14 @@ class TVMAOTBackend(TVMBackend):
     def get_workspace_size_from_metadata(self, metadata):
         return metadata["memory"]["functions"]["main"][0]["workspace_size_bytes"]
 
-    def generate_code(self, verbose=False):
+    def generate_code(self):
         artifacts = []
         assert self.model is not None
         full = False  # Required due to bug in TVM
         dump = ["c", "relay"] if full else []
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump, verbose=verbose)
+            out = self.invoke_tvmc_compile(out_path, dump=dump)
             mlf_path = Path(temp_dir) / "mlf"
             tarfile.open(out_path).extractall(mlf_path)
             with open(mlf_path / "metadata.json") as handle:

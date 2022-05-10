@@ -164,7 +164,7 @@ class CompilePlatform(Platform):
         metrics.add("RAM zero-init data", ram_zdata)
         return metrics
 
-    def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, num=1, data_file=None):
         raise NotImplementedError
 
     def export_elf(self, path):

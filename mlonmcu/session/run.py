@@ -415,7 +415,7 @@ class Run:
             if artifact.name == "data.c":
                 artifact.export(self.dir)
                 data_file = Path(self.dir) / "data.c"
-        self.platform.generate_elf(self.target, codegen_dir, num=self.num, data_file=data_file)
+        self.platform.generate_elf(codegen_dir, self.target, num=self.num, data_file=data_file)
         self.artifacts_per_stage[RunStage.COMPILE] = self.platform.artifacts
 
         self.completed[RunStage.COMPILE] = True

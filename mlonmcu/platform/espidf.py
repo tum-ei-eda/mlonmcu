@@ -183,7 +183,6 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         if not shutil.which(self.idf_exe):
             raise RuntimeError(f"It seems like '{self.idf_exe}' is not available. Make sure to setup your environment!")
 
-    # def prepare(self, model, ignore_data=False):
     def prepare(self, target, src, num=1):
         self.init_directory()
         self.check()
@@ -264,7 +263,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         out += self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
         return out
 
-    def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, num=1, data_file=None):
         artifacts = []
         out = self.compile(target, src=src, num=num)
         elf_name = self.project_name + ".elf"

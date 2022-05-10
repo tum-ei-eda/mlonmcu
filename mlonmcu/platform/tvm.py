@@ -155,12 +155,11 @@ class TvmPlatform(TargetPlatform):
 
     def get_supported_targets(self):
         # TODO: get this via tvmc run --help
-        # text = self.invoke_idf_exe("--list-targets", live=self.print_outputs, print_output=False)
         target_names = ["cpu", "cuda", "cl", "metal", "vulkan", "rocm", "micro"]
 
         skip_names = ["micro"]  # Use microtvm platform instead
 
-        return [f"tvm_{name}" for name in target_names if len(name) > 0 and " " not in name and name not in skip_names]
+        return [f"tvm_{name}" for name in target_names if name not in skip_names]
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid TVM device"

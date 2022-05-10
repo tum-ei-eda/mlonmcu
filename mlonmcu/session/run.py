@@ -358,7 +358,11 @@ class Run:
                         stage_idx = int(stage)
                         dest = dest / f"stage_{stage_idx}"
                     extract = artifact.fmt == ArtifactFormat.MLF
-                    artifact.export(self.dir, extract=extract)
+                    # extract = artifact.fmt == ArtifactFormat.MLF and not isinstance(self.platform, MicroTvmPlatform)
+                    artifact.export(self.dir)
+                    # Keep the tar as well as the extracted files
+                    if extract:
+                        artifact.export(self.dir, extract=True)
 
     def postprocess(self):
         """Postprocess the 'run'."""

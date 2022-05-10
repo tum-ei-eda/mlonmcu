@@ -97,11 +97,11 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size):
 
         out += "DLDataType dtypes[] = {"
         for t in tensors:
-            if t.ty == "float32":
+            if t.dtype == "float32":
                 out += "{kDLFloat, 32, 1}"
-            elif t.ty == "uint8":
+            elif t.dtype == "uint8":
                 out += "{kDLUInt, 8, 1}"
-            elif t.ty == "int8":
+            elif t.dtype == "int8":
                 out += "{kDLInt, 8, 1}"
             else:
                 raise "Invalid type"

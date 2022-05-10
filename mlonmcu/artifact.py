@@ -145,7 +145,7 @@ class Artifact:
                 handle.write(self.raw)
             if extract:
                 utils.extract(filename, dest)
-                os.remove(filename)
+                # os.remove(filename)
         elif self.fmt in [ArtifactFormat.PATH]:
             assert not extract, "extract option is only available for ArtifactFormat.MLF"
             utils.copy(self.path, filename)

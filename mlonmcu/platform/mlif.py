@@ -187,7 +187,7 @@ class MlifPlatform(CompilePlatform):
         )
         return out
 
-    def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, num=1, data_file=None):
         artifacts = []
         out = self.compile(target, src=src, model=model, num=num, data_file=data_file)
         elf_file = self.build_dir / "bin" / "generic_mlif"

@@ -72,7 +72,7 @@ class TFLMFramework(Framework):
                     temp = self.optimized_kernel_inc_dirs
                 ret["TFLM_OPTIMIZED_KERNEL_INCLUDE_DIR"] = temp
             if self.optimized_kernel_libs:
-                if isinstance(self.optimized_kernel_inc_libs, list):
+                if isinstance(self.optimized_kernel_libs, list):
                     temp = r"\;".join(self.optimized_kernel_libs)
                 else:
                     temp = self.optimized_kernel_libs

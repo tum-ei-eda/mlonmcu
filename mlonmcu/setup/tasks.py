@@ -441,6 +441,9 @@ def _validate_tvm(context: MlonMcuContext, params=None):
     if "patch" in params and bool(params["patch"]):
         if not context.environment.has_feature("disable_legalize"):
             return False
+    if "cmsisnn" in params and bool(params["cmsisnn"]):
+        if not context.environment.has_feature("cmsisnnbyoc"):
+            return False
 
     return context.environment.has_framework("tvm")
 
@@ -475,14 +478,16 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 @Tasks.needs(["tvm.src_dir", "llvm.install_dir"])
 @Tasks.provides(["tvm.build_dir", "tvm.lib"])
 @Tasks.param("dbg", False)
+@Tasks.param("cmsisnn", [False, True])
 @Tasks.validate(_validate_tvm)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build the TVM framework."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"))
+    flags = utils.makeFlags((params["dbg"], "dbg"), (params["cmsisnn"], "cmsisnn"))
     dbg = bool(params["dbg"])
+    cmsisnn = bool(params["cmsisnn"])
     # FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!
     # This should help: TVM_LIBRARY_PATH -> tvm.build_dir
     tvmName = utils.makeDirName("tvm", flags=flags)
@@ -523,6 +528,15 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             r"s/USE_LLVM \(OFF\|ON\)/USE_LLVM " + llvmConfigEscaped + "/g",
             str(cfgFile),
         )
+        if cmsisnn:
+            utils.exec(
+                "sed",
+                "-i",
+                "--",
+                r"s/USE_CMSISNN \(OFF\|ON\)/USE_CMSISNN ON/g",
+                str(cfgFile),
+            )
+
         utils.cmake(tvmSrcDir, cwd=tvmBuildDir, debug=dbg, use_ninja=ninja, live=verbose)
         utils.make(cwd=tvmBuildDir, use_ninja=ninja, live=verbose)
     context.cache["tvm.build_dir", flags] = tvmBuildDir

@@ -138,7 +138,7 @@ class Validate(FrontendFeature, PlatformFeature):
 
 @register_feature("muriscvnn")
 class Muriscvnn(SetupFeature, FrameworkFeature):
-    """MuriscvNN CMSIS-NN wrappers for TFLite Micro"""
+    """muRISCV-V NN wrappers for TFLite Micro"""
 
     REQUIRED = ["muriscvnn.lib", "muriscvnn.inc_dir"]
 
@@ -268,7 +268,7 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 @register_feature("vext")
 # class Vext(SetupFeature, TargetFeature, PlatformFeature):
 class Vext(SetupFeature, TargetFeature):
-    """MuriscvNN CMSIS-NN wrappers for TFLite Micro"""
+    """Enable vector extension for supported RISC-V targets"""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,

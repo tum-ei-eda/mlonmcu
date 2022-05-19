@@ -232,7 +232,7 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
     gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
     gccName = None
     for name in gccNames:
-        if (riscvInstallDir / name).is_dir():
+        if (Path(riscvInstallDir) / name).is_dir():
             gccName = name
             break
     assert gccName is not None, "Toolchain name could not be dtemined automatically"
@@ -616,8 +616,13 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
         return False
     assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
-        if "vext" in params:
-            pass
+        if params.get("vext", False):
+            if not context.environment.supports_feature("vext"):
+                return False
+        if params.get("pext", False):
+            if not context.environment.supports_feature("pext"):
+                return False
+        # TODO: validate chosen toolchain?
     return True
 
 
@@ -644,6 +649,8 @@ def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
 @Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("vext", [False, True])
+@Tasks.param("pext", [False, True])
+@Tasks.param("toolchain", ["gcc", "llvm"])
 # @Tasks.param("target_arch", ["x86", "riscv", "arm"])  # TODO: implement
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
@@ -651,7 +658,7 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     """Build muRISCV-NN."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"), (params["vext"], "vext"))
+    flags = utils.makeFlags((params["dbg"], "dbg"), (params["vext"], "vext"), (True, params["toolchain"]))
     flags_ = utils.makeFlags((params["vext"], "vext"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
     muriscvnnSrcDir = context.cache["muriscvnn.src_dir"]
@@ -666,11 +673,16 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
         gccName = context.cache["riscv_gcc.name", flags_]
         assert gccName == "riscv32-unknown-elf", "muRISCV-NN requires a non-multilib toolchain!"
         muriscvnnArgs = []
-        muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(context.cache["riscv_gcc.install_dir", flags_]))
-        vext = False
-        if "vext" in params:
-            vext = params["vext"]
+        if "riscv_gcc.install_dir" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir"]
+        else:
+            riscv_gcc = context.cache["riscv_gcc.install_dir", flags_]
+        muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
+        muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
+        vext = params.get("vext", False)
+        pext = params.get("pext", False)
         muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
+        muriscvnnArgs.append("-DUSE_PEXT=" + ("ON" if pext else "OFF"))
         muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
         utils.cmake(
             muriscvnnSrcDir,
@@ -689,6 +701,16 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
 def _validate_spike(context: MlonMcuContext, params=None):
     if not context.environment.has_target("spike"):
         return False
+    if params.get("vext", False):
+        if params.get("pext", False):
+            return False  # Can not use booth at a time
+        if not context.environment.supports_feature("vext"):
+            return False
+    if params.get("pext", False):
+        if params.get("vext", False):
+            return False  # Can not use booth at a time
+        if not context.environment.supports_feature("pext"):
+            return False
     assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
     assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
     return True
@@ -712,15 +734,16 @@ def clone_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
 
 @Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
 @Tasks.provides(["spikepk.build_dir", "spike.pk"])
-# @Tasks.param("vext", [False, True])
+@Tasks.param("vext", [False, True])
+@Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build Spike proxy kernel."""
     if not params:
         params = {}
-    # flags = utils.makeFlags((params["vext"], "vext"))
-    spikepkName = utils.makeDirName("spikepk")
+    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
+    spikepkName = utils.makeDirName("spikepk", flags=flags)
     spikepkSrcDir = context.cache["spikepk.src_dir"]
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
@@ -733,13 +756,25 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
         utils.mkdirs(spikepkBuildDir)
         gccName = context.cache["riscv_gcc.name"]
         assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
+        vext = params.get("vext", False)
+        pext = params.get("pext", False)
+        assert not (pext and vext), "Currently only p or vector extension can be enabled at a time."
+        if "riscv_gcc.install_dir" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir"]
+        else:
+            riscv_gcc = context.cache["riscv_gcc.install_dir", flags]
+        arch = "rv32gc"
+        if pext:
+            arch += "p"
+        if vext:
+            arch += "v"
         spikepkArgs = []
-        spikepkArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
+        spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
-        spikepkArgs.append("--with-arch=rv32gcv")
+        spikepkArgs.append(f"--with-arch={arch}")
         spikepkArgs.append("--with-abi=ilp32d")
         env = os.environ.copy()
-        env["PATH"] = str(Path(context.cache["riscv_gcc.install_dir"]) / "bin") + ":" + env["PATH"]
+        env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]
         utils.exec_getout(
             str(spikepkSrcDir / "configure"),
             *spikepkArgs,
@@ -748,6 +783,7 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
             live=verbose,
         )
         utils.make(cwd=spikepkBuildDir, live=verbose, env=env)
+        # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
         utils.mkdirs(spikepkInstallDir)
         utils.move(spikepkBuildDir / "pk", spikepkBin)
     context.cache["spikepk.build_dir"] = spikepkBuildDir
@@ -798,6 +834,7 @@ def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
             live=verbose,
         )
         utils.make(cwd=spikeBuildDir, live=verbose)
+        # utils.make(target="install", cwd=spikeBuildDir, live=verbose)
         utils.mkdirs(spikeInstallDir)
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir

@@ -549,6 +549,11 @@ class Usmp(BackendFeature):
             tmp = config["extra_pass_config"]
         else:
             tmp = {}
+        if isinstance(tmp, str):
+            import ast
+
+            tmp = ast.literal_eval(tmp)
+        assert isinstance(tmp, dict)
         tmp["tir.usmp.enable"] = self.enabled
         tmp["tir.usmp.algorithm"] = self.algorithm
         config.update(

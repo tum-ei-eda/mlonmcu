@@ -34,11 +34,12 @@ logger = get_logger()
 class SpikeTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["vext", "cachesim", "log_instrs"]
+    FEATURES = ["vext", "pext", "cachesim", "log_instrs"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "enable_vext": False,
+        "enable_pext": False,
         "vlen": 0,  # vectorization=off
         "spikepk_extra_args": [],
         "end_to_end_cycles": False,
@@ -57,15 +58,12 @@ class SpikeTarget(RISCVTarget):
         return Path(self.config["spike.pk"])
 
     @property
-    def extra_args(self):
-        ret = self.config["extra_args"]
-        if isinstance(ret, str):
-            ret = [ret]  # TODO: properly split quoted args
-        return ret
-
-    @property
     def enable_vext(self):
         return bool(self.config["enable_vext"])
+
+    @property
+    def enable_pext(self):
+        return bool(self.config["enable_pext"])
 
     @property
     def vlen(self):
@@ -84,6 +82,9 @@ class SpikeTarget(RISCVTarget):
         spike_args = []
         spikepk_args = []
 
+        if self.enable_pext:
+            if "p" not in self.arch[2:]:
+                self.config["arch"] += "p"
         if self.enable_vext:
             if "v" not in self.arch[2:]:
                 self.config["arch"] += "v"

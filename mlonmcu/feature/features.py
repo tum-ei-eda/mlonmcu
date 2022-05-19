@@ -365,6 +365,33 @@ class Vext(SetupFeature, TargetFeature):
         }
 
 
+@register_feature("pext")
+class Pext(SetupFeature, TargetFeature):
+    """Enable packed SIMD extension for supported RISC-V targets"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    REQUIRED = []
+
+    def __init__(self, config=None):
+        super().__init__("pext", config=config)
+
+    def get_target_config(self, target):
+        assert target in ["spike", "ovpsim"]  # TODO: add etiss in the future
+        return {
+            f"{target}.enable_pext": True,  # Handle via arch characters in the future
+        }
+
+    def get_required_cache_flags(self):
+        # These will be merged automatically with existing ones
+        return {
+            "muriscvnn.lib": ["pext"],
+            "tflmc.exe": ["pext"],
+        }
+
+
 @register_feature("debug")
 class Debug(SetupFeature, PlatformFeature):
     """Enable debugging ability of target software."""

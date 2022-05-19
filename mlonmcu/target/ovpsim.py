@@ -33,12 +33,13 @@ logger = get_logger()
 class OVPSimTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["vext", "gdbserver"]
+    FEATURES = ["vext", "pext", "gdbserver"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "vlen": 32,  # vectorization=off
         "enable_vext": False,
+        "enable_pext": False,
         "enable_fpu": True,
         "variant": "RVB32I",
         # "extensions": "MAFDCV",
@@ -73,7 +74,16 @@ class OVPSimTarget(RISCVTarget):
     def enable_vext(self):
         return bool(self.config["enable_vext"])
 
+    @property
+    def enable_pext(self):
+        return bool(self.config["enable_pext"])
+
     def get_default_ovpsim_args(self):
+        if self.enable_pext:
+            if "P" not in self.extensions:
+                self.config["extensions"] += "P"
+            if "P" not in self.variant:
+                self.config["variant"] += "P"
         if self.enable_vext:
             if "V" not in self.extensions:
                 self.config["extensions"] += "V"

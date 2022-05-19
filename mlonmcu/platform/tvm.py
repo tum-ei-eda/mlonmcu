@@ -39,7 +39,7 @@ logger = get_logger()
 class TvmPlatform(TargetPlatform):
     """TVM Platform class."""
 
-    FEATURES = TargetPlatform.FEATURES + []  # TODO: validate?
+    FEATURES = TargetPlatform.FEATURES + ["rpc"]  # TODO: validate?
 
     DEFAULTS = {
         **TargetPlatform.DEFAULTS,

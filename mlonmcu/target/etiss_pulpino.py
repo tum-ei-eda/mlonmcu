@@ -45,6 +45,7 @@ class EtissPulpinoTarget(RISCVTarget):
         "trace_memory": False,
         "plugins": [],
         "verbose": False,
+        "cpu_arch": "RISCV",  # For V/P-Extension support, use RV32IMAFDCPV
         # TODO: how to keep this in sync with setup/tasks.py? (point to ETISSPulpinoTarget.DEFAULTS?)
         "etissvp.rom_start": 0x0,
         "etissvp.rom_size": 0x800000,  # 8 MB
@@ -111,10 +112,18 @@ class EtissPulpinoTarget(RISCVTarget):
     def cycle_time_ps(self):
         return int(self.config["etissvp.cycle_time_ps"])
 
+    @property
+    def cpu_arch(self):
+        return int(self.config["cpu_arch"])
+
     # TODO: other properties
 
     def write_ini(self, path):
+        # TODO: Either create artifact for ini or prefer to use cmdline args.
         with open(path, "w") as f:
+            if self.cpu_arch:
+                f.write("[StringConfigurations]\n")
+                f.write(f"arch.cpu={self.cpu_arch}\n")
             f.write("[IntConfigurations]\n")
             f.write(f"simple_mem_system.memseg_origin_00={hex(self.rom_start)}\n")
             f.write(f"simple_mem_system.memseg_length_00={hex(self.rom_size)}\n")

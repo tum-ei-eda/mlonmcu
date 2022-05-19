@@ -96,7 +96,13 @@ class RISCVTarget(Target):
 
     @property
     def extra_args(self):
-        return str(self.config["extra_args"])
+        ret = self.config["extra_args"]
+        if isinstance(ret, str):
+            if len(ret) == 0:
+                ret = []
+            else:
+                ret = [ret]  # TODO: properly split quoted args
+        return ret
 
     @property
     def timeout_sec(self):

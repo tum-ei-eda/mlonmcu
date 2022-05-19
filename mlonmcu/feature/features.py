@@ -253,10 +253,18 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 
     def add_backend_config(self, backend, config):
         assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
-        extras = config.get(f"{backend}.extra_kernel", [])
+        extras = config.get(f"{backend}.extra_target", [])
         if "cmsis-nn" not in extras:
-            extras[f"{backend}.extra_kernel"].append("cmsis-nn")
-        config[f"{backend}.extra_kernel"] = extras
+            if isinstance(extras, str):
+                extras = [extras]
+            extras.append("cmsis-nn")
+        config[f"{backend}.extra_target"] = extras
+
+    def get_required_cache_flags(self):
+        ret = {}
+        ret["tvm.build_dir"] = ["cmsisnn"]
+        return ret
+
 
     def get_required_cache_flags(self):
         ret = {}

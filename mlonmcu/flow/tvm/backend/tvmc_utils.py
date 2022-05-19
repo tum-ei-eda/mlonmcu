@@ -47,15 +47,22 @@ def gen_target_details_args(target, target_details):
     return sum([[f"--target-{target}-{key}", value] for key, value in target_details.items()], [])
 
 
-def get_target_tvmc_args(target="c", extra_target=None, target_details={}):
+def get_target_tvmc_args(target="c", extra_target=None, target_details={}, extra_target_details=None):
     if extra_target:
+        if isinstance(extra_target, str):
+            if "," in extra_target:
+                extra_target = extra_target.split(",")
+            else:
+                extra_target = [extra_target]
         # TODO: support multiple ones, currently only single one...
-        target = ",".join([extra_target, target])
+        assert len(extra_target) == 1
+        target = ",".join(extra_target + [target])
     return [
         "--target",
         target,
         # TODO: provide a feature which sets these automatically depending on the chosen target
         *gen_target_details_args(target, target_details),
+        *gen_target_details_args(extra_target[0], extra_target_details),
     ]
 
 

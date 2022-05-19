@@ -51,6 +51,7 @@ class TVMBackend(Backend):
         "target_march": None,
         "target_model": None,
         "extra_target": None,
+        "extra_target_mcpu": None,
         "desired_layout": None,  # optional: NCHW or NHWC
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
@@ -126,6 +127,10 @@ class TVMBackend(Backend):
         return self.config["extra_target"]
 
     @property
+    def extra_target_mcpu(self):
+        return self.config["extra_target_mcpu"]
+
+    @property
     def desired_layout(self):
         return self.config["desired_layout"]
 
@@ -164,20 +169,31 @@ class TVMBackend(Backend):
     def get_target_details(self):
         ret = {}
         if self.target_device:
-            ret["target_device"] = self.target_device
+            ret["device"] = self.target_device
         if self.target_mcpu:
-            ret["target_mcpu"] = self.target_mcpu
+            ret["mcpu"] = self.target_mcpu
         if self.target_march:
-            ret["target_march"] = self.target_march
+            ret["march"] = self.target_march
         if self.target_model:
-            ret["target_model"] = self.target_model
+            ret["model"] = self.target_model
+        return ret
+
+    def get_extra_target_details(self):
+        ret = {}
+        if self.extra_target_mcpu:
+            ret["mcpu"] = self.extra_target_mcpu
         return ret
 
     def get_tvmc_compile_args(self, out, executor=None, fmt="mlf", target="c", runtime="crt", dump=None):
         assert executor in ["aot", "graph"], "Unsupported TVM executor"
         args = [
             self.model,
-            *get_target_tvmc_args(target, extra_target=self.extra_target, target_details=self.get_target_details()),
+            *get_target_tvmc_args(
+                target,
+                extra_target=self.extra_target,
+                target_details=self.get_target_details(),
+                extra_target_details=self.get_extra_target_details(),
+            ),
             *get_runtime_executor_tvmc_args(runtime, executor),
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),

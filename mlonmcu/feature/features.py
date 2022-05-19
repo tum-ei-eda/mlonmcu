@@ -266,6 +266,55 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
         return ret
 
 
+@register_feature("muriscvnnbyoc")
+class MuriscvnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
+    """MuRiscvNN kernels for TVM using BYOC wrappers."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
+    }
+
+    REQUIRED = ["muriscvnn.lib", "muriscvnn.inc_dir"]
+
+    def __init__(self, config=None):
+        super().__init__("muriscvnnbyoc", config=config)
+
+    @property
+    def muriscvnn_lib(self):
+        return str(self.config["muriscvnn.lib"])
+
+    @property
+    def muriscvnn_inc_dir(self):
+        return str(self.config["muriscvnn.inc_dir"])
+
+    @property
+    def mcpu(self):
+        return self.config["mcpu"]
+
+    def get_framework_config(self, framework):
+        assert framework == "tvm", f"Unsupported feature '{self.name}' for framework '{framework}'"
+        include_dirs = [
+            str(self.muriscvnn_inc_dir),
+            str(Path(self.muriscvnn_inc_dir) / "CMSIS" / "NN" / "Include"),
+        ]
+        return {
+            f"{framework}.extra_libs": [self.muriscvnn_lib],
+            f"{framework}.extra_incs": include_dirs,
+        }
+
+    def add_backend_config(self, backend, config):
+        assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
+        extras = config.get(f"{backend}.extra_target", [])
+        if "cmsis-nn" not in extras:
+            if isinstance(extras, str):
+                extras = [extras]
+            extras.append("cmsis-nn")
+        config[f"{backend}.extra_target"] = extras
+        if self.mcpu:
+            # Ideally muriscvnnbyoc would have a vext/pext feature which could be used to set this automatically
+            config[f"{backend}.extra_target_mcpu"] = self.mcpu
+
     def get_required_cache_flags(self):
         ret = {}
         ret["tvm.build_dir"] = ["cmsisnn"]

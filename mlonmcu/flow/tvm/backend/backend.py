@@ -41,7 +41,7 @@ class TVMBackend(Backend):
 
     name = None
 
-    FEATURES = ["autotune", "autotuned", "cmsisnnbyoc", "disable_legalize", "moiopt"]
+    FEATURES = ["autotune", "autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt"]
 
     DEFAULTS = {
         "print_outputs": False,

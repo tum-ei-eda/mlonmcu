@@ -24,6 +24,7 @@ import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.artifact import Artifact, ArtifactFormat
 from .common import cli, execute
 from .riscv import RISCVTarget
 from .metrics import Metrics
@@ -161,6 +162,9 @@ class EtissPulpinoTarget(RISCVTarget):
         # TODO: working directory?
         etiss_ini = os.path.join(cwd, "custom.ini")
         self.write_ini(etiss_ini)
+        ini_content = open(etiss_ini, "r").read()
+        ini_artifact = Artifact("custom.ini", content=ini_content, fmt=ArtifactFormat.TEXT)
+        self.artifacts.append(ini_artifact)
         etiss_script_args.append("-i" + etiss_ini)
         if len(self.plugins):
             plugins_str = " ".join(self.plugins)  # TODO: find out separator

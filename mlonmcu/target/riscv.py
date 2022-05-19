@@ -26,6 +26,44 @@ from .target import Target
 logger = get_logger()
 
 
+def sort_extensions_canonical(extensions):
+    """Utility to get the canonical architecture name string."""
+
+    # See: https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf#table.22.1
+    ORDER = [
+        "I",
+        "M",
+        "A",
+        "F",
+        "D",
+        "G",
+        "Q",
+        "L",
+        "C",
+        "B",
+        "J",
+        "T",
+        "P",
+        "V",
+        "X",
+        "S",
+        "SX",
+    ]  # What about Z* extensions?
+    extensions_new = extensions.copy()
+
+    def _get_index(x):
+        if x in ORDER:
+            return ORDER.index(x)
+        else:
+            for i, o in enumerate(ORDER):
+                if x.startswith(o):
+                    return i
+            return ORDER.index("X") - 0.5  # Insert unknown keys right before custom extensions
+
+    extensions_new.sort(key=lambda x: _get_index(x))
+    return extensions_new
+
+
 class RISCVTarget(Target):
     """Common base class for RISCV-like targets. Please do not use this as a target itself!"""
 

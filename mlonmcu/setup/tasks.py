@@ -180,18 +180,23 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
             if params["vext"]:
                 if not context.environment.has_feature("vext"):
                     return False
+        if "pext" in params:
+            if params["pext"]:
+                if not context.environment.has_feature("pext"):
+                    return False
     return True
 
 
 @Tasks.provides(["riscv_gcc.install_dir", "riscv_gcc.name"])
 @Tasks.param("vext", [False, True])
+@Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_riscv_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)
 def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Download and install the RISCV GCC toolchain."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["vext"], "vext"))
+    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     riscvName = utils.makeDirName("riscv_gcc", flags=flags)
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     user_vars = context.environment.vars
@@ -201,8 +206,11 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
     else:
         vext = False
+        pext = False
         if "vext" in params:
             vext = params["vext"]
+        if "pext" in params:
+            pext = params["pext"]
         if "riscv_gcc.dl_url" in user_vars:
             fullUrlSplit = user_vars["riscv_gcc.dl_url"].split("/")
             riscvUrl = "/".join(fullUrlSplit[:-1])
@@ -616,12 +624,19 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
         return False
     assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
+        toolchain = params.get("toolchain", "gcc")
         if params.get("vext", False):
             if not context.environment.supports_feature("vext"):
                 return False
         if params.get("pext", False):
+            if toolchain == "llvm":
+                # Unsupported
+                return False
             if not context.environment.supports_feature("pext"):
                 return False
+        if params.get("vext", False) and params.get("pext", False):
+            # Either pext or vext!
+            return False
         # TODO: validate chosen toolchain?
     return True
 
@@ -658,8 +673,8 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     """Build muRISCV-NN."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"), (params["vext"], "vext"), (True, params["toolchain"]))
-    flags_ = utils.makeFlags((params["vext"], "vext"))
+    flags = utils.makeFlags((params["dbg"], "dbg"), (params["vext"], "vext"), (params["pext"], "pext"), (True, params["toolchain"]))
+    flags_ = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
     muriscvnnSrcDir = context.cache["muriscvnn.src_dir"]
     muriscvnnBuildDir = context.environment.paths["deps"].path / "build" / muriscvnnName
@@ -671,7 +686,8 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     if rebuild or not (utils.is_populated(muriscvnnBuildDir) and muriscvnnLib.is_file()):
         utils.mkdirs(muriscvnnBuildDir)
         gccName = context.cache["riscv_gcc.name", flags_]
-        assert gccName == "riscv32-unknown-elf", "muRISCV-NN requires a non-multilib toolchain!"
+        toolchain = params.get("toolchain", "gcc")
+        assert gccName == "riscv32-unknown-elf" or toolchain != "llvm", "muRISCV-NN requires a non-multilib toolchain!"
         muriscvnnArgs = []
         if "riscv_gcc.install_dir" in user_vars:
             riscv_gcc = user_vars["riscv_gcc.install_dir"]
@@ -786,8 +802,8 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
         # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
         utils.mkdirs(spikepkInstallDir)
         utils.move(spikepkBuildDir / "pk", spikepkBin)
-    context.cache["spikepk.build_dir"] = spikepkBuildDir
-    context.cache["spike.pk"] = spikepkBin
+    context.cache["spikepk.build_dir", flags] = spikepkBuildDir
+    context.cache["spike.pk", flags] = spikepkBin
 
 
 @Tasks.provides(["spike.src_dir"])

@@ -521,6 +521,9 @@
     <span class="k">if</span> <span class="s2">&quot;patch&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">]):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="s2">&quot;cmsisnn&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
 
@@ -555,14 +558,16 @@
 <div class="viewcode-block" id="build_tvm"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_tvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.lib&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">build_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Build the TVM framework.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">],</span> <span class="s2">&quot;cmsisnn&quot;</span><span class="p">))</span>
     <span class="n">dbg</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">])</span>
+    <span class="n">cmsisnn</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">])</span>
     <span class="c1"># FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!</span>
     <span class="c1"># This should help: TVM_LIBRARY_PATH -&gt; tvm.build_dir</span>
     <span class="n">tvmName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
@@ -603,6 +608,15 @@
             <span class="sa">r</span><span class="s2">&quot;s/USE_LLVM \(OFF\|ON\)/USE_LLVM &quot;</span> <span class="o">+</span> <span class="n">llvmConfigEscaped</span> <span class="o">+</span> <span class="s2">&quot;/g&quot;</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">cmsisnn</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+                <span class="s2">&quot;sed&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+                <span class="sa">r</span><span class="s2">&quot;s/USE_CMSISNN \(OFF\|ON\)/USE_CMSISNN ON/g&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
+            <span class="p">)</span>
+
         <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span><span class="n">tvmSrcDir</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">tvmBuildDir</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">dbg</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="n">ninja</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">tvmBuildDir</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="n">ninja</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmBuildDir</span>

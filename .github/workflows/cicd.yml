@@ -63,8 +63,8 @@ jobs:
     - name: Install dependencies
       run: |
         source .venv/bin/activate
-        pip install -r requirements.txt
         pip install wheel
+        pip install -r requirements.txt
     - name: Run package creation
       run: |
         source .venv/bin/activate

@@ -162,9 +162,6 @@ class EtissPulpinoTarget(RISCVTarget):
         # TODO: working directory?
         etiss_ini = os.path.join(cwd, "custom.ini")
         self.write_ini(etiss_ini)
-        ini_content = open(etiss_ini, "r").read()
-        ini_artifact = Artifact("custom.ini", content=ini_content, fmt=ArtifactFormat.TEXT)
-        self.artifacts.append(ini_artifact)
         etiss_script_args.append("-i" + etiss_ini)
         if len(self.plugins):
             plugins_str = " ".join(self.plugins)  # TODO: find out separator
@@ -304,7 +301,12 @@ class EtissPulpinoTarget(RISCVTarget):
                 metrics.add("RAM stack", ram_stack)
                 metrics.add("RAM heap", ram_heap)
 
-        return metrics, out
+        artifacts = []
+        ini_content = open(etiss_ini, "r").read()
+        ini_artifact = Artifact("custom.ini", content=ini_content, fmt=ArtifactFormat.TEXT)
+        artifacts.append(ini_artifact)
+
+        return metrics, out, artifacts
 
     def get_target_system(self):
         return self.name

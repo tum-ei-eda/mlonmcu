@@ -109,6 +109,6 @@ def create_tvm_target(name, platform, base=Target):
             time_s = mean_ms / 1e3 if mean_ms is not None else mean_ms
             metrics.add("Mean Runtime [s]", time_s)
 
-            return metrics, out
+            return metrics, out, []
 
     return TvmTarget

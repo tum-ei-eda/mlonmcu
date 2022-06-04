@@ -147,7 +147,7 @@ class SpikeTarget(RISCVTarget):
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
 
-        return metrics, out
+        return metrics, out, []
 
 
 if __name__ == "__main__":

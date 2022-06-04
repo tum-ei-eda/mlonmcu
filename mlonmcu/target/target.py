@@ -122,12 +122,13 @@ class Target:
         metrics = Metrics()
         metrics.add("Runtime [s]", diff)
 
-        return metrics, out
+        return metrics, out, []
 
     def generate_metrics(self, elf, num=None):
         artifacts = []
         with tempfile.TemporaryDirectory() as temp_dir:
-            metrics, out = self.get_metrics(elf, temp_dir, num=num)
+            metrics, out, artifacts_ = self.get_metrics(elf, temp_dir, num=num)
+            artifacts.extend(artifacts_)
             for callback in self.callbacks:  # TODO: give priorities to determine order?
                 callback(out, metrics, artifacts)
             content = metrics.to_csv(include_optional=True)  # TODO: store df instead?

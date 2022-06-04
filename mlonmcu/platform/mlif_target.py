@@ -96,11 +96,11 @@ def create_mlif_target(name, platform, base=Target):
 
                 handle_exit = _handle_exit
 
-            metrics, out = super().get_metrics(elf, directory, handle_exit=handle_exit)
+            metrics, out, artifacts = super().get_metrics(elf, directory, handle_exit=handle_exit)
 
             if self.platform.validate_outputs:
                 metrics.add("Validation", self.validation_result)
-            return metrics, out
+            return metrics, out, artifacts
 
         def get_platform_defs(self, platform):
             ret = super().get_platform_defs(platform)

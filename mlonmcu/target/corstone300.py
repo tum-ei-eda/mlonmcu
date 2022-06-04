@@ -156,7 +156,7 @@ class Corstone300Target(Target):
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
 
-        return metrics, out
+        return metrics, out, []
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)

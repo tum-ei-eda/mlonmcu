@@ -115,7 +115,7 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def cpu_arch(self):
-        return int(self.config["cpu_arch"])
+        return self.config["cpu_arch"]
 
     # TODO: other properties
 

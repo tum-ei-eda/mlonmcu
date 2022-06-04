@@ -62,7 +62,7 @@ def get_target_tvmc_args(target="c", extra_target=None, target_details={}, extra
         target,
         # TODO: provide a feature which sets these automatically depending on the chosen target
         *gen_target_details_args(target, target_details),
-        *gen_target_details_args(extra_target[0], extra_target_details),
+        *(gen_target_details_args(extra_target[0], extra_target_details) if extra_target is not None else []),
     ]
 
 

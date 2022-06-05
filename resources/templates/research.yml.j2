@@ -153,8 +153,8 @@ targets:
       etissdbg: true
       trace: true
       log_instrs: true
-      vext: true
-      pext: true
+      # vext: true
+      # pext: true
   host_x86:
     enabled: true
     features:
@@ -162,15 +162,15 @@ targets:
   spike:
     enabled: true
     features:
-      vext: true
-      pext: true
+      # vext: true
+      # pext: true
       cachesim: true
       log_instrs: true
   ovpsim:
     enabled: true
-    features:
-      vext: true
-      pext: true
+    features: []
+      # vext: true
+      # pext: true
   corstone300:
     enabled: true
     features:
@@ -214,5 +214,5 @@ vars:
   # tvm.make_tool: "ninja"
   llvm.version: "11.1.0"
   runs_per_stage: true
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/getlink/fiPX7H4WRQL9GXbeoo2sEexj/rv32gcv.tar.gz"  # rv32gcv
-  # riscv_gcc.dl_url: "https://syncandshare.lrz.de/getlink/fiNHo2C1M1WRUbPAHt39n8Jb/rv32gcp.tar.gz"  # rv32gcp
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiPX7H4WRQL9GXbeoo2sEexj/rv32gcv.tar.gz"  # rv32gcv
+  # riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/MkZpbUY5ZG9idDNpcnFvSm56aDlT/rv32gcp.tar.gz"  # rv32gcp

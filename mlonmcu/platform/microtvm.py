@@ -28,7 +28,7 @@ from mlonmcu.target.target import Target
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args, get_rpc_tvmc_args
 
-# from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 
 from .platform import CompilePlatform, TargetPlatform
 from .microtvm_target import create_microtvm_target
@@ -64,9 +64,9 @@ ALLOWED_PROJECT_OPTIONS = {
 def get_project_option_args(template, stage, project_options):
     ret = []
     # TODO: dynamically fetch allowed options per stage (create, build, run)
-    assert template in ALLOWED_PROJECT_OPTIONS
-    assert stage in ALLOWED_PROJECT_OPTIONS[template]
-    allowed = ALLOWED_PROJECT_OPTIONS[template][stage]
+    assert template[0] in ALLOWED_PROJECT_OPTIONS
+    assert stage in ALLOWED_PROJECT_OPTIONS[template[0]]
+    allowed = ALLOWED_PROJECT_OPTIONS[template[0]][stage]
     for key, value in project_options.items():
         if key in allowed:
             ret.append(f"{key}={value}")
@@ -185,6 +185,10 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
     def tvm_build_dir(self):
         return self.config["tvm.build_dir"]
 
+    @property
+    def project_template(self):
+        return self.config["project_template"]
+
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
@@ -245,9 +249,9 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
 
     def get_tvmc_micro_args(self, command, path, mlf_path, template):
         if "create" in command:
-            return [command, "--force", path, mlf_path, template]
+            return [command, "--force", path, mlf_path, *template]
         else:
-            return [command, path, template]
+            return [command, path, *template]
 
     def invoke_tvmc(self, command, *args):
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir)
@@ -272,22 +276,22 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         if self.tempdir:
             self.tempdir.cleanup()
 
-    def get_template(self, target):
+    def get_template_args(self, target):
         target_template = target.template
         if target_template == "template":
             assert self.project_template is not None
-            return self.project_template
+            return (target_template, "--template-dir", self.project_template)
         else:
-            return target_template
+            return (target_template)
 
     def prepare(self, mlf, target):
-        out = self.invoke_tvmc_micro("create", self.project_dir, mlf, self.get_template(target))
+        out = self.invoke_tvmc_micro("create", self.project_dir, mlf, self.get_template_args(target))
         return out
 
     def compile(self, target):
         out = ""
         # TODO: build with cmake options
-        out += self.invoke_tvmc_micro("build", self.project_dir, None, self.get_template(target))
+        out += self.invoke_tvmc_micro("build", self.project_dir, None, self.get_template_args(target))
         # TODO: support self.num_threads (e.g. patch esp-idf)
         return out
 
@@ -310,11 +314,11 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             logger.debug("Ignoring ELF file for microtvm platform")
         # TODO: implement timeout
         logger.debug("Flashing target software using MicroTVM ProjectAPI")
-        output = self.invoke_tvmc_micro("flash", self.project_dir, None, self.get_template(target))
+        output = self.invoke_tvmc_micro("flash", self.project_dir, None, self.get_template_args(target))
         return output
 
     def run(self, elf, target, timeout=120, num=1):
         # TODO: implement timeout
         output = self.flash(elf, target)
-        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template(target), num=num, micro=True)
+        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template_targs(target), num=num, micro=True)
         return output

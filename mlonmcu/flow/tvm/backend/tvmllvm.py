@@ -51,7 +51,7 @@ class TVMLLVMBackend(TVMBackend):
         dump = []
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump, verbose=verbose)
+            out = self.invoke_tvmc_compile(out_path, dump=dump)
             tar_dir = Path(temp_dir) / self.prefix
             tarfile.open(out_path).extractall(tar_dir)
 

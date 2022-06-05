@@ -61,6 +61,7 @@ class TVMTuner:
         self.tracker = None
         self.servers = []
         self.pool = None
+        self.artifacts = []
         # TODO: Support non-local runners in the future -> deploy simulator on cluster
 
     @property
@@ -112,7 +113,8 @@ class TVMTuner:
     def print_outputs(self):
         return bool(self.config["print_outputs"])
 
-    def get_tvmc_tune_args(self, out, target="c"):
+    # def get_tvmc_tune_args(self, out, target="c"):
+    def get_tvmc_tune_args(self, out, target="llvm"):
         args = [
             self.backend.model,
             *get_target_tvmc_args(
@@ -131,9 +133,11 @@ class TVMTuner:
 
         return args
 
-    def invoke_tvmc_tune(self, out, verbose=False):
+    # def invoke_tvmc_tune(self, out, verbose=False):
+    def invoke_tvmc_tune(self, out):
         args = self.get_tvmc_tune_args(out)
-        return self.backend.invoke_tvmc("tune", *args, verbose=verbose)
+        # return self.backend.invoke_tvmc("tune", *args, verbose=verbose)
+        return self.backend.invoke_tvmc("tune", *args)
 
     def pick_best(self, records, verbose=False):
         content_best = ""
@@ -248,7 +252,8 @@ class TVMTuner:
                 with open(out_file, "w") as handle:
                     handle.write(content)
                     # TODO: newline or not?
-                out = self.invoke_tvmc_tune(out_file, verbose=verbose)
+                # out = self.invoke_tvmc_tune(out_file, verbose=verbose)
+                out = self.invoke_tvmc_tune(out_file)
                 with open(out_file, "r") as handle:
                     content = handle.read()
             if self.use_rpc:

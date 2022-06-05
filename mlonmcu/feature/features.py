@@ -1017,3 +1017,66 @@ class LogInstructions(TargetFeature):
                     artifacts.append(instrs_artifact)
 
             return log_instrs_callback
+
+@register_feature("microtvm_etissvp")
+class MicrotvmEtissVp(PlatformFeature):
+    """Use ETISS VP for MicroTVM deployment in TVM."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "verbose": False,
+        "debug": False,
+        "transport": True,
+    }
+
+    REQUIRED = ["microtvm_etissvp.template", "etiss.install_dir", "riscv_gcc.install_dir"]
+
+    def __init__(self, config=None):
+        super().__init__("microtvm_etissvp", config=config)
+
+    @property
+    def microtvm_etissvp_template(self):
+        return self.config["microtvm_etissvp.template"]
+
+    @property
+    def etiss_install_dir(self):
+        return self.config["etiss.install_dir"]
+
+    @property
+    def riscv_gcc_install_dir(self):
+        return self.config["riscv_gcc.install_dir"]
+
+    @property
+    def verbose(self):
+        return str2bool(self.config["verbose"])
+
+    @property
+    def debug(self):
+        return str2bool(self.config["debug"])
+
+    @property
+    def transport(self):
+        return str2bool(self.config["transport"])
+
+    def get_platform_config(self, platform):
+        assert platform == "microtvm", f"Unsupported feature '{self.name}' for platform '{platform}'"
+        etissvp_script = Path(self.etiss_install_dir) / "bin" / "run_helper.sh"
+        etissvp_ini = Path(self.microtvm_etissvp_template) / "scripts" / "memsegs.ini"
+
+        project_options = {
+            "project_type": "host_driven",
+            "verbose": str(self.verbose).lower(),
+            "debug": str(self.debug).lower(),
+            "transport": str(self.transport).lower(),
+            "etiss_path": str(self.etiss_install_dir),
+            "riscv_path": str(self.riscv_gcc_install_dir),
+            "etissvp_script": str(etissvp_script),
+            "etissvp_script_args": f"plic clint uart v -i{etissvp_ini}"  # TODO: remove v
+        }
+
+        return filter_none(
+            {
+                f"{platform}.project_template": self.microtvm_etissvp_template,
+                f"{platform}.project_options": project_options,
+            }
+        )

@@ -83,7 +83,7 @@ def get_project_option_args(template, stage, project_options):
 class MicroTvmPlatform(CompilePlatform, TargetPlatform):
     """TVM Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + []  # TODO: validate?
+    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["microtvm_etissvp"]  # TODO: validate?
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,

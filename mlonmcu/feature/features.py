@@ -36,7 +36,7 @@ from .feature import (
 )
 
 # from mlonmcu.flow import SUPPORTED_TVM_BACKENDS
-SUPPORTED_TVM_BACKENDS = ["tvmaot", "tvmrt", "tvmcg"]  # Workaround for cirvular import until we have a backend registry
+SUPPORTED_TVM_BACKENDS = ["tvmaot", "tvmrt", "tvmcg", "tvmllvm"]  # Workaround for cirvular import until we have a backend registry
 
 
 def filter_none(data):

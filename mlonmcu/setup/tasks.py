@@ -1106,3 +1106,19 @@ def download_tflite_vizualize(context: MlonMcuContext, params=None, rebuild=Fals
         url = "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/tools/visualize.py"
         utils.download(url, tfLiteVizualizeExe)
     context.cache["tflite_visualize.exe"] = tfLiteVizualizeExe
+
+def _validate_microtvm_etissvp(context: MlonMcuContext, params=None):
+    return context.environment.has_feature("microtvm_etissvp")
+
+@Tasks.provides(["microtvm_etissvp.src_dir", "microtvm_etissvp.template"])
+@Tasks.validate(_validate_microtvm_etissvp)
+@Tasks.register(category=TaskType.FEATURE)
+def clone_microtvm_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Clone the microtvm-etissvp-template repository."""
+    name = utils.makeDirName("microtvm_etissvp")
+    srcDir = context.environment.paths["deps"].path / "src" / name
+    if rebuild or not utils.is_populated(srcDir):
+        repo = context.environment.repos["microtvm_etissvp"]
+        utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
+    context.cache["microtvm_etissvp.src_dir"] = srcDir
+    context.cache["microtvm_etissvp.template"] = srcDir / "template_project"

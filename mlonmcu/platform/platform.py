@@ -52,7 +52,9 @@ class Platform:
 
     FEATURES = []
 
-    DEFAULTS = {}
+    DEFAULTS = {
+        "print_outputs": False,
+    }
 
     REQUIRED = []
 
@@ -87,6 +89,11 @@ class Platform:
     def supports_monitor(self):
         return False
 
+    @property
+    def print_outputs(self):
+        return str2bool(self.config["print_outputs"])
+
+
     def process_features(self, features):
         if features is None:
             return []
@@ -108,7 +115,6 @@ class CompilePlatform(Platform):
 
     DEFAULTS = {
         **Platform.DEFAULTS,
-        "print_outputs": False,
         "debug": False,
         "build_dir": None,
         "num_threads": multiprocessing.cpu_count(),
@@ -138,10 +144,6 @@ class CompilePlatform(Platform):
     @property
     def num_threads(self):
         return int(self.config["num_threads"])
-
-    @property
-    def print_outputs(self):
-        return str2bool(self.config["print_outputs"])
 
     def get_metrics(self, elf):
         static_mem = get_static_mem_usage(elf)

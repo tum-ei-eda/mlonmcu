@@ -66,6 +66,9 @@ repos:
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
+  microtvm_etissvp:
+    url: "git@github.com:PhilippvK/microtvm-etissvp-template.git"
+    ref: main
 
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -198,8 +201,9 @@ platforms:
       # validate: true
   microtvm:
     enabled: true
-    features: []
+    features:
       # validate: true
+      microtvm_etissvp: true
 postprocesses:
   use:
   # - detailed_cycles

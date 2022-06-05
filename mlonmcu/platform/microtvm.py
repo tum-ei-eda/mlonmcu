@@ -58,6 +58,19 @@ ALLOWED_PROJECT_OPTIONS = {
         "flash": ["zephyr_board"],
         "run": ["gdbserver_port", "nrfjprog_snr", "openocd_serial", "zephyr_base", "zephyr_board"],
     },
+    # "etissvp": {
+    "template": {
+        "create": [
+            "extra_files_tar",
+            "project_type",
+            "config_main_stack_size",
+            "warning_as_error",
+            "compile_definitions",
+        ],
+        "build": ["verbose", "riscv_path", "etiss_path"],
+        "flash": ["etiss_path", "etissvp_script", "etissvp_script_args"],
+        "run": [],
+    },
 }
 
 

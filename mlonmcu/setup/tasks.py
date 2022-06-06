@@ -342,7 +342,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 
 
 @Tasks.needs(["etiss.build_dir"])
-@Tasks.provides(["etissvp.src_dir", "etiss.lib_dir", "etiss.install_dir"])
+@Tasks.provides(["etissvp.src_dir", "etiss.lib_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
@@ -355,89 +355,93 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=F
     etissBuildDir = context.cache["etiss.build_dir", flags]
     etissInstallDir = context.cache["etiss.install_dir", flags]
     etissvpSrcDir = etissInstallDir / "examples" / "bare_etiss_processor"
+    etissvpExe = etissBuildDir / "bin" / "bare_etiss_processor"
+    etissvpScript = etissBuildDir / "bin" / "run_helper.sh"
     etissLibDir = etissInstallDir / "lib"
-    if rebuild or not utils.is_populated(etissvpSrcDir) or not utils.is_populated(etissLibDir):
+    if rebuild or not utils.is_populated(etissvpSrcDir) or not utils.is_populated(etissLibDir) or not etissvpExe.is_file():
         utils.make("install", cwd=etissBuildDir, live=verbose)
     context.cache["etissvp.src_dir", flags] = etissvpSrcDir
     context.cache["etiss.lib_dir", flags] = etissLibDir
     context.cache["etiss.install_dir", flags] = etissInstallDir
+    context.cache["etissvp.exe", flags] = etissvpExe
+    context.cache["etissvp.script", flags] = etissvpScript
     # return True
 
 
-@Tasks.needs(["etissvp.src_dir"])
-@Tasks.provides(["etissvp.build_dir", "etissvp.exe"])
-@Tasks.param("dbg", False)
-@Tasks.validate(_validate_etiss)
-@Tasks.register(category=TaskType.TARGET)
-def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
-    """Build the ETISS virtual prototype."""
-    if not params:
-        params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"))
-    etissvpName = utils.makeDirName("build", flags=flags)
-    etissvpSrcDir = context.cache["etissvp.src_dir", flags]
-    etissvpBuildDir = etissvpSrcDir / etissvpName
-    etissvpExe = etissvpBuildDir / "main"
-
-    if rebuild or not etissvpExe.is_file():
-
-        def addMemArgs(args, context=None):  # TODO: find out if this is still required?
-            memMap = (0x0, 0x800000, 0x800000, 0x4000000)
-
-            if context:
-                user_vars = context.environment.vars
-                if "etissvp.rom_start" in user_vars:
-                    temp = user_vars["etissvp.rom_start"]
-                    if not isinstance(temp, int):
-                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                    memMap[0] = temp
-                if "etissvp.rom_size" in user_vars:
-                    temp = user_vars["etissvp.rom_size"]
-                    if not isinstance(temp, int):
-                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                    memMap[1] = temp
-                if "etissvp.ram_start" in user_vars:
-                    temp = user_vars["etissvp.ram_start"]
-                    if not isinstance(temp, int):
-                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                    memMap[2] = temp
-                if "etissvp.ram_size" in user_vars:
-                    temp = user_vars["etissvp.ram_size"]
-                    if not isinstance(temp, int):
-                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                    memMap[3] = temp
-
-            def checkMemMap(mem):
-                rom_start, rom_size, ram_start = mem[0], mem[1], mem[2]
-                for val in mem:
-                    assert isinstance(val, int)
-
-                    def is_power_of_two(n):
-                        return n == 0 or (n & (n - 1) == 0)
-
-                    assert is_power_of_two(val)
-                assert rom_start + rom_size <= ram_start
-
-            checkMemMap(memMap)
-
-            args.append(f"-DPULPINO_ROM_START={hex(memMap[0])}")
-            args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[1])}")
-            args.append(f"-DPULPINO_ROM_START={hex(memMap[2])}")
-            args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[3])}")
-            return args
-
-        etissvpArgs = addMemArgs([], context=context)
-        utils.mkdirs(etissvpBuildDir)
-        utils.cmake(
-            etissvpSrcDir,
-            *etissvpArgs,
-            cwd=etissvpBuildDir,
-            debug=params["dbg"],
-            live=verbose,
-        )
-        utils.make(cwd=etissvpBuildDir, live=verbose)
-    context.cache["etissvp.build_dir", flags] = etissvpBuildDir
-    context.cache["etissvp.exe", flags] = etissvpExe
+# @Tasks.needs(["etissvp.src_dir"])
+# @Tasks.provides(["etissvp.build_dir", "etissvp.exe"])
+# @Tasks.param("dbg", False)
+# @Tasks.validate(_validate_etiss)
+# @Tasks.register(category=TaskType.TARGET)
+# def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+#     """Build the ETISS virtual prototype."""
+#     if not params:
+#         params = {}
+#     flags = utils.makeFlags((params["dbg"], "dbg"))
+#     etissvpName = utils.makeDirName("build", flags=flags)
+#     etissvpSrcDir = context.cache["etissvp.src_dir", flags]
+#     etissvpBuildDir = etissvpSrcDir / etissvpName
+#     etissvpExe = etissvpBuildDir / "main"
+#
+#     if rebuild or not etissvpExe.is_file():
+#
+#         def addMemArgs(args, context=None):  # TODO: find out if this is still required?
+#             memMap = (0x0, 0x800000, 0x800000, 0x4000000)
+#
+#             if context:
+#                 user_vars = context.environment.vars
+#                 if "etissvp.rom_start" in user_vars:
+#                     temp = user_vars["etissvp.rom_start"]
+#                     if not isinstance(temp, int):
+#                         temp = int(temp, 0)  # This should automatically detect the base via the prefix
+#                     memMap[0] = temp
+#                 if "etissvp.rom_size" in user_vars:
+#                     temp = user_vars["etissvp.rom_size"]
+#                     if not isinstance(temp, int):
+#                         temp = int(temp, 0)  # This should automatically detect the base via the prefix
+#                     memMap[1] = temp
+#                 if "etissvp.ram_start" in user_vars:
+#                     temp = user_vars["etissvp.ram_start"]
+#                     if not isinstance(temp, int):
+#                         temp = int(temp, 0)  # This should automatically detect the base via the prefix
+#                     memMap[2] = temp
+#                 if "etissvp.ram_size" in user_vars:
+#                     temp = user_vars["etissvp.ram_size"]
+#                     if not isinstance(temp, int):
+#                         temp = int(temp, 0)  # This should automatically detect the base via the prefix
+#                     memMap[3] = temp
+#
+#             def checkMemMap(mem):
+#                 rom_start, rom_size, ram_start = mem[0], mem[1], mem[2]
+#                 for val in mem:
+#                     assert isinstance(val, int)
+#
+#                     def is_power_of_two(n):
+#                         return n == 0 or (n & (n - 1) == 0)
+#
+#                     assert is_power_of_two(val)
+#                 assert rom_start + rom_size <= ram_start
+#
+#             checkMemMap(memMap)
+#
+#             args.append(f"-DPULPINO_ROM_START={hex(memMap[0])}")
+#             args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[1])}")
+#             args.append(f"-DPULPINO_ROM_START={hex(memMap[2])}")
+#             args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[3])}")
+#             return args
+#
+#         etissvpArgs = addMemArgs([], context=context)
+#         utils.mkdirs(etissvpBuildDir)
+#         utils.cmake(
+#             etissvpSrcDir,
+#             *etissvpArgs,
+#             cwd=etissvpBuildDir,
+#             debug=params["dbg"],
+#             live=verbose,
+#         )
+#         utils.make(cwd=etissvpBuildDir, live=verbose)
+#     context.cache["etissvp.build_dir", flags] = etissvpBuildDir
+#     context.cache["etissvp.exe", flags] = etissvpExe
 
 
 #######

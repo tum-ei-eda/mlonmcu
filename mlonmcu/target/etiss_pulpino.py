@@ -54,16 +54,19 @@ class EtissPulpinoTarget(RISCVTarget):
         "etissvp.ram_size": 0x4000000,  # 64 MB
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["etiss.install_dir"]
+    REQUIRED = RISCVTarget.REQUIRED + ["etiss.install_dir", "etissvp.script"]
 
     def __init__(self, name="etiss_pulpino", features=None, config=None):
         super().__init__(name, features=features, config=config)
-        self.etiss_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "run_helper.sh"
         self.metrics_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "get_metrics.py"
 
     @property
     def etiss_dir(self):
         return self.config["etiss.install_dir"]
+
+    @property
+    def etiss_script(self):
+        return self.config["etissvp.script"]
 
     @property
     def gdbserver_enable(self):

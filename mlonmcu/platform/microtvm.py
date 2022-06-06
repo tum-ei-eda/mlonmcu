@@ -68,8 +68,8 @@ ALLOWED_PROJECT_OPTIONS = {
             "compile_definitions",
         ],
         "build": ["verbose", "riscv_path", "etiss_path"],
-        "flash": ["etiss_path", "etissvp_script", "etissvp_script_args"],
-        "run": [],
+        "flash": ["etiss_path", "etissvp_script", "etissvp_script_args", "transport"],
+        "run": ["etissvp_script", "etissvp_script_args", "etiss_path"],
     },
 }
 
@@ -333,5 +333,5 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
     def run(self, elf, target, timeout=120, num=1):
         # TODO: implement timeout
         output = self.flash(elf, target)
-        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template_targs(target), num=num, micro=True)
+        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template_args(target), num=num, micro=True)
         return output

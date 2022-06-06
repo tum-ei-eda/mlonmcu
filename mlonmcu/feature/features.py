@@ -1029,7 +1029,7 @@ class MicrotvmEtissVp(PlatformFeature):
         "transport": True,
     }
 
-    REQUIRED = ["microtvm_etissvp.template", "etiss.install_dir", "riscv_gcc.install_dir"]
+    REQUIRED = ["microtvm_etissvp.template", "etiss.install_dir", "etissvp.script", "riscv_gcc.install_dir"]
 
     def __init__(self, config=None):
         super().__init__("microtvm_etissvp", config=config)
@@ -1041,6 +1041,10 @@ class MicrotvmEtissVp(PlatformFeature):
     @property
     def etiss_install_dir(self):
         return self.config["etiss.install_dir"]
+
+    @property
+    def etissvp_script(self):
+        return self.config["etissvp.script"]
 
     @property
     def riscv_gcc_install_dir(self):
@@ -1060,7 +1064,6 @@ class MicrotvmEtissVp(PlatformFeature):
 
     def get_platform_config(self, platform):
         assert platform == "microtvm", f"Unsupported feature '{self.name}' for platform '{platform}'"
-        etissvp_script = Path(self.etiss_install_dir) / "bin" / "run_helper.sh"
         etissvp_ini = Path(self.microtvm_etissvp_template) / "scripts" / "memsegs.ini"
 
         project_options = {
@@ -1070,7 +1073,7 @@ class MicrotvmEtissVp(PlatformFeature):
             "transport": str(self.transport).lower(),
             "etiss_path": str(self.etiss_install_dir),
             "riscv_path": str(self.riscv_gcc_install_dir),
-            "etissvp_script": str(etissvp_script),
+            "etissvp_script": str(self.etissvp_script),
             "etissvp_script_args": f"plic clint uart v -i{etissvp_ini}"  # TODO: remove v
         }
 

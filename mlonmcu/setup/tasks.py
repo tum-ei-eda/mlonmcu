@@ -342,7 +342,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 
 
 @Tasks.needs(["etiss.build_dir"])
-@Tasks.provides(["etissvp.src_dir", "etiss.lib_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"])
+@Tasks.provides(["etiss.lib_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
@@ -354,13 +354,11 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=F
     # etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.cache["etiss.build_dir", flags]
     etissInstallDir = context.cache["etiss.install_dir", flags]
-    etissvpSrcDir = etissInstallDir / "examples" / "bare_etiss_processor"
     etissvpExe = etissInstallDir / "bin" / "bare_etiss_processor"
     etissvpScript = etissInstallDir / "bin" / "run_helper.sh"
     etissLibDir = etissInstallDir / "lib"
-    if rebuild or not utils.is_populated(etissvpSrcDir) or not utils.is_populated(etissLibDir) or not etissvpExe.is_file():
+    if rebuild or not utils.is_populated(etissLibDir) or not etissvpExe.is_file():
         utils.make("install", cwd=etissBuildDir, live=verbose)
-    context.cache["etissvp.src_dir", flags] = etissvpSrcDir
     context.cache["etiss.lib_dir", flags] = etissLibDir
     context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etissvp.exe", flags] = etissvpExe

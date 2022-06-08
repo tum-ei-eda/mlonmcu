@@ -355,8 +355,8 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=F
     etissBuildDir = context.cache["etiss.build_dir", flags]
     etissInstallDir = context.cache["etiss.install_dir", flags]
     etissvpSrcDir = etissInstallDir / "examples" / "bare_etiss_processor"
-    etissvpExe = etissBuildDir / "bin" / "bare_etiss_processor"
-    etissvpScript = etissBuildDir / "bin" / "run_helper.sh"
+    etissvpExe = etissInstallDir / "bin" / "bare_etiss_processor"
+    etissvpScript = etissInstallDir / "bin" / "run_helper.sh"
     etissLibDir = etissInstallDir / "lib"
     if rebuild or not utils.is_populated(etissvpSrcDir) or not utils.is_populated(etissLibDir) or not etissvpExe.is_file():
         utils.make("install", cwd=etissBuildDir, live=verbose)

@@ -154,7 +154,7 @@ class TVMTuner:
                 "--o",
                 out_file,
             ]
-            env = prepare_python_environment(self.backend.tvm_pythonpath, self.backend.tvm_build_dir)
+            env = prepare_python_environment(self.backend.tvm_pythonpath, self.backend.tvm_build_dir, self.backend.tvm_configs_dir)
             utils.python("-m", "tvm.autotvm.record", *args, live=verbose, env=env)
             with open(out_file, "r") as handle:
                 content_best = handle.read()
@@ -171,7 +171,7 @@ class TVMTuner:
             str(self.port_end),
             # --silent not required as muted anyway...
         ]
-        env = self.backend.prepare_python_environment()
+        env = prepare_python_environment(self.backend.tvm_pythonpath, self.backend.tvm_build_dir, self.backend.tvm_configs_dir)
 
         def spawn_tracker():
             utils.python("-m", "tvm.exec.rpc_tracker", *args, live=verbose, env=env)
@@ -203,7 +203,7 @@ class TVMTuner:
             "--no-fork",  # required?
             # --silent not required as muted anyway...
         ]
-        env = self.backend.prepare_python_environment()
+        env = prepare_python_environment(self.backend.tvm_pythonpath, self.backend.tvm_build_dir, self.backend.tvm_configs_dir)
 
         for _ in range(self.max_parallel):
             server = multiprocessing.Process(target=spawn_server, args=(args, env, verbose))

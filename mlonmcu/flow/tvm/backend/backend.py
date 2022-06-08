@@ -61,7 +61,7 @@ class TVMBackend(Backend):
         **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
-    REQUIRED = ["tvm.build_dir", "tvm.pythonpath"]
+    REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
     def __init__(self, features=None, config=None, context=None):
         super().__init__(framework="tvm", features=features, config=config, context=context)
@@ -163,6 +163,10 @@ class TVMBackend(Backend):
         return self.config["tvm.build_dir"]
 
     @property
+    def tvm_configs_dir(self):
+        return self.config["tvm.configs_dir"]
+
+    @property
     def print_outputs(self):
         return str2bool(self.config["print_outputs"])
 
@@ -210,7 +214,7 @@ class TVMBackend(Backend):
         return args
 
     def invoke_tvmc(self, command, *args):
-        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir)
+        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:

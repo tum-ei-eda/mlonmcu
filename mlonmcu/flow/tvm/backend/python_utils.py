@@ -19,8 +19,9 @@
 import os
 
 
-def prepare_python_environment(pythonpath, tvm_build_dir):
+def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir):
     env = os.environ.copy()
     env["PYTHONPATH"] = str(pythonpath)
     env["TVM_LIBRARY_PATH"] = str(tvm_build_dir)
+    env["TVM_CONFIGS_JSON_DIR"] = str(tvm_configs_dir)
     return env

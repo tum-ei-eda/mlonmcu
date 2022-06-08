@@ -460,7 +460,7 @@ def _validate_tvm(context: MlonMcuContext, params=None):
     return context.environment.has_framework("tvm")
 
 
-@Tasks.provides(["tvm.src_dir"])
+@Tasks.provides(["tvm.src_dir", "tvm.configs_dir"])
 @Tasks.optional(["tvm_extensions.src_dir"])
 @Tasks.validate(_validate_tvm)
 @Tasks.param("patch", [False, True])  # This is just a temporary workaround until the patch is hopefully upstreamed
@@ -484,6 +484,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             utils.apply(tvmSrcDir, patchFile)
 
     context.cache["tvm.src_dir", flags] = tvmSrcDir
+    context.cache["tvm.configs_dir", flags] = tvmSrcDir / "configs"
     context.cache["tvm.pythonpath", flags] = tvmPythonPath
 
 

@@ -54,11 +54,15 @@ class EtissPulpinoTarget(RISCVTarget):
         "etissvp.ram_size": 0x4000000,  # 64 MB
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["etiss.install_dir", "etissvp.script"]
+    REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
 
     def __init__(self, name="etiss_pulpino", features=None, config=None):
         super().__init__(name, features=features, config=config)
-        self.metrics_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "get_metrics.py"
+        self.metrics_script = Path(self.etiss_src_dir) / "src" / "bare_etiss_processor" / "get_metrics.py"
+
+    @property
+    def etiss_src_dir(self):
+        return self.config["etiss.src_dir"]
 
     @property
     def etiss_dir(self):
@@ -174,7 +178,7 @@ class EtissPulpinoTarget(RISCVTarget):
             raise NotImplementedError
         else:
             ret = execute(
-                self.etiss_script.resolve(),
+                Path(self.etiss_script).resolve(),
                 program,
                 *etiss_script_args,
                 *args,

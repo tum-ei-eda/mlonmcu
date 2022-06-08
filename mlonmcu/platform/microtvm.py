@@ -251,7 +251,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             ),
             *get_bench_tvmc_args(
                 # print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=num
-                print_time=False,
+                print_time=True,
                 profile=False,
                 end_to_end=False,
                 repeat=self.repeat,

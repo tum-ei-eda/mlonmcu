@@ -36,7 +36,12 @@ from .feature import (
 )
 
 # from mlonmcu.flow import SUPPORTED_TVM_BACKENDS
-SUPPORTED_TVM_BACKENDS = ["tvmaot", "tvmrt", "tvmcg", "tvmllvm"]  # Workaround for cirvular import until we have a backend registry
+SUPPORTED_TVM_BACKENDS = [
+    "tvmaot",
+    "tvmrt",
+    "tvmcg",
+    "tvmllvm",
+]  # Workaround for cirvular import until we have a backend registry
 
 
 def filter_none(data):
@@ -1018,6 +1023,7 @@ class LogInstructions(TargetFeature):
 
             return log_instrs_callback
 
+
 @register_feature("microtvm_etissvp")
 class MicrotvmEtissVp(PlatformFeature):
     """Use ETISS VP for MicroTVM deployment in TVM."""
@@ -1074,7 +1080,7 @@ class MicrotvmEtissVp(PlatformFeature):
             "etiss_path": str(self.etiss_install_dir),
             "riscv_path": str(self.riscv_gcc_install_dir),
             "etissvp_script": str(self.etissvp_script),
-            "etissvp_script_args": f"plic clint uart v -i{etissvp_ini}"  # TODO: remove v
+            "etissvp_script_args": f"plic clint uart v -i{etissvp_ini}",  # TODO: remove v
         }
 
         return filter_none(

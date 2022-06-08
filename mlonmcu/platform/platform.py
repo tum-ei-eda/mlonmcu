@@ -93,7 +93,6 @@ class Platform:
     def print_outputs(self):
         return str2bool(self.config["print_outputs"])
 
-
     def process_features(self, features):
         if features is None:
             return []

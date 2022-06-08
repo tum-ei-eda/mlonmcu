@@ -295,7 +295,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             assert self.project_template is not None
             return (target_template, "--template-dir", self.project_template)
         else:
-            return (target_template)
+            return (target_template,)
 
     def prepare(self, mlf, target):
         out = self.invoke_tvmc_micro("create", self.project_dir, mlf, self.get_template_args(target))
@@ -333,5 +333,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
     def run(self, elf, target, timeout=120, num=1):
         # TODO: implement timeout
         output = self.flash(elf, target)
-        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template_args(target), num=num, micro=True)
+        output += self.invoke_tvmc_run(
+            str(self.project_dir), "micro", self.get_template_args(target), num=num, micro=True
+        )
         return output

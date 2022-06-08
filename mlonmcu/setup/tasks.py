@@ -676,7 +676,9 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     """Build muRISCV-NN."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"), (params["vext"], "vext"), (params["pext"], "pext"), (True, params["toolchain"]))
+    flags = utils.makeFlags(
+        (params["dbg"], "dbg"), (params["vext"], "vext"), (params["pext"], "pext"), (True, params["toolchain"])
+    )
     flags_ = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
     muriscvnnSrcDir = context.cache["muriscvnn.src_dir"]
@@ -1110,8 +1112,10 @@ def download_tflite_vizualize(context: MlonMcuContext, params=None, rebuild=Fals
         utils.download(url, tfLiteVizualizeExe)
     context.cache["tflite_visualize.exe"] = tfLiteVizualizeExe
 
+
 def _validate_microtvm_etissvp(context: MlonMcuContext, params=None):
     return context.environment.has_feature("microtvm_etissvp")
+
 
 @Tasks.provides(["microtvm_etissvp.src_dir", "microtvm_etissvp.template"])
 @Tasks.validate(_validate_microtvm_etissvp)

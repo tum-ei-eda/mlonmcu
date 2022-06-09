@@ -16,9 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from mlonmcu.feature.features import (
-    get_available_features,
-)  # This does not really belong here
 from mlonmcu.config import resolve_required_config
 
 
@@ -73,26 +70,51 @@ def extract_config(args):
     return configs
 
 
-def extract_config_and_init_features(args, context=None):
+def extract_config_and_feature_names(args, context=None):
+    # TODO: get features from context?
     feature_names = extract_feature_names(args)
     config = extract_config(args)
-    features = []
-    for feature_name in feature_names:
-        available_features = get_available_features(feature_name=feature_name)
-        for feature_cls in available_features:
-            required_keys = feature_cls.REQUIRED
-            if len(required_keys) > 0:
-                assert context is not None
-                config.update(
-                    resolve_required_config(
-                        required_keys,
-                        features=features,  # The order the features are provided is important here!
-                        config=config,
-                        cache=context.cache,
-                    )
-                )
-            feature_inst = feature_cls(config=config)
-            features.append(feature_inst)
-    # How about FeatureType.other?
+    return config, feature_names
 
-    return config, features
+def extract_frontend_names(args, context=None):
+    frontend_names = args.frontend
+    names = []
+    if isinstance(frontend_names, list) and len(frontend_names) > 0:
+        names = frontend_names
+    elif isinstance(frontend_names, str):
+        names = [frontend_names]
+    else:
+        # No need to specify a default, because we just use the provided order in the environment.yml
+        assert frontend_names is None, "TODO"
+        assert context is not None, "Need context to resolve default frontends"
+        all_frontend_names = context.environment.lookup_frontend_configs(names_only=True)
+        names.extend(all_frontend_names)
+    return names
+
+
+def extract_postprocess_names(args, context=None):
+    return list(set(args.postprocess)) if args.postprocess is not None else []
+
+# def extract_config_and_init_features(args, context=None):  # TODO: remove
+#     feature_names = extract_feature_names(args)
+#     config = extract_config(args)
+#     features = []
+#     for feature_name in feature_names:
+#         available_features = get_available_features(feature_name=feature_name)
+#         for feature_cls in available_features:
+#             required_keys = feature_cls.REQUIRED
+#             if len(required_keys) > 0:
+#                 assert context is not None
+#                 config.update(
+#                     resolve_required_config(
+#                         required_keys,
+#                         features=features,  # The order the features are provided is important here!
+#                         config=config,
+#                         cache=context.cache,
+#                     )
+#                 )
+#             feature_inst = feature_cls(config=config)
+#             features.append(feature_inst)
+#     # How about FeatureType.other?
+#
+#     return config, features

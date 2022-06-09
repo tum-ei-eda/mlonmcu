@@ -25,7 +25,8 @@ from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,
 )
-from .helper.parse import extract_config_and_init_features
+# from .helper.parse import extract_config_and_init_features
+from .helper.parse import extract_config_and_feature_names
 
 
 def add_setup_options(parser):
@@ -92,8 +93,10 @@ def get_parser(subparsers):
 
 def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-        config, features = extract_config_and_init_features(args)
-        installer = setup.Setup(features=features, config=config, context=context)
+        # config, features = extract_config_and_init_features(args)
+        config, _ = extract_config_and_feature_names(args)
+        # installer = setup.Setup(features=features, config=config, context=context)
+        installer = setup.Setup(config=config, context=context)
         if args.list:
             order = installer.get_dependency_order()
             print("The following tasks have been selected:")

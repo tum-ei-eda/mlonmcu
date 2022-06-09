@@ -276,7 +276,7 @@ def unpack_modelgroups(names, groups):
 def lookup_models(names, frontends=None, context=None):
     if frontends is None:
         assert context is not None
-        # TODO: Get defaults backends from environment (with no config/features)
+        # TODO: Get defaults frontends from environment (with no config/features)
         raise NotImplementedError
         # frontends = ?
     # allowed_ext = [frontend.fmt.extension for frontend in frontends]

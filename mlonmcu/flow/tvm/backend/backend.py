@@ -69,6 +69,7 @@ class TVMBackend(Backend):
         self.model = None  # Actual filename!
         self.model_info = None
         self.input_shapes = None
+        self.supported_formats = [ModelFormats.TFLITE, ModelFormats.RELAY]
 
         self.prefix = "default"
         self.artifacts = (

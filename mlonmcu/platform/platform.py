@@ -74,9 +74,6 @@ class Platform:
     def init_directory(self, path=None, context=None):
         raise NotImplementedError
 
-    def create_target(self, name):
-        raise NotImplementedError
-
     @property
     def supports_compile(self):
         return False
@@ -190,6 +187,9 @@ class TargetPlatform(Platform):
     }
 
     REQUIRED = []
+
+    def create_target(self, name):
+        raise NotImplementedError
 
     @property
     def supports_flash(self):

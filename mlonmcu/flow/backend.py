@@ -52,6 +52,7 @@ class Backend(ABC):
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         self.context = context
         self.artifacts = []
+        self.supported_fmts = []
         self.tuner = None
 
     def __repr__(self):
@@ -144,6 +145,9 @@ class Backend(ABC):
 
     def add_platform_defs(self, platform, defs):
         defs.update(self.get_platform_defs(platform))
+
+    def supports_model(self, model):
+        return any(fmt in self.supported_formats for fmt in model.formats)
 
 
 def get_parser(backend_name, features, required, defaults):

@@ -25,12 +25,12 @@ from enum import IntEnum
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
-from mlonmcu.platform.platform import CompilePlatform
+from mlonmcu.platform.platform import CompilePlatform, TargetPlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.feature.features import get_matching_features
+from mlonmcu.feature.features import get_matching_features, get_available_features
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.models import SUPPORTED_FRONTENDS
 from mlonmcu.platform import get_platforms
@@ -77,10 +77,10 @@ class Run:
         idx=None,
         model=None,
         framework=None,
-        frontend=None,
+        frontends=None,
         backend=None,
         target=None,
-        platform=None,  # TODO: rename
+        platforms=None,  # TODO: rename
         features=None,  # TODO: All features combined or explicit run-features -> postprocesses?
         config=None,  # TODO: All config combined or explicit run-config?
         postprocesses=None,
@@ -91,10 +91,10 @@ class Run:
     ):
         self.idx = idx
         self.model = model  # Model name, not object?
-        self.frontend = frontend  # Single one or all enabled ones?
+        self.frontends = frontends if frontends is not None else []
         self.framework = framework  # ???
         self.backend = backend
-        self.platform = platform
+        self.platforms = platforms if platforms is not None else []
         self.artifacts_per_stage = {}
         self.num = num
         self.archived = archived
@@ -106,6 +106,7 @@ class Run:
 
         self.init_directory()
         self.target = target
+        self.cache_hints = []
         self.config = config if config else {}
         self.features = features if features else []
         self.run_config = config if config else {}
@@ -132,20 +133,41 @@ class Run:
         """Get tune_enabled property."""
         return bool(self.run_config["tune_enabled"])
 
+    @property
+    def compile_platform(self):
+        """Get platform for compile stage."""
+        if isinstance(self.target.platform, CompilePlatform):
+            return self.target.platform
+        for platform in self.platforms:
+            if isinstance(platform, CompilePlatform):
+                return platform
+        return None
+
+    @property
+    def target_platform(self):  # TODO: rename to run_stage?
+        """Get platform for run stage."""
+        if self.target:
+            assert isinstance(self.target.platform, TargetPlatform)
+            return self.target.platform
+        for platform in self.platforms:
+            if isinstance(platform, TargetPlatform):
+                return platform
+        return None
+
     def has_stage(self, stage):
         """Returns true if the given stage is available for this run."""
         if stage == RunStage.NOP:
             return True
         if stage == RunStage.LOAD:
-            return self.model is not None and self.frontend is not None
+            return self.model is not None and len(self.frontends) > 0
         if stage == RunStage.TUNE:
             return self.tune_enabled and self.backend is not None
         if stage == RunStage.BUILD:
             return self.backend is not None and self.framework is not None
         if stage == RunStage.COMPILE:
-            return self.target is not None and self.platform is not None and isinstance(self.platform, CompilePlatform)
+            return self.target is not None and len(self.platforms) > 0 and self.compile_platform is not None
         if stage == RunStage.RUN:
-            return self.target is not None and self.platform is not None
+            return self.target is not None and len(self.platforms) > 0 and self.target_platform is not None
         if stage == RunStage.POSTPROCESS:
             return len(self.postprocesses) > 0
         if stage == RunStage.DONE:
@@ -186,8 +208,8 @@ class Run:
                 os.mkdir(self.dir)
             # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
             # A solution would be to split up the framework runtime libs from the mlif...
-            if self.platform:
-                self.platform.init_directory(path=Path(self.dir) / self.platform.name)
+            for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
+                platform.init_directory(path=Path(self.dir) / platform.name)
 
     def copy(self):
         """Create a new run based on this instance."""
@@ -198,44 +220,20 @@ class Run:
             self.init_directory()
         return new
 
-    # TODO: get rid of this
-    # This is currently required as the platforms needs to access the backend, framework and target...
-    def init_platform(self, platform_cls, context=None):
-        """Helper function to create and configure a platform instance for this run."""
-        required_keys = platform_cls.REQUIRED
-        self.config.update(
-            resolve_required_config(
-                required_keys,
-                features=self.features,
-                config=self.config,
-                cache=context.cache,
-            )
-        )
-        assert self.framework is not None, "Please add a frontend before initializing the Platform"
-        assert self.backend is not None, "Please add a backend before initializing the Platform"
-        platform_config = self.config.copy()
-        platform = platform_cls(
-            features=self.features,
-            config=platform_config,
-        )
-        self.framework.add_platform_defs(platform.name, platform.definitions)
-        self.backend.add_platform_defs(platform.name, platform.definitions)
-        # self.target.add_platform_defs(platform.name, platform.definitions)
-        return platform
-
     def init_component(self, component_cls, context=None):
         """Helper function to create and configure a MLonMCU component instance for this run."""
         required_keys = component_cls.REQUIRED
         self.config.update(
             resolve_required_config(
                 required_keys,
-                features=self.features,
+                features=[get_available_features(feature_type=FeatureType.COMPILE, name) for name in self.feature_names],
                 config=self.config,
                 cache=context.cache if context else None,
+                hints=self.cache_hints,
             )
         )
         component_config = self.config.copy()  # TODOL get rid of this
-        return component_cls(features=self.features, config=component_config)
+        return component_cls(features=self.feature_namess, config=component_config)
 
     def add_model(self, model):
         """Setter for the model instance."""
@@ -243,44 +241,105 @@ class Run:
 
     def add_frontend(self, frontend):
         """Setter for the frontend instance."""
-        self.frontend = frontend
+        self.frontends = [frontend]
+
+    def add_frontends(self, frontends):
+        """Setter for the list of frontends."""
+        self.frontends = frontends
 
     def add_backend(self, backend):
         """Setter for the backend instance."""
         self.backend = backend
+        assert self.platforms is not None, "Add at least a platform before adding a backend."
+        if self.model is not None:
+            assert self.backend.supports_model(self.model), "The added backend does not support the chosen model. Add the backend before adding a model to find a suitable frontend."
+        for platform in self.platforms:
+            self.backend.add_platform_defs(platform.name, platform.definitions)
 
     def add_framework(self, framework):
         """Setter for the framework instance."""
         self.framework = framework
+        assert self.platforms is not None, "Add at least a platform before adding a framework."
+        for platform in self.platforms:
+            self.framework.add_platform_defs(platform.name, platform.definitions)
 
     def add_target(self, target):
         """Setter for the target instance."""
         self.target = target
-        self.target.add_platform_defs(self.platform.name, self.platform.definitions)  # TODO: move to platform?
+        assert self.platforms is not None, "Add at least a platform before adding a target."
+        for platform in self.platforms:
+            self.target.add_platform_defs(platform.name, platform.definitions)
+        self.cache_hints = [self.target.get_arch()]
+        self.resolve_chache_refs()
 
-    def add_platform(self, platform, context=None):
+    def add_platform(self, platform):
         """Setter for the platform instance."""
-        del context  # unused
-        self.platform = platform
+        self.platforms = [platform]
+        if self.backend:
+            self.backend.add_platform_defs(platform.name, platform.definitions)
+        if self.framework:
+            self.framework.add_platform_defs(platform.name, platform.definitions)
+
+    def add_platforms(self, platforms):
+        """Setter for the list of platforms."""
+        self.platforms = platforms
+        for platform in platforms:
+            if self.backend:
+                self.backend.add_platform_defs(platform.name, platform.definitions)
+            if self.framework:
+                self.framework.add_platform_defs(platform.name, platform.definitions)
+
+    def add_postprocess(self, postprocess):
+        """Setter for a postprocess instance."""
+        self.postprocesses = [postprocess]
 
     def add_postprocesses(self, postprocesses):
         """Setter for the list of postprocesses."""
         self.postprocesses = postprocesses
 
+    def add_feature(self, feature):
+        """Setter for a feature instance."""
+        self.features = [feature]
+
+    def add_features(self, features, append=False):
+        """Setter for the list of features."""
+        self.features = features if not append else self.features + features
+
+    def pick_model_frontend(self, model_hints, backend=None):
+        assert len(model_hints) > 0
+        if backend is None:
+            self.frontends = [frontend for frontend in self.frontends if model_hints[0].formats[0] in frontend.input_formats]
+            assert len(self.frontends) > 0
+            return model_hints[0]
+        for model_hint in model_hints:
+            if  backend.supports_model(model_hint):
+                self.frontends = [frontend for frontend in self.frontends if model_hint.formats[0] in frontend.input_formats]
+                return model_hint
+        return None
+
     def add_model_by_name(self, model_name, context=None):
         """Helper function to initialize and configure a model by its name."""
         assert context is not None, "Please supply a context"
-        assert self.frontend is not None, "Add a frontend to the run before adding a model"
-        model_hints = lookup_models([model_name], frontends=[self.frontend], context=context)
+        assert len(self.frontends) > 0, "Add a frontend to the run before adding a model"
+        model_hints = lookup_models([model_name], frontends=self.frontends, context=context)
         assert len(model_hints) > 0, f"Model with name '{model_name}' not found"
-        self.add_model(model_hints[0])
+        model_hint = self.pick_model_frontend(model_hints, backend=self.backend)
+        assert model_hint is not None, "Unable to pick a suitable model"
+        self.add_model(model_hint)
 
     def add_frontend_by_name(self, frontend_name, context=None):
         """Helper function to initialize and configure a frontend by its name."""
-        assert context is not None and context.environment.has_frontend(
-            frontend_name
-        ), f"The frontend '{frontend_name}' is not enabled for this environment"
-        self.add_frontend(self.init_component(SUPPORTED_FRONTENDS[frontend_name], context=context))
+        self.add_frontends_by_name([frontend_name], context=context)
+
+    def add_frontends_by_name(self, frontend_names, context=None):
+        """Helper function to initialize and configure frontends by their names."""
+        frontends = []
+        for name in frontend_names:
+            assert context is not None and context.environment.has_frontend(
+               name
+            ), f"The frontend '{frontend_name}' is not enabled for this environment"
+            frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
+        self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):
         """Helper function to initialize and configure a backend by its name."""
@@ -299,25 +358,50 @@ class Run:
         # assert context is not None and context.environment.has_target(
         #     target_name
         # ), f"The target '{target_name}' is not enabled for this environment"
-        assert self.platform is not None, "Please add a platform to the run before adding the target"
-        self.add_target(self.init_component(self.platform.create_target(target_name), context=context))
+        assert len(self.platforms) > 0, "Please add a platform to the run before adding the target"
+        self.add_target(self.init_component(self.target_platform.create_target(target_name), context=context))
 
     def add_platform_by_name(self, platform_name, context=None):
         """Helper function to initialize and configure a platform by its name."""
-        assert context is not None and context.environment.has_platform(
-            platform_name
-        ), f"The platform '{platform_name}' is not enabled for this environment"
-        self.add_platform(self.init_platform(get_platforms()[platform_name], context=context))
+        self.add_platforms_by_name([platform_name], context=context)
+
+    def add_platforms_by_name(self, platform_names, context=None):
+        """Helper function to initialize and configure platforms by their names."""
+        platforms = []
+        for name in platform_names:
+            assert context is not None and context.environment.has_platform(
+                name
+            ), f"The platform '{name}' is not enabled for this environment"
+            platforms.append(self.init_component(get_platforms()[name], context=context))
+        self.add_platforms(platforms)
+
+    def add_postprocess_by_name(self, postprocess_name, context=None):
+        """Helper function to initialize and configure a postprocesses by its name."""
+        self.add_postprocesses_by_name([postprocess_name], context=context)
 
     def add_postprocesses_by_name(self, postprocess_names, context=None):
         """Helper function to initialize and configure postprocesses by their names."""
-        arr = []
-        for postprocess_name in postprocess_names:
+        postprocesses = []
+        for name in postprocess_names:
+            # TODO: ?
             # assert context is not None and context.environment.has_postprocess(
             #     postprocess_name
             # ), f"The postprocess '{postprocess_name}' is not enabled for this environment"
-            arr.append(self.init_component(SUPPORTED_POSTPROCESSES[postprocess_name], context=context))
-        self.add_postprocesses(arr)
+            postprocesses.append(self.init_component(SUPPORTED_POSTPROCESSES[name], context=context))
+        self.add_postprocesses(postprocesses)
+
+    def add_feature_by_name(self, feature_name, context=None):
+        """Helper function to initialize and configure a feature by its name."""
+        self.add_feature_by_name([feature_name], context=context, append=True)
+
+    def add_features_by_name(self, feature_names, context=None, append=False):
+        """Helper function to initialize and configure features by their names."""
+        features = []
+        for feature_name in feature_names:
+            available_features = get_available_features(feature_name=feature_name)
+            for feature_cls in available_features:
+               features.append(self.init_component(feature_cls, context=context))
+        self.add_features(features, append=append)
 
     @property
     def export_optional(self):
@@ -328,8 +412,10 @@ class Run:
         probs = []
         if self.model:
             probs.append(str(self.model))
-        if self.frontend:
-            probs.append(str(self.frontend))
+        if len(self.platforms) > 0:
+            probs.append(str(self.platforms[0] if len(self.platforms) == 1 else self.platforms))
+        if len(self.frontends) > 0:
+            probs.append(str(self.frontends[0] if len(self.frontends) == 1 else self.frontends))
         if self.backend:
             probs.append(str(self.backend))
         if self.target:
@@ -341,6 +427,11 @@ class Run:
         if self.config and len(self.config) > 0:
             probs.append(str(self.config))
         return "Run(" + ",".join(probs) + ")"
+
+    @property
+    def frontend(self):
+        assert len(self.frontends) > 0, "Not frontend is available for this run."
+        return self.frontends[0]
 
     def toDict(self):
         """Utility not implemented yet. (TODO: remove?)"""
@@ -415,8 +506,8 @@ class Run:
             if artifact.name == "data.c":
                 artifact.export(self.dir)
                 data_file = Path(self.dir) / "data.c"
-        self.platform.generate_elf(codegen_dir, self.target, num=self.num, data_file=data_file)
-        self.artifacts_per_stage[RunStage.COMPILE] = self.platform.artifacts
+        self.compile_platform.generate_elf(codegen_dir, self.target, num=self.num, data_file=data_file)
+        self.artifacts_per_stage[RunStage.COMPILE] = self.compile_platform.artifacts
 
         self.completed[RunStage.COMPILE] = True
         self.unlock()
@@ -489,8 +580,10 @@ class Run:
                 component, name = key.split(".")[:2]
                 if self.backend is not None and component == self.backend.name:
                     self.backend.config[name] = value
-                elif self.platform is not None and component == self.platform.name:
-                    self.platform.config[name] = value
+                else:
+                    for platform in self.platforms:
+                        if platform is not None and component == platform.name:
+                            platform.config[name] = value
                 self.config[key] = value
         self.artifacts_per_stage[RunStage.LOAD] = self.frontend.artifacts
         if data_artifact:
@@ -589,6 +682,43 @@ class Run:
         """Return list of postprocess names for this run."""
         return [postprocess.name for postprocess in self.postprocesses]
 
+    def get_frontend_name(self):
+        """Return frontend name(s) for this run."""
+        ret = [frontend.name for frontend in self.frontends]
+        return ret[0] if len(ret) == 1 else ret
+
+    def get_platform_name(self):
+        """Return platform name(s) for this run."""
+        used = list(set([self.compile_platform, self.target_platform]))  # TODO: build_platform, tune_platform
+        ret = [platform.name for platform in used]
+        return ret[0] if len(ret) == 1 else ret
+
+    def resolve_all)chache_refs(self):
+        """Return dict with component-specific and global configuration for this run."""
+        num_refs = 0
+        num_resolved = 0
+
+        def resolve_chache_refs(component):
+            pass
+
+        for frontend in self.frontends:
+            resolve_chache_refs(frontend)
+        if self.backend:
+            resolve_chache_refs(self.backend)
+        if self.framework:
+            resolve_chache_refs(self.framework)
+        if self.target:
+            resolve_chache_refs(self.target)
+        for platform in self.platforms:
+            resolve_chache_refs(platform)
+        for postprocess in self.postprocesses:
+            resolve_chache_refs(postprocess)
+
+        if num_refs > 0:
+            logger.info(f"Resolved {num_resolved} out of {num_refs} CacheRefs")
+        else:
+            logger.debug(f"Resolved {num_resolved} out of {num_refs} CacheRefs")
+
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
         """Return dict with component-specific and global configuration for this run."""
 
@@ -626,16 +756,16 @@ class Run:
             ret.update(
                 {key: value for key, value in self.config.items() if not has_prefix(key)}
             )  # Only config without a prefix!
-        if self.frontend:
-            ret.update(config_helper(self.frontend))
+        for frontend in self.frontends:
+            ret.update(config_helper(frontend))
         if self.backend:
             ret.update(config_helper(self.backend))
         if self.framework:
             ret.update(config_helper(self.framework))
         if self.target:
             ret.update(config_helper(self.target))
-        if self.platform:
-            ret.update(config_helper(self.platform))
+        for platform in self.platforms:
+            ret.update(config_helper(platform))
         for postprocess in self.postprocesses:
             ret.update(config_helper(postprocess))
         return ret
@@ -656,14 +786,14 @@ class Run:
             pre["Run"] = self.idx
         if self.model:
             pre["Model"] = self.model.name
-        if self.frontend:
-            pre["Frontend"] = self.frontend.name
+        if len(self.frontends) > 0:
+            pre["Frontend"] = self.get_frontend_name()
         if self.framework:
             pre["Framework"] = self.framework.name
         if self.backend:
             pre["Backend"] = self.backend.name
-        if self.platform:
-            pre["Platform"] = self.platform.name
+        if len(self.platforms) > 0:
+            pre["Platform"] = self.get_platform_name()
         if self.target:
             pre["Target"] = self.target.name
         pre["Num"] = self.num

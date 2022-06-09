@@ -89,8 +89,8 @@ def get_matching_features(features, feature_type):
 class DebugArena(BackendFeature, PlatformFeature):
     """Enable verbose printing of arena usage for debugging."""
 
-    def __init__(self, config=None):
-        super().__init__("debug_arena", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("debug_arena", features=features, config=config)
 
     def get_backend_config(self, backend):
         assert backend in [
@@ -115,8 +115,8 @@ class Validate(FrontendFeature, PlatformFeature):
         "fail_on_error": None,
     }
 
-    def __init__(self, config=None):
-        super().__init__("validate", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("validate", features=features, config=config)
 
     @property
     def allow_missing(self):
@@ -147,8 +147,8 @@ class Muriscvnn(SetupFeature, FrameworkFeature):
 
     REQUIRED = ["muriscvnn.lib", "muriscvnn.inc_dir"]
 
-    def __init__(self, config=None):
-        super().__init__("muriscvnn", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("muriscvnn", features=features, config=config)
 
     @property
     def muriscvnn_lib(self):
@@ -183,16 +183,21 @@ class Muriscvnn(SetupFeature, FrameworkFeature):
 
 @register_feature("cmsisnn")
 class Cmsisnn(SetupFeature, FrameworkFeature):
-    """CMSIS-NN kernels for TFLite Micro/TVM"""
+    """CMSIS-NN kernels for TFLite Micro"""
 
-    REQUIRED = ["cmsisnn.lib", "cmsisnn.dir"]
+    DEFAULTS = {**FeatureBase.DEFAULTS, "lib": 'Cache("cmsisnn.lib")'}
 
-    def __init__(self, config=None):
-        super().__init__("cmsisnn", config=config)
+    REQUIRED = ["cmsisnn.dir"]
+
+    def __init__(self, features=None, config=None):
+        super().__init__("cmsisnn", features=features, config=config)
 
     @property
     def cmsisnn_lib(self):
-        return str(self.config["cmsisnn.lib"])
+        # return str(self.config["cmsisnn.lib"])
+        if self.config.get("lib", None):
+            return str(self.config["lib"])
+        return CacheRef("cmsisnn.lib")
 
     @property
     def cmsisnn_dir(self):
@@ -232,8 +237,8 @@ class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 
     REQUIRED = ["cmsisnn.lib", "cmsisnn.dir"]
 
-    def __init__(self, config=None):
-        super().__init__("cmsisnnbyoc", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("cmsisnnbyoc", features=features, config=config)
 
     @property
     def cmsisnn_lib(self):
@@ -282,8 +287,8 @@ class MuriscvnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 
     REQUIRED = ["muriscvnn.lib", "muriscvnn.inc_dir"]
 
-    def __init__(self, config=None):
-        super().__init__("muriscvnnbyoc", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("muriscvnnbyoc", features=features, config=config)
 
     @property
     def muriscvnn_lib(self):
@@ -339,8 +344,8 @@ class Vext(SetupFeature, TargetFeature):
 
     REQUIRED = []
 
-    def __init__(self, config=None):
-        super().__init__("vext", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("vext", features=features, config=config)
 
     @property
     def vlen(self):
@@ -380,8 +385,8 @@ class Pext(SetupFeature, TargetFeature):
 
     REQUIRED = []
 
-    def __init__(self, config=None):
-        super().__init__("pext", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("pext", features=features, config=config)
 
     def get_target_config(self, target):
         assert target in ["spike", "ovpsim"]  # TODO: add etiss in the future
@@ -401,8 +406,8 @@ class Pext(SetupFeature, TargetFeature):
 class Debug(SetupFeature, PlatformFeature):
     """Enable debugging ability of target software."""
 
-    def __init__(self, config=None):
-        super().__init__("debug", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("debug", features=features, config=config)
 
     def get_required_cache_flags(self):
         return {} if self.enabled else {}  # TODO: remove?
@@ -421,8 +426,8 @@ class GdbServer(TargetFeature):
         "port": None,
     }
 
-    def __init__(self, config=None):
-        super().__init__("gdbserver", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("gdbserver", features=features, config=config)
 
     @property
     def attach(self):
@@ -448,8 +453,8 @@ class GdbServer(TargetFeature):
 class ETISSDebug(SetupFeature, TargetFeature):
     """Debug ETISS internals."""
 
-    def __init__(self, config=None):
-        super().__init__("etissdbg", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("etissdbg", features=features, config=config)
 
     def get_required_cache_flags(self):
         return {"etiss.install_dir": ["dbg"], "etissvp.script": ["dbg"]} if self.enabled else {}
@@ -463,8 +468,8 @@ class ETISSDebug(SetupFeature, TargetFeature):
 class Trace(TargetFeature):
     """Enable tracing of all memory accesses in ETISS."""
 
-    def __init__(self, config=None):
-        super().__init__("trace", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("trace", features=features, config=config)
 
     def get_target_config(self, target):
         assert target in ["etiss_pulpino"]
@@ -475,8 +480,8 @@ class Trace(TargetFeature):
 class UnpackedApi(BackendFeature):  # TODO: should this be a feature or config only?
     """Use unpacked interface api for TVMAOT backend to reduce stack usage."""
 
-    def __init__(self, config=None):
-        super().__init__("unpacked_api", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("unpacked_api", features=features, config=config)
 
     def get_backend_config(self, backend):
         assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -487,8 +492,8 @@ class UnpackedApi(BackendFeature):  # TODO: should this be a feature or config o
 class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature):
     """Sub-8-bit and sparsity feature for TFLite Micro kernels."""
 
-    def __init__(self, config=None):
-        super().__init__("packed", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("packed", features=features, config=config)
 
     def get_framework_config(self, framework):
         raise NotImplementedError
@@ -508,8 +513,8 @@ class Packed(FrameworkFeature, FrontendFeature, BackendFeature, SetupFeature):
 class Packing(FrontendFeature):
     """Sub-8-bit and sparse weight packing for TFLite Frontend."""
 
-    def __init__(self, config=None):
-        super().__init__("packing", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("packing", features=features, config=config)
 
     def get_frontend_config(self, frontend):
         assert frontend in ["tflm"], f"Unsupported feature '{self.name} for frontend '{frontend}''"
@@ -521,8 +526,8 @@ class Packing(FrontendFeature):
 class Memplan(FrameworkFeature):
     """Custom TVM memory planning feature by (@rafzi)"""
 
-    def __init__(self, config=None):
-        super().__init__("memplan", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("memplan", features=features, config=config)
 
     def get_framework_config(self, framework):
         assert framework in ["tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"
@@ -539,8 +544,8 @@ class Usmp(BackendFeature):
         "algorithm": "greedy_by_conflicts",  # options: greedy_by_conflicts, greedy_by_size, hill_climb
     }
 
-    def __init__(self, config=None):
-        super().__init__("usmp", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("usmp", features=features, config=config)
 
     @property
     def algorithm(self):
@@ -579,8 +584,8 @@ class MOIOPT(BackendFeature):
         "norecurse": False,
     }
 
-    def __init__(self, config=None):
-        super().__init__("moiopt", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("moiopt", features=features, config=config)
 
     def add_backend_config(self, backend, config):
         assert backend in ["tvmaot", "tvmrt"], f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -609,8 +614,8 @@ class Visualize(FrontendFeature):
 
     REQUIRED = ["tflite_visualize.exe"]
 
-    def __init__(self, config=None):
-        super().__init__("visualize", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("visualize", features=features, config=config)
 
     @property
     def tflite_visualize_exe(self):
@@ -640,8 +645,8 @@ class Relayviz(FrontendFeature):
         "plotter": "term",  # Alternative: dot
     }
 
-    def __init__(self, config=None):
-        super().__init__("relayviz", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("relayviz", features=features, config=config)
 
     @property
     def plotter(self):
@@ -673,8 +678,8 @@ class Autotuned(BackendFeature):
         "results_file": None,
     }
 
-    def __init__(self, config=None):
-        super().__init__("autotuned", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("autotuned", features=features, config=config)
 
     @property
     def results_file(self):
@@ -709,8 +714,8 @@ class Autotune(BackendFeature, RunFeature):
         # All None to use the defaults defined in the backend instead
     }
 
-    def __init__(self, config=None):
-        super().__init__("autotune", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("autotune", features=features, config=config)
 
     @property
     def results_file(self):
@@ -780,8 +785,8 @@ class Fallback(FrameworkFeature, PlatformFeature):
         "config_file": None,
     }
 
-    def __init__(self, config=None):
-        super().__init__("fallback", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("fallback", features=features, config=config)
 
     @property
     def config_file(self):
@@ -806,8 +811,8 @@ class DisableLegalize(BackendFeature, SetupFeature):
 
     REQUIRED = ["tvm_extensions.wrapper"]
 
-    def __init__(self, config=None):
-        super().__init__("disable_legalize", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("disable_legalize", features=features, config=config)
 
     @property
     def tvm_extensions_wrapper(self):
@@ -847,8 +852,8 @@ class Demo(BackendFeature, SetupFeature):
 
     REQUIRED = []
 
-    def __init__(self, config=None):
-        super().__init__("demo", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("demo", features=features, config=config)
 
     @property
     def board(self):
@@ -891,8 +896,8 @@ class CacheSim(TargetFeature):
 
     REQUIRED = []
 
-    def __init__(self, config=None):
-        super().__init__("cachesim", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("cachesim", features=features, config=config)
 
     @property
     def ic_enable(self):
@@ -976,8 +981,8 @@ class LogInstructions(TargetFeature):
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
-    def __init__(self, config=None):
-        super().__init__("log_instrs", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("log_instrs", features=features, config=config)
 
     @property
     def to_file(self):
@@ -1037,8 +1042,8 @@ class MicrotvmEtissVp(PlatformFeature):
 
     REQUIRED = ["microtvm_etissvp.template", "etiss.install_dir", "etissvp.script", "riscv_gcc.install_dir"]
 
-    def __init__(self, config=None):
-        super().__init__("microtvm_etissvp", config=config)
+    def __init__(self, features=None, config=None):
+        super().__init__("microtvm_etissvp", features=features, config=config)
 
     @property
     def microtvm_etissvp_template(self):

@@ -27,19 +27,20 @@ from mlonmcu.logging import get_logger
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.target.target import Target
 
-from .platform import CompilePlatform
+from .platform import CompilePlatform, TargetPlatform
 from .mlif_target import get_mlif_targets, create_mlif_target
 
 logger = get_logger()
 
 
-class MlifPlatform(CompilePlatform):
+class MlifPlatform(CompilePlatform, TargetPlatform):
     """Model Library Interface Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + ["validate", "debug_arena"]
+    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES +["validate", "debug_arena"]
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
+        **TargetPlatform.DEFAULTS,
         "ignore_data": True,
         "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,

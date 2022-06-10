@@ -27,6 +27,7 @@ from mlonmcu.cli.common import (
     kickoff_runs,
 )
 from mlonmcu.config import resolve_required_config
+
 # from .helper.parse import extract_config_and_init_features
 from .helper.parse import extract_config_and_feature_names, extract_frontend_names, extract_postprocess_names
 from mlonmcu.models import SUPPORTED_FRONTENDS
@@ -57,6 +58,7 @@ def get_parser(subparsers):
     parser.set_defaults(flow_func=handle)
     add_load_options(parser)
     return parser
+
 
 # def init_frontends(frontend_names, features, config, context=None):
 #     names = []

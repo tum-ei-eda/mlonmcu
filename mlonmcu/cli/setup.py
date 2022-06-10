@@ -25,6 +25,7 @@ from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,
 )
+
 # from .helper.parse import extract_config_and_init_features
 from .helper.parse import extract_config_and_feature_names
 

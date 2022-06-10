@@ -252,7 +252,9 @@ class Run:
         self.backend = backend
         assert self.platforms is not None, "Add at least a platform before adding a backend."
         if self.model is not None:
-            assert self.backend.supports_model(self.model), "The added backend does not support the chosen model. Add the backend before adding a model to find a suitable frontend."
+            assert self.backend.supports_model(
+                self.model
+            ), "The added backend does not support the chosen model. Add the backend before adding a model to find a suitable frontend."
         for platform in self.platforms:
             self.backend.add_platform_defs(platform.name, platform.definitions)
 
@@ -308,12 +310,16 @@ class Run:
     def pick_model_frontend(self, model_hints, backend=None):
         assert len(model_hints) > 0
         if backend is None:
-            self.frontends = [frontend for frontend in self.frontends if model_hints[0].formats[0] in frontend.input_formats]
+            self.frontends = [
+                frontend for frontend in self.frontends if model_hints[0].formats[0] in frontend.input_formats
+            ]
             assert len(self.frontends) > 0
             return model_hints[0]
         for model_hint in model_hints:
-            if  backend.supports_model(model_hint):
-                self.frontends = [frontend for frontend in self.frontends if model_hint.formats[0] in frontend.input_formats]
+            if backend.supports_model(model_hint):
+                self.frontends = [
+                    frontend for frontend in self.frontends if model_hint.formats[0] in frontend.input_formats
+                ]
                 return model_hint
         return None
 
@@ -336,7 +342,7 @@ class Run:
         frontends = []
         for name in frontend_names:
             assert context is not None and context.environment.has_frontend(
-               name
+                name
             ), f"The frontend '{frontend_name}' is not enabled for this environment"
             frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
         self.add_frontends(frontends)
@@ -400,7 +406,7 @@ class Run:
         for feature_name in feature_names:
             available_features = get_available_features(feature_name=feature_name)
             for feature_cls in available_features:
-               features.append(self.init_component(feature_cls, context=context))
+                features.append(self.init_component(feature_cls, context=context))
         self.add_features(features, append=append)
 
     @property

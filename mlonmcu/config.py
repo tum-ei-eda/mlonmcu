@@ -124,7 +124,7 @@ def resolve_required_config(
     """
 
     def get_sublists(l):
-        ret = [[ ]]
+        ret = [[]]
         for i in range(len(l) + 1):
             for j in range(i + 1, len(l) + 1):
                 sub = l[i:j]

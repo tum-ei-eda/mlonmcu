@@ -76,6 +76,7 @@ def extract_config_and_feature_names(args, context=None):
     config = extract_config(args)
     return config, feature_names
 
+
 def extract_frontend_names(args, context=None):
     frontend_names = args.frontend
     names = []
@@ -94,6 +95,7 @@ def extract_frontend_names(args, context=None):
 
 def extract_postprocess_names(args, context=None):
     return list(set(args.postprocess)) if args.postprocess is not None else []
+
 
 # def extract_config_and_init_features(args, context=None):  # TODO: remove
 #     feature_names = extract_feature_names(args)

@@ -218,11 +218,11 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
             return riscvUrl, riscvFileName, riscvFileExtension
 
         if vext and "riscv_gcc.dl_url_vext" in user_vars:
-            riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url_vext"])
+            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url_vext"])
         elif pext and "riscv_gcc.dl_url_pext" in user_vars:
-            riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url_pext"])
+            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url_pext"])
         elif "riscv_gcc.dl_url" in user_vars:
-            riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url"])
+            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url"])
         else:
             riscvVersion = (
                 user_vars["riscv.version"]
@@ -904,6 +904,7 @@ def clone_cmsis(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
         cmsisRepo = context.environment.repos["cmsis"]
         utils.clone(cmsisRepo.url, cmsisSrcDir, branch=cmsisRepo.ref, refresh=rebuild)
     context.cache["cmsisnn.dir"] = cmsisSrcDir
+
 
 @Tasks.needs(["cmsisnn.dir"])
 @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])

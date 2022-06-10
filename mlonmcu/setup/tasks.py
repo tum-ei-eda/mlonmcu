@@ -211,10 +211,20 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
             vext = params["vext"]
         if "pext" in params:
             pext = params["pext"]
-        if "riscv_gcc.dl_url" in user_vars:
+        assert not (vext and pext)  # Combination of both extensions is currently not supported
+
+        def _helper(url):
             fullUrlSplit = user_vars["riscv_gcc.dl_url"].split("/")
             riscvUrl = "/".join(fullUrlSplit[:-1])
             riscvFileName, riscvFileExtension = fullUrlSplit[-1].split(".", 1)
+            return riscvUrl, riscvFileName, riscvFileExtension
+
+        if vext and "riscv_gcc.dl_url_vext" in user_vars:
+            riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url_vext"])
+        elif vext and "riscv_gcc.dl_url_pext" in user_vars:
+            riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url_pext"])
+        elif "riscv_gcc.dl_url" in user_vars:
+            riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url"])
         else:
             riscvVersion = (
                 user_vars["riscv.version"]

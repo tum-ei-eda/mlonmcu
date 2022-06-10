@@ -136,8 +136,8 @@ def resolve_required_config(
     def get_cache_flags(features):
         result = {}
         if features:
-            for feature_names in features_names:
-                if FeatureType.SETUP in feature_cls.types():
+            for feature in features:
+                if FeatureType.SETUP in type(feature).types():
                     feature.add_required_cache_flags(result)
         return result
 

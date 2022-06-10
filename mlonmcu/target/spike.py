@@ -32,7 +32,7 @@ logger = get_logger()
 
 
 class SpikeTarget(RISCVTarget):
-    """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
+    """Target using the riscv-isa-sim (Spike) RISC-V simulator."""
 
     FEATURES = ["vext", "pext", "cachesim", "log_instrs"]
 

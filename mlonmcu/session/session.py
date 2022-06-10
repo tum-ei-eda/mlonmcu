@@ -271,9 +271,9 @@ class Session:
                     if i == 0:
                         total_threads = min(len(self.runs), num_workers)
                         cpu_count = multiprocessing.cpu_count()
-                        if (until >= RunStage.COMPILE) and run.platform.name == "mlif":
+                        if (until >= RunStage.COMPILE) and run.compile_platform.name == "mlif":
                             total_threads *= (
-                                run.platform.num_threads
+                                run.compile_platform.num_threads
                             )  # TODO: This should also be used for non-mlif platforms
                         if total_threads > 2 * cpu_count:
                             if pbar2:

@@ -331,9 +331,8 @@ class MuriscvnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
         return ret
 
 
-# @before_feature("muriscvnn")  # TODO: implment something like this
+# @before_feature("muriscvnn")  # TODO: implement something like this
 @register_feature("vext")
-# class Vext(SetupFeature, TargetFeature, PlatformFeature):
 class Vext(SetupFeature, TargetFeature):
     """Enable vector extension for supported RISC-V targets"""
 

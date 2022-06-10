@@ -1093,3 +1093,44 @@ class MicrotvmEtissVp(PlatformFeature):
                 f"{platform}.project_options": project_options,
             }
         )
+
+
+@register_feature("arm_mvei")
+class ArmMvei(SetupFeature, TargetFeature):
+    """Enable MVEI extension for supported ARM targets"""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("arm_mvei", features=features, config=config)
+
+    def get_target_config(self, target):
+        assert target in ["corstone300"]
+        return {
+            f"{target}.enable_mvei": True,  # TODO: remove if not required (only enforce m33/m55)
+        }
+
+    def get_required_cache_flags(self):
+        return {
+            "cmsisnn.lib": ["mvei"],
+            "tflmc.exe": ["mvei"],
+        }
+
+
+@register_feature("arm_dsp")
+class ArmDsp(SetupFeature, TargetFeature):
+    """Enable DSP extension for supported ARM targets"""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("arm_dsp", features=features, config=config)
+
+    def get_target_config(self, target):
+        assert target in ["corstone300"]
+        return {
+            f"{target}.enable_dsp": True,  # TODO: remove if not required (only enforce m33/m55)
+        }
+
+    def get_required_cache_flags(self):
+        # These will be merged automatically with existing ones
+        return {
+            "cmsisnn.lib": ["dsp"],
+            "tflmc.exe": ["dsp"],
+        }

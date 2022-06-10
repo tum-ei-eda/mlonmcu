@@ -863,7 +863,20 @@ def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 
 
 def _validate_cmsisnn(context: MlonMcuContext, params=None):
-    return context.environment.has_feature("cmsisnn") or context.environment.has_feature("cmsisnnbyoc")
+    if not (context.environment.has_feature("cmsisnn") or context.environment.has_feature("cmsisnnbyoc")):
+        return False
+    mvei = params.get("mvei", False)
+    dsp = params.get("dsp", False)
+    target_arch = params.get("target_arch", None)
+    if target_arch == "arm":
+        if dsp and not context.environment.has_feature("arm_dsp"):
+            return False
+        if mvei and not context.environment.has_feature("arm_mvei"):
+            return False
+    else:
+        if mvei or dsp:
+            return False
+    return True
 
 
 def _validate_cmsis(context: MlonMcuContext, params=None):
@@ -884,22 +897,25 @@ def clone_cmsis(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
         utils.clone(cmsisRepo.url, cmsisSrcDir, branch=cmsisRepo.ref, refresh=rebuild)
     context.cache["cmsisnn.dir"] = cmsisSrcDir
 
-
 @Tasks.needs(["cmsisnn.dir"])
 @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
 @Tasks.provides(["cmsisnn.lib"])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("target_arch", ["x86", "riscv", "arm"])
-@Tasks.param("mvei", False)  # TODO: build?
-@Tasks.param("dsp", False)  # TODO: build?
+@Tasks.param("mvei", [False, True])
+@Tasks.param("dsp", [False, True])
 @Tasks.validate(_validate_cmsisnn)
 @Tasks.register(category=TaskType.OPT)  # TODO: rename to TaskType.FEATURE?
 def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    target_arch = params["target_arch"]
+    mvei = params["mvei"]
+    dsp = params["dsp"]
+    dbg = params["dbg"]
     flags = utils.makeFlags(
-        (params["target_arch"], params["target_arch"]),
-        (params["mvei"], "mvei"),
-        (params["dsp"], "dsp"),
-        (params["dbg"], "dbg"),
+        (True, target_arch),
+        (mvei, "mvei"),
+        (dsp, "dsp"),
+        (dbg, "dbg"),
     )
     cmsisnnName = utils.makeDirName("cmsisnn", flags=flags)
     cmsisnnBuildDir = context.environment.paths["deps"].path / "build" / cmsisnnName
@@ -919,6 +935,10 @@ def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=F
             cmakeArgs.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchainFile}")  # Why does this not set CMAKE_C_COMPILER?
             armBinDir = Path(context.cache["arm_gcc.install_dir"]) / "bin"
             cmakeArgs.append("-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY")
+            if dsp:
+                cmakeArgs.append("-DARM_MATH_DSP=ON")
+            if mvei:
+                cmakeArgs.append("-DARM_MATH_MVEI=ON")
             old = env["PATH"]
             env["PATH"] = f"{armBinDir}:{old}"
         elif params["target_arch"] == "riscv":
@@ -936,13 +956,12 @@ def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=F
         elif params["target_arch"] == "x86":
             pass
         else:
-            arch = params["target_arch"]
-            raise ValueError(f"Target architecture '{arch}' is not supported")
+            raise ValueError(f"Target architecture '{target_arch}' is not supported")
 
         utils.cmake(
             *cmakeArgs,
             str(cmsisnnSrcDir),
-            debug=params["dbg"],
+            debug=dbg,
             cwd=cmsisnnBuildDir,
             live=verbose,
             env=env,

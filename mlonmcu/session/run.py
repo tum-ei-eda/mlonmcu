@@ -226,14 +226,14 @@ class Run:
         self.config.update(
             resolve_required_config(
                 required_keys,
-                features=[get_available_features(feature_type=FeatureType.COMPILE, name) for name in self.feature_names],
+                features=self.features,
                 config=self.config,
                 cache=context.cache if context else None,
                 hints=self.cache_hints,
             )
         )
         component_config = self.config.copy()  # TODOL get rid of this
-        return component_cls(features=self.feature_namess, config=component_config)
+        return component_cls(features=self.features, config=component_config)
 
     def add_model(self, model):
         """Setter for the model instance."""
@@ -270,7 +270,7 @@ class Run:
         for platform in self.platforms:
             self.target.add_platform_defs(platform.name, platform.definitions)
         self.cache_hints = [self.target.get_arch()]
-        self.resolve_chache_refs()
+        # self.resolve_chache_refs()
 
     def add_platform(self, platform):
         """Setter for the platform instance."""
@@ -692,32 +692,6 @@ class Run:
         used = list(set([self.compile_platform, self.target_platform]))  # TODO: build_platform, tune_platform
         ret = [platform.name for platform in used]
         return ret[0] if len(ret) == 1 else ret
-
-    def resolve_all)chache_refs(self):
-        """Return dict with component-specific and global configuration for this run."""
-        num_refs = 0
-        num_resolved = 0
-
-        def resolve_chache_refs(component):
-            pass
-
-        for frontend in self.frontends:
-            resolve_chache_refs(frontend)
-        if self.backend:
-            resolve_chache_refs(self.backend)
-        if self.framework:
-            resolve_chache_refs(self.framework)
-        if self.target:
-            resolve_chache_refs(self.target)
-        for platform in self.platforms:
-            resolve_chache_refs(platform)
-        for postprocess in self.postprocesses:
-            resolve_chache_refs(postprocess)
-
-        if num_refs > 0:
-            logger.info(f"Resolved {num_resolved} out of {num_refs} CacheRefs")
-        else:
-            logger.debug(f"Resolved {num_resolved} out of {num_refs} CacheRefs")
 
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
         """Return dict with component-specific and global configuration for this run."""

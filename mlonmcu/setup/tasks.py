@@ -207,23 +207,19 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
         riscvInstallDir = user_vars["riscv_gcc.install_dir"]
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
     else:
-        vext = False
-        pext = False
-        if "vext" in params:
-            vext = params["vext"]
-        if "pext" in params:
-            pext = params["pext"]
+        vext = params["vext"]
+        pext = params["pext"]
         assert not (vext and pext)  # Combination of both extensions is currently not supported
 
         def _helper(url):
-            fullUrlSplit = user_vars["riscv_gcc.dl_url"].split("/")
+            fullUrlSplit = url.split("/")
             riscvUrl = "/".join(fullUrlSplit[:-1])
             riscvFileName, riscvFileExtension = fullUrlSplit[-1].split(".", 1)
             return riscvUrl, riscvFileName, riscvFileExtension
 
         if vext and "riscv_gcc.dl_url_vext" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url_vext"])
-        elif vext and "riscv_gcc.dl_url_pext" in user_vars:
+        elif pext and "riscv_gcc.dl_url_pext" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url_pext"])
         elif "riscv_gcc.dl_url" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension  = _helper(user_vars["riscv_gcc.dl_url"])

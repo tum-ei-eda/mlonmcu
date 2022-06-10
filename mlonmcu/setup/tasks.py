@@ -176,14 +176,16 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     ):
         return False
     if params:
-        if "vext" in params:
-            if params["vext"]:
-                if not context.environment.has_feature("vext"):
-                    return False
-        if "pext" in params:
-            if params["pext"]:
-                if not context.environment.has_feature("pext"):
-                    return False
+        vext = params.get("vext", False)
+        pext = params.get("pext", False)
+        if vext and pext:
+            return False  # TODO: allow as soon as there is a compiler for this
+        elif vext:
+            if not context.environment.has_feature("vext"):
+                return False
+        elif pext:
+            if not context.environment.has_feature("pext"):
+                return False
     return True
 
 

@@ -48,6 +48,9 @@ DEFAULT_TARGETS = DEFAULT_MLIF_TARGETS + DEFAULT_ESPIDF_TARGETS
 # RISCV_TARGETS = ["spike", "etiss_pulpino", "ovpsim"]
 RISCV_TARGETS = ["spike", "etiss_pulpino"]
 VEXT_TARGETS = ["spike"]
+PEXT_TARGETS = ["spike"]
+ARM_MVEI_TARGETS = ["corstone300"]
+ARM_DSP_TARGETS = ["corstone300"]
 # DEBUG_ARENA_BACKENDS = ["tflmi", "tvmaot", "tvmrt", "tvmcg"]
 DEBUG_ARENA_BACKENDS = ["tflmi", "tvmaot", "tvmrt"]
 
@@ -669,7 +672,6 @@ def test_feature_debug(
     # TODO: 2 runs to compare ROM/RAM/Cycles?
 
 
-# TODO: test with prebuild elf?
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", DEFAULT_MODELS)  # TODO: add test model for this, also test with wrong data
@@ -677,7 +679,7 @@ def test_feature_debug(
 @pytest.mark.parametrize(
     "backend_name", ["tflmi"]  # -> add tvm if we have a test model for this
 )  # TODO: Single backend would be fine, but it has to be enabled
-@pytest.mark.parametrize("target_name", RISCV_TARGETS)  # TODO: more targets (without vext)
+@pytest.mark.parametrize("target_name", DEFAULT_MLIF_TARGETS)
 @pytest.mark.parametrize(
     "platform_name", ["mlif"]
 )  # If we would rename host_x86 to linux we could also use espidf here?
@@ -698,7 +700,6 @@ def test_feature_muriscvnn(
         pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: not enabled -> not installed
     for feature in feature_names:
         if not user_context.environment.has_feature(feature):
-            print("skip", feature)
             pytest.skip(f"Feature '{feature}' is not enabled.")
     features = init_features(feature_names, config, context=user_context)
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
@@ -715,6 +716,54 @@ def test_feature_muriscvnn(
     assert success
     assert len(df) == 1
     assert "muriscvnn" in df["Features"][0]
+    # TODO: find out if kernels are actually linked?
+    # TODO: 2 runs to compare ROM/RAM/Cycles?
+
+
+@pytest.mark.slow
+@pytest.mark.user_context
+@pytest.mark.parametrize("model_name", DEFAULT_MODELS)  # TODO: add test model for this, also test with wrong data
+@pytest.mark.parametrize("frontend_name", DEFAULT_FRONTENDS)  # Validate is frontend feature as well
+@pytest.mark.parametrize(
+    "backend_name", ["tflmi"]  # -> add tvm if we have a test model for this
+)  # TODO: Single backend would be fine, but it has to be enabled
+@pytest.mark.parametrize("target_name", DEFAULT_MLIF_TARGETS)  # TODO: more targets (without vext)
+@pytest.mark.parametrize(
+    "platform_name", ["mlif"]
+)  # If we would rename host_x86 to linux we could also use espidf here?
+@pytest.mark.parametrize(
+    "feature_names", [["cmsisnn"], ["muriscvnn", "debug"]]
+)  # currently validate does not imply debug
+@pytest.mark.parametrize("config", [{}])
+def test_feature_cmsisnn(
+    user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
+):
+    if not user_context.environment.has_frontend(frontend_name):
+        pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
+    if not user_context.environment.has_backend(backend_name):
+        pytest.skip(f"Backend '{backend_name}' is not enabled.")
+    if not user_context.environment.has_platform(platform_name):
+        pytest.skip(f"Platform '{platform_name}' is not enabled.")  # TODO: not enabled -> not installed
+    if not user_context.environment.has_target(target_name):
+        pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: not enabled -> not installed
+    for feature in feature_names:
+        if not user_context.environment.has_feature(feature):
+            pytest.skip(f"Feature '{feature}' is not enabled.")
+    features = init_features(feature_names, config, context=user_context)
+    user_context.environment.paths["models"] = [PathConfig(models_dir)]
+    session = user_context.create_session()
+    run = session.create_run(features=features, config=config)
+    run.add_frontend_by_name(frontend_name, context=user_context)
+    run.add_model_by_name(model_name, context=user_context)
+    run.add_backend_by_name(backend_name, context=user_context)
+    run.add_platform_by_name(platform_name, context=user_context)
+    run.add_target_by_name(target_name, context=user_context)
+    success = session.process_runs(until=RunStage.RUN, context=user_context)
+    report = session.get_reports()
+    df = report.df
+    assert success
+    assert len(df) == 1
+    assert "cmsisnn" in df["Features"][0]
     # TODO: find out if kernels are actually linked?
     # TODO: 2 runs to compare ROM/RAM/Cycles?
 
@@ -764,6 +813,143 @@ def test_feature_vext(
     # TODO: find out if kernels are actually linked?
     # TODO: 2 runs to compare ROM/RAM/Cycles?
 
+
+@pytest.mark.slow
+@pytest.mark.user_context
+@pytest.mark.parametrize("model_name", DEFAULT_MODELS)  # TODO: add test model for this, also test with wrong data
+@pytest.mark.parametrize("frontend_name", DEFAULT_FRONTENDS)  # Validate is frontend feature as well
+@pytest.mark.parametrize(
+    "backend_name", ["tflmi"]  # -> add tvm if we have a test model for this
+)  # TODO: Single backend would be fine, but it has to be enabled
+@pytest.mark.parametrize("target_name", PEXT_TARGETS)  # TODO: any backend would work for scalar code...
+@pytest.mark.parametrize(
+    "platform_name", ["mlif"]
+)  # If we would rename host_x86 to linux we could also use espidf here?
+@pytest.mark.parametrize("feature_names", [["pext"], ["pext", "muriscvnn"]])  # currently validate does not imply debug
+@pytest.mark.parametrize("config", [{}])  # TODO: add multiple vlens
+def test_feature_pext(
+    user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
+):
+    if not user_context.environment.has_frontend(frontend_name):
+        pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
+    if not user_context.environment.has_backend(backend_name):
+        pytest.skip(f"Backend '{backend_name}' is not enabled.")
+    if not user_context.environment.has_platform(platform_name):
+        pytest.skip(f"Platform '{platform_name}' is not enabled.")  # TODO: not enabled -> not installed
+    if not user_context.environment.has_target(target_name):
+        pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: not enabled -> not installed
+    for feature in feature_names:
+        if not user_context.environment.has_feature(feature):
+            pytest.skip(f"Feature '{feature}' is not enabled.")
+    features = init_features(feature_names, config, context=user_context)
+    user_context.environment.paths["models"] = [PathConfig(models_dir)]
+    session = user_context.create_session()
+    run = session.create_run(features=features, config=config)
+    run.add_frontend_by_name(frontend_name, context=user_context)
+    run.add_model_by_name(model_name, context=user_context)
+    run.add_backend_by_name(backend_name, context=user_context)
+    run.add_platform_by_name(platform_name, context=user_context)
+    run.add_target_by_name(target_name, context=user_context)
+    success = session.process_runs(until=RunStage.RUN, context=user_context)
+    report = session.get_reports()
+    df = report.df
+    assert success
+    assert len(df) == 1
+    assert "pext" in df["Features"][0]
+    # TODO: find out if kernels are actually linked?
+    # TODO: 2 runs to compare ROM/RAM/Cycles?
+
+
+@pytest.mark.slow
+@pytest.mark.user_context
+@pytest.mark.parametrize("model_name", DEFAULT_MODELS)  # TODO: add test model for this, also test with wrong data
+@pytest.mark.parametrize("frontend_name", DEFAULT_FRONTENDS)  # Validate is frontend feature as well
+@pytest.mark.parametrize(
+    "backend_name", ["tflmi"]  # -> add tvm if we have a test model for this
+)  # TODO: Single backend would be fine, but it has to be enabled
+@pytest.mark.parametrize("target_name", ARM_MVEI_TARGETS)  # TODO: any backend would work for scalar code...
+@pytest.mark.parametrize(
+    "platform_name", ["mlif"]
+)  # If we would rename host_x86 to linux we could also use espidf here?
+@pytest.mark.parametrize("feature_names", [["arm_mvei"], ["arm_mvei", "cmsisnn"]])  # currently validate does not imply debug
+@pytest.mark.parametrize("config", [{}])  # TODO: add multiple vlens
+def test_feature_arm_mvei(
+    user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
+):
+    if not user_context.environment.has_frontend(frontend_name):
+        pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
+    if not user_context.environment.has_backend(backend_name):
+        pytest.skip(f"Backend '{backend_name}' is not enabled.")
+    if not user_context.environment.has_platform(platform_name):
+        pytest.skip(f"Platform '{platform_name}' is not enabled.")  # TODO: not enabled -> not installed
+    if not user_context.environment.has_target(target_name):
+        pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: not enabled -> not installed
+    for feature in feature_names:
+        if not user_context.environment.has_feature(feature):
+            pytest.skip(f"Feature '{feature}' is not enabled.")
+    features = init_features(feature_names, config, context=user_context)
+    user_context.environment.paths["models"] = [PathConfig(models_dir)]
+    session = user_context.create_session()
+    run = session.create_run(features=features, config=config)
+    run.add_frontend_by_name(frontend_name, context=user_context)
+    run.add_model_by_name(model_name, context=user_context)
+    run.add_backend_by_name(backend_name, context=user_context)
+    run.add_platform_by_name(platform_name, context=user_context)
+    run.add_target_by_name(target_name, context=user_context)
+    success = session.process_runs(until=RunStage.RUN, context=user_context)
+    report = session.get_reports()
+    df = report.df
+    assert success
+    assert len(df) == 1
+    assert "arm_mvei" in df["Features"][0]
+    # TODO: find out if kernels are actually linked?
+    # TODO: 2 runs to compare ROM/RAM/Cycles?
+
+
+@pytest.mark.slow
+@pytest.mark.user_context
+@pytest.mark.parametrize("model_name", DEFAULT_MODELS)  # TODO: add test model for this, also test with wrong data
+@pytest.mark.parametrize("frontend_name", DEFAULT_FRONTENDS)  # Validate is frontend feature as well
+@pytest.mark.parametrize(
+    "backend_name", ["tflmi"]  # -> add tvm if we have a test model for this
+)  # TODO: Single backend would be fine, but it has to be enabled
+@pytest.mark.parametrize("target_name", ARM_DSP_TARGETS)  # TODO: any backend would work for scalar code...
+@pytest.mark.parametrize(
+    "platform_name", ["mlif"]
+)  # If we would rename host_x86 to linux we could also use espidf here?
+@pytest.mark.parametrize("feature_names", [["arm_dsp"], ["arm_dsp", "cmsisnn"]])  # currently validate does not imply debug
+@pytest.mark.parametrize("config", [{}])  # TODO: add multiple vlens
+def test_feature_arm_dsp(
+    user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
+):
+    if not user_context.environment.has_frontend(frontend_name):
+        pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
+    if not user_context.environment.has_backend(backend_name):
+        pytest.skip(f"Backend '{backend_name}' is not enabled.")
+    if not user_context.environment.has_platform(platform_name):
+        pytest.skip(f"Platform '{platform_name}' is not enabled.")  # TODO: not enabled -> not installed
+    if not user_context.environment.has_target(target_name):
+        pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: not enabled -> not installed
+    for feature in feature_names:
+        if not user_context.environment.has_feature(feature):
+            pytest.skip(f"Feature '{feature}' is not enabled.")
+    features = init_features(feature_names, config, context=user_context)
+    user_context.environment.paths["models"] = [PathConfig(models_dir)]
+    session = user_context.create_session()
+    run = session.create_run(features=features, config=config)
+    run.add_frontend_by_name(frontend_name, context=user_context)
+    run.add_model_by_name(model_name, context=user_context)
+    run.add_backend_by_name(backend_name, context=user_context)
+    run.add_platform_by_name(platform_name, context=user_context)
+    run.add_target_by_name(target_name, context=user_context)
+    success = session.process_runs(until=RunStage.RUN, context=user_context)
+    report = session.get_reports()
+    df = report.df
+    assert success
+    assert len(df) == 1
+    assert "arm_dsp" in df["Features"][0]
+    # TODO: find out if kernels are actually linked?
+    # TODO: 2 runs to compare ROM/RAM/Cycles?
 
 @pytest.mark.slow
 @pytest.mark.user_context

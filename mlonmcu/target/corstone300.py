@@ -33,7 +33,7 @@ logger = get_logger()
 class Corstone300Target(Target):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["ethosu"]
+    FEATURES = ["ethosu", "arm_mvei", "arm_dsp"]
 
     DEFAULTS = {
         **Target.DEFAULTS,
@@ -41,6 +41,8 @@ class Corstone300Target(Target):
         # Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
         "enable_ethosu": False,
+        "enable_mvei": False,  # unused
+        "enable_dsp": False,  # unused
         "ethosu_num_macs": 256,
         "extra_args": "",
         "enable_vext": False,
@@ -53,6 +55,10 @@ class Corstone300Target(Target):
 
     def __init__(self, name="corstone300", features=None, config=None):
         super().__init__(name, features=features, config=config)
+
+    @property
+    def model(self):
+        return self.config["model"]
 
     @property
     def enable_ethosu(self):
@@ -162,6 +168,7 @@ class Corstone300Target(Target):
         ret = super().get_platform_defs(platform)
         ret["CMSIS_PATH"] = self.cmsisnn_dir
         ret["ARM_COMPILER_PREFIX"] = self.gcc_prefix
+        ret["ARM_CPU"] = self.model
         return ret
 
     def get_arch(self):

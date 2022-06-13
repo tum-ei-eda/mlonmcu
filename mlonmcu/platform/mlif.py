@@ -36,7 +36,22 @@ logger = get_logger()
 class MlifPlatform(CompilePlatform, TargetPlatform):
     """Model Library Interface Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES +["validate", "debug_arena"]
+    FEATURES = (
+        CompilePlatform.FEATURES
+        + TargetPlatform.FEATURES
+        + [
+            "validate",
+            "debug_arena",
+            "muriscvnn",
+            "cmsisnn",
+            "muriscvnnbyoc",
+            "cmsisnnbyoc",
+            "vext",
+            "pext",
+            "arm_mvei",
+            "arm_dsp",
+        ]  # TODO: allow Feature-Features with automatic resolution of initialization order and move vext/pext/mvei/dsp there
+    )
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,

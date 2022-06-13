@@ -944,6 +944,7 @@ def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=F
             cmakeArgs.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchainFile}")  # Why does this not set CMAKE_C_COMPILER?
             armBinDir = Path(context.cache["arm_gcc.install_dir"]) / "bin"
             cmakeArgs.append("-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY")
+            # Warning: this does not work!
             if dsp:
                 cmakeArgs.append("-DARM_MATH_DSP=ON")
             if mvei:

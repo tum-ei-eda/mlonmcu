@@ -104,4 +104,7 @@ def create_espidf_target(name, platform, base=Target):
 
             return metrics, out, []
 
+        def get_arch(self):
+            return "unkwown"
+
     return EspIdfTarget

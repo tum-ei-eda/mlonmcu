@@ -118,27 +118,38 @@ def clone_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
 
 def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
     if params:
-        if "muriscvnn" in params:
-            if params["muriscvnn"]:
-                if not context.environment.supports_feature("muriscvnn"):
-                    return False
+        muriscvnn = params.get("muriscvnn", False)
+        cmsisnn = params.get("cmsisnn", False)
+        if muriscvnn and cmsisnn:
+            # Not allowed
+            return False
+        elif muriscvnn:
+             if not context.environment.supports_feature("muriscvnn"):
+                 return False
+        elif cmsisnnnn:
+             if not context.environment.supports_feature("cmsisnn"):
+                 return False
     return _validate_tflite_micro_compiler(context, params=params)
 
 
 @Tasks.needs(["tflmc.src_dir", "tf.src_dir"])
-@Tasks.optional(["muriscvnn.build_dir", "muriscvnn.inc_dir"])
+@Tasks.optional(["muriscvnn.lib", "muriscvnn.inc_dir", "cmsisnn.dir"])
 @Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
 @Tasks.param("muriscvnn", [False, True])
+@Tasks.param("cmsisnn", [False, True])
 @Tasks.param("dbg", False)
 @Tasks.param("arch", ["x86"])  # TODO: compile for arm/riscv in the future
 @Tasks.validate(_validate_build_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
 def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build the TFLM preinterpreter."""
-    if not params:
-        params = {}
-    flags = utils.makeFlags((params["muriscvnn"], "muriscvnn"), (params["dbg"], "dbg"))
-    flags_ = utils.makeFlags((params["dbg"], "dbg"))
+    muriscvnn = params.get("muriscvnn", False)
+    cmsisnn = params.get("cmsisnn", False)
+    dbg = params.get("dbg", False)
+    arch = params.get("arch", "x86")
+    flags = utils.makeFlags((True, "arch"), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
+    flags_ = utils.makeFlags((dbg, "dbg"))
+    flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
     tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
@@ -146,13 +157,34 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
     tfSrcDir = context.cache["tf.src_dir", flags_]
     tflmcSrcDir = context.cache["tflmc.src_dir", flags_]
     if rebuild or not utils.is_populated(tflmcBuildDir) or not tflmcExe.is_file():
+        cmakeArgs = [
+            "-DTF_SRC=" + str(tfSrcDir),
+            "-DGET_TF_SRC=ON",
+        ]
+        if muriscvnn:
+            muriscvnnLib = context.cache["muriscvnn.lib", flags__]
+            muriscvnnInc = context.cache["muriscvnn.in_dir"]
+            cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={lib}")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={muriscvnnInc}")
+        elif cmsisnn:
+            lib = context.cache["cmsisnn.lib", flags__]
+            cmsisDir = Path(context.cache["cmsisnn.dir"])
+            cmsisIncs = [
+                str(cmsisDir),
+                str(cmsisDir / "CMSIS" / "Core" / "Include"),
+                str(cmsisDir / "CMSIS" / "NN" / "Include"),
+                str(cmsisDir / "CMSIS" / "DSP" / "Include"),
+            ]
+            cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={lib}")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={incs}")
         utils.mkdirs(tflmcBuildDir)
         # utils.cmake("-DTF_SRC=" + str(tfSrcDir), str(tflmcSrcDir), debug=params["dbg"], cwd=tflmcBuildDir)
         utils.cmake(
-            "-DTF_SRC=" + str(tfSrcDir),
-            "-DGET_TF_SRC=ON",
+            *cmakeArgs,
             str(tflmcSrcDir),
-            debug=params["dbg"],
+            debug=dbg,
             cwd=tflmcBuildDir,
             live=verbose,
         )

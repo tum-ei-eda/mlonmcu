@@ -12,10 +12,18 @@ mlonmcu.flow.tvm.backend.backend module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.flow.tvm.backend.tflite\_model\_info module
----------------------------------------------------
+mlonmcu.flow.tvm.backend.model\_info module
+-------------------------------------------
 
-.. automodule:: mlonmcu.flow.tvm.backend.tflite_model_info
+.. automodule:: mlonmcu.flow.tvm.backend.model_info
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.flow.tvm.backend.python\_utils module
+---------------------------------------------
+
+.. automodule:: mlonmcu.flow.tvm.backend.python_utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,10 +44,26 @@ mlonmcu.flow.tvm.backend.tvmaot module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.flow.tvm.backend.tvmc\_utils module
+-------------------------------------------
+
+.. automodule:: mlonmcu.flow.tvm.backend.tvmc_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.flow.tvm.backend.tvmcg module
 -------------------------------------
 
 .. automodule:: mlonmcu.flow.tvm.backend.tvmcg
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.flow.tvm.backend.tvmllvm module
+---------------------------------------
+
+.. automodule:: mlonmcu.flow.tvm.backend.tvmllvm
    :members:
    :undoc-members:
    :show-inheritance:

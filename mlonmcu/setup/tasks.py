@@ -126,7 +126,7 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
         elif muriscvnn:
             if not context.environment.supports_feature("muriscvnn"):
                 return False
-        elif cmsisnnnn:
+        elif cmsisnn:
             if not context.environment.supports_feature("cmsisnn"):
                 return False
     return _validate_tflite_micro_compiler(context, params=params)
@@ -708,7 +708,7 @@ def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
 @Tasks.param("dbg", [False, True])
 @Tasks.param("vext", [False, True])
 @Tasks.param("pext", [False, True])
-@Tasks.param("toolchain", ["gcc", "llvm"])
+@Tasks.param("toolchain", ["gcc"])
 # @Tasks.param("target_arch", ["x86", "riscv", "arm"])  # TODO: implement
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)

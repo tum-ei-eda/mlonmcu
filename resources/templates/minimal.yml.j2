@@ -29,37 +29,43 @@ paths:
 repos:
   tensorflow:
     url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: 746f880a405aeca2db6d005fd9fb8e451f3cea34
+    ref: f868a900f1f788fd0a55b5655b47fc352f9a0239
   tflite_micro_compiler:
     url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
     ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
   tvm:
-    url: "https://github.com/tum-ei-eda/tvm.git"
-    ref: latest
+    url: "https://github.com/apache/tvm.git"
+    ref: 76b9ce9b1f7d2b7e64b4b9c9d456a02b8a010473
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
   tvm_extensions:
     url: "https://github.com/tum-ei-eda/tvm_extensions.git"
-    ref: main
+    ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
+  muriscvnn:
+    url: "git@github.com:fabianpedd/muriscv_nn.git"
+    ref: b22b6937d78ecf12d3f46e6596862c33dbb6d9f6
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: d20bd6e6019a680f98d9904e6fc1c2d51f4a061b
+    ref: 940dbdd7bc01aec17e97d0fc6071d994e3aa8b10
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
-    ref: master
+    ref: caf5a420ef7414031368739e16d60f3f418aa6ac
   spikepk:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
-    ref: master
+    ref: 2efabd3e6604b8a9e8f70baf52f57696680c7855
   cmsis:
-    url: "https://github.com/ARM-software/CMSIS_5.git"
-    ref: 8c60448c0e1e50e426180b26db9bc31ddf774361
+    url: "https://github.com/PhilippvK/CMSIS_5.git"
+    ref: 4a52cabc5830b4666589d4c63f3a228eef5b4efb
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: main
+    ref: ecbc5d99ea33386fe46e4ab97c973fbc645cc96f
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
+  microtvm_etissvp:
+    url: "git@github.com:PhilippvK/microtvm-etissvp-template.git"
+    ref: 8b48a897ed4354602454f18cdd890aef6df4a554
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -86,18 +92,36 @@ frameworks:
         enabled: true
         features:
           debug_arena: true
+          disable_legalize: false
+          autotune: true
+          autotuned: true
+
       tvmaot:
         enabled: true
         features:
           debug_arena: true
           unpacked_api: true
           usmp: false
+          disable_legalize: false
+          autotune: true
+          autotuned: true
+      tvmllvm:
+        enabled: false
+        features:
+          # unpacked_api: true
+          disable_legalize: true
+          autotune: true
+          autotuned: true
       tvmcg:
         enabled: false
         features:
           debug_arena: true
+          disable_legalize: true
+          autotune: true
+          autotuned: true
     features:
       cmsisnnbyoc: false
+      muriscvnnbyoc: false
 # Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
 #
@@ -106,6 +130,11 @@ frontends:
     enabled: true
     features:
       validate: true
+      visualize: false
+  relay:
+    enabled: false
+    features:
+      relayviz: false
   packed:
     enabled: false
     features:
@@ -125,6 +154,16 @@ platforms:
     enabled: false
     features:
       debug: true
+  tvm:
+    enabled: false
+    features: []
+      # rpc: true
+      # validate: true
+  microtvm:
+    enabled: false
+    features:
+      # validate: true
+      microtvm_etissvp: true
 # List of supported targets in the environment
 targets:
   default: host_x86
@@ -134,6 +173,9 @@ targets:
       gdbserver: true
       etissdbg: true
       trace: true
+      log_instrs: true
+      # vext: true
+      # pext: true
   host_x86:
     enabled: true
     features:
@@ -142,16 +184,34 @@ targets:
     enabled: false
     features:
       vext: false
+      pext: false
+      cachesim: true
+      log_instrs: true
   ovpsim:
     enabled: false
     features:
       vext: false
+      # pext: false
   corstone300:
     enabled: false
     features:
       ethosu: false
+      arm_mvei: false
+      arm_dsp: false
+postprocesses:
+  use:
+  # - detailed_cycles
+  # - average_cycles
+  # - filter_cols
+  # - features2cols
+  # - config2cols
+  # - bytes2kb
+  # - visualize
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
   # tvm.make_tool: "ninja"
   llvm.version: "11.1.0"
   runs_per_stage: true
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
+  # riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiPX7H4WRQL9GXbeoo2sEexj/rv32gcv.tar.gz"
+  # riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiNvP4mzVQ8uDvgT9Yf2bqNk/rv32gcp.tar.xz"

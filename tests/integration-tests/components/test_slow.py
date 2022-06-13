@@ -871,7 +871,9 @@ def test_feature_pext(
 @pytest.mark.parametrize(
     "platform_name", ["mlif"]
 )  # If we would rename host_x86 to linux we could also use espidf here?
-@pytest.mark.parametrize("feature_names", [["arm_mvei"], ["arm_mvei", "cmsisnn"]])  # currently validate does not imply debug
+@pytest.mark.parametrize(
+    "feature_names", [["arm_mvei"], ["arm_mvei", "cmsisnn"]]
+)  # currently validate does not imply debug
 @pytest.mark.parametrize("config", [{}])  # TODO: add multiple vlens
 def test_feature_arm_mvei(
     user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
@@ -917,7 +919,9 @@ def test_feature_arm_mvei(
 @pytest.mark.parametrize(
     "platform_name", ["mlif"]
 )  # If we would rename host_x86 to linux we could also use espidf here?
-@pytest.mark.parametrize("feature_names", [["arm_dsp"], ["arm_dsp", "cmsisnn"]])  # currently validate does not imply debug
+@pytest.mark.parametrize(
+    "feature_names", [["arm_dsp"], ["arm_dsp", "cmsisnn"]]
+)  # currently validate does not imply debug
 @pytest.mark.parametrize("config", [{}])  # TODO: add multiple vlens
 def test_feature_arm_dsp(
     user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
@@ -950,6 +954,7 @@ def test_feature_arm_dsp(
     assert "arm_dsp" in df["Features"][0]
     # TODO: find out if kernels are actually linked?
     # TODO: 2 runs to compare ROM/RAM/Cycles?
+
 
 @pytest.mark.slow
 @pytest.mark.user_context

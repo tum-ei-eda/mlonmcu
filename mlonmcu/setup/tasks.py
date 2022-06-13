@@ -124,11 +124,11 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
             # Not allowed
             return False
         elif muriscvnn:
-             if not context.environment.supports_feature("muriscvnn"):
-                 return False
+            if not context.environment.supports_feature("muriscvnn"):
+                return False
         elif cmsisnnnn:
-             if not context.environment.supports_feature("cmsisnn"):
-                 return False
+            if not context.environment.supports_feature("cmsisnn"):
+                return False
     return _validate_tflite_micro_compiler(context, params=params)
 
 

@@ -55,10 +55,12 @@ def parseElf(inFile):
         ".comment",
         ".riscv.attributes",
         ".strtab",
+        ".stabstr",
         ".shstrtab",
         ".symtab",
         ".eh_frame",
         ".stab",
+        ".heap",  # ?
         # The following are x86 only:
         ".interp",
         ".dynsym",

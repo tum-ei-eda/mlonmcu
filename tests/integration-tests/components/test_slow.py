@@ -732,7 +732,7 @@ def test_feature_muriscvnn(
     "platform_name", ["mlif"]
 )  # If we would rename host_x86 to linux we could also use espidf here?
 @pytest.mark.parametrize(
-    "feature_names", [["cmsisnn"], ["muriscvnn", "debug"]]
+    "feature_names", [["cmsisnn"], ["cmsisnn", "debug"]]
 )  # currently validate does not imply debug
 @pytest.mark.parametrize("config", [{}])
 def test_feature_cmsisnn(

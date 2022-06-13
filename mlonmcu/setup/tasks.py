@@ -502,7 +502,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
                 if user_vars["tvm.make_tool"] == "ninja":
                     ninja = True
         utils.mkdirs(tvmBuildDir)
-        cfgFileSrc = tvmSrcDir / "cmake" / "config.cmake"
+        cfgFileSrc = Path(tvmSrcDir) / "cmake" / "config.cmake"
         cfgFile = tvmBuildDir / "config.cmake"
         llvmConfig = str(context.cache["llvm.install_dir"] / "bin" / "llvm-config")
         llvmConfigEscaped = str(llvmConfig).replace("/", "\\/")

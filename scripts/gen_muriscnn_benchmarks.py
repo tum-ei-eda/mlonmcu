@@ -27,6 +27,8 @@ TARGETS = [
     "corstone300",
 ]
 
+AUTOTUNED_TARGETS = ["spike", "etiss_pulpino"]
+
 DEFAULT_TARGETS = [
     "spike",
     # "host_x86",
@@ -101,7 +103,22 @@ BACKEND_DEFAULT_FEATURES = {
 def get_backend_features(backend, enable_autotuned=False):
     BACKEND_FEATURES = {
         "tflmi": [[]],
-        "tvmaot": [[], *([["autotuned"]] if enable_autotuned else [])],
+        "tvmaot": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else [])],
+    }
+    return BACKEND_FEATURES[backend]
+
+
+def get_backend_config(backend, features, enable_autotuned=False):
+    BACKEND_FEATURES = {
+        "tflmi": [{}],
+        "tvmaot": [
+            {},
+            *(
+                [{"tvmaot.desired_layout": "NCHW"}, {"tvmaot.desired_layout": "NHWC"}]
+                if "muricvnnbyoc" not in features and "cmsisnnbyoc" not in features
+                else []
+            ),
+        ],
     }
     return BACKEND_FEATURES[backend]
 
@@ -210,9 +227,10 @@ def gen_features(backend, features, validate=False):
     return ret
 
 
-def gen_config(backend, features, vlen, enable_postprocesses=False):
+def gen_config(backend, backend_config, features, vlen, enable_postprocesses=False):
     ret = {}
     ret.update(BACKEND_DEFAULT_CONFIG[backend])
+    ret.update(backend_config)
     if enable_postprocesses:
         ret.update(POSTPROCESS_CONFIG)
     if "muriscvnn" in features or "muriscvnnbyoc" in features:
@@ -255,28 +273,43 @@ def benchmark(args):
                         enable_cmsisnn=enable_cmsisnn,
                     ):
                         # print("target_features", target_features)
-                        for backend_features in get_backend_features(backend, enable_autotuned=args.autotuned):
+                        enable_autotuned = False
+                        if args.autotuned:
+                            if (
+                                "cmsisnn" not in target_features
+                                and "muriscvnn" not in target_features
+                                and target == "tvmaot"
+                            ):
+                                enable_autotuned = True
+                        for backend_features in get_backend_features(backend, enable_autotuned=enable_autotuned):
                             # print("backend_features", backend_features)
                             features = list(set(target_features + backend_features))
-                            vlens = [0]
-                            if "vext" in features:
-                                vlens = args.vlen
-                            # print("vlens", vlens)
-                            features = gen_features(backend, features, validate=args.validate)
-                            for vlen in vlens:
-                                # print("vlen", vlen)
-                                config = gen_config(backend, features, vlen, enable_postprocesses=args.post)
-                                # resolve_missing_configs(config, features, target, context)
-                                run = session.create_run(config=config)
-                                run.add_features_by_name(features, context=context)
-                                run.add_platform_by_name(PLATFORM, context=context)
-                                run.add_frontend_by_name(FRONTEND, context=context)
-                                run.add_model_by_name(model, context=context)
-                                run.add_backend_by_name(backend, context=context)
-                                run.add_target_by_name(target, context=context)
-                                if args.post:
-                                    run.add_postprocesses_by_name(POSTPROCESSES)
-                                # print("COMMIT")
+                            # print("features", features)
+                            for backend_config in get_backend_config(
+                                backend, features, enable_autotuned=enable_autotuned
+                            ):
+                                # print("backend_config", backend_config)
+                                vlens = [0]
+                                if "vext" in features:
+                                    vlens = args.vlen
+                                # print("vlens", vlens)
+                                features = gen_features(backend, features, validate=args.validate)
+                                for vlen in vlens:
+                                    # print("vlen", vlen)
+                                    config = gen_config(
+                                        backend, backend_config, features, vlen, enable_postprocesses=args.post
+                                    )
+                                    # resolve_missing_configs(config, features, target, context)
+                                    run = session.create_run(config=config)
+                                    run.add_features_by_name(features, context=context)
+                                    run.add_platform_by_name(PLATFORM, context=context)
+                                    run.add_frontend_by_name(FRONTEND, context=context)
+                                    run.add_model_by_name(model, context=context)
+                                    run.add_backend_by_name(backend, context=context)
+                                    run.add_target_by_name(target, context=context)
+                                    if args.post:
+                                        run.add_postprocesses_by_name(POSTPROCESSES)
+                                    # print("COMMIT")
         # print("sesion.runs", session.runs, len(session.runs))
         session.process_runs(until=STAGE, num_workers=args.parallel, progress=args.progress, context=context)
         report = session.get_reports()

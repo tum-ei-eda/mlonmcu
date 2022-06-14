@@ -104,6 +104,12 @@ size_t {prefix}_outputs();
 
         arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]
         ops = ops if ops else TFLMIBackend.DEFAULTS["ops"]
+        if not isinstance(ops, list):
+            assert isinstance(ops, str)
+            if "," in ops:
+                ops = ops.split(",")
+            else:
+                ops = [ops]
         if len(ops) > 0:
 
             def convert_op_name(op):

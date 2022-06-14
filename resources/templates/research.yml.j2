@@ -146,6 +146,27 @@ frontends:
   onnx:
     enabled: false
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+  espidf:
+    enabled: true
+    features:
+      debug: true
+  tvm:
+    enabled: true
+    features: []
+      # rpc: true
+      # validate: true
+  microtvm:
+    enabled: true
+    features:
+      # validate: true
+      microtvm_etissvp: true
 # List of supported targets in the environment
 targets:
   default: etiss_pulpino
@@ -180,32 +201,8 @@ targets:
       ethosu: false
       arm_mvei: true
       arm_dsp: true
-  esp32:
-    enabled: true
-  esp32c3:
-    enabled: true
   qemu_sifive:
     enabled: false
-platforms:
-  mlif:
-    enabled: true
-    features:
-      debug: true
-      validate: true
-  espidf:
-    enabled: true
-    features:
-      debug: true
-  tvm:
-    enabled: true
-    features: []
-      # rpc: true
-      # validate: true
-  microtvm:
-    enabled: true
-    features:
-      # validate: true
-      microtvm_etissvp: true
 postprocesses:
   use:
   # - detailed_cycles

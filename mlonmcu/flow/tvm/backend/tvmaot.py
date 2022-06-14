@@ -57,6 +57,10 @@ class TVMAOTBackend(TVMBackend):
         return bool(self.config["unpacked_api"])
 
     @property
+    def debug_arena(self):
+        return bool(self.config["debug_arena"])
+
+    @property
     def alignment_bytes(self):
         return int(self.config["alignment_bytes"])
 
@@ -64,37 +68,6 @@ class TVMAOTBackend(TVMBackend):
         return super().get_tvmc_compile_args(out, executor="aot") + get_tvmaot_tvmc_args(
             self.alignment_bytes, self.unpacked_api
         )
-
-    # def resolve_features(self):
-    #     unpacked_api = False
-    #     debug_arena = False
-    #     for feature in self.features:
-    #         if feature.name == "unpacked_api":
-    #             unpacked_api = True
-    #         elif feature.name == "debug_arena":
-    #             debug_arena = True
-    #     return (unpacked_api, debug_arena)
-
-    # def resolve_config(self):
-    #     arena_size = DEFAULT_CONFIG["arena_size"]
-    #     alignment_bytes = DEFAULT_CONFIG["alignment_bytes"]
-    #     for key, value in self.config:
-    #         if key.split(".")[-1] == "arena_size":
-    #             arena_size = int(value)
-    #         if key.split(".")[-1] == "alignment_bytes":
-    #             alignment_bytes = int(value)
-    #     return (arena_size, alignment_bytes)
-
-    # def get_target_str(self):
-    #     target_str = super().get_target_str(self)
-    #     target_str += " --link-params"
-    #     target_str += " --executor=aot"
-    #     target_str += " --workspace-byte-alignment={}".format(self.alignment_bytes)
-    #     target_str += " --unpacked-api={}".format(int(self.unpacked_api))
-    #     target_str += " --interface-api={}".format(
-    #         "c" if self.unpacked_api else "packed"
-    #     )
-    #     return target_str
 
     def get_workspace_size_from_metadata(self, metadata):
         return metadata["memory"]["functions"]["main"][0]["workspace_size_bytes"]
@@ -155,6 +128,7 @@ class TVMAOTBackend(TVMBackend):
                     workspace_size,
                     self.prefix,
                     api="c" if self.unpacked_api else "packed",
+                    debug_arena=self.debug_arena,
                 )
                 artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
                 header_src = generate_wrapper_header()

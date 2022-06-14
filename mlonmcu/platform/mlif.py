@@ -41,7 +41,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         + TargetPlatform.FEATURES
         + [
             "validate",
-            "debug_arena",
             "muriscvnn",
             "cmsisnn",
             "muriscvnnbyoc",

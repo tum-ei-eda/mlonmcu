@@ -72,7 +72,7 @@ def write_tvmrt_wrapper(path, graph, params, model_info, workspace_size):
         f.write(text)
 
 
-def generate_tvmrt_wrapper(graph, params, model_info, workspace_size):
+def generate_tvmrt_wrapper(graph, params, model_info, workspace_size, debug_arena=False):
     # Determine the number of required pages
     assert workspace_size >= 0
     crtPageSizeLog2 = 10
@@ -157,7 +157,16 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size):
 
 #define CRT_MEMORY_NUM_PAGES ${numPages}
 #define CRT_MEMORY_PAGE_SIZE_LOG2 ${pageSizeLog2}
+"""
 
+    if debug_arena:  # This will enable the feature only if it is not overwritten by the user/compiler
+        mainCode = """
+#ifndef DEBUG_ARENA_USAGE
+#define DEBUG_ARENA_USAGE 1
+#endif
+"""
+
+    mainCode = """
 #ifdef DEBUG_ARENA_USAGE
 size_t max_arena_usage = 0;
 #endif
@@ -177,7 +186,7 @@ static MemoryManagerInterface* g_memory_manager;
 
 TVMModuleHandle TVMArgs_AsModuleHandle(const TVMArgs* args, size_t index);
 
-void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code) { exit(1); }
+void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code) { printf("HEHEHE\n"); exit(1); }
 
 void TVMLogf(const char* msg, ...) {
     va_list args;
@@ -333,7 +342,7 @@ size_t TVMWrap_GetNumOutputs()
     return out
 
 
-def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c"):
+def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug_arena=False):
     modPrefix = f"tvmgen_{mod_name}"
 
     def writeTensors(in_tensors, out_tensors, modPrefix, api):
@@ -423,7 +432,20 @@ void TVMLogf(const char* msg, ...) {
 #define WORKSPACE_SIZE (${workspaceBytes})
 static uint8_t g_aot_memory[WORKSPACE_SIZE];
 tvm_workspace_t app_workspace;
+"""
 
+        if debug_arena:  # This will enable the feature only if it is not overwritten by the user/compiler
+            workspace_code += """
+#ifndef DEBUG_ARENA_USAGE
+#define DEBUG_ARENA_USAGE 1
+#endif
+
+#ifndef TVMAOT_DEBUG_ALLOCATIONS
+#define TVMAOT_DEBUG_ALLOCATIONS 1
+#endif
+"""
+
+        workspace_code = """
 #ifdef DEBUG_ARENA_USAGE
 size_t max_arena_usage = 0;
 #endif

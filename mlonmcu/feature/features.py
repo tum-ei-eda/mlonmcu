@@ -86,7 +86,7 @@ def get_matching_features(features, feature_type):
 
 
 @register_feature("debug_arena")
-class DebugArena(BackendFeature, PlatformFeature):
+class DebugArena(BackendFeature):
     """Enable verbose printing of arena usage for debugging."""
 
     def __init__(self, features=None, config=None):
@@ -95,14 +95,10 @@ class DebugArena(BackendFeature, PlatformFeature):
     def get_backend_config(self, backend):
         assert backend in [
             "tvmaot",
-            # "tvmcg",  # TODO: implement
             "tvmrt",
             "tflmi",
         ], f"Unsupported feature '{self.name}' for backend '{backend}'"
         return {f"{backend}.debug_arena": self.enabled}
-
-    def get_platform_defs(self, platform):
-        return {"DEBUG_ARENA_USAGE": self.enabled}  # TODO: add MLONMCU_ prefix for with mlif and espidf
 
 
 @register_feature("validate")

@@ -37,7 +37,8 @@ class Corstone300Target(Target):
 
     DEFAULTS = {
         **Target.DEFAULTS,
-        "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
+        # "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
+        "model": None,  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
         # Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
         "enable_ethosu": False,
@@ -58,11 +59,25 @@ class Corstone300Target(Target):
 
     @property
     def model(self):
-        return self.config["model"]
+        if self.enable_mvei:
+            assert self.config["model"] is None, "corstone300.model was overwritten by the user"
+            return "cortex-m55"
+        elif self.enable_dsp:
+            assert self.config["model"] is None, "corstone300.model was overwritten by the user"
+            return "cortex-m33"
+        return "cortex-m0"  # Default chip
 
     @property
     def enable_ethosu(self):
         return bool(self.config["enable_ethosu"])
+
+    @property
+    def enable_mvei(self):
+        return bool(self.config["enable_mvei"])
+
+    @property
+    def enable_dsp(self):
+        return bool(self.config["enable_dsp"])
 
     @property
     def ethosu_num_macs(self):

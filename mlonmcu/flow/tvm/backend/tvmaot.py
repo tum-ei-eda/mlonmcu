@@ -40,6 +40,7 @@ class TVMAOTBackend(TVMBackend):
 
     DEFAULTS = {
         **TVMBackend.DEFAULTS,
+        "denug_arena": False,
         "arena_size": None,  # Determined automatically
         "unpacked_api": False,
         "alignment_bytes": 4,

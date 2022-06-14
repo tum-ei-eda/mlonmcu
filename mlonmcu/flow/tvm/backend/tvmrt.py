@@ -39,6 +39,7 @@ class TVMRTBackend(TVMBackend):
 
     DEFAULTS = {
         **TVMBackend.DEFAULTS,
+        "debug_arena": False,
         "arena_size": 2**20,  # Can not be detemined automatically (Very large)
         # TODO: arena size warning!
     }

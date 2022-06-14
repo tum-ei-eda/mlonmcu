@@ -38,7 +38,7 @@ DEFAULT_MODELS = [
     "sine_model",
 ]  # TODO: make sure that we use quant/float models and several different operators
 DEFAULT_FRONTENDS = ["tflite"]  # TODO: needs to match with the DEFAULT_MODELS
-DEFAULT_BACKENDS = ["tflmi", "tvmaot"]
+DEFAULT_BACKENDS = ["tflmi", "tvmaot"]  # TODO: how about tvmrt/tflmc
 DEFAULT_PLATFORMS = ["mlif", "espidf"]
 # DEFAULT_MLIF_TARGETS = ["host_x86", "etiss_pulpino", "spike", "ovpsim", "corstone300"]
 DEFAULT_MLIF_TARGETS = ["host_x86", "etiss_pulpino", "spike", "corstone300"]
@@ -383,7 +383,8 @@ def test_target_mlif(
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", DEFAULT_MODELS)
 @pytest.mark.parametrize("frontend_name", DEFAULT_FRONTENDS)
-@pytest.mark.parametrize("backend_name", DEFAULT_BACKENDS)
+# @pytest.mark.parametrize("backend_name", DEFAULT_BACKENDS)
+@pytest.mark.parametrize("backend_name", ["tflmi", "tvmaot"])  # TODO: fix tvmrt support in ESP-IDF
 @pytest.mark.parametrize("target_name", DEFAULT_ESPIDF_TARGETS)
 @pytest.mark.parametrize("feature_names", [[]])
 @pytest.mark.parametrize(

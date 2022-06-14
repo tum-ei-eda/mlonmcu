@@ -47,7 +47,6 @@ class EtissPulpinoTarget(RISCVTarget):
         "plugins": [],
         "verbose": False,
         "cpu_arch": "RISCV",  # For V/P-Extension support, use RV32IMAFDCPV
-        # TODO: how to keep this in sync with setup/tasks.py? (point to ETISSPulpinoTarget.DEFAULTS?)
         "etissvp.rom_start": 0x0,
         "etissvp.rom_size": 0x800000,  # 8 MB
         "etissvp.ram_start": 0x800000,

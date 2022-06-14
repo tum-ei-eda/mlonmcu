@@ -110,4 +110,7 @@ def create_microtvm_target(name, platform, base=Target):
 
             return metrics, out, []
 
+        def get_arch(self):
+            return "unkwown"
+
     return MicroTvmTarget

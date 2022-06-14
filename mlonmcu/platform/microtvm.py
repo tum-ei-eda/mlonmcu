@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""TVM Platform"""
+"""MicroTVM Platform"""
 
 import tempfile
 from pathlib import Path
@@ -118,7 +118,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         "tvmc_custom_script": None,
     }
 
-    REQUIRED = ["tvm.build_dir", "tvm.pythonpath"]
+    REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -199,6 +199,10 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         return self.config["tvm.build_dir"]
 
     @property
+    def tvm_configs_dir(self):
+        return self.config["tvm.configs_dir"]
+
+    @property
     def project_template(self):
         return self.config["project_template"]
 
@@ -267,7 +271,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             return [command, path, *template]
 
     def invoke_tvmc(self, command, *args):
-        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir)
+        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:

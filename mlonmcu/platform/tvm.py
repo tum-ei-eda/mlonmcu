@@ -59,7 +59,7 @@ class TvmPlatform(TargetPlatform):
         "tvmc_custom_script": None,
     }
 
-    REQUIRED = ["tvm.build_dir", "tvm.pythonpath"]
+    REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -127,6 +127,10 @@ class TvmPlatform(TargetPlatform):
     def tvm_build_dir(self):
         return self.config["tvm.build_dir"]
 
+    @property
+    def tvm_configs_dir(self):
+        return self.config["tvm.configs_dir"]
+
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
@@ -187,7 +191,7 @@ class TvmPlatform(TargetPlatform):
         ]
 
     def invoke_tvmc(self, command, *args):
-        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir)
+        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:

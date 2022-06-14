@@ -149,7 +149,7 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size):
 """
     out += includes
     out += 'const char * const g_graph = "' + escapeJson(graph) + '";\n'
-    out += "const unsigned char g_params[] = { " + toCArray(params) + "\n};\n"
+    out += "const char g_params[] = { " + toCArray(params) + "\n};\n"
     out += "const uint64_t g_params_size = " + str(len(params)) + ";\n"
 
     mainCode = """

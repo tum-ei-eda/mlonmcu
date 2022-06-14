@@ -77,7 +77,7 @@ def get_target_features(target, enable_default=True, enable_muriscvnn=False, ena
             *([[]] if enable_default else []),
             *([["muriscvnn"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
-            *([["cmsisnn", "arm_mvei"], ["cmsisnn", "arm_dsp"]] if enable_cmsisnn else []),
+            *([["cmsisnn", "arm_mvei", "arm_dsp"], ["cmsisnn", "arm_dsp"]] if enable_cmsisnn else []),
         ],
     }
     return TARGET_FEATURES[target]
@@ -129,18 +129,63 @@ MODELS = [
     "toycar",
 ]
 
-POSTPROCESSES = ["features2cols", "config2cols", "filter_cols"]
+POSTPROCESSES = [
+    # "features2cols",
+    "config2cols",
+    "filter_cols",
+]
 POSTPROCESS_CONFIG = {
-    "filter_cols.drop": [
-        "Frontend",
-        "Framework",
-        "Platform",
-        "Num",
-        "ROM read-only" "ROM code" "ROM misc" "RAM data" "RAM zero-init data",
-        "Postprocesses",
+    "filter_cols.keep": [
+        "Model",
+        "Backend",
+        "Target",
+        "Total Cycles",
+        "Runtime [s]",
+        "Total ROM",
+        "Total RAM",
+        # "ROM read-only",
+        # "ROM code",
+        # "ROM misc",
+        # "RAM data",
+        # "RAM zero-init data",
+        "Incomplete",
+        "Failing",
+        "Features",
+        "Comment",
+        "config_spike.vlen",
+        "Validate",
     ],
+    # "filter_cols.drop": [
+    #     "Session",
+    #     "Run",
+    #     "Frontend",
+    #     "Framework",
+    #     "Platform",
+    #     "Num",
+    #     "ROM read-only",
+    #     "ROM code",
+    #     "ROM misc",
+    #     "RAM data",
+    #     "RAM zero-init data",
+    #     "Postprocesses",
+    #     "config_tvmaot.unpacked_api",
+    #     "config_tvmaot.extra_pass_config",
+    #     "config_tvmaot.arena_size",
+    #     "config_riscv_gcc.name",
+    #     "config_filter_cols.drop",
+    #     "config_tvmaot.extra_target",
+    #     "config_spike.enable_vext",
+    #     "config_spike.arch",
+    #     "config_spike.enable_pext",
+    #     "config_tflmi.arena_size",
+    #     "config_tflmi.ops",
+    #     "config_tflm.optimized_kernel",
+    #     "config_tvmaot.extra_target_mcpu",
+    #     "config_corstone300.enable_mvei",
+    #     "config_corstone300.enable_dsp",
+    # ],
     "filter_cols.drop_nan": False,
-    "filter_cols.drop_const": True,
+    "filter_cols.drop_const": False,
 }
 
 
@@ -170,7 +215,7 @@ def gen_config(backend, features, vlen, enable_postprocesses=False):
     ret.update(BACKEND_DEFAULT_CONFIG[backend])
     if enable_postprocesses:
         ret.update(POSTPROCESS_CONFIG)
-    if "muriscvnn" in features:
+    if "muriscvnn" in features or "muriscvnnbyoc" in features:
         for feature in features:
             if feature == "pext":
                 assert vlen == 0
@@ -182,25 +227,16 @@ def gen_config(backend, features, vlen, enable_postprocesses=False):
                 ret["vext.vlen"] = vlen
             # else:
             # assert vlen == 0
+    if "cmsisnnbyoc" in features:
+        assert backend == "tvmaot"
+        if "arm_mvei" in features:
+            ret["cmsisnnbyoc.mcpu"] = "cortex-m55"
+        elif "arm_dsp" in features:
+            ret["cmsisnnbyoc.mcpu"] = "cortex-m33"
     return ret
 
 
-# def resolve_missing_configs(config, features, target, context):
-#     if "muriscvnn" in features:
-#         flags = []
-#         flags += [TARGET_ARCH[target]]
-#         flags += [MURISCVNN_TOOLCHAIN]
-#         if "debug" in features:
-#             flags += ["dbg"]
-#         if "vext" in features:
-#             flags += ["vext"]
-#         elif "pext" in features:
-#             flags += ["pext"]
-#         config["muriscvnn.lib"] = context.cache["muriscvnn.lib", tuple(flags)]
-
-
 def benchmark(args):
-    l = []
     with mlonmcu.context.MlonMcuContext() as context:
         session = context.create_session()
         for model in args.models:
@@ -230,7 +266,6 @@ def benchmark(args):
                             for vlen in vlens:
                                 # print("vlen", vlen)
                                 config = gen_config(backend, features, vlen, enable_postprocesses=args.post)
-                                l.append(str([model, backend, target, features, vlen]))
                                 # resolve_missing_configs(config, features, target, context)
                                 run = session.create_run(config=config)
                                 run.add_features_by_name(features, context=context)
@@ -248,8 +283,6 @@ def benchmark(args):
         print(report.df)
         report_file = args.output
         report.export(report_file)
-    print("\n".join(l))
-    print("len(l)", len(l))
 
 
 def main():
@@ -370,7 +403,6 @@ def main():
         set_log_level(logging.DEBUG)
     else:
         set_log_level(logging.INFO)
-    print("args", args)
     benchmark(args)
 
 

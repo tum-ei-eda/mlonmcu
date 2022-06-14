@@ -37,10 +37,11 @@ set(srcs_micro
     ${TFLM_SRC}/micro_utils.cc
     ${TFL_SRC}/kernels/internal/quantization_util.cc
     ${TFL_SRC}/kernels/kernel_util.cc
-    ${TFL_SRC}/c/common.c
+    ${TFL_SRC}/c/common.cc
     ${TFLM_SRC}/micro_interpreter.cc
     ${TFLM_SRC}/micro_allocator.cc
-    ${TFLM_SRC}/simple_memory_allocator.cc
+    ${TFLM_SRC}/micro_allocation_info.cc
+    ${TFLM_SRC}/arena_allocator/simple_memory_allocator.cc
     ${TFLM_SRC}/memory_helpers.cc
     ${TFLM_SRC}/memory_planner/greedy_memory_planner.cc
     ${TFL_SRC}/core/api/tensor_utils.cc
@@ -49,7 +50,8 @@ set(srcs_micro
     ${TFL_SRC}/schema/schema_utils.cc
     ${TFLM_SRC}/micro_context.cc
     ${TFLM_SRC}/micro_graph.cc
-    ${TFLM_SRC}//flatbuffer_utils.cc
+    ${TFLM_SRC}/micro_resource_variable.cc
+    ${TFLM_SRC}/flatbuffer_utils.cc
     )
 
 set(srcs_kernels

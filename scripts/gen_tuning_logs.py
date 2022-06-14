@@ -62,13 +62,15 @@ LAYOUT_CONFIGS = [
     {f"{BACKEND}.desired_layout": "NCHW"},
 ]
 
+
 def merge_dicts(d):
     return [{k: v for y in x for k, v in y.items()} for x in d]
 
+
 CONFIGS = merge_dicts(list(itertools.product(TARGET_CONFIGS, LAYOUT_CONFIGS)))
 
-FEATURES = [ set(DEFAULT_FEATURES + list(x)) for x in FEATURES]
-CONFIGS = [ {**DEFAULT_CONFIG, **x} for x in CONFIGS]
+FEATURES = [set(DEFAULT_FEATURES + list(x)) for x in FEATURES]
+CONFIGS = [{**DEFAULT_CONFIG, **x} for x in CONFIGS]
 
 print("FEATURES", FEATURES, len(FEATURES))
 print("CONFIGS", CONFIGS, len(CONFIGS))
@@ -76,6 +78,7 @@ print("CONFIGS", CONFIGS, len(CONFIGS))
 FEATURES_CONFIG = list(itertools.product(FEATURES, CONFIGS))
 
 print("FEATURES_CONFIG", FEATURES_CONFIG, len(FEATURES_CONFIG))
+
 
 def init_features_by_name(names, config, context=None):
     features = []
@@ -96,6 +99,7 @@ def init_features_by_name(names, config, context=None):
             feature_inst = feature_cls(config=config)
             features.append(feature_inst)
         return features
+
 
 with mlonmcu.context.MlonMcuContext() as context:
     session = context.create_session()

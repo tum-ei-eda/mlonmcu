@@ -319,7 +319,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
     if rebuild or not utils.is_populated(etissBuildDir):
         utils.mkdirs(etissBuildDir)
         env = os.environ.copy()
-        # env["LLVM_DIR"] = str(llvmInstallDir)
+        env["LLVM_DIR"] = str(llvmInstallDir)
         utils.cmake(
             context.cache["etiss.src_dir"],
             "-DCMAKE_INSTALL_PREFIX=" + str(etissInstallDir),
@@ -719,6 +719,8 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
     """Build Spike proxy kernel."""
     if not params:
         params = {}
+    if "spike.pk" in user_vars:  # TODO: also check command line flags?
+        return False
     # flags = utils.makeFlags((params["vext"], "vext"))
     spikepkName = utils.makeDirName("spikepk")
     spikepkSrcDir = context.cache["spikepk.src_dir"]
@@ -726,8 +728,6 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
     spikepkBin = spikepkInstallDir / "pk"
     user_vars = context.environment.vars
-    if "spike.pk" in user_vars:  # TODO: also check command line flags?
-        return False
     if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikepkBuildDir)
@@ -805,7 +805,15 @@ def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 
 
 def _validate_cmsisnn(context: MlonMcuContext, params=None):
-    return context.environment.has_feature("cmsisnn") or context.environment.has_feature("cmsisnnbyoc")
+    if not context.environment.has_feature("cmsisnn") or context.environment.has_feature("cmsisnnbyoc"):
+        return False
+    if "target_arch" in params:
+        if not ((params["target_arch"] == "riscv" and _validate_riscv_gcc(context)) or (params["target_arch"] == "arm" and _validate_corstone300(context)) or (params["target_arch"] == "x86")):
+            return False
+        if "mvei" in params and "dsp" in params:
+            if not (params["target_arch"] == "arm" or (not params["dsp"] and not params["mvei"])):
+                return False
+    return True
 
 
 def _validate_cmsis(context: MlonMcuContext, params=None):

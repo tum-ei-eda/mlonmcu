@@ -59,6 +59,7 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
+    "ovpsim",
     "host_x86",
     "etiss_pulpino",
     "corstone300",
@@ -87,6 +88,7 @@ DEFAULT_BACKENDS = [
 FEATURES = [
     "muriscvnn",
     "cmsisnn",
+    "none",
 ]
 
 DEFAULT_FEATURES = [
@@ -94,10 +96,25 @@ DEFAULT_FEATURES = [
     "cmsisnn",
 ]
 
+TUNING_RECORDS = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..",
+    "resources",
+    "frameworks",
+    "tvm",
+    "tuning_records",
+    "riscv_cpu_v0.01.log.best",
+)
+
 
 def get_target_features(target, enable_default=True, enable_muriscvnn=False, enable_cmsisnn=False):
     TARGET_FEATURES = {
         "spike": [
+            *([[]] if enable_default else []),
+            *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
+            *([["cmsisnn"]] if enable_cmsisnn else []),
+        ],
+        "ovpsim": [
             *([[]] if enable_default else []),
             *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
@@ -126,6 +143,7 @@ VALIDATE_FEATURES = ["validate", "debug"]
 
 TARGET_ARCH = {
     "spike": "riscv",
+    "ovpsim": "riscv",
     "x86": "x86",
     "etiss_pulpino": "riscv",
     "corstone300": "arm",
@@ -149,7 +167,7 @@ def get_backend_config(backend, features, enable_autotuned=False):
     BACKEND_FEATURES = {
         "tflmi": [{}],
         "tvmaot": [
-            {},
+            *([{}] if "muriscvnnbyoc" in features or "cmsisnnbyoc" in features else []),
             *(
                 [{"tvmaot.desired_layout": "NCHW"}, {"tvmaot.desired_layout": "NHWC"}]
                 if "muricvnnbyoc" not in features and "cmsisnnbyoc" not in features
@@ -157,7 +175,11 @@ def get_backend_config(backend, features, enable_autotuned=False):
             ),
         ],
     }
-    return BACKEND_FEATURES[backend]
+    ret = BACKEND_FEATURES[backend]
+    if enable_autotuned and backend == "tvmaot":
+        for cfg in ret:
+            cfg.update({"autotuned.results_file": TUNING_RECORDS})
+    return ret
 
 
 DEFAULT_CONFIG = {
@@ -213,13 +235,17 @@ POSTPROCESS_CONFIG = {
         "Failing",
         "Features",
         # "Comment",
-        "Validate",
+        "Validation",
         "Kernels",
         "Extensions",
         "VLEN",
         "Layout",
     ],
-    "rename_cols.mapping": {"config_spike.vlen": "VLEN", "config_tvmaot.desired_layout": "Layout"},
+    "rename_cols.mapping": {
+        "config_spike.vlen": "VLEN",
+        "config_ovpsim.vlen": "VLEN",
+        "config_tvmaot.desired_layout": "Layout",
+    },
     "filter_cols.drop_nan": True,
 }
 
@@ -273,6 +299,7 @@ def gen_config(backend, backend_config, features, vlen, enable_postprocesses=Fal
 
 def benchmark(args):
     with mlonmcu.context.MlonMcuContext() as context:
+        user_config = context.environment.vars  # TODO: get rid of this workaround
         session = context.create_session()
         for model in args.models:
             for backend in args.backend:
@@ -309,6 +336,7 @@ def benchmark(args):
                                     config = gen_config(
                                         backend, backend_config, features, vlen, enable_postprocesses=args.post
                                     )
+                                    config.update(user_config)  # TODO
                                     # resolve_missing_configs(config, features, target, context)
                                     run = session.create_run(config=config)
                                     run.add_features_by_name(features, context=context)
@@ -403,11 +431,6 @@ def main():
         help="Run postprocesses after the session (default: %(default)s)",
     )
     parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Display progress bar (default: %(default)s)",
-    )
-    parser.add_argument(
         "-p",
         "--progress",
         action="store_true",
@@ -450,6 +473,9 @@ def main():
         args.feature = DEFAULT_FEATURES
     if not args.vlen:
         args.vlen = DEFAULT_VLENS
+    if "none" in args.feature:
+        assert len(args.feature) == 1
+        args.feature = []
     if args.verbose:
         set_log_level(logging.DEBUG)
     else:

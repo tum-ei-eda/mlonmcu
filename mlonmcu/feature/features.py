@@ -138,23 +138,13 @@ class Validate(FrontendFeature, PlatformFeature):
 
 
 @register_feature("muriscvnn")
-# class Muriscvnn(SetupFeature, FrameworkFeature):
 class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
     """muRISCV-V NN wrappers for TFLite Micro"""
 
-    # REQUIRED = ["muriscvnn.lib", "muriscvnn.inc_dir"]
     REQUIRED = ["muriscvnn.src_dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__("muriscvnn", features=features, config=config)
-
-    # @property
-    # def muriscvnn_lib(self):
-    #     return str(self.config["muriscvnn.lib"])
-
-    # @property
-    # def muriscvnn_inc_dir(self):
-    #     return str(self.config["muriscvnn.inc_dir"])
 
     @property
     def muriscvnn_dir(self):
@@ -169,12 +159,6 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
             RuntimeError(f"There is already a optimized_kernel selected for framework '{framework}'")
         else:
             config[f"{framework}.optimized_kernel"] = "cmsis_nn"
-        # libs = config.get(f"{framework}.optimized_kernel_libs", [])
-        # libs.append(self.muriscvnn_lib)
-        # incs = config.get(f"{framework}.optimized_kernel_inc_dirs", [])
-        # incs.append(self.muriscvnn_inc_dir)
-        # config[f"{framework}.optimized_kernel_libs"] = libs
-        # config[f"{framework}.optimized_kernel_inc_dirs"] = incs
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
@@ -191,7 +175,6 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
 
 
 @register_feature("cmsisnn")
-# class Cmsisnn(SetupFeature, FrameworkFeature):
 class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
     """CMSIS-NN kernels for TFLite Micro"""
 
@@ -203,10 +186,6 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
 
     def __init__(self, features=None, config=None):
         super().__init__("cmsisnn", features=features, config=config)
-
-    # @property
-    # def cmsisnn_lib(self):
-    #     return str(self.config["cmsisnn.lib"])
 
     @property
     def cmsisnn_dir(self):
@@ -221,18 +200,6 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
             RuntimeError(f"There is already a optimized_kernel selected for framework '{framework}'")
         else:
             config[f"{framework}.optimized_kernel"] = "cmsis_nn"
-        # libs = config.get(f"{framework}.optimized_kernel_libs", [])
-        # libs.append(self.cmsisnn_lib)
-        # incs = config.get(f"{framework}.optimized_kernel_inc_dirs", [])
-        # include_dirs = [
-        #     self.cmsisnn_dir,
-        #     str(Path(self.cmsisnn_dir) / "CMSIS" / "Core" / "Include"),
-        #     str(Path(self.cmsisnn_dir) / "CMSIS" / "NN" / "Include"),
-        #     str(Path(self.cmsisnn_dir) / "CMSIS" / "DSP" / "Include"),
-        # ]
-        # incs.extend(include_dirs)
-        # config[f"{framework}.optimized_kernel_libs"] = libs
-        # config[f"{framework}.optimized_kernel_inc_dirs"] = incs
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
@@ -248,7 +215,6 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
 
 
 @register_feature("cmsisnnbyoc")
-# class CmsisnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     """CMSIS-NN kernels for TVM using BYOC wrappers."""
 
@@ -257,15 +223,10 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
     }
 
-    # REQUIRED = ["cmsisnn.lib", "cmsisnn.dir"]
     REQUIRED = ["cmsisnn.dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__("cmsisnnbyoc", features=features, config=config)
-
-    # @property
-    # def cmsisnn_lib(self):
-    #     return str(self.config["cmsisnn.lib"])
 
     @property
     def cmsisnn_dir(self):
@@ -274,19 +235,6 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     @property
     def mcpu(self):
         return self.config["mcpu"]
-
-    # def get_framework_config(self, framework):
-    #     assert framework == "tvm", f"Unsupported feature '{self.name}' for framework '{framework}'"
-    #     include_dirs = [
-    #         self.cmsisnn_dir,
-    #         str(Path(self.cmsisnn_dir) / "CMSIS" / "Core" / "Include"),
-    #         str(Path(self.cmsisnn_dir) / "CMSIS" / "NN" / "Include"),
-    #         str(Path(self.cmsisnn_dir) / "CMSIS" / "DSP" / "Include"),
-    #     ]
-    #     return {
-    #         f"{framework}.extra_libs": [self.cmsisnn_lib],
-    #         f"{framework}.extra_incs": include_dirs,
-    #     }
 
     def add_backend_config(self, backend, config):
         assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -314,7 +262,6 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
 
 
 @register_feature("muriscvnnbyoc")
-# class MuriscvnnByoc(SetupFeature, FrameworkFeature, BackendFeature):
 class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     """MuRiscvNN kernels for TVM using BYOC wrappers."""
 
@@ -323,19 +270,10 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
     }
 
-    # REQUIRED = ["muriscvnn.lib", "muriscvnn.inc_dir"]
     REQUIRED = ["muriscvnn.src_dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__("muriscvnnbyoc", features=features, config=config)
-
-    # @property
-    # def muriscvnn_lib(self):
-    #     return str(self.config["muriscvnn.lib"])
-
-    # @property
-    # def muriscvnn_inc_dir(self):
-    #     return str(self.config["muriscvnn.inc_dir"])
 
     @property
     def muriscvnn_dir(self):
@@ -344,17 +282,6 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     @property
     def mcpu(self):
         return self.config["mcpu"]
-
-    # def get_framework_config(self, framework):
-    #     assert framework == "tvm", f"Unsupported feature '{self.name}' for framework '{framework}'"
-    #     include_dirs = [
-    #         str(self.muriscvnn_inc_dir),
-    #         str(Path(self.muriscvnn_inc_dir) / "CMSIS" / "NN" / "Include"),
-    #     ]
-    #     return {
-    #         f"{framework}.extra_libs": [self.muriscvnn_lib],
-    #         f"{framework}.extra_incs": include_dirs,
-    #     }
 
     def add_backend_config(self, backend, config):
         assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"

@@ -28,7 +28,6 @@ from mlonmcu.cli.common import (
 )
 from mlonmcu.config import resolve_required_config
 
-# from .helper.parse import extract_config_and_init_features
 from .helper.parse import extract_config_and_feature_names, extract_frontend_names, extract_postprocess_names
 from mlonmcu.models import SUPPORTED_FRONTENDS
 from mlonmcu.models.lookup import lookup_models, map_frontend_to_model
@@ -60,61 +59,15 @@ def get_parser(subparsers):
     return parser
 
 
-# def init_frontends(frontend_names, features, config, context=None):
-#     names = []
-#     if isinstance(frontend_names, list) and len(frontend_names) > 0:
-#         names = frontend_names
-#     elif isinstance(frontend_names, str):
-#         names = [frontend_names]
-#     else:
-#         # No need to specify a default, because we just use the provided order in the environment.yml
-#         assert frontend_names is None, "TODO"
-#         assert context is not None, "Need context to resolve default frontends"
-#         all_frontend_names = context.environment.lookup_frontend_configs(names_only=True)
-#         names.extend(all_frontend_names)
-#     frontends = []
-#     for frontend_name in names:
-#         frontend_cls = SUPPORTED_FRONTENDS[frontend_name]
-#         required_keys = frontend_cls.REQUIRED
-#         frontend_config = config.copy()
-#         frontend_config.update(
-#             resolve_required_config(
-#                 required_keys,
-#                 features=features,
-#                 config=config,
-#                 cache=context.cache if context else None,
-#             )
-#         )
-#         try:
-#             frontend = frontend_cls(features=features, config=frontend_config)
-#         # except Exception as err:
-#         except Exception:
-#             # raise RuntimeError() from err  # Comment this in to debug frontend issues
-#             print("Frontend could not be initialized. Continuing with next one...")
-#             continue
-#         frontends.append(frontend)
-#     assert len(frontends) > 0, "Could not initialize at least one frontend for the given set of features"
-#     return frontends
-
-
 def _handle(args, context):
-    # model_names = args.models
-    # new_config, features = extract_config_and_init_features(args, context=context)
     config = context.environment.vars
     new_config, features = extract_config_and_feature_names(args, context=context)
     config.update(new_config)
     frontends = extract_frontend_names(args, context=context)
     postprocesses = extract_postprocess_names(args, context=context)
     postprocesses = list(set(args.postprocess)) if args.postprocess is not None else []
-    # frontends = init_frontends(args.frontend, features=features, config=config, context=context)
-    # model_hints = lookup_models(model_names, frontends=frontends, context=context)
     session = context.get_session(label=args.label, resume=args.resume, config=config)
-    # for hint in model_hints:
     for model in args.models:
-        # model, frontend = map_frontend_to_model(
-        #     hint, frontends, backend=None
-        # )  # TODO: we do not yet know the backend...
-        # run = session.create_run(model=model, features=features, config=config)
         run = session.create_run(config=config)
         run.add_features_by_name(features, context=context)  # TODO do this before load.py?
         run.add_frontends_by_name(frontends, context=context)

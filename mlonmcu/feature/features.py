@@ -436,7 +436,7 @@ class Memplan(FrameworkFeature):
         super().__init__("memplan", config=config)
 
     def get_framework_config(self, framework):
-        assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
+        assert framework in ["tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"
         raise NotImplementedError
         return {"tvm.memplan_enable": self.enabled}
 
@@ -458,7 +458,7 @@ class Usmp(BackendFeature):
         return str(self.config["algorithm"])
 
     def add_backend_config(self, backend, config):
-        assert backend in ["tvmaot"], f"Usupported fetaure '{self.name}' for backend '{backend}'"
+        assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
         if f"{backend}.extra_pass_config" in config:
             tmp = config[f"{backend}.extra_pass_config"]
         elif "extra_pass_config" in config:
@@ -474,17 +474,33 @@ class Usmp(BackendFeature):
     # -> enable this via backend
 
 
-@register_feature("fusetile")
-class Fusetile(FrameworkFeature):  # TODO: rename to MOIOPT?
-    """WIP TVM feature by (@rafzi)"""
+@register_feature("moiopt")
+class MOIOPT(BackendFeature):
+    """Memory-Optimizing, Inter-Operator Tiling - currently only supported with custom TVM"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "noftp": False,
+        "onlyftp": False,
+        "norecurse": False,
+    }
 
     def __init__(self, config=None):
-        super().__init__("fusetile", config=config)
+        super().__init__("moiopt", config=config)
 
-    def get_framework_config(self, framework):
-        assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
-        raise NotImplementedError
-        return {"tvm.fusetile_enable": self.enabled}
+    def add_backend_config(self, backend, config):
+        assert backend in ["tvmaot", "tvmrt"], f"Unsupported feature '{self.name}' for backend '{backend}'"
+        if f"{backend}.extra_pass_config" in config:
+            tmp = config[f"{backend}.extra_pass_config"]
+        elif "extra_pass_config" in config:
+            tmp = config["extra_pass_config"]
+        else:
+            tmp = {}
+        tmp["relay.moiopt.enable"] = self.enabled
+        tmp["relay.moiopt.noftp"] = self.config["noftp"]
+        tmp["relay.moiopt.onlyftp"] = self.config["onlyftp"]
+        tmp["relay.moiopt.norecurse"] = self.config["norecurse"]
+        config.update({f"{backend}.extra_pass_config": tmp})
 
     # -> enable this via backend
 
@@ -678,7 +694,7 @@ class Fallback(FrameworkFeature, PlatformFeature):
         return str(self.config["config_file"]) if "config_file" in self.config else None
 
     def get_framework_config(self, framework):
-        assert framework in ["tvm"], f"Usupported fetaure '{self.name}' for framework '{framework}'"
+        assert framework in ["tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"
         raise NotImplementedError
         return filter_none(
             {

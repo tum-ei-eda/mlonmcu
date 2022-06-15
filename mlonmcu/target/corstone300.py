@@ -153,10 +153,20 @@ class Corstone300Target(Target):
         )
         return ret
 
-    def parse_stdout(self, out):
+    def parse_stdout(self, out, handle_exit=None):
+        exit_match = re.search(r"Application exit code: (.*)\.", out)
+        if exit_match:
+            exit_code = int(exit_match.group(1))
+            if handle_exit is not None:
+                exit_code = handle_exit(exit_code)
+            if exit_code != 0:
+                logger.error("Execution failed - " + out)
+                raise RuntimeError(f"unexpected exit code: {exit_code}")
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+
         if not cpu_cycles:
-            logger.warning("unexpected script output (cycles)")
+            if exit == 0:
+                logger.warning("unexpected script output (cycles)")
             cycles = None
         else:
             cycles = int(float(cpu_cycles.group(1)))
@@ -172,7 +182,7 @@ class Corstone300Target(Target):
             out += self.exec(
                 elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
-        cycles = self.parse_stdout(out)
+        cycles = self.parse_stdout(out, handle_exit=handle_exit)
 
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)

@@ -65,7 +65,7 @@ TARGETS = [
     "corstone300",
 ]
 
-AUTOTUNED_TARGETS = ["spike", "etiss_pulpino"]
+AUTOTUNED_TARGETS = ["spike", "ovpsim", "etiss_pulpino"]
 
 DEFAULT_TARGETS = [
     "spike",
@@ -167,10 +167,10 @@ def get_backend_config(backend, features, enable_autotuned=False):
     BACKEND_FEATURES = {
         "tflmi": [{}],
         "tvmaot": [
-            *([{}] if "muriscvnnbyoc" in features or "cmsisnnbyoc" in features else []),
+            *([{}] if "muriscvnn" in features or "cmsisnn" in features else []),
             *(
                 [{"tvmaot.desired_layout": "NCHW"}, {"tvmaot.desired_layout": "NHWC"}]
-                if "muricvnnbyoc" not in features and "cmsisnnbyoc" not in features
+                if "muriscvnn" not in features and "cmsisnn" not in features
                 else []
             ),
         ],

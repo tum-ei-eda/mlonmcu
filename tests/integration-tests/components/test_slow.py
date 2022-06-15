@@ -1299,7 +1299,9 @@ def test_feature_autotune(user_context, frontend_name, model_name, backend_name,
 )  # TODO: Single backend would be fine, but it has to be enabled
 @pytest.mark.parametrize("feature_names", [["autotune", "autotuned"]])  # TODO: provide tuning records instead
 @pytest.mark.parametrize("config", [{"tvmaot.print_outputs": True}])
-def test_feature_autotuned(user_context, frontend_name, model_name, backend_name, models_dir, feature_names, config):
+def test_feature_autotuned(
+    user_context, frontend_name, model_name, backend_name, models_dir, feature_names, config, tmp_path
+):
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -1309,6 +1311,9 @@ def test_feature_autotuned(user_context, frontend_name, model_name, backend_name
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
+    results_file = tmp_path / "tuning.log"
+    results_file.touch()
+    config.update({"autotuned.results_file": results_file})
     run = session.create_run(config=config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)

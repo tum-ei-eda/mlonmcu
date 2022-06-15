@@ -67,6 +67,7 @@ class Session:
         self.opened_at = None
         self.closed_at = None
         self.runs = []
+        self.report = None
         self.next_run_idx = 0
         self.archived = archived
         if dir is None:
@@ -112,6 +113,9 @@ class Session:
 
     def get_reports(self):
         """Returns a full report which includes all runs in this session."""
+        if self.report:
+            return self.report
+
         reports = [run.get_report() for run in self.runs]
         merged = Report()
         merged.add(reports)
@@ -153,6 +157,7 @@ class Session:
         # TODO: Add configurable callbacks for stage/run complete
 
         self.enumerate_runs()
+        self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
         workers = []
         # results = []
@@ -327,6 +332,7 @@ class Session:
         results_file = results_dir / f"{self.label}.{self.report_fmt}"
         report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
+        self.report = report
         print_report = True
         if print_report:
             logger.info("Report:\n%s", str(report.df))

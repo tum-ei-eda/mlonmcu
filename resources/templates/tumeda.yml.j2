@@ -28,23 +28,23 @@ paths:
 # Here default clone_urls
 repos:
   tensorflow:  # TODO: rename to tflite-micro?
-    url: "git@github.com:tensorflow/tflite-micro.git"
+    url: "https://github.com/tensorflow/tflite-micro.git"
     ref: 746f880a405aeca2db6d005fd9fb8e451f3cea34
   tflite_micro_compiler:
     url: "git@github.com:PhilippvK/tflite_micro_compiler.git"
     ref: patches
   tvm:
-    url: "git@github.com:tum-ei-eda/tvm.git"
-    ref: latest
+    url: "git@github.com:rafzi/privtvm.git"
+    ref: moiopt
   utvm_staticrt_codegen:
     url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
-    ref: master
+    ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
   tvm_extensions:
     url: "https://github.com/tum-ei-eda/tvm_extensions.git"
     ref: main
   etiss:
-    url: "git@github.com:tum-ei-eda/etiss.git"
-    ref: master
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: d20bd6e6019a680f98d9904e6fc1c2d51f4a061b
   muriscvnn:
     url: "git@github.com:fabianpedd/muriscv_nn.git"
     ref: main
@@ -52,17 +52,17 @@ repos:
     url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
     ref: main
   spike:
-    url: "git@github.com:riscv-software-src/riscv-isa-sim.git"
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: master
   spikepk:
-    url: "git@github.com:riscv-software-src/riscv-pk.git"
+    url: "https://github.com/riscv-software-src/riscv-pk.git"
     ref: master
   cmsis:
     url: "https://github.com/ARM-software/CMSIS_5.git"
     ref: 8c60448c0e1e50e426180b26db9bc31ddf774361
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: main
+    ref: 35c07e41c2dd92618f0249d24a7c564110ae2b6d
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
@@ -93,6 +93,9 @@ frameworks:
         features:
           debug_arena: true
           disable_legalize: true
+          autotune: true
+          autotuned: true
+          moiopt: true
       tvmaot:
         enabled: true
         features:
@@ -100,14 +103,19 @@ frameworks:
           unpacked_api: true
           usmp: false
           disable_legalize: true
+          autotune: true
+          autotuned: true
+          moiopt: true
       tvmcg:
         enabled: true
         features:
           debug_arena: true
           disable_legalize: true
+          autotune: true
+          autotuned: true
     features:
       cmsisnnbyoc: false
-# Some frontends are eperimental and therefore disabled here
+# Some frontends are experimental and therefore disabled here
 # Features like packing are only available in certain environments
 #
 frontends:

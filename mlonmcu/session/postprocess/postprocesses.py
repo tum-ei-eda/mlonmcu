@@ -247,9 +247,6 @@ class RenameColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
     def post_session(self, report):
         """Called at the end of a session."""
-        print("post_session", self.mapping)
-        print(report.df)
-        print("---")
         report.pre_df = report.pre_df.rename(columns=self.mapping)
         report.main_df = report.main_df.rename(columns=self.mapping)
         report.post_df = report.post_df.rename(columns=self.mapping)

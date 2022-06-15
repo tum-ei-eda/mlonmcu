@@ -68,7 +68,7 @@ def getSizes(tensors):
 
 def write_tvmrt_wrapper(path, graph, params, model_info, workspace_size):
     with open(path, "w") as f:
-        text = write_tvmrt_wrapper(graph, params, model_info, workspace_size)
+        text = generate_tvmrt_wrapper(graph, params, model_info, workspace_size)
         f.write(text)
 
 
@@ -445,7 +445,7 @@ tvm_workspace_t app_workspace;
 #endif
 """
 
-        workspace_code = """
+        workspace_code += """
 #ifdef DEBUG_ARENA_USAGE
 size_t max_arena_usage = 0;
 #endif

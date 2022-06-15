@@ -1,22 +1,59 @@
 import os
 import argparse
 import multiprocessing
-import itertools
 import logging
-from pathlib import Path
 
 # import mlonmcu
 import mlonmcu.context
 from mlonmcu.session.run import RunStage
-from mlonmcu.feature.features import (
-    get_available_features,
-)
-from mlonmcu.config import resolve_required_config
+from mlonmcu.session.postprocess.postprocess import SessionPostprocess
 from mlonmcu.logging import get_logger, set_log_level
 
 logger = get_logger()
 
 # MURISCVNN_TOOLCHAIN = "gcc"
+
+
+class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
+    """TODO"""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("custom", features=features, config=config)
+
+    def post_session(self, report):
+        """Called at the end of a session."""
+        df = report.post_df.copy()
+        df["Kernels"] = df.apply(
+            lambda row: "muRISCV-NN"
+            if row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc")
+            else (
+                "CMSIS-NN"
+                if row.get("feature_cmsisnn") or row.get("feature_cmsisnnbyoc")
+                else ("Autotuned" if row.get("feature_autotuned") else "Default")
+            ),
+            axis=1,
+        )
+        # TODO: allow combinations
+        df["Extensions"] = df.apply(
+            lambda row: "VEXT+PEXT"
+            if row.get("feature_vext") and row.get("feature_pext")
+            else (
+                "VEXT"
+                if row.get("feature_vext")
+                else (
+                    "PEXT"
+                    if row.get("feature_pext")
+                    else (
+                        "MVEI+DSP"
+                        if row.get("feature_arm_mvei") and row.get("feature_arm_dsp")
+                        else ("MVEI" if row.get("feature_arm_mvei") else ("DSP" if row.get("feature_arm_dsp") else ""))
+                    )
+                )
+            ),
+            axis=1,
+        )
+        report.post_df = df
+
 
 FRONTEND = "tflite"
 
@@ -100,7 +137,7 @@ BACKEND_DEFAULT_FEATURES = {
 }
 
 
-def get_backend_features(backend, enable_autotuned=False):
+def get_backend_features(backend, target, enable_autotuned=False):
     BACKEND_FEATURES = {
         "tflmi": [[]],
         "tvmaot": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else [])],
@@ -123,6 +160,10 @@ def get_backend_config(backend, features, enable_autotuned=False):
     return BACKEND_FEATURES[backend]
 
 
+DEFAULT_CONFIG = {
+    "mlif.num_threads": 4,
+}
+
 BACKEND_DEFAULT_CONFIG = {
     "tflmi": {},
     "tvmaot": {"usmp.algorithm": "hill_climb"},
@@ -131,8 +172,6 @@ BACKEND_DEFAULT_CONFIG = {
 VLENS = [64, 128, 256, 512, 1024]
 
 DEFAULT_VLENS = [64, 128, 256, 512, 1024]
-
-STAGE = RunStage.RUN
 
 MODELS = [
     # "sine_model",
@@ -147,9 +186,9 @@ MODELS = [
 ]
 
 POSTPROCESSES = [
-    # "features2cols",
+    "features2cols",
     "config2cols",
-    "filter_cols",
+    # "filter_cols",
 ]
 POSTPROCESS_CONFIG = {
     "filter_cols.keep": [
@@ -168,46 +207,21 @@ POSTPROCESS_CONFIG = {
         "Incomplete",
         "Failing",
         "Features",
-        "Comment",
-        "config_spike.vlen",
+        # "Comment",
         "Validate",
+        "Kernels",
+        "Extensions",
+        "VLEN",
     ],
-    # "filter_cols.drop": [
-    #     "Session",
-    #     "Run",
-    #     "Frontend",
-    #     "Framework",
-    #     "Platform",
-    #     "Num",
-    #     "ROM read-only",
-    #     "ROM code",
-    #     "ROM misc",
-    #     "RAM data",
-    #     "RAM zero-init data",
-    #     "Postprocesses",
-    #     "config_tvmaot.unpacked_api",
-    #     "config_tvmaot.extra_pass_config",
-    #     "config_tvmaot.arena_size",
-    #     "config_riscv_gcc.name",
-    #     "config_filter_cols.drop",
-    #     "config_tvmaot.extra_target",
-    #     "config_spike.enable_vext",
-    #     "config_spike.arch",
-    #     "config_spike.enable_pext",
-    #     "config_tflmi.arena_size",
-    #     "config_tflmi.ops",
-    #     "config_tflm.optimized_kernel",
-    #     "config_tvmaot.extra_target_mcpu",
-    #     "config_corstone300.enable_mvei",
-    #     "config_corstone300.enable_dsp",
-    # ],
-    "filter_cols.drop_nan": False,
+    "rename_cols.mapping": {
+        "config_spike.vlen": "VLEN",
+    },
+    "filter_cols.drop_nan": True,
     "filter_cols.drop_const": False,
 }
 
 
 def gen_features(backend, features, validate=False):
-    # print("gen_features", backend, features)
     ret = []
     ret.extend(BACKEND_DEFAULT_FEATURES[backend])
     if validate:
@@ -223,12 +237,12 @@ def gen_features(backend, features, validate=False):
                 ret.append(feature)
     else:
         ret += features
-    # print("ret", ret)
     return ret
 
 
 def gen_config(backend, backend_config, features, vlen, enable_postprocesses=False):
     ret = {}
+    ret.update(DEFAULT_CONFIG)
     ret.update(BACKEND_DEFAULT_CONFIG[backend])
     ret.update(backend_config)
     if enable_postprocesses:
@@ -278,10 +292,12 @@ def benchmark(args):
                             if (
                                 "cmsisnn" not in target_features
                                 and "muriscvnn" not in target_features
-                                and target == "tvmaot"
+                                and backend == "tvmaot"
                             ):
                                 enable_autotuned = True
-                        for backend_features in get_backend_features(backend, enable_autotuned=enable_autotuned):
+                        for backend_features in get_backend_features(
+                            backend, target, enable_autotuned=enable_autotuned
+                        ):
                             # print("backend_features", backend_features)
                             features = list(set(target_features + backend_features))
                             # print("features", features)
@@ -309,9 +325,16 @@ def benchmark(args):
                                     run.add_target_by_name(target, context=context)
                                     if args.post:
                                         run.add_postprocesses_by_name(POSTPROCESSES)
+                                        run.add_postprocess(CustomPostprocess(), append=True)
+                                        run.add_postprocess_by_name("rename_cols", append=True, context=context)
+                                        run.add_postprocess_by_name("filter_cols", append=True, context=context)
                                     # print("COMMIT")
         # print("sesion.runs", session.runs, len(session.runs))
-        session.process_runs(until=STAGE, num_workers=args.parallel, progress=args.progress, context=context)
+        if args.noop:
+            stage = RunStage.LOAD
+        else:
+            stage = RunStage.RUN
+        session.process_runs(until=stage, num_workers=args.parallel, progress=args.progress, context=context)
         report = session.get_reports()
         print(report.df)
         report_file = args.output
@@ -422,6 +445,11 @@ def main():
         "-v",
         action="store_true",
         help="Print detailed messages for easier debugging (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--noop",
+        action="store_true",
+        help="Skip processing runs. (default: %(default)s)",
     )
     args = parser.parse_args()
     if not args.backend:

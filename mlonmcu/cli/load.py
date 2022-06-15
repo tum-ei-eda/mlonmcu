@@ -26,11 +26,9 @@ from mlonmcu.cli.common import (
     add_flow_options,
     kickoff_runs,
 )
-from mlonmcu.config import resolve_required_config
 
 from .helper.parse import extract_config_and_feature_names, extract_frontend_names, extract_postprocess_names
 from mlonmcu.models import SUPPORTED_FRONTENDS
-from mlonmcu.models.lookup import lookup_models, map_frontend_to_model
 from mlonmcu.session.run import RunStage
 
 

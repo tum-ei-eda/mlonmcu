@@ -1,9 +1,5 @@
 from mlonmcu.environment.config import PathConfig
 from mlonmcu.session.run import RunStage
-from mlonmcu.feature.features import (
-    get_available_features,
-)  # This does not really belong here
-from mlonmcu.config import resolve_required_config
 
 import pytest
 

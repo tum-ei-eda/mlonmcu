@@ -49,7 +49,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "pext",
             "arm_mvei",
             "arm_dsp",
-        ]  # TODO: allow Feature-Features with automatic resolution of initialization order and move vext/pext/mvei/dsp there
+        ]  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
     DEFAULTS = {

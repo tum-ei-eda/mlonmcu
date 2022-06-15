@@ -26,7 +26,6 @@ from mlonmcu.logging import get_logger
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.target.target import Target
 from mlonmcu.artifact import Artifact, ArtifactFormat
-from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args, get_rpc_tvmc_args
 
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 

@@ -252,9 +252,10 @@ class Run:
         self.backend = backend
         assert self.platforms is not None, "Add at least a platform before adding a backend."
         if self.model is not None:
-            assert self.backend.supports_model(
-                self.model
-            ), "The added backend does not support the chosen model. Add the backend before adding a model to find a suitable frontend."
+            assert self.backend.supports_model(self.model), (
+                "The added backend does not support the chosen model."
+                "Add the backend before adding a model to find a suitable frontend."
+            )
         for platform in self.platforms:
             self.backend.add_platform_defs(platform.name, platform.definitions)
 
@@ -349,7 +350,7 @@ class Run:
         for name in frontend_names:
             assert context is not None and context.environment.has_frontend(
                 name
-            ), f"The frontend '{frontend_name}' is not enabled for this environment"
+            ), f"The frontend '{name}' is not enabled for this environment"
             frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
         self.add_frontends(frontends)
 
@@ -387,7 +388,7 @@ class Run:
             platforms.append(self.init_component(get_platforms()[name], context=context))
         self.add_platforms(platforms)
 
-    def add_postprocess_by_name(self, postprocess_name, append=False, context=None):
+    def add_postprocess_by_name(self, postprocess_name, append=True, context=None):
         """Helper function to initialize and configure a postprocesses by its name."""
         self.add_postprocesses_by_name([postprocess_name], append=append, context=context)
 
@@ -402,11 +403,11 @@ class Run:
             postprocesses.append(self.init_component(SUPPORTED_POSTPROCESSES[name], context=context))
         self.add_postprocesses(postprocesses, append=append)
 
-    def add_feature_by_name(self, feature_name, context=None):
+    def add_feature_by_name(self, feature_name, append=True, context=None):
         """Helper function to initialize and configure a feature by its name."""
-        self.add_feature_by_name([feature_name], context=context, append=True)
+        self.add_features_by_name([feature_name], context=context, append=append)
 
-    def add_features_by_name(self, feature_names, context=None, append=False):
+    def add_features_by_name(self, feature_names, append=False, context=None):
         """Helper function to initialize and configure features by their names."""
         features = []
         for feature_name in feature_names:

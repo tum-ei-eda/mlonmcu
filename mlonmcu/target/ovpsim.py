@@ -101,7 +101,7 @@ class OVPSimTarget(RISCVTarget):
             args.extend(
                 [
                     "--override",
-                    f"riscvOVPsim/cpu/dsp_version=0.9.6",
+                    "riscvOVPsim/cpu/dsp_version=0.9.6",
                     "--override",
                     "riscvOVPsim/cpu/bitmanip_version=1.0.0",
                 ]

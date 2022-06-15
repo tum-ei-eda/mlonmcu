@@ -123,11 +123,11 @@ def resolve_required_config(
 
     """
 
-    def get_sublists(l):
+    def get_sublists(in_list):
         ret = [[]]
-        for i in range(len(l) + 1):
-            for j in range(i + 1, len(l) + 1):
-                sub = l[i:j]
+        for i in range(len(in_list) + 1):
+            for j in range(i + 1, len(in_list) + 1):
+                sub = in_list[i:j]
                 ret.append(sub)
         return ret
 

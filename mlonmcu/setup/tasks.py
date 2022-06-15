@@ -165,10 +165,10 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
             muriscvnnLib = context.cache["muriscvnn.lib", flags__]
             muriscvnnInc = context.cache["muriscvnn.in_dir"]
             cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
-            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={lib}")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={muriscvnnLib}")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={muriscvnnInc}")
         elif cmsisnn:
-            lib = context.cache["cmsisnn.lib", flags__]
+            cmsisnnLib = context.cache["cmsisnn.lib", flags__]
             cmsisDir = Path(context.cache["cmsisnn.dir"])
             cmsisIncs = [
                 str(cmsisDir),
@@ -177,8 +177,8 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
                 str(cmsisDir / "CMSIS" / "DSP" / "Include"),
             ]
             cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
-            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={lib}")
-            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={incs}")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={cmsisnnLib}")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={cmsisIncs}")
         utils.mkdirs(tflmcBuildDir)
         # utils.cmake("-DTF_SRC=" + str(tfSrcDir), str(tflmcSrcDir), debug=params["dbg"], cwd=tflmcBuildDir)
         utils.cmake(

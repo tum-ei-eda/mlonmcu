@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from mlonmcu.config import resolve_required_config
 
 
 def parse_var(s):
@@ -57,8 +56,7 @@ def parse_vars(items):  # TODO: this needs to be used in other subcommands as we
 def extract_feature_names(args):
     if args.feature:
         return args.feature
-    else:
-        return []
+    return []
 
 
 def extract_config(args):

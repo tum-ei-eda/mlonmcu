@@ -81,14 +81,14 @@ class OVPSimTarget(RISCVTarget):
     def get_default_ovpsim_args(self):
         if self.enable_pext:
             if "P" not in self.extensions:
-                self.config["extensions"] += "P"
-            if "P" not in self.variant:
-                self.config["variant"] += "P"
+                self.config["extensions"] += "BP"
+            # if "P" not in self.variant:
+            #     self.config["variant"] += "P"
         if self.enable_vext:
             if "V" not in self.extensions:
                 self.config["extensions"] += "V"
-            if "V" not in self.variant:
-                self.config["variant"] += "V"
+            # if "V" not in self.variant:
+            #     self.config["variant"] += "V"
         args = [
             "--variant",
             self.variant,
@@ -97,7 +97,17 @@ class OVPSimTarget(RISCVTarget):
             "--override",
             "riscvOVPsim/cpu/unaligned=T",
         ]
+        if self.enable_pext:
+            args.extend(
+                [
+                    "--override",
+                    f"riscvOVPsim/cpu/dsp_version=0.9.6",
+                    "--override",
+                    "riscvOVPsim/cpu/bitmanip_version=1.0.0",
+                ]
+            )
         if self.enable_vext:
+            assert self.enable_fpu, "Spike V-Extension requires enabled FPU"
             args.extend(
                 [
                     "--override",

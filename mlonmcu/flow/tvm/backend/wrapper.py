@@ -186,7 +186,7 @@ static MemoryManagerInterface* g_memory_manager;
 
 TVMModuleHandle TVMArgs_AsModuleHandle(const TVMArgs* args, size_t index);
 
-void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code) { printf("HEHEHE\n"); exit(1); }
+void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code) { exit(1); }
 
 void TVMLogf(const char* msg, ...) {
     va_list args;

@@ -291,13 +291,19 @@ class Run:
             if self.framework:
                 self.framework.add_platform_defs(platform.name, platform.definitions)
 
-    def add_postprocess(self, postprocess):
+    def add_postprocess(self, postprocess, append=False):
         """Setter for a postprocess instance."""
-        self.postprocesses = [postprocess]
+        if append:
+            self.postprocesses.append(postprocess)
+        else:
+            self.postprocesses = [postprocess]
 
-    def add_postprocesses(self, postprocesses):
+    def add_postprocesses(self, postprocesses, append=False):
         """Setter for the list of postprocesses."""
-        self.postprocesses = postprocesses
+        if append:
+            self.postprocesses.extend(postprocesses)
+        else:
+            self.postprocesses = postprocesses
 
     def add_feature(self, feature):
         """Setter for a feature instance."""
@@ -381,11 +387,11 @@ class Run:
             platforms.append(self.init_component(get_platforms()[name], context=context))
         self.add_platforms(platforms)
 
-    def add_postprocess_by_name(self, postprocess_name, context=None):
+    def add_postprocess_by_name(self, postprocess_name, append=False, context=None):
         """Helper function to initialize and configure a postprocesses by its name."""
-        self.add_postprocesses_by_name([postprocess_name], context=context)
+        self.add_postprocesses_by_name([postprocess_name], append=append, context=context)
 
-    def add_postprocesses_by_name(self, postprocess_names, context=None):
+    def add_postprocesses_by_name(self, postprocess_names, append=False, context=None):
         """Helper function to initialize and configure postprocesses by their names."""
         postprocesses = []
         for name in postprocess_names:
@@ -394,7 +400,7 @@ class Run:
             #     postprocess_name
             # ), f"The postprocess '{postprocess_name}' is not enabled for this environment"
             postprocesses.append(self.init_component(SUPPORTED_POSTPROCESSES[name], context=context))
-        self.add_postprocesses(postprocesses)
+        self.add_postprocesses(postprocesses, append=append)
 
     def add_feature_by_name(self, feature_name, context=None):
         """Helper function to initialize and configure a feature by its name."""

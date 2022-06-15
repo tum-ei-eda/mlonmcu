@@ -954,9 +954,9 @@ def install_arm_gcc(context: MlonMcuContext, params=None, rebuild=False, verbose
         return False
     else:
         if not utils.is_populated(armInstallDir):
-            armUrl = "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/"
-            armFileName = "gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux"
-            armArchive = armFileName + ".tar.bz2"
+            armUrl = "https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/"
+            armFileName = "gcc-arm-11.2-2022.02-x86_64-arm-none-eabi"
+            armArchive = armFileName + ".tar.xz"
             utils.download_and_extract(armUrl, armArchive, armInstallDir)
     context.cache["arm_gcc.install_dir"] = armInstallDir
 

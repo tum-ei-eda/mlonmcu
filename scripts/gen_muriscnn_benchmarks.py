@@ -185,11 +185,16 @@ MODELS = [
     "toycar",
 ]
 
-POSTPROCESSES = [
+POSTPROCESSES_0 = [
     "features2cols",
     "config2cols",
-    # "filter_cols",
 ]
+
+POSTPROCESSES_1 = [
+    "rename_cols",
+    "filter_cols",
+]
+
 POSTPROCESS_CONFIG = {
     "filter_cols.keep": [
         "Model",
@@ -212,12 +217,10 @@ POSTPROCESS_CONFIG = {
         "Kernels",
         "Extensions",
         "VLEN",
+        "Layout",
     ],
-    "rename_cols.mapping": {
-        "config_spike.vlen": "VLEN",
-    },
+    "rename_cols.mapping": {"config_spike.vlen": "VLEN", "config_tvmaot.desired_layout": "Layout"},
     "filter_cols.drop_nan": True,
-    "filter_cols.drop_const": False,
 }
 
 
@@ -272,11 +275,8 @@ def benchmark(args):
     with mlonmcu.context.MlonMcuContext() as context:
         session = context.create_session()
         for model in args.models:
-            # print("model", model)
             for backend in args.backend:
-                # print("backend", backend)
                 for target in args.target:
-                    # print("target", target)
                     enable_default = not args.skip_default
                     enable_muriscvnn = "muriscvnn" in args.feature
                     enable_cmsisnn = "cmsisnn" in args.feature
@@ -286,7 +286,6 @@ def benchmark(args):
                         enable_muriscvnn=enable_muriscvnn,
                         enable_cmsisnn=enable_cmsisnn,
                     ):
-                        # print("target_features", target_features)
                         enable_autotuned = False
                         if args.autotuned:
                             if (
@@ -298,20 +297,15 @@ def benchmark(args):
                         for backend_features in get_backend_features(
                             backend, target, enable_autotuned=enable_autotuned
                         ):
-                            # print("backend_features", backend_features)
                             features = list(set(target_features + backend_features))
-                            # print("features", features)
                             for backend_config in get_backend_config(
                                 backend, features, enable_autotuned=enable_autotuned
                             ):
-                                # print("backend_config", backend_config)
                                 vlens = [0]
                                 if "vext" in features:
                                     vlens = args.vlen
-                                # print("vlens", vlens)
                                 features = gen_features(backend, features, validate=args.validate)
                                 for vlen in vlens:
-                                    # print("vlen", vlen)
                                     config = gen_config(
                                         backend, backend_config, features, vlen, enable_postprocesses=args.post
                                     )
@@ -324,19 +318,15 @@ def benchmark(args):
                                     run.add_backend_by_name(backend, context=context)
                                     run.add_target_by_name(target, context=context)
                                     if args.post:
-                                        run.add_postprocesses_by_name(POSTPROCESSES)
+                                        run.add_postprocesses_by_name(POSTPROCESSES_0)
                                         run.add_postprocess(CustomPostprocess(), append=True)
-                                        run.add_postprocess_by_name("rename_cols", append=True, context=context)
-                                        run.add_postprocess_by_name("filter_cols", append=True, context=context)
-                                    # print("COMMIT")
-        # print("sesion.runs", session.runs, len(session.runs))
+                                        run.add_postprocesses_by_name(POSTPROCESSES_1, append=True)
         if args.noop:
             stage = RunStage.LOAD
         else:
             stage = RunStage.RUN
         session.process_runs(until=stage, num_workers=args.parallel, progress=args.progress, context=context)
         report = session.get_reports()
-        print(report.df)
         report_file = args.output
         report.export(report_file)
 

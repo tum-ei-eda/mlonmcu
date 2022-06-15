@@ -542,7 +542,7 @@ class Run:
                 tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
                 if not tuning_artifact.exported:
                     tuning_artifact.export(self.dir)
-                self.backend.set_tuning_records(tuning_artifact.path)
+                self.backend.tuning_records = tuning_artifact.path
 
         # TODO: allow raw data as well as filepath in backends
         self.backend.generate_code()

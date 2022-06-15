@@ -67,14 +67,11 @@ def get_target_tvmc_args(target="c", extra_target=None, target_details={}, extra
 
 
 def get_tuning_records_tvmc_args(use_tuning_results, tuning_records_file):
-    return (
-        [
-            "--tuning-records",
-            str(tuning_records_file),
-        ]
-        if use_tuning_results and tuning_records_file is not None
-        else []
-    )
+    if use_tuning_results:
+        assert tuning_records_file is not None, "No tuning records are available"
+        return ["--tuning-records", str(tuning_records_file)]
+    else:
+        return []
 
 
 def get_rpc_tvmc_args(enabled, key, hostname, port):

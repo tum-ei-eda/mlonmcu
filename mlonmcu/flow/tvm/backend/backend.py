@@ -90,9 +90,19 @@ class TVMBackend(Backend):
             "print_outputs": self.config["print_outputs"],
         }
         self.tuner = TVMTuner(self, config=tuner_config)
-        self.tuning_records_file = None
+        self._tuning_records = None
 
-    def set_tuning_records(self, filepath):
+    @property
+    def tuning_records(self):
+        if self._tuning_records:
+            return self.tuning_records
+        elif "autotuning_results_file" in self.config:
+            return self.config["autotuning_results_file"]
+        else:
+            return None
+
+    @tuning_records.setter
+    def tuning_records(self, filepath):
         self.tuning_records_file = filepath
 
     @property
@@ -203,7 +213,7 @@ class TVMBackend(Backend):
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
-            *get_tuning_records_tvmc_args(self.use_tuning_results, self.tuning_records_file),
+            *get_tuning_records_tvmc_args(self.use_tuning_results, self.tuning_records),
             *(["--desired-layout", self.desired_layout] if self.desired_layout is not None else []),
             *(["--dump-code", ",".join(dump)] if dump is not None else []),
             *self.tvmc_extra_args,

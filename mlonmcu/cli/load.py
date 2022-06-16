@@ -29,6 +29,7 @@ from mlonmcu.cli.common import (
 
 from .helper.parse import extract_config_and_feature_names, extract_frontend_names, extract_postprocess_names
 from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.models.lookup import apply_modelgroups
 from mlonmcu.session.run import RunStage
 
 
@@ -65,7 +66,8 @@ def _handle(args, context):
     postprocesses = extract_postprocess_names(args, context=context)
     postprocesses = list(set(args.postprocess)) if args.postprocess is not None else []
     session = context.get_session(label=args.label, resume=args.resume, config=config)
-    for model in args.models:
+    models = apply_modelgroups(args.models, context=context)
+    for model in models:
         run = session.create_run(config=config)
         run.add_features_by_name(features, context=context)  # TODO do this before load.py?
         run.add_frontends_by_name(frontends, context=context)

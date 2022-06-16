@@ -7,6 +7,7 @@ import logging
 import mlonmcu.context
 from mlonmcu.session.run import RunStage
 from mlonmcu.session.postprocess.postprocess import SessionPostprocess
+from mlonmcu.models.lookup import apply_modelgroups
 from mlonmcu.logging import get_logger, set_log_level
 
 logger = get_logger()
@@ -301,7 +302,8 @@ def benchmark(args):
     with mlonmcu.context.MlonMcuContext() as context:
         user_config = context.environment.vars  # TODO: get rid of this workaround
         session = context.create_session()
-        for model in args.models:
+        models = apply_modelgroups(args.models, context=context)
+        for model in models:
             for backend in args.backend:
                 for target in args.target:
                     enable_default = not args.skip_default

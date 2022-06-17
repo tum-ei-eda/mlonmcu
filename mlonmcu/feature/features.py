@@ -1141,5 +1141,4 @@ class TargetOptimized(RunFeature):
         super().__init__("target_optimized", features=features, config=config)
 
     def get_run_config(self):
-        print("get_run_config")
         return {"run.target_to_backend": self.enabled}

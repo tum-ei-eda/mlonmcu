@@ -1127,3 +1127,19 @@ class ArmDsp(SetupFeature, TargetFeature, PlatformFeature):
 
     def get_platform_defs(self, platform):
         return {"ARM_DSP": self.enabled}
+
+
+@register_feature("target_optimized")
+class TargetOptimized(RunFeature):
+    """Overwrite backend options according to chosen target."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("target_optimized", features=features, config=config)
+
+    def get_run_config(self):
+        print("get_run_config")
+        return {"run.target_to_backend": self.enabled}

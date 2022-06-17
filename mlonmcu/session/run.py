@@ -58,11 +58,12 @@ class RunStage(IntEnum):
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
-    FEATURES = ["autotune"]
+    FEATURES = ["autotune", "target_optimized"]
 
     DEFAULTS = {
         "export_optional": False,
         "tune_enabled": False,
+        "target_to_backend": False,
     }
 
     REQUIRED = []
@@ -134,9 +135,14 @@ class Run:
         return bool(self.run_config["tune_enabled"])
 
     @property
+    def target_to_backend(self):
+        """Get target_to_backend property."""
+        return bool(self.run_config["target_to_backend"])
+
+    @property
     def compile_platform(self):
         """Get platform for compile stage."""
-        if isinstance(self.target.platform, CompilePlatform):
+        if self.target is not None and isinstance(self.target.platform, CompilePlatform):
             return self.target.platform
         for platform in self.platforms:
             if isinstance(platform, CompilePlatform):
@@ -250,7 +256,7 @@ class Run:
     def add_backend(self, backend):
         """Setter for the backend instance."""
         self.backend = backend
-        assert self.platforms is not None, "Add at least a platform before adding a backend."
+        # assert len(self.platforms) > 0, "Add at least a platform before adding a backend."
         if self.model is not None:
             assert self.backend.supports_model(self.model), (
                 "The added backend does not support the chosen model."
@@ -262,7 +268,7 @@ class Run:
     def add_framework(self, framework):
         """Setter for the framework instance."""
         self.framework = framework
-        assert self.platforms is not None, "Add at least a platform before adding a framework."
+        # assert len(self.platforms) > 0, "Add at least a platform before adding a framework."
         for platform in self.platforms:
             self.framework.add_platform_defs(platform.name, platform.definitions)
 
@@ -309,10 +315,14 @@ class Run:
     def add_feature(self, feature):
         """Setter for a feature instance."""
         self.features = [feature]
+        self.run_features = self.process_features(features)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
         self.features = features if not append else self.features + features
+        self.run_features = self.process_features(features)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
 
     def pick_model_frontend(self, model_hints, backend=None):
         assert len(model_hints) > 0
@@ -530,6 +540,13 @@ class Run:
         logger.debug("%s Processing stage BUILD", self.prefix)
         self.lock()
         assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
+
+        if self.target_to_backend:
+            assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
+            cfg = self.target.get_backend_config(self.backend.name)  # Do not expect a backend prefix here
+            if len(cfg) > 0:
+                logger.debug("Updating backend config based on given target.")
+                self.backend.config.update(cfg)
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
         model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]

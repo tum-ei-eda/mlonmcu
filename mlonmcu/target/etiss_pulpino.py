@@ -25,6 +25,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .common import cli, execute
 from .riscv import RISCVTarget
 from .metrics import Metrics
@@ -329,6 +330,11 @@ class EtissPulpinoTarget(RISCVTarget):
         ret["PULPINO_RAM_SIZE"] = self.ram_size
         return ret
 
+    def get_backend_config(self, backend):
+        ret = super().get_backend_config(backend)
+        if backend in SUPPORTED_TVM_BACKENDS:
+            ret.update({"target_model": "etissvp"})
+        return ret
 
 if __name__ == "__main__":
     cli(target=EtissPulpinoTarget)

@@ -168,3 +168,6 @@ class Target:
 
     def add_platform_defs(self, platform, defs):
         defs.update(self.get_platform_defs(platform))
+
+    def get_backend_config(self, backend):
+        return {}

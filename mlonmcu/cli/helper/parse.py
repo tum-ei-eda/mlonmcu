@@ -93,3 +93,44 @@ def extract_frontend_names(args, context=None):
 
 def extract_postprocess_names(args, context=None):
     return list(set(args.postprocess)) if args.postprocess is not None else []
+
+
+def extract_backend_names(args, context=None):
+    if isinstance(args.backend, list) and len(args.backend) > 0:
+        backends = args.backend
+    elif isinstance(args.backend, str):
+        backends = [args.backend]
+    else:
+        assert args.backend is None, "TODO"
+        assert context is not None
+        frameworks = context.environment.get_default_frameworks()
+        backends = []
+        for framework in frameworks:
+            framework_backends = context.environment.get_default_backends(framework)
+            backends.extend(framework_backends)
+    return backends
+
+
+def extract_target_names(args, context=None):
+    if isinstance(args.target, list) and len(args.target) > 0:
+        targets = args.target
+    elif isinstance(args.target, str):
+        targets = [args.target]
+    else:
+        assert args.target is None, "TODO"
+        # assert context is not None
+        if context is None:
+            return [None]
+        targets = context.environment.get_default_targets()
+    return targets
+
+
+def extract_platform_names(args, context=None):
+    if args.platform:
+        platforms = [x[0] for x in args.platform]
+    else:
+        assert args.platform is None
+        if context is None:
+            return [None]
+        platforms = context.environment.lookup_platform_configs(names_only=True)
+    return platforms

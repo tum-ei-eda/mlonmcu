@@ -21,6 +21,7 @@
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .target import Target
 
 logger = get_logger()
@@ -121,3 +122,14 @@ class RISCVTarget(Target):
 
     def get_arch(self):
         return "riscv"
+
+    def get_backend_config(self, backend):
+        if backend in SUPPORTED_TVM_BACKENDS:
+            return {
+                "target_device": "riscv_cpu",
+                "target_march": self.arch,
+                "target_model": "unknown",
+                "target_mtriple": self.riscv_basename,
+                # "target_mcpu": "?",
+                # "target_mabi": self.abi,
+            }

@@ -67,6 +67,18 @@ class SpikeTarget(RISCVTarget):
         return bool(self.config["enable_pext"])
 
     @property
+    def arch(self):
+        ret = str(self.config["arch"])
+        if self.enable_pext:
+            if "p" not in ret[2:]:
+                ret += "p"
+        if self.enable_vext:
+            if "v" not in ret[2:]:
+                ret += "v"
+
+        return ret
+
+    @property
     def vlen(self):
         return int(self.config["vlen"])
 
@@ -82,13 +94,6 @@ class SpikeTarget(RISCVTarget):
         """Use target to execute a executable with given arguments"""
         spike_args = []
         spikepk_args = []
-
-        if self.enable_pext:
-            if "p" not in self.arch[2:]:
-                self.config["arch"] += "p"
-        if self.enable_vext:
-            if "v" not in self.arch[2:]:
-                self.config["arch"] += "v"
 
         spike_args.append(f"--isa={self.arch}")
 

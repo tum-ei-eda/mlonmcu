@@ -60,7 +60,15 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        return str(self.config["extensions"])
+        ret = str(self.config["extensions"])
+
+        if self.enable_pext:
+            if "P" not in ret:
+                ret += "BP"
+        if self.enable_vext:
+            if "V" not in ret:
+                ret += "V"
+        return ret
 
     @property
     def vlen(self):
@@ -78,17 +86,18 @@ class OVPSimTarget(RISCVTarget):
     def enable_pext(self):
         return bool(self.config["enable_pext"])
 
-    def get_default_ovpsim_args(self):
+    @property
+    def arch(self):
+        ret = str(self.config["arch"])
         if self.enable_pext:
-            if "P" not in self.extensions:
-                self.config["extensions"] += "BP"
-            # if "P" not in self.variant:
-            #     self.config["variant"] += "P"
+            if "p" not in ret[2:]:
+                ret += "p"
         if self.enable_vext:
-            if "V" not in self.extensions:
-                self.config["extensions"] += "V"
-            # if "V" not in self.variant:
-            #     self.config["variant"] += "V"
+            if "v" not in ret[2:]:
+                ret += "v"
+        return ret
+
+    def get_default_ovpsim_args(self):
         args = [
             "--variant",
             self.variant,

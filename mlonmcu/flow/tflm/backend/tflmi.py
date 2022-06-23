@@ -51,7 +51,13 @@ class TFLMICodegen:
             "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver(error_reporter);\n"
         )
         for op in ops:
-            out += "  if (resolver.Add" + op + "() != kTfLiteOk) {\n    error_reporter->Report(\"Add" + op + "() failed\");\n    exit(1);\n  }\n"
+            out += (
+                "  if (resolver.Add"
+                + op
+                + '() != kTfLiteOk) {\n    error_reporter->Report("Add'
+                + op
+                + '() failed");\n    exit(1);\n  }\n'
+            )
         for op in custom_ops:
             op_name = op
             op_reg = op
@@ -62,7 +68,9 @@ class TFLMICodegen:
                 + op_name
                 + '", tflite::'
                 + op_reg
-                + "()) != kTfLiteOk) {\n    error_reporter->Report(\"AddCustom" + op_name + "() failed\");\n    exit(1);\n  }\n"
+                + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'
+                + op_name
+                + '() failed");\n    exit(1);\n  }\n'
             )
         return out
 

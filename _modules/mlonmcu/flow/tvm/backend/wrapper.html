@@ -149,11 +149,11 @@
 
 <div class="viewcode-block" id="write_tvmrt_wrapper"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.write_tvmrt_wrapper">[docs]</a><span class="k">def</span> <span class="nf">write_tvmrt_wrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">write_tvmrt_wrapper</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">generate_tvmrt_wrapper</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="generate_tvmrt_wrapper"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_tvmrt_wrapper">[docs]</a><span class="k">def</span> <span class="nf">generate_tvmrt_wrapper</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">):</span>
+<div class="viewcode-block" id="generate_tvmrt_wrapper"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_tvmrt_wrapper">[docs]</a><span class="k">def</span> <span class="nf">generate_tvmrt_wrapper</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="c1"># Determine the number of required pages</span>
     <span class="k">assert</span> <span class="n">workspace_size</span> <span class="o">&gt;=</span> <span class="mi">0</span>
     <span class="n">crtPageSizeLog2</span> <span class="o">=</span> <span class="mi">10</span>
@@ -178,11 +178,11 @@
 
         <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;DLDataType dtypes[] = {&quot;</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">ty</span> <span class="o">==</span> <span class="s2">&quot;float32&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;float32&quot;</span><span class="p">:</span>
                 <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;{kDLFloat, 32, 1}&quot;</span>
-            <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">ty</span> <span class="o">==</span> <span class="s2">&quot;uint8&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;uint8&quot;</span><span class="p">:</span>
                 <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;{kDLUInt, 8, 1}&quot;</span>
-            <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">ty</span> <span class="o">==</span> <span class="s2">&quot;int8&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;int8&quot;</span><span class="p">:</span>
                 <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;{kDLInt, 8, 1}&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="s2">&quot;Invalid type&quot;</span>
@@ -230,7 +230,7 @@
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="n">out</span> <span class="o">+=</span> <span class="n">includes</span>
     <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;const char * const g_graph = &quot;&#39;</span> <span class="o">+</span> <span class="n">escapeJson</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;;</span><span class="se">\n</span><span class="s1">&#39;</span>
-    <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;const unsigned char g_params[] = { &quot;</span> <span class="o">+</span> <span class="n">toCArray</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">};</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;const char g_params[] = { &quot;</span> <span class="o">+</span> <span class="n">toCArray</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">};</span><span class="se">\n</span><span class="s2">&quot;</span>
     <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;const uint64_t g_params_size = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="n">mainCode</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -238,7 +238,16 @@
 
 <span class="s2">#define CRT_MEMORY_NUM_PAGES $</span><span class="si">{numPages}</span><span class="s2"></span>
 <span class="s2">#define CRT_MEMORY_PAGE_SIZE_LOG2 $</span><span class="si">{pageSizeLog2}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
 
+    <span class="k">if</span> <span class="n">debug_arena</span><span class="p">:</span>  <span class="c1"># This will enable the feature only if it is not overwritten by the user/compiler</span>
+        <span class="n">mainCode</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#ifndef DEBUG_ARENA_USAGE</span>
+<span class="s2">#define DEBUG_ARENA_USAGE 1</span>
+<span class="s2">#endif</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="n">mainCode</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#ifdef DEBUG_ARENA_USAGE</span>
 <span class="s2">size_t max_arena_usage = 0;</span>
 <span class="s2">#endif</span>
@@ -414,7 +423,7 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="generate_tvmaot_wrapper"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_tvmaot_wrapper">[docs]</a><span class="k">def</span> <span class="nf">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="generate_tvmaot_wrapper"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_tvmaot_wrapper">[docs]</a><span class="k">def</span> <span class="nf">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">modPrefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tvmgen_</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">writeTensors</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
@@ -504,7 +513,20 @@
 <span class="s2">#define WORKSPACE_SIZE ($</span><span class="si">{workspaceBytes}</span><span class="s2">)</span>
 <span class="s2">static uint8_t g_aot_memory[WORKSPACE_SIZE];</span>
 <span class="s2">tvm_workspace_t app_workspace;</span>
+<span class="s2">&quot;&quot;&quot;</span>
 
+        <span class="k">if</span> <span class="n">debug_arena</span><span class="p">:</span>  <span class="c1"># This will enable the feature only if it is not overwritten by the user/compiler</span>
+            <span class="n">workspace_code</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#ifndef DEBUG_ARENA_USAGE</span>
+<span class="s2">#define DEBUG_ARENA_USAGE 1</span>
+<span class="s2">#endif</span>
+
+<span class="s2">#ifndef TVMAOT_DEBUG_ALLOCATIONS</span>
+<span class="s2">#define TVMAOT_DEBUG_ALLOCATIONS 1</span>
+<span class="s2">#endif</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="n">workspace_code</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#ifdef DEBUG_ARENA_USAGE</span>
 <span class="s2">size_t max_arena_usage = 0;</span>
 <span class="s2">#endif</span>

@@ -113,12 +113,13 @@
 <div class="viewcode-block" id="OVPSimTarget"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ovpsim.OVPSimTarget">[docs]</a><span class="k">class</span> <span class="nc">OVPSimTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="s2">&quot;gdbserver&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="s2">&quot;gdbserver&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
         <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;enable_pext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_fpu&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;variant&quot;</span><span class="p">:</span> <span class="s2">&quot;RVB32I&quot;</span><span class="p">,</span>
         <span class="c1"># &quot;extensions&quot;: &quot;MAFDCV&quot;,</span>
@@ -139,7 +140,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extensions&quot;</span><span class="p">])</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extensions&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;P&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;BP&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;V&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;V&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -153,12 +162,22 @@
     <span class="k">def</span> <span class="nf">enable_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_vext&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="OVPSimTarget.get_default_ovpsim_args"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ovpsim.OVPSimTarget.get_default_ovpsim_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_ovpsim_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enable_pext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_pext&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arch&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;p&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;p&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;V&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extensions&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;V&quot;</span>
-            <span class="k">if</span> <span class="s2">&quot;V&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;variant&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;V&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;v&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;v&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+<div class="viewcode-block" id="OVPSimTarget.get_default_ovpsim_args"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ovpsim.OVPSimTarget.get_default_ovpsim_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_ovpsim_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;--variant&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="p">,</span>
@@ -167,7 +186,17 @@
             <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
             <span class="s2">&quot;riscvOVPsim/cpu/unaligned=T&quot;</span><span class="p">,</span>
         <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;riscvOVPsim/cpu/dsp_version=0.9.6&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;riscvOVPsim/cpu/bitmanip_version=1.0.0&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span><span class="p">,</span> <span class="s2">&quot;Spike V-Extension requires enabled FPU&quot;</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
@@ -227,7 +256,8 @@
                 <span class="n">mips</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mips_str</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">mips</span></div>
 
-<div class="viewcode-block" id="OVPSimTarget.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ovpsim.OVPSimTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OVPSimTarget.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ovpsim.OVPSimTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">num</span> <span class="ow">is</span> <span class="kc">None</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
@@ -241,7 +271,7 @@
         <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total Cycles&quot;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">)</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;MIPS&quot;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span></div></div>
+        <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

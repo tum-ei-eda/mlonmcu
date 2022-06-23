@@ -132,7 +132,13 @@
             <span class="s2">&quot;static tflite::MicroMutableOpResolver&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_ops</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;&gt; resolver(error_reporter);</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;  if (resolver.Add&quot;</span> <span class="o">+</span> <span class="n">op</span> <span class="o">+</span> <span class="s2">&quot;() != kTfLiteOk) {</span><span class="se">\n</span><span class="s2">    return;</span><span class="se">\n</span><span class="s2">  }</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="s2">&quot;  if (resolver.Add&quot;</span>
+                <span class="o">+</span> <span class="n">op</span>
+                <span class="o">+</span> <span class="s1">&#39;() != kTfLiteOk) {</span><span class="se">\n</span><span class="s1">    error_reporter-&gt;Report(&quot;Add&#39;</span>
+                <span class="o">+</span> <span class="n">op</span>
+                <span class="o">+</span> <span class="s1">&#39;() failed&quot;);</span><span class="se">\n</span><span class="s1">    exit(1);</span><span class="se">\n</span><span class="s1">  }</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">custom_ops</span><span class="p">:</span>
             <span class="n">op_name</span> <span class="o">=</span> <span class="n">op</span>
             <span class="n">op_reg</span> <span class="o">=</span> <span class="n">op</span>
@@ -143,7 +149,9 @@
                 <span class="o">+</span> <span class="n">op_name</span>
                 <span class="o">+</span> <span class="s1">&#39;&quot;, tflite::&#39;</span>
                 <span class="o">+</span> <span class="n">op_reg</span>
-                <span class="o">+</span> <span class="s2">&quot;()) != kTfLiteOk) {</span><span class="se">\n</span><span class="s2">    return;</span><span class="se">\n</span><span class="s2">  }</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s1">&#39;()) != kTfLiteOk) {</span><span class="se">\n</span><span class="s1">    error_reporter-&gt;Report(&quot;AddCustom&#39;</span>
+                <span class="o">+</span> <span class="n">op_name</span>
+                <span class="o">+</span> <span class="s1">&#39;() failed&quot;);</span><span class="se">\n</span><span class="s1">    exit(1);</span><span class="se">\n</span><span class="s1">  }</span><span class="se">\n</span><span class="s1">&#39;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
@@ -185,6 +193,12 @@
 
         <span class="n">arena_size</span> <span class="o">=</span> <span class="n">arena_size</span> <span class="k">if</span> <span class="n">arena_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="k">if</span> <span class="n">ops</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+                <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">ops</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">convert_op_name</span><span class="p">(</span><span class="n">op</span><span class="p">):</span>
@@ -305,7 +319,7 @@
 <span class="s2">    error_reporter-&gt;Report(&quot;Model provided is schema version </span><span class="si">%d</span><span class="s2"> not equal &quot;</span>
 <span class="s2">                           &quot;to supported version </span><span class="si">%d</span><span class="s2">.&quot;,</span>
 <span class="s2">                           model-&gt;version(), TFLITE_SCHEMA_VERSION);</span>
-<span class="s2">    return;</span>
+<span class="s2">    exit(1);</span>
 <span class="s2">  }</span>
 
 <span class="s2">  // This pulls in all the operation implementations we need.</span>
@@ -326,7 +340,7 @@
 <span class="s2">  TfLiteStatus allocate_status = interpreter-&gt;AllocateTensors();</span>
 <span class="s2">  if (allocate_status != kTfLiteOk) {</span>
 <span class="s2">    error_reporter-&gt;Report(&quot;AllocateTensors() failed&quot;);</span>
-<span class="s2">    return;</span>
+<span class="s2">    exit(1);</span>
 <span class="s2">  }</span>
 <span class="s2">}</span>
 <span class="s2">&quot;&quot;&quot;</span>
@@ -361,7 +375,7 @@
 <span class="s2">  TfLiteStatus invoke_status = interpreter-&gt;Invoke();</span>
 <span class="s2">  if (invoke_status != kTfLiteOk) </span><span class="se">{{</span><span class="s2"></span>
 <span class="s2">    error_reporter-&gt;Report(&quot;Invoke failed</span><span class="se">\\</span><span class="s2">n&quot;);</span>
-<span class="s2">    return;</span>
+<span class="s2">    exit(1);</span>
 <span class="s2">  </span><span class="se">}}</span><span class="s2"></span>
 <span class="s2">#if DEBUG_ARENA_USAGE</span>
 <span class="s2">  size_t used = interpreter-&gt;arena_used_bytes();</span>
@@ -414,7 +428,7 @@
     <span class="k">def</span> <span class="nf">arena_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="TFLMIBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflm.backend.html#mlonmcu.flow.tflm.TFLMIBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="TFLMIBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflm.backend.html#mlonmcu.flow.tflm.TFLMIBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">config_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>

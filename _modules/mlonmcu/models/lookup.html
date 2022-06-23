@@ -341,22 +341,10 @@
     <span class="n">print_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="n">group_duplicates</span><span class="p">,</span> <span class="n">all_models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="n">detailed</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="unpack_modelgroups"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.unpack_modelgroups">[docs]</a><span class="k">def</span> <span class="nf">unpack_modelgroups</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">group_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">group_names</span><span class="p">:</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">group_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">groups</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">models</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span>  <span class="c1"># Drop duplicates</span></div>
-
-
 <div class="viewcode-block" id="lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.lookup_models">[docs]</a><span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">frontends</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">frontends</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="c1"># TODO: Get defaults backends from environment (with no config/features)</span>
+        <span class="c1"># TODO: Get defaults frontends from environment (with no config/features)</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="c1"># frontends = ?</span>
     <span class="c1"># allowed_ext = [frontend.fmt.extension for frontend in frontends]</span>
@@ -365,8 +353,7 @@
 
     <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">directories</span> <span class="o">=</span> <span class="n">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">models</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">allowed_fmts</span><span class="p">)</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="n">unpack_modelgroups</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+        <span class="n">models</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">allowed_fmts</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">model_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
@@ -393,6 +380,19 @@
             <span class="n">hints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">hints</span></div>
+
+
+<div class="viewcode-block" id="apply_modelgroups"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.apply_modelgroups">[docs]</a><span class="k">def</span> <span class="nf">apply_modelgroups</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">directories</span> <span class="o">=</span> <span class="n">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">directories</span><span class="p">:</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">list_modelgroups</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                <span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">models</span><span class="p">[:</span><span class="n">i</span><span class="p">],</span> <span class="o">*</span><span class="n">group</span><span class="o">.</span><span class="n">models</span><span class="p">,</span> <span class="o">*</span><span class="n">models</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]]</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">models</span><span class="p">))</span>  <span class="c1"># Drop duplicates</span></div>
 
 
 <div class="viewcode-block" id="map_frontend_to_model"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.map_frontend_to_model">[docs]</a><span class="k">def</span> <span class="nf">map_frontend_to_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">frontends</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

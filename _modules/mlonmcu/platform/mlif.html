@@ -107,19 +107,34 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
-<span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span>
+<span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span>
 <span class="kn">from</span> <span class="nn">.mlif_target</span> <span class="kn">import</span> <span class="n">get_mlif_targets</span><span class="p">,</span> <span class="n">create_mlif_target</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="MlifPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform">[docs]</a><span class="k">class</span> <span class="nc">MlifPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">):</span>
+<div class="viewcode-block" id="MlifPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform">[docs]</a><span class="k">class</span> <span class="nc">MlifPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Model Library Interface Platform class.&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;validate&quot;</span><span class="p">,</span> <span class="s2">&quot;debug_arena&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span>
+        <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="s2">&quot;validate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;muriscvnn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cmsisnn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;muriscvnnbyoc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vext&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pext&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;arm_mvei&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;arm_dsp&quot;</span><span class="p">,</span>
+        <span class="p">]</span>  <span class="c1"># TODO: allow Feature-Features with automatic resolution of initialization order</span>
+    <span class="p">)</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">CompilePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">TargetPlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;ignore_data&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;fail_on_error&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Prefer to add acolum with validation results instead of raising a RuntimeError</span>
         <span class="s2">&quot;model_support_dir&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -267,7 +282,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="MlifPlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MlifPlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="n">data_file</span><span class="p">)</span>
         <span class="n">elf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;generic_mlif&quot;</span>

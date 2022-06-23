@@ -107,6 +107,8 @@
 
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">.tvmc_utils</span> <span class="kn">import</span> <span class="n">get_rpc_tvmc_args</span><span class="p">,</span> <span class="n">get_target_tvmc_args</span>
+<span class="kn">from</span> <span class="nn">.python_utils</span> <span class="kn">import</span> <span class="n">prepare_python_environment</span>
 
 
 <div class="viewcode-block" id="spawn_server"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.spawn_server">[docs]</a><span class="k">def</span> <span class="nf">spawn_server</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
@@ -140,6 +142,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">servers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># TODO: Support non-local runners in the future -&gt; deploy simulator on cluster</span>
 
     <span class="nd">@property</span>
@@ -191,41 +194,31 @@
     <span class="k">def</span> <span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_outputs&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="TVMTuner.get_rpc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.get_rpc_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_rpc_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="p">[</span>
-                <span class="s2">&quot;--rpc-key&quot;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
-                <span class="s2">&quot;--rpc-tracker&quot;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">hostname</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">),</span>
-            <span class="p">]</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span>
-            <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span></div>
+    <span class="c1"># def get_tvmc_tune_args(self, out, target=&quot;c&quot;):</span>
+<div class="viewcode-block" id="TVMTuner.get_tvmc_tune_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.get_tvmc_tune_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_tune_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;llvm&quot;</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">get_target_tvmc_args</span><span class="p">(</span>
+                <span class="n">target</span><span class="p">,</span> <span class="n">extra_target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">extra_target</span><span class="p">,</span> <span class="n">target_details</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_target_details</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="o">*</span><span class="n">get_rpc_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">),</span>
+            <span class="c1"># TODO: missing: pass config, disabled_pass, etc.</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--tuner&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--early-stopping&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">early_stopping</span><span class="p">)]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">early_stopping</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--parallel&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_parallel</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--timeout&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_parallel</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--trials&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trials</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--tuning-records&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)],</span>
+        <span class="p">]</span>
 
-<div class="viewcode-block" id="TVMTuner.get_tvmc_tune_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.get_tvmc_tune_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_tune_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_common_tvmc_args</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="s2">&quot;--tuner&quot;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span><span class="p">,</span>
-                <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--early-stopping&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">early_stopping</span><span class="p">)]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">early_stopping</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]),</span>
-                <span class="s2">&quot;--parallel&quot;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_parallel</span><span class="p">),</span>
-                <span class="s2">&quot;--timeout&quot;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_parallel</span><span class="p">),</span>
-                <span class="s2">&quot;--trials&quot;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trials</span><span class="p">),</span>
-                <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--tuning-records&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
-                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_rpc_args</span><span class="p">(),</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
         <span class="k">return</span> <span class="n">args</span></div>
 
-<div class="viewcode-block" id="TVMTuner.invoke_tvmc_tune"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.invoke_tvmc_tune">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc_tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_tune_args</span><span class="p">()</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)])</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;tune&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+    <span class="c1"># def invoke_tvmc_tune(self, out, verbose=False):</span>
+<div class="viewcode-block" id="TVMTuner.invoke_tvmc_tune"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.invoke_tvmc_tune">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc_tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_tune_args</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="c1"># return self.backend.invoke_tvmc(&quot;tune&quot;, *args, verbose=verbose)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;tune&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TVMTuner.pick_best"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.TVMTuner.pick_best">[docs]</a>    <span class="k">def</span> <span class="nf">pick_best</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">content_best</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -242,7 +235,9 @@
                 <span class="s2">&quot;--o&quot;</span><span class="p">,</span>
                 <span class="n">out_file</span><span class="p">,</span>
             <span class="p">]</span>
-            <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">prepare_python_environment</span><span class="p">()</span>
+            <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_configs_dir</span>
+            <span class="p">)</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.autotvm.record&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">content_best</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -259,7 +254,9 @@
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">port_end</span><span class="p">),</span>
             <span class="c1"># --silent not required as muted anyway...</span>
         <span class="p">]</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">prepare_python_environment</span><span class="p">()</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_configs_dir</span>
+        <span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">spawn_tracker</span><span class="p">():</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.exec.rpc_tracker&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
@@ -291,7 +288,9 @@
             <span class="s2">&quot;--no-fork&quot;</span><span class="p">,</span>  <span class="c1"># required?</span>
             <span class="c1"># --silent not required as muted anyway...</span>
         <span class="p">]</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">prepare_python_environment</span><span class="p">()</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">tvm_configs_dir</span>
+        <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_parallel</span><span class="p">):</span>
             <span class="n">server</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">spawn_server</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span>
@@ -340,7 +339,8 @@
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
                     <span class="c1"># TODO: newline or not?</span>
-                <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_tune</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+                <span class="c1"># out = self.invoke_tvmc_tune(out_file, verbose=verbose)</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_tune</span><span class="p">(</span><span class="n">out_file</span><span class="p">)</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">content</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">:</span>

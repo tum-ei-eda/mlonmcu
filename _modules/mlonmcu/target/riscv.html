@@ -101,9 +101,48 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
 <span class="kn">from</span> <span class="nn">.target</span> <span class="kn">import</span> <span class="n">Target</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="sort_extensions_canonical"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.riscv.sort_extensions_canonical">[docs]</a><span class="k">def</span> <span class="nf">sort_extensions_canonical</span><span class="p">(</span><span class="n">extensions</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Utility to get the canonical architecture name string.&quot;&quot;&quot;</span>
+
+    <span class="c1"># See: https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf#table.22.1</span>
+    <span class="n">ORDER</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;I&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;M&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;F&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;D&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Q&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;L&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;B&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;J&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;P&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;V&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;S&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SX&quot;</span><span class="p">,</span>
+    <span class="p">]</span>  <span class="c1"># What about Z* extensions?</span>
+    <span class="n">extensions_new</span> <span class="o">=</span> <span class="n">extensions</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_index</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ORDER</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ORDER</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ORDER</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">i</span>
+            <span class="k">return</span> <span class="n">ORDER</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span>  <span class="c1"># Insert unknown keys right before custom extensions</span>
+
+    <span class="n">extensions_new</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_get_index</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">extensions_new</span></div>
 
 
 <div class="viewcode-block" id="RISCVTarget"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.riscv.RISCVTarget">[docs]</a><span class="k">class</span> <span class="nc">RISCVTarget</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
@@ -138,7 +177,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_args&quot;</span><span class="p">])</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_args&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="n">ret</span><span class="p">]</span>  <span class="c1"># TODO: properly split quoted args</span>
+        <span class="k">return</span> <span class="n">ret</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">timeout_sec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -156,7 +201,20 @@
         <span class="k">return</span> <span class="n">ret</span></div>
 
 <div class="viewcode-block" id="RISCVTarget.get_arch"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.riscv.RISCVTarget.get_arch">[docs]</a>    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;riscv&quot;</span></div></div>
+        <span class="k">return</span> <span class="s2">&quot;riscv&quot;</span></div>
+
+<div class="viewcode-block" id="RISCVTarget.get_backend_config"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.riscv.RISCVTarget.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;target_device&quot;</span><span class="p">:</span> <span class="s2">&quot;riscv_cpu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;target_march&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
+                <span class="s2">&quot;target_model&quot;</span><span class="p">:</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;target_mtriple&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_basename</span><span class="p">,</span>
+                <span class="c1"># &quot;target_mattr&quot;: &quot;?&quot;,</span>
+                <span class="c1"># &quot;target_mcpu&quot;: &quot;?&quot;,</span>
+                <span class="c1"># &quot;target_mabi&quot;: self.abi,</span>
+            <span class="p">}</span>
+        <span class="k">return</span> <span class="p">{}</span></div></div>
 </pre></div>
 
            </div>

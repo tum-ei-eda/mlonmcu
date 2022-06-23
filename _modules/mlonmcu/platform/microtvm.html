@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.microtvm &mdash; ML on MCU 0.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.platform.microtvm</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.platform.microtvm</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;MicroTVM Platform&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.python_utils</span> <span class="kn">import</span> <span class="n">prepare_python_environment</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmc_utils</span> <span class="kn">import</span> <span class="n">get_bench_tvmc_args</span><span class="p">,</span> <span class="n">get_data_tvmc_args</span>
+
+<span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span>
+<span class="kn">from</span> <span class="nn">.microtvm_target</span> <span class="kn">import</span> <span class="n">create_microtvm_target</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="c1"># TODO: Replace this hardcoded dict which dynamic lookup</span>
+<span class="n">ALLOWED_PROJECT_OPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;arduino&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;create&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;arduino_cli_cmd&quot;</span><span class="p">,</span> <span class="s2">&quot;project_type&quot;</span><span class="p">,</span> <span class="s2">&quot;warning_as_error&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;build&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;arduino_board&quot;</span><span class="p">,</span> <span class="s2">&quot;arduino_cli_cmd&quot;</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;flash&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;arduino_board&quot;</span><span class="p">,</span> <span class="s2">&quot;arduino_cli_cmd&quot;</span><span class="p">,</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;arduino_board&quot;</span><span class="p">,</span> <span class="s2">&quot;arduino_cli_cmd&quot;</span><span class="p">,</span> <span class="s2">&quot;port&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;zephyr&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;create&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;extra_files_tar&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;project_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;config_main_stack_size&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;warning_as_error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;compile_definitions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zephyr_base&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zephyr_board&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;build&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;west_cmd&quot;</span><span class="p">,</span> <span class="s2">&quot;zephyr_base&quot;</span><span class="p">,</span> <span class="s2">&quot;zephyr_board&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;flash&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;zephyr_board&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;gdbserver_port&quot;</span><span class="p">,</span> <span class="s2">&quot;nrfjprog_snr&quot;</span><span class="p">,</span> <span class="s2">&quot;openocd_serial&quot;</span><span class="p">,</span> <span class="s2">&quot;zephyr_base&quot;</span><span class="p">,</span> <span class="s2">&quot;zephyr_board&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="c1"># &quot;etissvp&quot;: {</span>
+    <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;create&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;extra_files_tar&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;project_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;config_main_stack_size&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;warning_as_error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;compile_definitions&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;build&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_path&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_path&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;flash&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;etiss_path&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp_script&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp_script_args&quot;</span><span class="p">,</span> <span class="s2">&quot;transport&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;etissvp_script&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp_script_args&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_path&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_project_option_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.get_project_option_args">[docs]</a><span class="k">def</span> <span class="nf">get_project_option_args</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">stage</span><span class="p">,</span> <span class="n">project_options</span><span class="p">):</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># TODO: dynamically fetch allowed options per stage (create, build, run)</span>
+    <span class="k">assert</span> <span class="n">template</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ALLOWED_PROJECT_OPTIONS</span>
+    <span class="k">assert</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">ALLOWED_PROJECT_OPTIONS</span><span class="p">[</span><span class="n">template</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">allowed</span> <span class="o">=</span> <span class="n">ALLOWED_PROJECT_OPTIONS</span><span class="p">[</span><span class="n">template</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">stage</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">project_options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--project-option&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">ret</span>
+
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<span class="c1"># TODO: This file is very similar to the TVM platform -&gt; Reuse as much as possible</span>
+
+
+<div class="viewcode-block" id="MicroTvmPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform">[docs]</a><span class="k">class</span> <span class="nc">MicroTvmPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TVM Platform class.&quot;&quot;&quot;</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;microtvm_etissvp&quot;</span><span class="p">]</span>  <span class="c1"># TODO: validate?</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">CompilePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">TargetPlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;project_template&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;project_options&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;project_dir&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;fill_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;random&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ins_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;outs_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;print_top&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="c1"># &quot;profile&quot;: False,</span>
+        <span class="s2">&quot;repeat&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="c1"># &quot;use_rpc&quot;: False,</span>
+        <span class="c1"># &quot;rpc_key&quot;: None,</span>
+        <span class="c1"># &quot;rpc_hostname&quot;: None,</span>
+        <span class="c1"># &quot;rpc_port&quot;: None,</span>
+        <span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;microtvm&quot;</span><span class="p">,</span>  <span class="c1"># Actually: tvmllvm</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">=</span> <span class="s2">&quot;app&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">project_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_options&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">opts_split</span> <span class="o">=</span> <span class="n">opts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="n">opts</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opts_split</span><span class="p">:</span>
+                <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">opts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fill_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fill_mode&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ins_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ins_file&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">outs_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;outs_file&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">print_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_top&quot;</span><span class="p">]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def profile(self):</span>
+    <span class="c1">#     return str2bool(self.config[&quot;profile&quot;])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;repeat&quot;</span><span class="p">]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def use_rpc(self):</span>
+    <span class="c1">#     return str2bool(self.config[&quot;use_rpc&quot;])</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def rpc_key(self):</span>
+    <span class="c1">#     return self.config[&quot;rpc_key&quot;]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def rpc_hostname(self):</span>
+    <span class="c1">#     return self.config[&quot;rpc_hostname&quot;]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def rpc_port(self):</span>
+    <span class="c1">#     return self.config[&quot;rpc_port&quot;]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tvmc_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tvmc_custom_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tvm_pythonpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tvm_build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tvm_configs_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">project_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_template&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="MicroTvmPlatform.init_directory"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.init_directory">[docs]</a>    <span class="k">def</span> <span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Project directory already initialized&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">dir_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_dir&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_dir&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="s2">&quot;temp&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">dir_name</span>
+                <span class="p">)</span>  <span class="c1"># TODO: Need to lock this for parallel builds</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Creating temporary directory because no context was available &quot;</span>
+                    <span class="s2">&quot;and &#39;espidf.project_dir&#39; was not supplied&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="n">dir_name</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Temporary project directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.get_supported_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.get_supported_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: get this via tvmc micro create-project --help</span>
+        <span class="n">target_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;zephyr&quot;</span><span class="p">,</span> <span class="s2">&quot;arduino&quot;</span><span class="p">,</span> <span class="s2">&quot;template&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;microtvm_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.create_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.create_target">[docs]</a>    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid MicroTVM device&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">SUPPORTED_TARGETS</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">SUPPORTED_TARGETS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">Target</span>
+        <span class="k">return</span> <span class="n">create_microtvm_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.get_tvmc_run_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_run_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_run_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--device&quot;</span><span class="p">,</span> <span class="n">device</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">get_data_tvmc_args</span><span class="p">(</span>
+                <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_mode</span><span class="p">,</span> <span class="n">ins_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ins_file</span><span class="p">,</span> <span class="n">outs_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">outs_file</span><span class="p">,</span> <span class="n">print_top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_top</span>
+            <span class="p">),</span>
+            <span class="o">*</span><span class="n">get_bench_tvmc_args</span><span class="p">(</span>
+                <span class="c1"># print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=num</span>
+                <span class="n">print_time</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">profile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">end_to_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repeat</span><span class="p">,</span>
+                <span class="n">number</span><span class="o">=</span><span class="n">num</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="c1"># *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.get_tvmc_micro_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_micro_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_micro_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;create&quot;</span> <span class="ow">in</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">command</span><span class="p">,</span> <span class="s2">&quot;--force&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="o">*</span><span class="n">template</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">template</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.invoke_tvmc"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_configs_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvmc_custom_script</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.driver.tvmc&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tvmc_custom_script</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="o">*</span><span class="n">pre</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.invoke_tvmc_micro"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc_micro">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc_micro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">micro</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_micro_args</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="n">get_project_option_args</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;micro&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.invoke_tvmc_run"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc_run">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">micro</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_run_args</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">micro</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">get_project_option_args</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_options</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.close"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.get_template_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.get_template_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="n">target_template</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">template</span>
+        <span class="k">if</span> <span class="n">target_template</span> <span class="o">==</span> <span class="s2">&quot;template&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">target_template</span><span class="p">,</span> <span class="s2">&quot;--template-dir&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_template</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">target_template</span><span class="p">,)</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.prepare"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mlf</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">mlf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.compile"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="c1"># TODO: build with cmake options</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span><span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+        <span class="c1"># TODO: support self.num_threads (e.g. patch esp-idf)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># TODO: name missleading as we are not interested in the ELF</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;default.tar&quot;</span>  <span class="c1"># TODO: lookup for *.tar file</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+            <span class="s2">&quot;microtvm_out.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>  <span class="c1"># TODO: split into one file per command</span>
+        <span class="p">)</span>
+        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.flash"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.flash">[docs]</a>    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+        <span class="c1"># Ignore elf, as we use self.project_dir instead</span>
+        <span class="c1"># TODO: add alternative approach which allows passing elf instead</span>
+        <span class="k">if</span> <span class="n">elf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ignoring ELF file for microtvm platform&quot;</span><span class="p">)</span>
+        <span class="c1"># TODO: implement timeout</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Flashing target software using MicroTVM ProjectAPI&quot;</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span><span class="s2">&quot;flash&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="MicroTvmPlatform.run"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># TODO: implement timeout</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_run</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">),</span> <span class="s2">&quot;micro&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">,</span> <span class="n">micro</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

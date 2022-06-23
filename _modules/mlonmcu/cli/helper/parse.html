@@ -96,10 +96,6 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_available_features</span><span class="p">,</span>
-<span class="p">)</span>  <span class="c1"># This does not really belong here</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
 
 
 <div class="viewcode-block" id="parse_var"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.parse_var">[docs]</a><span class="k">def</span> <span class="nf">parse_var</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
@@ -140,8 +136,7 @@
 <div class="viewcode-block" id="extract_feature_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_feature_names">[docs]</a><span class="k">def</span> <span class="nf">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">feature</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">feature</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span></div>
+    <span class="k">return</span> <span class="p">[]</span></div>
 
 
 <div class="viewcode-block" id="extract_config"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_config">[docs]</a><span class="k">def</span> <span class="nf">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -153,29 +148,72 @@
     <span class="k">return</span> <span class="n">configs</span></div>
 
 
-<div class="viewcode-block" id="extract_config_and_init_features"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_config_and_init_features">[docs]</a><span class="k">def</span> <span class="nf">extract_config_and_init_features</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_config_and_feature_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_config_and_feature_names">[docs]</a><span class="k">def</span> <span class="nf">extract_config_and_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># TODO: get features from context?</span>
     <span class="n">feature_names</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">feature_names</span><span class="p">:</span>
-        <span class="n">available_features</span> <span class="o">=</span> <span class="n">get_available_features</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="n">feature_name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">feature_cls</span> <span class="ow">in</span> <span class="n">available_features</span><span class="p">:</span>
-            <span class="n">required_keys</span> <span class="o">=</span> <span class="n">feature_cls</span><span class="o">.</span><span class="n">REQUIRED</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="n">resolve_required_config</span><span class="p">(</span>
-                        <span class="n">required_keys</span><span class="p">,</span>
-                        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>  <span class="c1"># The order the features are provided is important here!</span>
-                        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                        <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
-            <span class="n">feature_inst</span> <span class="o">=</span> <span class="n">feature_cls</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-            <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_inst</span><span class="p">)</span>
-    <span class="c1"># How about FeatureType.other?</span>
+    <span class="k">return</span> <span class="n">config</span><span class="p">,</span> <span class="n">feature_names</span></div>
 
-    <span class="k">return</span> <span class="n">config</span><span class="p">,</span> <span class="n">features</span></div>
+
+<div class="viewcode-block" id="extract_frontend_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_frontend_names">[docs]</a><span class="k">def</span> <span class="nf">extract_frontend_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">frontend_names</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">frontend</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frontend_names</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">frontend_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">frontend_names</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frontend_names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">frontend_names</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># No need to specify a default, because we just use the provided order in the environment.yml</span>
+        <span class="k">assert</span> <span class="n">frontend_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Need context to resolve default frontends&quot;</span>
+        <span class="n">all_frontend_names</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_frontend_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">all_frontend_names</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">names</span></div>
+
+
+<div class="viewcode-block" id="extract_postprocess_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_postprocess_names">[docs]</a><span class="k">def</span> <span class="nf">extract_postprocess_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">postprocess</span><span class="p">))</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">postprocess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="extract_backend_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_backend_names">[docs]</a><span class="k">def</span> <span class="nf">extract_backend_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">backends</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">backend</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">backends</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">frameworks</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_default_frameworks</span><span class="p">()</span>
+        <span class="n">backends</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="n">frameworks</span><span class="p">:</span>
+            <span class="n">framework_backends</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_default_backends</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
+            <span class="n">backends</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">framework_backends</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">backends</span></div>
+
+
+<div class="viewcode-block" id="extract_target_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_target_names">[docs]</a><span class="k">def</span> <span class="nf">extract_target_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="c1"># assert context is not None</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_default_targets</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">targets</span></div>
+
+
+<div class="viewcode-block" id="extract_platform_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_platform_names">[docs]</a><span class="k">def</span> <span class="nf">extract_platform_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="p">:</span>
+        <span class="n">platforms</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">platform</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="n">platforms</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_platform_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">platforms</span></div>
 </pre></div>
 
            </div>

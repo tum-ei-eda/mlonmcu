@@ -271,7 +271,7 @@ in a dataframe for easier filtering.</p>
 <p>Postprocess which can be used to drop unwanted columns from a report.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'drop':</span> <span class="pre">None,</span> <span class="pre">'drop_const':</span> <span class="pre">False,</span> <span class="pre">'drop_nan':</span> <span class="pre">False,</span> <span class="pre">'keep':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'drop':</span> <span class="pre">None,</span> <span class="pre">'drop_const':</span> <span class="pre">False,</span> <span class="pre">'drop_empty':</span> <span class="pre">False,</span> <span class="pre">'drop_nan':</span> <span class="pre">False,</span> <span class="pre">'keep':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -284,6 +284,12 @@ in a dataframe for easier filtering.</p>
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop_const">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">drop_const</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop_const" title="Permalink to this definition"></a></dt>
 <dd><p>Get drop_const property.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop_empty">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">drop_empty</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.drop_empty" title="Permalink to this definition"></a></dt>
+<dd><p>Get drop_empty property.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -301,6 +307,29 @@ in a dataframe for easier filtering.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.post_session">
 <span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#FilterColumnsPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.post_session" title="Permalink to this definition"></a></dt>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">RenameColumnsPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#RenameColumnsPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a></p>
+<p>Postprocess which can rename columns based on a provided mapping.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'mapping':</span> <span class="pre">{}}</span></em><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.mapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mapping</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.mapping" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.post_session">
+<span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#RenameColumnsPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.post_session" title="Permalink to this definition"></a></dt>
 <dd><p>Called at the end of a session.</p>
 </dd></dl>
 

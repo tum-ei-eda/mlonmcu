@@ -131,9 +131,12 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.backend">mlonmcu.flow.tvm.backend.backend module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.model_info">mlonmcu.flow.tvm.backend.model_info module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.python_utils">mlonmcu.flow.tvm.backend.python_utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tuner">mlonmcu.flow.tvm.backend.tuner module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmaot">mlonmcu.flow.tvm.backend.tvmaot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmc_utils">mlonmcu.flow.tvm.backend.tvmc_utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmcg">mlonmcu.flow.tvm.backend.tvmcg module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmllvm">mlonmcu.flow.tvm.backend.tvmllvm module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.tvmrt">mlonmcu.flow.tvm.backend.tvmrt module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend.wrapper">mlonmcu.flow.tvm.backend.wrapper module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#module-mlonmcu.flow.tvm.backend">Module contents</a></li>
@@ -190,7 +193,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.generate_code">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.generate_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.generate_code" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.generate_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.generate_code" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -221,6 +224,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.set_tuning_records">
 <span class="sig-name descname"><span class="pre">set_tuning_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.set_tuning_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.set_tuning_records" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.supports_model">
+<span class="sig-name descname"><span class="pre">supports_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.supports_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.supports_model" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

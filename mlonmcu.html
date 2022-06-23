@@ -203,9 +203,13 @@
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.espidf">mlonmcu.platform.espidf module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.espidf_target">mlonmcu.platform.espidf_target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.lookup">mlonmcu.platform.lookup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.microtvm">mlonmcu.platform.microtvm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.microtvm_target">mlonmcu.platform.microtvm_target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.mlif">mlonmcu.platform.mlif module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.mlif_target">mlonmcu.platform.mlif_target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.platform">mlonmcu.platform.platform module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.tvm">mlonmcu.platform.tvm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.tvm_target">mlonmcu.platform.tvm_target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform">Module contents</a></li>
 </ul>
 </li>
@@ -347,6 +351,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.artifact.ArtifactFormat.SHARED_OBJECT">
+<span class="sig-name descname"><span class="pre">SHARED_OBJECT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#mlonmcu.artifact.ArtifactFormat.SHARED_OBJECT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.artifact.ArtifactFormat.SOURCE">
 <span class="sig-name descname"><span class="pre">SOURCE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#mlonmcu.artifact.ArtifactFormat.SOURCE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -408,7 +417,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.config.resolve_required_config">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">resolve_required_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#resolve_required_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.resolve_required_config" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">resolve_required_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#resolve_required_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.resolve_required_config" title="Permalink to this definition"></a></dt>
 <dd><p>Utility which iterates over a set of given config keys and
 resolves their values using the passed config and/or cache.</p>
 <dl class="field-list simple">
@@ -418,6 +427,8 @@ resolves their values using the passed config and/or cache.</p>
 <dt><strong>features</strong><span class="classifier">List[Feature]</span></dt><dd></dd>
 <dt><strong>config</strong><span class="classifier">dict</span></dt><dd></dd>
 <dt><strong>cache</strong><span class="classifier">TaskCache</span></dt><dd><p>Optional task cache parsed from the <cite>cache.ini</cite> file in the <cite>deps</cite> directory.</p>
+</dd>
+<dt><strong>hints</strong><span class="classifier">List[str]</span></dt><dd><p>List of additional flags which can be provided as a hint to lookup a cache config.</p>
 </dd>
 </dl>
 </dd>

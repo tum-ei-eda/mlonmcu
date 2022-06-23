@@ -106,10 +106,10 @@
     <span class="n">add_flow_options</span><span class="p">,</span>
     <span class="n">kickoff_runs</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
-<span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_config_and_init_features</span>
+
+<span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_config_and_feature_names</span><span class="p">,</span> <span class="n">extract_frontend_names</span><span class="p">,</span> <span class="n">extract_postprocess_names</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.models</span> <span class="kn">import</span> <span class="n">SUPPORTED_FRONTENDS</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.models.lookup</span> <span class="kn">import</span> <span class="n">lookup_models</span><span class="p">,</span> <span class="n">map_frontend_to_model</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.models.lookup</span> <span class="kn">import</span> <span class="n">apply_modelgroups</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">RunStage</span>
 
 
@@ -138,58 +138,20 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<div class="viewcode-block" id="init_frontends"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.load.init_frontends">[docs]</a><span class="k">def</span> <span class="nf">init_frontends</span><span class="p">(</span><span class="n">frontend_names</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frontend_names</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">frontend_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="n">frontend_names</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frontend_names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">frontend_names</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># No need to specify a default, because we just use the provided order in the environment.yml</span>
-        <span class="k">assert</span> <span class="n">frontend_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
-        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Need context to resolve default frontends&quot;</span>
-        <span class="n">all_frontend_names</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_frontend_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">all_frontend_names</span><span class="p">)</span>
-    <span class="n">frontends</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">frontend_name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-        <span class="n">frontend_cls</span> <span class="o">=</span> <span class="n">SUPPORTED_FRONTENDS</span><span class="p">[</span><span class="n">frontend_name</span><span class="p">]</span>
-        <span class="n">required_keys</span> <span class="o">=</span> <span class="n">frontend_cls</span><span class="o">.</span><span class="n">REQUIRED</span>
-        <span class="n">frontend_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">frontend_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="n">resolve_required_config</span><span class="p">(</span>
-                <span class="n">required_keys</span><span class="p">,</span>
-                <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
-                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                <span class="n">cache</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span> <span class="k">if</span> <span class="n">context</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">frontend</span> <span class="o">=</span> <span class="n">frontend_cls</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">frontend_config</span><span class="p">)</span>
-        <span class="c1"># except Exception as err:</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="c1"># raise RuntimeError() from err  # Comment this in to debug frontend issues</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Frontend could not be initialized. Continuing with next one...&quot;</span><span class="p">)</span>
-            <span class="k">continue</span>
-        <span class="n">frontends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frontend</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">frontends</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Could not initialize at least one frontend for the given set of features&quot;</span>
-    <span class="k">return</span> <span class="n">frontends</span></div>
-
-
 <span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-    <span class="n">model_names</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">models</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="n">new_config</span><span class="p">,</span> <span class="n">features</span> <span class="o">=</span> <span class="n">extract_config_and_init_features</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-    <span class="n">postprocesses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">postprocess</span><span class="p">))</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">postprocess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">new_config</span><span class="p">,</span> <span class="n">features</span> <span class="o">=</span> <span class="n">extract_config_and_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_config</span><span class="p">)</span>
-    <span class="n">frontends</span> <span class="o">=</span> <span class="n">init_frontends</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">frontend</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-    <span class="n">model_hints</span> <span class="o">=</span> <span class="n">lookup_models</span><span class="p">(</span><span class="n">model_names</span><span class="p">,</span> <span class="n">frontends</span><span class="o">=</span><span class="n">frontends</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">frontends</span> <span class="o">=</span> <span class="n">extract_frontend_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">postprocesses</span> <span class="o">=</span> <span class="n">extract_postprocess_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">postprocesses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">postprocess</span><span class="p">))</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">postprocess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_session</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">resume</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">hint</span> <span class="ow">in</span> <span class="n">model_hints</span><span class="p">:</span>
-        <span class="n">model</span><span class="p">,</span> <span class="n">frontend</span> <span class="o">=</span> <span class="n">map_frontend_to_model</span><span class="p">(</span>
-            <span class="n">hint</span><span class="p">,</span> <span class="n">frontends</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span>
-        <span class="p">)</span>  <span class="c1"># TODO: we do not yet know the backend...</span>
-        <span class="n">run</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">run</span><span class="o">.</span><span class="n">add_frontend_by_name</span><span class="p">(</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="n">apply_modelgroups</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">models</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">run</span><span class="o">.</span><span class="n">add_features_by_name</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>  <span class="c1"># TODO do this before load.py?</span>
+        <span class="n">run</span><span class="o">.</span><span class="n">add_frontends_by_name</span><span class="p">(</span><span class="n">frontends</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">run</span><span class="o">.</span><span class="n">add_model_by_name</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
         <span class="n">run</span><span class="o">.</span><span class="n">add_postprocesses_by_name</span><span class="p">(</span><span class="n">postprocesses</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>  <span class="c1"># TODO do this before load.py?</span>
 
 

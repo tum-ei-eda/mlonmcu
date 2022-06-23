@@ -130,6 +130,8 @@ class RISCVTarget(Target):
                 "target_march": self.arch,
                 "target_model": "unknown",
                 "target_mtriple": self.riscv_basename,
+                # "target_mattr": "?",
                 # "target_mcpu": "?",
                 # "target_mabi": self.abi,
             }
+        return {}

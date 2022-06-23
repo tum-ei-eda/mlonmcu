@@ -159,6 +159,8 @@ class SpikeTarget(RISCVTarget):
         ret = super().get_backend_config(backend)
         if backend in SUPPORTED_TVM_BACKENDS:
             ret.update({"target_model": "spike-rv32"})
+            if self.enable_pext:
+                pass  # TODO: change graph layout to use SIMD kernels
         return ret
 
 if __name__ == "__main__":

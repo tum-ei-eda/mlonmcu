@@ -23,6 +23,7 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .common import cli, execute
 from .target import Target
 from .metrics import Metrics
@@ -213,6 +214,7 @@ class Corstone300Target(Target):
             if self.enable_dsp:
                 pass
                 # ret.update({"desired_layout": "NHWC,HWOI"})  # NOt yet supported by upstream TVMC
+            return ret
         return {}
 
 

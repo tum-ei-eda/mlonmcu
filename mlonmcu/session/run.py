@@ -315,13 +315,13 @@ class Run:
     def add_feature(self, feature):
         """Setter for a feature instance."""
         self.features = [feature]
-        self.run_features = self.process_features(features)
+        self.run_features = self.process_features(self.features)
         self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
         self.features = features if not append else self.features + features
-        self.run_features = self.process_features(features)
+        self.run_features = self.process_features(self.features)
         self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
 
     def pick_model_frontend(self, model_hints, backend=None):

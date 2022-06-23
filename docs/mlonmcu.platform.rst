@@ -28,6 +28,22 @@ mlonmcu.platform.lookup module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.platform.microtvm module
+--------------------------------
+
+.. automodule:: mlonmcu.platform.microtvm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.platform.microtvm\_target module
+----------------------------------------
+
+.. automodule:: mlonmcu.platform.microtvm_target
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.platform.mlif module
 ----------------------------
 
@@ -48,6 +64,22 @@ mlonmcu.platform.platform module
 --------------------------------
 
 .. automodule:: mlonmcu.platform.platform
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.platform.tvm module
+---------------------------
+
+.. automodule:: mlonmcu.platform.tvm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.platform.tvm\_target module
+-----------------------------------
+
+.. automodule:: mlonmcu.platform.tvm_target
    :members:
    :undoc-members:
    :show-inheritance:

@@ -27,6 +27,7 @@ from .backend import TVMBackend
 from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from .tvmc_utils import get_tvmrt_tvmc_args
 
 
 class TVMRTBackend(TVMBackend):
@@ -38,6 +39,7 @@ class TVMRTBackend(TVMBackend):
 
     DEFAULTS = {
         **TVMBackend.DEFAULTS,
+        "debug_arena": False,
         "arena_size": 2**20,  # Can not be detemined automatically (Very large)
         # TODO: arena size warning!
     }
@@ -49,13 +51,12 @@ class TVMRTBackend(TVMBackend):
         size = self.config["arena_size"]
         return int(size) if size else None
 
-    def get_tvmc_compile_args(self):
-        return super().get_tvmc_compile_args("graph") + [
-            "--runtime-crt-system-lib",
-            str(1),
-            "--executor-graph-link-params",
-            str(0),
-        ]
+    @property
+    def debug_arena(self):
+        return bool(self.config["debug_arena"])
+
+    def get_tvmc_compile_args(self, out):
+        return super().get_tvmc_compile_args(out, executor="graph") + get_tvmrt_tvmc_args()
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None
@@ -67,14 +68,14 @@ class TVMRTBackend(TVMBackend):
 
         return graph, params
 
-    def generate_code(self, verbose=False):
+    def generate_code(self):
         artifacts = []
         assert self.model is not None
         full = False  # Required due to bug in TVM
         dump = ["c", "relay"] if full else []
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump, verbose=verbose)
+            out = self.invoke_tvmc_compile(out_path, dump=dump)
             mlf_path = Path(temp_dir) / "mlf"
             tarfile.open(out_path).extractall(mlf_path)
             # with open(mlf_path / "metadata.json") as handle:
@@ -116,7 +117,9 @@ class TVMRTBackend(TVMBackend):
                 workspace_size = self.arena_size
                 assert workspace_size >= 0
                 graph, params = self.get_graph_and_params_from_mlf(mlf_path)
-                wrapper_src = generate_tvmrt_wrapper(graph, params, self.model_info, workspace_size)
+                wrapper_src = generate_tvmrt_wrapper(
+                    graph, params, self.model_info, workspace_size, debug_arena=self.debug_arena
+                )
                 artifacts.append(Artifact("rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
                 header_src = generate_wrapper_header()
                 artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))

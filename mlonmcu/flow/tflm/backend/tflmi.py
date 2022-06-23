@@ -51,7 +51,13 @@ class TFLMICodegen:
             "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver(error_reporter);\n"
         )
         for op in ops:
-            out += "  if (resolver.Add" + op + "() != kTfLiteOk) {\n    return;\n  }\n"
+            out += (
+                "  if (resolver.Add"
+                + op
+                + '() != kTfLiteOk) {\n    error_reporter->Report("Add'
+                + op
+                + '() failed");\n    exit(1);\n  }\n'
+            )
         for op in custom_ops:
             op_name = op
             op_reg = op
@@ -62,7 +68,9 @@ class TFLMICodegen:
                 + op_name
                 + '", tflite::'
                 + op_reg
-                + "()) != kTfLiteOk) {\n    return;\n  }\n"
+                + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'
+                + op_name
+                + '() failed");\n    exit(1);\n  }\n'
             )
         return out
 
@@ -104,6 +112,12 @@ size_t {prefix}_outputs();
 
         arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]
         ops = ops if ops else TFLMIBackend.DEFAULTS["ops"]
+        if not isinstance(ops, list):
+            assert isinstance(ops, str)
+            if "," in ops:
+                ops = ops.split(",")
+            else:
+                ops = [ops]
         if len(ops) > 0:
 
             def convert_op_name(op):
@@ -224,7 +238,7 @@ private:
     error_reporter->Report("Model provided is schema version %d not equal "
                            "to supported version %d.",
                            model->version(), TFLITE_SCHEMA_VERSION);
-    return;
+    exit(1);
   }
 
   // This pulls in all the operation implementations we need.
@@ -245,7 +259,7 @@ private:
   TfLiteStatus allocate_status = interpreter->AllocateTensors();
   if (allocate_status != kTfLiteOk) {
     error_reporter->Report("AllocateTensors() failed");
-    return;
+    exit(1);
   }
 }
 """
@@ -280,7 +294,7 @@ void {prefix}_invoke() {{
   TfLiteStatus invoke_status = interpreter->Invoke();
   if (invoke_status != kTfLiteOk) {{
     error_reporter->Report("Invoke failed\\n");
-    return;
+    exit(1);
   }}
 #if DEBUG_ARENA_USAGE
   size_t used = interpreter->arena_used_bytes();
@@ -333,7 +347,7 @@ class TFLMIBackend(TFLMBackend):
     def arena_size(self):
         return int(self.config["arena_size"])
 
-    def generate_code(self, verbose=False):
+    def generate_code(self):
         artifacts = []
         assert self.model is not None
         config_map = {key.split(".")[-1]: value for key, value in self.config.items()}

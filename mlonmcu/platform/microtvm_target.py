@@ -27,84 +27,90 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
-def create_espidf_target(name, platform, base=Target):
-    class EspIdfTarget(base):
+def name2template(name):
+    return name.replace("microtvm_", "")
+
+
+def create_microtvm_target(name, platform, base=Target):
+    class MicroTvmTarget(base):
 
         FEATURES = base.FEATURES + []
 
         DEFAULTS = {
             **base.DEFAULTS,
             "timeout_sec": 0,  # disabled
-            "port": None,
-            "baud": None,
         }
         REQUIRED = base.REQUIRED + []
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)
             self.platform = platform
+            self.template = name2template(name)
 
         @property
         def timeout_sec(self):
             return int(self.config["timeout_sec"])
 
-        @property
-        def port(self):
-            return self.config["port"]
-
-        @property
-        def baud(self):
-            return self.config["baud"]
-
-        def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
+        def exec(self, program, *args, num=1, cwd=os.getcwd(), **kwargs):
             """Use target to execute a executable with given arguments"""
             if len(args) > 0:
                 raise RuntimeError("Program arguments are not supported for real hardware devices")
 
-            assert self.platform is not None, "ESP32 targets need a platform to execute programs"
+            assert self.platform is not None, "TVM targets need a platform to execute programs"
 
             if self.timeout_sec > 0:
                 raise NotImplementedError
 
-            # ESP-IDF actually wants a project directory, but we only get the elf now. As a workaround we
-            # assume the elf is right in the build directory inside the project directory
-
-            ret = self.platform.run(program, self)
+            ret = self.platform.run(program, self, num=num)
             return ret
 
         def parse_stdout(self, out):
-            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-            if not cpu_cycles:
-                logger.warning("unexpected script output (cycles)")
-                cycles = None
-            else:
-                cycles = int(float(cpu_cycles.group(1)))
-            cpu_time_us = re.search(r"Total Time: (.*) us", out)
-            if not cpu_time_us:
-                logger.warning("unexpected script output (time_us)")
-                time_us = None
-            else:
-                time_us = int(float(cpu_time_us.group(1)))
-            return cycles, time_us
+            mean_ms = None
+            median_ms = None
+            max_ms = None
+            min_ms = None
+            std_ms = None
+            found = False
+            for line in out.split("\n"):
+                if found:
+                    match = re.compile(r"\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)\s+(\d*\.\d+)").findall(
+                        line
+                    )
+                    assert len(match) == 1
+                    groups = match[0]
+                    mean_ms, median_ms, max_ms, min_ms, std_ms = (
+                        float(groups[0]),
+                        float(groups[1]),
+                        float(groups[2]),
+                        float(groups[3]),
+                        float(groups[4]),
+                    )
+                    break
+                if re.compile(r"\s+mean \(ms\)\s+median \(ms\)\s+max \(ms\)\s+min \(ms\)\s+std \(ms\)").match(line):
+                    found = True
+            return mean_ms, median_ms, max_ms, min_ms, std_ms
 
-        def get_metrics(self, elf, directory, handle_exit=None, num=None):
-            assert num is None
+        def get_metrics(self, elf, directory, handle_exit=None, num=1):
             if self.print_outputs:
                 out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
             else:
                 out = self.exec(
-                    elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                    elf,
+                    cwd=directory,
+                    live=False,
+                    print_func=lambda *args, **kwargs: None,
+                    handle_exit=handle_exit,
+                    num=num,
                 )
-            cycles, time_us = self.parse_stdout(out)
+            mean_ms, _, _, _, _ = self.parse_stdout(out)
 
             metrics = Metrics()
-            metrics.add("Total Cycles", cycles)
-            time_s = time_us / 1e6 if time_us is not None else time_us
-            metrics.add("Runtime [s]", time_s)
+            time_s = mean_ms / 1e3 if mean_ms is not None else mean_ms
+            metrics.add("Mean Runtime [s]", time_s)
 
             return metrics, out, []
 
         def get_arch(self):
             return "unkwown"
 
-    return EspIdfTarget
+    return MicroTvmTarget

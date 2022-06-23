@@ -31,14 +31,17 @@ class FeatureBase(ABC):
     """Feature base class"""
 
     feature_type = None
+    scope = None
 
     DEFAULTS = {"enabled": True}
     REQUIRED = []
 
-    def __init__(self, name, config=None):
+    def __init__(self, name, features=None, config=None):
         self.name = name
         self.config = config if config else {}
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
+        # assert features is None, "Features with features are currently not supported"
+        # just ignore the supplied feature list for now
 
     @property
     def enabled(self):
@@ -85,8 +88,8 @@ class FrontendFeature(FeatureBase):
 
     feature_type = FeatureType.FRONTEND
 
-    def __init__(self, name, config=None):
-        super().__init__(name, config=config)
+    def __init__(self, name, features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     def get_frontend_config(self, frontend):
         # pylint: disable=unused-argument
@@ -104,8 +107,8 @@ class FrameworkFeature(FeatureBase):
 
     feature_type = FeatureType.FRAMEWORK
 
-    def __init__(self, name, config=None):
-        super().__init__(name, config=config)
+    def __init__(self, name, features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     def get_framework_config(self, framework):
         # pylint: disable=unused-argument
@@ -120,8 +123,8 @@ class BackendFeature(FeatureBase):
 
     feature_type = FeatureType.BACKEND
 
-    def __init__(self, name, config=None):
-        super().__init__(name, config=config)
+    def __init__(self, name, features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     def get_backend_config(self, backend):
         # pylint: disable=unused-argument
@@ -137,8 +140,8 @@ class TargetFeature(FeatureBase):
 
     feature_type = FeatureType.TARGET
 
-    def __init__(self, name, config=None):
-        super().__init__(name, config=config)
+    def __init__(self, name, features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     def get_target_config(self, target):
         # pylint: disable=unused-argument
@@ -163,8 +166,8 @@ class PlatformFeature(FeatureBase):
 
     feature_type = FeatureType.PLATFORM
 
-    def __init__(self, name, config=None):
-        super().__init__(name, config=config)
+    def __init__(self, name, features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     def get_platform_config(self, platform):
         return {}
@@ -184,8 +187,8 @@ class SetupFeature(FeatureBase):  # TODO: alternative: CacheFeature
 
     feature_type = FeatureType.SETUP
 
-    def __init__(self, name, config=None):
-        super().__init__(name, config=config)
+    def __init__(self, name, features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     def get_setup_config(self):
         raise NotImplementedError
@@ -212,8 +215,8 @@ class RunFeature(FeatureBase):
 
     feature_type = FeatureType.RUN
 
-    def __init__(self, name, config=None):
-        super().__init__(name, config=config)
+    def __init__(self, name, features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
     def get_run_config(self):
         return {}

@@ -33,12 +33,13 @@ logger = get_logger()
 class OVPSimTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["vext", "gdbserver"]
+    FEATURES = ["vext", "pext", "gdbserver"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "vlen": 32,  # vectorization=off
         "enable_vext": False,
+        "enable_pext": False,
         "enable_fpu": True,
         "variant": "RVB32I",
         # "extensions": "MAFDCV",
@@ -59,7 +60,15 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        return str(self.config["extensions"])
+        ret = str(self.config["extensions"])
+
+        if self.enable_pext:
+            if "P" not in ret:
+                ret += "BP"
+        if self.enable_vext:
+            if "V" not in ret:
+                ret += "V"
+        return ret
 
     @property
     def vlen(self):
@@ -73,12 +82,22 @@ class OVPSimTarget(RISCVTarget):
     def enable_vext(self):
         return bool(self.config["enable_vext"])
 
-    def get_default_ovpsim_args(self):
+    @property
+    def enable_pext(self):
+        return bool(self.config["enable_pext"])
+
+    @property
+    def arch(self):
+        ret = str(self.config["arch"])
+        if self.enable_pext:
+            if "p" not in ret[2:]:
+                ret += "p"
         if self.enable_vext:
-            if "V" not in self.extensions:
-                self.config["extensions"] += "V"
-            if "V" not in self.variant:
-                self.config["variant"] += "V"
+            if "v" not in ret[2:]:
+                ret += "v"
+        return ret
+
+    def get_default_ovpsim_args(self):
         args = [
             "--variant",
             self.variant,
@@ -87,7 +106,17 @@ class OVPSimTarget(RISCVTarget):
             "--override",
             "riscvOVPsim/cpu/unaligned=T",
         ]
+        if self.enable_pext:
+            args.extend(
+                [
+                    "--override",
+                    "riscvOVPsim/cpu/dsp_version=0.9.6",
+                    "--override",
+                    "riscvOVPsim/cpu/bitmanip_version=1.0.0",
+                ]
+            )
         if self.enable_vext:
+            assert self.enable_fpu, "Spike V-Extension requires enabled FPU"
             args.extend(
                 [
                     "--override",
@@ -147,7 +176,8 @@ class OVPSimTarget(RISCVTarget):
                 mips = float(mips_str)
         return cycles, mips
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, handle_exit=None, num=None):
+        assert num is None
         out = ""
         if self.print_outputs:
             out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
@@ -161,7 +191,7 @@ class OVPSimTarget(RISCVTarget):
         metrics.add("Total Cycles", cycles)
         metrics.add("MIPS", cycles, optional=True)
 
-        return metrics, out
+        return metrics, out, []
 
 
 if __name__ == "__main__":

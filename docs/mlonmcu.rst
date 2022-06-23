@@ -61,14 +61,6 @@ mlonmcu.mlonmcu module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.registry module
------------------------
-
-.. automodule:: mlonmcu.registry
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.report module
 ---------------------
 

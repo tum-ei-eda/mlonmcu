@@ -6,7 +6,7 @@ logging:
   to_file: false
   rotate: false
 cleanup:
-  auto: true
+  auto: false
   keep: 50
 # Default locations for certain directoriescan be changed here
 # Non-absolute paths will always be threated relative to the MLONMCU_HOME
@@ -27,45 +27,49 @@ paths:
     - "{{ config_dir }}/models"
 # Here default clone_urls
 repos:
-  tensorflow:
-    url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: f868a900f1f788fd0a55b5655b47fc352f9a0239
+  tensorflow:  # TODO: rename to tflite-micro?
+    url: "git@github.com:tensorflow/tflite-micro.git"
+    ref: feature-latest-tflite-micro
   tflite_micro_compiler:
-    url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
-    ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
+    url: "git@github.com:PhilippvK/tflite_micro_compiler.git"
+    ref: philippvk_new
   tvm:
-    url: "https://github.com/apache/tvm.git"
-    ref: 76b9ce9b1f7d2b7e64b4b9c9d456a02b8a010473
+    url: "git@github.com:PhilippvK/tvm.git"
+    ref: feature-etiss-autotune-backup-rebased
   utvm_staticrt_codegen:
-    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
-    ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
+    url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
+    ref: master
   tvm_extensions:
-    url: "https://github.com/tum-ei-eda/tvm_extensions.git"
-    ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
-  muriscvnn:
-    url: "https://github.com/fabianpedd/muriscv_nn.git"
-    ref: 0d0127f5255c276ddf5d9100ac8de0289440f23b
+    url: "git@github.com:tum-ei-eda/tvm_extensions.git"
+    ref: main
   etiss:
-    url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: 78716e7f8e9ee0be0b15d41815d75b35fa2ecaa5
+    url: "git@github.com:PhilippvK/etiss.git"
+    ref: feature-clint-plic-uart
+  muriscvnn:
+    url: "git@github.com:fabianpedd/muriscv_nn.git"
+    ref: main
+  packer:
+    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
+    ref: main
   spike:
-    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
-    ref: caf5a420ef7414031368739e16d60f3f418aa6ac
+    url: "git@github.com:riscv-software-src/riscv-isa-sim.git"
+    ref: master
   spikepk:
-    url: "https://github.com/riscv-software-src/riscv-pk.git"
-    ref: 2efabd3e6604b8a9e8f70baf52f57696680c7855
+    url: "git@github.com:riscv-software-src/riscv-pk.git"
+    ref: master
   cmsis:
     url: "https://github.com/PhilippvK/CMSIS_5.git"
-    ref: 4a52cabc5830b4666589d4c63f3a228eef5b4efb
+    ref: tumeda-patches
   mlif:
-    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: f9e67c6870c92aee1c003c1ac65be113b889f9fd
+    url: "git@github.com:tum-ei-eda/mlonmcu-sw.git"
+    ref: main
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
   microtvm_etissvp:
-    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
-    ref: 8b48a897ed4354602454f18cdd890aef6df4a554
+    url: "git@github.com:PhilippvK/microtvm-etissvp-template.git"
+    ref: main
+
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -105,7 +109,7 @@ frameworks:
           autotune: true
           autotuned: true
       tvmllvm:
-        enabled: false
+        enabled: true
         features:
           # unpacked_api: true
           disable_legalize: true
@@ -121,8 +125,9 @@ frameworks:
     features:
       cmsisnnbyoc: true
       muriscvnnbyoc: true
-# Some frontends are experimental and therefore disabled here
+# Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
+#
 frontends:
   tflite:
     enabled: true
@@ -130,7 +135,7 @@ frontends:
       validate: true
       visualize: true
   relay:
-    enabled: false
+    enabled: true
     features:
       relayviz: true
   packed:
@@ -153,12 +158,12 @@ platforms:
     features:
       debug: true
   tvm:
-    enabled: false
+    enabled: true
     features: []
       # rpc: true
       # validate: true
   microtvm:
-    enabled: false
+    enabled: true
     features:
       # validate: true
       microtvm_etissvp: true
@@ -181,21 +186,23 @@ targets:
   spike:
     enabled: true
     features:
-      vext: true
-      pext: true
+      # vext: true
+      # pext: true
       cachesim: true
       log_instrs: true
   ovpsim:
-    enabled: false
-    features:
-      vext: true
+    enabled: true
+    features: []
+      # vext: true
       # pext: true
   corstone300:
     enabled: true
     features:
       ethosu: false
-      arm_mvei: false
-      arm_dsp: false
+      arm_mvei: true
+      arm_dsp: true
+  qemu_sifive:
+    enabled: false
 postprocesses:
   use:
   # - detailed_cycles

@@ -26,17 +26,12 @@ from mlonmcu.cli.build import (
 )
 from mlonmcu.session.run import RunStage
 from mlonmcu.platform.lookup import get_platforms_targets
+from .helper.parse import extract_target_names, extract_platform_names
 
 
 def add_compile_options(parser):
     add_build_options(parser)
     compile_parser = parser.add_argument_group("compile options")
-    compile_parser.add_argument(
-        "-d",
-        "--debug",
-        action="store_true",
-        help="Build target sorftware in DEBUG mode (default: %(default)s)",
-    )
     compile_parser.add_argument(
         "--num",
         action="append",
@@ -55,40 +50,32 @@ def get_parser(subparsers):
 
 def _handle(args, context):
     handle_build(args, ctx=context)
+    targets = extract_target_names(args, context=context)  # This will eventually be ignored below
+    platforms = extract_platform_names(args, context=context)
     num = args.num if args.num else [1]
-    if isinstance(args.target, list) and len(args.target) > 0:
-        targets = args.target
-    elif isinstance(args.target, str):
-        targets = [args.target]
-    else:
-        assert args.target is None, "TODO"
-        targets = context.environment.get_default_targets()
-        assert len(targets) > 0, "TODO"
 
-    if args.platform:  # TODO: move this somewhere else
-        platform_names = args.platform
-        platform_names = [x[0] for x in platform_names]
-    else:
-        platform_names = context.environment.lookup_platform_configs(names_only=True)
-    platform_targets = get_platforms_targets(context)
+    platform_targets = get_platforms_targets(context)  # This will slow?
 
-    debug = args.debug
     assert len(context.sessions) > 0  # TODO: automatically request session if no active one is available
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
-        for target_name in targets:
-            for n in num:
+        for n in num:
+            if run.target is None:
+                assert run.compile_platform is None
+                targets_ = targets
+            else:
+                targets_ = [None]
+            for target_name in targets_:
                 new_run = run.copy()
-                platform_name = None
-                for platform in platform_names:
-                    candidates = platform_targets[platform]
-                    if target_name in candidates:
-                        platform_name = platform
-                assert platform_name is not None, f"Unable to find a suitable platform for the target '{target_name}'"
-                new_run.add_platform_by_name(platform_name, context=context)
-                new_run.add_target_by_name(target_name, context=context)
-                new_run.debug = debug
+                if target_name is not None:
+                    platform_name = None
+                    for platform in platforms:
+                        candidates = platform_targets[platform]
+                        if target_name in candidates:
+                            platform_name = platform
+                    new_run.add_platform_by_name(platform_name, context=context)
+                    new_run.add_target_by_name(target_name, context=context)
                 new_run.num = n
                 new_runs.append(new_run)
     session.runs = new_runs

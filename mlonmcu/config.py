@@ -98,7 +98,7 @@ def filter_config(config, prefix, defaults, required_keys):
 
 
 def resolve_required_config(
-    required_keys, features=None, config=None, cache=None
+    required_keys, features=None, config=None, cache=None, hints=None
 ):  # TODO: add framework, backend, and frontends as well?
     """Utility which iterates over a set of given config keys and
     resolves their values using the passed config and/or cache.
@@ -114,11 +114,24 @@ def resolve_required_config(
     cache : TaskCache
         Optional task cache parsed from the `cache.ini` file in the `deps` directory.
 
+    hints : List[str]
+        List of additional flags which can be provided as a hint to lookup a cache config.
+
     Returns
     -------
     result : dict
 
     """
+
+    def get_sublists(in_list):
+        ret = [[]]
+        for i in range(len(in_list) + 1):
+            for j in range(i + 1, len(in_list) + 1):
+                sub = in_list[i:j]
+                ret.append(sub)
+        return ret
+
+    hint_combinations = get_sublists(hints if hints else [])
 
     def get_cache_flags(features):
         result = {}
@@ -136,10 +149,12 @@ def resolve_required_config(
             if len(cache) == 0:
                 raise RuntimeError("The dependency cache is empty! Make sure `to run `mlonmcu` setup first.`")
             flags = cache_flags.get(key, ())
-            if (key, flags) in cache:
-                value = cache[key, flags]
-                ret[key] = value
-            else:
+            value = None
+            for hint_combination in hint_combinations:
+                if (key, tuple(list(flags) + hint_combination)) in cache:
+                    value = cache[key, flags]
+                    break
+            if value is None:
                 if len(flags) == 0:
                     raise RuntimeError(
                         f"Dependency cache miss for required key '{key}'. Try re-running `mlonmcu setup`."
@@ -149,6 +164,7 @@ def resolve_required_config(
                         f"Dependency cache miss for required key '{key}' with flags {flags}."
                         + " Try re-running `mlonmcu setup`."
                     )
+            ret[key] = value
         else:
             ret[key] = config[key]
 

@@ -24,6 +24,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .common import cli, execute
 from .riscv import RISCVTarget
 from .metrics import Metrics
@@ -32,13 +33,14 @@ logger = get_logger()
 
 
 class SpikeTarget(RISCVTarget):
-    """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
+    """Target using the riscv-isa-sim (Spike) RISC-V simulator."""
 
-    FEATURES = ["vext", "cachesim", "log_instrs"]
+    FEATURES = ["vext", "pext", "cachesim", "log_instrs"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "enable_vext": False,
+        "enable_pext": False,
         "vlen": 0,  # vectorization=off
         "spikepk_extra_args": [],
         "end_to_end_cycles": False,
@@ -57,15 +59,24 @@ class SpikeTarget(RISCVTarget):
         return Path(self.config["spike.pk"])
 
     @property
-    def extra_args(self):
-        ret = self.config["extra_args"]
-        if isinstance(ret, str):
-            ret = [ret]  # TODO: properly split quoted args
-        return ret
-
-    @property
     def enable_vext(self):
         return bool(self.config["enable_vext"])
+
+    @property
+    def enable_pext(self):
+        return bool(self.config["enable_pext"])
+
+    @property
+    def arch(self):
+        ret = str(self.config["arch"])
+        if self.enable_pext:
+            if "p" not in ret[2:]:
+                ret += "p"
+        if self.enable_vext:
+            if "v" not in ret[2:]:
+                ret += "v"
+
+        return ret
 
     @property
     def vlen(self):
@@ -83,10 +94,6 @@ class SpikeTarget(RISCVTarget):
         """Use target to execute a executable with given arguments"""
         spike_args = []
         spikepk_args = []
-
-        if self.enable_vext:
-            if "v" not in self.arch[2:]:
-                self.config["arch"] += "v"
 
         spike_args.append(f"--isa={self.arch}")
 
@@ -132,7 +139,8 @@ class SpikeTarget(RISCVTarget):
         # mips = None  # TODO: parse mips?
         return cycles
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, handle_exit=None, num=None):
+        assert num is None
         out = ""
         if self.print_outputs:
             out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
@@ -145,7 +153,15 @@ class SpikeTarget(RISCVTarget):
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
 
-        return metrics, out
+        return metrics, out, []
+
+    def get_backend_config(self, backend):
+        ret = super().get_backend_config(backend)
+        if backend in SUPPORTED_TVM_BACKENDS:
+            ret.update({"target_model": "spike-rv32"})
+            if self.enable_pext:
+                pass  # TODO: change graph layout to use SIMD kernels
+        return ret
 
 
 if __name__ == "__main__":

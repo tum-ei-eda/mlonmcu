@@ -26,6 +26,7 @@ from .backend import TVMBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
+from .tvmc_utils import get_tvmaot_tvmc_args
 
 
 class TVMAOTBackend(TVMBackend):
@@ -39,6 +40,7 @@ class TVMAOTBackend(TVMBackend):
 
     DEFAULTS = {
         **TVMBackend.DEFAULTS,
+        "debug_arena": False,
         "arena_size": None,  # Determined automatically
         "unpacked_api": False,
         "alignment_bytes": 4,
@@ -56,67 +58,29 @@ class TVMAOTBackend(TVMBackend):
         return bool(self.config["unpacked_api"])
 
     @property
+    def debug_arena(self):
+        return bool(self.config["debug_arena"])
+
+    @property
     def alignment_bytes(self):
         return int(self.config["alignment_bytes"])
 
-    def get_tvmc_compile_args(self):
-        return super().get_tvmc_compile_args("aot") + [
-            "--runtime-crt-system-lib",
-            str(0),
-            "--target-c-constants-byte-alignment",
-            str(self.alignment_bytes),
-            "--target-c-workspace-byte-alignment",
-            str(self.alignment_bytes),
-            "--target-c-executor",
-            "aot",
-            "--target-c-unpacked-api",
-            str(int(self.unpacked_api)),
-            "--target-c-interface-api",
-            "c" if self.unpacked_api else "packed",
-        ]
-
-    # def resolve_features(self):
-    #     unpacked_api = False
-    #     debug_arena = False
-    #     for feature in self.features:
-    #         if feature.name == "unpacked_api":
-    #             unpacked_api = True
-    #         elif feature.name == "debug_arena":
-    #             debug_arena = True
-    #     return (unpacked_api, debug_arena)
-
-    # def resolve_config(self):
-    #     arena_size = DEFAULT_CONFIG["arena_size"]
-    #     alignment_bytes = DEFAULT_CONFIG["alignment_bytes"]
-    #     for key, value in self.config:
-    #         if key.split(".")[-1] == "arena_size":
-    #             arena_size = int(value)
-    #         if key.split(".")[-1] == "alignment_bytes":
-    #             alignment_bytes = int(value)
-    #     return (arena_size, alignment_bytes)
-
-    # def get_target_str(self):
-    #     target_str = super().get_target_str(self)
-    #     target_str += " --link-params"
-    #     target_str += " --executor=aot"
-    #     target_str += " --workspace-byte-alignment={}".format(self.alignment_bytes)
-    #     target_str += " --unpacked-api={}".format(int(self.unpacked_api))
-    #     target_str += " --interface-api={}".format(
-    #         "c" if self.unpacked_api else "packed"
-    #     )
-    #     return target_str
+    def get_tvmc_compile_args(self, out):
+        return super().get_tvmc_compile_args(out, executor="aot") + get_tvmaot_tvmc_args(
+            self.alignment_bytes, self.unpacked_api
+        )
 
     def get_workspace_size_from_metadata(self, metadata):
         return metadata["memory"]["functions"]["main"][0]["workspace_size_bytes"]
 
-    def generate_code(self, verbose=False):
+    def generate_code(self):
         artifacts = []
         assert self.model is not None
         full = False  # Required due to bug in TVM
         dump = ["c", "relay"] if full else []
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump, verbose=verbose)
+            out = self.invoke_tvmc_compile(out_path, dump=dump)
             mlf_path = Path(temp_dir) / "mlf"
             tarfile.open(out_path).extractall(mlf_path)
             with open(mlf_path / "metadata.json") as handle:
@@ -165,6 +129,7 @@ class TVMAOTBackend(TVMBackend):
                     workspace_size,
                     self.prefix,
                     api="c" if self.unpacked_api else "packed",
+                    debug_arena=self.debug_arena,
                 )
                 artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
                 header_src = generate_wrapper_header()

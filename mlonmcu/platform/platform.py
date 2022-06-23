@@ -52,7 +52,9 @@ class Platform:
 
     FEATURES = []
 
-    DEFAULTS = {}
+    DEFAULTS = {
+        "print_outputs": False,
+    }
 
     REQUIRED = []
 
@@ -72,9 +74,6 @@ class Platform:
     def init_directory(self, path=None, context=None):
         raise NotImplementedError
 
-    def create_target(self, name):
-        raise NotImplementedError
-
     @property
     def supports_compile(self):
         return False
@@ -86,6 +85,10 @@ class Platform:
     @property
     def supports_monitor(self):
         return False
+
+    @property
+    def print_outputs(self):
+        return str2bool(self.config["print_outputs"])
 
     def process_features(self, features):
         if features is None:
@@ -108,7 +111,6 @@ class CompilePlatform(Platform):
 
     DEFAULTS = {
         **Platform.DEFAULTS,
-        "print_outputs": False,
         "debug": False,
         "build_dir": None,
         "num_threads": multiprocessing.cpu_count(),
@@ -139,10 +141,6 @@ class CompilePlatform(Platform):
     def num_threads(self):
         return int(self.config["num_threads"])
 
-    @property
-    def print_outputs(self):
-        return str2bool(self.config["print_outputs"])
-
     def get_metrics(self, elf):
         static_mem = get_static_mem_usage(elf)
         rom_ro, rom_code, rom_misc, ram_data, ram_zdata = (
@@ -164,7 +162,7 @@ class CompilePlatform(Platform):
         metrics.add("RAM zero-init data", ram_zdata)
         return metrics
 
-    def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, num=1, data_file=None):
         raise NotImplementedError
 
     def export_elf(self, path):
@@ -190,6 +188,9 @@ class TargetPlatform(Platform):
 
     REQUIRED = []
 
+    def create_target(self, name):
+        raise NotImplementedError
+
     @property
     def supports_flash(self):
         return True
@@ -198,17 +199,17 @@ class TargetPlatform(Platform):
     def supports_monitor(self):
         return True
 
-    def flash(self, target, timeout=120):
+    def flash(self, elf, target, timeout=120):
         raise NotImplementedError
 
     def monitor(self, target, timeout=60):
         raise NotImplementedError
 
-    def run(self, target, timeout=120):
+    def run(self, elf, target, timeout=120):
         # Only allow one serial communication at a time
         with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
 
-            self.flash(target, timeout=timeout)
+            self.flash(elf, target, timeout=timeout)
             output = self.monitor(target, timeout=timeout)
 
         return output

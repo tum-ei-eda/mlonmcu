@@ -21,9 +21,48 @@
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .target import Target
 
 logger = get_logger()
+
+
+def sort_extensions_canonical(extensions):
+    """Utility to get the canonical architecture name string."""
+
+    # See: https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf#table.22.1
+    ORDER = [
+        "I",
+        "M",
+        "A",
+        "F",
+        "D",
+        "G",
+        "Q",
+        "L",
+        "C",
+        "B",
+        "J",
+        "T",
+        "P",
+        "V",
+        "X",
+        "S",
+        "SX",
+    ]  # What about Z* extensions?
+    extensions_new = extensions.copy()
+
+    def _get_index(x):
+        if x in ORDER:
+            return ORDER.index(x)
+        else:
+            for i, o in enumerate(ORDER):
+                if x.startswith(o):
+                    return i
+            return ORDER.index("X") - 0.5  # Insert unknown keys right before custom extensions
+
+    extensions_new.sort(key=lambda x: _get_index(x))
+    return extensions_new
 
 
 class RISCVTarget(Target):
@@ -58,7 +97,13 @@ class RISCVTarget(Target):
 
     @property
     def extra_args(self):
-        return str(self.config["extra_args"])
+        ret = self.config["extra_args"]
+        if isinstance(ret, str):
+            if len(ret) == 0:
+                ret = []
+            else:
+                ret = [ret]  # TODO: properly split quoted args
+        return ret
 
     @property
     def timeout_sec(self):
@@ -77,3 +122,16 @@ class RISCVTarget(Target):
 
     def get_arch(self):
         return "riscv"
+
+    def get_backend_config(self, backend):
+        if backend in SUPPORTED_TVM_BACKENDS:
+            return {
+                "target_device": "riscv_cpu",
+                "target_march": self.arch,
+                "target_model": "unknown",
+                "target_mtriple": self.riscv_basename,
+                # "target_mattr": "?",
+                # "target_mcpu": "?",
+                # "target_mabi": self.abi,
+            }
+        return {}

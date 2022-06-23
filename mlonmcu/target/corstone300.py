@@ -23,6 +23,7 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .common import cli, execute
 from .target import Target
 from .metrics import Metrics
@@ -33,14 +34,17 @@ logger = get_logger()
 class Corstone300Target(Target):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["ethosu"]
+    FEATURES = ["ethosu", "arm_mvei", "arm_dsp"]
 
     DEFAULTS = {
         **Target.DEFAULTS,
-        "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
+        # "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
+        "model": None,  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
         # Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
         "enable_ethosu": False,
+        "enable_mvei": False,  # unused
+        "enable_dsp": False,  # unused
         "ethosu_num_macs": 256,
         "extra_args": "",
         "enable_vext": False,
@@ -55,8 +59,26 @@ class Corstone300Target(Target):
         super().__init__(name, features=features, config=config)
 
     @property
+    def model(self):
+        if self.enable_mvei:
+            assert self.config["model"] is None, "corstone300.model was overwritten by the user"
+            return "cortex-m55"
+        elif self.enable_dsp:
+            assert self.config["model"] is None, "corstone300.model was overwritten by the user"
+            return "cortex-m33"
+        return "cortex-m0"  # Default chip
+
+    @property
     def enable_ethosu(self):
         return bool(self.config["enable_ethosu"])
+
+    @property
+    def enable_mvei(self):
+        return bool(self.config["enable_mvei"])
+
+    @property
+    def enable_dsp(self):
+        return bool(self.config["enable_dsp"])
 
     @property
     def ethosu_num_macs(self):
@@ -132,17 +154,28 @@ class Corstone300Target(Target):
         )
         return ret
 
-    def parse_stdout(self, out):
+    def parse_stdout(self, out, handle_exit=None):
+        exit_match = re.search(r"Application exit code: (.*)\.", out)
+        if exit_match:
+            exit_code = int(exit_match.group(1))
+            if handle_exit is not None:
+                exit_code = handle_exit(exit_code)
+            if exit_code != 0:
+                logger.error("Execution failed - " + out)
+                raise RuntimeError(f"unexpected exit code: {exit_code}")
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+
         if not cpu_cycles:
-            logger.warning("unexpected script output (cycles)")
+            if exit == 0:
+                logger.warning("unexpected script output (cycles)")
             cycles = None
         else:
             cycles = int(float(cpu_cycles.group(1)))
         # mips = None  # TODO: parse mips?
         return cycles
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, handle_exit=None, num=None):
+        assert num is None
         out = ""
         if self.print_outputs:
             out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
@@ -150,21 +183,39 @@ class Corstone300Target(Target):
             out += self.exec(
                 elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
-        cycles = self.parse_stdout(out)
+        cycles = self.parse_stdout(out, handle_exit=handle_exit)
 
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
 
-        return metrics, out
+        return metrics, out, []
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         ret["CMSIS_PATH"] = self.cmsisnn_dir
         ret["ARM_COMPILER_PREFIX"] = self.gcc_prefix
+        ret["ARM_CPU"] = self.model
         return ret
 
     def get_arch(self):
-        return "arm"
+        return "arm"  # TODO: use proper mapping (v6, v7, v8, v8.1...)
+
+    def get_backend_config(self, backend):
+        if backend in SUPPORTED_TVM_BACKENDS:
+            ret = {
+                "target_device": "arm_cpu",
+                # "target_march": self.get_arch(),
+                "target_model": "unknown",
+                "target_mtriple": self.riscv_basename,
+                "target_mcpu": self.model,
+                # "target_mattr": "?",
+                # "target_mabi": self.abi,
+            }
+            if self.enable_dsp:
+                pass
+                # ret.update({"desired_layout": "NHWC,HWOI"})  # NOt yet supported by upstream TVMC
+            return ret
+        return {}
 
 
 if __name__ == "__main__":

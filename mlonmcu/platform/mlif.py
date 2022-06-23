@@ -27,19 +27,34 @@ from mlonmcu.logging import get_logger
 from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.target.target import Target
 
-from .platform import CompilePlatform
+from .platform import CompilePlatform, TargetPlatform
 from .mlif_target import get_mlif_targets, create_mlif_target
 
 logger = get_logger()
 
 
-class MlifPlatform(CompilePlatform):
+class MlifPlatform(CompilePlatform, TargetPlatform):
     """Model Library Interface Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + ["validate", "debug_arena"]
+    FEATURES = (
+        CompilePlatform.FEATURES
+        + TargetPlatform.FEATURES
+        + [
+            "validate",
+            "muriscvnn",
+            "cmsisnn",
+            "muriscvnnbyoc",
+            "cmsisnnbyoc",
+            "vext",
+            "pext",
+            "arm_mvei",
+            "arm_dsp",
+        ]  # TODO: allow Feature-Features with automatic resolution of initialization order
+    )
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
+        **TargetPlatform.DEFAULTS,
         "ignore_data": True,
         "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
@@ -187,7 +202,7 @@ class MlifPlatform(CompilePlatform):
         )
         return out
 
-    def generate_elf(self, target, src=None, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, num=1, data_file=None):
         artifacts = []
         out = self.compile(target, src=src, model=model, num=num, data_file=data_file)
         elf_file = self.build_dir / "bin" / "generic_mlif"

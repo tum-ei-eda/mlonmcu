@@ -24,6 +24,8 @@ import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .common import cli, execute
 from .riscv import RISCVTarget
 from .metrics import Metrics
@@ -45,23 +47,30 @@ class EtissPulpinoTarget(RISCVTarget):
         "trace_memory": False,
         "plugins": [],
         "verbose": False,
-        # TODO: how to keep this in sync with setup/tasks.py? (point to ETISSPulpinoTarget.DEFAULTS?)
+        "cpu_arch": "RISCV",  # For V/P-Extension support, use RV32IMAFDCPV
         "etissvp.rom_start": 0x0,
         "etissvp.rom_size": 0x800000,  # 8 MB
         "etissvp.ram_start": 0x800000,
         "etissvp.ram_size": 0x4000000,  # 64 MB
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["etiss.install_dir"]
+    REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
 
     def __init__(self, name="etiss_pulpino", features=None, config=None):
         super().__init__(name, features=features, config=config)
-        self.etiss_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "run_helper.sh"
-        self.metrics_script = Path(self.etiss_dir) / "examples" / "bare_etiss_processor" / "get_metrics.py"
+        self.metrics_script = Path(self.etiss_src_dir) / "src" / "bare_etiss_processor" / "get_metrics.py"
+
+    @property
+    def etiss_src_dir(self):
+        return self.config["etiss.src_dir"]
 
     @property
     def etiss_dir(self):
         return self.config["etiss.install_dir"]
+
+    @property
+    def etiss_script(self):
+        return self.config["etissvp.script"]
 
     @property
     def gdbserver_enable(self):
@@ -111,10 +120,18 @@ class EtissPulpinoTarget(RISCVTarget):
     def cycle_time_ps(self):
         return int(self.config["etissvp.cycle_time_ps"])
 
+    @property
+    def cpu_arch(self):
+        return self.config["cpu_arch"]
+
     # TODO: other properties
 
     def write_ini(self, path):
+        # TODO: Either create artifact for ini or prefer to use cmdline args.
         with open(path, "w") as f:
+            if self.cpu_arch:
+                f.write("[StringConfigurations]\n")
+                f.write(f"arch.cpu={self.cpu_arch}\n")
             f.write("[IntConfigurations]\n")
             f.write(f"simple_mem_system.memseg_origin_00={hex(self.rom_start)}\n")
             f.write(f"simple_mem_system.memseg_length_00={hex(self.rom_size)}\n")
@@ -161,7 +178,7 @@ class EtissPulpinoTarget(RISCVTarget):
             raise NotImplementedError
         else:
             ret = execute(
-                self.etiss_script.resolve(),
+                Path(self.etiss_script).resolve(),
                 program,
                 *etiss_script_args,
                 *args,
@@ -186,20 +203,23 @@ class EtissPulpinoTarget(RISCVTarget):
 
         cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)
         if not cpu_cycles:
-            logger.warning("unexpected script output (cycles)")
+            if exit_code == 0:
+                logger.warning("unexpected script output (cycles)")
             cycles = None
         else:
             cycles = int(float(cpu_cycles.group(1)))
         mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
         if not mips_match:
-            raise logger.warning("unexpected script output (mips)")
+            if exit_code == 0:
+                raise logger.warning("unexpected script output (mips)")
             mips = None
         else:
             mips = int(float(mips_match.group(1)))
 
         return cycles, mips
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, handle_exit=None, num=None):
+        assert num is None
         out = ""
         if self.trace_memory:
             trace_file = os.path.join(directory, "dBusAccess.csv")
@@ -290,7 +310,12 @@ class EtissPulpinoTarget(RISCVTarget):
                 metrics.add("RAM stack", ram_stack)
                 metrics.add("RAM heap", ram_heap)
 
-        return metrics, out
+        artifacts = []
+        ini_content = open(etiss_ini, "r").read()
+        ini_artifact = Artifact("custom.ini", content=ini_content, fmt=ArtifactFormat.TEXT)
+        artifacts.append(ini_artifact)
+
+        return metrics, out, artifacts
 
     def get_target_system(self):
         return self.name
@@ -303,6 +328,12 @@ class EtissPulpinoTarget(RISCVTarget):
         ret["PULPINO_ROM_SIZE"] = self.rom_size
         ret["PULPINO_RAM_START"] = self.ram_start
         ret["PULPINO_RAM_SIZE"] = self.ram_size
+        return ret
+
+    def get_backend_config(self, backend):
+        ret = super().get_backend_config(backend)
+        if backend in SUPPORTED_TVM_BACKENDS:
+            ret.update({"target_model": "etissvp"})
         return ret
 
 

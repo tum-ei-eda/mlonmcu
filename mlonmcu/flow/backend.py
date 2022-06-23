@@ -52,6 +52,7 @@ class Backend(ABC):
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
         self.context = context
         self.artifacts = []
+        self.supported_fmts = []
         self.tuner = None
 
     def __repr__(self):
@@ -73,7 +74,7 @@ class Backend(ABC):
         pass
 
     @abstractmethod
-    def generate_code(self, verbose=False):
+    def generate_code(self):
         pass
 
     @property
@@ -144,6 +145,9 @@ class Backend(ABC):
 
     def add_platform_defs(self, platform, defs):
         defs.update(self.get_platform_defs(platform))
+
+    def supports_model(self, model):
+        return any(fmt in self.supported_formats for fmt in model.formats)
 
 
 def get_parser(backend_name, features, required, defaults):
@@ -230,7 +234,9 @@ def main(backend, args=None):
     features = init_backend_features(features_names, config)
     backend_inst = backend(features=features, config=config)
     backend_inst.load_model(model)
-    backend_inst.generate_code(verbose=args.verbose)
+    if args.verbose:
+        config["print_outputs"] = True
+    backend_inst.generate_code()
     if args.print:
         print("Printing generated artifacts:")
         for artifact in backend_inst.artifacts:

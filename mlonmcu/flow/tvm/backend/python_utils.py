@@ -16,26 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""MLonMCU postprocess submodule"""
+import os
 
-from .postprocesses import (
-    AverageCyclesPostprocess,
-    DetailedCyclesPostprocess,
-    FilterColumnsPostprocess,
-    RenameColumnsPostprocess,
-    Features2ColumnsPostprocess,
-    Config2ColumnsPostprocess,
-    VisualizePostprocess,
-    Bytes2kBPostprocess,
-)
 
-SUPPORTED_POSTPROCESSES = {
-    "average_cycles": AverageCyclesPostprocess,
-    "detailed_cycles": DetailedCyclesPostprocess,
-    "filter_cols": FilterColumnsPostprocess,
-    "rename_cols": RenameColumnsPostprocess,
-    "features2cols": Features2ColumnsPostprocess,
-    "config2cols": Config2ColumnsPostprocess,
-    "visualize": VisualizePostprocess,
-    "bytes2kb": Bytes2kBPostprocess,
-}
+def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir):
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(pythonpath)
+    env["TVM_LIBRARY_PATH"] = str(tvm_build_dir)
+    env["TVM_CONFIGS_JSON_DIR"] = str(tvm_configs_dir)
+    return env

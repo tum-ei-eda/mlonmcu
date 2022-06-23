@@ -261,22 +261,10 @@ def print_summary(context, detailed=False):
     print_groups(groups, duplicates=group_duplicates, all_models=models, detailed=detailed)
 
 
-def unpack_modelgroups(names, groups):
-    ret = []
-    group_names = [group.name for group in groups]
-    for name in names:
-        if name in group_names:
-            index = group_names.index(name)
-            ret.extend(groups[index].models)
-        else:
-            ret.append(name)
-    return list(dict.fromkeys(ret))  # Drop duplicates
-
-
 def lookup_models(names, frontends=None, context=None):
     if frontends is None:
         assert context is not None
-        # TODO: Get defaults backends from environment (with no config/features)
+        # TODO: Get defaults frontends from environment (with no config/features)
         raise NotImplementedError
         # frontends = ?
     # allowed_ext = [frontend.fmt.extension for frontend in frontends]
@@ -285,8 +273,7 @@ def lookup_models(names, frontends=None, context=None):
 
     if context:
         directories = get_model_directories(context)
-        models, groups, _, _ = lookup_models_and_groups(directories, allowed_fmts)
-        names = unpack_modelgroups(names, groups)
+        models, _, _, _ = lookup_models_and_groups(directories, allowed_fmts)
     else:
         models = []
     model_names = [model.name for model in models]
@@ -313,6 +300,19 @@ def lookup_models(names, frontends=None, context=None):
             hints.append(hint)
 
     return hints
+
+
+def apply_modelgroups(models, context=None):
+    assert context is not None
+    directories = get_model_directories(context)
+
+    for directory in directories:
+        groups = list_modelgroups(directory)
+        for i, group in enumerate(groups):
+            if group.name in models:
+                models = [*models[:i], *group.models, *models[i + 1 :]]
+                break
+    return list(dict.fromkeys(models))  # Drop duplicates
 
 
 def map_frontend_to_model(model, frontends, backend=None):

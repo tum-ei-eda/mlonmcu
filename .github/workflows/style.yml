@@ -33,7 +33,7 @@ jobs:
           black: true
           black_args: "--line-length=120"
           flake8: true
-          flake8_args: "--max-line-length=120"
+          flake8_args: "--max-line-length=120 --ignore=E203,W503"
 
   check-license:
     name: Check for License headers

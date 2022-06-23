@@ -118,27 +118,38 @@ def clone_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
 
 def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
     if params:
-        if "muriscvnn" in params:
-            if params["muriscvnn"]:
-                if not context.environment.supports_feature("muriscvnn"):
-                    return False
+        muriscvnn = params.get("muriscvnn", False)
+        cmsisnn = params.get("cmsisnn", False)
+        if muriscvnn and cmsisnn:
+            # Not allowed
+            return False
+        elif muriscvnn:
+            if not context.environment.supports_feature("muriscvnn"):
+                return False
+        elif cmsisnn:
+            if not context.environment.supports_feature("cmsisnn"):
+                return False
     return _validate_tflite_micro_compiler(context, params=params)
 
 
 @Tasks.needs(["tflmc.src_dir", "tf.src_dir"])
-@Tasks.optional(["muriscvnn.build_dir", "muriscvnn.inc_dir"])
+@Tasks.optional(["muriscvnn.lib", "muriscvnn.inc_dir", "cmsisnn.dir"])
 @Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
 @Tasks.param("muriscvnn", [False, True])
+@Tasks.param("cmsisnn", [False, True])
 @Tasks.param("dbg", False)
 @Tasks.param("arch", ["x86"])  # TODO: compile for arm/riscv in the future
 @Tasks.validate(_validate_build_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
 def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build the TFLM preinterpreter."""
-    if not params:
-        params = {}
-    flags = utils.makeFlags((params["muriscvnn"], "muriscvnn"), (params["dbg"], "dbg"))
-    flags_ = utils.makeFlags((params["dbg"], "dbg"))
+    muriscvnn = params.get("muriscvnn", False)
+    cmsisnn = params.get("cmsisnn", False)
+    dbg = params.get("dbg", False)
+    arch = params.get("arch", "x86")
+    flags = utils.makeFlags((True, "arch"), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
+    flags_ = utils.makeFlags((dbg, "dbg"))
+    flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
     tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
@@ -146,13 +157,34 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
     tfSrcDir = context.cache["tf.src_dir", flags_]
     tflmcSrcDir = context.cache["tflmc.src_dir", flags_]
     if rebuild or not utils.is_populated(tflmcBuildDir) or not tflmcExe.is_file():
+        cmakeArgs = [
+            "-DTF_SRC=" + str(tfSrcDir),
+            "-DGET_TF_SRC=ON",
+        ]
+        if muriscvnn:
+            muriscvnnLib = context.cache["muriscvnn.lib", flags__]
+            muriscvnnInc = context.cache["muriscvnn.in_dir"]
+            cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={muriscvnnLib}")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={muriscvnnInc}")
+        elif cmsisnn:
+            cmsisnnLib = context.cache["cmsisnn.lib", flags__]
+            cmsisDir = Path(context.cache["cmsisnn.dir"])
+            cmsisIncs = [
+                str(cmsisDir),
+                str(cmsisDir / "CMSIS" / "Core" / "Include"),
+                str(cmsisDir / "CMSIS" / "NN" / "Include"),
+                str(cmsisDir / "CMSIS" / "DSP" / "Include"),
+            ]
+            cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={cmsisnnLib}")
+            cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={cmsisIncs}")
         utils.mkdirs(tflmcBuildDir)
         # utils.cmake("-DTF_SRC=" + str(tfSrcDir), str(tflmcSrcDir), debug=params["dbg"], cwd=tflmcBuildDir)
         utils.cmake(
-            "-DTF_SRC=" + str(tfSrcDir),
-            "-DGET_TF_SRC=ON",
+            *cmakeArgs,
             str(tflmcSrcDir),
-            debug=params["dbg"],
+            debug=dbg,
             cwd=tflmcBuildDir,
             live=verbose,
         )
@@ -176,22 +208,29 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     ):
         return False
     if params:
-        if "vext" in params:
-            if params["vext"]:
-                if not context.environment.has_feature("vext"):
-                    return False
+        vext = params.get("vext", False)
+        pext = params.get("pext", False)
+        if vext and pext:
+            return False  # TODO: allow as soon as there is a compiler for this
+        elif vext:
+            if not context.environment.has_feature("vext"):
+                return False
+        elif pext:
+            if not context.environment.has_feature("pext"):
+                return False
     return True
 
 
 @Tasks.provides(["riscv_gcc.install_dir", "riscv_gcc.name"])
 @Tasks.param("vext", [False, True])
+@Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_riscv_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)
 def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Download and install the RISCV GCC toolchain."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["vext"], "vext"))
+    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     riscvName = utils.makeDirName("riscv_gcc", flags=flags)
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     user_vars = context.environment.vars
@@ -200,13 +239,22 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
         riscvInstallDir = user_vars["riscv_gcc.install_dir"]
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
     else:
-        vext = False
-        if "vext" in params:
-            vext = params["vext"]
-        if "riscv_gcc.dl_url" in user_vars:
-            fullUrlSplit = user_vars["riscv_gcc.dl_url"].split("/")
+        vext = params["vext"]
+        pext = params["pext"]
+        assert not (vext and pext)  # Combination of both extensions is currently not supported
+
+        def _helper(url):
+            fullUrlSplit = url.split("/")
             riscvUrl = "/".join(fullUrlSplit[:-1])
             riscvFileName, riscvFileExtension = fullUrlSplit[-1].split(".", 1)
+            return riscvUrl, riscvFileName, riscvFileExtension
+
+        if vext and "riscv_gcc.dl_url_vext" in user_vars:
+            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url_vext"])
+        elif pext and "riscv_gcc.dl_url_pext" in user_vars:
+            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url_pext"])
+        elif "riscv_gcc.dl_url" in user_vars:
+            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url"])
         else:
             riscvVersion = (
                 user_vars["riscv.version"]
@@ -232,7 +280,7 @@ def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbo
     gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
     gccName = None
     for name in gccNames:
-        if (riscvInstallDir / name).is_dir():
+        if (Path(riscvInstallDir) / name).is_dir():
             gccName = name
             break
     assert gccName is not None, "Toolchain name could not be dtemined automatically"
@@ -334,7 +382,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 
 
 @Tasks.needs(["etiss.build_dir"])
-@Tasks.provides(["etissvp.src_dir", "etiss.lib_dir", "etiss.install_dir"])
+@Tasks.provides(["etiss.lib_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
@@ -346,90 +394,15 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=F
     # etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.cache["etiss.build_dir", flags]
     etissInstallDir = context.cache["etiss.install_dir", flags]
-    etissvpSrcDir = etissInstallDir / "examples" / "bare_etiss_processor"
+    etissvpExe = etissInstallDir / "bin" / "bare_etiss_processor"
+    etissvpScript = etissInstallDir / "bin" / "run_helper.sh"
     etissLibDir = etissInstallDir / "lib"
-    if rebuild or not utils.is_populated(etissvpSrcDir) or not utils.is_populated(etissLibDir):
+    if rebuild or not utils.is_populated(etissLibDir) or not etissvpExe.is_file():
         utils.make("install", cwd=etissBuildDir, live=verbose)
-    context.cache["etissvp.src_dir", flags] = etissvpSrcDir
     context.cache["etiss.lib_dir", flags] = etissLibDir
     context.cache["etiss.install_dir", flags] = etissInstallDir
-    # return True
-
-
-@Tasks.needs(["etissvp.src_dir"])
-@Tasks.provides(["etissvp.build_dir", "etissvp.exe"])
-@Tasks.param("dbg", False)
-@Tasks.validate(_validate_etiss)
-@Tasks.register(category=TaskType.TARGET)
-def build_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
-    """Build the ETISS virtual prototype."""
-    if not params:
-        params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"))
-    etissvpName = utils.makeDirName("build", flags=flags)
-    etissvpSrcDir = context.cache["etissvp.src_dir", flags]
-    etissvpBuildDir = etissvpSrcDir / etissvpName
-    etissvpExe = etissvpBuildDir / "main"
-
-    if rebuild or not etissvpExe.is_file():
-
-        def addMemArgs(args, context=None):  # TODO: find out if this is still required?
-            memMap = (0x0, 0x800000, 0x800000, 0x4000000)
-
-            if context:
-                user_vars = context.environment.vars
-                if "etissvp.rom_start" in user_vars:
-                    temp = user_vars["etissvp.rom_start"]
-                    if not isinstance(temp, int):
-                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                    memMap[0] = temp
-                if "etissvp.rom_size" in user_vars:
-                    temp = user_vars["etissvp.rom_size"]
-                    if not isinstance(temp, int):
-                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                    memMap[1] = temp
-                if "etissvp.ram_start" in user_vars:
-                    temp = user_vars["etissvp.ram_start"]
-                    if not isinstance(temp, int):
-                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                    memMap[2] = temp
-                if "etissvp.ram_size" in user_vars:
-                    temp = user_vars["etissvp.ram_size"]
-                    if not isinstance(temp, int):
-                        temp = int(temp, 0)  # This should automatically detect the base via the prefix
-                    memMap[3] = temp
-
-            def checkMemMap(mem):
-                rom_start, rom_size, ram_start = mem[0], mem[1], mem[2]
-                for val in mem:
-                    assert isinstance(val, int)
-
-                    def is_power_of_two(n):
-                        return n == 0 or (n & (n - 1) == 0)
-
-                    assert is_power_of_two(val)
-                assert rom_start + rom_size <= ram_start
-
-            checkMemMap(memMap)
-
-            args.append(f"-DPULPINO_ROM_START={hex(memMap[0])}")
-            args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[1])}")
-            args.append(f"-DPULPINO_ROM_START={hex(memMap[2])}")
-            args.append(f"-DPULPINO_RAM_SIZE={hex(memMap[3])}")
-            return args
-
-        etissvpArgs = addMemArgs([], context=context)
-        utils.mkdirs(etissvpBuildDir)
-        utils.cmake(
-            etissvpSrcDir,
-            *etissvpArgs,
-            cwd=etissvpBuildDir,
-            debug=params["dbg"],
-            live=verbose,
-        )
-        utils.make(cwd=etissvpBuildDir, live=verbose)
-    context.cache["etissvp.build_dir", flags] = etissvpBuildDir
     context.cache["etissvp.exe", flags] = etissvpExe
+    context.cache["etissvp.script", flags] = etissvpScript
 
 
 #######
@@ -448,7 +421,7 @@ def _validate_tvm(context: MlonMcuContext, params=None):
     return context.environment.has_framework("tvm")
 
 
-@Tasks.provides(["tvm.src_dir"])
+@Tasks.provides(["tvm.src_dir", "tvm.configs_dir"])
 @Tasks.optional(["tvm_extensions.src_dir"])
 @Tasks.validate(_validate_tvm)
 @Tasks.param("patch", [False, True])  # This is just a temporary workaround until the patch is hopefully upstreamed
@@ -472,6 +445,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             utils.apply(tvmSrcDir, patchFile)
 
     context.cache["tvm.src_dir", flags] = tvmSrcDir
+    context.cache["tvm.configs_dir", flags] = tvmSrcDir / "configs"
     context.cache["tvm.pythonpath", flags] = tvmPythonPath
 
 
@@ -616,8 +590,20 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
         return False
     assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
-        if "vext" in params:
-            pass
+        toolchain = params.get("toolchain", "gcc")
+        if params.get("vext", False):
+            if not context.environment.supports_feature("vext"):
+                return False
+        if params.get("pext", False):
+            if toolchain == "llvm":
+                # Unsupported
+                return False
+            if not context.environment.supports_feature("pext"):
+                return False
+        if params.get("vext", False) and params.get("pext", False):
+            # Either pext or vext!
+            return False
+        # TODO: validate chosen toolchain?
     return True
 
 
@@ -644,6 +630,8 @@ def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
 @Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("vext", [False, True])
+@Tasks.param("pext", [False, True])
+@Tasks.param("toolchain", ["gcc"])
 # @Tasks.param("target_arch", ["x86", "riscv", "arm"])  # TODO: implement
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
@@ -651,8 +639,10 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     """Build muRISCV-NN."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"), (params["vext"], "vext"))
-    flags_ = utils.makeFlags((params["vext"], "vext"))
+    flags = utils.makeFlags(
+        (params["dbg"], "dbg"), (params["vext"], "vext"), (params["pext"], "pext"), (True, params["toolchain"])
+    )
+    flags_ = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
     muriscvnnSrcDir = context.cache["muriscvnn.src_dir"]
     muriscvnnBuildDir = context.environment.paths["deps"].path / "build" / muriscvnnName
@@ -664,13 +654,19 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
     if rebuild or not (utils.is_populated(muriscvnnBuildDir) and muriscvnnLib.is_file()):
         utils.mkdirs(muriscvnnBuildDir)
         gccName = context.cache["riscv_gcc.name", flags_]
-        assert gccName == "riscv32-unknown-elf", "muRISCV-NN requires a non-multilib toolchain!"
+        toolchain = params.get("toolchain", "gcc")
+        assert gccName == "riscv32-unknown-elf" or toolchain != "llvm", "muRISCV-NN requires a non-multilib toolchain!"
         muriscvnnArgs = []
-        muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(context.cache["riscv_gcc.install_dir", flags_]))
-        vext = False
-        if "vext" in params:
-            vext = params["vext"]
+        if "riscv_gcc.install_dir" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir"]
+        else:
+            riscv_gcc = context.cache["riscv_gcc.install_dir", flags_]
+        muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
+        muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
+        vext = params.get("vext", False)
+        pext = params.get("pext", False)
         muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
+        muriscvnnArgs.append("-DUSE_PEXT=" + ("ON" if pext else "OFF"))
         muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
         utils.cmake(
             muriscvnnSrcDir,
@@ -689,6 +685,16 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
 def _validate_spike(context: MlonMcuContext, params=None):
     if not context.environment.has_target("spike"):
         return False
+    if params.get("vext", False):
+        if params.get("pext", False):
+            return False  # Can not use booth at a time
+        if not context.environment.supports_feature("vext"):
+            return False
+    if params.get("pext", False):
+        if params.get("vext", False):
+            return False  # Can not use booth at a time
+        if not context.environment.supports_feature("pext"):
+            return False
     assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
     assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
     return True
@@ -712,15 +718,16 @@ def clone_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
 
 @Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
 @Tasks.provides(["spikepk.build_dir", "spike.pk"])
-# @Tasks.param("vext", [False, True])
+@Tasks.param("vext", [False, True])
+@Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
     """Build Spike proxy kernel."""
     if not params:
         params = {}
-    # flags = utils.makeFlags((params["vext"], "vext"))
-    spikepkName = utils.makeDirName("spikepk")
+    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
+    spikepkName = utils.makeDirName("spikepk", flags=flags)
     spikepkSrcDir = context.cache["spikepk.src_dir"]
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
@@ -733,13 +740,25 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
         utils.mkdirs(spikepkBuildDir)
         gccName = context.cache["riscv_gcc.name"]
         assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
+        vext = params.get("vext", False)
+        pext = params.get("pext", False)
+        assert not (pext and vext), "Currently only p or vector extension can be enabled at a time."
+        if "riscv_gcc.install_dir" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir"]
+        else:
+            riscv_gcc = context.cache["riscv_gcc.install_dir", flags]
+        arch = "rv32gc"
+        if pext:
+            arch += "p"
+        if vext:
+            arch += "v"
         spikepkArgs = []
-        spikepkArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
+        spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
-        spikepkArgs.append("--with-arch=rv32gcv")
+        spikepkArgs.append(f"--with-arch={arch}")
         spikepkArgs.append("--with-abi=ilp32d")
         env = os.environ.copy()
-        env["PATH"] = str(Path(context.cache["riscv_gcc.install_dir"]) / "bin") + ":" + env["PATH"]
+        env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]
         utils.exec_getout(
             str(spikepkSrcDir / "configure"),
             *spikepkArgs,
@@ -748,10 +767,11 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
             live=verbose,
         )
         utils.make(cwd=spikepkBuildDir, live=verbose, env=env)
+        # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
         utils.mkdirs(spikepkInstallDir)
         utils.move(spikepkBuildDir / "pk", spikepkBin)
-    context.cache["spikepk.build_dir"] = spikepkBuildDir
-    context.cache["spike.pk"] = spikepkBin
+    context.cache["spikepk.build_dir", flags] = spikepkBuildDir
+    context.cache["spike.pk", flags] = spikepkBin
 
 
 @Tasks.provides(["spike.src_dir"])
@@ -798,6 +818,7 @@ def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
             live=verbose,
         )
         utils.make(cwd=spikeBuildDir, live=verbose)
+        # utils.make(target="install", cwd=spikeBuildDir, live=verbose)
         utils.mkdirs(spikeInstallDir)
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
@@ -805,7 +826,20 @@ def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 
 
 def _validate_cmsisnn(context: MlonMcuContext, params=None):
-    return context.environment.has_feature("cmsisnn") or context.environment.has_feature("cmsisnnbyoc")
+    if not (context.environment.has_feature("cmsisnn") or context.environment.has_feature("cmsisnnbyoc")):
+        return False
+    mvei = params.get("mvei", False)
+    dsp = params.get("dsp", False)
+    target_arch = params.get("target_arch", None)
+    if target_arch == "arm":
+        if dsp and not context.environment.has_feature("arm_dsp"):
+            return False
+        if mvei and not context.environment.has_feature("arm_mvei"):
+            return False
+    else:
+        if mvei or dsp:
+            return False
+    return True
 
 
 def _validate_cmsis(context: MlonMcuContext, params=None):
@@ -832,16 +866,20 @@ def clone_cmsis(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 @Tasks.provides(["cmsisnn.lib"])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("target_arch", ["x86", "riscv", "arm"])
-@Tasks.param("mvei", False)  # TODO: build?
-@Tasks.param("dsp", False)  # TODO: build?
+@Tasks.param("mvei", [False, True])
+@Tasks.param("dsp", [False, True])
 @Tasks.validate(_validate_cmsisnn)
 @Tasks.register(category=TaskType.OPT)  # TODO: rename to TaskType.FEATURE?
 def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    target_arch = params["target_arch"]
+    mvei = params["mvei"]
+    dsp = params["dsp"]
+    dbg = params["dbg"]
     flags = utils.makeFlags(
-        (params["target_arch"], params["target_arch"]),
-        (params["mvei"], "mvei"),
-        (params["dsp"], "dsp"),
-        (params["dbg"], "dbg"),
+        (True, target_arch),
+        (mvei, "mvei"),
+        (dsp, "dsp"),
+        (dbg, "dbg"),
     )
     cmsisnnName = utils.makeDirName("cmsisnn", flags=flags)
     cmsisnnBuildDir = context.environment.paths["deps"].path / "build" / cmsisnnName
@@ -861,6 +899,11 @@ def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=F
             cmakeArgs.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchainFile}")  # Why does this not set CMAKE_C_COMPILER?
             armBinDir = Path(context.cache["arm_gcc.install_dir"]) / "bin"
             cmakeArgs.append("-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY")
+            # Warning: this does not work!
+            if dsp:
+                cmakeArgs.append("-DARM_MATH_DSP=ON")
+            if mvei:
+                cmakeArgs.append("-DARM_MATH_MVEI=ON")
             old = env["PATH"]
             env["PATH"] = f"{armBinDir}:{old}"
         elif params["target_arch"] == "riscv":
@@ -878,13 +921,12 @@ def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=F
         elif params["target_arch"] == "x86":
             pass
         else:
-            arch = params["target_arch"]
-            raise ValueError(f"Target architecture '{arch}' is not supported")
+            raise ValueError(f"Target architecture '{target_arch}' is not supported")
 
         utils.cmake(
             *cmakeArgs,
             str(cmsisnnSrcDir),
-            debug=params["dbg"],
+            debug=dbg,
             cwd=cmsisnnBuildDir,
             live=verbose,
             env=env,
@@ -912,9 +954,9 @@ def install_arm_gcc(context: MlonMcuContext, params=None, rebuild=False, verbose
         return False
     else:
         if not utils.is_populated(armInstallDir):
-            armUrl = "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/"
-            armFileName = "gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux"
-            armArchive = armFileName + ".tar.bz2"
+            armUrl = "https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/"
+            armFileName = "gcc-arm-11.2-2022.02-x86_64-arm-none-eabi"
+            armArchive = armFileName + ".tar.xz"
             utils.download_and_extract(armUrl, armArchive, armInstallDir)
     context.cache["arm_gcc.install_dir"] = armInstallDir
 
@@ -1053,3 +1095,21 @@ def download_tflite_vizualize(context: MlonMcuContext, params=None, rebuild=Fals
         url = "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/tools/visualize.py"
         utils.download(url, tfLiteVizualizeExe)
     context.cache["tflite_visualize.exe"] = tfLiteVizualizeExe
+
+
+def _validate_microtvm_etissvp(context: MlonMcuContext, params=None):
+    return context.environment.has_feature("microtvm_etissvp")
+
+
+@Tasks.provides(["microtvm_etissvp.src_dir", "microtvm_etissvp.template"])
+@Tasks.validate(_validate_microtvm_etissvp)
+@Tasks.register(category=TaskType.FEATURE)
+def clone_microtvm_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+    """Clone the microtvm-etissvp-template repository."""
+    name = utils.makeDirName("microtvm_etissvp")
+    srcDir = context.environment.paths["deps"].path / "src" / name
+    if rebuild or not utils.is_populated(srcDir):
+        repo = context.environment.repos["microtvm_etissvp"]
+        utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
+    context.cache["microtvm_etissvp.src_dir"] = srcDir
+    context.cache["microtvm_etissvp.template"] = srcDir / "template_project"

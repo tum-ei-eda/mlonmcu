@@ -155,6 +155,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
         "keep": None,
         "drop": None,
         "drop_nan": False,
+        "drop_empty": False,
         "drop_const": False,
     }
 
@@ -183,6 +184,11 @@ class FilterColumnsPostprocess(SessionPostprocess):
         return bool(self.config["drop_nan"])
 
     @property
+    def drop_empty(self):
+        """Get drop_empty property."""
+        return bool(self.config["drop_empty"])
+
+    @property
     def drop_const(self):
         """Get drop_const property."""
         return bool(self.config["drop_const"])
@@ -190,7 +196,9 @@ class FilterColumnsPostprocess(SessionPostprocess):
     def post_session(self, report):
         """Called at the end of a session."""
 
-        def _filter_df(df, keep, drop, drop_nan=False, drop_const=False):
+        def _filter_df(df, keep, drop, drop_nan=False, drop_empty=False, drop_const=False):
+            if drop_empty:
+                raise NotImplementedError
             if drop_nan:
                 df.dropna(axis=1, how="all", inplace=True)
             if drop_const:
@@ -206,7 +214,12 @@ class FilterColumnsPostprocess(SessionPostprocess):
             return df.drop(columns=drop_cols)
 
         report.pre_df = _filter_df(
-            report.pre_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const
+            report.pre_df,
+            self.keep,
+            self.drop,
+            drop_nan=self.drop_nan,
+            drop_empty=self.drop_empty,
+            drop_const=self.drop_const,
         )
         report.main_df = _filter_df(
             report.main_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const
@@ -214,6 +227,29 @@ class FilterColumnsPostprocess(SessionPostprocess):
         report.post_df = _filter_df(
             report.post_df, self.keep, self.drop, drop_nan=self.drop_nan, drop_const=self.drop_const
         )
+
+
+class RenameColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
+    """Postprocess which can rename columns based on a provided mapping."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "mapping": {},
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("rename_cols", features=features, config=config)
+
+    @property
+    def mapping(self):
+        # TODO: allow passing via cmdline
+        return self.config["mapping"]
+
+    def post_session(self, report):
+        """Called at the end of a session."""
+        report.pre_df = report.pre_df.rename(columns=self.mapping)
+        report.main_df = report.main_df.rename(columns=self.mapping)
+        report.post_df = report.post_df.rename(columns=self.mapping)
 
 
 class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?

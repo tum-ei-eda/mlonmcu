@@ -34,6 +34,7 @@ class TFLMBackend(Backend):
     def __init__(self, features=None, config=None, context=None):
         super().__init__(framework="tflm", config=config, context=context)
         self.model = None
+        self.supported_formats = [ModelFormats.TFLITE]
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

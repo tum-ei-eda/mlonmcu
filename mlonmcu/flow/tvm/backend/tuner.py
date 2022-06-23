@@ -26,6 +26,8 @@ from pathlib import Path
 
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
+from .tvmc_utils import get_rpc_tvmc_args, get_target_tvmc_args
+from .python_utils import prepare_python_environment
 
 
 def spawn_server(args, env, verbose):
@@ -59,6 +61,7 @@ class TVMTuner:
         self.tracker = None
         self.servers = []
         self.pool = None
+        self.artifacts = []
         # TODO: Support non-local runners in the future -> deploy simulator on cluster
 
     @property
@@ -110,41 +113,31 @@ class TVMTuner:
     def print_outputs(self):
         return bool(self.config["print_outputs"])
 
-    def get_rpc_args(self):
-        return (
-            [
-                "--rpc-key",
-                self.key,
-                "--rpc-tracker",
-                self.hostname + ":" + str(self.port),
-            ]
-            if self.use_rpc
-            else []
-        )
+    # def get_tvmc_tune_args(self, out, target="c"):
+    def get_tvmc_tune_args(self, out, target="llvm"):
+        args = [
+            self.backend.model,
+            *get_target_tvmc_args(
+                target, extra_target=self.backend.extra_target, target_details=self.backend.get_target_details()
+            ),
+            *get_rpc_tvmc_args(self.use_rpc, self.key, self.hostname, self.port),
+            # TODO: missing: pass config, disabled_pass, etc.
+            *["--tuner", self.tuner],
+            *(["--early-stopping", str(self.early_stopping)] if self.early_stopping > 0 else []),
+            *["--parallel", str(self.max_parallel)],
+            *["--timeout", str(self.timeout * self.max_parallel)],
+            *["--trials", str(self.trials)],
+            *(["--tuning-records", self.results_file] if self.results_file is not None else []),
+            *["--output", str(out)],
+        ]
 
-    def get_tvmc_tune_args(self, target="c"):
-        args = self.backend.get_common_tvmc_args(target=target)
-        args.extend(
-            [
-                "--tuner",
-                self.tuner,
-                *(["--early-stopping", str(self.early_stopping)] if self.early_stopping > 0 else []),
-                "--parallel",
-                str(self.max_parallel),
-                "--timeout",
-                str(self.timeout * self.max_parallel),
-                "--trials",
-                str(self.trials),
-                *(["--tuning-records", self.results_file] if self.results_file is not None else []),
-                *self.get_rpc_args(),
-            ]
-        )
         return args
 
-    def invoke_tvmc_tune(self, out, verbose=False):
-        args = self.get_tvmc_tune_args()
-        args.extend(["--output", str(out)])
-        return self.backend.invoke_tvmc("tune", *args, verbose=verbose)
+    # def invoke_tvmc_tune(self, out, verbose=False):
+    def invoke_tvmc_tune(self, out):
+        args = self.get_tvmc_tune_args(out)
+        # return self.backend.invoke_tvmc("tune", *args, verbose=verbose)
+        return self.backend.invoke_tvmc("tune", *args)
 
     def pick_best(self, records, verbose=False):
         content_best = ""
@@ -161,7 +154,9 @@ class TVMTuner:
                 "--o",
                 out_file,
             ]
-            env = self.backend.prepare_python_environment()
+            env = prepare_python_environment(
+                self.backend.tvm_pythonpath, self.backend.tvm_build_dir, self.backend.tvm_configs_dir
+            )
             utils.python("-m", "tvm.autotvm.record", *args, live=verbose, env=env)
             with open(out_file, "r") as handle:
                 content_best = handle.read()
@@ -178,7 +173,9 @@ class TVMTuner:
             str(self.port_end),
             # --silent not required as muted anyway...
         ]
-        env = self.backend.prepare_python_environment()
+        env = prepare_python_environment(
+            self.backend.tvm_pythonpath, self.backend.tvm_build_dir, self.backend.tvm_configs_dir
+        )
 
         def spawn_tracker():
             utils.python("-m", "tvm.exec.rpc_tracker", *args, live=verbose, env=env)
@@ -210,7 +207,9 @@ class TVMTuner:
             "--no-fork",  # required?
             # --silent not required as muted anyway...
         ]
-        env = self.backend.prepare_python_environment()
+        env = prepare_python_environment(
+            self.backend.tvm_pythonpath, self.backend.tvm_build_dir, self.backend.tvm_configs_dir
+        )
 
         for _ in range(self.max_parallel):
             server = multiprocessing.Process(target=spawn_server, args=(args, env, verbose))
@@ -259,7 +258,8 @@ class TVMTuner:
                 with open(out_file, "w") as handle:
                     handle.write(content)
                     # TODO: newline or not?
-                out = self.invoke_tvmc_tune(out_file, verbose=verbose)
+                # out = self.invoke_tvmc_tune(out_file, verbose=verbose)
+                out = self.invoke_tvmc_tune(out_file)
                 with open(out_file, "r") as handle:
                     content = handle.read()
             if self.use_rpc:

@@ -23,6 +23,8 @@ from mlonmcu.flow import get_available_backend_names
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.load import handle as handle_load, add_load_options
 from mlonmcu.session.run import RunStage
+from mlonmcu.platform.lookup import get_platforms_targets
+from .helper.parse import extract_backend_names, extract_target_names, extract_platform_names
 
 
 def add_build_options(parser):
@@ -54,26 +56,32 @@ def get_parser(subparsers, parent=None):
 
 def _handle(args, context):
     handle_load(args, ctx=context)
-    backend_names = args.backend
-    if isinstance(backend_names, list) and len(backend_names) > 0:
-        backends = backend_names
-    elif isinstance(backend_names, str):
-        backends = [backend_names]
-    else:
-        assert backend_names is None, "TODO"
-        frameworks = context.environment.get_default_frameworks()
-        backends = []
-        for framework in frameworks:
-            framework_backends = context.environment.get_default_backends(framework)
-            backends.extend(framework_backends)
+    backends = extract_backend_names(args, context=context)
+    targets = extract_target_names(args, context=None)
+    platforms = extract_platform_names(args, context=context)
+
+    platform_targets = get_platforms_targets(context)  # This will be slow?
+
     assert len(context.sessions) > 0
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
-        for backend_name in backends:
-            new_run = run.copy()
-            new_run.add_backend_by_name(backend_name, context=context)
-            new_runs.append(new_run)
+        for target_name in targets:
+            for backend_name in backends:
+                new_run = run.copy()
+                if target_name is not None:
+                    platform_name = None
+                    for platform in platforms:
+                        candidates = platform_targets[platform]
+                        if target_name in candidates:
+                            platform_name = platform
+                    assert (
+                        platform_name is not None
+                    ), f"Unable to find a suitable platform for the target '{target_name}'"
+                    new_run.add_platform_by_name(platform_name, context=context)
+                    new_run.add_target_by_name(target_name, context=context)
+                new_run.add_backend_by_name(backend_name, context=context)
+                new_runs.append(new_run)
 
     session.runs = new_runs
 

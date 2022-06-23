@@ -163,5 +163,6 @@ class SpikeTarget(RISCVTarget):
                 pass  # TODO: change graph layout to use SIMD kernels
         return ret
 
+
 if __name__ == "__main__":
     cli(target=SpikeTarget)

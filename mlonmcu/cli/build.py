@@ -75,7 +75,9 @@ def _handle(args, context):
                         candidates = platform_targets[platform]
                         if target_name in candidates:
                             platform_name = platform
-                    assert platform_name is not None, f"Unable to find a suitable platform for the target '{target_name}'"
+                    assert (
+                        platform_name is not None
+                    ), f"Unable to find a suitable platform for the target '{target_name}'"
                     new_run.add_platform_by_name(platform_name, context=context)
                     new_run.add_target_by_name(target_name, context=context)
                 new_run.add_backend_by_name(backend_name, context=context)

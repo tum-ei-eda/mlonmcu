@@ -336,5 +336,6 @@ class EtissPulpinoTarget(RISCVTarget):
             ret.update({"target_model": "etissvp"})
         return ret
 
+
 if __name__ == "__main__":
     cli(target=EtissPulpinoTarget)

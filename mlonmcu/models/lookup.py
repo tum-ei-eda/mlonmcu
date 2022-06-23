@@ -310,7 +310,7 @@ def apply_modelgroups(models, context=None):
         groups = list_modelgroups(directory)
         for i, group in enumerate(groups):
             if group.name in models:
-                models = [*models[:i], *group.models, *models[i+1:]]
+                models = [*models[:i], *group.models, *models[i + 1 :]]
                 break
     return list(dict.fromkeys(models))  # Drop duplicates
 

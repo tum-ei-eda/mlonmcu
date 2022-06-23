@@ -378,6 +378,7 @@ class Run:
 
     def add_target_by_name(self, target_name, context=None):
         """Helper function to initialize and configure a target by its name."""
+        # We can not use the following code snipped are platform targets may be resolved dynamically
         # assert context is not None and context.environment.has_target(
         #     target_name
         # ), f"The target '{target_name}' is not enabled for this environment"

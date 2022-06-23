@@ -28,6 +28,7 @@ from mlonmcu.target.target import Target
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+from mlonmcu.flow.tvm.backend.tvmc_utils import get_data_tvmc_args
 
 from .platform import CompilePlatform, TargetPlatform
 from .microtvm_target import create_microtvm_target

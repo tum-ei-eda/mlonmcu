@@ -19,6 +19,8 @@
 """Utility to convert various types of data into MLonMCU compatible raw binary files."""
 import sys
 import struct
+from PIL import Image
+import numpy as np
 
 
 def convert(mode, val):
@@ -46,7 +48,7 @@ def convert(mode, val):
     """
     data = b""
     assert isinstance(val, str), "Input value needs to be a string"
-    assert mode in ["float", "hexstr", "int8"], f"Unsupported mode: {mode}"
+    assert mode in ["float", "hexstr", "int8", "bmp"], f"Unsupported mode: {mode}"
 
     if mode == "float":
         for f in val.split(","):
@@ -56,6 +58,12 @@ def convert(mode, val):
     elif mode == "int8":
         for i in val.split(","):
             data += struct.pack("b", int(i))
+    elif mode == "bmp":
+        im = Image.open(val)
+        p = np.array(im)
+        assert len(p.shape) in (2, 3)  # only allow grayscale or RGB
+        assert p.dtype == np.uint8  # We do not want to hande endianess at this point
+        data = p.tobytes()
     return data
 
 
@@ -80,7 +88,7 @@ def main():
         print(
             "Usage:",
             sys.argv[0],
-            "mode(float, hexstr, int8, image, audio)",
+            "mode(float, hexstr, int8, bmp)",
             "value",
             "outfile",
         )

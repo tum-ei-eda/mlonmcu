@@ -55,7 +55,7 @@ def find_metadata(directory, model_name=None):
     return None
 
 
-def list_models(directory, depth=1, formats=None, config=None):
+def list_models(directory, depth=1, formats=None, config=None):  # TODO: get config from environment or cmdline!
     config = config if config is not None else {}
     formats = formats if formats else [ModelFormats.TFLITE]
     assert len(formats) > 0, "No formats peovided for model lookup"
@@ -288,7 +288,11 @@ def lookup_models(names, frontends=None, context=None):
                 ext in allowed_exts
             ), f"Unsupported file extension for model which was explicitly passed by path: {ext}"
             paths = [filepath]
-            hint = Model(real_name, paths, formats=[ModelFormats.from_extension(ext)])
+            config = {}
+            metadata_path = find_metadata(filepath.parent.resolve(), model_name=real_name)
+            if metadata_path:
+                config[f"{real_name}.metadata_path"] = metadata_path
+            hint = Model(real_name, paths, config=config, formats=[ModelFormats.from_extension(ext)])
             # TODO: look for metadata
             hints.append(hint)
         else:

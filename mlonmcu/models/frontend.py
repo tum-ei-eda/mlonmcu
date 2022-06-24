@@ -104,7 +104,7 @@ class Frontend(ABC):
         pass
 
     def process_metadata(self, model, cfg=None):
-        model_dir = Path(model.paths[0]).parent
+        model_dir = Path(model.paths[0]).parent.resolve()
         metadata = model.metadata
         if self.use_inout_data:
             in_paths = []

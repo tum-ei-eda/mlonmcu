@@ -28,12 +28,13 @@ class TensorInfo:
             self.name = self.name.replace("/", "_").replace(";", "_")
         assert isinstance(shape, (tuple, list))
         self.shape = shape
-        assert dtype in ["float32", "uint8", "int8"]
         size_lookup = {
             "float32": 4,
             "uint8": 1,
             "int8": 1,
+            "int32": 4,
         }
+        assert dtype in size_lookup
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
 
@@ -54,6 +55,8 @@ class TfLiteTensorInfo(TensorInfo):
             TType.FLOAT32: "float32",
             TType.UINT8: "uint8",
             TType.INT8: "int8",
+            TType.INT32: "int32",
+            TType.BOOL: "int8",
         }
         dtype = type_lookup[t.Type()]
         super().__init__(name, shape, dtype, fix_names=fix_names)

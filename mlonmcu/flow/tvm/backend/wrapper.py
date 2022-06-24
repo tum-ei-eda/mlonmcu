@@ -160,13 +160,13 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size, debug_aren
 """
 
     if debug_arena:  # This will enable the feature only if it is not overwritten by the user/compiler
-        mainCode = """
+        mainCode += """
 #ifndef DEBUG_ARENA_USAGE
 #define DEBUG_ARENA_USAGE 1
 #endif
 """
 
-    mainCode = """
+    mainCode += """
 #ifdef DEBUG_ARENA_USAGE
 size_t max_arena_usage = 0;
 #endif

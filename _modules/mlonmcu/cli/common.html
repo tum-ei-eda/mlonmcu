@@ -263,14 +263,21 @@
     <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="c1"># session.label = args.label</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="c1"># TODO: move into context/session</span>
     <span class="n">per_stage</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">print_report</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="s2">&quot;runs_per_stage&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
         <span class="n">per_stage</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;runs_per_stage&quot;</span><span class="p">])</span>
     <span class="k">elif</span> <span class="s2">&quot;runs_per_stage&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>
         <span class="n">per_stage</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="s2">&quot;runs_per_stage&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;print_report&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">print_report</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_report&quot;</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="s2">&quot;print_report&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>
+        <span class="n">print_report</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="s2">&quot;print_report&quot;</span><span class="p">])</span>
     <span class="n">success</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">process_runs</span><span class="p">(</span>
         <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span>
         <span class="n">per_stage</span><span class="o">=</span><span class="n">per_stage</span><span class="p">,</span>
+        <span class="n">print_report</span><span class="o">=</span><span class="n">print_report</span><span class="p">,</span>
         <span class="n">num_workers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">parallel</span><span class="p">,</span>
         <span class="n">progress</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">progress</span><span class="p">,</span>
         <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>

@@ -100,11 +100,13 @@
 <span class="kn">import</span> <span class="nn">os</span>
 
 
-<div class="viewcode-block" id="prepare_python_environment"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.python_utils.prepare_python_environment">[docs]</a><span class="k">def</span> <span class="nf">prepare_python_environment</span><span class="p">(</span><span class="n">pythonpath</span><span class="p">,</span> <span class="n">tvm_build_dir</span><span class="p">,</span> <span class="n">tvm_configs_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="prepare_python_environment"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.python_utils.prepare_python_environment">[docs]</a><span class="k">def</span> <span class="nf">prepare_python_environment</span><span class="p">(</span><span class="n">pythonpath</span><span class="p">,</span> <span class="n">tvm_build_dir</span><span class="p">,</span> <span class="n">tvm_configs_dir</span><span class="p">,</span> <span class="n">tophub_url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pythonpath</span><span class="p">)</span>
     <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TVM_LIBRARY_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tvm_build_dir</span><span class="p">)</span>
     <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TVM_CONFIGS_JSON_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tvm_configs_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tophub_url</span><span class="p">:</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TOPHUB_LOCATION&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tophub_url</span>
     <span class="k">return</span> <span class="n">env</span></div>
 </pre></div>
 

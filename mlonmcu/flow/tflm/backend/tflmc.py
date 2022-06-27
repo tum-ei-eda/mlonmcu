@@ -22,6 +22,7 @@ import tempfile
 from pathlib import Path
 from .backend import TFLMBackend
 import mlonmcu.setup.utils as utils
+from mlonmcu.config import str2bool
 from mlonmcu.flow.backend import main
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -37,12 +38,17 @@ class TFLMCBackend(TFLMBackend):
 
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,
+        "print_outputs": False,
         "custom_ops": [],
         "registrations": {},
         "debug_arena": False,
     }
 
     REQUIRED = TFLMBackend.REQUIRED + ["tflmc.exe"]
+
+    @property
+    def print_outputs(self):
+        return str2bool(self.config["print_outputs"])
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)

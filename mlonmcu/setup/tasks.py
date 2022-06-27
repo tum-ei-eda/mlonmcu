@@ -157,7 +157,7 @@ def build_tflite_micro_compiler(
     cmsisnn = params.get("cmsisnn", False)
     dbg = params.get("dbg", False)
     arch = params.get("arch", "x86")
-    flags = utils.makeFlags((True, "arch"), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
+    flags = utils.makeFlags((True, arch), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
     flags_ = utils.makeFlags((dbg, "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName

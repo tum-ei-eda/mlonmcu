@@ -315,7 +315,8 @@ def apply_modelgroups(models, context=None):
         for group in list_modelgroups(directory):
             if group.name in groups and groups[group.name] != group.models:
                 raise RuntimeError(
-                    f"The model group '{group.name}' has conflicting definitions. Used the following directories: {directories}"
+                    f"The model group '{group.name}' has conflicting definitions. Used the following directories:"
+                    f" {directories}"
                 )
             groups[group.name] = group.models
 

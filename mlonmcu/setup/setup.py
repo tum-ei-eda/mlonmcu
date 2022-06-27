@@ -51,7 +51,9 @@ class Setup:
         self.context = context
         self.tasks_factory = tasks_factory
         self.verbose = bool(self.config["print_outputs"])
-        self.num_threads = int(self.config["num_threads"] if self.config["num_threads"] else multiprocessing.cpu_count())
+        self.num_threads = int(
+            self.config["num_threads"] if self.config["num_threads"] else multiprocessing.cpu_count()
+        )
 
     def clean_cache(self, interactive=True):
         assert self.context is not None

@@ -38,6 +38,7 @@ class Setup:
 
     DEFAULTS = {
         "print_outputs": False,
+        "num_threads": None,
     }
 
     REQUIRED = []
@@ -49,6 +50,7 @@ class Setup:
         self.context = context
         self.tasks_factory = tasks_factory
         self.verbose = bool(self.config["print_outputs"])
+        self.num_threads = bool(self.config["num_threads"])
 
     def clean_cache(self, interactive=True):
         assert self.context is not None
@@ -119,7 +121,7 @@ class Setup:
     def invoke_single_task(self, name, progress=False, write_cache=True, rebuild=False):
         assert name in self.tasks_factory.registry, f"Invalid task name: {name}"
         func = self.tasks_factory.registry[name]
-        func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose)
+        func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose, threads=self.num_threads)
 
     def install_dependencies(
         self,

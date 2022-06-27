@@ -6,7 +6,7 @@ logging:
   to_file: false
   rotate: false
 cleanup:
-  auto: false
+  auto: true
   keep: 50
 # Default locations for certain directoriescan be changed here
 # Non-absolute paths will always be threated relative to the MLONMCU_HOME
@@ -28,44 +28,48 @@ paths:
 # Here default clone_urls
 repos:
   tensorflow:  # TODO: rename to tflite-micro?
-    url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: 746f880a405aeca2db6d005fd9fb8e451f3cea34
+    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-micro.git"
+    ref: feature/tflmc_support
   tflite_micro_compiler:
-    url: "git@github.com:PhilippvK/tflite_micro_compiler.git"
-    ref: patches
+    url: "git@gitlab.lrz.de:philippvk/tflite_micro_compiler.git"
+    ref: philippvk_new
   tvm:
     url: "git@github.com:rafzi/privtvm.git"
     ref: moiopt
   utvm_staticrt_codegen:
     url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
-    ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
+    ref: main
   tvm_extensions:
-    url: "https://github.com/tum-ei-eda/tvm_extensions.git"
+    url: "git@github.com:tum-ei-eda/tvm_extensions.git"
     ref: main
-  etiss:
-    url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: d20bd6e6019a680f98d9904e6fc1c2d51f4a061b
   muriscvnn:
-    url: "git@github.com:fabianpedd/muriscv_nn.git"
-    ref: main
+    url: "git@github.com:tum-ei-eda/muriscv-nn.git"
+    ref: master
+  etiss:
+    url: "git@github.com:tum-ei-eda/etiss.git"
+    ref: master
   packer:
     url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
     ref: main
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
-    ref: master
+    ref: caf5a420ef7414031368739e16d60f3f418aa6ac
   spikepk:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
-    ref: master
+    ref: 2efabd3e6604b8a9e8f70baf52f57696680c7855
   cmsis:
-    url: "https://github.com/ARM-software/CMSIS_5.git"
-    ref: 8c60448c0e1e50e426180b26db9bc31ddf774361
+    url: "https://github.com/PhilippvK/CMSIS_5.git"
+    ref: 4a52cabc5830b4666589d4c63f3a228eef5b4efb
   mlif:
-    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 35c07e41c2dd92618f0249d24a7c564110ae2b6d
+    url: "git@github.com:tum-ei-eda/mlonmcu-sw.git"
+    ref: 3f8e66b956fe1cf0d85a18d39d684816e92e2751
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
+  microtvm_etissvp:
+    url: "git@github.com:PhilippvK/microtvm-etissvp-template.git"
+    ref: 8b48a897ed4354602454f18cdd890aef6df4a554
+
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -83,7 +87,7 @@ frameworks:
           debug_arena: true
     features:
       muriscvnn: true
-      cmsisnn: false
+      cmsisnn: true
   tvm:
     enabled: true
     backends:
@@ -106,6 +110,13 @@ frameworks:
           autotune: true
           autotuned: true
           moiopt: true
+      tvmllvm:
+        enabled: false
+        features:
+          # unpacked_api: true
+          disable_legalize: true
+          autotune: true
+          autotuned: true
       tvmcg:
         enabled: true
         features:
@@ -114,7 +125,8 @@ frameworks:
           autotune: true
           autotuned: true
     features:
-      cmsisnnbyoc: false
+      cmsisnnbyoc: true
+      muriscvnnbyoc: true
 # Some frontends are experimental and therefore disabled here
 # Features like packing are only available in certain environments
 #
@@ -123,6 +135,11 @@ frontends:
     enabled: true
     features:
       validate: true
+      visualize: true
+  relay:
+    enabled: false
+    features:
+      relayviz: true
   packed:
     enabled: false
     features:
@@ -142,6 +159,16 @@ platforms:
     enabled: false
     features:
       debug: true
+  tvm:
+    enabled: false
+    features: []
+      # rpc: true
+      # validate: true
+  microtvm:
+    enabled: false
+    features:
+      # validate: true
+      microtvm_etissvp: true
 # List of supported targets in the environment
 targets:
   default: etiss_pulpino
@@ -151,6 +178,9 @@ targets:
       gdbserver: true
       etissdbg: true
       trace: true
+      log_instrs: true
+      # vext: true
+      # pext: true
   host_x86:
     enabled: true
     features:
@@ -159,17 +189,34 @@ targets:
     enabled: true
     features:
       vext: true
+      pext: true
+      cachesim: true
+      log_instrs: true
   ovpsim:
     enabled: false
     features:
       vext: true
+      pext: true
   corstone300:
     enabled: true
     features:
       ethosu: false
+      arm_mvei: false
+      arm_dsp: true
+postprocesses:
+  use:
+  # - detailed_cycles
+  # - average_cycles
+  # - filter_cols
+  # - features2cols
+  # - config2cols
+  # - bytes2kb
+  # - visualize
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
   # tvm.make_tool: "ninja"
-  llvm.version: "11.1.0"
+  llvm.version: "14.0.0"
   runs_per_stage: true
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fi89JQF89pEiWwP6aQh7cM4H/rv32gcv.tar.xz"
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiPX7H4WRQL9GXbeoo2sEexj/rv32gcv.tar.gz"
+  riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiNvP4mzVQ8uDvgT9Yf2bqNk/rv32gcp.tar.xz"

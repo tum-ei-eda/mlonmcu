@@ -224,17 +224,17 @@ class TVMBackend(Backend):
         ]
         return args
 
-    def invoke_tvmc(self, command, *args):
+    def invoke_tvmc(self, command, *args, cwd=None):
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:
             pre = [self.tvmc_custom_script]
-        return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
+        return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd)
 
-    def invoke_tvmc_compile(self, out, dump=None):
+    def invoke_tvmc_compile(self, out, dump=None, cwd=None):
         args = self.get_tvmc_compile_args(out)
-        return self.invoke_tvmc("compile", *args)
+        return self.invoke_tvmc("compile", *args, cwd=cwd)
 
     def load_model(self, model):
         self.model = model

@@ -298,7 +298,7 @@ def lookup_models(names, frontends=None, context=None):
         else:
             assert context is not None, "Context is required for passing models by name"
             assert len(model_names) > 0, "List of available models is empty"
-            assert name in model_names, f"Could not find a model or group matching the name: {name}"
+            assert name in model_names, f"Could not find a model matching the name: {name}"
             index = model_names.index(name)
             hint = models[index]
             hints.append(hint)
@@ -310,12 +310,16 @@ def apply_modelgroups(models, context=None):
     assert context is not None
     directories = get_model_directories(context)
 
+    groups = {}
     for directory in directories:
-        groups = list_modelgroups(directory)
-        for i, group in enumerate(groups):
-            if group.name in models:
-                models = [*models[:i], *group.models, *models[i + 1 :]]
-                break
+        for group in list_modelgroups(directory):
+            if group.name in groups and groups[group.name] != group.models:
+                raise RuntimeError(
+                    f"The model group '{group.name}' has conflicting definitions. Used the following directories: {directories}"
+                )
+            groups[group.name] = group.models
+
+    models = [m for model in models for m in groups[model]]
     return list(dict.fromkeys(models))  # Drop duplicates
 
 

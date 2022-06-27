@@ -320,8 +320,10 @@ def apply_modelgroups(models, context=None):
                 )
             groups[group.name] = group.models
 
-    models = [m for model in models for m in groups[model]]
-    return list(dict.fromkeys(models))  # Drop duplicates
+    out_models = []
+    for model in models:
+        out_models.extend(groups.get(model, [model]))
+    return list(dict.fromkeys(out_models))  # Drop duplicates
 
 
 def map_frontend_to_model(model, frontends, backend=None):

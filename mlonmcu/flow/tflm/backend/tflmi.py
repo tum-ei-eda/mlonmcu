@@ -325,8 +325,8 @@ class TFLMIBackend(TFLMBackend):
 
     REQUIRED = TFLMBackend.REQUIRED + []
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__(features=features, config=config, context=context)
+    def __init__(self, features=None, config=None):
+        super().__init__(features=features, config=config)
         self.codegen = TFLMICodegen()
         self.model_data = None
         self.prefix = "model"  # Without the _

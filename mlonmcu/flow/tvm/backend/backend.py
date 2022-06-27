@@ -63,8 +63,8 @@ class TVMBackend(Backend):
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__(framework="tvm", features=features, config=config, context=context)
+    def __init__(self, features=None, config=None):
+        super().__init__(framework="tvm", features=features, config=config)
 
         self.model = None  # Actual filename!
         self.model_info = None

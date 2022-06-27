@@ -44,13 +44,11 @@ class Backend(ABC):
         framework="",
         features=None,
         config=None,
-        context=None,
     ):
         self.framework = framework
         self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
-        self.context = context
         self.artifacts = []
         self.supported_fmts = []
         self.tuner = None

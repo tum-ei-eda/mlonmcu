@@ -44,8 +44,8 @@ class TFLMCBackend(TFLMBackend):
 
     REQUIRED = TFLMBackend.REQUIRED + ["tflmc.exe"]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__(features=features, config=config, context=context)
+    def __init__(self, features=None, config=None):
+        super().__init__(features=features, config=config)
         self.model_data = None
         self.prefix = "model"  # Without the _
         self.artifacts = (

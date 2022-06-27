@@ -147,6 +147,7 @@ class Session:
         self,
         until=RunStage.DONE,
         per_stage=False,
+        print_report=False,
         num_workers=1,
         progress=False,
         export=False,

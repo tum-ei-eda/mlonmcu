@@ -58,6 +58,7 @@ class TVMBackend(Backend):
         "use_tuning_results": False,
         "tvmc_extra_args": [],  # Currently compile subcommand only!
         "tvmc_custom_script": None,
+        "tophub_url": None,  # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py#L38
         **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 

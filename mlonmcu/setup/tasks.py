@@ -159,7 +159,6 @@ def build_tflite_micro_compiler(
     arch = params.get("arch", "x86")
     flags = utils.makeFlags((True, "arch"), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
     flags_ = utils.makeFlags((dbg, "dbg"))
-    flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
     tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
@@ -172,12 +171,14 @@ def build_tflite_micro_compiler(
             "-DGET_TF_SRC=ON",
         ]
         if muriscvnn:
+            flags__ = utils.makeFlags((True, arch), (True, "gcc"), (dbg, "dbg"))
             muriscvnnLib = context.cache["muriscvnn.lib", flags__]
-            muriscvnnInc = context.cache["muriscvnn.in_dir"]
+            muriscvnnInc = context.cache["muriscvnn.inc_dir"]
             cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={muriscvnnLib}")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={muriscvnnInc}")
         elif cmsisnn:
+            flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
             cmsisnnLib = context.cache["cmsisnn.lib", flags__]
             cmsisDir = Path(context.cache["cmsisnn.dir"])
             cmsisIncs = [
@@ -613,19 +614,26 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
     assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
         toolchain = params.get("toolchain", "gcc")
-        if params.get("vext", False):
-            if not context.environment.supports_feature("vext"):
+        target_arch = params.get("target_arch", "riscv")
+        if target_arch == "riscv":
+            if params.get("vext", False):
+                if not context.environment.supports_feature("vext"):
+                    return False
+            if params.get("pext", False):
+                if toolchain == "llvm":
+                    # Unsupported
+                    return False
+                if not context.environment.supports_feature("pext"):
+                    return False
+            if params.get("vext", False) and params.get("pext", False):
+                # Either pext or vext!
                 return False
-        if params.get("pext", False):
-            if toolchain == "llvm":
-                # Unsupported
+        elif target_arch == "x86":
+            if toolchain != "gcc":
                 return False
-            if not context.environment.supports_feature("pext"):
+            if params.get("vext", False) or params.get("pext", False):
                 return False
-        if params.get("vext", False) and params.get("pext", False):
-            # Either pext or vext!
-            return False
-        # TODO: validate chosen toolchain?
+            # TODO: validate chosen toolchain?
     return True
 
 
@@ -656,7 +664,7 @@ def clone_muriscvnn(
 @Tasks.param("vext", [False, True])
 @Tasks.param("pext", [False, True])
 @Tasks.param("toolchain", ["gcc"])
-# @Tasks.param("target_arch", ["x86", "riscv", "arm"])  # TODO: implement
+@Tasks.param("target_arch", ["x86", "riscv"])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
 def build_muriscvnn(
@@ -666,7 +674,11 @@ def build_muriscvnn(
     if not params:
         params = {}
     flags = utils.makeFlags(
-        (params["dbg"], "dbg"), (params["vext"], "vext"), (params["pext"], "pext"), (True, params["toolchain"])
+        (params["dbg"], "dbg"),
+        (params["vext"], "vext"),
+        (params["pext"], "pext"),
+        (True, params["toolchain"]),
+        (True, params["target_arch"]),
     )
     flags_ = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
@@ -679,21 +691,32 @@ def build_muriscvnn(
         return False
     if rebuild or not (utils.is_populated(muriscvnnBuildDir) and muriscvnnLib.is_file()):
         utils.mkdirs(muriscvnnBuildDir)
-        gccName = context.cache["riscv_gcc.name", flags_]
-        toolchain = params.get("toolchain", "gcc")
-        assert gccName == "riscv32-unknown-elf" or toolchain != "llvm", "muRISCV-NN requires a non-multilib toolchain!"
         muriscvnnArgs = []
-        if "riscv_gcc.install_dir" in user_vars:
-            riscv_gcc = user_vars["riscv_gcc.install_dir"]
+        target_arch = params.get("target_arch", "riscv")
+        if target_arch == "riscv":
+            gccName = context.cache["riscv_gcc.name", flags_]
+            toolchain = params.get("toolchain", "gcc")
+            assert (
+                gccName == "riscv32-unknown-elf" or toolchain != "llvm"
+            ), "muRISCV-NN requires a non-multilib toolchain!"
+            if "riscv_gcc.install_dir" in user_vars:
+                riscv_gcc = user_vars["riscv_gcc.install_dir"]
+            else:
+                riscv_gcc = context.cache["riscv_gcc.install_dir", flags_]
+            muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
+            muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
+            vext = params.get("vext", False)
+            pext = params.get("pext", False)
+            muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
+            muriscvnnArgs.append("-DUSE_PEXT=" + ("ON" if pext else "OFF"))
+            muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
+        elif target_arch == "x86":
+            toolchain = params.get("toolchain", "gcc")
+            muriscvnnArgs.append("-DTOOLCHAIN=x86")
+            muriscvnnArgs.append("-DUSE_VEXT=OFF")
+            muriscvnnArgs.append("-DUSE_PEXT=OFF")
         else:
-            riscv_gcc = context.cache["riscv_gcc.install_dir", flags_]
-        muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
-        muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
-        vext = params.get("vext", False)
-        pext = params.get("pext", False)
-        muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
-        muriscvnnArgs.append("-DUSE_PEXT=" + ("ON" if pext else "OFF"))
-        muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
+            raise RuntimeError(f"Unsupported target_arch for muriscvnn: {target_arch}")
         utils.cmake(
             muriscvnnSrcDir,
             *muriscvnnArgs,

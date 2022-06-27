@@ -323,10 +323,8 @@ def install_llvm(
         # TODO: WARNING
         llvmInstallDir = user_vars["llvm.install_dir"]
     else:
-        llvmVersion = user_vars["llvm.version"] if "llvm.version" in user_vars else "11.0.1"
-        llvmDist = (
-            user_vars["llvm.distribution"] if "llvm.distribution" in user_vars else "x86_64-linux-gnu-ubuntu-16.04"
-        )
+        llvmVersion = user_vars.get("llvm.version", "14.0.0")
+        llvmDist = user_vars.get("llvm.distribution", "x86_64-linux-gnu-ubuntu-18.04")
         llvmUrl = f"https://github.com/llvm/llvm-project/releases/download/llvmorg-{llvmVersion}/"
         llvmFileName = f"clang+llvm-{llvmVersion}-{llvmDist}"
         llvmArchive = llvmFileName + ".tar.xz"

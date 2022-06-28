@@ -173,8 +173,10 @@ def resolve_required_config(
 
 
 def str2bool(value):
+    assert isinstance(value, str)
     return bool(value) if isinstance(value, (int, bool)) else bool(distutils.util.strtobool(value))
 
 
 def str2dict(value):
+    assert isinstance(value, str)
     return dict(ast.literal_eval(value))

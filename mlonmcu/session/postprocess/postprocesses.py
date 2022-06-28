@@ -387,10 +387,10 @@ class Artifact2ColumnPostprocess(RunPostprocess):
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
         for filename, colname in self.file2colname.items():
-            artifacts = lookup_artifacts(artifacts, name=filename, first_only=True)
-            if not artifacts:
+            matches = lookup_artifacts(artifacts, name=filename, first_only=True)
+            if not matches:
                 report.main_df[colname] = ""
                 return
-            if artifacts[0].fmt != ArtifactFormat.TEXT:
+            if matches[0].fmt != ArtifactFormat.TEXT:
                 raise RuntimeError("Can only put text into report columns")
-            report.main_df[colname] = artifacts[0].content
+            report.main_df[colname] = matches[0].content

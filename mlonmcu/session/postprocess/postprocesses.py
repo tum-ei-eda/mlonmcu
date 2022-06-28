@@ -25,7 +25,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
+from mlonmcu.config import str2dict
 from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
@@ -55,7 +56,7 @@ class AverageCyclesPostprocess(SessionPostprocess, RunPostprocess):
         """Get merge_rows property."""
         return bool(self.config["merge_rows"])
 
-    def post_run(self, report):
+    def post_run(self, report, artifacts):
         """Called at the end of a run."""
         if not self.merge_rows:
             if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
@@ -242,8 +243,10 @@ class RenameColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
     @property
     def mapping(self):
-        # TODO: allow passing via cmdline
-        return self.config["mapping"]
+        value = self.config["mapping"]
+        if not isinstance(value, dict):
+            return str2dict(value)
+        return value
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -360,3 +363,34 @@ class VisualizePostprocess(SessionPostprocess):
 
         artifacts = [Artifact("plot.png", raw=data, fmt=ArtifactFormat.RAW)]
         return artifacts
+
+
+class Artifact2ColumnPostprocess(RunPostprocess):
+    """Postprocess for converting artifacts to columns in the report."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "file2colname": {},
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("artifacts2cols", features=features, config=config)
+
+    @property
+    def file2colname(self):
+        """Get file2colname property."""
+        value = self.config["file2colname"]
+        if not isinstance(value, dict):
+            return str2dict(value)
+        return value
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        for filename, colname in self.file2colname.items():
+            artifacts = lookup_artifacts(artifacts, name=filename, first_only=True)
+            if not artifacts:
+                report.main_df[colname] = ""
+                return
+            if artifacts[0].fmt != ArtifactFormat.TEXT:
+                raise RuntimeError("Can only put text into report columns")
+            report.main_df[colname] = artifacts[0].content

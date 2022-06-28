@@ -18,6 +18,7 @@
 #
 """Collection of utilities to manage MLonMCU configs."""
 import distutils.util
+import ast
 
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.logging import get_logger
@@ -173,3 +174,7 @@ def resolve_required_config(
 
 def str2bool(value):
     return bool(value) if isinstance(value, (int, bool)) else bool(distutils.util.strtobool(value))
+
+
+def str2dict(value):
+    return dict(ast.literal_eval(value))

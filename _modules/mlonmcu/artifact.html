@@ -131,8 +131,8 @@
 <div class="viewcode-block" id="lookup_artifacts"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.lookup_artifacts">[docs]</a><span class="k">def</span> <span class="nf">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Utility to get a matching artifact for a given set of properties.&quot;&quot;&quot;</span>
     <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1"># Warning: if neither name, fmt nor flags is provided, the first artifact (multiple=False)</span>
-    <span class="c1"># or all (multiple=True) are returned</span>
+    <span class="c1"># Warning: if neither name, fmt nor flags is provided, the first artifact (first_only=True)</span>
+    <span class="c1"># or all (first_only=False) are returned</span>
     <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
         <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">artifact</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>

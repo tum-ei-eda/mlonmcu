@@ -97,6 +97,7 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
@@ -566,10 +567,11 @@
         <span class="c1"># assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">existing_artifacts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
         <span class="n">temp_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">postprocess</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocesses</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">postprocess</span><span class="p">,</span> <span class="n">RunPostprocess</span><span class="p">):</span>
-                <span class="n">artifacts</span> <span class="o">=</span> <span class="n">postprocess</span><span class="o">.</span><span class="n">post_run</span><span class="p">(</span><span class="n">temp_report</span><span class="p">)</span>
+                <span class="n">artifacts</span> <span class="o">=</span> <span class="n">postprocess</span><span class="o">.</span><span class="n">post_run</span><span class="p">(</span><span class="n">temp_report</span><span class="p">,</span> <span class="n">existing_artifacts</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">artifacts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">artifacts</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="n">temp_report</span>

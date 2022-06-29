@@ -240,7 +240,8 @@
 
     <span class="c1"># @property</span>
     <span class="c1"># def profile(self):</span>
-    <span class="c1">#     return str2bool(self.config[&quot;profile&quot;])</span>
+    <span class="c1">#     value = self.config[&quot;profile&quot;]</span>
+    <span class="c1">#     return str2bool(value) if not isinstance(value, (bool, int)) else value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -248,7 +249,8 @@
 
     <span class="c1"># @property</span>
     <span class="c1"># def use_rpc(self):</span>
-    <span class="c1">#     return str2bool(self.config[&quot;use_rpc&quot;])</span>
+    <span class="c1">#     value = self.config[&quot;use_rpc&quot;]</span>
+    <span class="c1">#     return str2bool(value) if not isinstance(value, (bool, int)) else value</span>
 
     <span class="c1"># @property</span>
     <span class="c1"># def rpc_key(self):</span>

@@ -144,7 +144,7 @@ class RelayModelInfo(ModelInfo):
         super().__init__(in_tensors, out_tensors)
 
 
-def get_tfgraph_inout(graph, graph_def):
+def get_tfgraph_inout(graph):
     ops = graph.get_operations()
     outputs_set = set(ops)
     inputs = []
@@ -166,7 +166,7 @@ class PBModelInfo(ModelInfo):
             graph_def.ParseFromString(f.read())
         with tf.Graph().as_default() as graph:
             tf.import_graph_def(graph_def)
-            inputs, outputs = get_tfgraph_inout(graph, graph_def)
+            inputs, outputs = get_tfgraph_inout(graph)
         in_tensors = [TensorInfo(t.name, t.shape.as_list(), t.dtype.name) for op in inputs for t in op.outputs]
         out_tensors = [TensorInfo(t.name, t.shape.as_list(), t.dtype.name) for op in outputs for t in op.outputs]
         super().__init__(in_tensors, out_tensors)

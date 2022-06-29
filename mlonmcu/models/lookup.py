@@ -59,6 +59,7 @@ def list_models(directory, depth=1, formats=None, config=None):  # TODO: get con
     config = config if config is not None else {}
     formats = formats if formats else [ModelFormats.TFLITE]
     assert len(formats) > 0, "No formats provided for model lookup"
+    models = []
     for fmt in formats:
         if depth != 1:
             raise NotImplementedError  # TODO: implement for arm ml zoo
@@ -68,7 +69,6 @@ def list_models(directory, depth=1, formats=None, config=None):  # TODO: get con
             logger.debug("Not a directory: %s", str(directory))
             return []
         subdirs = [Path(directory) / o for o in os.listdir(directory) if os.path.isdir(os.path.join(directory, o))]
-        models = []
         for subdir in subdirs:
             dirname = subdir.name
             if dirname.startswith("."):

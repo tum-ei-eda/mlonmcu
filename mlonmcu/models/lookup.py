@@ -249,7 +249,7 @@ def print_groups(groups, all_models=[], duplicates=[], detailed=False):
 
 def print_summary(context, detailed=False):
     # TODO: get from context!
-    formats = ModelFormats.TFLITE
+    formats = [ModelFormats.TFLITE]
 
     directories = get_model_directories(context)
 

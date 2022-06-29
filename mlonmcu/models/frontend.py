@@ -514,7 +514,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
 
 class ONNXFrontend(SimpleFrontend):
 
-    FEATURES = Frontend.FEATURES + ["visualize"]
+    FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
         **Frontend.DEFAULTS,
@@ -533,7 +533,7 @@ class ONNXFrontend(SimpleFrontend):
 
 class PBFrontend(SimpleFrontend):
 
-    FEATURES = Frontend.FEATURES + ["visualize"]
+    FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
         **Frontend.DEFAULTS,

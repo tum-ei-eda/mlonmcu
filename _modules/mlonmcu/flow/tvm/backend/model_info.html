@@ -100,6 +100,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">tflite</span>
 <span class="kn">from</span> <span class="nn">tflite.TensorType</span> <span class="kn">import</span> <span class="n">TensorType</span> <span class="k">as</span> <span class="n">TType</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 
 <div class="viewcode-block" id="TensorInfo"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.TensorInfo">[docs]</a><span class="k">class</span> <span class="nc">TensorInfo</span><span class="p">:</span>
@@ -224,6 +225,34 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="get_tfgraph_inout"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_tfgraph_inout">[docs]</a><span class="k">def</span> <span class="nf">get_tfgraph_inout</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">graph_def</span><span class="p">):</span>
+    <span class="n">ops</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_operations</span><span class="p">()</span>
+    <span class="n">outputs_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Placeholder&quot;</span><span class="p">:</span>
+            <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">input_tensor</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">input_tensor</span><span class="o">.</span><span class="n">op</span> <span class="ow">in</span> <span class="n">outputs_set</span><span class="p">:</span>
+                    <span class="n">outputs_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">.</span><span class="n">op</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">outputs_set</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PBModelInfo"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.PBModelInfo">[docs]</a><span class="k">class</span> <span class="nc">PBModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">graph_def</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">GraphDef</span><span class="p">()</span>
+            <span class="n">graph_def</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span><span class="o">.</span><span class="n">as_default</span><span class="p">()</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">import_graph_def</span><span class="p">(</span><span class="n">graph_def</span><span class="p">)</span>
+            <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span> <span class="o">=</span> <span class="n">get_tfgraph_inout</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">graph_def</span><span class="p">)</span>
+        <span class="n">in_tensors</span> <span class="o">=</span> <span class="p">[</span><span class="n">TensorInfo</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">inputs</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span>
+        <span class="n">out_tensors</span> <span class="o">=</span> <span class="p">[</span><span class="n">TensorInfo</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">outputs</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="get_tflite_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_tflite_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_tflite_model_info</span><span class="p">(</span><span class="n">model_buf</span><span class="p">):</span>
     <span class="n">tflite_model</span> <span class="o">=</span> <span class="n">tflite</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">GetRootAsModel</span><span class="p">(</span><span class="n">model_buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">TfLiteModelInfo</span><span class="p">(</span><span class="n">tflite_model</span><span class="p">)</span>
@@ -232,6 +261,11 @@
 
 <div class="viewcode-block" id="get_relay_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_relay_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_relay_model_info</span><span class="p">(</span><span class="n">mod_text</span><span class="p">):</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">RelayModelInfo</span><span class="p">(</span><span class="n">mod_text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_info</span></div>
+
+
+<div class="viewcode-block" id="get_pb_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_pb_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_pb_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">PBModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model_info</span></div>
 </pre></div>
 

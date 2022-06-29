@@ -58,7 +58,7 @@ def find_metadata(directory, model_name=None):
 def list_models(directory, depth=1, formats=None, config=None):  # TODO: get config from environment or cmdline!
     config = config if config is not None else {}
     formats = formats if formats else [ModelFormats.TFLITE]
-    assert len(formats) > 0, "No formats peovided for model lookup"
+    assert len(formats) > 0, "No formats provided for model lookup"
     for fmt in formats:
         if depth != 1:
             raise NotImplementedError  # TODO: implement for arm ml zoo

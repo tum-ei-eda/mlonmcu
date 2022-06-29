@@ -161,7 +161,7 @@ def lookup_models_and_groups(directories, formats):
     duplicates = {}
     group_duplicates = {}
     for directory in directories:
-        models = list_models(directory)
+        models = list_models(directory, formats=formats)
         if len(all_models) == 0:
             all_models = models
         else:

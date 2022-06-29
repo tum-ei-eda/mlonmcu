@@ -19,6 +19,7 @@
 import re
 import tflite
 from tflite.TensorType import TensorType as TType
+import tensorflow as tf
 
 
 class TensorInfo:
@@ -143,6 +144,34 @@ class RelayModelInfo(ModelInfo):
         super().__init__(in_tensors, out_tensors)
 
 
+def get_tfgraph_inout(graph, graph_def):
+    ops = graph.get_operations()
+    outputs_set = set(ops)
+    inputs = []
+    for op in ops:
+        if op.type == "Placeholder":
+            inputs.append(op)
+        else:
+            for input_tensor in op.inputs:
+                if input_tensor.op in outputs_set:
+                    outputs_set.remove(input_tensor.op)
+    outputs = list(outputs_set)
+    return (inputs, outputs)
+
+
+class PBModelInfo(ModelInfo):
+    def __init__(self, model_file):
+        with tf.io.gfile.GFile(model_file, "rb") as f:
+            graph_def = tf.compat.v1.GraphDef()
+            graph_def.ParseFromString(f.read())
+        with tf.Graph().as_default() as graph:
+            tf.import_graph_def(graph_def)
+            inputs, outputs = get_tfgraph_inout(graph, graph_def)
+        in_tensors = [TensorInfo(t.name, t.shape.as_list(), t.dtype.name) for op in inputs for t in op.outputs]
+        out_tensors = [TensorInfo(t.name, t.shape.as_list(), t.dtype.name) for op in outputs for t in op.outputs]
+        super().__init__(in_tensors, out_tensors)
+
+
 def get_tflite_model_info(model_buf):
     tflite_model = tflite.Model.GetRootAsModel(model_buf, 0)
     model_info = TfLiteModelInfo(tflite_model)
@@ -151,4 +180,9 @@ def get_tflite_model_info(model_buf):
 
 def get_relay_model_info(mod_text):
     model_info = RelayModelInfo(mod_text)
+    return model_info
+
+
+def get_pb_model_info(model_file):
+    model_info = PBModelInfo(model_file)
     return model_info

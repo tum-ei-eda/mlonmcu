@@ -57,5 +57,5 @@ class SessionPostprocess(Postprocess):
 class RunPostprocess(Postprocess):
     """Run postprocess which is applied to a single run."""
 
-    def post_run(self, report):
+    def post_run(self, report, artifacts):
         """Called at the end of a run."""

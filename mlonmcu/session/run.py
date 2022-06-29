@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options."""
+import itertools
 import os
 import copy
 import tempfile
@@ -486,10 +487,11 @@ class Run:
         # assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback
 
         self.artifacts_per_stage[RunStage.POSTPROCESS] = []
+        existing_artifacts = list(itertools.chain(*self.artifacts_per_stage.values()))
         temp_report = self.get_report()
         for postprocess in self.postprocesses:
             if isinstance(postprocess, RunPostprocess):
-                artifacts = postprocess.post_run(temp_report)
+                artifacts = postprocess.post_run(temp_report, existing_artifacts)
                 if artifacts is not None:
                     self.artifacts_per_stage[RunStage.POSTPROCESS].extend(artifacts)
         self.report = temp_report

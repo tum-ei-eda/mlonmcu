@@ -27,6 +27,7 @@ from .postprocesses import (
     Config2ColumnsPostprocess,
     VisualizePostprocess,
     Bytes2kBPostprocess,
+    Artifact2ColumnPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -38,4 +39,5 @@ SUPPORTED_POSTPROCESSES = {
     "config2cols": Config2ColumnsPostprocess,
     "visualize": VisualizePostprocess,
     "bytes2kb": Bytes2kBPostprocess,
+    "artifact2cols": Artifact2ColumnPostprocess,
 }

@@ -180,7 +180,8 @@ class TVMBackend(Backend):
 
     @property
     def print_outputs(self):
-        return str2bool(self.config["print_outputs"])
+        value = self.config["print_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_target_details(self):
         ret = {}

@@ -48,7 +48,8 @@ class TFLMCBackend(TFLMBackend):
 
     @property
     def print_outputs(self):
-        return str2bool(self.config["print_outputs"])
+        value = self.config["print_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)

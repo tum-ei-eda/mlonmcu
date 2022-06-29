@@ -94,16 +94,19 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def use_idf_monitor(self):
-        return str2bool(self.config["use_idf_monitor"])
+        value = self.config["use_idf_monitor"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def wait_for_user(self):
-        return str2bool(self.config["wait_for_user"])
+        value = self.config["wait_for_user"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def flash_only(self):
         # TODO: get rid of this
-        return str2bool(self.config["flash_only"])
+        value = self.config["flash_only"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = os.environ.copy()

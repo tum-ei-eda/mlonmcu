@@ -88,7 +88,8 @@ class SpikeTarget(RISCVTarget):
 
     @property
     def end_to_end_cycles(self):
-        return str2bool(self.config["end_to_end_cycles"])
+        value = self.config["end_to_end_cycles"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""

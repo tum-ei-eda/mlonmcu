@@ -23,7 +23,7 @@ This project contains research code related to the deployment of inference or le
 - Highly configurable python package
 - Automatic resolution and installation of dependencies
 - Supporting a large combination of frameworks/backends/targets/features:
-  - Frameworks (Backenss): TFLite Micro, MircoTVM
+  - Frameworks (Backends): TFLite Micro, MircoTVM
   - Targets: Host (x86), ETISS (Pulpino)
   - Features: Autotuning (WIP), Debugging
 - Build-in parallel processing of large number of benchmarks

@@ -22,6 +22,7 @@ import tempfile
 from pathlib import Path
 from .backend import TFLMBackend
 import mlonmcu.setup.utils as utils
+from mlonmcu.config import str2bool
 from mlonmcu.flow.backend import main
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -37,6 +38,7 @@ class TFLMCBackend(TFLMBackend):
 
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,
+        "print_outputs": False,
         "custom_ops": [],
         "registrations": {},
         "debug_arena": False,
@@ -44,14 +46,49 @@ class TFLMCBackend(TFLMBackend):
 
     REQUIRED = TFLMBackend.REQUIRED + ["tflmc.exe"]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__(features=features, config=config, context=context)
+    @property
+    def print_outputs(self):
+        value = self.config["print_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def __init__(self, features=None, config=None):
+        super().__init__(features=features, config=config)
         self.model_data = None
         self.prefix = "model"  # Without the _
         self.artifacts = (
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
+
+    def generate_header(self):
+        upper_prefix = self.prefix.upper()
+        code = f"""
+// This file is generated. Do not edit.
+#ifndef {upper_prefix}_GEN_H
+#define {upper_prefix}_GEN_H
+
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {{
+#endif
+
+void model_init();
+void *model_input_ptr(int index);
+size_t model_input_size(int index);
+size_t model_inputs();
+void model_invoke();
+void *model_output_ptr(int index);
+size_t model_output_size(int index);
+size_t model_outputs();
+
+#ifdef __cplusplus
+}}
+#endif
+
+#endif  // {upper_prefix}_GEN_H
+"""
+        return code
 
     def generate_code(self):
         artifacts = []
@@ -75,6 +112,9 @@ class TFLMCBackend(TFLMBackend):
                 with open(Path(tmpdirname) / filename, "r") as handle:
                     content = handle.read()
                     artifacts.append(Artifact(filename, content=content, fmt=ArtifactFormat.SOURCE))
+            header_content = self.generate_header()
+            header_artifact = Artifact(f"{self.prefix}.cc.h", content=header_content, fmt=ArtifactFormat.SOURCE)
+            artifacts.append(header_artifact)
             stdout_artifact = Artifact("tflmc_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
 

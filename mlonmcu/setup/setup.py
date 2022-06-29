@@ -18,6 +18,7 @@
 #
 import os
 import shutil
+import multiprocessing
 from tqdm import tqdm
 
 from mlonmcu.logging import get_logger
@@ -38,6 +39,7 @@ class Setup:
 
     DEFAULTS = {
         "print_outputs": False,
+        "num_threads": None,
     }
 
     REQUIRED = []
@@ -49,6 +51,9 @@ class Setup:
         self.context = context
         self.tasks_factory = tasks_factory
         self.verbose = bool(self.config["print_outputs"])
+        self.num_threads = int(
+            self.config["num_threads"] if self.config["num_threads"] else multiprocessing.cpu_count()
+        )
 
     def clean_cache(self, interactive=True):
         assert self.context is not None
@@ -119,7 +124,7 @@ class Setup:
     def invoke_single_task(self, name, progress=False, write_cache=True, rebuild=False):
         assert name in self.tasks_factory.registry, f"Invalid task name: {name}"
         func = self.tasks_factory.registry[name]
-        func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose)
+        func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose, threads=self.num_threads)
 
     def install_dependencies(
         self,
@@ -132,7 +137,7 @@ class Setup:
         pbar = self.setup_progress_bar(progress)
         for task in order:
             func = self.tasks_factory.registry[task]
-            func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose)
+            func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose, threads=self.num_threads)
             if pbar:
                 pbar.update(1)
         if pbar:

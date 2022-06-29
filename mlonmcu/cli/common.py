@@ -183,14 +183,21 @@ def kickoff_runs(args, until, context):
     session = context.sessions[-1]
     # session.label = args.label
     config = extract_config(args)
+    # TODO: move into context/session
     per_stage = True
+    print_report = True
     if "runs_per_stage" in config:
         per_stage = bool(config["runs_per_stage"])
     elif "runs_per_stage" in context.environment.vars:
         per_stage = bool(context.environment.vars["runs_per_stage"])
+    if "print_report" in config:
+        print_report = bool(config["print_report"])
+    elif "print_report" in context.environment.vars:
+        print_report = bool(context.environment.vars["print_report"])
     success = session.process_runs(
         until=until,
         per_stage=per_stage,
+        print_report=print_report,
         num_workers=args.parallel,
         progress=args.progress,
         context=context,

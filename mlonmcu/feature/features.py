@@ -887,7 +887,8 @@ class CacheSim(TargetFeature):
 
     @property
     def ic_enable(self):
-        return str2bool(self.config["ic_enable"])
+        value = self.config["ic_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def ic_config(self):
@@ -895,7 +896,8 @@ class CacheSim(TargetFeature):
 
     @property
     def dc_enable(self):
-        return str2bool(self.config["dc_enable"])
+        value = self.config["dc_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def dc_config(self):
@@ -903,7 +905,8 @@ class CacheSim(TargetFeature):
 
     @property
     def l2_enable(self):
-        return str2bool(self.config["l2_enable"])
+        value = self.config["l2_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def l2_config(self):
@@ -911,11 +914,13 @@ class CacheSim(TargetFeature):
 
     @property
     def log_misses(self):
-        return str2bool(self.config["log_misses"])
+        value = self.config["log_misses"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def detailed(self):
-        return str2bool(self.config["detailed"])
+        value = self.config["detailed"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def add_target_config(self, target, config):
         assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
@@ -1049,15 +1054,18 @@ class MicrotvmEtissVp(PlatformFeature):
 
     @property
     def verbose(self):
-        return str2bool(self.config["verbose"])
+        value = self.config["verbose"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def debug(self):
-        return str2bool(self.config["debug"])
+        value = self.config["debug"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def transport(self):
-        return str2bool(self.config["transport"])
+        value = self.config["transport"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_platform_config(self, platform):
         assert platform == "microtvm", f"Unsupported feature '{self.name}' for platform '{platform}'"

@@ -19,9 +19,11 @@
 import os
 
 
-def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir):
+def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir, tophub_url=None):
     env = os.environ.copy()
     env["PYTHONPATH"] = str(pythonpath)
     env["TVM_LIBRARY_PATH"] = str(tvm_build_dir)
     env["TVM_CONFIGS_JSON_DIR"] = str(tvm_configs_dir)
+    if tophub_url:
+        env["TOPHUB_LOCATION"] = tophub_url
     return env

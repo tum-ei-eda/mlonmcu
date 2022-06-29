@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import multiprocessing
 from pathlib import Path
 
 from mlonmcu.setup.task import TaskFactory, TaskType
@@ -43,7 +44,9 @@ def _validate_tensorflow(context: MlonMcuContext, params=None):
 @Tasks.provides(["tf.src_dir"])
 @Tasks.validate(_validate_tensorflow)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def clone_tensorflow(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_tensorflow(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the TF/TFLM repository."""
     tfName = utils.makeDirName("tf")
     tfSrcDir = context.environment.paths["deps"].path / "src" / tfName
@@ -59,7 +62,9 @@ def clone_tensorflow(context: MlonMcuContext, params=None, rebuild=False, verbos
 @Tasks.param("dbg", True)
 @Tasks.validate(_validate_tensorflow)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def build_tensorflow(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_tensorflow(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Download tensorflow dependencies and build lib."""
     if not params:
         params = {}
@@ -82,6 +87,7 @@ def build_tensorflow(context: MlonMcuContext, params=None, rebuild=False, verbos
             "-f",
             str(tflmDir / "tools" / "make" / "Makefile"),
             "third_party_downloads",
+            threads=threads,
             *tfDbgArg,
             cwd=tfSrcDir,
             live=verbose,
@@ -106,7 +112,9 @@ def _validate_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.provides(["tflmc.src_dir"])
 @Tasks.validate(_validate_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
-def clone_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_tflite_micro_compiler(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the preinterpreter repository."""
     tflmcName = utils.makeDirName("tflmc")
     tflmcSrcDir = context.environment.paths["deps"].path / "src" / tflmcName
@@ -141,15 +149,16 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.param("arch", ["x86"])  # TODO: compile for arm/riscv in the future
 @Tasks.validate(_validate_build_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
-def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_tflite_micro_compiler(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Build the TFLM preinterpreter."""
     muriscvnn = params.get("muriscvnn", False)
     cmsisnn = params.get("cmsisnn", False)
     dbg = params.get("dbg", False)
     arch = params.get("arch", "x86")
-    flags = utils.makeFlags((True, "arch"), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
+    flags = utils.makeFlags((True, arch), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
     flags_ = utils.makeFlags((dbg, "dbg"))
-    flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
     tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
@@ -162,12 +171,14 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
             "-DGET_TF_SRC=ON",
         ]
         if muriscvnn:
+            flags__ = utils.makeFlags((True, arch), (True, "gcc"), (dbg, "dbg"))
             muriscvnnLib = context.cache["muriscvnn.lib", flags__]
-            muriscvnnInc = context.cache["muriscvnn.in_dir"]
+            muriscvnnInc = context.cache["muriscvnn.inc_dir"]
             cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={muriscvnnLib}")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={muriscvnnInc}")
         elif cmsisnn:
+            flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
             cmsisnnLib = context.cache["cmsisnn.lib", flags__]
             cmsisDir = Path(context.cache["cmsisnn.dir"])
             cmsisIncs = [
@@ -188,7 +199,7 @@ def build_tflite_micro_compiler(context: MlonMcuContext, params=None, rebuild=Fa
             cwd=tflmcBuildDir,
             live=verbose,
         )
-        utils.make(cwd=tflmcBuildDir, live=verbose)
+        utils.make(cwd=tflmcBuildDir, threads=threads, live=verbose)
         utils.mkdirs(tflmcInstallDir)
         utils.move(tflmcBuildDir / "compiler", tflmcExe)
     context.cache["tflmc.build_dir", flags] = tflmcBuildDir
@@ -226,7 +237,9 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
 @Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_riscv_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)
-def install_riscv_gcc(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def install_riscv_gcc(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Download and install the RISCV GCC toolchain."""
     if not params:
         params = {}
@@ -300,7 +313,9 @@ def _validate_llvm(context: MlonMcuContext, params=None):
 @Tasks.provides(["llvm.install_dir"])
 @Tasks.validate(_validate_llvm)
 @Tasks.register(category=TaskType.MISC)
-def install_llvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def install_llvm(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Download and install LLVM."""
     llvmName = utils.makeDirName("llvm")
     llvmInstallDir = context.environment.paths["deps"].path / "install" / llvmName
@@ -309,10 +324,8 @@ def install_llvm(context: MlonMcuContext, params=None, rebuild=False, verbose=Fa
         # TODO: WARNING
         llvmInstallDir = user_vars["llvm.install_dir"]
     else:
-        llvmVersion = user_vars["llvm.version"] if "llvm.version" in user_vars else "11.0.1"
-        llvmDist = (
-            user_vars["llvm.distribution"] if "llvm.distribution" in user_vars else "x86_64-linux-gnu-ubuntu-16.04"
-        )
+        llvmVersion = user_vars.get("llvm.version", "14.0.0")
+        llvmDist = user_vars.get("llvm.distribution", "x86_64-linux-gnu-ubuntu-18.04")
         llvmUrl = f"https://github.com/llvm/llvm-project/releases/download/llvmorg-{llvmVersion}/"
         llvmFileName = f"clang+llvm-{llvmVersion}-{llvmDist}"
         llvmArchive = llvmFileName + ".tar.xz"
@@ -340,7 +353,9 @@ def _validate_etiss(context: MlonMcuContext, params={}):
 @Tasks.provides(["etiss.src_dir"])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
-def clone_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_etiss(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the ETISS repository."""
     etissName = utils.makeDirName("etiss")
     etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
@@ -355,7 +370,9 @@ def clone_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
-def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_etiss(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Build the ETISS simulator."""
     if not params:
         params = {}
@@ -376,7 +393,7 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
             env=env,
             live=verbose,
         )
-        utils.make(cwd=etissBuildDir, live=verbose)
+        utils.make(cwd=etissBuildDir, threads=threads, live=verbose)
     context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etiss.build_dir", flags] = etissBuildDir
 
@@ -386,7 +403,9 @@ def build_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
-def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def install_etiss(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Install ETISS."""
     if not params:
         params = {}
@@ -398,7 +417,7 @@ def install_etiss(context: MlonMcuContext, params=None, rebuild=False, verbose=F
     etissvpScript = etissInstallDir / "bin" / "run_helper.sh"
     etissLibDir = etissInstallDir / "lib"
     if rebuild or not utils.is_populated(etissLibDir) or not etissvpExe.is_file():
-        utils.make("install", cwd=etissBuildDir, live=verbose)
+        utils.make("install", cwd=etissBuildDir, threads=threads, live=verbose)
     context.cache["etiss.lib_dir", flags] = etissLibDir
     context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etissvp.exe", flags] = etissvpExe
@@ -427,7 +446,7 @@ def _validate_tvm(context: MlonMcuContext, params=None):
 @Tasks.param("patch", [False, True])  # This is just a temporary workaround until the patch is hopefully upstreamed
 @Tasks.validate(_validate_tvm)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Clone the TVM repository."""
     if not params:
         params = {}
@@ -455,7 +474,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 @Tasks.param("cmsisnn", [False, True])
 @Tasks.validate(_validate_tvm)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Build the TVM framework."""
     if not params:
         params = {}
@@ -512,7 +531,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             )
 
         utils.cmake(tvmSrcDir, cwd=tvmBuildDir, debug=dbg, use_ninja=ninja, live=verbose)
-        utils.make(cwd=tvmBuildDir, use_ninja=ninja, live=verbose)
+        utils.make(cwd=tvmBuildDir, threads=threads, use_ninja=ninja, live=verbose)
     context.cache["tvm.build_dir", flags] = tvmBuildDir
     context.cache["tvm.lib", flags] = tvmLib
 
@@ -531,7 +550,9 @@ def _validate_utvmcg(context: MlonMcuContext, params=None):
 @Tasks.provides(["utvmcg.src_dir"])
 @Tasks.validate(_validate_utvmcg)
 @Tasks.register(category=TaskType.BACKEND)
-def clone_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_utvm_staticrt_codegen(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the uTVM code generator."""
     utvmcgName = utils.makeDirName("utvmcg")
     utvmcgSrcDir = context.environment.paths["deps"].path / "src" / utvmcgName
@@ -546,7 +567,9 @@ def clone_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=Fa
 @Tasks.param("dbg", False)
 @Tasks.validate(_validate_utvmcg)
 @Tasks.register(category=TaskType.BACKEND)
-def build_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_utvm_staticrt_codegen(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Build the uTVM code generator."""
     if not params:
         params = {}
@@ -573,7 +596,7 @@ def build_utvm_staticrt_codegen(context: MlonMcuContext, params=None, rebuild=Fa
             debug=params["dbg"],
             live=verbose,
         )
-        utils.make(cwd=utvmcgBuildDir, live=verbose)
+        utils.make(cwd=utvmcgBuildDir, threads=threads, live=verbose)
         utils.mkdirs(utvmcgInstallDir)
         utils.move(utvmcgBuildDir / "utvm_staticrt_codegen", utvmcgExe)
     context.cache["utvmcg.build_dir", flags] = utvmcgBuildDir
@@ -591,26 +614,35 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
     assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
         toolchain = params.get("toolchain", "gcc")
-        if params.get("vext", False):
-            if not context.environment.supports_feature("vext"):
+        target_arch = params.get("target_arch", "riscv")
+        if target_arch == "riscv":
+            if params.get("vext", False):
+                if not context.environment.supports_feature("vext"):
+                    return False
+            if params.get("pext", False):
+                if toolchain == "llvm":
+                    # Unsupported
+                    return False
+                if not context.environment.supports_feature("pext"):
+                    return False
+            if params.get("vext", False) and params.get("pext", False):
+                # Either pext or vext!
                 return False
-        if params.get("pext", False):
-            if toolchain == "llvm":
-                # Unsupported
+        elif target_arch == "x86":
+            if toolchain != "gcc":
                 return False
-            if not context.environment.supports_feature("pext"):
+            if params.get("vext", False) or params.get("pext", False):
                 return False
-        if params.get("vext", False) and params.get("pext", False):
-            # Either pext or vext!
-            return False
-        # TODO: validate chosen toolchain?
+            # TODO: validate chosen toolchain?
     return True
 
 
 @Tasks.provides(["muriscvnn.src_dir", "muriscvnn.inc_dir"])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
-def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_muriscvnn(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the muRISCV-NN project."""
     muriscvnnName = utils.makeDirName("muriscvnn")
     muriscvnnSrcDir = context.environment.paths["deps"].path / "src" / muriscvnnName
@@ -632,15 +664,21 @@ def clone_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
 @Tasks.param("vext", [False, True])
 @Tasks.param("pext", [False, True])
 @Tasks.param("toolchain", ["gcc"])
-# @Tasks.param("target_arch", ["x86", "riscv", "arm"])  # TODO: implement
+@Tasks.param("target_arch", ["x86", "riscv"])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
-def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_muriscvnn(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Build muRISCV-NN."""
     if not params:
         params = {}
     flags = utils.makeFlags(
-        (params["dbg"], "dbg"), (params["vext"], "vext"), (params["pext"], "pext"), (True, params["toolchain"])
+        (params["dbg"], "dbg"),
+        (params["vext"], "vext"),
+        (params["pext"], "pext"),
+        (True, params["toolchain"]),
+        (True, params["target_arch"]),
     )
     flags_ = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
@@ -653,21 +691,32 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
         return False
     if rebuild or not (utils.is_populated(muriscvnnBuildDir) and muriscvnnLib.is_file()):
         utils.mkdirs(muriscvnnBuildDir)
-        gccName = context.cache["riscv_gcc.name", flags_]
-        toolchain = params.get("toolchain", "gcc")
-        assert gccName == "riscv32-unknown-elf" or toolchain != "llvm", "muRISCV-NN requires a non-multilib toolchain!"
         muriscvnnArgs = []
-        if "riscv_gcc.install_dir" in user_vars:
-            riscv_gcc = user_vars["riscv_gcc.install_dir"]
+        target_arch = params.get("target_arch", "riscv")
+        if target_arch == "riscv":
+            gccName = context.cache["riscv_gcc.name", flags_]
+            toolchain = params.get("toolchain", "gcc")
+            assert (
+                gccName == "riscv32-unknown-elf" or toolchain != "llvm"
+            ), "muRISCV-NN requires a non-multilib toolchain!"
+            if "riscv_gcc.install_dir" in user_vars:
+                riscv_gcc = user_vars["riscv_gcc.install_dir"]
+            else:
+                riscv_gcc = context.cache["riscv_gcc.install_dir", flags_]
+            muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
+            muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
+            vext = params.get("vext", False)
+            pext = params.get("pext", False)
+            muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
+            muriscvnnArgs.append("-DUSE_PEXT=" + ("ON" if pext else "OFF"))
+            muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
+        elif target_arch == "x86":
+            toolchain = params.get("toolchain", "gcc")
+            muriscvnnArgs.append("-DTOOLCHAIN=x86")
+            muriscvnnArgs.append("-DUSE_VEXT=OFF")
+            muriscvnnArgs.append("-DUSE_PEXT=OFF")
         else:
-            riscv_gcc = context.cache["riscv_gcc.install_dir", flags_]
-        muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
-        muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
-        vext = params.get("vext", False)
-        pext = params.get("pext", False)
-        muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
-        muriscvnnArgs.append("-DUSE_PEXT=" + ("ON" if pext else "OFF"))
-        muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
+            raise RuntimeError(f"Unsupported target_arch for muriscvnn: {target_arch}")
         utils.cmake(
             muriscvnnSrcDir,
             *muriscvnnArgs,
@@ -675,7 +724,7 @@ def build_muriscvnn(context: MlonMcuContext, params=None, rebuild=False, verbose
             debug=params["dbg"],
             live=verbose,
         )
-        utils.make(cwd=muriscvnnBuildDir, live=verbose)
+        utils.make(cwd=muriscvnnBuildDir, threads=threads, live=verbose)
         utils.mkdirs(muriscvnnInstallDir)
         utils.move(muriscvnnBuildDir / "Source" / "libmuriscv_nn.a", muriscvnnLib)
     context.cache["muriscvnn.build_dir", flags] = muriscvnnBuildDir
@@ -703,7 +752,9 @@ def _validate_spike(context: MlonMcuContext, params=None):
 @Tasks.provides(["spikepk.src_dir"])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
-def clone_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_spike_pk(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the spike proxt kernel."""
     spikepkName = utils.makeDirName("spikepk")
     spikepkSrcDir = context.environment.paths["deps"].path / "src" / spikepkName
@@ -722,7 +773,9 @@ def clone_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
 @Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
-def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_spike_pk(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Build Spike proxy kernel."""
     if not params:
         params = {}
@@ -765,8 +818,9 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
             cwd=spikepkBuildDir,
             env=env,
             live=verbose,
+            print_output=False,
         )
-        utils.make(cwd=spikepkBuildDir, live=verbose, env=env)
+        utils.make(cwd=spikepkBuildDir, threads=threads, live=verbose, env=env)
         # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
         utils.mkdirs(spikepkInstallDir)
         utils.move(spikepkBuildDir / "pk", spikepkBin)
@@ -777,7 +831,9 @@ def build_spike_pk(context: MlonMcuContext, params=None, rebuild=False, verbose=
 @Tasks.provides(["spike.src_dir"])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
-def clone_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_spike(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the spike simulator."""
     spikeName = utils.makeDirName("spike")
     spikeSrcDir = context.environment.paths["deps"].path / "src" / spikeName
@@ -794,7 +850,9 @@ def clone_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 @Tasks.provides(["spike.build_dir", "spike.exe"])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
-def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_spike(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Build Spike simulator."""
     if not params:
         params = {}
@@ -817,8 +875,8 @@ def build_spike(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
             cwd=spikeBuildDir,
             live=verbose,
         )
-        utils.make(cwd=spikeBuildDir, live=verbose)
-        # utils.make(target="install", cwd=spikeBuildDir, live=verbose)
+        utils.make(cwd=spikeBuildDir, threads=threads, live=verbose)
+        # utils.make(target="install", cwd=spikeBuildDir, threads=threads, live=verbose)
         utils.mkdirs(spikeInstallDir)
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
@@ -849,7 +907,9 @@ def _validate_cmsis(context: MlonMcuContext, params=None):
 @Tasks.provides(["cmsisnn.dir"])
 @Tasks.validate(_validate_cmsis)
 @Tasks.register(category=TaskType.MISC)
-def clone_cmsis(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_cmsis(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """CMSIS repository."""
     cmsisName = utils.makeDirName("cmsis")
     cmsisSrcDir = context.environment.paths["deps"].path / "src" / cmsisName
@@ -870,7 +930,9 @@ def clone_cmsis(context: MlonMcuContext, params=None, rebuild=False, verbose=Fal
 @Tasks.param("dsp", [False, True])
 @Tasks.validate(_validate_cmsisnn)
 @Tasks.register(category=TaskType.OPT)  # TODO: rename to TaskType.FEATURE?
-def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def build_cmsisnn(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     target_arch = params["target_arch"]
     mvei = params["mvei"]
     dsp = params["dsp"]
@@ -931,7 +993,7 @@ def build_cmsisnn(context: MlonMcuContext, params=None, rebuild=False, verbose=F
             live=verbose,
             env=env,
         )
-        utils.make(cwd=cmsisnnBuildDir, live=verbose)
+        utils.make(cwd=cmsisnnBuildDir, threads=threads, live=verbose)
         utils.mkdirs(cmsisnnInstallDir)
         utils.move(cmsisnnBuildDir / "Source" / "libcmsis-nn.a", cmsisnnLib)
     context.cache["cmsisnn.lib", flags] = cmsisnnLib
@@ -944,7 +1006,9 @@ def _validate_corstone300(context: MlonMcuContext, params=None):
 @Tasks.provides(["arm_gcc.install_dir"])
 @Tasks.validate(_validate_corstone300)
 @Tasks.register(category=TaskType.TARGET)
-def install_arm_gcc(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def install_arm_gcc(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Download and install GNU compiler toolchain from ARM."""
     armName = utils.makeDirName("arm_gcc")
     armInstallDir = context.environment.paths["deps"].path / "install" / armName
@@ -964,7 +1028,9 @@ def install_arm_gcc(context: MlonMcuContext, params=None, rebuild=False, verbose
 @Tasks.provides(["corstone300.exe"])
 @Tasks.validate(_validate_corstone300)
 @Tasks.register(category=TaskType.TARGET)
-def install_corstone300(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def install_corstone300(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Download and install corstone300 FVP from ARM."""
     fvpName = utils.makeDirName("corstone300")
     fvpInstallDir = context.environment.paths["deps"].path / "install" / fvpName
@@ -994,7 +1060,9 @@ def _validate_tvm_extensions(context: MlonMcuContext, params=None):
 @Tasks.provides(["tvm_extensions.src_dir", "tvm_extensions.wrapper"])
 @Tasks.validate(_validate_tvm_extensions)
 @Tasks.register(category=TaskType.FEATURE)
-def clone_tvm_extensions(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_tvm_extensions(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the TVM extensions repository."""
     extName = utils.makeDirName("tvm_extensions")
     extSrcDir = context.environment.paths["deps"].path / "src" / extName
@@ -1013,7 +1081,7 @@ def _validate_mlif(context: MlonMcuContext, params=None):
 @Tasks.provides(["mlif.src_dir"])
 @Tasks.validate(_validate_mlif)
 @Tasks.register(category=TaskType.PLATFORM)
-def clone_mlif(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_mlif(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Clone the MLonMCU SW repository."""
     mlifName = utils.makeDirName("mlif")
     mlifSrcDir = context.environment.paths["deps"].path / "src" / mlifName
@@ -1030,7 +1098,9 @@ def _validate_espidf(context: MlonMcuContext, params=None):
 @Tasks.provides(["espidf.src_dir"])
 @Tasks.validate(_validate_espidf)
 @Tasks.register(category=TaskType.PLATFORM)
-def clone_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_espidf(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the ESP-IDF repository."""
     espidfName = utils.makeDirName("espidf")
     espidfSrcDir = context.environment.paths["deps"].path / "src" / espidfName
@@ -1047,7 +1117,9 @@ def clone_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=Fa
 @Tasks.provides(["espidf.install_dir"])
 @Tasks.validate(_validate_espidf)
 @Tasks.register(category=TaskType.PLATFORM)
-def install_espidf(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def install_espidf(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Download and install target support for ESP-IDF toolchain."""
     espidfName = utils.makeDirName("espidf")
     espidfInstallDir = context.environment.paths["deps"].path / "install" / espidfName
@@ -1079,7 +1151,9 @@ def _validate_tflite_visualize(context: MlonMcuContext, params=None):
 @Tasks.provides(["tflite_visualize.exe"])
 @Tasks.validate(_validate_tflite_visualize)
 @Tasks.register(category=TaskType.FEATURE)
-def download_tflite_vizualize(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def download_tflite_vizualize(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Download the visualize.py script for TFLite."""
     # This script is content of the tensorflow repo (not tflite-micro) and unfortunately not bundled
     # into the tensorflow python package. Therefore just download this single file form GitHub
@@ -1104,7 +1178,9 @@ def _validate_microtvm_etissvp(context: MlonMcuContext, params=None):
 @Tasks.provides(["microtvm_etissvp.src_dir", "microtvm_etissvp.template"])
 @Tasks.validate(_validate_microtvm_etissvp)
 @Tasks.register(category=TaskType.FEATURE)
-def clone_microtvm_etissvp(context: MlonMcuContext, params=None, rebuild=False, verbose=False):
+def clone_microtvm_etissvp(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Clone the microtvm-etissvp-template repository."""
     name = utils.makeDirName("microtvm_etissvp")
     srcDir = context.environment.paths["deps"].path / "src" / name

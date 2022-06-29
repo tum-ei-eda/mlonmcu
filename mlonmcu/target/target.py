@@ -82,7 +82,8 @@ class Target:
 
     @property
     def print_outputs(self):
-        return str2bool(self.config["print_outputs"])
+        value = self.config["print_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def __repr__(self):
         return f"Target({self.name})"

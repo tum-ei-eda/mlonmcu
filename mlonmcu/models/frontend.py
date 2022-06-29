@@ -245,7 +245,8 @@ class TfLiteFrontend(SimpleFrontend):
 
     @property
     def visualize_enable(self):
-        return str2bool(self.config["visualize_enable"])
+        value = self.config["visualize_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def visualize_script(self):
@@ -307,7 +308,8 @@ class RelayFrontend(SimpleFrontend):
 
     @property
     def visualize_graph(self):
-        return str2bool(self.config["visualize_graph"])
+        value = self.config["visualize_graph"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def relayviz_plotter(self):

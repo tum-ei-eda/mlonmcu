@@ -58,13 +58,14 @@ class TVMBackend(Backend):
         "use_tuning_results": False,
         "tvmc_extra_args": [],  # Currently compile subcommand only!
         "tvmc_custom_script": None,
+        "tophub_url": None,  # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py#L38
         **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__(framework="tvm", features=features, config=config, context=context)
+    def __init__(self, features=None, config=None):
+        super().__init__(framework="tvm", features=features, config=config)
 
         self.model = None  # Actual filename!
         self.model_info = None
@@ -179,7 +180,8 @@ class TVMBackend(Backend):
 
     @property
     def print_outputs(self):
-        return str2bool(self.config["print_outputs"])
+        value = self.config["print_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_target_details(self):
         ret = {}

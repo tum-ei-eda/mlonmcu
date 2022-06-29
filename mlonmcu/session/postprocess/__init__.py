@@ -39,5 +39,5 @@ SUPPORTED_POSTPROCESSES = {
     "config2cols": Config2ColumnsPostprocess,
     "visualize": VisualizePostprocess,
     "bytes2kb": Bytes2kBPostprocess,
-    "artifact2cols": Artifact2ColumnPostprocess
+    "artifact2cols": Artifact2ColumnPostprocess,
 }

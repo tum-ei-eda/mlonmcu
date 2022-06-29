@@ -31,8 +31,8 @@ class TFLMBackend(Backend):
 
     REQUIRED = []
 
-    def __init__(self, features=None, config=None, context=None):
-        super().__init__(framework="tflm", config=config, context=context)
+    def __init__(self, features=None, config=None):
+        super().__init__(framework="tflm", config=config)
         self.model = None
         self.supported_formats = [ModelFormats.TFLITE]
 

@@ -160,7 +160,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
 
     # @property
     # def profile(self):
-    #     return str2bool(self.config["profile"])
+    #     value = self.config["profile"]
+    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def repeat(self):
@@ -168,7 +169,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
 
     # @property
     # def use_rpc(self):
-    #     return str2bool(self.config["use_rpc"])
+    #     value = self.config["use_rpc"]
+    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     # @property
     # def rpc_key(self):

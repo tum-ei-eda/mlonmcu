@@ -71,7 +71,11 @@ class TVMAOTBackend(TVMBackend):
         )
 
     def get_workspace_size_from_metadata(self, metadata):
-        return metadata["memory"]["functions"]["main"][0]["workspace_size_bytes"]
+        if "modules" in metadata:
+            return metadata["modules"]["default"]["memory"]["functions"]["main"][0]["workspace_size_bytes"]
+        else:
+            # backwards compatibility
+            return metadata["memory"]["functions"]["main"][0]["workspace_size_bytes"]
 
     def generate_code(self):
         artifacts = []

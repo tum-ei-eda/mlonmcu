@@ -59,6 +59,36 @@ class TFLMCBackend(TFLMBackend):
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
 
+    def generate_header(self):
+        upper_prefix = self.prefix.upper()
+        code = f"""
+// This file is generated. Do not edit.
+#ifndef {upper_prefix}_GEN_H
+#define {upper_prefix}_GEN_H
+
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {{
+#endif
+
+void model_init();
+void *model_input_ptr(int index);
+size_t model_input_size(int index);
+size_t model_inputs();
+void model_invoke();
+void *model_output_ptr(int index);
+size_t model_output_size(int index);
+size_t model_outputs();
+
+#ifdef __cplusplus
+}}
+#endif
+
+#endif  // {upper_prefix}_GEN_H
+"""
+        return code
+
     def generate_code(self):
         artifacts = []
         assert self.model is not None
@@ -81,6 +111,9 @@ class TFLMCBackend(TFLMBackend):
                 with open(Path(tmpdirname) / filename, "r") as handle:
                     content = handle.read()
                     artifacts.append(Artifact(filename, content=content, fmt=ArtifactFormat.SOURCE))
+            header_content = self.generate_header()
+            header_artifact = Artifact(f"{self.prefix}.cc.h", content=header_content, fmt=ArtifactFormat.SOURCE)
+            artifacts.append(header_artifact)
             stdout_artifact = Artifact("tflmc_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
 

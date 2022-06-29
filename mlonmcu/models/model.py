@@ -49,6 +49,7 @@ class ModelFormats(Enum):
     IPYNB = ModelFormat(3, ["ipynb"])
     ONNX = ModelFormat(4, ["onnx"])
     RELAY = ModelFormat(5, ["relay"])
+    PB = ModelFormat(6, ["pb"])
 
 
 def parse_metadata_from_path(path):

@@ -514,7 +514,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
 
 class ONNXFrontend(SimpleFrontend):
 
-    FEATURES = Frontend.FEATURES + ["visualize"]
+    FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
         **Frontend.DEFAULTS,
@@ -524,9 +524,27 @@ class ONNXFrontend(SimpleFrontend):
 
     def __init__(self, features=None, config=None):
         super().__init__(
-            name="onnx",
-            input_formats=[ModelFormats.ONNX],
-            output_formats=[ModelFormats.ONNX],
+            "onnx",
+            ModelFormats.ONNX,
+            features=features,
+            config=config,
+        )
+
+
+class PBFrontend(SimpleFrontend):
+
+    FEATURES = Frontend.FEATURES
+
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+    }
+
+    REQUIRED = Frontend.REQUIRED + []
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "pb",
+            ModelFormats.PB,
             features=features,
             config=config,
         )

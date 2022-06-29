@@ -22,7 +22,7 @@ from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
 from mlonmcu.models.model import ModelFormats
-from .model_info import get_tflite_model_info, get_relay_model_info
+from .model_info import get_tflite_model_info, get_relay_model_info, get_pb_model_info
 from .tuner import TVMTuner
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
@@ -71,7 +71,7 @@ class TVMBackend(Backend):
         self.model = None  # Actual filename!
         self.model_info = None
         self.input_shapes = None
-        self.supported_formats = [ModelFormats.TFLITE, ModelFormats.RELAY]
+        self.supported_formats = [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB]
 
         self.prefix = "default"
         self.artifacts = (
@@ -257,6 +257,9 @@ class TVMBackend(Backend):
             with open(model, "r") as handle:
                 mod_text = handle.read()
             self.model_info = get_relay_model_info(mod_text)
+        elif fmt == ModelFormats.PB:
+            self.model_format = "pb"
+            self.model_info = get_pb_model_info(model)
         else:
             raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{self.name}'")
         self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

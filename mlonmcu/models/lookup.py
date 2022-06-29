@@ -161,7 +161,7 @@ def lookup_models_and_groups(directories, formats):
     duplicates = {}
     group_duplicates = {}
     for directory in directories:
-        models = list_models(directory)
+        models = list_models(directory, formats=formats)
         if len(all_models) == 0:
             all_models = models
         else:
@@ -249,7 +249,7 @@ def print_groups(groups, all_models=[], duplicates=[], detailed=False):
 
 def print_summary(context, detailed=False):
     # TODO: get from context!
-    formats = ModelFormats.TFLITE
+    formats = [ModelFormats.TFLITE]
 
     directories = get_model_directories(context)
 

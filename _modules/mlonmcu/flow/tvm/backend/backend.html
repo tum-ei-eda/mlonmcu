@@ -139,7 +139,8 @@
         <span class="s2">&quot;use_tuning_results&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Currently compile subcommand only!</span>
         <span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;tophub_url&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py#L38</span>
+        <span class="c1"># See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py</span>
+        <span class="s2">&quot;tophub_url&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="p">{(</span><span class="s2">&quot;autotuning_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">TVMTuner</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
     <span class="p">}</span>
 

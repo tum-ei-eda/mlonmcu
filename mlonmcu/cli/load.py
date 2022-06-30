@@ -64,7 +64,6 @@ def _handle(args, context):
     config.update(new_config)
     frontends = extract_frontend_names(args, context=context)
     postprocesses = extract_postprocess_names(args, context=context)
-    postprocesses = list(set(args.postprocess)) if args.postprocess is not None else []
     session = context.get_session(label=args.label, resume=args.resume, config=config)
     models = apply_modelgroups(args.models, context=context)
     for model in models:

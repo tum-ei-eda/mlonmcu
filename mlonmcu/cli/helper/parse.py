@@ -92,7 +92,7 @@ def extract_frontend_names(args, context=None):
 
 
 def extract_postprocess_names(args, context=None):
-    return list(set(args.postprocess)) if args.postprocess is not None else []
+    return list(dict.fromkeys(args.postprocess)) if args.postprocess is not None else []
 
 
 def extract_backend_names(args, context=None):

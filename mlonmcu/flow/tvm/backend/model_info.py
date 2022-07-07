@@ -19,7 +19,6 @@
 import re
 import tflite
 from tflite.TensorType import TensorType as TType
-import tensorflow as tf
 
 
 class TensorInfo:
@@ -161,6 +160,8 @@ def get_tfgraph_inout(graph):
 
 class PBModelInfo(ModelInfo):
     def __init__(self, model_file):
+        import tensorflow as tf
+
         with tf.io.gfile.GFile(model_file, "rb") as f:
             graph_def = tf.compat.v1.GraphDef()
             graph_def.ParseFromString(f.read())

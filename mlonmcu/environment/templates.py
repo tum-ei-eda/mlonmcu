@@ -44,10 +44,11 @@ def fill_template(name, data={}):
     else:  # Template by name
         template_text = get_template_text(name)
     if template_text:
-        try:
-            template_text = template_text.decode("utf-8")
-        except (UnicodeDecodeError):
-            pass
+        if not isinstance(template_text, str):
+            try:
+                template_text = template_text.decode("utf-8")
+            except (UnicodeDecodeError):
+                pass
         tmpl = jinja2.Template(template_text)
         rendered = tmpl.render(**data)
         return rendered

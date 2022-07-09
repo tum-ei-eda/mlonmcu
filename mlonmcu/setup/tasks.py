@@ -247,15 +247,19 @@ def install_riscv_gcc(
     riscvName = utils.makeDirName("riscv_gcc", flags=flags)
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     user_vars = context.environment.vars
-    if "riscv_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
-        # TODO: WARNING
-        riscvInstallDir = user_vars["riscv_gcc.install_dir"]
+    vext = params["vext"]
+    pext = params["pext"]
+    assert not (vext and pext)  # Combination of both extensions is currently not supported
+    if (not vext) and (not pext) and "riscv_gcc.install_dir_default" in user_vars:
+        riscvInstallDir = user_vars["riscv_gcc.install_dir_default"]
+    if vext and "riscv_gcc.install_dir_vext" in user_vars:
+        riscvInstallDir = user_vars["riscv_gcc.install_dir_vext"]
+    elif pext and "riscv_gcc.install_dir_pext" in user_vars:
+        riscvInstallDir = user_vars["riscv_gcc.install_dir_pext"]
+    elif "riscv_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
+        riscvInstallDir = user_vars["riscv_gcc.install_dir"]
     else:
-        vext = params["vext"]
-        pext = params["pext"]
-        assert not (vext and pext)  # Combination of both extensions is currently not supported
-
         def _helper(url):
             fullUrlSplit = url.split("/")
             riscvUrl = "/".join(fullUrlSplit[:-1])
@@ -358,7 +362,12 @@ def clone_etiss(
 ):
     """Clone the ETISS repository."""
     etissName = utils.makeDirName("etiss")
-    etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
+    user_vars = context.environment.vars
+    if "etiss.src_dir" in user_vars:
+        etissSrcDir = Path(user_vars["etiss.src_dir"])
+        rebuild = False
+    else:
+        etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
     if rebuild or not utils.is_populated(etissSrcDir):
         etissRepo = context.environment.repos["etiss"]
         utils.clone(etissRepo.url, etissSrcDir, branch=etissRepo.ref)
@@ -366,7 +375,7 @@ def clone_etiss(
 
 
 @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
-@Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
+@Tasks.provides(["etiss.build_dir"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
@@ -379,8 +388,10 @@ def build_etiss(
     flags = utils.makeFlags((params["dbg"], "dbg"))
     etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
-    etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
     # llvmInstallDir = context.cache["llvm.install_dir"]
+    user_vars = context.environment.vars
+    if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
+        return False
     if rebuild or not utils.is_populated(etissBuildDir):
         utils.mkdirs(etissBuildDir)
         env = os.environ.copy()
@@ -394,12 +405,11 @@ def build_etiss(
             live=verbose,
         )
         utils.make(cwd=etissBuildDir, threads=threads, live=verbose)
-    context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etiss.build_dir", flags] = etissBuildDir
 
 
 @Tasks.needs(["etiss.build_dir"])
-@Tasks.provides(["etiss.lib_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"])
+@Tasks.provides(["etiss.install_dir", "etissvp.exe", "etissvp.script"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
@@ -409,16 +419,17 @@ def install_etiss(
     """Install ETISS."""
     if not params:
         params = {}
+    user_vars = context.environment.vars
+    if "etiss.install_dir" in user_vars and "etissvp.exe" in user_vars and "etissvp.script" in user_vars:
+        return False
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.cache["etiss.build_dir", flags]
-    etissInstallDir = context.cache["etiss.install_dir", flags]
+    etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
     etissvpExe = etissInstallDir / "bin" / "bare_etiss_processor"
     etissvpScript = etissInstallDir / "bin" / "run_helper.sh"
-    etissLibDir = etissInstallDir / "lib"
     if rebuild or not utils.is_populated(etissLibDir) or not etissvpExe.is_file():
         utils.make("install", cwd=etissBuildDir, threads=threads, live=verbose)
-    context.cache["etiss.lib_dir", flags] = etissLibDir
     context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etissvp.exe", flags] = etissvpExe
     context.cache["etissvp.script", flags] = etissvpScript
@@ -611,7 +622,9 @@ def build_utvm_staticrt_codegen(
 def _validate_muriscvnn(context: MlonMcuContext, params=None):
     if not context.environment.supports_feature("muriscvnn"):
         return False
-    assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
+    user_vars = context.environment.vars
+    if "muriscvnn.src_dir" not in user_vars:
+        assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
         toolchain = params.get("toolchain", "gcc")
         target_arch = params.get("target_arch", "riscv")
@@ -645,11 +658,16 @@ def clone_muriscvnn(
 ):
     """Clone the muRISCV-NN project."""
     muriscvnnName = utils.makeDirName("muriscvnn")
-    muriscvnnSrcDir = context.environment.paths["deps"].path / "src" / muriscvnnName
-    muriscvnnIncludeDir = muriscvnnSrcDir / "Include"
     user_vars = context.environment.vars
-    if "muriscvnn.lib" in user_vars:  # TODO: also check command line flags?
-        return False
+    # if "muriscvnn.lib" in user_vars:  # TODO: also check command line flags?
+    #     return False
+    if "muriscvnn.src_dir" in user_vars:
+        muriscvnnSrcDir = user_vars["muriscvnn.src_dir"]
+        muriscvnnIncludeDir = Path(muriscvnnSrcDir) / "Include"
+        rebuild = False
+    else:
+        muriscvnnSrcDir = context.environment.paths["deps"].path / "src" / muriscvnnName
+        muriscvnnIncludeDir = muriscvnnSrcDir / "Include"
     if rebuild or not utils.is_populated(muriscvnnSrcDir):
         muriscvnnRepo = context.environment.repos["muriscvnn"]
         utils.clone(muriscvnnRepo.url, muriscvnnSrcDir, branch=muriscvnnRepo.ref)
@@ -744,8 +762,11 @@ def _validate_spike(context: MlonMcuContext, params=None):
             return False  # Can not use booth at a time
         if not context.environment.supports_feature("pext"):
             return False
-    assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
-    assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
+    user_vars = context.environment.vars
+    if "spike.pk" not in user_vars:  # TODO: also check command line flags?
+        assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
+    if "spike.exe" not in user_vars:  # TODO: also check command line flags?
+        assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
     return True
 
 
@@ -779,15 +800,15 @@ def build_spike_pk(
     """Build Spike proxy kernel."""
     if not params:
         params = {}
+    user_vars = context.environment.vars
+    if "spike.pk" in user_vars:  # TODO: also check command line flags?
+        return False
     flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     spikepkName = utils.makeDirName("spikepk", flags=flags)
     spikepkSrcDir = context.cache["spikepk.src_dir"]
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
     spikepkBin = spikepkInstallDir / "pk"
-    user_vars = context.environment.vars
-    if "spike.pk" in user_vars:  # TODO: also check command line flags?
-        return False
     if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikepkBuildDir)
@@ -796,7 +817,11 @@ def build_spike_pk(
         vext = params.get("vext", False)
         pext = params.get("pext", False)
         assert not (pext and vext), "Currently only p or vector extension can be enabled at a time."
-        if "riscv_gcc.install_dir" in user_vars:
+        if vext and "riscv_gcc.install_dir_vext" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir_vext"]
+        elif pext and "riscv_gcc.install_dir_pext" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir_pext"]
+        elif "riscv_gcc.install_dir" in user_vars:
             riscv_gcc = user_vars["riscv_gcc.install_dir"]
         else:
             riscv_gcc = context.cache["riscv_gcc.install_dir", flags]
@@ -817,7 +842,7 @@ def build_spike_pk(
             *spikepkArgs,
             cwd=spikepkBuildDir,
             env=env,
-            live=verbose,
+            live=False,
             print_output=False,
         )
         utils.make(cwd=spikepkBuildDir, threads=threads, live=verbose, env=env)
@@ -856,6 +881,9 @@ def build_spike(
     """Build Spike simulator."""
     if not params:
         params = {}
+    user_vars = context.environment.vars
+    if "spike.exe" in user_vars:  # TODO: also check command line flags?
+        return False
     spikeName = utils.makeDirName("spike")
     spikeSrcDir = context.cache["spike.src_dir"]
     spikeBuildDir = context.environment.paths["deps"].path / "build" / spikeName

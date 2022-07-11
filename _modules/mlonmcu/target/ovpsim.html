@@ -118,6 +118,7 @@
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
+        <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
         <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_pext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_fpu&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -153,6 +154,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vlen&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">elen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;elen&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enable_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -204,7 +209,7 @@
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/VLEN=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;riscvOVPsim/cpu/ELEN=32&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/ELEN=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">]</span>
             <span class="p">)</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--override&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/mstatus_VS=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>

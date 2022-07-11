@@ -409,7 +409,7 @@
 
     <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="c1"># TODO: enforce llvm toolchain using add_compile_config and CompileFeature?</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">]</span>
         <span class="k">assert</span> <span class="n">is_power_of_two</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_vext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -437,7 +437,7 @@
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;pext&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Pext</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">TargetFeature</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Pext</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">TargetFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enable packed SIMD extension for supported RISC-V targets&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -450,7 +450,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>  <span class="c1"># TODO: add etiss in the future</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_pext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># Handle via arch characters in the future</span>
         <span class="p">}</span>

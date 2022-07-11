@@ -356,17 +356,22 @@
 <p>Target using a Pulpino-like VP running in the ETISS simulator</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'cpu_arch':</span> <span class="pre">'RISCV',</span> <span class="pre">'debug_etiss':</span> <span class="pre">False,</span> <span class="pre">'etissvp.cycle_time_ps':</span> <span class="pre">31250,</span> <span class="pre">'etissvp.ram_size':</span> <span class="pre">67108864,</span> <span class="pre">'etissvp.ram_start':</span> <span class="pre">8388608,</span> <span class="pre">'etissvp.rom_size':</span> <span class="pre">8388608,</span> <span class="pre">'etissvp.rom_start':</span> <span class="pre">0,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'gdbserver_attach':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_enable':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_port':</span> <span class="pre">2222,</span> <span class="pre">'plugins':</span> <span class="pre">[],</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'trace_memory':</span> <span class="pre">False,</span> <span class="pre">'verbose':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'cpu_arch':</span> <span class="pre">None,</span> <span class="pre">'debug_etiss':</span> <span class="pre">False,</span> <span class="pre">'enable_pext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'etissvp.cycle_time_ps':</span> <span class="pre">31250,</span> <span class="pre">'etissvp.ram_size':</span> <span class="pre">67108864,</span> <span class="pre">'etissvp.ram_start':</span> <span class="pre">8388608,</span> <span class="pre">'etissvp.rom_size':</span> <span class="pre">8388608,</span> <span class="pre">'etissvp.rom_start':</span> <span class="pre">0,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'gdbserver_attach':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_enable':</span> <span class="pre">False,</span> <span class="pre">'gdbserver_port':</span> <span class="pre">2222,</span> <span class="pre">'jit':</span> <span class="pre">None,</span> <span class="pre">'plugins':</span> <span class="pre">[],</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'trace_memory':</span> <span class="pre">False,</span> <span class="pre">'verbose':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['gdbserver',</span> <span class="pre">'etissdbg',</span> <span class="pre">'trace',</span> <span class="pre">'log_instrs']</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['gdbserver',</span> <span class="pre">'etissdbg',</span> <span class="pre">'trace',</span> <span class="pre">'log_instrs',</span> <span class="pre">'pext',</span> <span class="pre">'vext']</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['riscv_gcc.install_dir',</span> <span class="pre">'riscv_gcc.name',</span> <span class="pre">'etiss.src_dir',</span> <span class="pre">'etiss.install_dir',</span> <span class="pre">'etissvp.script']</span></em><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.arch">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.arch" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -382,6 +387,16 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.debug_etiss">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">debug_etiss</span></span><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.debug_etiss" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.enable_pext">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enable_pext</span></span><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.enable_pext" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.enable_vext">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enable_vext</span></span><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.enable_vext" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -438,6 +453,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.get_target_system">
 <span class="sig-name descname"><span class="pre">get_target_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/etiss_pulpino.html#EtissPulpinoTarget.get_target_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.get_target_system" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.jit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">jit</span></span><a class="headerlink" href="#mlonmcu.target.etiss_pulpino.EtissPulpinoTarget.jit" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -585,7 +605,7 @@
 <p>Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.ovpsim.OVPSimTarget.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'enable_fpu':</span> <span class="pre">True,</span> <span class="pre">'enable_pext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">'MAFDC',</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'variant':</span> <span class="pre">'RVB32I',</span> <span class="pre">'vlen':</span> <span class="pre">32}</span></em><a class="headerlink" href="#mlonmcu.target.ovpsim.OVPSimTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'elen':</span> <span class="pre">32,</span> <span class="pre">'enable_fpu':</span> <span class="pre">True,</span> <span class="pre">'enable_pext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">'MAFDC',</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'variant':</span> <span class="pre">'RVB32I',</span> <span class="pre">'vlen':</span> <span class="pre">32}</span></em><a class="headerlink" href="#mlonmcu.target.ovpsim.OVPSimTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -601,6 +621,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.ovpsim.OVPSimTarget.arch">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#mlonmcu.target.ovpsim.OVPSimTarget.arch" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.ovpsim.OVPSimTarget.elen">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elen</span></span><a class="headerlink" href="#mlonmcu.target.ovpsim.OVPSimTarget.elen" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -754,7 +779,7 @@
 <p>Target using the riscv-isa-sim (Spike) RISC-V simulator.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'enable_pext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'end_to_end_cycles':</span> <span class="pre">False,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'spikepk_extra_args':</span> <span class="pre">[],</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'vlen':</span> <span class="pre">0}</span></em><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32d',</span> <span class="pre">'arch':</span> <span class="pre">'rv32gc',</span> <span class="pre">'elen':</span> <span class="pre">32,</span> <span class="pre">'enable_pext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'end_to_end_cycles':</span> <span class="pre">False,</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'spikepk_extra_args':</span> <span class="pre">[],</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'vlen':</span> <span class="pre">0}</span></em><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -770,6 +795,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.arch">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.arch" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.spike.SpikeTarget.elen">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elen</span></span><a class="headerlink" href="#mlonmcu.target.spike.SpikeTarget.elen" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

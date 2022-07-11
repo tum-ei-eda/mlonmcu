@@ -260,6 +260,7 @@ def install_riscv_gcc(
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
         riscvInstallDir = user_vars["riscv_gcc.install_dir"]
     else:
+
         def _helper(url):
             fullUrlSplit = url.split("/")
             riscvUrl = "/".join(fullUrlSplit[:-1])
@@ -375,7 +376,7 @@ def clone_etiss(
 
 
 @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
-@Tasks.provides(["etiss.build_dir"])
+@Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
@@ -388,6 +389,7 @@ def build_etiss(
     flags = utils.makeFlags((params["dbg"], "dbg"))
     etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
+    etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
     # llvmInstallDir = context.cache["llvm.install_dir"]
     user_vars = context.environment.vars
     if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
@@ -406,6 +408,7 @@ def build_etiss(
         )
         utils.make(cwd=etissBuildDir, threads=threads, live=verbose)
     context.cache["etiss.build_dir", flags] = etissBuildDir
+    context.cache["etiss.install_dir", flags] = etissInstallDir
 
 
 @Tasks.needs(["etiss.build_dir"])
@@ -425,10 +428,10 @@ def install_etiss(
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.cache["etiss.build_dir", flags]
-    etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
+    etissInstallDir = context.cache["etiss.install_dir", flags]
     etissvpExe = etissInstallDir / "bin" / "bare_etiss_processor"
     etissvpScript = etissInstallDir / "bin" / "run_helper.sh"
-    if rebuild or not utils.is_populated(etissLibDir) or not etissvpExe.is_file():
+    if rebuild or not utils.is_populated(etissInstallDir) or not etissvpExe.is_file():
         utils.make("install", cwd=etissBuildDir, threads=threads, live=verbose)
     context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etissvp.exe", flags] = etissvpExe

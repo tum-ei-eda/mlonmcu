@@ -238,10 +238,14 @@ class TVMBackend(Backend):
         return args
 
     def invoke_tvmc(self, command, *args, cwd=None):
-        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir, tophub_url=self.tophub_url)
+        env = prepare_python_environment(
+            self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir, tophub_url=self.tophub_url
+        )
         if self.use_tlcpack:
             pre = ["tvmc"]
-            return utils.exec_getout(*pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd)
+            return utils.exec_getout(
+                *pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd
+            )
         else:
             if self.tvmc_custom_script is None:
                 pre = ["-m", "tvm.driver.tvmc"]

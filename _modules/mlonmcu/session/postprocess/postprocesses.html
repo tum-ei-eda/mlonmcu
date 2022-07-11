@@ -375,6 +375,25 @@
         <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">new_df</span></div></div>
 
 
+<div class="viewcode-block" id="PassConfig2ColumnsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">PassConfig2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Postprocess which can be used to transform (explode) the TVM pass_config into separate columns.</span>
+<span class="sd">    requires prior Config2Columns pass.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;passcfg2cols&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PassConfig2ColumnsPostprocess.post_session"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess.post_session">[docs]</a>    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;config_tvmaot.extra_pass_config&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">config_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s2">&quot;passcfg_&quot;</span><span class="p">)</span>
+        <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">new_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">tmp_df</span><span class="p">,</span> <span class="n">config_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">new_df</span></div></div>
+
+
 <div class="viewcode-block" id="Bytes2kBPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Bytes2kBPostprocess">[docs]</a><span class="k">class</span> <span class="nc">Bytes2kBPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
     <span class="sd">&quot;&quot;&quot;Postprocess which can be used to scale the memory related columns from Bytes to KiloBytes.&quot;&quot;&quot;</span>
 

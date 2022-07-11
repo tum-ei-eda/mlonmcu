@@ -337,6 +337,20 @@ in a dataframe for easier filtering.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">PassConfig2ColumnsPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#PassConfig2ColumnsPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a></p>
+<p>Postprocess which can be used to transform (explode) the TVM pass_config into separate columns.
+requires prior Config2Columns pass.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess.post_session">
+<span class="sig-name descname"><span class="pre">post_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#PassConfig2ColumnsPostprocess.post_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess.post_session" title="Permalink to this definition"></a></dt>
+<dd><p>Called at the end of a session.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">RenameColumnsPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#RenameColumnsPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.SessionPostprocess" title="mlonmcu.session.postprocess.postprocess.SessionPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.session.postprocess.postprocess.SessionPostprocess</span></code></a></p>

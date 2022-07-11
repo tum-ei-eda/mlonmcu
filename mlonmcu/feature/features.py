@@ -357,7 +357,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
 
 @register_feature("pext")
-class Pext(SetupFeature, TargetFeature):
+class Pext(SetupFeature, TargetFeature, PlatformFeature):
     """Enable packed SIMD extension for supported RISC-V targets"""
 
     DEFAULTS = {

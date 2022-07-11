@@ -58,6 +58,7 @@ class TVMBackend(Backend):
         "use_tuning_results": False,
         "tvmc_extra_args": [],  # Currently compile subcommand only!
         "tvmc_custom_script": None,
+        "use_tlcpack": False,
         # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py
         "tophub_url": None,
         **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
@@ -180,8 +181,17 @@ class TVMBackend(Backend):
         return self.config["tvm.configs_dir"]
 
     @property
+    def tophub_url(self):
+        return self.config["tophub_url"]
+
+    @property
     def print_outputs(self):
         value = self.config["print_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def use_tlcpack(self):
+        value = self.config["use_tlcpack"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_target_details(self):
@@ -228,12 +238,16 @@ class TVMBackend(Backend):
         return args
 
     def invoke_tvmc(self, command, *args, cwd=None):
-        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
-        if self.tvmc_custom_script is None:
-            pre = ["-m", "tvm.driver.tvmc"]
+        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir, tophub_url=self.tophub_url)
+        if self.use_tlcpack:
+            pre = ["tvmc"]
+            return utils.exec_getout(*pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd)
         else:
-            pre = [self.tvmc_custom_script]
-        return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd)
+            if self.tvmc_custom_script is None:
+                pre = ["-m", "tvm.driver.tvmc"]
+            else:
+                pre = [self.tvmc_custom_script]
+            return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd)
 
     def invoke_tvmc_compile(self, out, dump=None, cwd=None):
         args = self.get_tvmc_compile_args(out)

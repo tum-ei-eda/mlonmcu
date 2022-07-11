@@ -295,6 +295,25 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         report.post_df = new_df
 
 
+class PassConfig2ColumnsPostprocess(SessionPostprocess):
+    """Postprocess which can be used to transform (explode) the TVM pass_config into separate columns.
+    requires prior Config2Columns pass."""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("passcfg2cols", features=features, config=config)
+
+    def post_session(self, report):
+        """Called at the end of a session."""
+        df = report.post_df
+        name = "config_tvmaot.extra_pass_config"
+        if name not in df.columns:
+            return
+        config_df = df[name].apply(pd.Series).add_prefix("passcfg_")
+        tmp_df = df.drop(columns=[name])
+        new_df = pd.concat([tmp_df, config_df], axis=1)
+        report.post_df = new_df
+
+
 class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
     """Postprocess which can be used to scale the memory related columns from Bytes to KiloBytes."""
 

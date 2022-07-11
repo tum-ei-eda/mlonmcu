@@ -38,6 +38,7 @@ class OVPSimTarget(RISCVTarget):
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "vlen": 32,  # vectorization=off
+        "elen": 32,
         "enable_vext": False,
         "enable_pext": False,
         "enable_fpu": True,
@@ -73,6 +74,10 @@ class OVPSimTarget(RISCVTarget):
     @property
     def vlen(self):
         return int(self.config["vlen"])
+
+    @property
+    def elen(self):
+        return int(self.config["elen"])
 
     @property
     def enable_fpu(self):
@@ -124,7 +129,7 @@ class OVPSimTarget(RISCVTarget):
                     "--override",
                     f"riscvOVPsim/cpu/VLEN={self.vlen}",
                     "--override",
-                    "riscvOVPsim/cpu/ELEN=32",
+                    f"riscvOVPsim/cpu/ELEN={self.elen}",
                 ]
             )
             args.extend(["--override", f"riscvOVPsim/cpu/mstatus_VS={int(self.enable_vext)}"])

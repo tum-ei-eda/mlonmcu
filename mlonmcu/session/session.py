@@ -334,7 +334,6 @@ class Session:
         report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
         self.report = report
-        print_report = True
         if print_report:
             logger.info("Report:\n%s", str(report.df))
 

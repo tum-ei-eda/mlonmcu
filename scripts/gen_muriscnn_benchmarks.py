@@ -359,6 +359,8 @@ def benchmark(args):
         report = session.get_reports()
         report_file = args.output
         report.export(report_file)
+        print()
+        print(report.df)
 
 
 def main():

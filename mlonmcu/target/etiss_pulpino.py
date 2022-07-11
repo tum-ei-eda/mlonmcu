@@ -55,6 +55,7 @@ class EtissPulpinoTarget(RISCVTarget):
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
         "enable_vext": False,
         "enable_pext": False,
+        "jit": None,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
 
@@ -140,6 +141,10 @@ class EtissPulpinoTarget(RISCVTarget):
         return bool(self.config["enable_pext"])
 
     @property
+    def jit(self):
+        return self.config["jit"]
+
+    @property
     def arch(self):
         ret = str(self.config["arch"])
         if self.enable_pext:
@@ -156,10 +161,14 @@ class EtissPulpinoTarget(RISCVTarget):
     def write_ini(self, path):
         # TODO: Either create artifact for ini or prefer to use cmdline args.
         with open(path, "w") as f:
-            if self.cpu_arch:
+            if self.cpu_arch or self.jit:
                 f.write("[StringConfigurations]\n")
+            if self.cpu_arch:
                 f.write(f"arch.cpu={self.cpu_arch}\n")
+            if self.jit:
+                f.write(f"jit.type={self.jit}JIT\n")
             f.write("[IntConfigurations]\n")
+            # f.write("etiss.max_block_size=100\n")
             f.write(f"simple_mem_system.memseg_origin_00={hex(self.rom_start)}\n")
             f.write(f"simple_mem_system.memseg_length_00={hex(self.rom_size)}\n")
             f.write(f"simple_mem_system.memseg_origin_01={hex(self.ram_start)}\n")

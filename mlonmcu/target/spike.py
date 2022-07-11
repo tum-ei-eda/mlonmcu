@@ -42,6 +42,7 @@ class SpikeTarget(RISCVTarget):
         "enable_vext": False,
         "enable_pext": False,
         "vlen": 0,  # vectorization=off
+        "elen": 32,
         "spikepk_extra_args": [],
         "end_to_end_cycles": False,
     }
@@ -83,6 +84,10 @@ class SpikeTarget(RISCVTarget):
         return int(self.config["vlen"])
 
     @property
+    def elen(self):
+        return int(self.config["elen"])
+
+    @property
     def spikepk_extra_args(self):
         return self.config["spikepk_extra_args"]
 
@@ -109,7 +114,7 @@ class SpikeTarget(RISCVTarget):
 
         if self.enable_vext:
             assert self.vlen > 0
-            spike_args.append(f"--varch=vlen:{self.vlen},elen:32")
+            spike_args.append(f"--varch=vlen:{self.vlen},elen:{self.elen}")
         else:
             assert self.vlen == 0
 

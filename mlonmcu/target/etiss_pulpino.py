@@ -36,7 +36,7 @@ logger = get_logger()
 class EtissPulpinoTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    FEATURES = ["gdbserver", "etissdbg", "trace", "log_instrs"]
+    FEATURES = ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -47,12 +47,14 @@ class EtissPulpinoTarget(RISCVTarget):
         "trace_memory": False,
         "plugins": [],
         "verbose": False,
-        "cpu_arch": "RISCV",  # For V/P-Extension support, use RV32IMAFDCPV
+        "cpu_arch": None,
         "etissvp.rom_start": 0x0,
         "etissvp.rom_size": 0x800000,  # 8 MB
         "etissvp.ram_start": 0x800000,
         "etissvp.ram_size": 0x4000000,  # 64 MB
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
+        "enable_vext": False,
+        "enable_pext": False,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
 
@@ -122,7 +124,32 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def cpu_arch(self):
-        return self.config["cpu_arch"]
+        if self.config.get("cpu_arch", None):
+            return self.config["cpu_arch"]
+        elif self.enable_pext or self.enable_vext:
+            return "RV32IMACFDPV"
+        else:
+            return "RV32IMACFD"
+
+    @property
+    def enable_vext(self):
+        return bool(self.config["enable_vext"])
+
+    @property
+    def enable_pext(self):
+        return bool(self.config["enable_pext"])
+
+    @property
+    def arch(self):
+        ret = str(self.config["arch"])
+        if self.enable_pext:
+            if "p" not in ret[2:]:
+                ret += "p"
+        if self.enable_vext:
+            if "v" not in ret[2:]:
+                ret += "v"
+
+        return ret
 
     # TODO: other properties
 

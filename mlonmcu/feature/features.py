@@ -329,7 +329,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
-        assert target in ["spike", "ovpsim"]
+        assert target in ["spike", "ovpsim", "etiss_pulpino"]
         assert is_power_of_two(self.vlen)
         return {
             f"{target}.enable_vext": True,
@@ -370,7 +370,7 @@ class Pext(SetupFeature, TargetFeature):
         super().__init__("pext", features=features, config=config)
 
     def get_target_config(self, target):
-        assert target in ["spike", "ovpsim"]  # TODO: add etiss in the future
+        assert target in ["spike", "ovpsim", "etiss_pulpino"]
         return {
             f"{target}.enable_pext": True,  # Handle via arch characters in the future
         }

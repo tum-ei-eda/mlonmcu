@@ -421,7 +421,7 @@ def main():
     parser.add_argument(
         "--autotuned",
         action="store_true",
-        help="Use tunung records, if available (default: %(default)s)",
+        help="Use tuning records, if available (default: %(default)s)",
     )
     parser.add_argument(
         "--skip-default",

@@ -312,7 +312,8 @@ def install_riscv_gcc(
 
 
 def _validate_llvm(context: MlonMcuContext, params=None):
-    return context.environment.has_framework("tvm") or context.environment.has_target("etiss_pulpino")
+    # return context.environment.has_framework("tvm") or context.environment.has_target("etiss_pulpino")
+    return context.environment.has_framework("tvm")
 
 
 @Tasks.provides(["llvm.install_dir"])
@@ -375,7 +376,8 @@ def clone_etiss(
     context.cache["etiss.src_dir"] = etissSrcDir
 
 
-@Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
+# @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
+@Tasks.needs(["etiss.src_dir"])
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)

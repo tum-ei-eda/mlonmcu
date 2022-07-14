@@ -212,8 +212,7 @@ class Corstone300Target(Target):
                 # "target_mabi": self.abi,
             }
             if self.enable_dsp:
-                pass
-                # ret.update({"desired_layout": "NHWC,HWOI"})  # NOt yet supported by upstream TVMC
+                ret.update({"desired_layout": "NHWC:HWOI"})  # Not yet supported by upstream TVMC
             return ret
         return {}
 

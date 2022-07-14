@@ -161,12 +161,29 @@ class SpikeTarget(RISCVTarget):
 
         return metrics, out, []
 
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if self.enable_pext:
+            ret["RISCV_RVP_MAJOR"] = "0"
+            ret["RISCV_RVP_MINOR"] = "96"
+        if self.enable_vext:
+            ret["RISCV_RVV_MAJOR"] = "1"
+            ret["RISCV_RVV_MINOR"] = "0"
+            ret["RISCV_RVV_VLEN"] = self.vlen
+        return ret
+
     def get_backend_config(self, backend):
         ret = super().get_backend_config(backend)
         if backend in SUPPORTED_TVM_BACKENDS:
             ret.update({"target_model": "spike-rv32"})
-            if self.enable_pext:
-                pass  # TODO: change graph layout to use SIMD kernels
+            if self.enable_pext or self.enable_vext:
+                ret.update(
+                    {
+                        # Warning: passing kernel layouts does not work with upstream TVM
+                        # TODO: allow passing map?
+                        "desired_layout": "NHWC:HWOI",
+                    }
+                )
         return ret
 
 

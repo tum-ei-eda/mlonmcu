@@ -60,6 +60,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "model_support_dir": None,
         "toolchain": "gcc",
         "prebuild_lib_path": None,
+        "optimize": None,  # values: 0,1,2,3,s
     }
 
     REQUIRED = ["mlif.src_dir"]
@@ -136,6 +137,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def prebuild_lib_dir(self):
         return self.config["prebuild_lib_dir"]
 
+    @property
+    def optimize(self):
+        return self.config["optimize"]
+
+
     def get_supported_targets(self):
         target_names = get_mlif_targets()
         return target_names
@@ -148,6 +154,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         args = []
         args.append(f"-DNUM_RUNS={num}")
         args.append(f"-DTOOLCHAIN={self.toolchain}")
+        if self.optimize:
+            args.append(f"-DOPTIMIZE={self.optimize}")
         return args
 
     def prepare(self):

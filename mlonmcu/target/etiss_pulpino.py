@@ -53,8 +53,11 @@ class EtissPulpinoTarget(RISCVTarget):
         "etissvp.ram_start": 0x800000,
         "etissvp.ram_size": 0x4000000,  # 64 MB
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
+        "enable_fpu": True,  # WIP
         "enable_vext": False,
         "enable_pext": False,
+        "vlen": 0,  # vectorization=off
+        "elen": 32,
         "jit": None,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
@@ -133,12 +136,24 @@ class EtissPulpinoTarget(RISCVTarget):
             return "RV32IMACFD"
 
     @property
+    def enable_fpu(self):
+        return bool(self.config["enable_fpu"])
+
+    @property
     def enable_vext(self):
         return bool(self.config["enable_vext"])
 
     @property
     def enable_pext(self):
         return bool(self.config["enable_pext"])
+
+    @property
+    def vlen(self):
+        return int(self.config["vlen"])
+
+    @property
+    def elen(self):
+        return int(self.config["elen"])
 
     @property
     def jit(self):
@@ -175,6 +190,16 @@ class EtissPulpinoTarget(RISCVTarget):
             f.write(f"simple_mem_system.memseg_length_01={hex(self.ram_size)}\n")
             f.write("\n")
             f.write(f"arch.cpu_cycle_time_ps={self.cycle_time_ps}\n")
+            if self.enable_fpu:
+                # TODO: do not hardcode cpu_arch
+                # TODO: i.e. use cpu_arch_lower
+                f.write(f"arch.rv32imacfdpv.mstatus_fs=1")
+            if self.enable_vext:
+                f.write(f"arch.rv32imacfdpv.mstatus_vs=1")
+                if self.vlen > 0:
+                    f.write(f"arch.rv32imacfdpv.vlen={self.vlen}")
+                # if self.elen > 0:
+                #     f.write(f"arch.rv32imacfdpv.elen={self.elen}")
 
             if self.gdbserver_enable:
                 f.write("[Plugin gdbserver]\n")

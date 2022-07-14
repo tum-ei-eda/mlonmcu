@@ -392,7 +392,8 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_llvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">)</span>
+    <span class="c1"># return context.environment.has_framework(&quot;tvm&quot;) or context.environment.has_target(&quot;etiss_pulpino&quot;)</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="install_llvm"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.install_llvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
@@ -455,7 +456,8 @@
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissSrcDir</span></div>
 
 
-<div class="viewcode-block" id="build_etiss"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_etiss">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
+<span class="c1"># @Tasks.needs([&quot;etiss.src_dir&quot;, &quot;llvm.install_dir&quot;])</span>
+<div class="viewcode-block" id="build_etiss"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.tasks.build_etiss">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss</span><span class="p">)</span>

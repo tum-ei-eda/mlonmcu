@@ -989,7 +989,7 @@ class LogInstructions(TargetFeature):
             extra_args_new.append("-l")
             # if self.to_file:
             #     extra_args_new.append("--log=?")
-            config.update({"extra_args": extra_args_new})
+            config.update({f"{target}.extra_args": extra_args_new})
         elif target == "etiss_pulpino":
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")

@@ -806,7 +806,8 @@ class Run:
         pre["Num"] = self.num
         post = {}
         post["Features"] = self.get_all_feature_names()
-        post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
+        # post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
+        post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=False, omit_globals=True)
         post["Postprocesses"] = self.get_all_postprocess_names()
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         if self.failing:

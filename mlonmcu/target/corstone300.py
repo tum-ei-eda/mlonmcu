@@ -206,7 +206,7 @@ class Corstone300Target(Target):
                 "target_device": "arm_cpu",
                 # "target_march": self.get_arch(),
                 "target_model": "unknown",
-                "target_mtriple": self.riscv_basename,
+                "target_mtriple": "arm-none-eabi",
                 "target_mcpu": self.model,
                 # "target_mattr": "?",
                 # "target_mabi": self.abi,

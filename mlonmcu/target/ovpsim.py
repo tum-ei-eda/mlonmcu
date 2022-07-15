@@ -61,15 +61,19 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        ret = str(self.config["extensions"])
-
-        if self.enable_pext:
-            if "P" not in ret:
-                ret += "BP"
-        if self.enable_vext:
-            if "V" not in ret:
-                ret += "V"
+        ret = super().extensions
+        if self.enable_pext and "p" not in ret:
+            ret.append("p")
+        if self.enable_vext and "v" not in ret:
+            ret.append("v")
         return ret
+
+    @property
+    def attr(self):
+        attrs = super().attr.split(",")
+        if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
+            attrs.append(f"+zvl{self.vlen}b")
+        return ",".join(attrs)
 
     @property
     def vlen(self):

@@ -27,7 +27,7 @@ from .target import Target
 logger = get_logger()
 
 
-def sort_extensions_canonical(extensions):
+def sort_extensions_canonical(extensions, lower=False, unpack=False):
     """Utility to get the canonical architecture name string."""
 
     # See: https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf#table.22.1
@@ -52,6 +52,13 @@ def sort_extensions_canonical(extensions):
     ]  # What about Z* extensions?
     extensions_new = extensions.copy()
 
+    if unpack:
+        # Convert G into IMAFD
+        if "G" in extensions_new:
+            extensions_new = [x for x in extensions_new if x != "G"] + ["I", "M", "A", "F", "D"]
+        # Remove duplicates
+        extensions_new = list(set(extensions_new))
+
     def _get_index(x):
         if x in ORDER:
             return ORDER.index(x)
@@ -61,7 +68,10 @@ def sort_extensions_canonical(extensions):
                     return i
             return ORDER.index("X") - 0.5  # Insert unknown keys right before custom extensions
 
-    extensions_new.sort(key=lambda x: _get_index(x))
+    extensions_new.sort(key=lambda x: _get_index(x.upper()))
+
+    if lower:
+        extensions_new = [x.lower() for x in extensions_new]
     return extensions_new
 
 
@@ -72,10 +82,13 @@ class RISCVTarget(Target):
 
     DEFAULTS = {
         **Target.DEFAULTS,
+        "xlen": 32,
+        "extensions": ["g", "c"],
         "timeout_sec": 0,  # disabled
         "extra_args": "",
-        "arch": "rv32gc",
-        "abi": "ilp32d",
+        "arch": None,
+        "abi": None,
+        "attr": "",
     }
     REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name"]
 
@@ -88,12 +101,50 @@ class RISCVTarget(Target):
         return Path(self.config["riscv_gcc.name"])
 
     @property
+    def xlen(self):
+        return int(self.config["xlen"])
+
+    @property
+    def extensions(self):
+        exts = self.config.get("extensions", [])
+        if not isinstance(self.config["extensions"], list):
+            exts = exts.split(",")
+        return exts
+
+    @property
     def arch(self):
-        return str(self.config["arch"])
+        temp = self.config["arch"]
+        if temp:
+            return temp
+        else:
+            exts_str = "".join(sort_extensions_canonical(self.extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
 
     @property
     def abi(self):
-        return str(self.config["abi"])
+        temp = self.config["abi"]
+        if temp:
+            return temp
+        else:
+            if self.xlen == 32:
+                temp = "ilp32"
+            elif self.xlen == 64:
+                temp = "lp64"
+            else:
+                raise RuntimeError(f"Invalid xlen: {self.xlen}")
+            if "d" in self.extensions:
+                temp += "d"
+            elif "f" in self.extensions:
+                temp += "f"
+            return temp
+
+    @property
+    def attr(self):
+        attrs = str(self.config["attr"]).split(",")
+        for ext in self.extensions:
+            attrs.append(f"+{ext}")
+        attrs = list(set(attrs))
+        return ",".join(attrs)
 
     @property
     def extra_args(self):

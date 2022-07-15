@@ -68,16 +68,20 @@ class SpikeTarget(RISCVTarget):
         return bool(self.config["enable_pext"])
 
     @property
-    def arch(self):
-        ret = str(self.config["arch"])
-        if self.enable_pext:
-            if "p" not in ret[2:]:
-                ret += "p"
-        if self.enable_vext:
-            if "v" not in ret[2:]:
-                ret += "v"
-
+    def extensions(self):
+        ret = super().extensions
+        if self.enable_pext and "p" not in ret:
+            ret.append("p")
+        if self.enable_vext and "v" not in ret:
+            ret.append("v")
         return ret
+
+    @property
+    def attr(self):
+        attrs = super().attr.split(",")
+        if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
+            attrs.append(f"+zvl{self.vlen}b")
+        return ",".join(attrs)
 
     @property
     def vlen(self):

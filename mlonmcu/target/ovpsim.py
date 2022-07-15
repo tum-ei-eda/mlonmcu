@@ -198,7 +198,8 @@ class OVPSimTarget(RISCVTarget):
 
         metrics = Metrics()
         metrics.add("Total Cycles", cycles)
-        metrics.add("MIPS", mips, optional=True)
+        if mips:
+            metrics.add("MIPS", mips, optional=True)
 
         return metrics, out, []
 

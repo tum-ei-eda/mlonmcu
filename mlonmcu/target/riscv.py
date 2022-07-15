@@ -52,6 +52,9 @@ def sort_extensions_canonical(extensions, lower=False, unpack=False):
     ]  # What about Z* extensions?
     extensions_new = extensions.copy()
 
+    # make upper
+    extensions_new = [x.upper() for x in extensions_new]
+
     if unpack:
         # Convert G into IMAFD
         if "G" in extensions_new:
@@ -68,7 +71,7 @@ def sort_extensions_canonical(extensions, lower=False, unpack=False):
                     return i
             return ORDER.index("X") - 0.5  # Insert unknown keys right before custom extensions
 
-    extensions_new.sort(key=lambda x: _get_index(x.upper()))
+    extensions_new.sort(key=lambda x: _get_index(x))
 
     if lower:
         extensions_new = [x.lower() for x in extensions_new]

@@ -23,8 +23,9 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .common import cli, execute
-from .riscv import RISCVTarget
+from .riscv import RISCVTarget, sort_extensions_canonical
 from .metrics import Metrics
 
 logger = get_logger()
@@ -43,8 +44,6 @@ class OVPSimTarget(RISCVTarget):
         "enable_pext": False,
         "enable_fpu": True,
         "variant": "RVB32I",
-        # "extensions": "MAFDCV",
-        "extensions": "MAFDC",  # rv32gc
     }
     REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
 
@@ -57,7 +56,11 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def variant(self):
-        return str(self.config["variant"])
+        temp = self.config["variant"]
+        if temp:
+            return temp
+        else:
+            return f"RVB{self.xlen}I"
 
     @property
     def extensions(self):
@@ -95,23 +98,13 @@ class OVPSimTarget(RISCVTarget):
     def enable_pext(self):
         return bool(self.config["enable_pext"])
 
-    @property
-    def arch(self):
-        ret = str(self.config["arch"])
-        if self.enable_pext:
-            if "p" not in ret[2:]:
-                ret += "p"
-        if self.enable_vext:
-            if "v" not in ret[2:]:
-                ret += "v"
-        return ret
-
     def get_default_ovpsim_args(self):
+        extensions_str = "".join(sort_extensions_canonical(self.extensions, lower=False, unpack=True))
         args = [
             "--variant",
             self.variant,
             "--override",
-            f"riscvOVPsim/cpu/add_Extensions={self.extensions}",
+            f"riscvOVPsim/cpu/add_Extensions={extensions_str}",
             "--override",
             "riscvOVPsim/cpu/unaligned=T",
         ]
@@ -138,9 +131,7 @@ class OVPSimTarget(RISCVTarget):
             )
             args.extend(["--override", f"riscvOVPsim/cpu/mstatus_VS={int(self.enable_vext)}"])
         if self.enable_fpu:
-            assert "F" in self.extensions
-            # if "F" not in self.extensions:
-            #     self.extensions += "F"
+            assert "f" in self.extensions or "g" in self.extensions
         args.extend(["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"])
         if False:  # ?
             args.append("--trace")

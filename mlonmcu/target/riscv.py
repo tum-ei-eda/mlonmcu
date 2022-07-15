@@ -169,6 +169,7 @@ class RISCVTarget(Target):
         ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_basename
         ret["RISCV_ARCH"] = self.arch
         ret["RISCV_ABI"] = self.abi
+        ret["RISCV_ATTR"] = self.attr  # TODO: use for clang
         return ret
 
     def get_arch(self):

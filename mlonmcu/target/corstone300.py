@@ -43,6 +43,7 @@ class Corstone300Target(Target):
         # Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
         "enable_ethosu": False,
+        "enable_fpu": True,
         "enable_mvei": False,  # unused
         "enable_dsp": False,  # unused
         "ethosu_num_macs": 256,
@@ -71,6 +72,10 @@ class Corstone300Target(Target):
     @property
     def enable_ethosu(self):
         return bool(self.config["enable_ethosu"])
+
+    @property
+    def enable_fpu(self):
+        return bool(self.config["enablefpu"])
 
     @property
     def enable_mvei(self):
@@ -121,6 +126,10 @@ class Corstone300Target(Target):
             "cpu0.CFGDTCMSZ=15",  # ?
             "-C",
             "cpu0.CFGITCMSZ=15",  # ?
+            "-C",
+            f"cpu0.FPU={int(self.enable_fpu)}"
+            "-C",
+            "cpu0.MVE={}".format(2 if self.enable_mvei and self.enable_fpu else (1 if self.enable_mvei and not self.enable_fpu else 0))
         ]
 
     def get_ethosu_fvp_args(self):

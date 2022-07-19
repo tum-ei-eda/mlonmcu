@@ -1150,3 +1150,42 @@ class TargetOptimized(RunFeature):
 
     def get_run_config(self):
         return {"run.target_to_backend": self.enabled}
+
+
+# Needs: vext
+# RISC-V only
+# Warning: Auto-vectorization is turned on by default quite low optimization levels
+# Therfore this feature is mainly for debugging the auto-vectorization procedure
+@register_feature("auto_vectorize")
+class AutoVectorize(PlatformFeature):
+    """Enable auto_vectorization for supported MLIF platform targets."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "verbose": False,
+        "loop": True,
+        "slp": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("auto_vectorize", features=features, config=config)
+
+    @property
+    def verbose(self):
+        return str2bool(self.config["verbose"]) if isinstance(self.config["verbose"], str) else self.config["verbose"]
+
+    @property
+    def loop(self):
+        return str2bool(self.config["loop"]) if isinstance(self.config["loop"], str) else self.config["loop"]
+
+    @property
+    def slp(self):
+        return str2bool(self.config["slp"]) if isinstance(self.config["slp"], str) else self.config["slp"]
+
+    def get_platform_defs(self, platform):
+        return {
+            "RISCV_AUTO_VECTORIZE": self.enabled,
+            "RISCV_AUTO_VECTORIZE_VERBOSE": self.verbose,
+            "RISCV_AUTO_VECTORIZE_LOOP": self.loop,
+            "RISCV_AUTO_VECTORIZE_SLP": self.slp,
+        }

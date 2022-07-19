@@ -49,6 +49,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "pext",
             "arm_mvei",
             "arm_dsp",
+            "auto_vectorize",
         ]  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -140,7 +141,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def optimize(self):
         return self.config["optimize"]
-
 
     def get_supported_targets(self):
         target_names = get_mlif_targets()

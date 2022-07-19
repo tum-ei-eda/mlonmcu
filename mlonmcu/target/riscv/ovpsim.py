@@ -24,9 +24,9 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from .common import cli, execute
+from mlonmcu.target.common import cli, execute
+from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget, sort_extensions_canonical
-from .metrics import Metrics
 
 logger = get_logger()
 

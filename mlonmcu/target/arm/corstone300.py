@@ -24,9 +24,9 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from .common import cli, execute
-from .target import Target
-from .metrics import Metrics
+from mlonmcu.target import Target
+from mlonmcu.target.common import cli, execute
+from mlonmcu.target.metrics import Metrics
 
 logger = get_logger()
 
@@ -38,7 +38,6 @@ class Corstone300Target(Target):
 
     DEFAULTS = {
         **Target.DEFAULTS,
-        # "model": "cortex-m55",  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
         "model": None,  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
         # Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
@@ -127,7 +126,8 @@ class Corstone300Target(Target):
             "-C",
             "cpu0.CFGITCMSZ=15",  # ?
             "-C",
-            f"cpu0.FPU={int(self.enable_fpu)}" "-C",
+            f"cpu0.FPU={int(self.enable_fpu)}",
+            "-C",
             "cpu0.MVE={}".format(
                 2 if self.enable_mvei and self.enable_fpu else (1 if self.enable_mvei and not self.enable_fpu else 0)
             ),

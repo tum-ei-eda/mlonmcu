@@ -25,9 +25,9 @@ from pathlib import Path
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from .common import cli, execute
+from mlonmcu.target.common import cli, execute
+from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
-from .metrics import Metrics
 
 logger = get_logger()
 
@@ -107,6 +107,7 @@ class SpikeTarget(RISCVTarget):
 
         spike_args.append(f"--isa={self.arch}")
 
+        print("self.extra_args", self.extra_args)
         if len(self.extra_args) > 0:
             spike_args.extend(self.extra_args)
 

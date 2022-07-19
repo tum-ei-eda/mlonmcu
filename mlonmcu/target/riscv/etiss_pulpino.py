@@ -26,9 +26,9 @@ from pathlib import Path
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from .common import cli, execute
+from mlonmcu.target.common import cli, execute
+from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
-from .metrics import Metrics
 
 logger = get_logger()
 
@@ -45,6 +45,7 @@ class EtissPulpinoTarget(RISCVTarget):
         "gdbserver_port": 2222,
         "debug_etiss": False,
         "trace_memory": False,
+        # "plugins": ["PrintInstruction"],
         "plugins": [],
         "verbose": False,
         "cpu_arch": None,
@@ -186,6 +187,7 @@ class EtissPulpinoTarget(RISCVTarget):
                 f.write(f"jit.type={self.jit}JIT\n")
             f.write("[IntConfigurations]\n")
             # f.write("etiss.max_block_size=100\n")
+            # f.write("etiss.max_block_size=500\n")
             f.write(f"simple_mem_system.memseg_origin_00={hex(self.rom_start)}\n")
             f.write(f"simple_mem_system.memseg_length_00={hex(self.rom_size)}\n")
             f.write(f"simple_mem_system.memseg_origin_01={hex(self.ram_start)}\n")

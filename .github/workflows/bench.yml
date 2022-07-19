@@ -20,14 +20,14 @@ name: Run Benchmarks
 on:
   workflow_dispatch:
     inputs:
-      bench_image:
-        description: 'Base Docker Image'
+      template:
+        description: 'MLonMCU Environment Template'
         required: true
-        default: "ghcr.io/tum-ei-eda/mlonmcu-bench:latest"
-      bench_cmd:
-        description: 'Benchmarking Command'
+        default: "default"
+      benchmark:
+        description: 'Benchmark Name'
         required: true
-        default: "flow run tinymlperf"
+        default: ""
 
 jobs:
   bench:
@@ -39,19 +39,63 @@ jobs:
       run: python3 -m mlonmcu.cli.main ${{ github.event.inputs.bench_cmd }}
     - name: Store cmdline
       run: echo "${{ github.event.inputs.bench_cmd }}" >> /environment/results/cmd.txt
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    # TODO: caching
+    - name: Install APT packages
+      run: |
+        sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler
+        sudo apt -qq install -y ninja-build
+        sudo apt remove clang-11* llvm-11*
+    - name: Initialize Virtualenv
+      run: |
+        python -m pip install --upgrade pip
+        python -m venv .venv
+    - name: Install dependencies
+      run: |
+        source .venv/bin/activate
+        pip install -r requirements.txt
+    - name: Run package creation
+      run: |
+        source .venv/bin/activate
+        make install
+    - name: Initialize MLonMCU environment
+      run: |
+        source .venv/bin/activate
+        mlonmcu init home/ --non-interactive --template ${{ github.event.inputs.template }}
+    - name: Setup MLonMCU dependencies
+      run: |
+        source .venv/bin/activate
+        mlonmcu setup -H home/ -v
+    - name: Run Benchmark
+      run: |
+        source .venv/bin/activate
+        cd scripts/
+        python bench.py ${{ github.event.inputs.benchmark }} out/
     - name: Archive reports
       uses: actions/upload-artifact@v2
       with:
         name: results
-        path: /environment/results/
-    # Pushing results to a branch is not possible right now as we are inside a docker container!
-    # - name: Get date
-    #   run: echo "timestamp=`date +%FT%T`" >> $GITHUB_ENV
-    # - name: Install RSync
-    #   run: apt install -y rsync
-    # - name: Upload results to a special branch
-    #   uses: JamesIves/github-pages-deploy-action@4.1.1
-    #   with:
-    #     folder: /environment/results/
-    #     branch: benchmark_results
-    #     target-folder: ${{ env.timestamp }}/
+        path: scripts/out/
+    - name: Get date
+      run: echo "timestamp=`date +%FT%T`" >> $GITHUB_ENV
+    - name: Install RSync
+      run: apt install -y rsync
+    - name: Upload results to a special branch
+      uses: JamesIves/github-pages-deploy-action@4.1.1
+      with:
+        folder: scripts/out/
+        branch: benchmark_results
+        target-folder: benchmarks/${{ github.event.inputs.benchmark }}/${{ env.timestamp }}/

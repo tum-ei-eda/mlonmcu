@@ -75,7 +75,7 @@ class Corstone300Target(Target):
 
     @property
     def enable_fpu(self):
-        return bool(self.config["enablefpu"])
+        return bool(self.config["enable_fpu"])
 
     @property
     def enable_mvei(self):
@@ -127,9 +127,10 @@ class Corstone300Target(Target):
             "-C",
             "cpu0.CFGITCMSZ=15",  # ?
             "-C",
-            f"cpu0.FPU={int(self.enable_fpu)}"
-            "-C",
-            "cpu0.MVE={}".format(2 if self.enable_mvei and self.enable_fpu else (1 if self.enable_mvei and not self.enable_fpu else 0))
+            f"cpu0.FPU={int(self.enable_fpu)}" "-C",
+            "cpu0.MVE={}".format(
+                2 if self.enable_mvei and self.enable_fpu else (1 if self.enable_mvei and not self.enable_fpu else 0)
+            ),
         ]
 
     def get_ethosu_fvp_args(self):

@@ -18,12 +18,7 @@
 #
 from enum import IntEnum
 
-from mlonmcu.target.target import Target
-from mlonmcu.target.host_x86 import HostX86Target
-from mlonmcu.target.etiss_pulpino import EtissPulpinoTarget
-from mlonmcu.target.corstone300 import Corstone300Target
-from mlonmcu.target.spike import SpikeTarget
-from mlonmcu.target.ovpsim import OVPSimTarget
+from mlonmcu.target import Target, EtissPulpinoTarget, SpikeTarget, OVPSimTarget, Corstone300Target, HostX86Target
 from mlonmcu.logging import get_logger
 
 logger = get_logger()

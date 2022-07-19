@@ -18,6 +18,7 @@
 #
 """MLonMCU target submodule"""
 
+from .target import Target
 from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target

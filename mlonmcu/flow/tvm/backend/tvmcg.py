@@ -42,7 +42,12 @@ class TVMCGBackend(TVMRTBackend):
 
     def get_max_workspace_size_from_metadata(self, metadata):
         max_workspace = 0
-        for op in metadata["memory"]["functions"]["operator_functions"]:
+        if "modules" in metadata:
+            temp = metadata["modules"]["default"]["memory"]
+        else:
+            # backwards compatibility
+            temp = metadata["memory"]
+        for op in temp["functions"]["operator_functions"]:
             max_workspace = max(
                 max_workspace,
                 op["workspace"][0]["workspace_size_bytes"] if len(op["workspace"]) > 0 else 0,
@@ -65,7 +70,8 @@ class TVMCGBackend(TVMRTBackend):
                     with open(mlf_path / "metadata.json") as handle:
                         metadata = json.load(handle)
                     tvmcg_exe = self.config["utvmcg.exe"]
-                    graph_json_file = mlf_path / "executor-config" / "graph" / "graph.json"
+                    # graph_json_file = mlf_path / "executor-config" / "graph" / "graph.json"
+                    graph_json_file = mlf_path / "executor-config" / "graph" / "default.graph"
                     params_bin_file = mlf_path / "parameters" / "default.params"
                     max_workspace_size = self.get_max_workspace_size_from_metadata(metadata)
                     args = []

@@ -60,7 +60,7 @@ class TVMRTBackend(TVMBackend):
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None
-        with open(Path(path) / "executor-config" / "graph" / "graph.json", "r") as handle:
+        with open(Path(path) / "executor-config" / "graph" / "default.graph", "r") as handle:
             graph = handle.read()
         params = None
         with open(Path(path) / "parameters" / "default.params", "rb") as handle:

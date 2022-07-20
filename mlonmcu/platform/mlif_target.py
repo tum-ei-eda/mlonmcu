@@ -18,7 +18,15 @@
 #
 from enum import IntEnum
 
-from mlonmcu.target import Target, EtissPulpinoTarget, SpikeTarget, OVPSimTarget, Corstone300Target, HostX86Target
+from mlonmcu.target import (
+    Target,
+    EtissPulpinoTarget,
+    SpikeTarget,
+    OVPSimTarget,
+    Corstone300Target,
+    HostX86Target,
+    RiscvQemuTarget,
+)
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
@@ -43,6 +51,7 @@ register_mlif_target("etiss_pulpino", EtissPulpinoTarget)
 register_mlif_target("corstone300", Corstone300Target)
 register_mlif_target("spike", SpikeTarget)
 register_mlif_target("ovpsim", OVPSimTarget)
+register_mlif_target("riscv_qemu", RiscvQemuTarget)
 
 
 class MlifExitCode(IntEnum):

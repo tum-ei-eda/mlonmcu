@@ -329,7 +329,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
-        assert target in ["spike", "ovpsim", "etiss_pulpino"]
+        assert target in ["spike", "ovpsim", "etiss_pulpino", "riscv_qemu"]
         assert is_power_of_two(self.vlen)
         return {
             f"{target}.enable_vext": True,

@@ -34,7 +34,7 @@ logger = get_logger()
 class RiscvQemuTarget(RISCVTarget):
     """Target using a spike machine in the QEMU simulator"""
 
-    FEATURES = []
+    FEATURES = ["vext"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -83,7 +83,7 @@ class RiscvQemuTarget(RISCVTarget):
             cfg["v"] = "true"
             cfg["vlen"] = str(self.vlen)
             cfg["elen"] = str(self.elen)
-            cfg["vext_pext"] = "v1.0"
+            cfg["vext_spec"] = "v1.0"
         return ",".join([f"rv{self.xlen}"] + [f"{key}={value}" for key, value in cfg.items()])
 
     def get_qemu_args(self, program):

@@ -508,19 +508,6 @@ class Packing(FrontendFeature):
         return {f"{frontend}.pack_weights": self.enabled}
 
 
-@register_feature("memplan")
-class Memplan(FrameworkFeature):
-    """Custom TVM memory planning feature by (@rafzi)"""
-
-    def __init__(self, features=None, config=None):
-        super().__init__("memplan", features=features, config=config)
-
-    def get_framework_config(self, framework):
-        assert framework in ["tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"
-        raise NotImplementedError
-        return {"tvm.memplan_enable": self.enabled}
-
-
 @register_feature("usmp")
 class Usmp(BackendFeature):
     """Unified Static Memory Planning algorithm integrated in TVM"""
@@ -762,35 +749,6 @@ class Autotune(BackendFeature, RunFeature):
         return {"run.tune_enabled": self.enabled}
 
 
-@register_feature("fallback")
-class Fallback(FrameworkFeature, PlatformFeature):
-    """(Unimplemented) TFLite Fallback for unsupported and custom operators in TVM."""
-
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "config_file": None,
-    }
-
-    def __init__(self, features=None, config=None):
-        super().__init__("fallback", features=features, config=config)
-
-    @property
-    def config_file(self):
-        return str(self.config["config_file"]) if "config_file" in self.config else None
-
-    def get_framework_config(self, framework):
-        assert framework in ["tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"
-        raise NotImplementedError
-        return filter_none(
-            {
-                f"{framework}.fallback_enable": self.enabled,
-                f"{framework}.fallback_config_file": self.config_file,
-            }
-        )
-
-    # -> hard to model..., preprocess for tflmc?
-
-
 @register_feature("disable_legalize")
 class DisableLegalize(BackendFeature, SetupFeature):
     """Enable transformation to reduces sizes of intermediate buffers by skipping legalization passes."""
@@ -826,7 +784,7 @@ class DisableLegalize(BackendFeature, SetupFeature):
 
 
 @register_feature("demo")
-class Demo(BackendFeature, SetupFeature):
+class Demo(PlatformFeature):
     """Run demo application instead of benchmarking code."""
 
     DEFAULTS = {

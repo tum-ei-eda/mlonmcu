@@ -60,7 +60,7 @@ class RISCVTarget(Target):
 
     @property
     def extensions(self):
-        exts = self.config.get("extensions", [])
+        exts = self.config.get("extensions", []).copy()
         if not isinstance(self.config["extensions"], list):
             exts = exts.split(",")
         return exts

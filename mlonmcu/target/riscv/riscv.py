@@ -95,6 +95,8 @@ class RISCVTarget(Target):
     @property
     def attr(self):
         attrs = str(self.config["attr"]).split(",")
+        if len(attrs) == 1 and len(attrs[0]) == 0:
+            attrs = []
         for ext in self.extensions:
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))

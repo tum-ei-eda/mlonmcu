@@ -23,6 +23,7 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.config import str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
@@ -44,6 +45,7 @@ class OVPSimTarget(RISCVTarget):
         "enable_pext": False,
         "enable_fpu": True,
         "variant": "RVB32I",
+        "end_to_end_cycles": False,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
 
@@ -97,6 +99,11 @@ class OVPSimTarget(RISCVTarget):
     @property
     def enable_pext(self):
         return bool(self.config["enable_pext"])
+
+    @property
+    def end_to_end_cycles(self):
+        value = self.config["end_to_end_cycles"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_default_ovpsim_args(self):
         extensions_str = "".join(sort_extensions_canonical(self.extensions, lower=False, unpack=True))
@@ -162,7 +169,10 @@ class OVPSimTarget(RISCVTarget):
 
     def parse_stdout(self, out):
         # cpi = 1
-        cpu_cycles = re.search(r"  Simulated instructions:(.*)", out)
+        if self.end_to_end_cycles:
+            cpu_cycles = re.search(r"  Simulated instructions:(.*)", out)
+        else:
+            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")
             cycles = None

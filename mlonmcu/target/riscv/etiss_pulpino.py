@@ -24,6 +24,7 @@ import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
@@ -60,6 +61,7 @@ class EtissPulpinoTarget(RISCVTarget):
         "vlen": 0,  # vectorization=off
         "elen": 32,
         "jit": None,
+        "end_to_end_cycles": False,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
 
@@ -176,6 +178,12 @@ class EtissPulpinoTarget(RISCVTarget):
             attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)
 
+    @property
+    def end_to_end_cycles(self):
+        value = self.config["end_to_end_cycles"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+
     def write_ini(self, path):
         # TODO: Either create artifact for ini or prefer to use cmdline args.
         with open(path, "w") as f:
@@ -266,7 +274,10 @@ class EtissPulpinoTarget(RISCVTarget):
             error_msg = error_match.group(1)
             raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
 
-        cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)
+        if self.end_to_end_cycles:
+            cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)
+        else:
+            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         if not cpu_cycles:
             if exit_code == 0:
                 logger.warning("unexpected script output (cycles)")

@@ -107,7 +107,6 @@ class SpikeTarget(RISCVTarget):
 
         spike_args.append(f"--isa={self.arch}")
 
-        print("self.extra_args", self.extra_args)
         if len(self.extra_args) > 0:
             spike_args.extend(self.extra_args)
 

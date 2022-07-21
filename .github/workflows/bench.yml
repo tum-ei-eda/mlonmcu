@@ -30,16 +30,6 @@ on:
         default: ""
 
 jobs:
-  bench:
-    name: Run a single benchmark
-    runs-on: ubuntu-latest
-    container: "${{ github.event.inputs.bench_image }}"
-    steps:
-    - name: Run Benchmark command in container
-      run: python3 -m mlonmcu.cli.main ${{ github.event.inputs.bench_cmd }}
-    - name: Store cmdline
-      run: echo "${{ github.event.inputs.bench_cmd }}" >> /environment/results/cmd.txt
-jobs:
   demo:
     runs-on: ubuntu-latest
     strategy:

@@ -159,6 +159,10 @@ class RiscvQemuTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         assert platform == "mlif"
         ret = super().get_platform_defs(platform)
+        if self.enable_vext:
+            ret["RISCV_RVV_MAJOR"] = "1"
+            ret["RISCV_RVV_MINOR"] = "0"
+            ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 
 

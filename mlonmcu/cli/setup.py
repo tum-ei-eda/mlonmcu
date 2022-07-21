@@ -80,6 +80,12 @@ def add_setup_options(parser):
         default=None,
         help="Invoke a single task manually by name (default: %(default)s)",
     )
+    setup_parser.add_argument(
+        "--visualize",
+        type=str,
+        nargs=1,
+        help="Export a .dot file for the dependency graph.",
+    )
 
 
 def get_parser(subparsers):
@@ -98,7 +104,9 @@ def handle(args):
         config, _ = extract_config_and_feature_names(args)
         # installer = setup.Setup(features=features, config=config, context=context)
         installer = setup.Setup(config=config, context=context)
-        if args.list:
+        if args.visualize:
+            installer.visualize(args.visualize[0], ordered=False)
+        elif args.list:
             order = installer.get_dependency_order()
             print("The following tasks have been selected:")
             print("\n".join(["- " + key for key in order]))

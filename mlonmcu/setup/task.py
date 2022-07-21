@@ -24,6 +24,7 @@ from enum import Enum
 import time
 from typing import List, Tuple
 import networkx as nx
+from networkx.drawing.nx_agraph import write_dot
 from tqdm import tqdm
 
 from mlonmcu.logging import get_logger
@@ -125,6 +126,16 @@ class TaskGraph:
         graph.add_nodes_from(nodes)
         order = list(nx.topological_sort(graph))
         return order
+
+    def export_dot(self, path):
+        """Visualize the task dependency graph."""
+        nodes, edges = self.get_graph()
+        graph = nx.DiGraph(edges)
+        graph.add_nodes_from(nodes)
+        # order = list(nx.topological_sort(graph))
+        # TODO: annotate with order
+        # TODO: also export order as extra graph
+        write_dot(graph, path)
 
 
 class TaskFactory:

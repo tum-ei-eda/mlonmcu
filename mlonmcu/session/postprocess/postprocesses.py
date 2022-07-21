@@ -40,114 +40,6 @@ def match_rows(df, cols):
     return groups
 
 
-class AverageCyclesPostprocess(SessionPostprocess, RunPostprocess):
-    """Postprocess which averages the cycle counts of multiple runs into a single row."""
-
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "merge_rows": False,
-    }
-
-    def __init__(self, features=None, config=None):
-        super().__init__("average_cycles", features=features, config=config)
-
-    @property
-    def merge_rows(self):
-        """Get merge_rows property."""
-        return bool(self.config["merge_rows"])
-
-    def post_run(self, report, artifacts):
-        """Called at the end of a run."""
-        if not self.merge_rows:
-            if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
-                return
-            report.main_df["Average Cycles"] = report.main_df["Total Cycles"] / report.pre_df["Num"]
-
-    def post_session(self, report):
-        """Called at the end of a session."""
-        if self.merge_rows:
-            if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
-                return
-            ignore_cols = ["Session", "Run", "Num", "Comment"]
-            combined_df = pd.concat([report.pre_df, report.post_df], axis=1)
-            use_cols = combined_df.columns
-            use_cols = list(filter(lambda elem: elem not in ignore_cols, use_cols))
-            groups = match_rows(combined_df, use_cols)
-            to_drop = []
-            for group in groups:
-                total_num = report.pre_df["Num"][list(group)].sum()
-                total_cycles = report.main_df["Total Cycles"][list(group)].sum()
-                avg_cycles = total_cycles / total_num
-                report.pre_df["Num"][[group[0]]] = total_num
-                report.main_df.loc[group[0], "Average Cycles"] = avg_cycles
-                to_drop.extend(list(group[1:]))
-            report.pre_df.drop(to_drop, inplace=True)
-            report.main_df.drop(to_drop, inplace=True)
-            report.post_df.drop(to_drop, inplace=True)
-
-
-def get_detailed_cycles(low_num, low_cycles, high_num, high_cycles):
-    """Helper function to split the total cycles of two runs into the setup and incoke cycles."""
-    assert high_cycles > low_cycles
-    assert high_num > low_num
-    diff_cycles = high_cycles - low_cycles
-    diff_num = high_num - low_num
-    invoke_cycles = int(float(diff_cycles) / (diff_num))
-    setup_cycles = low_cycles - (invoke_cycles * low_num)
-    return setup_cycles, invoke_cycles
-
-
-class DetailedCyclesPostprocess(SessionPostprocess):
-    """Postprocess automatically determines the actual setup and inference cycles if enough information is available.
-
-    Condition: there exists at least 2 runs which only differ in their `Num` setting.
-    """
-
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "warn": False,
-    }
-
-    def __init__(self, features=None, config=None):
-        super().__init__("detailed_cycles", features=features, config=config)
-
-    @property
-    def warn(self):
-        """Get warn property."""
-        return bool(self.config["warn"])
-
-    def post_session(self, report):
-        """Called at the end of a session."""
-        if "Total Cycles" not in report.main_df or "Num" not in report.pre_df:
-            if self.warn:
-                logger.warning("Postprocess %s was not applied because of missing columns", self.name)
-            return
-        ignore_cols = ["Session", "Run", "Num", "Comment"]
-        combined_df = pd.concat([report.pre_df, report.post_df], axis=1)
-        use_cols = combined_df.columns
-        use_cols = list(filter(lambda elem: elem not in ignore_cols, use_cols))
-        groups = match_rows(combined_df, use_cols)
-        to_drop = []
-        for group in groups:
-            if len(group) == 1:
-                if self.warn:
-                    logger.warning("Unable to find a suitable pair for extracting detailed cycle counts")
-            max_idx = report.pre_df["Num"][list(group)].idxmax()
-            min_idx = report.pre_df["Num"][list(group)].idxmin()
-            assert max_idx != min_idx
-            max_cycles = report.main_df["Total Cycles"][max_idx]
-            min_cycles = report.main_df["Total Cycles"][min_idx]
-            max_num = report.pre_df["Num"][max_idx]
-            min_num = report.pre_df["Num"][min_idx]
-            setup_cycles, invoke_cycles = get_detailed_cycles(min_num, min_cycles, max_num, max_cycles)
-            report.main_df.loc[max_idx, "Setup Cycles"] = setup_cycles
-            report.main_df.loc[max_idx, "Invoke Cycles"] = invoke_cycles
-            to_drop.extend([idx for idx in group if idx != max_idx])
-        report.pre_df.drop(to_drop, inplace=True)
-        report.main_df.drop(to_drop, inplace=True)
-        report.post_df.drop(to_drop, inplace=True)
-
-
 class FilterColumnsPostprocess(SessionPostprocess):
     """Postprocess which can be used to drop unwanted columns from a report."""
 
@@ -359,7 +251,7 @@ class VisualizePostprocess(SessionPostprocess):
         if self.format != "png":
             raise NotImplementedError("Currently only supports PNG")
 
-        COLS = ["Total Cycles", "Total ROM", "Total RAM"]
+        COLS = ["Cycles", "Total ROM", "Total RAM"]
         for col in COLS:
             if col not in report.main_df.columns:
                 return []

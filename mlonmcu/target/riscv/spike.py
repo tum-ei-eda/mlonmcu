@@ -35,7 +35,7 @@ logger = get_logger()
 class SpikeTarget(RISCVTarget):
     """Target using the riscv-isa-sim (Spike) RISC-V simulator."""
 
-    FEATURES = ["vext", "pext", "cachesim", "log_instrs"]
+    FEATURES = RISCVTarget.FEATURES + ["vext", "pext", "cachesim", "log_instrs"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -149,8 +149,7 @@ class SpikeTarget(RISCVTarget):
         # mips = None  # TODO: parse mips?
         return cycles
 
-    def get_metrics(self, elf, directory, handle_exit=None, num=None):
-        assert num is None
+    def get_metrics(self, elf, directory, handle_exit=None):
         out = ""
         if self.print_outputs:
             out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
@@ -161,7 +160,7 @@ class SpikeTarget(RISCVTarget):
         cycles = self.parse_stdout(out)
 
         metrics = Metrics()
-        metrics.add("Total Cycles", cycles)
+        metrics.add("Cycles", cycles)
 
         return metrics, out, []
 

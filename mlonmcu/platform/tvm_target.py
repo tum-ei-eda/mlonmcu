@@ -51,7 +51,11 @@ def create_tvm_target(name, platform, base=Target):
         def timeout_sec(self):
             return int(self.config["timeout_sec"])
 
-        def exec(self, program, *args, num=1, cwd=os.getcwd(), **kwargs):
+        @property
+        def repeat(self):
+            return None  # This is handled at the platform level
+
+        def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
             """Use target to execute a executable with given arguments"""
             if len(args) > 0:
                 raise RuntimeError("Program arguments are not supported for real hardware devices")
@@ -61,7 +65,7 @@ def create_tvm_target(name, platform, base=Target):
             if self.timeout_sec > 0:
                 raise NotImplementedError
 
-            ret = self.platform.run(program, self, num=num)
+            ret = self.platform.run(program, self)
             return ret
 
         def parse_stdout(self, out):
@@ -90,9 +94,9 @@ def create_tvm_target(name, platform, base=Target):
                     found = True
             return mean_ms, median_ms, max_ms, min_ms, std_ms
 
-        def get_metrics(self, elf, directory, handle_exit=None, num=1):
+        def get_metrics(self, elf, directory, handle_exit=None):
             if self.print_outputs:
-                out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit, num=num)
+                out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
             else:
                 out = self.exec(
                     elf,
@@ -100,14 +104,20 @@ def create_tvm_target(name, platform, base=Target):
                     live=False,
                     print_func=lambda *args, **kwargs: None,
                     handle_exit=handle_exit,
-                    num=num,
                 )
-            mean_ms, _, _, _, _ = self.parse_stdout(out)
+            mean_ms, _, max_ms, min_ms, _ = self.parse_stdout(out)
 
             metrics = Metrics()
-            # metrics.add("Total Cycles", cycles)
-            time_s = mean_ms / 1e3 if mean_ms is not None else mean_ms
-            metrics.add("Mean Runtime [s]", time_s)
+            mean_s = mean_ms / 1e3 if mean_ms is not None else mean_ms
+            min_s = min_ms / 1e3 if min_ms is not None else min_ms
+            max_s = max_ms / 1e3 if max_ms is not None else max_ms
+            if self.platform.number == 1 and self.platform.repeat == 1:
+                metrics.add("Runtime [s]", mean_s)
+            else:
+                metrics.add("Total Runtime [s]", mean_s * self.platform.number)
+                metrics.add("Average Runtime [s]", mean_s)
+                metrics.add("Min Runtime [s]", min_s)
+                metrics.add("Max Runtime [s]", max_s)
 
             return metrics, out, []
 

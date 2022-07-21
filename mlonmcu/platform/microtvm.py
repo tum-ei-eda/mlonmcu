@@ -248,7 +248,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             base = Target
         return create_microtvm_target(name, self, base=base)
 
-    def get_tvmc_run_args(self, path, device, num=1):
+    def get_tvmc_run_args(self, path, device):
         return [
             path,
             *["--device", device],
@@ -256,12 +256,12 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
                 mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
             ),
             *get_bench_tvmc_args(
-                # print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=num
+                # print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=self.number
                 print_time=True,
                 profile=False,
                 end_to_end=False,
                 repeat=self.repeat,
-                number=num,
+                number=self.number,
             ),
             # *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
@@ -285,8 +285,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         args += get_project_option_args(template, command, self.project_options)
         return self.invoke_tvmc("micro", *args)
 
-    def invoke_tvmc_run(self, path, device, template, num=1, micro=True):
-        args = self.get_tvmc_run_args(path, device, num=num)
+    def invoke_tvmc_run(self, path, device, template, micro=True):
+        args = self.get_tvmc_run_args(path, device)
         if micro:
             args.extend(get_project_option_args(template, "run", self.project_options))
         return self.invoke_tvmc("run", *args)
@@ -314,7 +314,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         # TODO: support self.num_threads (e.g. patch esp-idf)
         return out
 
-    def generate_elf(self, src, target, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, data_file=None):
         # TODO: name missleading as we are not interested in the ELF
         src = Path(src) / "default.tar"  # TODO: lookup for *.tar file
         artifacts = []
@@ -336,10 +336,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         output = self.invoke_tvmc_micro("flash", self.project_dir, None, self.get_template_args(target))
         return output
 
-    def run(self, elf, target, timeout=120, num=1):
+    def run(self, elf, target, timeout=120):
         # TODO: implement timeout
         output = self.flash(elf, target)
-        output += self.invoke_tvmc_run(
-            str(self.project_dir), "micro", self.get_template_args(target), num=num, micro=True
-        )
+        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template_args(target), micro=True)
         return output

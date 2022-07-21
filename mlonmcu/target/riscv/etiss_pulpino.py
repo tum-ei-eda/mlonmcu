@@ -37,7 +37,7 @@ logger = get_logger()
 class EtissPulpinoTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    FEATURES = ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext"]
+    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -183,7 +183,6 @@ class EtissPulpinoTarget(RISCVTarget):
         value = self.config["end_to_end_cycles"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-
     def write_ini(self, path):
         # TODO: Either create artifact for ini or prefer to use cmdline args.
         with open(path, "w") as f:
@@ -294,8 +293,7 @@ class EtissPulpinoTarget(RISCVTarget):
 
         return cycles, mips
 
-    def get_metrics(self, elf, directory, handle_exit=None, num=None):
-        assert num is None
+    def get_metrics(self, elf, directory, handle_exit=None):
         out = ""
         if self.trace_memory:
             trace_file = os.path.join(directory, "dBusAccess.csv")
@@ -335,7 +333,7 @@ class EtissPulpinoTarget(RISCVTarget):
             )
 
         metrics = Metrics()
-        metrics.add("Total Cycles", total_cycles)
+        metrics.add("Cycles", total_cycles)
         metrics.add("MIPS", mips, optional=True)
 
         metrics_file = os.path.join(directory, "metrics.csv")

@@ -51,7 +51,11 @@ def create_microtvm_target(name, platform, base=Target):
         def timeout_sec(self):
             return int(self.config["timeout_sec"])
 
-        def exec(self, program, *args, num=1, cwd=os.getcwd(), **kwargs):
+        @property
+        def repeat(self):
+            return None  # This is handled at the platform level
+
+        def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
             """Use target to execute a executable with given arguments"""
             if len(args) > 0:
                 raise RuntimeError("Program arguments are not supported for real hardware devices")
@@ -61,7 +65,7 @@ def create_microtvm_target(name, platform, base=Target):
             if self.timeout_sec > 0:
                 raise NotImplementedError
 
-            ret = self.platform.run(program, self, num=num)
+            ret = self.platform.run(program, self)
             return ret
 
         def parse_stdout(self, out):
@@ -90,7 +94,7 @@ def create_microtvm_target(name, platform, base=Target):
                     found = True
             return mean_ms, median_ms, max_ms, min_ms, std_ms
 
-        def get_metrics(self, elf, directory, handle_exit=None, num=1):
+        def get_metrics(self, elf, directory, handle_exit=None):
             if self.print_outputs:
                 out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
             else:
@@ -100,7 +104,6 @@ def create_microtvm_target(name, platform, base=Target):
                     live=False,
                     print_func=lambda *args, **kwargs: None,
                     handle_exit=handle_exit,
-                    num=num,
                 )
             mean_ms, _, _, _, _ = self.parse_stdout(out)
 

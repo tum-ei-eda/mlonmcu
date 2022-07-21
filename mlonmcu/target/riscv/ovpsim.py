@@ -35,7 +35,7 @@ logger = get_logger()
 class OVPSimTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["vext", "pext", "gdbserver"]
+    FEATURES = RISCVTarget.FEATURES + ["vext", "pext", "gdbserver"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -186,8 +186,7 @@ class OVPSimTarget(RISCVTarget):
                 mips = float(mips_str)
         return cycles, mips
 
-    def get_metrics(self, elf, directory, handle_exit=None, num=None):
-        assert num is None
+    def get_metrics(self, elf, directory, handle_exit=None):
         out = ""
         if self.print_outputs:
             out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
@@ -198,7 +197,7 @@ class OVPSimTarget(RISCVTarget):
         cycles, mips = self.parse_stdout(out)
 
         metrics = Metrics()
-        metrics.add("Total Cycles", cycles)
+        metrics.add("Cycles", cycles)
         if mips:
             metrics.add("MIPS", mips, optional=True)
 

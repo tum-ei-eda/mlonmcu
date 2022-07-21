@@ -34,7 +34,7 @@ logger = get_logger()
 class RiscvQemuTarget(RISCVTarget):
     """Target using a spike machine in the QEMU simulator"""
 
-    FEATURES = ["vext"]
+    FEATURES = RISCVTarget.FEATURES + ["vext"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -121,22 +121,6 @@ class RiscvQemuTarget(RISCVTarget):
             cycles = int(float(cpu_cycles.group(1)))
         return cycles
 
-    def get_metrics(self, elf, directory, handle_exit=None, num=None):
-        assert num is None
-        out = ""
-        if self.print_outputs:
-            out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
-        else:
-            out += self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
-            )
-        cycles = self.parse_stdout(out)
-
-        metrics = Metrics()
-        metrics.add("Total Cycles", cycles)
-
-        return metrics, out, []
-
     def get_metrics(self, elf, directory, handle_exit=None):
         out = ""
 
@@ -149,7 +133,7 @@ class RiscvQemuTarget(RISCVTarget):
         total_cycles = self.parse_stdout(out, handle_exit=handle_exit)
 
         metrics = Metrics()
-        metrics.add("Total Cycles", total_cycles)
+        metrics.add("Cycles", total_cycles)
 
         return metrics, out, []
 

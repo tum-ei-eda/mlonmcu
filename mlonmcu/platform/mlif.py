@@ -50,6 +50,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "arm_mvei",
             "arm_dsp",
             "auto_vectorize",
+            "benchmark",
         ]  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -150,9 +151,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.tempdir:
             self.tempdir.cleanup()
 
-    def get_common_cmake_args(self, num=1):
+    def get_common_cmake_args(self):
         args = []
-        args.append(f"-DNUM_RUNS={num}")
         args.append(f"-DTOOLCHAIN={self.toolchain}")
         if self.optimize:
             args.append(f"-DOPTIMIZE={self.optimize}")
@@ -161,7 +161,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def prepare(self):
         self.init_directory()
 
-    def configure(self, target, src, _model, num=1, data_file=None):
+    def configure(self, target, src, _model, data_file=None):
         del target
         if not isinstance(src, Path):
             src = Path(src)
@@ -170,7 +170,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             if isinstance(value, bool):
                 value = "ON" if value else "OFF"
             cmakeArgs.append(f"-D{key}={value}")
-        cmakeArgs.extend(self.get_common_cmake_args(num=num))
+        cmakeArgs.extend(self.get_common_cmake_args())
         if self.model_support_dir:
             cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
         else:
@@ -198,10 +198,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         return out
 
-    def compile(self, target, src=None, model=None, num=1, data_file=None):
+    def compile(self, target, src=None, model=None, data_file=None):
         out = ""
         if src:
-            out += self.configure(target, src, model, num=num, data_file=data_file)
+            out += self.configure(target, src, model, data_file=data_file)
         out += utils.make(
             self.goal,
             cwd=self.build_dir,
@@ -210,9 +210,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         return out
 
-    def generate_elf(self, src, target, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, data_file=None):
         artifacts = []
-        out = self.compile(target, src=src, model=model, num=num, data_file=data_file)
+        out = self.compile(target, src=src, model=model, data_file=data_file)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:

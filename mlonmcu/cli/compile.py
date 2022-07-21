@@ -32,12 +32,6 @@ from .helper.parse import extract_target_names, extract_platform_names
 def add_compile_options(parser):
     add_build_options(parser)
     compile_parser = parser.add_argument_group("compile options")
-    compile_parser.add_argument(
-        "--num",
-        action="append",
-        type=int,
-        help="Number of runs in simulation (default: %(default)s)",
-    )
 
 
 def get_parser(subparsers):
@@ -52,7 +46,6 @@ def _handle(args, context):
     handle_build(args, ctx=context)
     targets = extract_target_names(args, context=context)  # This will eventually be ignored below
     platforms = extract_platform_names(args, context=context)
-    num = args.num if args.num else [1]
 
     platform_targets = get_platforms_targets(context)  # This will slow?
 
@@ -60,24 +53,22 @@ def _handle(args, context):
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
-        for n in num:
-            if run.target is None:
-                assert run.compile_platform is None
-                targets_ = targets
-            else:
-                targets_ = [None]
-            for target_name in targets_:
-                new_run = run.copy()
-                if target_name is not None:
-                    platform_name = None
-                    for platform in platforms:
-                        candidates = platform_targets[platform]
-                        if target_name in candidates:
-                            platform_name = platform
-                    new_run.add_platform_by_name(platform_name, context=context)
-                    new_run.add_target_by_name(target_name, context=context)
-                new_run.num = n
-                new_runs.append(new_run)
+        if run.target is None:
+            assert run.compile_platform is None
+            targets_ = targets
+        else:
+            targets_ = [None]
+        for target_name in targets_:
+            new_run = run.copy()
+            if target_name is not None:
+                platform_name = None
+                for platform in platforms:
+                    candidates = platform_targets[platform]
+                    if target_name in candidates:
+                        platform_name = platform
+                new_run.add_platform_by_name(platform_name, context=context)
+                new_run.add_target_by_name(target_name, context=context)
+            new_runs.append(new_run)
     session.runs = new_runs
 
 

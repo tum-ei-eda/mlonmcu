@@ -20,6 +20,7 @@
 
 import re
 from pathlib import Path
+import pandas as pd
 
 from mlonmcu.utils import is_power_of_two
 from mlonmcu.config import str2bool
@@ -919,7 +920,8 @@ class CacheSim(TargetFeature):
                             continue
                     value = int(value) if "%" not in value else float(value[:-1]) / 100
                     if prefix in prefixes:
-                        metrics.add(f"{prefix}-Cache {label}", value)
+                        for m in metrics:
+                            m.add(f"{prefix}-Cache {label}", value)
 
             return cachesim_callback
 
@@ -1147,3 +1149,136 @@ class AutoVectorize(PlatformFeature):
             "RISCV_AUTO_VECTORIZE_LOOP": self.loop,
             "RISCV_AUTO_VECTORIZE_SLP": self.slp,
         }
+
+
+@register_feature("benchmark")
+class Benchmark(PlatformFeature, TargetFeature):
+    """Profile code using supported platforms."""
+
+    # TODO: would make sense to move end_to_end here as well!
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "num_runs": 1,
+        "num_repeat": 1,
+        "total": False,
+        "aggregate": "avg",  # Allowed: avg, max, min, none, all
+    }
+
+    REQUIRED = []
+
+    def __init__(self, features=None, config=None):
+        super().__init__("benchmark", features=features, config=config)
+
+    @property
+    def num_runs(self):
+        return int(self.config["num_runs"])
+
+    @property
+    def num_repeat(self):
+        return int(self.config["num_repeat"])
+
+    @property
+    def total(self):
+        value = self.config["total"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def aggregate(self):
+        value = self.config["aggregate"]
+        assert value in ["avg", "all", "max", "min", "none"]
+        return value
+
+    def get_platform_config(self, platform):
+        supported = ["mlif", "tvm"]  # TODO: support microtvm and espidf
+        assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
+
+        if platform in ["tvm", "microtvm"]:
+            assert not self.total
+            return {
+                f"{platform}.number": self.num_runs,
+                f"{platform}.repeat": self.num_repeat,
+            }
+        else:
+            return {}
+
+    def get_target_config(self, target):
+
+        return {
+            f"{target}.repeat": self.num_repeat,
+        }
+
+    def get_platform_defs(self, platform):
+        supported = ["mlif", "espidf", "tvm", "microtvm"]  # TODO: support microtvm and espidf
+        assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
+
+        if platform == "mlif":
+            return {"NUM_RUNS": self.num_runs}
+        elif platform == "espidf":
+            return {"MLONMCU_NUM_RUNS": self.num_runs}
+        else:
+            return {}
+
+    def get_target_callback(self, target):
+        if self.enabled:
+
+            def benchmark_callback(stdout, metrics, artifacts):
+                if len(metrics) <= 1:
+                    return
+                metrics_ = metrics[1:]  # drop first run (warmup)
+
+                # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc. in the future
+                data_ = [{
+                    key: (float(value) / self.num_runs) if self.num_runs != 1 else value
+                    for key, value in m.data.items()
+                    if "cycle" in key.lower() or "time" in key.lower()
+                } for m in metrics_]
+
+                df = pd.DataFrame(data_)
+
+                if self.aggregate == "all":
+                    aggs = ["mean", "min", "max"]
+                elif self.aggregate in ["avg", "mean"]:
+                    aggs = ["mean"]
+                elif self.aggregate == "min":
+                    aggs = ["min"]
+                elif self.aggregate == "max":
+                    aggs = ["max"]
+                elif self.aggregate == "none":
+                    aggs = []
+
+                if len(aggs) == 0:
+                    data = {}
+                else:
+                    df_ = df.agg(aggs)
+
+                    # rename columns
+                    index_mapping = {
+                        "mean": "Average",
+                        "min": "Min",
+                        "max": "Max",
+                    }
+
+                    df_ = df_.rename(index=index_mapping)
+
+                    data = df_.to_dict()
+
+                    data = {f"{prefix} {key}": value for key, temp in data.items() for prefix, value in temp.items()}
+                if self.total:
+                    data.update({f"Total {key}": value * self.num_runs for key, value in data_[-1].items() if "cycle" in key.lower() or "time" in key.lower()})
+                metrics_ = metrics_[-1]
+                metrics_.data.update(data)
+
+                for key in data_[-1].keys():
+                    if key in metrics_.order:
+                        metrics_.order.append(f"Total {key}")
+                        metrics_.order.remove(key)
+                for key in data.keys():
+                    if key not in metrics_.order:
+                        metrics_.order.append(key)
+                metrics.clear()
+                metrics.append(metrics_)
+
+            benchmark_callback.priority = 0
+
+            return benchmark_callback

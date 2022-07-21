@@ -79,8 +79,7 @@ def create_mlif_target(name, platform, base=Target):
             self.platform = platform
             self.validation_result = None
 
-        def get_metrics(self, elf, directory, handle_exit=None, num=None):
-            assert num is None
+        def get_metrics(self, elf, directory, handle_exit=None):
 
             # This is wrapper around the original exec function to catch special return codes thrown by the inout data
             # feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))

@@ -86,7 +86,6 @@ class Run:
         features=None,  # TODO: All features combined or explicit run-features -> postprocesses?
         config=None,  # TODO: All config combined or explicit run-config?
         postprocesses=None,
-        num=1,
         archived=False,
         session=None,
         comment="",
@@ -98,7 +97,6 @@ class Run:
         self.backend = backend
         self.platforms = platforms if platforms is not None else []
         self.artifacts_per_stage = {}
-        self.num = num
         self.archived = archived
         self.session = session
         self.postprocesses = postprocesses if postprocesses else []
@@ -445,8 +443,6 @@ class Run:
             probs.append(str(self.backend))
         if self.target:
             probs.append(str(self.target))
-        if self.num:
-            probs.append(str(self.num))
         if self.features and len(self.features) > 0:
             probs.append(str(self.features))
         if self.config and len(self.config) > 0:
@@ -513,7 +509,7 @@ class Run:
             assert self.completed[RunStage.BUILD]  # Used for tvm platform
             self.export_stage(RunStage.BUILD, optional=self.export_optional)
             shared_object_artifact = self.artifacts_per_stage[RunStage.BUILD][0]
-            self.target.generate_metrics(shared_object_artifact.path, num=self.num)
+            self.target.generate_metrics(shared_object_artifact.path)
         self.artifacts_per_stage[RunStage.RUN] = self.target.artifacts
 
         self.completed[RunStage.RUN] = True
@@ -532,7 +528,7 @@ class Run:
             if artifact.name == "data.c":
                 artifact.export(self.dir)
                 data_file = Path(self.dir) / "data.c"
-        self.compile_platform.generate_elf(codegen_dir, self.target, num=self.num, data_file=data_file)
+        self.compile_platform.generate_elf(codegen_dir, self.target, data_file=data_file)
         self.artifacts_per_stage[RunStage.COMPILE] = self.compile_platform.artifacts
 
         self.completed[RunStage.COMPILE] = True
@@ -803,7 +799,6 @@ class Run:
             pre["Platform"] = self.get_platform_name()
         if self.target:
             pre["Target"] = self.target.name
-        pre["Num"] = self.num
         post = {}
         post["Features"] = self.get_all_feature_names()
         # post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)

@@ -31,7 +31,7 @@ logger = get_logger()
 class RISCVTarget(Target):
     """Common base class for RISCV-like targets. Please do not use this as a target itself!"""
 
-    FEATURES = []
+    FEATURES = Target.FEATURES + []
 
     DEFAULTS = {
         **Target.DEFAULTS,

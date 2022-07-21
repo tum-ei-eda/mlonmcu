@@ -184,8 +184,7 @@ class Corstone300Target(Target):
         # mips = None  # TODO: parse mips?
         return cycles
 
-    def get_metrics(self, elf, directory, handle_exit=None, num=None):
-        assert num is None
+    def get_metrics(self, elf, directory, handle_exit=None):
         out = ""
         if self.print_outputs:
             out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
@@ -196,7 +195,7 @@ class Corstone300Target(Target):
         cycles = self.parse_stdout(out, handle_exit=handle_exit)
 
         metrics = Metrics()
-        metrics.add("Total Cycles", cycles)
+        metrics.add("Cycles", cycles)
 
         return metrics, out, []
 

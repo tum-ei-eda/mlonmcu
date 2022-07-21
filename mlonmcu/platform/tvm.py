@@ -18,7 +18,7 @@
 #
 """TVM Platform"""
 
-
+import re
 import tempfile
 from pathlib import Path
 
@@ -39,7 +39,7 @@ logger = get_logger()
 class TvmPlatform(TargetPlatform):
     """TVM Platform class."""
 
-    FEATURES = TargetPlatform.FEATURES + []  # TODO: validate?
+    FEATURES = TargetPlatform.FEATURES + ["benchmark"]  # TODO: validate?
 
     DEFAULTS = {
         **TargetPlatform.DEFAULTS,
@@ -51,6 +51,7 @@ class TvmPlatform(TargetPlatform):
         "print_top": False,
         "profile": False,
         "repeat": 1,
+        "number": 1,
         "use_rpc": False,
         "rpc_key": None,
         "rpc_hostname": None,
@@ -95,6 +96,10 @@ class TvmPlatform(TargetPlatform):
     @property
     def repeat(self):
         return self.config["repeat"]
+
+    @property
+    def number(self):
+        return self.config["number"]
 
     @property
     def use_rpc(self):
@@ -179,7 +184,7 @@ class TvmPlatform(TargetPlatform):
         if self.tempdir:
             self.tempdir.cleanup()
 
-    def get_tvmc_run_args(self, path, device, num=1):
+    def get_tvmc_run_args(self, path, device):
         return [
             path,
             *["--device", device],
@@ -187,7 +192,7 @@ class TvmPlatform(TargetPlatform):
                 mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
             ),
             *get_bench_tvmc_args(
-                print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=num
+                print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=self.number
             ),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
@@ -200,14 +205,15 @@ class TvmPlatform(TargetPlatform):
             pre = [self.tvmc_custom_script]
         return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
 
-    def invoke_tvmc_run(self, path, device, num=1):
-        args = self.get_tvmc_run_args(path, device, num=num)
+    def invoke_tvmc_run(self, path, device):
+        args = self.get_tvmc_run_args(path, device)
         return self.invoke_tvmc("run", *args)
 
-    def run(self, elf, target, timeout=120, num=1):
+    def run(self, elf, target, timeout=120):
         # TODO: implement timeout
         # Here, elf is actually a directory
         # TODO: replace workaround with possibility to pass TAR directly
         tar_path = elf
-        output = self.invoke_tvmc_run(str(tar_path), target.device, num=num)
+        output = self.invoke_tvmc_run(str(tar_path), target.device)
+
         return output

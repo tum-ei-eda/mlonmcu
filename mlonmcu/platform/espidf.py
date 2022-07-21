@@ -54,7 +54,7 @@ def get_project_template(name="project"):
 class EspIdfPlatform(CompilePlatform, TargetPlatform):
     """ESP-IDF Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES
+    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["benchmark"]
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -186,7 +186,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         if not shutil.which(self.idf_exe):
             raise RuntimeError(f"It seems like '{self.idf_exe}' is not available. Make sure to setup your environment!")
 
-    def prepare(self, target, src, num=1):
+    def prepare(self, target, src):
         self.init_directory()
         self.check()
         template_dir = self.project_template
@@ -230,7 +230,6 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 watchdog_sec = 60
                 f.write(f"CONFIG_ESP_TASK_WDT_TIMEOUT_S={watchdog_sec}\n")
                 f.write(f'CONFIG_MLONMCU_CODEGEN_DIR="{src}"\n')
-                f.write(f"CONFIG_MLONMCU_NUM_RUNS={num}\n")
                 for key, value in defs.items():
                     if isinstance(value, bool):
                         value = "y" if value else "n"
@@ -252,10 +251,10 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
         return [f"-D{key}={value}" for key, value in cmake_defs.items()]
 
-    def compile(self, target, src=None, num=1):
+    def compile(self, target, src=None):
         out = ""
         # TODO: build with cmake options
-        out += self.prepare(target, src, num=num)
+        out += self.prepare(target, src)
         # TODO: support self.num_threads (e.g. patch esp-idf)
         idfArgs = [
             "-C",
@@ -266,9 +265,9 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         out += self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
         return out
 
-    def generate_elf(self, src, target, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, data_file=None):
         artifacts = []
-        out = self.compile(target, src=src, num=num)
+        out = self.compile(target, src=src)
         elf_name = self.project_name + ".elf"
         elf_file = self.project_dir / "build" / elf_name
         # TODO: just use path instead of raw data?

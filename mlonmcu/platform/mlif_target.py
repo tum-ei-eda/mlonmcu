@@ -31,27 +31,27 @@ from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
-MLIF_TARGET_REGISTRY = {}
+MLIF_PLATFORM_TARGET_REGISTRY = {}
 
 
-def register_mlif_target(target_name, t, override=False):
-    global MLIF_TARGET_REGISTRY
+def register_mlif_platform_target(target_name, t, override=False):
+    global MLIF_PLATFORM_TARGET_REGISTRY
 
-    if target_name in MLIF_TARGET_REGISTRY and not override:
-        raise RuntimeError(f"MLIF target {target_name} is already registered")
-    MLIF_TARGET_REGISTRY[target_name] = t
-
-
-def get_mlif_targets():
-    return MLIF_TARGET_REGISTRY
+    if target_name in MLIF_PLATFORM_TARGET_REGISTRY and not override:
+        raise RuntimeError(f"MLIF platform target {target_name} is already registered")
+    MLIF_PLATFORM_TARGET_REGISTRY[target_name] = t
 
 
-register_mlif_target("host_x86", HostX86Target)
-register_mlif_target("etiss_pulpino", EtissPulpinoTarget)
-register_mlif_target("corstone300", Corstone300Target)
-register_mlif_target("spike", SpikeTarget)
-register_mlif_target("ovpsim", OVPSimTarget)
-register_mlif_target("riscv_qemu", RiscvQemuTarget)
+def get_mlif_platform_targets():
+    return MLIF_PLATFORM_TARGET_REGISTRY
+
+
+register_mlif_platform_target("host_x86", HostX86Target)
+register_mlif_platform_target("etiss_pulpino", EtissPulpinoTarget)
+register_mlif_platform_target("corstone300", Corstone300Target)
+register_mlif_platform_target("spike", SpikeTarget)
+register_mlif_platform_target("ovpsim", OVPSimTarget)
+register_mlif_platform_target("riscv_qemu", RiscvQemuTarget)
 
 
 class MlifExitCode(IntEnum):
@@ -64,8 +64,8 @@ class MlifExitCode(IntEnum):
         return list(map(int, cls))
 
 
-def create_mlif_target(name, platform, base=Target):
-    class MlifTarget(base):  # This is not ideal as we will have multiple different MlifTarget classes
+def create_mlif_platform_target(name, platform, base=Target):
+    class MlifPlatformTarget(base):
 
         FEATURES = base.FEATURES + []
 
@@ -111,4 +111,4 @@ def create_mlif_target(name, platform, base=Target):
             ret["TARGET_SYSTEM"] = target_system
             return ret
 
-    return MlifTarget
+    return MlifPlatformTarget

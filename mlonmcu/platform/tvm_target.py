@@ -31,8 +31,8 @@ def name2device(name):
     return name.replace("tvm_", "")
 
 
-def create_tvm_target(name, platform, base=Target):
-    class TvmTarget(base):
+def create_tvm_platform_target(name, platform, base=Target):
+    class TvmPlatformTarget(base):
 
         FEATURES = base.FEATURES + []
 
@@ -136,4 +136,4 @@ def create_tvm_target(name, platform, base=Target):
         def get_arch(self):
             return "unkwown"
 
-    return TvmTarget
+    return TvmPlatformTarget

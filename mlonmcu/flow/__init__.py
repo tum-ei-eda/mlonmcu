@@ -18,15 +18,16 @@
 #
 """Flow module for frameworks and backend."""
 
+from mlonmcu.flow.tflm.framework import TFLMFramework
+from mlonmcu.flow.tvm.framework import TVMFramework
+
 from mlonmcu.flow.tflm.backend.tflmc import TFLMCBackend
 from mlonmcu.flow.tflm.backend.tflmi import TFLMIBackend
 
-from mlonmcu.flow.tflm.framework import TFLMFramework
 from mlonmcu.flow.tvm.backend.tvmaot import TVMAOTBackend
 from mlonmcu.flow.tvm.backend.tvmcg import TVMCGBackend
 from mlonmcu.flow.tvm.backend.tvmllvm import TVMLLVMBackend
 from mlonmcu.flow.tvm.backend.tvmrt import TVMRTBackend
-from mlonmcu.flow.tvm.framework import TVMFramework
 
 SUPPORTED_FRAMEWORKS = {
     "tflm": TFLMFramework,

@@ -98,11 +98,12 @@ def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api):
     ]
 
 
-def get_tvmrt_tvmc_args():
-    return [
-        *["--runtime-crt-system-lib", str(1)],
-        *["--executor-graph-link-params", str(0)],
-    ]
+def get_tvmrt_tvmc_args(runtime="crt"):
+    ret = []
+    if runtime == "crt":
+        ret.extend(["--runtime-crt-system-lib", str(1)])
+    ret.extend(["--executor-graph-link-params", str(0)])
+    return ret
 
 
 def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=10):

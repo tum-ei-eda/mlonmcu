@@ -31,8 +31,8 @@ def name2template(name):
     return name.replace("microtvm_", "")
 
 
-def create_microtvm_target(name, platform, base=Target):
-    class MicroTvmTarget(base):
+def create_microtvm_platform_target(name, platform, base=Target):
+    class MicroTvmPlatformTarget(base):
 
         FEATURES = base.FEATURES + []
 
@@ -116,4 +116,4 @@ def create_microtvm_target(name, platform, base=Target):
         def get_arch(self):
             return "unkwown"
 
-    return MicroTvmTarget
+    return MicroTvmPlatformTarget

@@ -38,7 +38,7 @@ from mlonmcu.target.target import Target
 from mlonmcu.config import str2bool
 
 from .platform import CompilePlatform, TargetPlatform
-from .espidf_target import create_espidf_target
+from .espidf_target import create_espidf_platform_target
 
 logger = get_logger()
 
@@ -164,7 +164,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             base = SUPPORTED_TARGETS[name]
         else:
             base = Target
-        return create_espidf_target(name, self, base=base)
+        return create_espidf_platform_target(name, self, base=base)
 
     @property
     def project_template(self):

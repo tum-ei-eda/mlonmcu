@@ -18,7 +18,6 @@
 #
 """TVM Platform"""
 
-import re
 import tempfile
 from pathlib import Path
 
@@ -31,7 +30,8 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tv
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 
 from .platform import TargetPlatform
-from .tvm_target import create_tvm_target
+from .tvm_target import create_tvm_platform_target
+from .tvm_backend import create_tvm_platform_backend, get_tvm_platform_backends
 
 logger = get_logger()
 
@@ -73,6 +73,12 @@ class TvmPlatform(TargetPlatform):
         self.tempdir = None
         self.project_name = "app"
         self.project_dir = None
+
+    def create_backend(self, name):
+        supported = self.get_supported_backends()
+        assert name in supported, f"{name} is not a valid TVM platform backend"
+        base = supported[name]
+        return create_tvm_platform_backend(name, self, base=base)
 
     @property
     def fill_mode(self):
@@ -177,6 +183,10 @@ class TvmPlatform(TargetPlatform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
 
+    def get_supported_backends(self):
+        backend_names = get_tvm_platform_backends()
+        return backend_names
+
     def get_supported_targets(self):
         # TODO: get this via tvmc run --help
         target_names = ["cpu", "cuda", "cl", "metal", "vulkan", "rocm", "micro"]
@@ -191,7 +201,7 @@ class TvmPlatform(TargetPlatform):
             base = SUPPORTED_TARGETS[name]
         else:
             base = Target
-        return create_tvm_target(name, self, base=base)
+        return create_tvm_platform_target(name, self, base=base)
 
     def close(self):
         if self.tempdir:

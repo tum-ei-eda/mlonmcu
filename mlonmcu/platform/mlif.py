@@ -28,7 +28,7 @@ from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.target.target import Target
 
 from .platform import CompilePlatform, TargetPlatform
-from .mlif_target import get_mlif_targets, create_mlif_target
+from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
 
 logger = get_logger()
 
@@ -109,7 +109,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             base = SUPPORTED_TARGETS[name]
         else:
             base = Target
-        return create_mlif_target(name, self, base=base)
+        return create_mlif_platform_target(name, self, base=base)
 
     @property
     def mlif_dir(self):
@@ -144,7 +144,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["optimize"]
 
     def get_supported_targets(self):
-        target_names = get_mlif_targets()
+        target_names = get_mlif_platform_targets()
         return target_names
 
     def close(self):

@@ -36,7 +36,6 @@ class Framework(ABC):
         self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
-        self.backends = backends  # TODO: get rid of this
 
     def process_features(self, features):
         if features is None:

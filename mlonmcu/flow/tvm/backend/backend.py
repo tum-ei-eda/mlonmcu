@@ -66,13 +66,17 @@ class TVMBackend(Backend):
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
-    def __init__(self, features=None, config=None):
+    def __init__(self, target="c", executor=None, runtime="crt", fmt="mlf", features=None, config=None):
         super().__init__(framework="tvm", features=features, config=config)
 
         self.model = None  # Actual filename!
         self.model_info = None
         self.input_shapes = None
         self.supported_formats = [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB]
+        self.target = target
+        self.runtime = runtime
+        self.executor = executor
+        self.fmt = fmt
 
         self.prefix = "default"
         self.artifacts = (
@@ -212,17 +216,18 @@ class TVMBackend(Backend):
             ret["mcpu"] = self.extra_target_mcpu
         return ret
 
-    def get_tvmc_compile_args(self, out, executor=None, fmt="mlf", target="c", runtime="crt", dump=None):
-        assert executor in ["aot", "graph"], "Unsupported TVM executor"
+    def get_tvmc_compile_args(self, out, dump=None):
+        assert self.executor is not None
+        assert self.executor in ["aot", "graph"], "Unsupported TVM executor"
         args = [
             self.model,
             *get_target_tvmc_args(
-                target,
+                self.target,
                 extra_target=self.extra_target,
                 target_details=self.get_target_details(),
                 extra_target_details=self.get_extra_target_details(),
             ),
-            *get_runtime_executor_tvmc_args(runtime, executor),
+            *get_runtime_executor_tvmc_args(self.runtime, self.executor),
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
@@ -232,7 +237,7 @@ class TVMBackend(Backend):
             *self.tvmc_extra_args,
             *["--opt-level", str(self.opt_level)],
             *["--output", str(out)],
-            *["-f", fmt],
+            *["-f", self.fmt],
             *["--model-format", self.model_format],
         ]
         return args

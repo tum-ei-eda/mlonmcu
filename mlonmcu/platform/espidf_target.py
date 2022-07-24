@@ -27,8 +27,8 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
-def create_espidf_target(name, platform, base=Target):
-    class EspIdfTarget(base):
+def create_espidf_platform_target(name, platform, base=Target):
+    class EspIdfPlatformTarget(base):
 
         FEATURES = base.FEATURES + []
 
@@ -106,4 +106,4 @@ def create_espidf_target(name, platform, base=Target):
         def get_arch(self):
             return "unkwown"
 
-    return EspIdfTarget
+    return EspIdfPlatformTarget

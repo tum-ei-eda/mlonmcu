@@ -58,21 +58,24 @@ class Platform:
 
     REQUIRED = []
 
-    # def __init__(self, name, framework, backend, target, features=None, config=None, context=None):
     def __init__(self, name, features=None, config=None):
         self.name = name
-        # self.framework = framework  # TODO: required? or self.target.framework?
-        # self.backend = backend
-        # self.target = target
         self.config = config if config else {}
         self.definitions = {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
-        # self.context = context
         self.artifacts = []
 
     def init_directory(self, path=None, context=None):
         raise NotImplementedError
+
+    @property
+    def supports_build(self):
+        return False
+
+    @property
+    def supports_tune(self):
+        return False
 
     @property
     def supports_compile(self):
@@ -101,8 +104,38 @@ class Platform:
             feature.add_platform_defs(self.name, self.definitions)
         return features
 
+    def get_supported_backends(self):
+        return []
+
     def get_supported_targets(self):
         return []
+
+
+class BuildPlatform(Platform):
+    """Abstract backend platform class."""
+
+    FEATURES = Platform.FEATURES + []
+
+    DEFAULTS = {
+        **Platform.DEFAULTS,
+    }
+
+    REQUIRED = []
+
+    @property
+    def supports_build(self):
+        return True
+
+    def export_elf(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
+
+        if not isinstance(path, Path):
+            path = Path(path)
+        assert (
+            path.is_dir()
+        ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
+        for artifact in self.artifacts:
+            artifact.export(path)
 
 
 class CompilePlatform(Platform):
@@ -118,17 +151,6 @@ class CompilePlatform(Platform):
     }
 
     REQUIRED = []
-
-    def __init__(self, name, features=None, config=None):
-        super().__init__(
-            name,
-            features=features,
-            config=config,
-        )
-        self.name = name
-        self.config = config if config else {}
-        self.features = self.process_features(features)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
 
     @property
     def supports_compile(self):

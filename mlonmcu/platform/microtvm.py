@@ -31,7 +31,7 @@ from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args
 
 from .platform import CompilePlatform, TargetPlatform
-from .microtvm_target import create_microtvm_target
+from .microtvm_target import create_microtvm_platform_target
 
 logger = get_logger()
 
@@ -246,7 +246,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             base = SUPPORTED_TARGETS[name]
         else:
             base = Target
-        return create_microtvm_target(name, self, base=base)
+        return create_microtvm_platform_target(name, self, base=base)
 
     def get_tvmc_run_args(self, path, device):
         return [

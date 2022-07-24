@@ -26,7 +26,7 @@ from enum import IntEnum
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
-from mlonmcu.platform.platform import CompilePlatform, TargetPlatform
+from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.models.lookup import lookup_models
@@ -137,6 +137,18 @@ class Run:
     def target_to_backend(self):
         """Get target_to_backend property."""
         return bool(self.run_config["target_to_backend"])
+
+    @property
+    def build_platform(self):
+        """Get platform for build stage."""
+        if self.backend is not None and (
+            hasattr(self.backend, "platform") and isinstance(self.backend.platform, BuildPlatform)
+        ):
+            return self.backend.platform
+        for platform in self.platforms:
+            if isinstance(platform, BuildPlatform):
+                return platform
+        return None
 
     @property
     def compile_platform(self):
@@ -255,7 +267,7 @@ class Run:
     def add_backend(self, backend):
         """Setter for the backend instance."""
         self.backend = backend
-        # assert len(self.platforms) > 0, "Add at least a platform before adding a backend."
+        assert len(self.platforms) > 0, "Add at least a platform before adding a backend."
         if self.model is not None:
             assert self.backend.supports_model(self.model), (
                 "The added backend does not support the chosen model. "
@@ -368,7 +380,10 @@ class Run:
         assert context is not None and context.environment.has_backend(
             backend_name
         ), f"The backend '{backend_name}' is not enabled for this environment"
-        self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
+        if self.build_platform:
+            self.add_backend(self.init_component(self.build_platform.create_backend(backend_name), context=context))
+        else:
+            self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
         framework_name = self.backend.framework  # TODO: does this work?
         assert context.environment.has_framework(
             framework_name
@@ -718,8 +733,8 @@ class Run:
 
     def get_platform_name(self):
         """Return platform name(s) for this run."""
-        used = list(set([self.compile_platform, self.target_platform]))  # TODO: build_platform, tune_platform
-        ret = [platform.name for platform in used]
+        used = list(set([self.build_platform, self.compile_platform, self.target_platform]))  # TODO: tune_platform
+        ret = [platform.name for platform in used if platform is not None]
         return ret[0] if len(ret) == 1 else ret
 
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):

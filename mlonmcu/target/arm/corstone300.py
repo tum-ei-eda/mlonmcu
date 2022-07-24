@@ -27,6 +27,7 @@ from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target import Target
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from .util import resolve_cpu_features
 
 logger = get_logger()
 
@@ -38,7 +39,7 @@ class Corstone300Target(Target):
 
     DEFAULTS = {
         **Target.DEFAULTS,
-        "model": None,  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)
+        "model": "cortex-m55",  # Options: cortex-m{0,0plus,1,3,4,7,23,33,35p,55} (Frequency is fixed at 25MHz)
         # Warning: FVP is still M55 based!
         "timeout_sec": 0,  # disabled
         "enable_ethosu": False,
@@ -47,7 +48,6 @@ class Corstone300Target(Target):
         "enable_dsp": False,  # unused
         "ethosu_num_macs": 256,
         "extra_args": "",
-        "enable_vext": False,
     }
     REQUIRED = [
         "corstone300.exe",
@@ -60,13 +60,7 @@ class Corstone300Target(Target):
 
     @property
     def model(self):
-        if self.enable_mvei:
-            assert self.config["model"] is None, "corstone300.model was overwritten by the user"
-            return "cortex-m55"
-        elif self.enable_dsp:
-            assert self.config["model"] is None, "corstone300.model was overwritten by the user"
-            return "cortex-m33"
-        return "cortex-m0"  # Default chip
+        return self.config["model"]
 
     @property
     def enable_ethosu(self):
@@ -203,7 +197,12 @@ class Corstone300Target(Target):
         ret = super().get_platform_defs(platform)
         ret["CMSIS_PATH"] = self.cmsisnn_dir
         ret["ARM_COMPILER_PREFIX"] = self.gcc_prefix
-        ret["ARM_CPU"] = self.model
+        cpu, float_abi, fpu = resolve_cpu_features(
+            self.model, enable_fp=self.enable_fpu, enable_dsp=self.enable_dsp, enable_mve=self.enable_mvei
+        )
+        ret["ARM_CPU"] = cpu
+        ret["ARM_FLOAT_ABI"] = float_abi
+        ret["ARM_FPU"] = fpu
         return ret
 
     def get_arch(self):

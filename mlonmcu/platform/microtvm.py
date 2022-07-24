@@ -18,6 +18,7 @@
 #
 """MicroTVM Platform"""
 
+import re
 import tempfile
 from pathlib import Path
 
@@ -32,57 +33,82 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tv
 
 from .platform import CompilePlatform, TargetPlatform
 from .microtvm_target import create_microtvm_platform_target
+from .microtvm_backend import create_microtvm_platform_backend, get_microtvm_platform_backends
 
 logger = get_logger()
 
 
+def parse_project_options_from_stdout(out):
+    return re.compile(r"^\s+([A-Za-z0-9_]+)=", re.MULTILINE).findall(out)
+
+
+def filter_project_options(valid, options):
+    return {key: value for key, value in options.items() if key in valid}
+
 # TODO: Replace this hardcoded dict which dynamic lookup
-ALLOWED_PROJECT_OPTIONS = {
-    "arduino": {
-        "create": ["arduino_cli_cmd", "project_type", "warning_as_error"],
-        "build": ["arduino_board", "arduino_cli_cmd", "verbose"],
-        "flash": ["arduino_board", "arduino_cli_cmd", "port", "verbose"],
-        "run": ["arduino_board", "arduino_cli_cmd", "port"],
-    },
-    "zephyr": {
-        "create": [
-            "extra_files_tar",
-            "project_type",
-            "config_main_stack_size",
-            "warning_as_error",
-            "compile_definitions",
-            "zephyr_base",
-            "zephyr_board",
-        ],
-        "build": ["verbose", "west_cmd", "zephyr_base", "zephyr_board"],
-        "flash": ["zephyr_board"],
-        "run": ["gdbserver_port", "nrfjprog_snr", "openocd_serial", "zephyr_base", "zephyr_board"],
-    },
-    # "etissvp": {
-    "template": {
-        "create": [
-            "extra_files_tar",
-            "project_type",
-            "config_main_stack_size",
-            "warning_as_error",
-            "compile_definitions",
-        ],
-        "build": ["verbose", "riscv_path", "etiss_path"],
-        "flash": ["etiss_path", "etissvp_script", "etissvp_script_args", "transport"],
-        "run": ["etissvp_script", "etissvp_script_args", "etiss_path"],
-    },
-}
+# ALLOWED_PROJECT_OPTIONS = {
+# PROJECT_TEMPLATE_REGISTRY = {
+#     "arduino": {
+#         "template": None,
+#         "options": {
+#             "create": ["arduino_cli_cmd", "project_type", "warning_as_error"],
+#             "build": ["arduino_board", "arduino_cli_cmd", "verbose"],
+#             "flash": ["arduino_board", "arduino_cli_cmd", "port", "verbose"],
+#             "run": ["arduino_board", "arduino_cli_cmd", "port"],
+#         },
+#     },
+#     "zephyr": {
+#         "template": None,
+#         "options": {
+#             "create": [
+#                 "extra_files_tar",
+#                 "project_type",
+#                 "config_main_stack_size",
+#                 "warning_as_error",
+#                 "compile_definitions",
+#                 "zephyr_base",
+#                 "zephyr_board",
+#             ],
+#             "build": ["verbose", "west_cmd", "zephyr_base", "zephyr_board"],
+#             "flash": ["zephyr_board"],
+#             "run": ["gdbserver_port", "nrfjprog_snr", "openocd_serial", "zephyr_base", "zephyr_board"],
+#         },
+#     },
+#     "host": {
+#         "template": None,
+#         "options": {
+#             "create": [],
+#             "build": ["verbose"],
+#             "flash": [],
+#             "run": [],
+#         },
+#     },
+#     "etissvp": {
+#         "template": None,
+#         "options": {
+#             "create": [
+#                 "extra_files_tar",
+#                 "project_type",
+#                 "config_main_stack_size",
+#                 "warning_as_error",
+#                 "compile_definitions",
+#             ],
+#             "build": ["verbose", "riscv_path", "etiss_path"],
+#             "flash": ["etiss_path", "etissvp_script", "etissvp_script_args", "transport"],
+#             "run": ["etissvp_script", "etissvp_script_args", "etiss_path"],
+#         },
+#     },
+# }
 
 
 def get_project_option_args(template, stage, project_options):
     ret = []
     # TODO: dynamically fetch allowed options per stage (create, build, run)
-    assert template[0] in ALLOWED_PROJECT_OPTIONS
-    assert stage in ALLOWED_PROJECT_OPTIONS[template[0]]
-    allowed = ALLOWED_PROJECT_OPTIONS[template[0]][stage]
+    # assert template[0] in ALLOWED_PROJECT_OPTIONS
+    # assert stage in ALLOWED_PROJECT_OPTIONS[template[0]]
+    # allowed = ALLOWED_PROJECT_OPTIONS[template[0]][stage]
     for key, value in project_options.items():
-        if key in allowed:
-            ret.append(f"{key}={value}")
+        ret.append(f"{key}={value}")
 
     if len(ret) > 0:
         ret = ["--project-option"] + ret
@@ -234,6 +260,16 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
 
+    def get_supported_backends(self):
+        backend_names = get_microtvm_platform_backends()
+        return backend_names
+
+    def create_backend(self, name):
+        supported = self.get_supported_backends()
+        assert name in supported, f"{name} is not a valid MicroTVM platform backend"
+        base = supported[name]
+        return create_microtvm_platform_backend(name, self, base=base)
+
     def get_supported_targets(self):
         # TODO: get this via tvmc micro create-project --help
         target_names = ["zephyr", "arduino", "template"]
@@ -248,29 +284,37 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             base = Target
         return create_microtvm_platform_target(name, self, base=base)
 
-    def get_tvmc_run_args(self, path, device):
-        return [
+    def get_tvmc_run_args(self, path, device, list_options=False):
+        ret = [
             path,
             *["--device", device],
             *get_data_tvmc_args(
                 mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
             ),
             *get_bench_tvmc_args(
-                # print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=self.number
-                print_time=True,
+                # print_time=True,
+                print_time=False,
                 profile=False,
                 end_to_end=False,
-                repeat=self.repeat,
-                number=self.number,
+                # repeat=self.repeat,
+                # number=self.number,
             ),
             # *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
+        if list_options:
+            ret.append("--help")
+        return ret
 
-    def get_tvmc_micro_args(self, command, path, mlf_path, template):
+    def get_tvmc_micro_args(self, command, path, mlf_path, template, list_options=False):
+        ret = [command]
         if "create" in command:
-            return [command, "--force", path, mlf_path, *template]
+            ret.extend(["--force", path, mlf_path])
         else:
-            return [command, path, *template]
+            ret.append(path)
+        ret.extend(template)
+        if list_options:
+           ret.append("--help")
+        return ret
 
     def invoke_tvmc(self, command, *args):
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
@@ -280,15 +324,27 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             pre = [self.tvmc_custom_script]
         return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
 
+    def collect_available_project_options(self, command, path, mlf_path, template, micro=True):
+        args = self.get_tvmc_micro_args(command, path, mlf_path, template, list_options=True)
+        out = self.invoke_tvmc("micro", *args)
+        return parse_project_options_from_stdout(out)
+
     def invoke_tvmc_micro(self, command, path, mlf_path, template, micro=True):
         args = self.get_tvmc_micro_args(command, path, mlf_path, template)
-        args += get_project_option_args(template, command, self.project_options)
+        options = filter_project_options(self.collect_available_project_options(command, path, mlf_path, template), self.project_options)
+        args += get_project_option_args(template, command, options)
         return self.invoke_tvmc("micro", *args)
+
+    def collect_available_run_project_options(self, path, device):
+        args = self.get_tvmc_run_args(path, device, list_options=True)
+        out = self.invoke_tvmc("run", *args)
+        return parse_project_options_from_stdout(out)
 
     def invoke_tvmc_run(self, path, device, template, micro=True):
         args = self.get_tvmc_run_args(path, device)
         if micro:
-            args.extend(get_project_option_args(template, "run", self.project_options))
+            options = filter_project_options(self.collect_available_run_project_options(path, device), self.project_options)
+            args.extend(get_project_option_args(template, "run", options))
         return self.invoke_tvmc("run", *args)
 
     def close(self):

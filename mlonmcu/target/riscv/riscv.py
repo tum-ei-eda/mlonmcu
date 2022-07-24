@@ -140,6 +140,6 @@ class RISCVTarget(Target):
                 "target_mtriple": self.riscv_basename,  # TODO: riscv32-esp-elf for esp32c3!
                 "target_mabi": self.abi,
                 "target_mattr": self.attr,
-                # "target_mcpu": "?",  # TODO: target system
+                "target_mcpu": f"generic-rv{self.xlen}",
             }
         return {}

@@ -43,8 +43,38 @@ def get_input_shapes_tvmc_args(input_shapes):
     return ["--input-shapes", arg]
 
 
+def check_allowed(target, name):
+    common = ["libs", "model", "tag", "mcpu", "device", "keys"]
+    if target == "c":
+        return name in ["constants-byte-alignment", "workspace-bytes-alignment", "march"] + common
+    elif target == "llvm":
+        return (
+            name
+            in [
+                "fast-math",
+                "opt-level",
+                "fast-math-ninf",
+                "mattr",
+                "num-cores",
+                "fast-math-nsz",
+                "fast-math-contract",
+                "mtriple",
+                "mfloat-abi",
+                "fast-math-arcp",
+                "fast-math-reassoc",
+                "mabi",
+            ]
+            + common
+        )
+
+    else:
+        True
+
+
 def gen_target_details_args(target, target_details):
-    return sum([[f"--target-{target}-{key}", value] for key, value in target_details.items()], [])
+    return sum(
+        [[f"--target-{target}-{key}", value] for key, value in target_details.items() if check_allowed(target, key)], []
+    )
 
 
 def get_target_tvmc_args(target="c", extra_target=None, target_details={}, extra_target_details=None):

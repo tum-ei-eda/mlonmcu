@@ -50,6 +50,9 @@ class TVMBackend(Backend):
         "target_mcpu": None,
         "target_march": None,
         "target_model": None,
+        "target_mtriple": None,
+        "target_mabi": None,
+        "target_mattr": None,
         "extra_target": None,
         "extra_target_mcpu": None,
         "desired_layout": None,  # optional: NCHW or NHWC
@@ -137,6 +140,18 @@ class TVMBackend(Backend):
         return self.config["target_march"]
 
     @property
+    def target_mtriple(self):
+        return self.config["target_mtriple"]
+
+    @property
+    def target_mabi(self):
+        return self.config["target_mabi"]
+
+    @property
+    def target_mattr(self):
+        return self.config["target_mattr"]
+
+    @property
     def target_model(self):
         return self.config["target_model"]
 
@@ -206,6 +221,12 @@ class TVMBackend(Backend):
             ret["mcpu"] = self.target_mcpu
         if self.target_march:
             ret["march"] = self.target_march
+        if self.target_mtriple:
+            ret["mtriple"] = self.target_mtriple
+        if self.target_mabi:
+            ret["mabi"] = self.target_mabi
+        if self.target_mattr:
+            ret["mattr"] = self.target_mattr
         if self.target_model:
             ret["model"] = self.target_model
         return ret

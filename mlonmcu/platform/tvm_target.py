@@ -111,13 +111,25 @@ def create_tvm_target(name, platform, base=Target):
             mean_s = mean_ms / 1e3 if mean_ms is not None else mean_ms
             min_s = min_ms / 1e3 if min_ms is not None else min_ms
             max_s = max_ms / 1e3 if max_ms is not None else max_ms
-            if self.platform.number == 1 and self.platform.repeat == 1:
+            if (
+                self.platform.number == 1
+                and self.platform.repeat == 1
+                and (not self.platform.total_time or self.platform.aggregate != "none")
+            ):
                 metrics.add("Runtime [s]", mean_s)
             else:
-                metrics.add("Total Runtime [s]", mean_s * self.platform.number)
-                metrics.add("Average Runtime [s]", mean_s)
-                metrics.add("Min Runtime [s]", min_s)
-                metrics.add("Max Runtime [s]", max_s)
+                if self.platform.total_time:
+                    metrics.add("Total Runtime [s]", mean_s * self.platform.number)
+                if self.platform.aggregate == "all":
+                    metrics.add("Average Runtime [s]", mean_s)
+                    metrics.add("Min Runtime [s]", min_s)
+                    metrics.add("Max Runtime [s]", max_s)
+                elif self.platform.aggregate in ["avg", "mean"]:
+                    metrics.add("Average Runtime [s]", mean_s)
+                elif self.platform.aggregate == "min":
+                    metrics.add("Min Runtime [s]", min_s)
+                elif self.platform.aggregate == "max":
+                    metrics.add("Max Runtime [s]", max_s)
 
             return metrics, out, []
 

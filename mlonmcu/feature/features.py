@@ -1194,10 +1194,11 @@ class Benchmark(PlatformFeature, TargetFeature):
         assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
 
         if platform in ["tvm", "microtvm"]:
-            assert not self.total
             return {
                 f"{platform}.number": self.num_runs,
                 f"{platform}.repeat": self.num_repeat,
+                f"{platform}.aggregate": self.aggregate,
+                f"{platform}.total_time": self.total,
             }
         else:
             return {}
@@ -1228,11 +1229,14 @@ class Benchmark(PlatformFeature, TargetFeature):
                 metrics_ = metrics[1:]  # drop first run (warmup)
 
                 # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc. in the future
-                data_ = [{
-                    key: (float(value) / self.num_runs) if self.num_runs != 1 else value
-                    for key, value in m.data.items()
-                    if "cycle" in key.lower() or "time" in key.lower()
-                } for m in metrics_]
+                data_ = [
+                    {
+                        key: (float(value) / self.num_runs) if self.num_runs != 1 else value
+                        for key, value in m.data.items()
+                        if "cycle" in key.lower() or "time" in key.lower()
+                    }
+                    for m in metrics_
+                ]
 
                 df = pd.DataFrame(data_)
 
@@ -1265,7 +1269,13 @@ class Benchmark(PlatformFeature, TargetFeature):
 
                     data = {f"{prefix} {key}": value for key, temp in data.items() for prefix, value in temp.items()}
                 if self.total:
-                    data.update({f"Total {key}": value * self.num_runs for key, value in data_[-1].items() if "cycle" in key.lower() or "time" in key.lower()})
+                    data.update(
+                        {
+                            f"Total {key}": value * self.num_runs
+                            for key, value in data_[-1].items()
+                            if "cycle" in key.lower() or "time" in key.lower()
+                        }
+                    )
                 metrics_ = metrics_[-1]
                 metrics_.data.update(data)
 

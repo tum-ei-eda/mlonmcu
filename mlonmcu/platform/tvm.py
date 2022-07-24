@@ -52,6 +52,8 @@ class TvmPlatform(TargetPlatform):
         "profile": False,
         "repeat": 1,
         "number": 1,
+        "aggregate": "none",  # Allowed: avg, max, min, none, all
+        "total": False,
         "use_rpc": False,
         "rpc_key": None,
         "rpc_hostname": None,
@@ -100,6 +102,17 @@ class TvmPlatform(TargetPlatform):
     @property
     def number(self):
         return self.config["number"]
+
+    @property
+    def aggregate(self):
+        value = self.config["aggregate"]
+        assert value in ["avg", "all", "max", "min", "none"]
+        return value
+
+    @property
+    def total_time(self):
+        value = self.config["total_time"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def use_rpc(self):

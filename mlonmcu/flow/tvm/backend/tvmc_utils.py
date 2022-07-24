@@ -68,7 +68,7 @@ def check_allowed(target, name):
         )
 
     else:
-        True
+        return True
 
 
 def gen_target_details_args(target, target_details):

@@ -97,7 +97,7 @@ class RISCVTarget(Target):
         attrs = str(self.config["attr"]).split(",")
         if len(attrs) == 1 and len(attrs[0]) == 0:
             attrs = []
-        for ext in self.extensions:
+        for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))
         return ",".join(attrs)

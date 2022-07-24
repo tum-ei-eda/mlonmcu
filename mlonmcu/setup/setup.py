@@ -134,6 +134,8 @@ class Setup:
         assert name in self.tasks_factory.registry, f"Invalid task name: {name}"
         func = self.tasks_factory.registry[name]
         func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose, threads=self.num_threads)
+        if write_cache:
+            self.write_cache_file()
 
     def install_dependencies(
         self,

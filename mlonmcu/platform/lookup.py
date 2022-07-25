@@ -104,6 +104,7 @@ def print_summary(context):
     platform_targets = get_platforms_targets(context)
     print_platforms(platform_targets.keys())
     print()
+    platform_backends = get_platforms_backends(context)
     print_backends(platform_backends)
     print()
     print_targets(platform_targets)

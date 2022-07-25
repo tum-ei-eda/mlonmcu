@@ -75,12 +75,17 @@ def _handle(args, context):
                     for platform in platforms:
                         candidates = platform_backends[platform]
                         if backend_name in candidates:
-                            platform_name = platform
+                            try:
+                                platform_name = platform
+                                new_run.add_platform_by_name(platform_name, context=context)
+                            except AssertionError:  # TODO: replace with incompatble error
+                                platform_name = None
+                                continue
                     # assert (
                     #     platform_name is not None
                     # ), f"Unable to find a suitable platform for the backend '{target_name}'"
-                    if platform_name is not None:
-                        new_run.add_platform_by_name(platform_name, context=context)
+                    # assert platform_name is not None
+
                 if target_name is not None:
                     platform_name = None
                     for platform in platforms:

@@ -223,7 +223,7 @@ POSTPROCESS_CONFIG = {
         "Model",
         "Backend",
         "Target",
-        "Total Cycles",
+        "Cycles",
         "Runtime [s]",
         "Total ROM",
         "Total RAM",

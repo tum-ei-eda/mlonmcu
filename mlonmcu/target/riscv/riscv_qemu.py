@@ -75,7 +75,8 @@ class RiscvQemuTarget(RISCVTarget):
 
     @property
     def enable_vext(self):
-        return bool(self.config["enable_vext"])
+        value = self.config["enable_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_cpu_str(self):
         cfg = {}

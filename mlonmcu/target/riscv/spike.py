@@ -61,11 +61,13 @@ class SpikeTarget(RISCVTarget):
 
     @property
     def enable_vext(self):
-        return bool(self.config["enable_vext"])
+        value = self.config["enable_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_pext(self):
-        return bool(self.config["enable_pext"])
+        value = self.config["enable_pext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def extensions(self):

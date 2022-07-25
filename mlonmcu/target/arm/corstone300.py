@@ -24,6 +24,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.config import str2bool
 from mlonmcu.target import Target
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
@@ -64,19 +65,23 @@ class Corstone300Target(Target):
 
     @property
     def enable_ethosu(self):
-        return bool(self.config["enable_ethosu"])
+        value = self.config["enable_ethosu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_fpu(self):
-        return bool(self.config["enable_fpu"])
+        value = self.config["enable_fpu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_mvei(self):
-        return bool(self.config["enable_mvei"])
+        value = self.config["enable_mvei"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_dsp(self):
-        return bool(self.config["enable_dsp"])
+        value = self.config["enable_dsp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def ethosu_num_macs(self):

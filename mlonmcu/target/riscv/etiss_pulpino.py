@@ -83,11 +83,13 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def gdbserver_enable(self):
-        return bool(self.config["gdbserver_enable"])
+        value = self.config["gdbserver_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def gdbserver_attach(self):
-        return bool(self.config["gdbserver_attach"])
+        value = self.config["gdbserver_attach"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def gdbserver_port(self):
@@ -95,11 +97,13 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def debug_etiss(self):
-        return bool(self.config["debug_etiss"])
+        value = self.config["debug_etiss"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def trace_memory(self):
-        return bool(self.config["trace_memory"])
+        value = self.config["trace_memory"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def plugins(self):
@@ -107,7 +111,8 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def verbose(self):
-        return bool(self.config["verbose"])
+        value = self.config["verbose"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def rom_start(self):
@@ -140,15 +145,18 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def enable_fpu(self):
-        return bool(self.config["enable_fpu"])
+        value = self.config["enable_fpu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_vext(self):
-        return bool(self.config["enable_vext"])
+        value = self.config["enable_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_pext(self):
-        return bool(self.config["enable_pext"])
+        value = self.config["enable_pext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def vlen(self):

@@ -24,7 +24,6 @@ from pathlib import Path
 
 from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
-from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.target.target import Target
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -32,7 +31,7 @@ from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args
 
 from .platform import CompilePlatform, TargetPlatform
-from .microtvm_target import create_microtvm_platform_target
+from .microtvm_target import create_microtvm_platform_target, get_microtvm_platform_targets
 from .microtvm_backend import create_microtvm_platform_backend, get_microtvm_platform_backends
 
 logger = get_logger()
@@ -44,6 +43,7 @@ def parse_project_options_from_stdout(out):
 
 def filter_project_options(valid, options):
     return {key: value for key, value in options.items() if key in valid}
+
 
 # TODO: Replace this hardcoded dict which dynamic lookup
 # ALLOWED_PROJECT_OPTIONS = {
@@ -271,17 +271,12 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         return create_microtvm_platform_backend(name, self, base=base)
 
     def get_supported_targets(self):
-        # TODO: get this via tvmc micro create-project --help
-        target_names = ["zephyr", "arduino", "template"]
-
-        return [f"microtvm_{name}" for name in target_names]
+        return get_microtvm_platform_targets()
 
     def create_target(self, name):
-        assert name in self.get_supported_targets(), f"{name} is not a valid MicroTVM device"
-        if name in SUPPORTED_TARGETS:
-            base = SUPPORTED_TARGETS[name]
-        else:
-            base = Target
+        supported = self.get_supported_targets()
+        assert name in supported, f"{name} is not a valid MicroTVM device"
+        base = supported[name]
         return create_microtvm_platform_target(name, self, base=base)
 
     def get_tvmc_run_args(self, path, device, list_options=False):
@@ -313,7 +308,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             ret.append(path)
         ret.extend(template)
         if list_options:
-           ret.append("--help")
+            ret.append("--help")
         return ret
 
     def invoke_tvmc(self, command, *args):
@@ -331,7 +326,9 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
 
     def invoke_tvmc_micro(self, command, path, mlf_path, template, micro=True):
         args = self.get_tvmc_micro_args(command, path, mlf_path, template)
-        options = filter_project_options(self.collect_available_project_options(command, path, mlf_path, template), self.project_options)
+        options = filter_project_options(
+            self.collect_available_project_options(command, path, mlf_path, template), self.project_options
+        )
         args += get_project_option_args(template, command, options)
         return self.invoke_tvmc("micro", *args)
 
@@ -343,7 +340,9 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
     def invoke_tvmc_run(self, path, device, template, micro=True):
         args = self.get_tvmc_run_args(path, device)
         if micro:
-            options = filter_project_options(self.collect_available_run_project_options(path, device), self.project_options)
+            options = filter_project_options(
+                self.collect_available_run_project_options(path, device), self.project_options
+            )
             args.extend(get_project_option_args(template, "run", options))
         return self.invoke_tvmc("run", *args)
 
@@ -352,12 +351,20 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             self.tempdir.cleanup()
 
     def get_template_args(self, target):
-        target_template = target.template
-        if target_template == "template":
-            assert self.project_template is not None
-            return (target_template, "--template-dir", self.project_template)
+        template = target.template
+        if target.template_path:
+            template = "template"
+            template_path = target.template_path
         else:
-            return (target_template,)
+            if template == "template":
+                assert self.project_template is not None
+                template_path = self.project_template
+            else:
+                template_path = None
+        if template_path:
+            return ("template", "--template-dir", template_path)
+        else:
+            return (template,)
 
     def prepare(self, mlf, target):
         out = self.invoke_tvmc_micro("create", self.project_dir, mlf, self.get_template_args(target))

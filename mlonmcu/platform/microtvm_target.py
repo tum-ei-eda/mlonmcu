@@ -18,6 +18,7 @@
 #
 import re
 import os
+from pathlib import Path
 
 from mlonmcu.target.target import Target
 from mlonmcu.target.metrics import Metrics
@@ -29,6 +30,215 @@ logger = get_logger()
 
 def name2template(name):
     return name.replace("microtvm_", "")
+
+
+MICROTVM_PLATFORM_TARGET_REGISTRY = {}
+
+
+def register_microtvm_platform_target(target_name, t, override=False):
+    global MICROTVM_PLATFORM_TARGET_REGISTRY
+
+    if target_name in MICROTVM_PLATFORM_TARGET_REGISTRY and not override:
+        raise RuntimeError(f"MicroTVM platform target {target_name} is already registered")
+    MICROTVM_PLATFORM_TARGET_REGISTRY[target_name] = t
+
+
+def get_microtvm_platform_targets():
+    return MICROTVM_PLATFORM_TARGET_REGISTRY
+
+
+class TemplateMicroTvmPlatformTarget(Target):
+
+    FEATURES = Target.FEATURES + []
+
+    DEFAULTS = {
+        **Target.DEFAULTS,
+    }
+    REQUIRED = Target.REQUIRED + ["tvm.build_dir"]
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+        self.template_path = None
+        self.option_names = []
+        # self.platform = platform
+        # self.template = name2template(name)
+
+    def get_project_options(self):
+        return {key: value for key, value in self.config if key in self.option_names}
+
+# class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+#
+#     FEATURES = Target.FEATURES + []
+#
+#     DEFAULTS = {
+#         **Target.DEFAULTS,
+#         "project_type": "?",
+#         "warning_as_error": False,
+#         "arduino_board": "?",
+#         # "arduino_clicmd?": "?",
+#         "verbose": False,
+#         "port": -1,
+#     }
+#     REQUIRED = Target.REQUIRED + ["arduino.install_dir"]
+#
+#     def __init__(self, name=None, features=None, config=None):
+#         super().__init__(name=name, features=features, config=config)
+#         self.template_path = None
+#         self.option_names = ["project_type", "warning_as_error", "arduino_board", "verbose", "port"]
+#         # self.platform = platform
+#         # self.template = name2template(name)
+#
+#     @property
+#     def arduino_install_dir(self):
+#         return Path(self.config["arduino.install_dir"])
+#
+#     def get_project_options(self):
+#         ret = super().get_project_options()
+#         ret.update({"arduino_clicmd": ?})
+#
+#
+# class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+#
+#     FEATURES = Target.FEATURES + []
+#
+#     DEFAULTS = {
+#         **Target.DEFAULTS,
+#         "extra_files_tar": None,
+#         "project_type": "?",
+#         "zephyr_board": "?",
+#         # "zephyr_base": "?",
+#         # "west_cmd": "?",
+#         "verbose": False,
+#         "warning_as_error": True,
+#         "compile_definitions": "",
+#         "config_main_stack_size": -1,
+#         "gdbserver_port": -1,
+#         "nrfjprog_snr": None,
+#         "openocd_serial": None,
+#     }
+#     REQUIRED = Target.REQUIRED + ["zephyr.install_dir"]
+#
+#     def __init__(self, name=None, features=None, config=None):
+#         super().__init__(name=name, features=features, config=config)
+#         self.template_path = None
+#         self.option_names = ["extra_files_tar", "project_type", "zephyr_board", "verbose", "warning_as_error", "compile_definitions", "config_main_stack_size", "gdbserver_port", "nrfjprog_snr", "openocd_serial"]
+#         # self.platform = platform
+#         # self.template = name2template(name)
+#
+#     @property
+#     def zephyr_install_dir(self):
+#         return Path(self.config["zephyr.install_dir"])
+#
+#     def get_project_options(self):
+#         ret = super().get_project_options()
+#         ret.update({"zephyr_base": self.zephyr_install_dir})
+
+
+class HostMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+
+    FEATURES = Target.FEATURES + []
+
+    DEFAULTS = {
+        **Target.DEFAULTS,
+        "verbose": False,
+    }
+    REQUIRED = Target.REQUIRED + ["tvm.build_dir"]
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+        self.template_path = self.tvm_build_dir / "standalone_crt" / "template" / "host"
+        self.option_names = ["verbose"]
+
+    @property
+    def tvm_build_dir(self):
+        return Path(self.config["tvm.build_dir"])
+
+
+class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+
+    FEATURES = Target.FEATURES + []
+
+    DEFAULTS = {
+        **Target.DEFAULTS,
+        "extra_files_tar": None,
+        "project_type": "?",
+        "verbose": False,
+        "warning_as_error": True,
+        "compile_definitions": "",
+        "config_main_stack_size": -1,
+        # "riscv_path": "?",
+        # "etiss_path": "?",
+        # "etissvp_script": "?",
+        "etissvp_script_args": "?",
+        "transport": True,
+    }
+    REQUIRED = Target.REQUIRED + ["microtvm_etissvp.src_dir", "riscv_gcc.install_dir", "etiss.install_dir"]
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+        self.template_path = self.tvm_build_dir / "template_project"
+        self.option_names = ["extra_files_tar", "project_type", "verbose", "warning_as_error", "compile_definitions", "config_main_stack_size", "etissvp_script_args", "transport"]
+
+    @property
+    def microtvm_etissvp_src_dir(self):
+        return Path(self.config["microtvm_etissvp.src_dir"])
+
+    @property
+    def riscv_gcc_install_dir(self):
+        return Path(self.config["riscv_gcc_install_dir"])
+
+    @property
+    def etiss_install_dir(self):
+        return Path(self.config["etiss.install_dir"])
+
+    def get_project_options(self):
+        ret = super().get_project_options()
+        ret.update({
+            "riscv_path": self.riscv_gcc_install_dir,
+            "etiss_path": self.etiss_install_dir,
+            "etissvp_script": self.etiss_install_dir / "bin" / "run_helper.sh",
+        })
+        return ret
+
+
+# class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+#
+#     FEATURES = Target.FEATURES + []
+#
+#     DEFAULTS = {
+#         **Target.DEFAULTS,
+#         "verbose": False,
+#         "?": "?",  # TODO
+#     }
+#     REQUIRED = Target.REQUIRED + ["microtvm_espidf.src_dir", "espidf.src_dir", "espidf.install_dir"]
+#
+#     def __init__(self, name=None, features=None, config=None):
+#         super().__init__(name=name, features=features, config=config)
+#         self.template_path = None
+
+# class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+#
+#     FEATURES = Target.FEATURES + []
+#
+#     DEFAULTS = {
+#         **Target.DEFAULTS,
+#         "verbose": False,
+#         "?": "?",  # TODO
+#     }
+#     REQUIRED = Target.REQUIRED + ["microtvm_espidf.src_dir", "espidf.src_dir", "espidf.install_dir"]
+#
+#     def __init__(self, name=None, features=None, config=None):
+#         super().__init__(name=name, features=features, config=config)
+#         self.template_path = None
+
+
+# register_microtvm_platform_target("microtvm_template", ZephyrMicroTvmPlatformTarget)
+# register_microtvm_platform_target("microtvm_zephyr", ZephyrMicroTvmPlatformTarget)
+# register_microtvm_platform_target("microtvm_arduino", ArduinoMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_host", HostMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_etissvp", EtissvpMicroTvmPlatformTarget)
+# register_microtvm_platform_target("microtvm_espidf", EtissvpMicroTvmPlatformTarget)
+# register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
 
 
 def create_microtvm_platform_target(name, platform, base=Target):

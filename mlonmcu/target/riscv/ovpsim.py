@@ -46,6 +46,9 @@ class OVPSimTarget(RISCVTarget):
         "enable_fpu": True,
         "variant": "RVB32I",
         "end_to_end_cycles": False,
+        "gdbserver_enable": False,
+        "gdbserver_attach": False,
+        "gdbserver_port": 2222,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
 
@@ -108,6 +111,20 @@ class OVPSimTarget(RISCVTarget):
         value = self.config["end_to_end_cycles"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def gdbserver_enable(self):
+        value = self.config["gdbserver_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def gdbserver_attach(self):
+        value = self.config["gdbserver_attach"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def gdbserver_port(self):
+        return int(self.config["gdbserver_port"])
+
     def get_default_ovpsim_args(self):
         extensions_str = "".join(sort_extensions_canonical(self.extensions, lower=False, unpack=True))
         args = [
@@ -143,10 +160,11 @@ class OVPSimTarget(RISCVTarget):
         if self.enable_fpu:
             assert "f" in self.extensions or "g" in self.extensions
         args.extend(["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"])
-        if False:  # ?
-            args.append("--trace")
-            args.extend(["--port", "3333"])
-            args.append("--gdbconsole")
+        if self.gdbserver_enable:
+            # args.append("--trace")
+            args.extend(["--port", str(self.gdbserver_port)])
+            if self.gdbserver_attach:
+                args.append("--gdbconsole")
         return args
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):

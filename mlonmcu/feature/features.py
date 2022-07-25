@@ -455,6 +455,8 @@ class ETISSDebug(SetupFeature, TargetFeature):
 class Trace(TargetFeature):
     """Enable tracing of all memory accesses in ETISS."""
 
+    # TODO: support ovpsim --trace --tracemem SA
+
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
 
@@ -929,6 +931,8 @@ class CacheSim(TargetFeature):
 @register_feature("log_instrs")
 class LogInstructions(TargetFeature):
     """Enable logging of the executed instructions of a simulator-based target."""
+
+    # TODO: support ovpsim via --trace. Example Output: Info 'riscvOVPsim/cpu', 0x0000000000010b92(tvmgen_default_fused_nn_contrib_dense_pack_add_fixed_point_multiply_add_clip_cast_clip+94): fdc42583 lw      a1,-36(s0)
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 

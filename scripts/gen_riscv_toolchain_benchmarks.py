@@ -141,11 +141,12 @@ def gen_features(backend, validate=False):
     return ret
 
 
-def gen_config(backend, toolchain, enable_postprocesses=False):
+def gen_config(backend, toolchain, enable_postprocesses=False, optimize="3"):
     ret = {}
     ret.update(DEFAULT_CONFIG)
     ret.update(BACKEND_DEFAULT_CONFIG[backend])
     ret.update({"mlif.toolchain": toolchain})
+    ret.update({"mlif.optimize": optimize})
     if enable_postprocesses:
         ret.update(POSTPROCESS_CONFIG)
     return ret
@@ -159,23 +160,26 @@ def benchmark(args):
         for model in models:
             for backend in args.backend:
                 for target in args.target:
-                    features = gen_features(backend, validate=args.validate)
-                    for toolchain in args.toolchain:
-                        config = gen_config(
-                            backend,
-                            toolchain,
-                            enable_postprocesses=args.post,
-                        )
-                        config.update(user_config)  # TODO
-                        run = session.create_run(config=config)
-                        run.add_features_by_name(features, context=context)
-                        run.add_platform_by_name(PLATFORM, context=context)
-                        run.add_frontend_by_name(FRONTEND, context=context)
-                        run.add_model_by_name(model, context=context)
-                        run.add_backend_by_name(backend, context=context)
-                        run.add_target_by_name(target, context=context)
-                        if args.post:
-                            run.add_postprocesses_by_name(POSTPROCESSES)
+                    levels = ["0", "1", "2", "3", "s", "z", "fast"]
+                    for level in levels:
+                        features = gen_features(backend, validate=args.validate)
+                        for toolchain in args.toolchain:
+                            config = gen_config(
+                                backend,
+                                toolchain,
+                                enable_postprocesses=args.post,
+                                optimize=level,
+                            )
+                            config.update(user_config)  # TODO
+                            run = session.create_run(config=config)
+                            run.add_features_by_name(features, context=context)
+                            run.add_platform_by_name(PLATFORM, context=context)
+                            run.add_frontend_by_name(FRONTEND, context=context)
+                            run.add_model_by_name(model, context=context)
+                            run.add_backend_by_name(backend, context=context)
+                            run.add_target_by_name(target, context=context)
+                            if args.post:
+                                run.add_postprocesses_by_name(POSTPROCESSES)
         if args.noop:
             stage = RunStage.LOAD
         else:

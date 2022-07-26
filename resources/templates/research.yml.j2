@@ -168,9 +168,8 @@ platforms:
       # validate: true
   microtvm:
     enabled: true
-    features:
+    features: []
       # validate: true
-      microtvm_etissvp: true
 # List of supported targets in the environment
 targets:
   default: etiss_pulpino
@@ -205,7 +204,9 @@ targets:
       ethosu: false
       arm_mvei: true
       arm_dsp: true
-  qemu_sifive:
+  microtvm_etissvp:
+    enabled: true
+  microtvm_espidf:
     enabled: false
 postprocesses:
   use:

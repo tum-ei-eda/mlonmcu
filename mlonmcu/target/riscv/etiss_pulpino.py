@@ -175,8 +175,15 @@ class EtissPulpinoTarget(RISCVTarget):
         ret = super().extensions
         if self.enable_pext and "p" not in ret:
             ret.append("p")
-        if self.enable_vext and "v" not in ret:
-            ret.append("v")
+        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
+            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
+                # if self.enable_fpu:
+                if True:
+                    ret.append(f"zve32x")
+                else:
+                    ret.append(f"zve32f")
+            else:
+                ret.append("v")
         return ret
 
     @property

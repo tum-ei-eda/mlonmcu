@@ -74,8 +74,15 @@ class SpikeTarget(RISCVTarget):
         ret = super().extensions
         if self.enable_pext and "p" not in ret:
             ret.append("p")
-        if self.enable_vext and "v" not in ret:
-            ret.append("v")
+        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
+            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
+                # if self.enable_fpu:
+                if True:
+                    ret.append(f"zve32x")
+                else:
+                    ret.append(f"zve32f")
+            else:
+                ret.append("v")
         return ret
 
     @property
@@ -107,7 +114,8 @@ class SpikeTarget(RISCVTarget):
         spike_args = []
         spikepk_args = []
 
-        spike_args.append(f"--isa={self.arch}")
+        arch_after = self.arch.replace("zve32x", "v").replace("zve32f", "v")
+        spike_args.append(f"--isa={arch_after}")
 
         if len(self.extra_args) > 0:
             spike_args.extend(self.extra_args)

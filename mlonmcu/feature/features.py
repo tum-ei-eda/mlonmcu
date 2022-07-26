@@ -317,6 +317,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "vlen": 64,  # TODO; define reasonable default? (Or put defaults in target and overwrite of not None)
+        "elen": 32,
     }
 
     REQUIRED = []
@@ -328,6 +329,10 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     def vlen(self):
         return int(self.config["vlen"])
 
+    @property
+    def elen(self):
+        return int(self.config["elen"])
+
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
         assert target in ["spike", "ovpsim", "etiss_pulpino", "riscv_qemu"]
@@ -335,6 +340,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
         return {
             f"{target}.enable_vext": True,
             f"{target}.vlen": self.vlen,
+            f"{target}.elen": self.elen,
         }
 
     # It would be great if we could enforce an llvm toolchain here

@@ -32,6 +32,19 @@ from .riscv import RISCVTarget, sort_extensions_canonical
 logger = get_logger()
 
 
+def replace_unsupported(exts):
+    ret = []
+    for ext in exts:
+        if "ZVE" in ext or "ZVL" in ext:
+            ret.append("V")
+        elif ext == "P":
+            ret.append(ext)
+            ret.append("B")
+        else:
+            ret.append(ext)
+    return ret
+
+
 class OVPSimTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
@@ -72,8 +85,15 @@ class OVPSimTarget(RISCVTarget):
         ret = super().extensions
         if self.enable_pext and "p" not in ret:
             ret.append("p")
-        if self.enable_vext and "v" not in ret:
-            ret.append("v")
+        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
+            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
+                # if self.enable_fpu:
+                if True:
+                    ret.append(f"zve32x")
+                else:
+                    ret.append(f"zve32f")
+            else:
+                ret.append("v")
         return ret
 
     @property
@@ -126,7 +146,9 @@ class OVPSimTarget(RISCVTarget):
         return int(self.config["gdbserver_port"])
 
     def get_default_ovpsim_args(self):
-        extensions_str = "".join(sort_extensions_canonical(self.extensions, lower=False, unpack=True))
+        extensions_before = sort_extensions_canonical(self.extensions, lower=False, unpack=True)
+        extensions_after = replace_unsupported(extensions_before)
+        extensions_str = "".join(sort_extensions_canonical(extensions_after))
         args = [
             "--variant",
             self.variant,
@@ -145,7 +167,7 @@ class OVPSimTarget(RISCVTarget):
                 ]
             )
         if self.enable_vext:
-            assert self.enable_fpu, "Spike V-Extension requires enabled FPU"
+            assert self.enable_fpu, "V-Extension requires enabled FPU"
             args.extend(
                 [
                     "--override",

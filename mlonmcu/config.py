@@ -139,7 +139,6 @@ def resolve_required_config(
 
     def get_cache_flags(features, default):
         result = {}
-        print("default", default)
         if default:
             # result.update({key: frozenset(value) for key, value in default.items()})
             result.update(default)
@@ -147,7 +146,6 @@ def resolve_required_config(
             for feature in features:
                 if FeatureType.SETUP in type(feature).types():
                     feature.add_required_cache_flags(result)
-        print("result", result)
         return result
 
     ret = {}

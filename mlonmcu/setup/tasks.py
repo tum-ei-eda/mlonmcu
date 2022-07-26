@@ -181,12 +181,14 @@ def build_tflite_micro_compiler(
             flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
             cmsisnnLib = context.cache["cmsisnn.lib", flags__]
             cmsisDir = Path(context.cache["cmsisnn.dir"])
-            cmsisIncs = r"\;".join([
-                str(cmsisDir),
-                str(cmsisDir / "CMSIS" / "Core" / "Include"),
-                str(cmsisDir / "CMSIS" / "NN" / "Include"),
-                str(cmsisDir / "CMSIS" / "DSP" / "Include"),
-            ])
+            cmsisIncs = r"\;".join(
+                [
+                    str(cmsisDir),
+                    str(cmsisDir / "CMSIS" / "Core" / "Include"),
+                    str(cmsisDir / "CMSIS" / "NN" / "Include"),
+                    str(cmsisDir / "CMSIS" / "DSP" / "Include"),
+                ]
+            )
             cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={cmsisnnLib}")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={cmsisIncs}")

@@ -66,6 +66,7 @@ class TemplateMicroTvmPlatformTarget(Target):
     def get_project_options(self):
         return {key: value for key, value in self.config if key in self.option_names}
 
+
 # class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 #
 #     FEATURES = Target.FEATURES + []
@@ -177,7 +178,16 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
         self.template_path = self.tvm_build_dir / "template_project"
-        self.option_names = ["extra_files_tar", "project_type", "verbose", "warning_as_error", "compile_definitions", "config_main_stack_size", "etissvp_script_args", "transport"]
+        self.option_names = [
+            "extra_files_tar",
+            "project_type",
+            "verbose",
+            "warning_as_error",
+            "compile_definitions",
+            "config_main_stack_size",
+            "etissvp_script_args",
+            "transport",
+        ]
 
     @property
     def microtvm_etissvp_src_dir(self):
@@ -193,11 +203,13 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     def get_project_options(self):
         ret = super().get_project_options()
-        ret.update({
-            "riscv_path": self.riscv_gcc_install_dir,
-            "etiss_path": self.etiss_install_dir,
-            "etissvp_script": self.etiss_install_dir / "bin" / "run_helper.sh",
-        })
+        ret.update(
+            {
+                "riscv_path": self.riscv_gcc_install_dir,
+                "etiss_path": self.etiss_install_dir,
+                "etissvp_script": self.etiss_install_dir / "bin" / "run_helper.sh",
+            }
+        )
         return ret
 
 

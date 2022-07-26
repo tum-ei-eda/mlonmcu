@@ -1221,7 +1221,8 @@ class Benchmark(PlatformFeature, TargetFeature):
 
                 for key in data_[-1].keys():
                     if key in metrics_.order:
-                        metrics_.order.append(f"Total {key}")
+                        if self.total:
+                            metrics_.order.append(f"Total {key}")
                         metrics_.order.remove(key)
                 for key in data.keys():
                     if key not in metrics_.order:

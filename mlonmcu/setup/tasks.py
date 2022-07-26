@@ -145,7 +145,7 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
 @Tasks.param("muriscvnn", [False, True])
 @Tasks.param("cmsisnn", [False, True])
-@Tasks.param("dbg", False)
+@Tasks.param("dbg", [False, True])
 @Tasks.param("arch", ["x86"])  # TODO: compile for arm/riscv in the future
 @Tasks.validate(_validate_build_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
@@ -163,8 +163,8 @@ def build_tflite_micro_compiler(
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
     tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
     tflmcExe = tflmcInstallDir / "compiler"
-    tfSrcDir = context.cache["tf.src_dir", flags_]
-    tflmcSrcDir = context.cache["tflmc.src_dir", flags_]
+    tfSrcDir = context.cache["tf.src_dir"]
+    tflmcSrcDir = context.cache["tflmc.src_dir"]
     if rebuild or not utils.is_populated(tflmcBuildDir) or not tflmcExe.is_file():
         cmakeArgs = [
             "-DTF_SRC=" + str(tfSrcDir),
@@ -181,12 +181,12 @@ def build_tflite_micro_compiler(
             flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
             cmsisnnLib = context.cache["cmsisnn.lib", flags__]
             cmsisDir = Path(context.cache["cmsisnn.dir"])
-            cmsisIncs = [
+            cmsisIncs = r"\;".join([
                 str(cmsisDir),
                 str(cmsisDir / "CMSIS" / "Core" / "Include"),
                 str(cmsisDir / "CMSIS" / "NN" / "Include"),
                 str(cmsisDir / "CMSIS" / "DSP" / "Include"),
-            ]
+            ])
             cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={cmsisnnLib}")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={cmsisIncs}")
@@ -945,7 +945,7 @@ def clone_cmsis(
 ):
     """CMSIS repository."""
     cmsisName = utils.makeDirName("cmsis")
-    cmsisSrcDir = context.environment.paths["deps"].path / "src" / cmsisName
+    cmsisSrcDir = Path(context.environment.paths["deps"].path) / "src" / cmsisName
     # TODO: allow to skip this if cmsisnn.dir+cmsisnn.lib are provided by the user and corstone is not used
     # -> move those checks to validate?
     if rebuild or not utils.is_populated(cmsisSrcDir):
@@ -958,7 +958,8 @@ def clone_cmsis(
 @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
 @Tasks.provides(["cmsisnn.lib"])
 @Tasks.param("dbg", [False, True])
-@Tasks.param("target_arch", ["x86", "riscv", "arm"])
+# @Tasks.param("target_arch", ["x86", "riscv", "arm"])
+@Tasks.param("target_arch", ["x86", "riscv"])  # Arm currently broken
 @Tasks.param("mvei", [False, True])
 @Tasks.param("dsp", [False, True])
 @Tasks.validate(_validate_cmsisnn)
@@ -980,7 +981,7 @@ def build_cmsisnn(
     cmsisnnBuildDir = context.environment.paths["deps"].path / "build" / cmsisnnName
     cmsisnnInstallDir = context.environment.paths["deps"].path / "install" / cmsisnnName
     cmsisnnLib = cmsisnnInstallDir / "libcmsis-nn.a"
-    cmsisSrcDir = context.cache["cmsisnn.dir"]
+    cmsisSrcDir = Path(context.cache["cmsisnn.dir"])
     cmsisnnSrcDir = cmsisSrcDir / "CMSIS" / "NN"
     if rebuild or not utils.is_populated(cmsisnnBuildDir) or not cmsisnnLib.is_file():
         utils.mkdirs(cmsisnnBuildDir)

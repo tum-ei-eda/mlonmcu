@@ -99,7 +99,7 @@ def filter_config(config, prefix, defaults, required_keys):
 
 
 def resolve_required_config(
-    required_keys, features=None, config=None, cache=None, hints=None
+    required_keys, features=None, config=None, cache=None, hints=None, default_flags=None
 ):  # TODO: add framework, backend, and frontends as well?
     """Utility which iterates over a set of given config keys and
     resolves their values using the passed config and/or cache.
@@ -118,6 +118,9 @@ def resolve_required_config(
     hints : List[str]
         List of additional flags which can be provided as a hint to lookup a cache config.
 
+    default_flags : dict
+        User-provided mapping of cache flags for some cache entries.
+
     Returns
     -------
     result : dict
@@ -134,16 +137,21 @@ def resolve_required_config(
 
     hint_combinations = get_sublists(hints if hints else [])
 
-    def get_cache_flags(features):
+    def get_cache_flags(features, default):
         result = {}
+        print("default", default)
+        if default:
+            # result.update({key: frozenset(value) for key, value in default.items()})
+            result.update(default)
         if features:
             for feature in features:
                 if FeatureType.SETUP in type(feature).types():
                     feature.add_required_cache_flags(result)
+        print("result", result)
         return result
 
     ret = {}
-    cache_flags = get_cache_flags(features)
+    cache_flags = get_cache_flags(features, default_flags)
     for key in required_keys:
         if config is None or key not in config:
             assert cache is not None, "No dependency cache was provided. Either provide a cache or config."

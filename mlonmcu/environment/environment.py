@@ -69,6 +69,7 @@ class Environment:
         self.platforms = []
         self.targets = []
         self.vars = {}
+        self.flags = {}
 
     def __str__(self):
         return self.__class__.__name__ + "(" + str(vars(self)) + ")"
@@ -420,6 +421,7 @@ class DefaultEnvironment(Environment):
         self.vars = {
             "TEST": "abc",
         }
+        self.flags = {}
         self.platforms = [
             PlatformConfig(
                 "mlif",
@@ -460,6 +462,7 @@ class UserEnvironment(DefaultEnvironment):
         platforms=None,
         targets=None,
         variables=None,
+        default_flags=None,
     ):
         super().__init__()
         self._home = home
@@ -485,3 +488,5 @@ class UserEnvironment(DefaultEnvironment):
             self.targets = targets
         if variables:
             self.vars = variables
+        if default_flags:
+            self.flags = default_flags

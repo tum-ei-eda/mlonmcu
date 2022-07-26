@@ -216,6 +216,10 @@ def load_environment_from_file(filename, base):
             variables = loaded["vars"]
         else:
             variables = None
+        if "flags" in loaded:
+            default_flags = loaded["flags"]
+        else:
+            default_flags = None
         defaults = DefaultsConfig(
             log_level=log_level,
             log_to_file=log_to_file,
@@ -236,5 +240,6 @@ def load_environment_from_file(filename, base):
             platforms=platforms,
             targets=targets,
             variables=variables,
+            default_flags=default_flags,
         )
         return env

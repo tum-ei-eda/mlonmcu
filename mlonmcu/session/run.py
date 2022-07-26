@@ -246,6 +246,7 @@ class Run:
                 features=self.features,
                 config=self.config,
                 cache=context.cache if context else None,
+                default_flags=context.environment.flags if context else None,
                 hints=self.cache_hints,
             )
         )

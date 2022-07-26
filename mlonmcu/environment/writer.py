@@ -103,6 +103,7 @@ def create_environment_dict(environment):
         },
     }
     data["vars"] = environment.vars
+    data["flags"] = environment.flags
     return data
 
 

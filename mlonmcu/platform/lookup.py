@@ -37,6 +37,7 @@ def get_platforms_targets(context):
         config = resolve_required_config(
             required_keys,
             cache=context.cache,
+            default_flags=context.environment.flags,
         )
         platform = platform_cls(config=config)
         platforms.append(platform)
@@ -54,6 +55,7 @@ def get_platforms_backends(context):
         config = resolve_required_config(
             required_keys,
             cache=context.cache,
+            default_flags=context.environment.flags,
         )
         platform = platform_cls(config=config)
         platforms.append(platform)

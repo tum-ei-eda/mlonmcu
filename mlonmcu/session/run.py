@@ -785,6 +785,8 @@ class Run:
             ret.update(config_helper(self.target))
         for platform in self.platforms:
             ret.update(config_helper(platform))
+        for feature in self.features:
+            ret.update(config_helper(feature))
         for postprocess in self.postprocesses:
             ret.update(config_helper(postprocess))
         return ret

@@ -118,7 +118,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def llvm_dir(self):
-        print("self.config", self.config)
         return self.config["llvm.install_dir"]
 
     @property

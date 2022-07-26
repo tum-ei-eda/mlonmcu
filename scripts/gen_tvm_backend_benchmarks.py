@@ -76,8 +76,7 @@ DEFAULT_CONFIG = {
     "mlif.num_threads": 4,
 }
 
-BACKEND_DEFAULT_CONFIG = {
-}
+BACKEND_DEFAULT_CONFIG = {}
 TARGET_DEFAULT_FEATURES = {
     "etiss_pulpino": ["trace"],
 }

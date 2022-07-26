@@ -46,7 +46,7 @@ TARGETS = [
     "spike",
     "ovpsim",
     "etiss_pulpino",
-    # "riscv_qemu",
+    "riscv_qemu",
 ]
 
 AUTOTUNED_TARGETS = [
@@ -57,8 +57,8 @@ AUTOTUNED_TARGETS = [
 ]
 
 DEFAULT_TARGETS = [
-    "spike",
-    # "ovpsim",
+    # "spike",
+    "ovpsim",
     # "etiss_pulpino",
     # "riscv_qemu",
 ]
@@ -220,7 +220,7 @@ BACKEND_DEFAULT_CONFIG = {
 
 VLENS = [64, 128, 256, 512, 1024]
 
-DEFAULT_VLENS = [64, 128, 256, 512, 1024]
+DEFAULT_VLENS = [128, 256, 512, 1024]
 
 MODELS = [
     # "sine_model",
@@ -266,14 +266,24 @@ POSTPROCESS_CONFIG = {
         "Schedules",
         "Extensions",
         "VLEN",
+        "ELEN",
         "Layout",
         "Toolchain",
+        "Vectorize",
     ],
     "rename_cols.mapping": {
-        "config_spike.vlen": "VLEN",
-        "config_ovpsim.vlen": "VLEN",
+        "config_vext.vlen": "VLEN",
+        "config_vext.elen": "ELEN",
+        # "spike.vlen": "VLEN",
+        # "etiss_pulpino.vlen": "VLEN",
+        # "riscv_qemu.vlen": "VLEN",
+        # "ovpsim.elen": "ELEN",
+        # "spike.elen": "ELEN",
+        # "etiss_pulpino.elen": "ELEN",
+        # "riscv_qemu.elen": "ELEN",
         "config_tvmaot.desired_layout": "Layout",
         "config_mlif.toolchain": "Toolchain",
+        "feature_auto_vectorize": "Vectorize",
     },
     "filter_cols.drop_nan": True,
 }

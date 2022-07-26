@@ -11,19 +11,31 @@ from mlonmcu.logging import get_logger, set_log_level
 
 logger = get_logger()
 
+# MURISCVNN_TOOLCHAIN = "gcc"
 
 FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
     "ovpsim",
+    "etiss_pulpino",
     "riscv_qemu",
 ]
 
-DEFAULT_TARGETS = [
+AUTOTUNED_TARGETS = [
     "spike",
-    # "ovpsim",
+    "ovpsim",
+    "etiss_pulpino",
     # "riscv_qemu",
+    # "corstone300",
+]
+
+DEFAULT_TARGETS = [
+    # "spike",
+    "ovpsim",
+    # "etiss_pulpino",
+    # "riscv_qemu",
+    # "corstone300",
 ]
 
 PLATFORM = "mlif"
@@ -32,44 +44,21 @@ TOOLCHAINS = ["gcc", "llvm"]
 
 DEFAULT_TOOLCHAINS = ["gcc", "llvm"]
 
-BACKENDS = [
-    "tflmi",
-    "tvmaot",
-]
-DEFAULT_BACKENDS = [
-    "tflmi",
-    "tvmaot",
-]
-
-TUNING_RECORDS = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "..",
-    "resources",
-    "frameworks",
-    "tvm",
-    "tuning_records",
-    "riscv_cpu_v0.01.log.best",
-)
-
+BACKENDS = ["tvmaot", "tflmi"]
+DEFAULT_BACKENDS = ["tvmaot", "tflmi"]
 
 VALIDATE_FEATURES = ["validate", "debug"]
 
-TARGET_ARCH = {
-    "spike": "riscv",
-    "ovpsim": "riscv",
-    "x86": "x86",
-    "etiss_pulpino": "riscv",
-    "corstone300": "arm",
-}
-
-BACKEND_DEFAULT_FEATURES = {
-    "tflmi": [],
-    "tvmaot": ["unpacked_api", "usmp"],
-}
+BACKEND_DEFAULT_FEATURES = {"tvmaot": ["unpacked_api", "usmp"], "tflmi": []}
 
 
-def get_backend_features(backend, target):
-    return [[]]
+def get_backend_config(backend, features, enable_autotuned=False):
+    BACKEND_FEATURES = {
+        "tvmaot": [{"tvmaot.desired_layout": "NCHW"}, {"tvmaot.desired_layout": "NHWC"}],
+        "tflmi": [{}],
+    }
+    ret = BACKEND_FEATURES[backend]
+    return ret
 
 
 DEFAULT_CONFIG = {
@@ -78,12 +67,12 @@ DEFAULT_CONFIG = {
 
 BACKEND_DEFAULT_CONFIG = {
     "tflmi": {},
-    "tvmaot": {"usmp.algorithm": "hill_climb"},
+    "tvmaot": {"usmp.algorithm": "hill_climb"},  # Warning: usmp not enabled!
 }
 
 VLENS = [64, 128, 256, 512, 1024]
 
-DEFAULT_VLENS = [64, 128, 256, 512, 1024]
+DEFAULT_VLENS = [128, 256, 512, 1024]
 
 MODELS = [
     # "sine_model",
@@ -123,33 +112,52 @@ POSTPROCESS_CONFIG = {
         "Features",
         # "Comment",
         "Validation",
+        "Schedules",
+        "Extensions",
+        "VLEN",
+        "Layout",
         "Toolchain",
-        "Optimize",
+        "Vectorize",
     ],
     "rename_cols.mapping": {
+        "config_vext.vlen": "VLEN",
+        "config_vext.elen": "ELEN",
+        # "spike.vlen": "VLEN",
+        # "etiss_pulpino.vlen": "VLEN",
+        # "riscv_qemu.vlen": "VLEN",
+        # "ovpsim.elen": "ELEN",
+        # "spike.elen": "ELEN",
+        # "etiss_pulpino.elen": "ELEN",
+        # "riscv_qemu.elen": "ELEN",
+        "config_tvmaot.desired_layout": "Layout",
         "config_mlif.toolchain": "Toolchain",
-        "config_mlif.optimize": "Optimize",
+        "feature_auto_vectorize": "Vectorize",
     },
     "filter_cols.drop_nan": True,
 }
 
 
-def gen_features(backend, validate=False):
+def gen_features(backend, features, validate=False):
     ret = []
     ret.extend(BACKEND_DEFAULT_FEATURES[backend])
     if validate:
         ret += VALIDATE_FEATURES
+    ret += features
     return ret
 
 
-def gen_config(backend, toolchain, enable_postprocesses=False, optimize="3"):
+def gen_config(backend, backend_config, features, vlen, toolchain, enable_postprocesses=False):
     ret = {}
     ret.update(DEFAULT_CONFIG)
     ret.update(BACKEND_DEFAULT_CONFIG[backend])
+    ret.update(backend_config)
     ret.update({"mlif.toolchain": toolchain})
-    ret.update({"mlif.optimize": optimize})
     if enable_postprocesses:
         ret.update(POSTPROCESS_CONFIG)
+    if "auto_vectorize" in features:
+        for feature in features:
+            if feature == "vext":
+                ret["vext.vlen"] = vlen
     return ret
 
 
@@ -161,26 +169,36 @@ def benchmark(args):
         for model in models:
             for backend in args.backend:
                 for target in args.target:
-                    levels = ["0", "1", "2", "3", "s", "fast"]
-                    for level in levels:
-                        features = gen_features(backend, validate=args.validate)
-                        for toolchain in args.toolchain:
-                            config = gen_config(
-                                backend,
-                                toolchain,
-                                enable_postprocesses=args.post,
-                                optimize=level,
-                            )
-                            config.update(user_config)  # TODO
-                            run = session.create_run(config=config)
-                            run.add_features_by_name(features, context=context)
-                            run.add_platform_by_name(PLATFORM, context=context)
-                            run.add_frontend_by_name(FRONTEND, context=context)
-                            run.add_model_by_name(model, context=context)
-                            run.add_backend_by_name(backend, context=context)
-                            run.add_target_by_name(target, context=context)
-                            if args.post:
-                                run.add_postprocesses_by_name(POSTPROCESSES)
+                    for target_features in [[], ["vext", "auto_vectorize"]]:
+                        for backend_config in get_backend_config(backend, target_features):
+                            vlens = [0]
+                            if "vext" in target_features:
+                                vlens = args.vlen
+                            features = gen_features(backend, target_features, validate=args.validate)
+                            for vlen in vlens:
+                                for toolchain in args.toolchain:
+                                    if toolchain == "llvm" and "pext" in features:
+                                        continue  # TODO: move this check up!
+                                    config = gen_config(
+                                        backend,
+                                        backend_config,
+                                        features,
+                                        vlen,
+                                        toolchain,
+                                        enable_postprocesses=args.post,
+                                    )
+                                    config.update(user_config)  # TODO
+                                    # resolve_missing_configs(config, features, target, context)
+                                    # print("RUN", model, config, features, backend, target)
+                                    run = session.create_run(config=config)
+                                    run.add_features_by_name(features, context=context)
+                                    run.add_platform_by_name(PLATFORM, context=context)
+                                    run.add_frontend_by_name(FRONTEND, context=context)
+                                    run.add_model_by_name(model, context=context)
+                                    run.add_backend_by_name(backend, context=context)
+                                    run.add_target_by_name(target, context=context)
+                                    if args.post:
+                                        run.add_postprocesses_by_name(POSTPROCESSES)
         if args.noop:
             stage = RunStage.LOAD
         else:
@@ -223,6 +241,15 @@ def main():
         # default=DEFAULT_TARGETS,
         default=[],
         help=f"Targets to use (default: {DEFAULT_TARGETS}s)",
+    )
+    parser.add_argument(
+        "--vlen",
+        type=int,
+        action="append",
+        choices=VLENS,
+        # default=DEFAULT_VLENS,
+        default=[],
+        help=f"VLENS to use (RISC-V only) (default: {DEFAULT_VLENS})",
     )
     parser.add_argument(
         "--toolchain",
@@ -287,6 +314,8 @@ def main():
         args.backend = DEFAULT_BACKENDS
     if not args.target:
         args.target = DEFAULT_TARGETS
+    if not args.vlen:
+        args.vlen = DEFAULT_VLENS
     if not args.toolchain:
         args.toolchain = DEFAULT_TOOLCHAINS
     if args.verbose:

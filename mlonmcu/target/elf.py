@@ -71,6 +71,8 @@ def parseElf(inFile):
         # Espressif
         ".flash.appdesc",
         ".iram0.text_end",  # ?
+        # QEMU
+        ".htif",
     ]
     ignorePrefixes = [
         ".gcc_except",
@@ -116,7 +118,13 @@ def parseElf(inFile):
                 m["rom_misc"] += s.data_size
             elif s.name.endswith(".data"):
                 m["ram_data"] += s.data_size
-            elif s.name == ".bss" or s.name == ".sbss" or s.name == ".shbss" or s.name.endswith(".bss"):
+            elif (
+                s.name == ".bss"
+                or s.name == ".sbss"
+                or s.name == ".shbss"
+                or s.name.endswith(".bss")
+                or s.name.startswith(".sbss")
+            ):
                 m["ram_zdata"] += s.data_size
             elif s.name in ignoreSections:
                 pass

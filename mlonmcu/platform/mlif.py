@@ -66,6 +66,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = ["mlif.src_dir"]
+    OPTIONAL = ["llvm.install_dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -116,6 +117,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return Path(self.config["mlif.src_dir"])
 
     @property
+    def llvm_dir(self):
+        print("self.config", self.config)
+        return self.config["llvm.install_dir"]
+
+    @property
     def ignore_data(self):
         return bool(self.config["ignore_data"])
 
@@ -154,6 +160,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def get_common_cmake_args(self):
         args = []
         args.append(f"-DTOOLCHAIN={self.toolchain}")
+        if self.toolchain == "llvm" and self.llvm_dir is None:
+            raise RuntimeError("Missing config variable: llvm.install_dir")
+        else:
+            args.append(f"-DLLVM_DIR={self.llvm_dir}")
         if self.optimize:
             args.append(f"-DOPTIMIZE={self.optimize}")
         return args

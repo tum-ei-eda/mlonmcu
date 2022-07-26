@@ -68,6 +68,7 @@ class Run:
     }
 
     REQUIRED = []
+    OPTIONAL = []
 
     @classmethod
     def from_file(cls, path):
@@ -111,7 +112,7 @@ class Run:
         self.features = features if features else []
         self.run_config = config if config else {}
         self.run_features = self.process_features(features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.result = None
         self.failing = False  # -> RunStatus
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
@@ -240,9 +241,11 @@ class Run:
     def init_component(self, component_cls, context=None):
         """Helper function to create and configure a MLonMCU component instance for this run."""
         required_keys = component_cls.REQUIRED
+        optional_keys = component_cls.OPTIONAL
         self.config.update(
             resolve_required_config(
                 required_keys,
+                optional=optional_keys,
                 features=self.features,
                 config=self.config,
                 cache=context.cache if context else None,
@@ -328,13 +331,13 @@ class Run:
         """Setter for a feature instance."""
         self.features = [feature]
         self.run_features = self.process_features(self.features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
         self.features = features if not append else self.features + features
         self.run_features = self.process_features(self.features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
 
     def pick_model_frontend(self, model_hints, backend=None):
         assert len(model_hints) > 0

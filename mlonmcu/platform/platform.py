@@ -57,13 +57,14 @@ class Platform:
     }
 
     REQUIRED = []
+    OPTIONAL = []
 
     def __init__(self, name, features=None, config=None):
         self.name = name
         self.config = config if config else {}
         self.definitions = {}
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.artifacts = []
 
     def init_directory(self, path=None, context=None):

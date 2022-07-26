@@ -53,7 +53,7 @@ def remove_config_prefix(config, prefix, skip=None):
     return {helper(key): value for key, value in config.items() if f"{prefix}." in key and key not in skip}
 
 
-def filter_config(config, prefix, defaults, required_keys):
+def filter_config(config, prefix, defaults, optionals, required_keys):
     """Filter the global config for a given component prefix.
 
     Arguments
@@ -64,6 +64,8 @@ def filter_config(config, prefix, defaults, required_keys):
         The prefix for the component.
     defaults : dict
         The default values used if not overwritten by user.
+    optionals : dict
+        The optional keys for the component.
     required_keys : list
         The required keys for the component.
 
@@ -76,7 +78,7 @@ def filter_config(config, prefix, defaults, required_keys):
     ------
     AssertionError: If a required key is missing.
     """
-    cfg = remove_config_prefix(config, prefix, skip=required_keys)
+    cfg = remove_config_prefix(config, prefix, skip=required_keys + optionals)
     for required in required_keys:
         value = None
         if required in cfg:
@@ -85,6 +87,15 @@ def filter_config(config, prefix, defaults, required_keys):
             value = config[required]
             cfg[required] = value
         assert value is not None, f"Required config key can not be None: {required}"
+
+    for optional in optionals:
+        if optional in cfg:
+            continue
+        if optional in config:
+            value = config[optional]
+            cfg[optional] = value
+        else:
+            cfg[optional] = None
 
     for key in defaults:
         if key not in cfg:
@@ -99,7 +110,7 @@ def filter_config(config, prefix, defaults, required_keys):
 
 
 def resolve_required_config(
-    required_keys, features=None, config=None, cache=None, hints=None, default_flags=None
+    required_keys, optional=None, features=None, config=None, cache=None, hints=None, default_flags=None
 ):  # TODO: add framework, backend, and frontends as well?
     """Utility which iterates over a set of given config keys and
     resolves their values using the passed config and/or cache.
@@ -174,6 +185,23 @@ def resolve_required_config(
             ret[key] = value
         else:
             ret[key] = config[key]
+    if optional:
+        for key in optional:
+            if config is None or key not in config:
+                assert cache is not None, "No dependency cache was provided. Either provide a cache or config."
+                if cache is None or len(cache) == 0:
+                    continue
+                flags = cache_flags.get(key, ())
+                value = None
+                for hint_combination in hint_combinations:
+                    if (key, tuple(list(flags) + hint_combination)) in cache:
+                        value = cache[key, flags]
+                        break
+                if value is None:
+                    continue
+                ret[key] = value
+            else:
+                ret[key] = config[key]
 
     return ret
 

@@ -64,6 +64,7 @@ class Target:
     }
 
     REQUIRED = []
+    OPTIONAL = []
 
     def __init__(
         self,
@@ -75,7 +76,7 @@ class Target:
         self.config = config if config else {}
         self.callbacks = []
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.inspect_program = "readelf"
         self.inspect_program_args = ["--all"]
         self.env = os.environ

@@ -158,7 +158,7 @@ def build_tflite_micro_compiler(
     dbg = params.get("dbg", False)
     arch = params.get("arch", "x86")
     flags = utils.makeFlags((True, arch), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
-    flags_ = utils.makeFlags((dbg, "dbg"))
+    # flags_ = utils.makeFlags((dbg, "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
     tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
@@ -212,6 +212,8 @@ def build_tflite_micro_compiler(
 
 
 def _validate_riscv_gcc(context: MlonMcuContext, params=None):
+    if not context.environment.has_toolchain("gcc"):
+        return False
     if not (
         context.environment.has_target("etiss_pulpino")
         or context.environment.has_target("spike")
@@ -313,7 +315,7 @@ def install_riscv_gcc(
 
 def _validate_llvm(context: MlonMcuContext, params=None):
     # return context.environment.has_framework("tvm") or context.environment.has_target("etiss_pulpino")
-    return context.environment.has_framework("tvm")
+    return context.environment.has_toolchain("llvm") or context.environment.has_framework("tvm")
 
 
 @Tasks.provides(["llvm.install_dir"])
@@ -632,6 +634,8 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
         assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
         toolchain = params.get("toolchain", "gcc")
+        if not context.environment.has_toolchain(toolchain):
+            return False
         target_arch = params.get("target_arch", "riscv")
         if target_arch == "riscv":
             if params.get("vext", False):
@@ -1033,8 +1037,12 @@ def build_cmsisnn(
     context.cache["cmsisnn.lib", flags] = cmsisnnLib
 
 
+def _validate_arm_gcc(context: MlonMcuContext, params=None):
+    return context.environment.has_toolchain("gcc")
+
+
 def _validate_corstone300(context: MlonMcuContext, params=None):
-    return context.environment.has_target("corstone300")
+    return context.environment.has_target("corstone300") and _validate_arm_gcc(context, params=params)
 
 
 @Tasks.provides(["arm_gcc.install_dir"])
@@ -1206,7 +1214,7 @@ def download_tflite_vizualize(
 
 
 def _validate_microtvm_etissvp(context: MlonMcuContext, params=None):
-    return context.environment.has_feature("microtvm_etissvp")
+    return context.environment.has_target("microtvm_etissvp")
 
 
 @Tasks.provides(["microtvm_etissvp.src_dir", "microtvm_etissvp.template"])

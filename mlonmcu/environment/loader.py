@@ -194,6 +194,10 @@ def load_environment_from_file(filename, base):
                 platforms.append(PlatformConfig(key, enabled=enabled, features=platform_features))
         else:
             platforms = None
+        if "toolchains" in loaded:
+            toolchains = loaded["toolchains"]
+        else:
+            toolchains = None
         default_target = None
         if "targets" in loaded:
             targets = []
@@ -238,6 +242,7 @@ def load_environment_from_file(filename, base):
             frameworks=frameworks,
             frontends=frontends,
             platforms=platforms,
+            toolchains=toolchains,
             targets=targets,
             variables=variables,
             default_flags=default_flags,

@@ -67,6 +67,7 @@ class Environment:
         self.frameworks = []
         self.frontends = []
         self.platforms = []
+        self.toolchains = []
         self.targets = []
         self.vars = {}
         self.flags = {}
@@ -289,6 +290,9 @@ class Environment:
         configs = self.lookup_platform_configs(platform=name)
         return len(configs) > 0
 
+    def has_toolchain(self, name):
+        return self.toolchains.get(name, False)
+
     def has_target(self, name):
         configs = self.lookup_target_configs(target=name)
         return len(configs) > 0
@@ -429,6 +433,7 @@ class DefaultEnvironment(Environment):
                 features=[PlatformFeatureConfig("debug", platform="mlif", supported=True)],
             )
         ]
+        self.toolchains = {}
         self.targets = [
             TargetConfig(
                 "etiss_pulpino",
@@ -460,6 +465,7 @@ class UserEnvironment(DefaultEnvironment):
         frameworks=None,
         frontends=None,
         platforms=None,
+        toolchains=None,
         targets=None,
         variables=None,
         default_flags=None,
@@ -484,6 +490,8 @@ class UserEnvironment(DefaultEnvironment):
             self.frontends = frontends
         if platforms:
             self.platforms = platforms
+        if toolchains:
+            self.toolchains = toolchains
         if targets:
             self.targets = targets
         if variables:

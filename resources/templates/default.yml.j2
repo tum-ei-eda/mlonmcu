@@ -141,6 +141,10 @@ frontends:
   onnx:
     enabled: false
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
 # Platform extend the number of supported targets
 platforms:
   mlif:

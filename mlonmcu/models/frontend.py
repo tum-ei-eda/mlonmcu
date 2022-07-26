@@ -44,6 +44,7 @@ class Frontend(ABC):
     }
 
     REQUIRED = []
+    OPTIONAL = []
 
     def __init__(self, name, input_formats=None, output_formats=None, features=None, config=None):
         self.name = name
@@ -51,7 +52,7 @@ class Frontend(ABC):
         self.output_formats = output_formats if output_formats else []
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
 
     def __repr__(self):
         probs = []

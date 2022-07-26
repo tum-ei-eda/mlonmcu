@@ -31,11 +31,12 @@ class Framework(ABC):
     FEATURES = []
     DEFAULTS = {}
     REQUIRED = ["tf.src_dir"]
+    OPTIONAL = []
 
     def __init__(self, features=None, config=None, backends={}):
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
 
     def process_features(self, features):
         if features is None:

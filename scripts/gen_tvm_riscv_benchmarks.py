@@ -46,14 +46,21 @@ TARGETS = [
     "spike",
     "ovpsim",
     "etiss_pulpino",
+    # "riscv_qemu",
 ]
 
-AUTOTUNED_TARGETS = ["spike", "ovpsim", "etiss_pulpino"]
+AUTOTUNED_TARGETS = [
+    "spike",
+    "ovpsim",
+    "etiss_pulpino",
+    # "riscv_qemu",
+]
 
 DEFAULT_TARGETS = [
     "spike",
     # "ovpsim",
     # "etiss_pulpino",
+    # "riscv_qemu",
 ]
 
 PLATFORM = "mlif"
@@ -68,14 +75,15 @@ DEFAULT_BACKENDS = ["tvmaot"]
 FEATURES = [
     "target_optimized",
     "auto_vectorize",
+    "disable_legalize",
     "none",
 ]
 
 DEFAULT_FEATURES = [
     "target_optimized",
     "auto_vectorize",
+    # "disable_legalize",
 ]
-# TODO: disable legalize?, auto_vectorize?
 
 TUNING_RECORDS = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -128,17 +136,31 @@ def get_target_features(target, enable_default=False, enable_target_optimized=Fa
         ],
         "etiss_pulpino": [
             *(
-                [[], ["vext", "auto_vectorize"] if enable_auto_vectorize else ["vext"], ["pext"]]
+                # [[], ["vext", "auto_vectorize"] if enable_auto_vectorize else ["vext"], ["pext"]]
+                [[], ["pext"]]
                 if enable_default
                 else []
             ),
             *(
                 [
                     ["target_optimized"],
+                    # ["target_optimized", "vext", "auto_vectorize"]
+                    # if enable_auto_vectorize
+                    # else ["target_optimized", "vext"],
+                    ["target_optimized", "pext"],
+                ]
+                if enable_target_optimized
+                else []
+            ),
+        ],
+        "riscv_qemu": [
+            *([[], ["vext", "auto_vectorize"] if enable_auto_vectorize else ["vext"]] if enable_default else []),
+            *(
+                [
+                    ["target_optimized"],
                     ["target_optimized", "vext", "auto_vectorize"]
                     if enable_auto_vectorize
                     else ["target_optimized", "vext"],
-                    ["target_optimized", "pext"],
                 ]
                 if enable_target_optimized
                 else []
@@ -159,7 +181,11 @@ BACKEND_DEFAULT_FEATURES = {
 def get_backend_features(backend, target, enable_autotuned=False, enable_disable_legalize=False):
     # print("get_backend_features", backend, target, enable_autotuned, enable_disable_legalize)
     BACKEND_FEATURES = {
-        "tvmaot": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else []), *([["disable_legalize"]] if enable_disable_legalize else [])],
+        "tvmaot": [
+            [],
+            *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else []),
+            *([["disable_legalize"]] if enable_disable_legalize else []),
+        ],
     }
     return BACKEND_FEATURES[backend]
 
@@ -189,7 +215,7 @@ DEFAULT_CONFIG = {
 
 BACKEND_DEFAULT_CONFIG = {
     "tflmi": {},
-    "tvmaot": {"usmp.algorithm": "hill_climb"},
+    "tvmaot": {"usmp.algorithm": "hill_climb"},  # Warning: usmp not enabled!
 }
 
 VLENS = [64, 128, 256, 512, 1024]
@@ -322,7 +348,7 @@ def benchmark(args):
                             ):
                                 vlens = [0]
                                 if "vext" in features:
-                                    if ("target_optimized" in features or "auto_vectorize" in features):
+                                    if "target_optimized" in features or "auto_vectorize" in features:
                                         vlens = args.vlen
                                     else:
                                         continue
@@ -333,7 +359,12 @@ def benchmark(args):
                                         if toolchain == "llvm" and "pext" in features:
                                             continue  # TODO: move this check up!
                                         config = gen_config(
-                                            backend, backend_config, features, vlen, toolchain, enable_postprocesses=args.post
+                                            backend,
+                                            backend_config,
+                                            features,
+                                            vlen,
+                                            toolchain,
+                                            enable_postprocesses=args.post,
                                         )
                                         config.update(user_config)  # TODO
                                         # resolve_missing_configs(config, features, target, context)
@@ -413,7 +444,7 @@ def main():
     )
     parser.add_argument(
         "--toolchain",
-        type=int,
+        type=str,
         action="append",
         choices=TOOLCHAINS,
         # default=DEFAULT_TOOLCHAINS,

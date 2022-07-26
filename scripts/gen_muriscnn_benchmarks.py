@@ -484,6 +484,7 @@ def main():
         set_log_level(logging.DEBUG)
     else:
         set_log_level(logging.INFO)
+    print("args", args)
     benchmark(args)
 
 

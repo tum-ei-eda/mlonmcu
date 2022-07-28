@@ -306,5 +306,4 @@ class TVMBackend(Backend):
             self.model_info = get_pb_model_info(model)
         else:
             raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{self.name}'")
-        if self.model_info:
-            self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+        self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

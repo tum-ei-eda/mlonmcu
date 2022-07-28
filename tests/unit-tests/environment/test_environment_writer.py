@@ -8,6 +8,7 @@ from mlonmcu.environment.writer import create_environment_dict
 
 class MyEnvironment(Environment):
     def __init__(self):
+        super().__init__()
         self._home = "/foo/bar"
         self.defaults = DefaultsConfig(
             log_level=logging.DEBUG,
@@ -23,9 +24,11 @@ class MyEnvironment(Environment):
         self.repos = {"repo1": RepoConfig("repo1url"), "repo2": RepoConfig("repo2url", ref="repo2ref")}
         self.frameworks = []
         self.frontends = []
+        self.toolchains = {}
         self.platforms = []
         self.targets = []
         self.vars = {"key": "val"}
+        self.flags = {"my.var": ["foo", "bar"]}
 
 
 def test_create_environment_dict():
@@ -44,7 +47,9 @@ def test_create_environment_dict():
         "repos": {"repo1": {"url": "repo1url", "ref": None}, "repo2": {"url": "repo2url", "ref": "repo2ref"}},
         "frameworks": {"default": None},
         "frontends": {},
+        "toolchains": {},
         "platforms": {},
         "targets": {"default": None},
         "vars": {"key": "val"},
+        "flags": {"my.var": ["foo", "bar"]},
     }

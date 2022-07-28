@@ -1086,8 +1086,8 @@ class AutoVectorize(PlatformFeature):
         return {
             "RISCV_AUTO_VECTORIZE": self.enabled,
             "RISCV_AUTO_VECTORIZE_VERBOSE": self.verbose,
-            "RISCV_AUTO_VECTORIZE_LOOP": self.loop,
-            "RISCV_AUTO_VECTORIZE_SLP": self.slp,
+            "RISCV_AUTO_VECTORIZE_LOOP": self.loop and self.enabled,
+            "RISCV_AUTO_VECTORIZE_SLP": self.slp and self.enabled,
         }
 
 

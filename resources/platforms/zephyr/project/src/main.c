@@ -7,6 +7,7 @@
 #include <zephyr.h>
 #include <stdint.h>
 #include <sys/printk.h>
+#include <sys/reboot.h>
 // #include <zephyr/kernel.h>
 
 // void init_target();
@@ -31,6 +32,7 @@ int main() {
   printk("Total Cycles: %u\n", cycles_spent);
   printk("MLonMCU: STOP\n");
   // deinit_target();
+  sys_reboot();
   return 0;
 }
 //

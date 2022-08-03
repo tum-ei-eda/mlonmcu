@@ -19,6 +19,7 @@
 from .platform import register_platform
 from .mlif import MlifPlatform
 from .espidf import EspIdfPlatform
+from .zephyr import ZephyrPlatform
 from .tvm import TvmPlatform
 from .microtvm import MicroTvmPlatform
 
@@ -26,5 +27,6 @@ from .microtvm import MicroTvmPlatform
 
 register_platform("mlif", MlifPlatform)
 register_platform("espidf", EspIdfPlatform)
+register_platform("zephyr", ZephyrPlatform)
 register_platform("tvm", TvmPlatform)
 register_platform("microtvm", MicroTvmPlatform)

@@ -26,38 +26,52 @@ def get_platform_names(context):
     return context.environment.lookup_platform_configs(names_only=True)
 
 
-def get_platforms_targets(context):
+def get_platforms_targets(context, config=None):
     platform_names = get_platform_names(context)
     platform_classes = get_platforms()
     # To initialize the platform we need to provide a config with required paths.
     platforms = []
+    config_ = {}
+    if context:
+        config_.update(context.environment.vars)
+    if config:
+        config_.update(config)
+
     for platform_name in platform_names:
         platform_cls = platform_classes[platform_name]
         required_keys = platform_cls.REQUIRED
-        config = resolve_required_config(
+        new_config = resolve_required_config(
             required_keys,
+            config=config_,
             cache=context.cache,
             default_flags=context.environment.flags,
         )
-        platform = platform_cls(config=config)
+        platform = platform_cls(config=new_config)
         platforms.append(platform)
     return {platform.name: platform.get_supported_targets() for platform in platforms}
 
 
-def get_platforms_backends(context):
+def get_platforms_backends(context, config=None):
     platform_names = get_platform_names(context)
     platform_classes = get_platforms()
     # To initialize the platform we need to provide a config with required paths.
     platforms = []
+    config_ = {}
+    if context:
+        config_.update(context.environment.vars)
+    if config:
+        config_.update(config)
+
     for platform_name in platform_names:
         platform_cls = platform_classes[platform_name]
         required_keys = platform_cls.REQUIRED
-        config = resolve_required_config(
+        new_config = resolve_required_config(
             required_keys,
+            config=config_,
             cache=context.cache,
             default_flags=context.environment.flags,
         )
-        platform = platform_cls(config=config)
+        platform = platform_cls(config=new_config)
         platforms.append(platform)
     return {platform.name: platform.get_supported_backends() for platform in platforms}
 

@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import venv
 import multiprocessing
 from pathlib import Path
 
@@ -1233,3 +1234,79 @@ def clone_microtvm_etissvp(
         utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
     context.cache["microtvm_etissvp.src_dir"] = srcDir
     context.cache["microtvm_etissvp.template"] = srcDir / "template_project"
+
+
+def _validate_zephyr(context: MlonMcuContext, params=None):
+    return context.environment.has_platform("zephyr")
+
+
+# @Tasks.needs([])
+@Tasks.provides(["zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"])
+@Tasks.validate(_validate_zephyr)
+@Tasks.register(category=TaskType.PLATFORM)
+def install_zephyr(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Download and install support for the Zephyr Platform."""
+    zephyrName = utils.makeDirName("zephyr")
+    zephyrInstallDir = context.environment.paths["deps"].path / "install" / zephyrName
+    zephyrInstallDir.mkdir(exist_ok=True)
+    zephyrSdkDir = zephyrInstallDir / "sdk"
+    zephyrVenvDir = zephyrInstallDir / "venv"
+    zephyrModulesDir = zephyrInstallDir / "modules"
+    user_vars = context.environment.vars
+    if "zephyr.install_dir" in user_vars:  # TODO: also check command line flags?
+        assert "zephyr.sdk_dir" in user_vars
+        assert "zephyr.venv_dir" in user_vars
+        return False
+    # boards = ["espressif"]
+    # if "zephyr.boards" in user_vars:
+    #     boards = user_vars["zephyr.boards"]
+    # if not isinstance(boards, str):
+    #     assert isinstance(boards, list)
+    #     boards = ",".join(boards)
+    if (
+        not utils.is_populated(zephyrInstallDir)
+        or not utils.is_populated(zephyrSdkDir)
+        or not utils.is_populated(zephyrVenvDir)
+        or not utils.is_populated(zephyrModulesDir)
+        or rebuild
+    ):
+        zephyrVenvScript = zephyrVenvDir / "bin" / "activate"
+        if not utils.is_populated(zephyrVenvDir):
+            venv.create(zephyrVenvDir)
+        utils.exec_getout(f". {zephyrVenvScript} && pip install west", shell=True, print_output=False, live=verbose)
+        zephyrUrl = "https://github.com/zephyrproject-rtos/zephyr"
+        if not utils.is_populated(zephyrInstallDir / "zephyr"):
+            if "zephyr.version" in user_vars:
+                zephyrVersion = user_vars["zephyr.version"]
+            else:
+                zephyrVersion = "v3.1.0"
+            utils.exec_getout(
+                f". {zephyrVenvScript} && west init -m {zephyrUrl} --mr {zephyrVersion} {zephyrInstallDir}",
+                shell=True,
+                print_output=False,
+                live=verbose,
+            )
+        extra = zephyrInstallDir / "zephyr" / "scripts" / "requirements.txt"
+        utils.exec_getout(
+            f". {zephyrVenvScript} && pip install -r {extra}", shell=True, print_output=False, live=verbose
+        )
+        env = os.environ.copy()
+        env["ZEPHYR_BASE"] = str(zephyrInstallDir / "zephyr")
+        utils.exec_getout(f". {zephyrVenvScript} && west update", shell=True, print_output=False, live=verbose, env=env)
+        if "zephyr.sdk_version" in user_vars:
+            sdkVersion = user_vars["zephyr.sdk_version"]
+        else:
+            sdkVersion = "0.15.0-rc1"
+        sdkDist = "linux-x86_64"
+        sdkUrl = f"https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v{sdkVersion}/"
+        sdkArchive = f"zephyr-sdk-{sdkVersion}_{sdkDist}.tar.gz"
+        if not utils.is_populated(zephyrSdkDir):
+            utils.download_and_extract(sdkUrl, sdkArchive, zephyrSdkDir)
+        sdkScript = zephyrSdkDir / "setup.sh"
+        # TODO: allow to limit installed toolchains
+        utils.exec_getout(sdkScript, "-t", "all", print_output=False, live=verbose)
+    context.cache["zephyr.install_dir"] = zephyrInstallDir
+    context.cache["zephyr.sdk_dir"] = zephyrSdkDir
+    context.cache["zephyr.venv_dir"] = zephyrVenvDir

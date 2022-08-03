@@ -18,6 +18,6 @@
 #
 """TVM framework module."""
 
-from .backend import TVMAOTBackend, TVMRTBackend, TVMCGBackend
+from .backend import TVMAOTBackend, TVMAOTPlusBackend, TVMRTBackend, TVMCGBackend
 
-__all__ = ["TVMAOTBackend", "TVMRTBackend", "TVMCGBackend"]
+__all__ = ["TVMAOTBackend", "TVMAOTPlusBackend", "TVMRTBackend", "TVMCGBackend"]

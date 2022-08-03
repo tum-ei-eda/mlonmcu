@@ -25,6 +25,7 @@ from mlonmcu.flow.tflm.backend.tflmc import TFLMCBackend
 from mlonmcu.flow.tflm.backend.tflmi import TFLMIBackend
 
 from mlonmcu.flow.tvm.backend.tvmaot import TVMAOTBackend
+from mlonmcu.flow.tvm.backend.tvmaotplus import TVMAOTPlusBackend
 from mlonmcu.flow.tvm.backend.tvmcg import TVMCGBackend
 from mlonmcu.flow.tvm.backend.tvmllvm import TVMLLVMBackend
 from mlonmcu.flow.tvm.backend.tvmrt import TVMRTBackend
@@ -41,6 +42,7 @@ SUPPORTED_TFLITE_BACKENDS = {
 
 SUPPORTED_TVM_BACKENDS = {
     "tvmaot": TVMAOTBackend,
+    "tvmaotplus": TVMAOTPlusBackend,
     "tvmrt": TVMRTBackend,
     "tvmcg": TVMCGBackend,
     "tvmllvm": TVMLLVMBackend,

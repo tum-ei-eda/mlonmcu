@@ -24,7 +24,12 @@ from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.load import handle as handle_load, add_load_options
 from mlonmcu.session.run import RunStage
 from mlonmcu.platform.lookup import get_platforms_targets, get_platforms_backends
-from .helper.parse import extract_backend_names, extract_target_names, extract_platform_names
+from .helper.parse import (
+    extract_backend_names,
+    extract_target_names,
+    extract_platform_names,
+    extract_config_and_feature_names,
+)
 
 
 def add_build_options(parser):
@@ -60,8 +65,9 @@ def _handle(args, context):
     targets = extract_target_names(args, context=None)
     platforms = extract_platform_names(args, context=context)
 
-    platform_backends = get_platforms_backends(context)  # This will be slow?
-    platform_targets = get_platforms_targets(context)  # This will be slow?
+    new_config, _ = extract_config_and_feature_names(args, context=context)
+    platform_backends = get_platforms_backends(context, config=new_config)  # This will be slow?
+    platform_targets = get_platforms_targets(context, config=new_config)  # This will be slow?
 
     assert len(context.sessions) > 0
     session = context.sessions[-1]

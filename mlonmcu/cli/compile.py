@@ -26,7 +26,7 @@ from mlonmcu.cli.build import (
 )
 from mlonmcu.session.run import RunStage
 from mlonmcu.platform.lookup import get_platforms_targets
-from .helper.parse import extract_target_names, extract_platform_names
+from .helper.parse import extract_target_names, extract_platform_names, extract_config_and_feature_names
 
 
 def add_compile_options(parser):
@@ -47,7 +47,8 @@ def _handle(args, context):
     targets = extract_target_names(args, context=context)  # This will eventually be ignored below
     platforms = extract_platform_names(args, context=context)
 
-    platform_targets = get_platforms_targets(context)  # This will slow?
+    new_config, _ = extract_config_and_feature_names(args, context=context)
+    platform_targets = get_platforms_targets(context, config=new_config)  # This will slow?
 
     assert len(context.sessions) > 0  # TODO: automatically request session if no active one is available
     session = context.sessions[-1]

@@ -64,7 +64,7 @@ class TemplateMicroTvmPlatformTarget(Target):
         # self.template = name2template(name)
 
     def get_project_options(self):
-        return {key: value for key, value in self.config if key in self.option_names}
+        return {key: str(value).lower() if isinstance(value, bool) else value for key, value in self.config.items() if key in self.option_names and value is not None}
 
 
 # class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
@@ -98,41 +98,42 @@ class TemplateMicroTvmPlatformTarget(Target):
 #         ret.update({"arduino_clicmd": ?})
 #
 #
-# class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-#
-#     FEATURES = Target.FEATURES + []
-#
-#     DEFAULTS = {
-#         **Target.DEFAULTS,
-#         "extra_files_tar": None,
-#         "project_type": "?",
-#         "zephyr_board": "?",
-#         # "zephyr_base": "?",
-#         # "west_cmd": "?",
-#         "verbose": False,
-#         "warning_as_error": True,
-#         "compile_definitions": "",
-#         "config_main_stack_size": -1,
-#         "gdbserver_port": -1,
-#         "nrfjprog_snr": None,
-#         "openocd_serial": None,
-#     }
-#     REQUIRED = Target.REQUIRED + ["zephyr.install_dir"]
-#
-#     def __init__(self, name=None, features=None, config=None):
-#         super().__init__(name=name, features=features, config=config)
-#         self.template_path = None
-#         self.option_names = ["extra_files_tar", "project_type", "zephyr_board", "verbose", "warning_as_error", "compile_definitions", "config_main_stack_size", "gdbserver_port", "nrfjprog_snr", "openocd_serial"]
-#         # self.platform = platform
-#         # self.template = name2template(name)
-#
-#     @property
-#     def zephyr_install_dir(self):
-#         return Path(self.config["zephyr.install_dir"])
-#
-#     def get_project_options(self):
-#         ret = super().get_project_options()
-#         ret.update({"zephyr_base": self.zephyr_install_dir})
+class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+
+    FEATURES = Target.FEATURES + []
+
+    DEFAULTS = {
+        **Target.DEFAULTS,
+        "extra_files_tar": None,
+        "project_type": "host_driven",
+        "zephyr_board": "",
+        # "zephyr_base": "?",
+        # "west_cmd": "?",
+        "verbose": False,
+        "warning_as_error": True,
+        "compile_definitions": "",
+        "config_main_stack_size": None,
+        "gdbserver_port": None,
+        "nrfjprog_snr": None,
+        "openocd_serial": None,
+    }
+    REQUIRED = Target.REQUIRED + ["zephyr.install_dir"]
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+        self.template_path = None
+        self.option_names = ["extra_files_tar", "project_type", "zephyr_board", "verbose", "warning_as_error", "compile_definitions", "config_main_stack_size", "gdbserver_port", "nrfjprog_snr", "openocd_serial"]
+        # self.platform = platform
+        # self.template = name2template(name)
+
+    @property
+    def zephyr_install_dir(self):
+        return Path(self.config["zephyr.install_dir"])
+
+    def get_project_options(self):
+        ret = super().get_project_options()
+        ret.update({"zephyr_base": self.zephyr_install_dir / "zephyr"})
+        return ret
 
 
 class HostMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
@@ -177,7 +178,7 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
-        self.template_path = self.tvm_build_dir / "template_project"
+        self.template_path = self.microtvm_etissvp.src_dir / "template_project"
         self.option_names = [
             "extra_files_tar",
             "project_type",
@@ -245,7 +246,7 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
 
 # register_microtvm_platform_target("microtvm_template", ZephyrMicroTvmPlatformTarget)
-# register_microtvm_platform_target("microtvm_zephyr", ZephyrMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_zephyr", ZephyrMicroTvmPlatformTarget)
 # register_microtvm_platform_target("microtvm_arduino", ArduinoMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_host", HostMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_etissvp", EtissvpMicroTvmPlatformTarget)

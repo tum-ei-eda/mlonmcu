@@ -297,7 +297,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             # *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
         if list_options:
-            ret.append("--help")
+            ret.append("--list-options")
         return ret
 
     def get_tvmc_micro_args(self, command, path, mlf_path, template, list_options=False):
@@ -322,12 +322,13 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
     def collect_available_project_options(self, command, path, mlf_path, template, micro=True):
         args = self.get_tvmc_micro_args(command, path, mlf_path, template, list_options=True)
         out = self.invoke_tvmc("micro", *args)
+        print("1", parse_project_options_from_stdout(out))
         return parse_project_options_from_stdout(out)
 
-    def invoke_tvmc_micro(self, command, path, mlf_path, template, micro=True):
+    def invoke_tvmc_micro(self, command, path, mlf_path, template, target, micro=True):
         args = self.get_tvmc_micro_args(command, path, mlf_path, template)
         options = filter_project_options(
-            self.collect_available_project_options(command, path, mlf_path, template), self.project_options
+            self.collect_available_project_options(command, path, mlf_path, template), target.get_project_options()
         )
         args += get_project_option_args(template, command, options)
         return self.invoke_tvmc("micro", *args)
@@ -337,11 +338,11 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         out = self.invoke_tvmc("run", *args)
         return parse_project_options_from_stdout(out)
 
-    def invoke_tvmc_run(self, path, device, template, micro=True):
+    def invoke_tvmc_run(self, path, device, template, target, micro=True):
         args = self.get_tvmc_run_args(path, device)
         if micro:
             options = filter_project_options(
-                self.collect_available_run_project_options(path, device), self.project_options
+                self.collect_available_run_project_options(path, device), target.get_project_options()
             )
             args.extend(get_project_option_args(template, "run", options))
         return self.invoke_tvmc("run", *args)
@@ -367,13 +368,13 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             return (template,)
 
     def prepare(self, mlf, target):
-        out = self.invoke_tvmc_micro("create", self.project_dir, mlf, self.get_template_args(target))
+        out = self.invoke_tvmc_micro("create", self.project_dir, mlf, self.get_template_args(target), target)
         return out
 
     def compile(self, target):
         out = ""
         # TODO: build with cmake options
-        out += self.invoke_tvmc_micro("build", self.project_dir, None, self.get_template_args(target))
+        out += self.invoke_tvmc_micro("build", self.project_dir, None, self.get_template_args(target), target)
         # TODO: support self.num_threads (e.g. patch esp-idf)
         return out
 
@@ -396,11 +397,11 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             logger.debug("Ignoring ELF file for microtvm platform")
         # TODO: implement timeout
         logger.debug("Flashing target software using MicroTVM ProjectAPI")
-        output = self.invoke_tvmc_micro("flash", self.project_dir, None, self.get_template_args(target))
+        output = self.invoke_tvmc_micro("flash", self.project_dir, None, self.get_template_args(target), target)
         return output
 
     def run(self, elf, target, timeout=120):
         # TODO: implement timeout
         output = self.flash(elf, target)
-        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template_args(target), micro=True)
+        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template_args(target), target, micro=True)
         return output

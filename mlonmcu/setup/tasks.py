@@ -1306,7 +1306,7 @@ def install_zephyr(
             utils.download_and_extract(sdkUrl, sdkArchive, zephyrSdkDir)
         sdkScript = zephyrSdkDir / "setup.sh"
         # TODO: allow to limit installed toolchains
-        utils.exec_getout(sdkScript, "-t", "all", print_output=False, live=verbose)
+        utils.exec_getout(sdkScript, "-t", "all", "-h", print_output=False, live=verbose)
     context.cache["zephyr.install_dir"] = zephyrInstallDir
     context.cache["zephyr.sdk_dir"] = zephyrSdkDir
     context.cache["zephyr.venv_dir"] = zephyrVenvDir

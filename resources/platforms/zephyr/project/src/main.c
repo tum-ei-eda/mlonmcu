@@ -32,7 +32,7 @@ int main() {
   printk("Total Cycles: %u\n", cycles_spent);
   printk("MLonMCU: STOP\n");
   // deinit_target();
-  sys_reboot();
+  sys_reboot(0);
   return 0;
 }
 //

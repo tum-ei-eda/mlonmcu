@@ -147,7 +147,7 @@ ADD_LIBRARY(
     ${TFLM_SRC}/debug_log.cc
     ${TFLM_SRC}/micro_string.cc
     # For reporter->Report
-    ${TF_DIR}/tensorflow/lite/core/api/error_reporter.cc
+    ${CONFIG_TF_DIR}/tensorflow/lite/core/api/error_reporter.cc
     # Kernels
     ${TFLM_REFERENCE_KERNEL_SRCS}
     ${TFLM_EXTRA_KERNEL_SRCS}
@@ -182,7 +182,7 @@ ENDIF()
 
 # cmake-format: off
 TARGET_INCLUDE_DIRECTORIES(tflm PUBLIC
-    ${TF_DIR}
+    ${CONFIG_TF_DIR}
     ${TFLD_SRC}/flatbuffers/include
     ${TFLD_SRC}/gemmlowp
     ${TFLD_SRC}/ruy

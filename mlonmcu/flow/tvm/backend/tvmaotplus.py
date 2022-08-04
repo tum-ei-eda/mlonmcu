@@ -40,7 +40,7 @@ class TVMAOTPlusBackend(TVMAOTBackend):
     name = "tvmaotplus"
 
     def __init__(self, runtime="crt", fmt="mlf", features=None, config=None):
-        super().__init__(executor="aot", runtime=runtime, fmt=fmt, features=features, config=config)
+        super().__init__(runtime=runtime, fmt=fmt, features=features, config=config)
 
 
 if __name__ == "__main__":

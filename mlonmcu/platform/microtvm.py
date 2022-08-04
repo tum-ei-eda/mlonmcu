@@ -403,5 +403,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
     def run(self, elf, target, timeout=120):
         # TODO: implement timeout
         output = self.flash(elf, target)
-        output += self.invoke_tvmc_run(str(self.project_dir), "micro", self.get_template_args(target), target, micro=True)
+        output += self.invoke_tvmc_run(
+            str(self.project_dir), "micro", self.get_template_args(target), target, micro=True
+        )
         return output

@@ -64,7 +64,14 @@ class TemplateMicroTvmPlatformTarget(Target):
         # self.template = name2template(name)
 
     def get_project_options(self):
-        return {key: str(value).lower() if isinstance(value, bool) else value for key, value in self.config.items() if key in self.option_names and value is not None}
+        return {
+            key: str(value).lower() if isinstance(value, bool) else value
+            for key, value in self.config.items()
+            if key in self.option_names and value is not None
+        }
+
+    def get_environment_prefix(self):
+        return []
 
 
 # class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
@@ -122,7 +129,18 @@ class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
         self.template_path = None
-        self.option_names = ["extra_files_tar", "project_type", "zephyr_board", "verbose", "warning_as_error", "compile_definitions", "config_main_stack_size", "gdbserver_port", "nrfjprog_snr", "openocd_serial"]
+        self.option_names = [
+            "extra_files_tar",
+            "project_type",
+            "zephyr_board",
+            "verbose",
+            "warning_as_error",
+            "compile_definitions",
+            "config_main_stack_size",
+            "gdbserver_port",
+            "nrfjprog_snr",
+            "openocd_serial",
+        ]
         # self.platform = platform
         # self.template = name2template(name)
 

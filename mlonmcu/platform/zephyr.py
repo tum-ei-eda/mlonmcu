@@ -70,6 +70,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         "baud": 115200,
         "wait_for_user": True,
         "flash_only": False,
+        "optimize": None,  # values: 0,1,2,3,s
     }
 
     REQUIRED = ["zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"]
@@ -106,6 +107,10 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         # TODO: get rid of this
         value = self.config["flash_only"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def optimize(self):
+        return self.config["optimize"]
 
     def invoke_west(self, *args, **kwargs):
         env = os.environ.copy()
@@ -203,7 +208,11 @@ project(ProjectName)
         if self.tempdir:
             self.tempdir.cleanup()
 
-    def prepare(self, src):
+    def get_west_cmake_args(self):
+        cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
+        return [f"-D{key}={value}" for key, value in cmake_defs.items()]
+
+    def prepare(self, target, src):
         print("prepare")
         self.init_directory()
         template_dir = self.project_template
@@ -219,8 +228,30 @@ project(ProjectName)
 
         def write_defaults(filename):
             defs = self.definitions
+            print("defs", defs)
             with open(filename, "w", encoding="utf-8") as f:
+                f.write("CONFIG_CPLUSPLUS=y\n")
                 f.write("CONFIG_NEWLIB_LIBC=y\n")
+                f.write("CONFIG_REBOOT=y\n")
+                f.write("CONFIG_STD_CPP20=y\n")
+                f.write("CONFIG_LIB_CPLUSPLUS=y\n")
+                if self.debug:
+                    f.write("CONFIG_DEBUG=y\n")
+                    if not self.optimize:
+                        f.write("CONFIG_DEBUG_OPTIMIZATIONS=y\n")
+                else:
+                    f.write("CONFIG_DEBUG=n\n")
+                    if self.optimize:
+                        if str(self.optimize) == "s":
+                            f.write("CONFIG_SIZE_OPTIMIZATIONS=y\n")
+                        elif str(self.optimize) == "0":
+                            f.write("CONFIG_NO_OPTIMIZATIONS=y\n")
+                        elif str(self.optimize) == "g":
+                            f.write("CONFIG_DEBUG_OPTIMIZATIONS=y\n")
+                        elif str(self.optimize) == "3":
+                            f.write("CONFIG_SPEED_OPTIMIZATIONS=y\n")
+                        else:
+                            raise RuntimeError(f"Unsupported optimization level for Zephyr platform: {self.optimize}")
                 # f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")
                 # if self.debug:
                 #     f.write("CONFIG_OPTIMIZATION_LEVEL_DEBUG=y\n")
@@ -257,13 +288,21 @@ project(ProjectName)
                     f.write(f"CONFIG_{key}={value}\n")
 
         write_defaults(self.project_dir / "prj.conf")
-
-    def get_west_cmake_args(self):
-        cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
-        return [f"-D{key}={value}" for key, value in cmake_defs.items()]
+        zephyr_target = target.name.split("_", 1)[-1]
+        westArgs = [  # cmake only
+            "build",
+            "-d",
+            self.build_dir,
+            "-b",
+            zephyr_target,
+            self.project_dir,
+            *self.get_west_cmake_args(),
+            "-c",
+        ]
+        return self.invoke_west(*westArgs, live=self.print_outputs)
 
     def compile(self, target, src=None):
-        self.prepare(src)
+        out = self.prepare(target, src)
         # TODO: build with cmake options
         # TODO: support self.num_threads
         # self.build_dir.mkdir()
@@ -276,7 +315,7 @@ project(ProjectName)
             zephyr_target,
             self.project_dir,
         ]
-        out = self.invoke_west(*westArgs, live=self.print_outputs)
+        out += self.invoke_west(*westArgs, live=self.print_outputs)
         return out
 
     def generate_elf(self, src, target, model=None, data_file=None):

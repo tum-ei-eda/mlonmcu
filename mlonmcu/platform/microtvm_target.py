@@ -153,6 +153,11 @@ class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         ret.update({"zephyr_base": self.zephyr_install_dir / "zephyr"})
         return ret
 
+    def get_environment_prefix(self):
+        ret = super.get_environment_prefix()
+        # TODO
+        return ret
+
 
 class HostMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
@@ -247,20 +252,66 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 #         super().__init__(name=name, features=features, config=config)
 #         self.template_path = None
 
-# class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-#
-#     FEATURES = Target.FEATURES + []
-#
-#     DEFAULTS = {
-#         **Target.DEFAULTS,
-#         "verbose": False,
-#         "?": "?",  # TODO
-#     }
-#     REQUIRED = Target.REQUIRED + ["microtvm_espidf.src_dir", "espidf.src_dir", "espidf.install_dir"]
-#
-#     def __init__(self, name=None, features=None, config=None):
-#         super().__init__(name=name, features=features, config=config)
-#         self.template_path = None
+
+class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+
+    FEATURES = Target.FEATURES + []
+
+    DEFAULTS = {
+        **Target.DEFAULTS,
+        "verbose": False,
+        # "spike_exe": None,
+        # "spike_pk": None,
+        "arch": None,
+        "abi": None,
+        # "triple": None,
+    }
+    REQUIRED = Target.REQUIRED + ["spike.exe", "spike.pk", "riscv_gcc.name", "riscv_gcc.install_dir"]
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+        self.template_path = self.tvm_src_dir / "apps" / "microtvm" / "spike"
+        # TODO: interate into TVM build config
+        self.option_names = [
+            "verbose",
+            "spike_exe",
+            "spike_pk",
+            "config_main_stack_size",
+            "etissvp_script_args",
+            "transport",
+        ]
+
+    @property
+    def spike_exe(self):
+        return Path(self.config["spike.exe"])
+
+    @property
+    def spike_pk(self):
+        return Path(self.config["spike.pk"])
+
+    @property
+    def riscv_gcc_name(self):
+        return Path(self.config["riscv_gcc.name"])
+
+    @property
+    def riscv_gcc_install_dir(self):
+        return Path(self.config["riscv_gcc.install_dir"])
+
+    def get_project_options(self):
+        ret = super().get_project_options()
+        ret.update(
+            {
+                "spike_exe": self.spike_exe,
+                "spike_pk": self.spike_pk,
+                "triple": self.riscv_gcc_install_dir,
+            }
+        )
+        return ret
+
+    def get_environment_prefix(self):
+        ret = super.get_environment_prefix()
+        ret.extend([self.riscv_gcc_install_dir / "bin"])
+        return ret
 
 
 # register_microtvm_platform_target("microtvm_template", ZephyrMicroTvmPlatformTarget)
@@ -269,7 +320,7 @@ register_microtvm_platform_target("microtvm_zephyr", ZephyrMicroTvmPlatformTarge
 register_microtvm_platform_target("microtvm_host", HostMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_etissvp", EtissvpMicroTvmPlatformTarget)
 # register_microtvm_platform_target("microtvm_espidf", EtissvpMicroTvmPlatformTarget)
-# register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
 
 
 def create_microtvm_platform_target(name, platform, base=Target):

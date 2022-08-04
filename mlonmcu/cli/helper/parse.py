@@ -55,8 +55,20 @@ def parse_vars(items):  # TODO: this needs to be used in other subcommands as we
 
 def extract_feature_names(args):
     if args.feature:
-        return args.feature
-    return []
+        features = args.feature
+    else:
+        features = []
+    if args.feature_gen:
+        gen = []
+        for x in args.feature_gen:
+            if "_" in x:
+                assert len(x) == 1
+                gen.append([])
+            else:
+                gen.append(x)
+    else:
+        gen = [[]]
+    return features, gen
 
 
 def extract_config(args):
@@ -65,14 +77,27 @@ def extract_config(args):
         configs = parse_vars(configs)
     else:
         configs = {}
-    return configs
+    if args.config_gen:
+        gen = []
+        for x in args.config_gen:
+            print("x", x)
+            if "_" in x:
+                assert len(x) == 1
+                gen.append({})
+            else:
+                c = parse_vars(x)
+                gen.append(c)
+    else:
+        gen = [{}]
+
+    return configs, gen
 
 
 def extract_config_and_feature_names(args, context=None):
     # TODO: get features from context?
-    feature_names = extract_feature_names(args)
-    config = extract_config(args)
-    return config, feature_names
+    feature_names, feature_gen = extract_feature_names(args)
+    config, config_gen = extract_config(args)
+    return config, feature_names, config_gen, feature_gen
 
 
 def extract_frontend_names(args, context=None):

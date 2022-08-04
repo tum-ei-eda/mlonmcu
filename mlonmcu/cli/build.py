@@ -65,7 +65,7 @@ def _handle(args, context):
     targets = extract_target_names(args, context=None)
     platforms = extract_platform_names(args, context=context)
 
-    new_config, _ = extract_config_and_feature_names(args, context=context)
+    new_config, _, _, _ = extract_config_and_feature_names(args, context=context)
     platform_backends = get_platforms_backends(context, config=new_config)  # This will be slow?
     platform_targets = get_platforms_targets(context, config=new_config)  # This will be slow?
 

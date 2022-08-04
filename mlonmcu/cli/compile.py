@@ -47,7 +47,7 @@ def _handle(args, context):
     targets = extract_target_names(args, context=context)  # This will eventually be ignored below
     platforms = extract_platform_names(args, context=context)
 
-    new_config, _ = extract_config_and_feature_names(args, context=context)
+    new_config, _, _, _ = extract_config_and_feature_names(args, context=context)
     platform_targets = get_platforms_targets(context, config=new_config)  # This will slow?
 
     assert len(context.sessions) > 0  # TODO: automatically request session if no active one is available

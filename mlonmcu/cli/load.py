@@ -60,18 +60,22 @@ def get_parser(subparsers):
 
 def _handle(args, context):
     config = context.environment.vars
-    new_config, features = extract_config_and_feature_names(args, context=context)
+    new_config, features, gen_config, gen_features = extract_config_and_feature_names(args, context=context)
     config.update(new_config)
     frontends = extract_frontend_names(args, context=context)
     postprocesses = extract_postprocess_names(args, context=context)
     session = context.get_session(label=args.label, resume=args.resume, config=config)
     models = apply_modelgroups(args.models, context=context)
     for model in models:
-        run = session.create_run(config=config)
-        run.add_features_by_name(features, context=context)  # TODO do this before load.py?
-        run.add_frontends_by_name(frontends, context=context)
-        run.add_model_by_name(model, context=context)
-        run.add_postprocesses_by_name(postprocesses, context=context)  # TODO do this before load.py?
+        for f in gen_features:
+            for c in gen_config:
+                all_config = {**config, **c}
+                run = session.create_run(config=all_config)
+                all_features = list(set(features + f))
+                run.add_features_by_name(all_features, context=context)  # TODO do this before load.py?
+                run.add_frontends_by_name(frontends, context=context)
+                run.add_model_by_name(model, context=context)
+                run.add_postprocesses_by_name(postprocesses, context=context)  # TODO do this before load.py?
 
 
 def handle(args, ctx=None):

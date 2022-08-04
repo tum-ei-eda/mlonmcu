@@ -91,6 +91,15 @@ def add_flow_options(parser):
         help="Enabled features for target/framework/backend (choices: %(choices)s)",
     )
     flow_parser.add_argument(
+        "--feature-gen",
+        dest="feature_gen",
+        type=str,
+        metavar="FEATURES",
+        nargs="+",
+        action="append",
+        help="Generator statement for features.",
+    )
+    flow_parser.add_argument(
         "-c",
         "--config",
         metavar="KEY=VALUE",
@@ -102,6 +111,14 @@ def add_flow_options(parser):
         "it with double quotes: "
         'foo="this is a sentence". Note that '
         "values are always treated as strings.",
+    )
+    flow_parser.add_argument(
+        "--config-gen",
+        dest="config_gen",
+        metavar="KEY=VALUE",
+        nargs="+",
+        action="append",
+        help="Generator statement for configs.",
     )
     flow_parser.add_argument(
         "--parallel",

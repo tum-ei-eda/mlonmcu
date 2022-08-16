@@ -283,6 +283,8 @@ class EtissPulpinoTarget(RISCVTarget):
             if exit_code != 0:
                 logger.error("Execution failed - " + out)
                 raise RuntimeError(f"unexpected exit code: {exit_code}")
+        else:
+            exit_code = 0
         error_match = re.search(r"ETISS: Error: (.*)", out)
         if error_match:
             error_msg = error_match.group(1)

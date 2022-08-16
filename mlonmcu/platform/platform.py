@@ -139,6 +139,33 @@ class BuildPlatform(Platform):
             artifact.export(path)
 
 
+class TunePlatform(Platform):
+    """Abstract backend platform class."""
+
+    FEATURES = Platform.FEATURES + []
+
+    DEFAULTS = {
+        **Platform.DEFAULTS,
+    }
+
+    REQUIRED = []
+
+    @property
+    def supports_tune(self):
+        return True
+
+    def export_elf(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
+
+        if not isinstance(path, Path):
+            path = Path(path)
+        assert (
+            path.is_dir()
+        ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
+        for artifact in self.artifacts:
+            artifact.export(path)
+
+
 class CompilePlatform(Platform):
     """Abstract compile platform class."""
 
@@ -189,16 +216,8 @@ class CompilePlatform(Platform):
     def generate_elf(self, src, target, model=None, data_file=None):
         raise NotImplementedError
 
-    def export_elf(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
-
-        if not isinstance(path, Path):
-            path = Path(path)
-        assert (
-            path.is_dir()
-        ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
-        for artifact in self.artifacts:
-            artifact.export(path)
+    def tune_model(self, path):
+        raise NotImplementedError
 
 
 class TargetPlatform(Platform):

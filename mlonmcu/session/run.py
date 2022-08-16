@@ -26,7 +26,7 @@ from enum import IntEnum
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
-from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform
+from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.models.lookup import lookup_models
@@ -148,6 +148,18 @@ class Run:
             return self.backend.platform
         for platform in self.platforms:
             if isinstance(platform, BuildPlatform):
+                return platform
+        return None
+
+    @property
+    def tune_platform(self):
+        """Get platform for tune stage."""
+        if self.backend is not None and (
+            hasattr(self.backend, "platform") and isinstance(self.backend.platform, TunePlatform)
+        ):
+            return self.backend.platform
+        for platform in self.platforms:
+            if isinstance(platform, TunePlatform):
                 return platform
         return None
 
@@ -599,14 +611,16 @@ class Run:
             model_artifact.export(self.dir)
 
         # TODO: allow raw data as well as filepath in backends
-        self.backend.load_model(model=model_artifact.path)
-        self.backend.tune_model()
-        if self.backend.tuner is not None:
-            res = self.backend.tuner.get_results()
-            if res:
-                self.artifacts_per_stage[RunStage.TUNE] = res
-            else:
-                self.artifacts_per_stage[RunStage.TUNE] = []
+        if self.tune_platform:
+            res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
+        else:
+            self.backend.load_model(model=model_artifact.path)
+            self.backend.tune_model()
+            res = []
+            if self.backend.tuner is not None:
+                res = self.backend.tuner.get_results()
+        if res:
+            self.artifacts_per_stage[RunStage.TUNE] = res
         else:
             self.artifacts_per_stage[RunStage.TUNE] = []
 
@@ -737,7 +751,7 @@ class Run:
 
     def get_platform_name(self):
         """Return platform name(s) for this run."""
-        used = list(set([self.build_platform, self.compile_platform, self.target_platform]))  # TODO: tune_platform
+        used = list(set([self.tune_platform, self.build_platform, self.compile_platform, self.target_platform]))
         ret = [platform.name for platform in used if platform is not None]
         return ret[0] if len(ret) == 1 else ret
 

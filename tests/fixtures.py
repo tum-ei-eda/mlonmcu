@@ -65,6 +65,7 @@ def fake_context():
         def __init__(self):
             self.paths = {}  # TODO: get rid of PathConfig if possible?
             self.flags = {}
+            self.vars = {}
 
     class FakeContext:
         def __init__(self):

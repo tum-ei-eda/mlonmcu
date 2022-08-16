@@ -58,7 +58,7 @@ def extract_feature_names(args):
         features = args.feature
     else:
         features = []
-    if args.feature_gen:
+    if hasattr(args, "feature_gen") and args.feature_gen:
         gen = []
         for x in args.feature_gen:
             if "_" in x:
@@ -77,7 +77,7 @@ def extract_config(args):
         configs = parse_vars(configs)
     else:
         configs = {}
-    if args.config_gen:
+    if hasattr(args, "config_gen") and args.config_gen:
         gen = []
         for x in args.config_gen:
             if "_" in x:

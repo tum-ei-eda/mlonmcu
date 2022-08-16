@@ -80,7 +80,6 @@ def extract_config(args):
     if args.config_gen:
         gen = []
         for x in args.config_gen:
-            print("x", x)
             if "_" in x:
                 assert len(x) == 1
                 gen.append({})

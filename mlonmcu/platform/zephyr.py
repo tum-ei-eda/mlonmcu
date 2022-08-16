@@ -210,10 +210,8 @@ project(ProjectName)
         return [f"-D{key}={value}" for key, value in cmake_defs.items()]
 
     def prepare(self, target, src):
-        print("prepare")
         self.init_directory()
         template_dir = self.project_template
-        print("template_dir", template_dir)
         if template_dir is None:
             template_dir = get_project_template()
         else:
@@ -225,13 +223,15 @@ project(ProjectName)
 
         def write_defaults(filename):
             defs = self.definitions
-            print("defs", defs)
             with open(filename, "w", encoding="utf-8") as f:
                 f.write("CONFIG_CPLUSPLUS=y\n")
                 f.write("CONFIG_NEWLIB_LIBC=y\n")
                 f.write("CONFIG_REBOOT=y\n")
                 f.write("CONFIG_STD_CPP20=y\n")
                 f.write("CONFIG_LIB_CPLUSPLUS=y\n")
+                f.write("CONFIG_TIMING_FUNCTIONS=y\n")
+                # f.write("CONFIG_NEWLIB_LIBC_FLOAT_PRINTF=y\n")
+                # f.write("CONFIG_CBPRINTF_FP_SUPPORT=y\n")
                 if self.debug:
                     f.write("CONFIG_DEBUG=y\n")
                     if not self.optimize:
@@ -245,8 +245,11 @@ project(ProjectName)
                             f.write("CONFIG_NO_OPTIMIZATIONS=y\n")
                         elif str(self.optimize) == "g":
                             f.write("CONFIG_DEBUG_OPTIMIZATIONS=y\n")
+                        elif str(self.optimize) == "2":
+                            f.write("CONFIG_SPEED_OPTIMIZATIONS=y\n")
                         elif str(self.optimize) == "3":
                             f.write("CONFIG_SPEED_OPTIMIZATIONS=y\n")
+                            f.write("CONFIG_COMPILER_OPT=\"-O3\"\n")
                         else:
                             raise RuntimeError(f"Unsupported optimization level for Zephyr platform: {self.optimize}")
                 # f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")

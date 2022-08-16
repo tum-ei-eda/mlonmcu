@@ -73,19 +73,20 @@ def create_zephyr_platform_target(name, platform, base=Target):
             return ret
 
         def parse_stdout(self, out):
-            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-            if not cpu_cycles:
-                logger.warning("unexpected script output (cycles)")
-                cycles = None
-            else:
-                cycles = int(float(cpu_cycles.group(1)))
+            # cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+            # if not cpu_cycles:
+            #     logger.warning("unexpected script output (cycles)")
+            #     cycles = None
+            # else:
+            #     cycles = int(float(cpu_cycles.group(1)))
             cpu_time_us = re.search(r"Total Time: (.*) us", out)
             if not cpu_time_us:
                 logger.warning("unexpected script output (time_us)")
                 time_us = None
             else:
                 time_us = int(float(cpu_time_us.group(1)))
-            return cycles, time_us
+            # return cycles, time_us
+            return time_us
 
         def get_metrics(self, elf, directory, handle_exit=None):
             if self.print_outputs:
@@ -94,10 +95,11 @@ def create_zephyr_platform_target(name, platform, base=Target):
                 out = self.exec(
                     elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
                 )
-            cycles, time_us = self.parse_stdout(out)
+            # cycles, time_us = self.parse_stdout(out)
+            time_us = self.parse_stdout(out)
 
             metrics = Metrics()
-            metrics.add("Cycles", cycles)
+            # metrics.add("Cycles", cycles)
             time_s = time_us / 1e6 if time_us is not None else time_us
             metrics.add("Runtime [s]", time_s)
 

@@ -31,7 +31,7 @@ from .helper.parse import extract_target_names, extract_platform_names, extract_
 
 def add_compile_options(parser):
     add_build_options(parser)
-    compile_parser = parser.add_argument_group("compile options")
+    # compile_parser = parser.add_argument_group("compile options")
 
 
 def get_parser(subparsers):

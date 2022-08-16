@@ -6,7 +6,6 @@ import logging
 # import mlonmcu
 import mlonmcu.context
 from mlonmcu.session.run import RunStage
-from mlonmcu.session.postprocess.postprocess import SessionPostprocess
 from mlonmcu.models.lookup import apply_modelgroups
 from mlonmcu.logging import get_logger, set_log_level
 

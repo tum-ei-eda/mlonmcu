@@ -21,15 +21,12 @@
 import re
 import os
 import time
-import signal
 import shutil
 import tempfile
-import subprocess
 from pathlib import Path
 import pkg_resources
 
 import serial
-import psutil
 
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -114,7 +111,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         env["ZEPHYR_BASE"] = str(self.zephyr_install_dir / "zephyr")
         env["ZEPHYR_SDK_INSTALL_DIR"] = str(self.zephyr_sdk_dir)
         cmd = (
-            ". " + str(self.zephyr_venv_dir / "bin" / "activate") + f" && west " + " ".join([str(arg) for arg in args])
+            ". " + str(self.zephyr_venv_dir / "bin" / "activate") + " && west " + " ".join([str(arg) for arg in args])
         )
         out = utils.exec_getout(
             cmd, shell=True, env=env, **kwargs, executable="/bin/bash"

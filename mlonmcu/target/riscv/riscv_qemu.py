@@ -59,9 +59,9 @@ class RiscvQemuTarget(RISCVTarget):
             if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
                 # if not self.enable_fpu:
                 if True:
-                    ret.append(f"zve32x")
+                    ret.append("zve32x")
                 else:
-                    ret.append(f"zve32f")
+                    ret.append("zve32f")
             else:
                 ret.append("v")
         return ret

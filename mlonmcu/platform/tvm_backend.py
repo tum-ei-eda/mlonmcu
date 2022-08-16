@@ -16,16 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import re
-import os
-
 from mlonmcu.logging import get_logger
 
 from mlonmcu.flow.tvm.backend.backend import TVMBackend
-from mlonmcu.flow.tvm.backend.tvmaot import TVMAOTBackend
-from mlonmcu.flow.tvm.backend.tvmcg import TVMCGBackend
 from mlonmcu.flow.tvm.backend.tvmllvm import TVMLLVMBackend
-from mlonmcu.flow.tvm.backend.tvmrt import TVMRTBackend
 
 logger = get_logger()
 

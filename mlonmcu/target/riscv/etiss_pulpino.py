@@ -179,9 +179,9 @@ class EtissPulpinoTarget(RISCVTarget):
             if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
                 # if self.enable_fpu:
                 if True:
-                    ret.append(f"zve32x")
+                    ret.append("zve32x")
                 else:
-                    ret.append(f"zve32f")
+                    ret.append("zve32f")
             else:
                 ret.append("v")
         return ret
@@ -219,9 +219,9 @@ class EtissPulpinoTarget(RISCVTarget):
             if self.enable_fpu:
                 # TODO: do not hardcode cpu_arch
                 # TODO: i.e. use cpu_arch_lower
-                f.write(f"arch.rv32imacfdpv.mstatus_fs=1")
+                f.write("arch.rv32imacfdpv.mstatus_fs=1")
             if self.enable_vext:
-                f.write(f"arch.rv32imacfdpv.mstatus_vs=1")
+                f.write("arch.rv32imacfdpv.mstatus_vs=1")
                 if self.vlen > 0:
                     f.write(f"arch.rv32imacfdpv.vlen={self.vlen}")
                 # if self.elen > 0:

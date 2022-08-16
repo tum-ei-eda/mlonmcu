@@ -23,6 +23,8 @@ from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarge
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
 
+__all__ = ["Target"]
+
 # from .esp32 import Esp32Target
 # from .esp32c3 import Esp32c3Target
 

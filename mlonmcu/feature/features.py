@@ -938,7 +938,8 @@ class CacheSim(TargetFeature):
 class LogInstructions(TargetFeature):
     """Enable logging of the executed instructions of a simulator-based target."""
 
-    # TODO: support ovpsim via --trace. Example Output: Info 'riscvOVPsim/cpu', 0x0000000000010b92(tvmgen_default_fused_nn_contrib_dense_pack_add_fixed_point_multiply_add_clip_cast_clip+94): fdc42583 lw      a1,-36(s0)
+    # TODO: support ovpsim via --trace. Example Output:
+    #   Info 'riscvOVPsim/cpu', 0x0000000000010b92(...): fdc42583 lw      a1,-36(s0)
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
@@ -1168,7 +1169,7 @@ class Benchmark(PlatformFeature, TargetFeature):
                     return
                 metrics_ = metrics[1:]  # drop first run (warmup)
 
-                # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc. in the future
+                # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc.
                 data_ = [
                     {
                         key: (float(value) / self.num_runs) if self.num_runs > 1 else value

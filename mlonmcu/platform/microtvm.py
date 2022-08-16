@@ -425,8 +425,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             early_stopping = max(trials, 10)  # Let's see if this default works out...
         early_stopping = int(early_stopping)
         # max_parallel = backend.config.get("autotuning_max_parallel", 1)
-        max_parallel = 1
-        timeout = backend.config.get("autotuning_timeout", 100)
+        # max_parallel = 1
+        timeout = backend.config.get("autotuning_timeout", 1000)
         results_file = backend.config.get("autotuning_results_file", None)
         desired_layout = backend.config.get("desired_layout", None)
         ret = [
@@ -443,7 +443,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),
             # *["--parallel", str(max_parallel)],
             # *["--timeout", str(timeout * max_parallel)],
-            *["--timeout", str(1000)],
+            *["--timeout", timeout],
             *["--trials", str(trials)],
             # *["--number", str(100)],
             *(["--tuning-records", results_file] if results_file is not None else []),

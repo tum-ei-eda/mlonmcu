@@ -19,7 +19,6 @@
 """Definition of MLonMCU features and the feature registry."""
 
 import re
-from pathlib import Path
 import pandas as pd
 
 from mlonmcu.utils import is_power_of_two

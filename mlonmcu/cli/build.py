@@ -84,6 +84,7 @@ def _handle(args, context):
                             try:
                                 platform_name = platform
                                 new_run.add_platform_by_name(platform_name, context=context)
+                                break
                             except AssertionError:  # TODO: replace with incompatble error
                                 platform_name = None
                                 continue

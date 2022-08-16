@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(mlonmcu_template)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+SET(TVM_ALIGNMENT_BYTES 4)
+
+# cmake-format: off
+SET(TVM_HEADERS
+    ${CONFIG_TVM_DIR}/include
+    ${CONFIG_TVM_DIR}/3rdparty/dlpack/include
+    ${CONFIG_TVM_DIR}/apps/bundle_deploy
+    ${CONFIG_TVM_DIR}/src/runtime/crt/include
+)
+# cmake-format: on
+
+IF(CONFIG_TVM_CRT_CONFIG_DIR)
+    LIST(APPEND TVM_HEADERS ${CONFIG_TVM_CRT_CONFIG_DIR})
+ELSE()
+    LIST(APPEND TVM_HEADERS ${CONFIG_TVM_DIR}/apps/bundle_deploy/crt_config)
+ENDIF()
+
+INCLUDE(backends/${CONFIG_MLONMCU_BACKEND})
+INCLUDE(frameworks/${CONFIG_MLONMCU_FRAMEWORK})
+
+TARGET_INCLUDE_DIRECTORIES(app PUBLIC ${TVM_HEADERS})
+
+TARGET_COMPILE_DEFINITIONS(app PUBLIC
+    -DTVM_RUNTIME_ALLOC_ALIGNMENT_BYTES=${TVM_ALIGNMENT_BYTES}
+)
+
+
+
+INCLUDE(extras)
+
+INCLUDE(frameworks/${CONFIG_MLONMCU_FRAMEWORK}_mlif)
+
+IF(CONFIG_MODEL_DIR)
+    GET_FILENAME_COMPONENT(MODEL_SUPPORT_DIR ${CONFIG_MODEL_DIR}/support REALPATH)
+    GET_FILENAME_COMPONENT(MODEL_NAME ${CONFIG_MODEL_DIR} NAME)
+ENDIF()
+
+IF(MODEL_SUPPORT_DIR AND EXISTS ${MODEL_SUPPORT_DIR})
+    ADD_SUBDIRECTORY(${MODEL_SUPPORT_DIR} model_support_bin_${MODEL_NAME})
+ELSE()
+    ADD_SUBDIRECTORY(default_model_support)
+ENDIF()
+
+IF(NOT CONFIG_DATA_SRC)
+    SET(CONFIG_DATA_SRC "default_data.c")
+ENDIF()
+
+IF(CONFIG_NUM_RUNS)
+    TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC NUM_RUNS=${CONFIG_NUM_RUNS})
+ENDIF()
+
+TARGET_INCLUDE_DIRECTORIES(app PUBLIC ${TVM_HEADERS} ${TVM_OUT_DIR}/include ${CONFIG_MLONMCU_CODEGEN_DIR} lib/support)
+SET(TVM_WRAPPER_FILENAME aot_wrapper.c)
+SET(EXTRA_SRC ${EXTRA_SRC} ${CONFIG_MLONMCU_CODEGEN_DIR}/${TVM_WRAPPER_FILENAME})
+target_sources(app PRIVATE
+    src/main.c
+    ml_interface.c
+    ${CONFIG_TVM_DIR}/src/runtime/crt/common/crt_backend_api.c
+    ${CONFIG_TVM_DIR}/src/runtime/crt/memory/stack_allocator.c
+    ${CONFIG_DATA_SRC}
+    ${EXTRA_SRC}
+    ${TVM_SRCS}
+)
+target_link_libraries(app PRIVATE model_support)

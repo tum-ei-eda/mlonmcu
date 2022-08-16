@@ -44,14 +44,11 @@ from .zephyr_target import create_zephyr_platform_target
 logger = get_logger()
 
 
-def get_project_template(name="project"):
-    print("get_project_template", name)
+def get_project_template(name="project2"):  # Workaround which only support tvmaot!!!
     zephyr_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "platforms", "zephyr"))
-    print("zephyr_templates", zephyr_templates)
     if name not in zephyr_templates:
         return None
     fname = pkg_resources.resource_filename("mlonmcu", os.path.join("..", "resources", "platforms", "zephyr", name))
-    print("fname", fname)
     return fname
 
 

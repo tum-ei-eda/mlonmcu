@@ -1,0 +1,19 @@
+sample:
+  description: Hello World sample, the simplest Zephyr
+    application
+  name: hello world
+common:
+    tags: introduction
+    integration_platforms:
+      - native_posix
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "Hello World! (.*)"
+tests:
+  sample.basic.helloworld:
+    tags: introduction
+  sample.basic.helloworld.uefi:
+    platform_allow: qemu_x86_64
+    extra_args: CONF_FILE=prj_uefi.conf

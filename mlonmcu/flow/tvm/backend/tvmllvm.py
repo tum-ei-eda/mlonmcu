@@ -52,8 +52,6 @@ class TVMLLVMBackend(TVMBackend):
     def get_graph_and_params_from_mlf(self, path):
         graph = None
         # with open(Path(path) / "executor-config" / "graph" / "graph.json", "r") as handle:
-        print("path", path)
-        input()
         with open(Path(path) / "executor-config" / "graph" / "default.graph", "r") as handle:
             graph = handle.read()
         params = None

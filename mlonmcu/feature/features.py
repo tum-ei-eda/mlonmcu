@@ -38,6 +38,7 @@ from .feature import (
 # from mlonmcu.flow import SUPPORTED_TVM_BACKENDS
 SUPPORTED_TVM_BACKENDS = [
     "tvmaot",
+    "tvmaotplus",
     "tvmrt",
     "tvmcg",
     "tvmllvm",
@@ -686,7 +687,7 @@ class Autotune(BackendFeature, RunFeature):
         "results_file": None,
         "append": None,
         "tuner": None,
-        "trial": None,
+        "trials": None,
         "early_stopping": None,
         "num_workers": None,
         "max_parallel": None,
@@ -1149,7 +1150,7 @@ class Benchmark(PlatformFeature, TargetFeature):
         }
 
     def get_platform_defs(self, platform):
-        supported = ["mlif", "espidf", "tvm", "microtvm"]  # TODO: support microtvm and espidf
+        supported = ["mlif", "espidf", "tvm", "microtvm", "zephyr"]  # TODO: support microtvm and espidf
         assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
 
         if platform == "mlif":
@@ -1170,7 +1171,7 @@ class Benchmark(PlatformFeature, TargetFeature):
                 # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc. in the future
                 data_ = [
                     {
-                        key: (float(value) / self.num_runs) if self.num_runs != 1 else value
+                        key: (float(value) / self.num_runs) if self.num_runs > 1 else value
                         for key, value in m.data.items()
                         if "cycle" in key.lower() or "time" in key.lower()
                     }
@@ -1210,7 +1211,7 @@ class Benchmark(PlatformFeature, TargetFeature):
                 if self.total:
                     data.update(
                         {
-                            f"Total {key}": value * self.num_runs
+                            f"Total {key}": ((value * self.num_runs) if self.num_runs > 1 else value)
                             for key, value in data_[-1].items()
                             if "cycle" in key.lower() or "time" in key.lower()
                         }

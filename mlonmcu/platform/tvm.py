@@ -53,7 +53,7 @@ class TvmPlatform(TargetPlatform):
         "repeat": 1,
         "number": 1,
         "aggregate": "none",  # Allowed: avg, max, min, none, all
-        "total": False,
+        "total_time": False,
         "use_rpc": False,
         "rpc_key": None,
         "rpc_hostname": None,

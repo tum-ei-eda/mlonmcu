@@ -143,6 +143,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         "tvmc_extra_args": [],
         "tvmc_custom_script": None,
         "visualize_tuning": False,  # Needs upstream patches
+        "tune_tasks": None,  # Needs upstream patches
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -237,8 +238,14 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
 
     @property
     def visualize_tuning(self):
+        # Visualize the tuning progress via matplotlib
         value = self.config["visualize_tuning"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def tune_tasks(self):
+        # Effectively select which tasks should be tuned in the session
+        return self.config["tune_tasks"]
 
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
@@ -456,6 +463,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
             *(["--visualize"] if self.visualize_tuning else []),
+            *(["--tasks", self.tune_tasks] if self.tune_tasks is not None else []),
             # "--target-c-link-params",
             # "1",
             model,

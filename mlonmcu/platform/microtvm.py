@@ -23,6 +23,7 @@ import tempfile
 from pathlib import Path
 
 from mlonmcu.setup import utils
+from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -141,6 +142,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         # "rpc_port": None,
         "tvmc_extra_args": [],
         "tvmc_custom_script": None,
+        "visualize_tuning": False,  # Needs upstream patches
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -232,6 +234,11 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
     @property
     def project_template(self):
         return self.config["project_template"]
+
+    @property
+    def visualize_tuning(self):
+        value = self.config["visualize_tuning"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
@@ -448,6 +455,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             # *["--number", str(100)],
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
+            *(["--visualize"] if self.visualize_tuning else []),
             # "--target-c-link-params",
             # "1",
             model,

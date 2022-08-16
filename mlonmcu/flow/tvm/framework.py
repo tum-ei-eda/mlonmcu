@@ -18,11 +18,25 @@
 #
 """Definitions for TVMFramework."""
 
+import os
+import pkg_resources
 from pathlib import Path
 
 from mlonmcu.flow.framework import Framework
 
 # from mlonmcu.flow.tvm import TVMBackend
+
+
+def get_crt_config_dir():
+    files = pkg_resources.resource_listdir(
+        "mlonmcu", os.path.join("..", "resources", "frameworks", "tvm", "crt_config")
+    )
+    if "crt_config.h" not in files:
+        return None
+    fname = pkg_resources.resource_filename(
+        "mlonmcu", os.path.join("..", "resources", "frameworks", "tvm", "crt_config")
+    )
+    return fname
 
 
 class TVMFramework(Framework):
@@ -35,7 +49,7 @@ class TVMFramework(Framework):
     DEFAULTS = {
         "extra_incs": [],
         "extra_libs": [],
-        "crt_config_dir": None,  # i.e. see mlonmcu/resources/frameworks/tvm/crt_config/
+        "crt_config_dir": get_crt_config_dir(),
     }
 
     REQUIRED = ["tvm.src_dir"]

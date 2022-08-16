@@ -432,7 +432,9 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         ret = [
             *get_target_tvmc_args(
                 # "llvm", extra_target=backend.extra_target, target_details=backend.get_target_details()
-                "c", extra_target=backend.extra_target, target_details=backend.get_target_details()
+                "c",
+                extra_target=backend.extra_target,
+                target_details=backend.get_target_details(),
             ),
             *(["--desired-layout", desired_layout] if desired_layout is not None else []),
             # *get_rpc_tvmc_args(self.use_rpc, self.key, self.hostname, self.port),

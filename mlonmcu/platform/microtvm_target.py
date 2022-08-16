@@ -65,7 +65,7 @@ class TemplateMicroTvmPlatformTarget(Target):
         # self.template = name2template(name)
 
     def get_project_options(self):
-        ret =  {
+        ret = {
             key: str(value).lower() if isinstance(value, bool) else value
             for key, value in self.config.items()
             if key in self.option_names and value is not None

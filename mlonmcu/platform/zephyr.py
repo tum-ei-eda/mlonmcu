@@ -249,7 +249,7 @@ project(ProjectName)
                             f.write("CONFIG_SPEED_OPTIMIZATIONS=y\n")
                         elif str(self.optimize) == "3":
                             f.write("CONFIG_SPEED_OPTIMIZATIONS=y\n")
-                            f.write("CONFIG_COMPILER_OPT=\"-O3\"\n")
+                            f.write('CONFIG_COMPILER_OPT="-O3"\n')
                         else:
                             raise RuntimeError(f"Unsupported optimization level for Zephyr platform: {self.optimize}")
                 # f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")

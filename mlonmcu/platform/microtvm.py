@@ -45,68 +45,8 @@ def filter_project_options(valid, options):
     return {key: value for key, value in options.items() if key in valid}
 
 
-# TODO: Replace this hardcoded dict which dynamic lookup
-# ALLOWED_PROJECT_OPTIONS = {
-# PROJECT_TEMPLATE_REGISTRY = {
-#     "arduino": {
-#         "template": None,
-#         "options": {
-#             "create": ["arduino_cli_cmd", "project_type", "warning_as_error"],
-#             "build": ["arduino_board", "arduino_cli_cmd", "verbose"],
-#             "flash": ["arduino_board", "arduino_cli_cmd", "port", "verbose"],
-#             "run": ["arduino_board", "arduino_cli_cmd", "port"],
-#         },
-#     },
-#     "zephyr": {
-#         "template": None,
-#         "options": {
-#             "create": [
-#                 "extra_files_tar",
-#                 "project_type",
-#                 "config_main_stack_size",
-#                 "warning_as_error",
-#                 "compile_definitions",
-#                 "zephyr_base",
-#                 "zephyr_board",
-#             ],
-#             "build": ["verbose", "west_cmd", "zephyr_base", "zephyr_board"],
-#             "flash": ["zephyr_board"],
-#             "run": ["gdbserver_port", "nrfjprog_snr", "openocd_serial", "zephyr_base", "zephyr_board"],
-#         },
-#     },
-#     "host": {
-#         "template": None,
-#         "options": {
-#             "create": [],
-#             "build": ["verbose"],
-#             "flash": [],
-#             "run": [],
-#         },
-#     },
-#     "etissvp": {
-#         "template": None,
-#         "options": {
-#             "create": [
-#                 "extra_files_tar",
-#                 "project_type",
-#                 "config_main_stack_size",
-#                 "warning_as_error",
-#                 "compile_definitions",
-#             ],
-#             "build": ["verbose", "riscv_path", "etiss_path"],
-#             "flash": ["etiss_path", "etissvp_script", "etissvp_script_args", "transport"],
-#             "run": ["etissvp_script", "etissvp_script_args", "etiss_path"],
-#         },
-#     },
-# }
-
-
 def get_project_option_args(template, stage, project_options):
     ret = []
-    # TODO: dynamically fetch allowed options per stage (create, build, run)
-    # assert template[0] in ALLOWED_PROJECT_OPTIONS
-    # assert stage in ALLOWED_PROJECT_OPTIONS[template[0]]
-    # allowed = ALLOWED_PROJECT_OPTIONS[template[0]][stage]
     for key, value in project_options.items():
         ret.append(f"{key}={value}")
 
@@ -114,9 +54,6 @@ def get_project_option_args(template, stage, project_options):
         ret = ["--project-option"] + ret
 
     return ret
-
-
-# TODO: This file is very similar to the TVM platform -> Reuse as much as possible
 
 
 class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform):

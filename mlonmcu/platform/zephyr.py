@@ -110,9 +110,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         env = os.environ.copy()
         env["ZEPHYR_BASE"] = str(self.zephyr_install_dir / "zephyr")
         env["ZEPHYR_SDK_INSTALL_DIR"] = str(self.zephyr_sdk_dir)
-        cmd = (
-            ". " + str(self.zephyr_venv_dir / "bin" / "activate") + " && west " + " ".join([str(arg) for arg in args])
-        )
+        cmd = ". " + str(self.zephyr_venv_dir / "bin" / "activate") + " && west " + " ".join([str(arg) for arg in args])
         out = utils.exec_getout(
             cmd, shell=True, env=env, **kwargs, executable="/bin/bash"
         )  # TODO: using shell=True is insecure but right now we can not avoid it?
@@ -311,8 +309,7 @@ project(ProjectName)
             "-b",
             zephyr_target,
             self.project_dir,
-            "-j",
-            str(self.num_threads),
+            f"-o=-j{self.num_threads}",
         ]
         out += self.invoke_west(*westArgs, live=self.print_outputs)
         return out

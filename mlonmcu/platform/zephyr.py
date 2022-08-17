@@ -311,6 +311,8 @@ project(ProjectName)
             "-b",
             zephyr_target,
             self.project_dir,
+            "-j",
+            str(self.num_threads),
         ]
         out += self.invoke_west(*westArgs, live=self.print_outputs)
         return out

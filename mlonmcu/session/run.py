@@ -485,6 +485,10 @@ class Run:
         assert len(self.frontends) > 0, "Not frontend is available for this run."
         return self.frontends[0]
 
+    @property
+    def artifacts(self):
+        return list(itertools.chain(*self.artifacts_per_stage.values()))
+
     def toDict(self):
         """Utility not implemented yet. (TODO: remove?)"""
         raise NotImplementedError
@@ -514,11 +518,10 @@ class Run:
         # assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback
 
         self.artifacts_per_stage[RunStage.POSTPROCESS] = []
-        existing_artifacts = list(itertools.chain(*self.artifacts_per_stage.values()))
         temp_report = self.get_report()
         for postprocess in self.postprocesses:
             if isinstance(postprocess, RunPostprocess):
-                artifacts = postprocess.post_run(temp_report, existing_artifacts)
+                artifacts = postprocess.post_run(temp_report, self.artifacts)
                 if artifacts is not None:
                     self.artifacts_per_stage[RunStage.POSTPROCESS].extend(artifacts)
         self.report = temp_report

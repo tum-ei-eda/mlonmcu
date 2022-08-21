@@ -16,13 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
-
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
-from mlonmcu.models.model import ModelFormats
-from .model_info import get_tflite_model_info, get_relay_model_info, get_pb_model_info
+from .model_info import get_model_info
 from .tuner import TVMTuner
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
@@ -287,23 +284,5 @@ class TVMBackend(Backend):
         self.model = model
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
-        ext = os.path.splitext(model)[1][1:]
-        fmt = ModelFormats.from_extension(ext)
-        if fmt == ModelFormats.TFLITE:
-            self.model_format = "tflite"
-            with open(model, "rb") as handle:
-                model_buf = handle.read()
-                self.model_info = get_tflite_model_info(model_buf)
-        elif fmt == ModelFormats.RELAY:
-            # Warning: the wrapper generateion does currently not work because of the
-            # missing possibility to get the relay models input names and shapes
-            self.model_format = "relay"
-            with open(model, "r") as handle:
-                mod_text = handle.read()
-            self.model_info = get_relay_model_info(mod_text)
-        elif fmt == ModelFormats.PB:
-            self.model_format = "pb"
-            self.model_info = get_pb_model_info(model)
-        else:
-            raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{self.name}'")
+        self.model_format, self.model_info = get_model_info(model, fmt, backend_name=self.name)
         self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

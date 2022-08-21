@@ -549,3 +549,22 @@ class PBFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
+
+
+class PaddleFrontend(SimpleFrontend):
+
+    FEATURES = Frontend.FEATURES
+
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+    }
+
+    REQUIRED = Frontend.REQUIRED + []
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "paddle",
+            ModelFormats.PADDLE,
+            features=features,
+            config=config,
+        )

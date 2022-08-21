@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 from mlonmcu.models.lookup import print_summary
-from .frontend import PBFrontend, TfLiteFrontend, PackedFrontend, ONNXFrontend, RelayFrontend
+from .frontend import PBFrontend, TfLiteFrontend, PackedFrontend, ONNXFrontend, RelayFrontend, PaddleFrontend
 
 SUPPORTED_FRONTENDS = {
     "tflite": TfLiteFrontend,
@@ -25,6 +25,7 @@ SUPPORTED_FRONTENDS = {
     "packed": PackedFrontend,
     "onnx": ONNXFrontend,
     "pb": PBFrontend,
+    "paddle": PaddleFrontend,
 }  # TODO: use registry instead
 
 __all__ = ["print_summary", "TfLiteFrontend", "PackedFrontend", "ONNXFrontend", "PBFrontend", "SUPPORTED_FRONTENDS"]

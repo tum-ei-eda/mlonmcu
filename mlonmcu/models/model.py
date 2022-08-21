@@ -50,6 +50,7 @@ class ModelFormats(Enum):
     ONNX = ModelFormat(4, ["onnx"])
     RELAY = ModelFormat(5, ["relay"])
     PB = ModelFormat(6, ["pb"])
+    PADDLE = ModelFormat(7, ["pdmodel"])
 
 
 def parse_metadata_from_path(path):

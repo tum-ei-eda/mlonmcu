@@ -48,12 +48,14 @@ def add_setup_options(parser):
         metavar="KEY=VALUE",
         nargs="+",
         action="append",
-        help="Set a number of key-value pairs "
-        "(do not put spaces before or after the = sign). "
-        "If a value contains spaces, you should define "
-        "it with double quotes: "
-        'foo="this is a sentence". Note that '
-        "values are always treated as strings.",
+        help=(
+            "Set a number of key-value pairs "
+            "(do not put spaces before or after the = sign). "
+            "If a value contains spaces, you should define "
+            "it with double quotes: "
+            'foo="this is a sentence". Note that '
+            "values are always treated as strings."
+        ),
     )
     setup_parser.add_argument(
         "-p",

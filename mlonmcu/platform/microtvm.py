@@ -35,6 +35,7 @@ from .microtvm_target import create_microtvm_platform_target, get_microtvm_platf
 from .microtvm_backend import create_microtvm_platform_backend, get_microtvm_platform_backends
 
 logger = get_logger()
+# TODO: This file is very similar to the TVM platform -> Reuse as much as possible
 
 
 def parse_project_options_from_stdout(out):

@@ -369,9 +369,9 @@ class RelayFrontend(SimpleFrontend):
                 viz.render(filename=out_file_base)
 
             in_file = model.paths[0]
-            ext = "txt" if self.relayviz_plotter == "term" else "pdf"
+            ext = "" if self.relayviz_plotter == "term" else "pdf"
             with tempfile.TemporaryDirectory() as tmpdirname:
-                out_file = str(Path(tmpdirname) / f"relayviz.{ext}")
+                out_file = str(Path(tmpdirname) / (f"relayviz.{ext}" if len(ext) > 0 else "relayviz"))
                 proc = multiprocessing.Process(
                     target=_relayviz,
                     args=[in_file, out_file, self.relayviz_plotter],
@@ -385,7 +385,7 @@ class RelayFrontend(SimpleFrontend):
                         relayviz_text = handle.read()
 
                     relayviz_artifact = Artifact(
-                        f"relayviz.{ext}",
+                        f"relayviz.txt",
                         content=relayviz_text,
                         fmt=ArtifactFormat.TEXT,
                     )

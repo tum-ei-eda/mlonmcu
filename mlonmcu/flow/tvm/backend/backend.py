@@ -16,10 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import multiprocessing
+
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
-from .model_info import get_model_info
+from .model_info import get_model_info, get_supported_formats
 from .tuner import TVMTuner
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
@@ -73,7 +75,7 @@ class TVMBackend(Backend):
         self.model = None  # Actual filename!
         self.model_info = None
         self.input_shapes = None
-        self.supported_formats = [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB]
+        self.supported_formats = get_supported_formats()
         self.target = target
         self.runtime = runtime
         self.executor = executor
@@ -292,5 +294,5 @@ class TVMBackend(Backend):
         self.model = model
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
-        self.model_format, self.model_info = get_model_info(model, fmt, backend_name=self.name)
+        self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
         self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

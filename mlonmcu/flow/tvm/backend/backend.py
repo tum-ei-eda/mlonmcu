@@ -61,6 +61,7 @@ class TVMBackend(Backend):
         "use_tlcpack": False,
         # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py
         "tophub_url": None,
+        "num_threads": multiprocessing.cpu_count(),
         **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
@@ -210,6 +211,9 @@ class TVMBackend(Backend):
         value = self.config["use_tlcpack"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    def num_threads(self):
+        return self.config["num_threads"]
+
     def get_target_details(self):
         ret = {}
         if self.target_device:
@@ -262,7 +266,11 @@ class TVMBackend(Backend):
 
     def invoke_tvmc(self, command, *args, cwd=None):
         env = prepare_python_environment(
-            self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir, tophub_url=self.tophub_url
+            self.tvm_pythonpath,
+            self.tvm_build_dir,
+            self.tvm_configs_dir,
+            tophub_url=self.tophub_url,
+            num_threads=self.num_threads,
         )
         if self.use_tlcpack:
             pre = ["tvmc"]

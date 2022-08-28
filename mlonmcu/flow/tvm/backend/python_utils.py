@@ -19,7 +19,7 @@
 import os
 
 
-def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir, tophub_url=None):
+def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir, tophub_url=None, num_threads=None):
     env = os.environ.copy()
     if pythonpath:
         env["PYTHONPATH"] = str(pythonpath)
@@ -29,4 +29,8 @@ def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir, tophu
         env["TVM_CONFIGS_JSON_DIR"] = str(tvm_configs_dir)
     if tophub_url:
         env["TOPHUB_LOCATION"] = tophub_url
+    if num_threads:
+        env["TVM_NUM_THREADS"] = str(num_threads)
+    # Use all cores/threads for building models and let OS scheduler decide on the mapping
+    env["TVM_BIND_THREADS"] = str(0)
     return env

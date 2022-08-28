@@ -477,7 +477,7 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev) {
     return StackMemoryManager_Free(&app_workspace, ptr);
 }
 """
-        out += fill(workspace_code, workspaceBytes=workspace_size)
+        out += fill(workspace_code, workspaceBytes=int(workspace_size))
     else:
         workspace_code = """
 tvm_crt_error_t TVMPlatformMemoryAllocate(size_t num_bytes, DLDevice dev, void** out_ptr) {
@@ -603,5 +603,5 @@ size_t TVMWrap_GetNumOutputs()
 
 def write_tvmaot_wrapper(path, model_info, workspace_size, mod_name, api="c"):
     with open(path, "w") as f:
-        text = write_tvmaot_wrapper(model_info, workspace_size, mod_name, api=api)
+        text = generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api=api)
         f.write(text)

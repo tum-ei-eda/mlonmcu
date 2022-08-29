@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import pkg_resources
 import venv
 import multiprocessing
 from pathlib import Path
@@ -1276,12 +1277,10 @@ def install_zephyr(
         if not utils.is_populated(zephyrVenvDir):
             venv.create(zephyrVenvDir)
         utils.exec_getout(f". {zephyrVenvScript} && pip install west", shell=True, print_output=False, live=verbose)
-        zephyrUrl = "https://github.com/zephyrproject-rtos/zephyr"
+        zephyrRepo = context.environment.repos["zephyr"]
+        zephyrUrl = zephyrRepo.url
         if not utils.is_populated(zephyrInstallDir / "zephyr"):
-            if "zephyr.version" in user_vars:
-                zephyrVersion = user_vars["zephyr.version"]
-            else:
-                zephyrVersion = "v3.1.0"
+            zephyrVersion = zephyrRepo.ref
             utils.exec_getout(
                 f". {zephyrVenvScript} && west init -m {zephyrUrl} --mr {zephyrVersion} {zephyrInstallDir}",
                 shell=True,
@@ -1307,6 +1306,11 @@ def install_zephyr(
         sdkScript = zephyrSdkDir / "setup.sh"
         # TODO: allow to limit installed toolchains
         utils.exec_getout(sdkScript, "-t", "all", "-h", print_output=False, live=verbose)
+        # Apply patch to fix esp32c3 support
+        patchFile = pkg_resources.resource_filename("mlonmcu", os.path.join("..", "resources", "patches", "zephyr", "fix_esp32c3_march.patch"))
+        if patchFile.is_file():
+            xtensaDir = zephyrInstallDir / "modules" / "hal" / "xtensa"
+            utils.patch(patchFile, cwd=xtensaDir)
     context.cache["zephyr.install_dir"] = zephyrInstallDir
     context.cache["zephyr.sdk_dir"] = zephyrSdkDir
     context.cache["zephyr.venv_dir"] = zephyrVenvDir

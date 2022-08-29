@@ -331,3 +331,7 @@ def download_and_extract(url, archive, dest):
                 if tmp_dir_new.is_dir():  # Archive contains a single subdirectory with a different name
                     tmp_dir = tmp_dir_new
             move(tmp_dir, dest)
+
+
+def patch(path, cwd=None):
+    raise NotImplementedError

@@ -80,6 +80,9 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         # "rpc_port": None,
         "tvmc_extra_args": [],
         "tvmc_custom_script": None,
+        "experimental_tvmc_micro_tune": False,
+        "experimental_tvmc_tune_tasks": False,
+        "experimental_autotvm_visualize": False,
         "visualize_tuning": False,  # Needs upstream patches
         "tune_tasks": None,  # Needs upstream patches
     }
@@ -184,6 +187,18 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
     def tune_tasks(self):
         # Effectively select which tasks should be tuned in the session
         return self.config["tune_tasks"]
+
+    @property
+    def experimental_tvmc_micro_tune(self):
+        return str2bool(self.config["experimental_tvmc_micro_tune"])
+
+    @property
+    def experimental_tvmc_tune_tasks(self):
+        return str2bool(self.config["experimental_tvmc_tune_tasks"])
+
+    @property
+    def experimental_tvmc_tune_visualize(self):
+        return str2bool(self.config["experimental_tvmc_tune_visualize"])
 
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
@@ -400,15 +415,22 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             # *["--number", str(100)],
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
-            *(["--visualize"] if self.visualize_tuning else []),
-            *(["--tasks", str(self.tune_tasks)] if self.tune_tasks is not None else []),
             # "--target-c-link-params",
             # "1",
             model,
         ]
+        if self.visualize_tuning:
+            assert (
+                self.experimental_tvmc_tune_tasks
+            ), f"{self.name}.visualize_tuning requires experimental_autotvm_visualize"
+            ret.append("--visualize")
+        if self.tune_tasks:
+            assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
+            ret.extend(["--tasks", str(self.tune_tasks)])
         return ret
 
     def tune_model(self, model_path, backend, target):
+        assert self.experimental_tvmc_micro_tune, "Microtvm tuning requires experimental_tvmc_micro_tune"
         enable = backend.config["autotuning_enable"]
         results_file = backend.config["autotuning_results_file"]
         append = backend.config["autotuning_append"]

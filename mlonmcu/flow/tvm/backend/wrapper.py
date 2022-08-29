@@ -63,6 +63,36 @@ def generate_header():
     return header
 
 
+def generate_common_includes():
+    return """
+#include <stdlib.h>
+#include <stdarg.h>
+#include <dlpack/dlpack.h>
+#include "tvm/runtime/crt/error_codes.h"
+#include "tvm/runtime/c_runtime_api.h"
+#include "printing.h"
+"""
+
+
+def generate_graph_includes():
+    out = generate_common_includes()
+    out += """
+#include "tvm/runtime/crt/packed_func.h"
+#include "tvm/runtime/crt/crt.h"
+#include "tvm/runtime/crt/graph_executor.h"
+#include "tvm/runtime/crt/page_allocator.h"
+
+"""
+    return out
+
+
+def generate_aot_includes(allocator):
+    out = generate_common_includes()
+    if allocator:
+        out += '#include "tvm/runtime/crt/stack_allocator.h"\n'
+    return out
+
+
 def fill(template, **kwargs):
     return string.Template(template).substitute(**kwargs)
 
@@ -140,20 +170,7 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size, debug_aren
 
     out = ""
     out += generate_header()
-    includes = """
-#include <stdlib.h>
-#include <stdarg.h>
-#include <dlpack/dlpack.h>
-#include <tvm/runtime/c_runtime_api.h>
-#include <tvm/runtime/crt/packed_func.h>
-#include <tvm/runtime/crt/crt.h>
-#include <tvm/runtime/crt/error_codes.h>
-#include <tvm/runtime/crt/graph_executor.h>
-#include <tvm/runtime/crt/page_allocator.h>
-#include "printing.h"
-
-"""
-    out += includes
+    out += generate_graph_includes()
     out += 'const char * const g_graph = "' + escapeJson(graph) + '";\n'
     out += "const char g_params[] = { " + toCArray(params) + "\n};\n"
     out += "const uint64_t g_params_size = " + str(len(params)) + ";\n"
@@ -398,20 +415,7 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug
 
     out = ""
     out += generate_header()
-    includes = """
-#include <stdlib.h>
-#include <stdarg.h>
-#include <dlpack/dlpack.h>
-#include "tvm/runtime/c_runtime_api.h"
-#include "tvm/runtime/crt/error_codes.h"
-"""
-    if workspace_size > 0:
-        includes += """
-#include "tvm/runtime/crt/stack_allocator.h"
-"""
-    includes += """
-#include "printing.h"
-"""
+    includes = generate_aot_includes(workspace_size > 0)
 
     if api == "c":
         includes += '#include "${modPrefix}.h"\n'

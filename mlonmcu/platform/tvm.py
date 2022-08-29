@@ -29,14 +29,14 @@ from mlonmcu.config import str2bool
 from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args, get_rpc_tvmc_args
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 
-from .platform import TargetPlatform, BuildPlatform
+from .platform import TargetPlatform, BuildPlatform, TunePlatform
 from .tvm_target import create_tvm_platform_target
 from .tvm_backend import create_tvm_platform_backend, get_tvm_platform_backends
 
 logger = get_logger()
 
 
-class TvmPlatform(BuildPlatform, TargetPlatform):
+class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
     """TVM Platform class."""
 
     FEATURES = TargetPlatform.FEATURES + ["benchmark"]  # TODO: validate?

@@ -20,10 +20,19 @@
 
 import string
 from datetime import datetime
-from math import ceil
+from math import ceil, log2
 
 # TODO: use this
 # from tvm.relay.backend.utils import mangle_module_name
+
+
+def calc_pages(workspace_size, page_size=2**10):
+    # Determine the number of required pages
+    assert workspace_size >= 0, "Workspace size can not be negative"
+    crtPageSizeLog2 = log2(page_size)
+    assert crtPageSizeLog2 == int(crtPageSizeLog2), "Page size has to be a power of two"
+    crtNumPages = ceil(workspace_size / page_size)
+    return int(crtNumPages), int(crtPageSizeLog2)
 
 
 def generate_wrapper_header():
@@ -73,10 +82,7 @@ def write_tvmrt_wrapper(path, graph, params, model_info, workspace_size):
 
 
 def generate_tvmrt_wrapper(graph, params, model_info, workspace_size, debug_arena=False):
-    # Determine the number of required pages
-    assert workspace_size >= 0
-    crtPageSizeLog2 = 10
-    crtNumPages = ceil(workspace_size / (2**crtPageSizeLog2))
+    crtNumPages, crtPageSizeLog2 = calc_pages(workspace_size)
 
     def escapeJson(j):
         return j.replace('"', '\\"').replace("\n", "\\\n")

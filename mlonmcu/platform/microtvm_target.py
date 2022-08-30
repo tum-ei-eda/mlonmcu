@@ -70,7 +70,6 @@ class TemplateMicroTvmPlatformTarget(Target):
             for key, value in self.config.items()
             if key in self.option_names and value is not None
         }
-        print("ret", ret)
         return {
             key: str(value).lower() if isinstance(value, bool) else value
             for key, value in self.config.items()

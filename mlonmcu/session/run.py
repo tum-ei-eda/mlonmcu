@@ -385,10 +385,14 @@ class Run:
         """Helper function to initialize and configure frontends by their names."""
         frontends = []
         for name in frontend_names:
-            assert context is not None and context.environment.has_frontend(
-                name
-            ), f"The frontend '{name}' is not enabled for this environment"
-            frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
+            try:
+                assert context is not None and context.environment.has_frontend(
+                    name
+                ), f"The frontend '{name}' is not enabled for this environment"
+                frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
+            except Exception:
+                continue
+        assert len(frontends) > 0, "No compatible frontend was found"
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):

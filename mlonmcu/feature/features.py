@@ -96,6 +96,7 @@ class DebugArena(BackendFeature):
     def get_backend_config(self, backend):
         assert backend in [
             "tvmaot",
+            "tvmaotplus",
             "tvmrt",
             "tflmi",
         ], f"Unsupported feature '{self.name}' for backend '{backend}'"

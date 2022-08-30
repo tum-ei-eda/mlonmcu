@@ -524,7 +524,7 @@ def test_feature_debug_arena(
 @pytest.mark.parametrize("config", [{}])
 def test_feature_validate(user_context, model_name, backend_name, target_name, models_dir, feature_names, config):
     df, artifacts = _test_run_platform(
-        None, target_name, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
+        None, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
     assert len(lookup_artifacts(artifacts, name="host_x86_out.log")) == 1
@@ -550,7 +550,7 @@ def test_feature_validate(user_context, model_name, backend_name, target_name, m
 @pytest.mark.parametrize("config", [{}])
 def test_feature_debug(user_context, model_name, backend_name, target_name, models_dir, feature_names, config):
     df, artifacts = _test_run_platform(
-        None, target_name, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
+        None, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
     assert "debug" in df["Features"][0]
     # TODO: stdout with test model
@@ -570,7 +570,7 @@ def test_feature_debug(user_context, model_name, backend_name, target_name, mode
 @pytest.mark.parametrize("config", [{}])
 def test_feature_muriscvnn(user_context, model_name, backend_name, target_name, models_dir, feature_names, config):
     df, artifacts = _test_run_platform(
-        None, target_name, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
+        None, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
     assert "muriscvnn" in df["Features"][0]
     # TODO: find out if kernels are actually linked?

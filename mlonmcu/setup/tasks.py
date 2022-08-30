@@ -966,7 +966,7 @@ def clone_cmsis(
 @Tasks.provides(["cmsisnn.lib"])
 @Tasks.param("dbg", [False, True])
 # @Tasks.param("target_arch", ["x86", "riscv", "arm"])
-@Tasks.param("target_arch", ["x86", "riscv"])  # Arm currently broken
+@Tasks.param("target_arch", ["x86"])  # Arm/riscv currently broken
 @Tasks.param("mvei", [False, True])
 @Tasks.param("dsp", [False, True])
 @Tasks.validate(_validate_cmsisnn)

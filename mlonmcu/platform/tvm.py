@@ -169,11 +169,13 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
 
     @property
     def experimental_tvmc_tune_tasks(self):
-        return str2bool(self.config["experimental_tvmc_tune_tasks"])
+        value = self.config["experimental_tvmc_tune_tasks"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def experimental_tvmc_tune_visualize(self):
-        return str2bool(self.config["experimental_tvmc_tune_visualize"])
+        value = self.config["experimental_tvmc_tune_visualize"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:

@@ -618,14 +618,8 @@ class Run:
             model_artifact.export(self.dir)
 
         # TODO: allow raw data as well as filepath in backends
-        if self.tune_platform:
-            res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
-        else:
-            self.backend.load_model(model=model_artifact.path)
-            self.backend.tune_model()
-            res = []
-            if self.backend.tuner is not None:
-                res = self.backend.tuner.get_results()
+        assert self.tune_platform, "Autotuning requires a TunePlatform"
+        res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
         if res:
             self.artifacts_per_stage[RunStage.TUNE] = res
         else:

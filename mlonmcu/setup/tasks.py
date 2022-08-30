@@ -757,7 +757,7 @@ def build_muriscvnn(
         )
         utils.make(cwd=muriscvnnBuildDir, threads=threads, live=verbose)
         utils.mkdirs(muriscvnnInstallDir)
-        utils.move(muriscvnnBuildDir / "Source" / "libmuriscv_nn.a", muriscvnnLib)
+        utils.move(muriscvnnBuildDir / "Source" / "libmuriscvnn.a", muriscvnnLib)
     context.cache["muriscvnn.build_dir", flags] = muriscvnnBuildDir
     context.cache["muriscvnn.lib", flags] = muriscvnnLib
 

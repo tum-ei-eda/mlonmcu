@@ -1306,7 +1306,11 @@ def install_zephyr(
         # TODO: allow to limit installed toolchains
         utils.exec_getout(sdkScript, "-t", "all", "-h", print_output=False, live=verbose)
         # Apply patch to fix esp32c3 support
-        patchFile = pkg_resources.resource_filename("mlonmcu", os.path.join("..", "resources", "patches", "zephyr", "fix_esp32c3_march.patch"))
+        patchFile = Path(
+            pkg_resources.resource_filename(
+                "mlonmcu", os.path.join("..", "resources", "patches", "zephyr", "fix_esp32c3_march.patch")
+            )
+        )
         if patchFile.is_file():
             xtensaDir = zephyrInstallDir / "modules" / "hal" / "xtensa"
             utils.patch(patchFile, cwd=xtensaDir)

@@ -419,7 +419,6 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             *["--output", str(out)],
             # "--target-c-link-params",
             # "1",
-            model,
         ]
         if self.visualize_tuning:
             assert (
@@ -429,6 +428,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         if self.tune_tasks:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
             ret.extend(["--tasks", str(self.tune_tasks)])
+        ret.append(model)
         return ret
 
     def tune_model(self, model_path, backend, target):
@@ -437,6 +437,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         results_file = backend.config["autotuning_results_file"]
         append = backend.config["autotuning_append"]
         artifacts = []
+        verbose = False
         if self.print_outputs:
             verbose = True
 

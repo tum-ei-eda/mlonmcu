@@ -31,7 +31,6 @@ from .tvmc_utils import get_tvmrt_tvmc_args
 
 
 class TVMRTBackend(TVMBackend):
-
     FEATURES = [
         *TVMBackend.FEATURES,
         "debug_arena",

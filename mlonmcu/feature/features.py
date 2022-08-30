@@ -1146,7 +1146,6 @@ class Benchmark(PlatformFeature, TargetFeature):
             return {}
 
     def get_target_config(self, target):
-
         return {
             f"{target}.repeat": self.num_repeat,
         }

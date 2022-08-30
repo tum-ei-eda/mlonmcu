@@ -22,7 +22,6 @@ from .tvmaot import TVMAOTBackend, main
 
 
 class TVMAOTPlusBackend(TVMAOTBackend):
-
     FEATURES = [
         *TVMAOTBackend.FEATURES,
     ]

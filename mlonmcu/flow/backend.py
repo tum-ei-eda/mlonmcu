@@ -32,7 +32,6 @@ logger = get_logger()
 
 
 class Backend(ABC):
-
     name = None
 
     FEATURES = []

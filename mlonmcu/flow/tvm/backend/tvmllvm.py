@@ -32,7 +32,6 @@ from .tvmc_utils import get_tvmrt_tvmc_args
 
 
 class TVMLLVMBackend(TVMBackend):
-
     FEATURES = [
         *TVMBackend.FEATURES,
     ]

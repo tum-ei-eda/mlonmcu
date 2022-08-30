@@ -109,7 +109,6 @@ size_t {prefix}_outputs();
         registrations=None,  # TODO: implement
         ops_resolver=None,  # TODO: implement
     ):
-
         arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]
         ops = ops if ops else TFLMIBackend.DEFAULTS["ops"]
         if not isinstance(ops, list):
@@ -309,7 +308,6 @@ void {prefix}_invoke() {{
 
 
 class TFLMIBackend(TFLMBackend):
-
     name = "tflmi"
 
     DEFAULTS = {

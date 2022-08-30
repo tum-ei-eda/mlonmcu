@@ -36,7 +36,6 @@ logger = get_logger()
 
 
 class Frontend(ABC):
-
     FEATURES = ["validate"]
 
     DEFAULTS = {
@@ -229,7 +228,6 @@ class SimpleFrontend(Frontend):
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES + ["visualize"]
 
     DEFAULTS = {**Frontend.DEFAULTS, "visualize_enable": False, "visualize_script": None}
@@ -292,7 +290,6 @@ class TfLiteFrontend(SimpleFrontend):
 
 
 class RelayFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES + ["relayviz"]
 
     DEFAULTS = {**Frontend.DEFAULTS, "visualize_graph": False, "relayviz_plotter": "term"}
@@ -404,7 +401,6 @@ class RelayFrontend(SimpleFrontend):
 
 
 class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do constructor?
-
     FEATURES = Frontend.FEATURES + ["packing", "packed"]
 
     DEFAULTS = {
@@ -514,7 +510,6 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
 
 
 class ONNXFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
@@ -533,7 +528,6 @@ class ONNXFrontend(SimpleFrontend):
 
 
 class PBFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
@@ -552,7 +546,6 @@ class PBFrontend(SimpleFrontend):
 
 
 class PaddleFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {

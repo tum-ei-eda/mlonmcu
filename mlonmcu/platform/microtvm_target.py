@@ -49,7 +49,6 @@ def get_microtvm_platform_targets():
 
 
 class TemplateMicroTvmPlatformTarget(Target):
-
     FEATURES = Target.FEATURES + []
 
     DEFAULTS = {
@@ -81,7 +80,6 @@ class TemplateMicroTvmPlatformTarget(Target):
 
 
 class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-
     FEATURES = Target.FEATURES + []
 
     DEFAULTS = {
@@ -123,7 +121,6 @@ class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
 
 class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-
     FEATURES = Target.FEATURES + []
 
     DEFAULTS = {
@@ -191,7 +188,6 @@ class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
 
 class HostMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-
     FEATURES = Target.FEATURES + []
 
     DEFAULTS = {
@@ -211,7 +207,6 @@ class HostMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
 
 class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-
     FEATURES = Target.FEATURES + []
 
     DEFAULTS = {
@@ -298,7 +293,6 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
 
 class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-
     FEATURES = Target.FEATURES + []
 
     DEFAULTS = {
@@ -393,7 +387,6 @@ register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
 
 def create_microtvm_platform_target(name, platform, base=Target):
     class MicroTvmPlatformTarget(base):
-
         FEATURES = base.FEATURES + []
 
         DEFAULTS = {

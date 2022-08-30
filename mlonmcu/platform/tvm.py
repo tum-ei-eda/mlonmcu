@@ -262,7 +262,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         return output
 
     def get_tune_args(self, model, backend, out):
-
         tuner = backend.config.get("autotuning_tuner", "ga")
         assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
         trials = backend.config.get("autotuning_trials", 10)
@@ -320,7 +319,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
 
         content = ""
         if enable:
-
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:

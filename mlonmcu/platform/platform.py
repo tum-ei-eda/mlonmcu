@@ -251,7 +251,6 @@ class TargetPlatform(Platform):
     def run(self, elf, target, timeout=120):
         # Only allow one serial communication at a time
         with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
-
             self.flash(elf, target, timeout=timeout)
             output = self.monitor(target, timeout=timeout)
 

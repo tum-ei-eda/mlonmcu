@@ -384,7 +384,6 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         return output
 
     def get_micro_tune_args(self, model, backend, out):
-
         tuner = backend.config.get("autotuning_tuner", "ga")
         assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
         trials = backend.config.get("autotuning_trials", 10)
@@ -443,7 +442,6 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
 
         content = ""
         if enable:
-
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:

@@ -35,7 +35,6 @@ from .tvmc_utils import (
 
 
 class TVMBackend(Backend):
-
     registry = {}
 
     name = None

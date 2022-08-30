@@ -50,7 +50,6 @@ register_microtvm_platform_backend("tvmrt", TVMRTBackend)
 
 def create_microtvm_platform_backend(name, platform, base=TVMBackend):
     class MicroTvmPlatformBackend(base):
-
         FEATURES = base.FEATURES + []
 
         DEFAULTS = {

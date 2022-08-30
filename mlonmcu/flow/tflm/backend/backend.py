@@ -22,7 +22,6 @@ from mlonmcu.models.model import ModelFormats
 
 
 class TFLMBackend(Backend):
-
     registry = {}
 
     name = None

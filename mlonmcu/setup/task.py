@@ -314,7 +314,6 @@ class TaskFactory:
                     return retval
 
                 if progress:
-
                     pbar = tqdm(
                         total=max(len(combs), 1),
                         desc="Processing",

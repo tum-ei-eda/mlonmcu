@@ -61,7 +61,6 @@ def parse_metadata_from_path(path):
 
 
 class Model:
-
     DEFAULTS = {
         "metadata_path": "definition.yml",
         "support_path": "support",

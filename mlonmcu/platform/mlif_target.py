@@ -66,7 +66,6 @@ class MlifExitCode(IntEnum):
 
 def create_mlif_platform_target(name, platform, base=Target):
     class MlifPlatformTarget(base):
-
         FEATURES = base.FEATURES + []
 
         DEFAULTS = {
@@ -80,7 +79,6 @@ def create_mlif_platform_target(name, platform, base=Target):
             self.validation_result = None
 
         def get_metrics(self, elf, directory, handle_exit=None):
-
             # This is wrapper around the original exec function to catch special return codes thrown by the inout data
             # feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))
             if self.platform.validate_outputs and handle_exit is None:

@@ -29,7 +29,6 @@ logger = get_logger()
 
 def create_espidf_platform_target(name, platform, base=Target):
     class EspIdfPlatformTarget(base):
-
         FEATURES = base.FEATURES + []
 
         DEFAULTS = {

@@ -31,7 +31,6 @@ from mlonmcu.setup import utils
 
 
 class TVMCGBackend(TVMRTBackend):
-
     name = "tvmcg"
 
     FEATURES = [

@@ -35,7 +35,6 @@ def spawn_server(args, env, verbose):
 
 
 class TVMTuner:
-
     DEFAULTS = {
         "enable": False,
         "print_outputs": False,

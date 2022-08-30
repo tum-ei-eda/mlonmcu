@@ -193,9 +193,9 @@ def _test_backend(backend_name, user_context, model_name, models_dir, feature_na
 @pytest.mark.parametrize("model_name", DEFAULT_TFLITE_MODELS)
 @pytest.mark.parametrize("feature_names", [[]])
 @pytest.mark.parametrize(
-    "config", [{}, {"tflmi.arena_size": 2**20, "tflmi.operators": ["TODO"]}]  # TODO
+    "config", [{}, {"tflmi.arena_size": 2**20, "tflmi.ops": ["TODO"]}]  # TODO
 )  # TODO: user should be ablte to overwrite sesstings parsed by frontend
-def test_backend_tflmi(user_context, frontend_name, model_name, models_dir, feature_names, config):
+def test_backend_tflmi(user_context, model_name, models_dir, feature_names, config):
     df, artifacts = _test_backend("tflmi", user_context, model_name, models_dir, feature_names, config)
     assert df["Framework"][0] == "tflm"
 
@@ -208,10 +208,9 @@ def test_backend_tflmi(user_context, frontend_name, model_name, models_dir, feat
 
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", DEFAULT_TFLITE_MODELS)
-@pytest.mark.parametrize("frontend_name", ["tflite"])
 @pytest.mark.parametrize("feature_names", [[]])
 @pytest.mark.parametrize("config", [{}])
-def test_backend_tflmc(user_context, frontend_name, model_name, models_dir, feature_names, config):
+def test_backend_tflmc(user_context, model_name, models_dir, feature_names, config):
     df, artifacts = _test_backend("tflmc", user_context, model_name, models_dir, feature_names, config)
     assert df["Framework"][0] == "tflm"
 
@@ -241,7 +240,7 @@ def test_backend_tvmaot(user_context, model_name, models_dir, feature_names, con
     df, artifacts = _test_backend("tvmaot", user_context, model_name, models_dir, feature_names, config)
     assert df["Framework"][0] == "tvm"
 
-    assert len(lookup_artifacts(artifacts, name="mlf")) == 1
+    assert len(lookup_artifacts(artifacts, name="default.tar")) == 1
     assert len(lookup_artifacts(artifacts, name="tvmc_compile_out.log")) == 1
     # TODO: check if non-empty
     # TODO: check if arena/alignment updated
@@ -266,7 +265,7 @@ def test_backend_tvmaotplus(user_context, model_name, models_dir, feature_names,
     df, artifacts = _test_backend("tvmaotplus", user_context, model_name, models_dir, feature_names, config)
     assert df["Framework"][0] == "tvm"
 
-    assert len(lookup_artifacts(artifacts, name="mlf")) == 1
+    assert len(lookup_artifacts(artifacts, name="default.tar")) == 1
     assert len(lookup_artifacts(artifacts, name="tvmc_compile_out.log")) == 1
     # TODO: check if non-empty
     # TODO: check if arena/alignment updated
@@ -290,7 +289,7 @@ def test_backend_tvmrt(user_context, model_name, models_dir, feature_names, conf
     df, artifacts = _test_backend("tvmrt", user_context, model_name, models_dir, feature_names, config)
     assert df["Framework"][0] == "tvm"
 
-    assert len(lookup_artifacts(artifacts, name="mlf")) == 1
+    assert len(lookup_artifacts(artifacts, name="default.tar")) == 1
     assert len(lookup_artifacts(artifacts, name="tvmc_compile_out.log")) == 1
     # TODO: check if non-empty
     # TODO: check if arena updated
@@ -314,7 +313,7 @@ def test_backend_tvmcg(user_context, model_name, models_dir, feature_names, conf
     df, artifacts = _test_backend("tvmcg", user_context, model_name, models_dir, feature_names, config)
     assert df["Framework"][0] == "tvm"
 
-    assert len(lookup_artifacts(artifacts, name="mlf")) == 1
+    assert len(lookup_artifacts(artifacts, name="default.tar")) == 1
     assert len(lookup_artifacts(artifacts, name="tvmc_compile_out.log")) == 1
     # TODO: check if non-empty
     # TODO: check if arena updated
@@ -397,7 +396,7 @@ def test_platform_mlif(user_context, model_name, backend_name, target_name, mode
         "mlif", backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="generic_mlif.elf")) == 1
+    assert len(lookup_artifacts(artifacts, name="generic_mlif")) == 1
     assert len(lookup_artifacts(artifacts, name="mlif_out.log")) == 1
     # TODO: check artifacts
 
@@ -414,7 +413,7 @@ def test_target_mlif(user_context, model_name, backend_name, target_name, models
         "mlif", backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="generic_mlif.elf")) == 1
+    assert len(lookup_artifacts(artifacts, name="generic_mlif")) == 1
     assert len(lookup_artifacts(artifacts, name="mlif_out.log")) == 1
     # TODO: check artifacts
 
@@ -433,7 +432,7 @@ def test_platform_espidf(user_context, model_name, backend_name, target_name, mo
         "espidf", backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="generic_mlif.elf")) == 1
+    assert len(lookup_artifacts(artifacts, name="generic_mlif")) == 1
     assert len(lookup_artifacts(artifacts, name="espidf_out.log")) == 1
     # TODO: check artifacts
 
@@ -442,7 +441,6 @@ def test_platform_espidf(user_context, model_name, backend_name, target_name, mo
 @pytest.mark.hardware
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", DEFAULT_TFLITE_MODELS)
-@pytest.mark.parametrize("frontend_name", DEFAULT_FRONTENDS)
 @pytest.mark.parametrize("backend_name", DEFAULT_BACKENDS)
 @pytest.mark.parametrize("target_name", ["esp32c3"])
 @pytest.mark.parametrize("feature_names", [[]])
@@ -458,14 +456,12 @@ def test_platform_espidf(user_context, model_name, backend_name, target_name, mo
         }
     ],
 )
-def test_target_espidf(
-    user_context, frontend_name, model_name, backend_name, target_name, models_dir, feature_names, config
-):
+def test_target_espidf(user_context, model_name, backend_name, target_name, models_dir, feature_names, config):
     _, artifacts = _test_run_platform(
         "espidf", backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="generic_mlif.elf")) == 1
+    assert len(lookup_artifacts(artifacts, name="generic_mlif")) == 1
     assert len(lookup_artifacts(artifacts, name="espidf_out.log")) == 1
 
 

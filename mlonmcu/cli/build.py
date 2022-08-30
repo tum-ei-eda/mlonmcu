@@ -59,10 +59,10 @@ def get_parser(subparsers, parent=None):
     return parser
 
 
-def _handle(args, context):
+def _handle(args, context, require_target=False):
     handle_load(args, ctx=context)
     backends = extract_backend_names(args, context=context)
-    targets = extract_target_names(args, context=None)
+    targets = extract_target_names(args, context=context if require_target else None)
     platforms = extract_platform_names(args, context=context)
 
     new_config, _, _, _ = extract_config_and_feature_names(args, context=context)
@@ -110,10 +110,10 @@ def _handle(args, context):
     session.runs = new_runs
 
 
-def handle(args, ctx=None):
+def handle(args, ctx=None, require_target=False):
     if ctx:
-        _handle(args, ctx)
+        _handle(args, ctx, require_target=require_target)
     else:
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-            _handle(args, context)
+            _handle(args, context, require_target=require_target)
             kickoff_runs(args, RunStage.BUILD, context)

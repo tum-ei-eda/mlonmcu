@@ -276,7 +276,7 @@ class TfLiteFrontend(SimpleFrontend):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 out_file = str(Path(tmpdirname) / f"tflite_visualize.{ext}")
 
-                utils.exec_getout(self.visualize_script, in_file, out_file, print_output=False)
+                utils.python(self.visualize_script, in_file, out_file, print_output=False)
 
                 with open(out_file, "r") as handle:
                     tflite_visualize_text = handle.read()

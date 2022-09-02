@@ -30,7 +30,6 @@ from mlonmcu.setup import utils
 
 from mlonmcu.logging import get_logger
 
-from .utils import get_data_source
 
 logger = get_logger()
 
@@ -106,9 +105,9 @@ class Frontend(ABC):
     def process_metadata(self, model, cfg=None):
         model_dir = Path(model.paths[0]).parent.resolve()
         metadata = model.metadata
+        in_paths = []
+        out_paths = []
         if self.use_inout_data:
-            in_paths = []
-            out_paths = []
             if metadata is not None and "network_parameters" in metadata:
                 network = metadata["network_parameters"]
                 assert "input_nodes" in network
@@ -139,10 +138,6 @@ class Frontend(ABC):
                 fallback_out_path = model_dir / "output"
                 if fallback_out_path.is_dir():
                     out_paths.append(fallback_out_path)
-            data_src = get_data_source(in_paths, out_paths)
-            data_artifact = Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
-        else:
-            data_artifact = None
 
         if metadata is not None and "backends" in metadata:
             assert cfg is not None
@@ -158,8 +153,16 @@ class Frontend(ABC):
             assert cfg is not None
             # TODO: onlu overwrite if unset?
             cfg.update({"mlif.model_support_dir": support_path})
-
-        return data_artifact
+            # cfg.update({"espidf.model_support_dir": support_path})
+            # cfg.update({"zephyr.model_support_dir": support_path})
+        if len(in_paths) > 0:
+            cfg.update({"mlif.input_data_path": in_paths})
+            # cfg.update({"espidf.input_data_path": in_paths})
+            # cfg.update({"zephyr.input_data_path": in_paths})
+        if len(out_paths) > 0:
+            cfg.update({"mlif.output_data_path": out_paths})
+            # cfg.update({"espidf.output_data_path": out_paths})
+            # cfg.update({"zephyr.output_data_path": out_paths})
 
     def generate_models(self, model):
         artifacts = []

@@ -560,12 +560,7 @@ class Run:
         assert self.completed[RunStage.BUILD]
 
         self.export_stage(RunStage.BUILD, optional=self.export_optional)
-        codegen_dir = self.dir
-        data_file = None
-        for artifact in self.artifacts_per_stage[RunStage.LOAD]:
-            if artifact.name == "data.c":
-                artifact.export(self.dir)
-                data_file = Path(self.dir) / "data.c"
+        codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
         self.compile_platform.generate_elf(codegen_dir, self.target, data_file=data_file)
         self.artifacts_per_stage[RunStage.COMPILE] = self.compile_platform.artifacts
 

@@ -77,7 +77,10 @@ def lookup_data_buffers(input_paths, output_paths):
         nonlocal used_fmt, legacy
         data = []
         for i, path in enumerate(paths):
-            filenames = os.listdir(path)
+            if path.is_dir():
+                filenames = os.listdir(path)
+            else:
+                filenames = [path]
             for filename in filenames:
                 fmt = Path(filename).suffix[1:]
                 if fmt not in allowed_fmts:

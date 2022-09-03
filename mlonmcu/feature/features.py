@@ -907,7 +907,7 @@ class CacheSim(TargetFeature):
                 spike_args.append("--log-cache-miss")
             config.update({f"{target}.extra_args": spike_args})
 
-    def get_target_callback(self, target):
+    def get_target_callbacks(self, target):
         assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
@@ -932,7 +932,7 @@ class CacheSim(TargetFeature):
                         for m in metrics:
                             m.add(f"{prefix}-Cache {label}", value)
 
-            return cachesim_callback
+            return None, cachesim_callback
 
 
 @register_feature("log_instrs")
@@ -967,7 +967,7 @@ class LogInstructions(TargetFeature):
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
 
-    def get_target_callback(self, target):
+    def get_target_callbacks(self, target):
         assert target in ["spike", "etiss_pulpino"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
@@ -989,7 +989,7 @@ class LogInstructions(TargetFeature):
                     )
                     artifacts.append(instrs_artifact)
 
-            return log_instrs_callback
+            return None, log_instrs_callback
 
 
 @register_feature("arm_mvei")
@@ -1161,7 +1161,7 @@ class Benchmark(PlatformFeature, TargetFeature):
         else:
             return {}
 
-    def get_target_callback(self, target):
+    def get_target_callbacks(self, target):
         if self.enabled:
 
             def benchmark_callback(stdout, metrics, artifacts):
@@ -1233,4 +1233,4 @@ class Benchmark(PlatformFeature, TargetFeature):
 
             benchmark_callback.priority = 0
 
-            return benchmark_callback
+            return None, benchmark_callback

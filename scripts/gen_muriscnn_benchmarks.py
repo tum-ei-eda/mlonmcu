@@ -185,6 +185,7 @@ def get_backend_config(backend, features, enable_autotuned=False):
 
 DEFAULT_CONFIG = {
     "mlif.num_threads": 4,
+    "mlif.optimize": "s",
 }
 
 BACKEND_DEFAULT_CONFIG = {

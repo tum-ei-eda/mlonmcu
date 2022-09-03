@@ -236,11 +236,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             raise RuntimeError("Unable to find sources!")
         if self.ignore_data:
             cmakeArgs.append("-DDATA_SRC=")
+            artifacts = []
         else:
             data_artifact = self.gen_data_artifact()
             data_file = self.build_dir / data_artifact.name
             data_artifact.export(data_file)
             cmakeArgs.append("-DDATA_SRC=" + str(data_file))
+            artifacts = [data_artifact]
         utils.mkdirs(self.build_dir)
         out = utils.cmake(
             self.mlif_dir,
@@ -249,7 +251,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             debug=self.debug,
             live=self.print_outputs,
         )
-        return out, [data_artifact]
+        return out, artifacts
 
     def compile(self, target, src=None, model=None, data_file=None):
         out = ""

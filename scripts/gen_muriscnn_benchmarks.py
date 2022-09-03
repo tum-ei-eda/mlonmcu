@@ -193,9 +193,9 @@ BACKEND_DEFAULT_CONFIG = {
     "tvmaot": {"usmp.algorithm": "hill_climb"},
 }
 
-VLENS = [64, 128, 256, 512, 1024]
+VLENS = [64, 128, 256, 512, 1024, 2048]
 
-DEFAULT_VLENS = [64, 128, 256, 512, 1024]
+DEFAULT_VLENS = [64, 128, 256, 512, 1024, 2048]
 
 MODELS = [
     # "sine_model",

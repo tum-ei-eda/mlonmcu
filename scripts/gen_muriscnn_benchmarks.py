@@ -228,6 +228,8 @@ POSTPROCESS_CONFIG = {
         "Runtime [s]",
         "Total ROM",
         "Total RAM",
+        "ROM read-only",
+        "ROM code",
         # "ROM read-only",
         # "ROM code",
         # "ROM misc",

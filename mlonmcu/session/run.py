@@ -130,7 +130,7 @@ class Run:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             tmp_run_config = {f"run.{key}": value for key, value in self.run_config.items()}
             feature.add_run_config(tmp_run_config)
-            self.run_config = filter_config(self.tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
+            self.run_config = filter_config(tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         return features
 
     @property

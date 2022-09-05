@@ -129,9 +129,6 @@ class MyRISCVTarget(RISCVTarget):
 register_target("myriscv", MyRISCVTarget)
 # TODO: pass by cls instead of name
 
-print("targets", get_targets())
-print("mlif_platfrom_targets", get_mlif_platform_targets())
-
 
 # TODO: share code with test_slow.py
 def _check_features(user_context, feature_names):
@@ -172,7 +169,6 @@ def _test_compile_platform(
     assert session.process_runs(until=RunStage.COMPILE, context=user_context)
     report = session.get_reports()
     df, artifacts = report.df, run.artifacts
-    print("df", df)
 
     assert len(df) == 1
     assert df["Model"][0] == model_name

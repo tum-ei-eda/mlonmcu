@@ -1,6 +1,8 @@
 from mlonmcu.environment.config import PathConfig
 from mlonmcu.session.run import RunStage
-from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
+
+# from mlonmcu.artifact import ArtifactFormat
+from mlonmcu.artifact import lookup_artifacts
 
 import pytest
 
@@ -1032,7 +1034,9 @@ def test_feature_trace(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -1081,7 +1085,9 @@ def test_feature_unpacked_api(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -1131,7 +1137,9 @@ def test_feature_usmp(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -1178,7 +1186,9 @@ def test_feature_disable_legalize(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -1221,7 +1231,9 @@ def test_feature_autotune(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -1266,7 +1278,9 @@ def test_feature_autotuned(
     results_file = tmp_path / "tuning.log"
     results_file.touch()
     config.update({"autotuned.results_file": results_file})
-    run = session.create_run(config=config)
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_platform_by_name(platform_name, context=user_context)

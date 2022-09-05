@@ -320,7 +320,7 @@ class EtissPulpinoTarget(RISCVTarget):
 
         return cycles, mips
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
         if self.trace_memory:
             trace_file = os.path.join(directory, "dBusAccess.csv")
@@ -334,10 +334,10 @@ class EtissPulpinoTarget(RISCVTarget):
             os.remove(metrics_file)
 
         if self.print_outputs:
-            out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
         else:
             out += self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
         total_cycles, mips = self.parse_stdout(out, handle_exit=handle_exit)
 

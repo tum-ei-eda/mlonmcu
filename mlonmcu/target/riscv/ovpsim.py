@@ -217,6 +217,7 @@ class OVPSimTarget(RISCVTarget):
             self.ovpsim_exe.resolve(),
             *ovpsim_args,
             *args,  # Does this work?
+            cwd=cwd,
             **kwargs,
         )
         return ret
@@ -240,13 +241,13 @@ class OVPSimTarget(RISCVTarget):
                 mips = float(mips_str)
         return cycles, mips
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
         if self.print_outputs:
-            out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
         else:
             out += self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
         cycles, mips = self.parse_stdout(out)
 

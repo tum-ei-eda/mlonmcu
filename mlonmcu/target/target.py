@@ -74,7 +74,8 @@ class Target:
     ):
         self.name = name
         self.config = config if config else {}
-        self.callbacks = []
+        self.pre_callbacks = []
+        self.post_callbacks = []
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.inspect_program = "readelf"
@@ -101,7 +102,7 @@ class Target:
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.add_target_config(self.name, self.config)
-            feature.add_target_callback(self.name, self.callbacks)
+            feature.add_target_callbacks(self.name, self.pre_callbacks, self.post_callbacks)
         return features
 
     def exec(self, program: Path, *args, cwd=os.getcwd(), **kwargs):
@@ -136,11 +137,15 @@ class Target:
         total = 1 + (self.repeat if self.repeat else 0)
         # We only save the stdout and artifacts of the last execution
         # Callect metrics from all runs to aggregate them in a callback with high priority
+        artifacts_ = []
         for n in range(total):
             with tempfile.TemporaryDirectory() as temp_dir:
-                metrics_, out, artifacts_ = self.get_metrics(elf, temp_dir)
+                args = []
+                for callback in self.pre_callbacks:
+                    callback(temp_dir, args)
+                metrics_, out, artifacts_ = self.get_metrics(elf, *args, temp_dir)
             metrics.append(metrics_)
-        for callback in self.callbacks:
+        for callback in self.post_callbacks:
             callback(out, metrics, artifacts_)
         artifacts.extend(artifacts_)
         if len(metrics) > 1:

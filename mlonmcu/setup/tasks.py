@@ -826,6 +826,7 @@ def build_spike_pk(
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikepkBuildDir)
         gccName = context.cache["riscv_gcc.name"]
+        # assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
         vext = params.get("vext", False)
         pext = params.get("pext", False)
         assert not (pext and vext), "Currently only p or vector extension can be enabled at a time."

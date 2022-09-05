@@ -26,7 +26,7 @@ from enum import IntEnum
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
-from mlonmcu.platform.platform import CompilePlatform, TargetPlatform
+from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.models.lookup import lookup_models
@@ -68,6 +68,7 @@ class Run:
     }
 
     REQUIRED = []
+    OPTIONAL = []
 
     @classmethod
     def from_file(cls, path):
@@ -86,7 +87,6 @@ class Run:
         features=None,  # TODO: All features combined or explicit run-features -> postprocesses?
         config=None,  # TODO: All config combined or explicit run-config?
         postprocesses=None,
-        num=1,
         archived=False,
         session=None,
         comment="",
@@ -98,7 +98,6 @@ class Run:
         self.backend = backend
         self.platforms = platforms if platforms is not None else []
         self.artifacts_per_stage = {}
-        self.num = num
         self.archived = archived
         self.session = session
         self.postprocesses = postprocesses if postprocesses else []
@@ -113,7 +112,7 @@ class Run:
         self.features = features if features else []
         self.run_config = config if config else {}
         self.run_features = self.process_features(features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.result = None
         self.failing = False  # -> RunStatus
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
@@ -139,6 +138,30 @@ class Run:
     def target_to_backend(self):
         """Get target_to_backend property."""
         return bool(self.run_config["target_to_backend"])
+
+    @property
+    def build_platform(self):
+        """Get platform for build stage."""
+        if self.backend is not None and (
+            hasattr(self.backend, "platform") and isinstance(self.backend.platform, BuildPlatform)
+        ):
+            return self.backend.platform
+        for platform in self.platforms:
+            if isinstance(platform, BuildPlatform):
+                return platform
+        return None
+
+    @property
+    def tune_platform(self):
+        """Get platform for tune stage."""
+        if self.backend is not None and (
+            hasattr(self.backend, "platform") and isinstance(self.backend.platform, TunePlatform)
+        ):
+            return self.backend.platform
+        for platform in self.platforms:
+            if isinstance(platform, TunePlatform):
+                return platform
+        return None
 
     @property
     def compile_platform(self):
@@ -230,12 +253,15 @@ class Run:
     def init_component(self, component_cls, context=None):
         """Helper function to create and configure a MLonMCU component instance for this run."""
         required_keys = component_cls.REQUIRED
+        optional_keys = component_cls.OPTIONAL
         self.config.update(
             resolve_required_config(
                 required_keys,
+                optional=optional_keys,
                 features=self.features,
                 config=self.config,
                 cache=context.cache if context else None,
+                default_flags=context.environment.flags if context else None,
                 hints=self.cache_hints,
             )
         )
@@ -317,13 +343,13 @@ class Run:
         """Setter for a feature instance."""
         self.features = [feature]
         self.run_features = self.process_features(self.features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
         self.features = features if not append else self.features + features
         self.run_features = self.process_features(self.features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.REQUIRED)
+        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
 
     def pick_model_frontend(self, model_hints, backend=None):
         assert len(model_hints) > 0
@@ -370,7 +396,10 @@ class Run:
         assert context is not None and context.environment.has_backend(
             backend_name
         ), f"The backend '{backend_name}' is not enabled for this environment"
-        self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
+        if self.build_platform:
+            self.add_backend(self.init_component(self.build_platform.create_backend(backend_name), context=context))
+        else:
+            self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
         framework_name = self.backend.framework  # TODO: does this work?
         assert context.environment.has_framework(
             framework_name
@@ -445,8 +474,6 @@ class Run:
             probs.append(str(self.backend))
         if self.target:
             probs.append(str(self.target))
-        if self.num:
-            probs.append(str(self.num))
         if self.features and len(self.features) > 0:
             probs.append(str(self.features))
         if self.config and len(self.config) > 0:
@@ -457,6 +484,10 @@ class Run:
     def frontend(self):
         assert len(self.frontends) > 0, "Not frontend is available for this run."
         return self.frontends[0]
+
+    @property
+    def artifacts(self):
+        return list(itertools.chain(*self.artifacts_per_stage.values()))
 
     def toDict(self):
         """Utility not implemented yet. (TODO: remove?)"""
@@ -487,11 +518,10 @@ class Run:
         # assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback
 
         self.artifacts_per_stage[RunStage.POSTPROCESS] = []
-        existing_artifacts = list(itertools.chain(*self.artifacts_per_stage.values()))
         temp_report = self.get_report()
         for postprocess in self.postprocesses:
             if isinstance(postprocess, RunPostprocess):
-                artifacts = postprocess.post_run(temp_report, existing_artifacts)
+                artifacts = postprocess.post_run(temp_report, self.artifacts)
                 if artifacts is not None:
                     self.artifacts_per_stage[RunStage.POSTPROCESS].extend(artifacts)
         self.report = temp_report
@@ -513,7 +543,7 @@ class Run:
             assert self.completed[RunStage.BUILD]  # Used for tvm platform
             self.export_stage(RunStage.BUILD, optional=self.export_optional)
             shared_object_artifact = self.artifacts_per_stage[RunStage.BUILD][0]
-            self.target.generate_metrics(shared_object_artifact.path, num=self.num)
+            self.target.generate_metrics(shared_object_artifact.path)
         self.artifacts_per_stage[RunStage.RUN] = self.target.artifacts
 
         self.completed[RunStage.RUN] = True
@@ -532,7 +562,7 @@ class Run:
             if artifact.name == "data.c":
                 artifact.export(self.dir)
                 data_file = Path(self.dir) / "data.c"
-        self.compile_platform.generate_elf(codegen_dir, self.target, num=self.num, data_file=data_file)
+        self.compile_platform.generate_elf(codegen_dir, self.target, data_file=data_file)
         self.artifacts_per_stage[RunStage.COMPILE] = self.compile_platform.artifacts
 
         self.completed[RunStage.COMPILE] = True
@@ -584,14 +614,16 @@ class Run:
             model_artifact.export(self.dir)
 
         # TODO: allow raw data as well as filepath in backends
-        self.backend.load_model(model=model_artifact.path)
-        self.backend.tune_model()
-        if self.backend.tuner is not None:
-            res = self.backend.tuner.get_results()
-            if res:
-                self.artifacts_per_stage[RunStage.TUNE] = res
-            else:
-                self.artifacts_per_stage[RunStage.TUNE] = []
+        if self.tune_platform:
+            res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
+        else:
+            self.backend.load_model(model=model_artifact.path)
+            self.backend.tune_model()
+            res = []
+            if self.backend.tuner is not None:
+                res = self.backend.tuner.get_results()
+        if res:
+            self.artifacts_per_stage[RunStage.TUNE] = res
         else:
             self.artifacts_per_stage[RunStage.TUNE] = []
 
@@ -722,8 +754,8 @@ class Run:
 
     def get_platform_name(self):
         """Return platform name(s) for this run."""
-        used = list(set([self.compile_platform, self.target_platform]))  # TODO: build_platform, tune_platform
-        ret = [platform.name for platform in used]
+        used = list(set([self.tune_platform, self.build_platform, self.compile_platform, self.target_platform]))
+        ret = [platform.name for platform in used if platform is not None]
         return ret[0] if len(ret) == 1 else ret
 
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
@@ -773,6 +805,8 @@ class Run:
             ret.update(config_helper(self.target))
         for platform in self.platforms:
             ret.update(config_helper(platform))
+        for feature in self.features:
+            ret.update(config_helper(feature))
         for postprocess in self.postprocesses:
             ret.update(config_helper(postprocess))
         return ret
@@ -803,10 +837,10 @@ class Run:
             pre["Platform"] = self.get_platform_name()
         if self.target:
             pre["Target"] = self.target.name
-        pre["Num"] = self.num
         post = {}
         post["Features"] = self.get_all_feature_names()
-        post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
+        # post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
+        post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=False, omit_globals=True)
         post["Postprocesses"] = self.get_all_postprocess_names()
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         if self.failing:

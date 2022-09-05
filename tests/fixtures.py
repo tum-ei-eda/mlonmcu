@@ -25,7 +25,7 @@ from pathlib import Path
 from io import BytesIO
 from zipfile import ZipFile
 
-import mlonmcu  # TODO: fix this bad?
+# import mlonmcu  # TODO: fix this bad?
 
 
 @pytest.fixture()
@@ -64,6 +64,8 @@ def fake_context():
     class FakeEnvironment:
         def __init__(self):
             self.paths = {}  # TODO: get rid of PathConfig if possible?
+            self.flags = {}
+            self.vars = {}
 
     class FakeContext:
         def __init__(self):
@@ -85,6 +87,8 @@ def example_elf_file(request, tmp_path):
 
 @pytest.fixture()
 def user_context():
+    import mlonmcu.context
+
     with mlonmcu.context.MlonMcuContext() as context:
         yield context
 

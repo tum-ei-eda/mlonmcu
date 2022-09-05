@@ -18,36 +18,40 @@
 #
 from enum import IntEnum
 
-from mlonmcu.target.target import Target
-from mlonmcu.target.host_x86 import HostX86Target
-from mlonmcu.target.etiss_pulpino import EtissPulpinoTarget
-from mlonmcu.target.corstone300 import Corstone300Target
-from mlonmcu.target.spike import SpikeTarget
-from mlonmcu.target.ovpsim import OVPSimTarget
+from mlonmcu.target import (
+    Target,
+    EtissPulpinoTarget,
+    SpikeTarget,
+    OVPSimTarget,
+    Corstone300Target,
+    HostX86Target,
+    RiscvQemuTarget,
+)
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
-MLIF_TARGET_REGISTRY = {}
+MLIF_PLATFORM_TARGET_REGISTRY = {}
 
 
-def register_mlif_target(target_name, t, override=False):
-    global MLIF_TARGET_REGISTRY
+def register_mlif_platform_target(target_name, t, override=False):
+    global MLIF_PLATFORM_TARGET_REGISTRY
 
-    if target_name in MLIF_TARGET_REGISTRY and not override:
-        raise RuntimeError(f"MLIF target {target_name} is already registered")
-    MLIF_TARGET_REGISTRY[target_name] = t
-
-
-def get_mlif_targets():
-    return MLIF_TARGET_REGISTRY
+    if target_name in MLIF_PLATFORM_TARGET_REGISTRY and not override:
+        raise RuntimeError(f"MLIF platform target {target_name} is already registered")
+    MLIF_PLATFORM_TARGET_REGISTRY[target_name] = t
 
 
-register_mlif_target("host_x86", HostX86Target)
-register_mlif_target("etiss_pulpino", EtissPulpinoTarget)
-register_mlif_target("corstone300", Corstone300Target)
-register_mlif_target("spike", SpikeTarget)
-register_mlif_target("ovpsim", OVPSimTarget)
+def get_mlif_platform_targets():
+    return MLIF_PLATFORM_TARGET_REGISTRY
+
+
+register_mlif_platform_target("host_x86", HostX86Target)
+register_mlif_platform_target("etiss_pulpino", EtissPulpinoTarget)
+register_mlif_platform_target("corstone300", Corstone300Target)
+register_mlif_platform_target("spike", SpikeTarget)
+register_mlif_platform_target("ovpsim", OVPSimTarget)
+register_mlif_platform_target("riscv_qemu", RiscvQemuTarget)
 
 
 class MlifExitCode(IntEnum):
@@ -60,8 +64,8 @@ class MlifExitCode(IntEnum):
         return list(map(int, cls))
 
 
-def create_mlif_target(name, platform, base=Target):
-    class MlifTarget(base):  # This is not ideal as we will have multiple different MlifTarget classes
+def create_mlif_platform_target(name, platform, base=Target):
+    class MlifPlatformTarget(base):
 
         FEATURES = base.FEATURES + []
 
@@ -75,8 +79,7 @@ def create_mlif_target(name, platform, base=Target):
             self.platform = platform
             self.validation_result = None
 
-        def get_metrics(self, elf, directory, handle_exit=None, num=None):
-            assert num is None
+        def get_metrics(self, elf, directory, handle_exit=None):
 
             # This is wrapper around the original exec function to catch special return codes thrown by the inout data
             # feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))
@@ -108,4 +111,4 @@ def create_mlif_target(name, platform, base=Target):
             ret["TARGET_SYSTEM"] = target_system
             return ret
 
-    return MlifTarget
+    return MlifPlatformTarget

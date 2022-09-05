@@ -223,7 +223,7 @@ POSTPROCESS_CONFIG = {
         "Model",
         "Backend",
         "Target",
-        "Total Cycles",
+        "Cycles",
         "Runtime [s]",
         "Total ROM",
         "Total RAM",
@@ -484,6 +484,7 @@ def main():
         set_log_level(logging.DEBUG)
     else:
         set_log_level(logging.INFO)
+    print("args", args)
     benchmark(args)
 
 

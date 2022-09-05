@@ -43,8 +43,38 @@ def get_input_shapes_tvmc_args(input_shapes):
     return ["--input-shapes", arg]
 
 
+def check_allowed(target, name):
+    common = ["libs", "model", "tag", "mcpu", "device", "keys"]
+    if target == "c":
+        return name in ["constants-byte-alignment", "workspace-bytes-alignment", "march"] + common
+    elif target == "llvm":
+        return (
+            name
+            in [
+                "fast-math",
+                "opt-level",
+                "fast-math-ninf",
+                "mattr",
+                "num-cores",
+                "fast-math-nsz",
+                "fast-math-contract",
+                "mtriple",
+                "mfloat-abi",
+                "fast-math-arcp",
+                "fast-math-reassoc",
+                "mabi",
+            ]
+            + common
+        )
+
+    else:
+        return True
+
+
 def gen_target_details_args(target, target_details):
-    return sum([[f"--target-{target}-{key}", value] for key, value in target_details.items()], [])
+    return sum(
+        [[f"--target-{target}-{key}", value] for key, value in target_details.items() if check_allowed(target, key)], []
+    )
 
 
 def get_target_tvmc_args(target="c", extra_target=None, target_details={}, extra_target_details=None):
@@ -56,10 +86,9 @@ def get_target_tvmc_args(target="c", extra_target=None, target_details={}, extra
                 extra_target = [extra_target]
         # TODO: support multiple ones, currently only single one...
         assert len(extra_target) == 1
-        target = ",".join(extra_target + [target])
     return [
         "--target",
-        target,
+        ",".join((extra_target if extra_target else []) + [target]),
         # TODO: provide a feature which sets these automatically depending on the chosen target
         *gen_target_details_args(target, target_details),
         *(gen_target_details_args(extra_target[0], extra_target_details) if extra_target is not None else []),
@@ -98,11 +127,12 @@ def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api):
     ]
 
 
-def get_tvmrt_tvmc_args():
-    return [
-        *["--runtime-crt-system-lib", str(1)],
-        *["--executor-graph-link-params", str(0)],
-    ]
+def get_tvmrt_tvmc_args(runtime="crt"):
+    ret = []
+    if runtime == "crt":
+        ret.extend(["--runtime-crt-system-lib", str(1)])
+    ret.extend(["--executor-graph-link-params", str(0)])
+    return ret
 
 
 def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=10):

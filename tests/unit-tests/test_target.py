@@ -21,8 +21,7 @@ import mock
 
 from mlonmcu.target.common import execute, cli
 from mlonmcu.target.target import Target
-from mlonmcu.target.etiss_pulpino import EtissPulpinoTarget
-from mlonmcu.target.host_x86 import HostX86Target
+from mlonmcu.target import EtissPulpinoTarget, HostX86Target
 
 
 class CustomTarget(Target):

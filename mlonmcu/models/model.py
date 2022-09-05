@@ -50,6 +50,7 @@ class ModelFormats(Enum):
     ONNX = ModelFormat(4, ["onnx"])
     RELAY = ModelFormat(5, ["relay"])
     PB = ModelFormat(6, ["pb"])
+    PADDLE = ModelFormat(7, ["pdmodel"])
 
 
 def parse_metadata_from_path(path):
@@ -77,7 +78,7 @@ class Model:
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]
-        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, [])
+        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, [], [])
         self.metadata = parse_metadata_from_path(self.metadata_path)
 
     @property

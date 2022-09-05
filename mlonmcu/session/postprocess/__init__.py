@@ -19,8 +19,6 @@
 """MLonMCU postprocess submodule"""
 
 from .postprocesses import (
-    AverageCyclesPostprocess,
-    DetailedCyclesPostprocess,
     FilterColumnsPostprocess,
     RenameColumnsPostprocess,
     Features2ColumnsPostprocess,
@@ -32,8 +30,6 @@ from .postprocesses import (
 )
 
 SUPPORTED_POSTPROCESSES = {
-    "average_cycles": AverageCyclesPostprocess,
-    "detailed_cycles": DetailedCyclesPostprocess,
     "filter_cols": FilterColumnsPostprocess,
     "rename_cols": RenameColumnsPostprocess,
     "features2cols": Features2ColumnsPostprocess,

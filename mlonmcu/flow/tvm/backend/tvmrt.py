@@ -46,6 +46,9 @@ class TVMRTBackend(TVMBackend):
 
     name = "tvmrt"
 
+    def __init__(self, runtime="crt", fmt="mlf", features=None, config=None):
+        super().__init__(executor="graph", runtime=runtime, fmt=fmt, features=features, config=config)
+
     @property
     def arena_size(self):
         size = self.config["arena_size"]
@@ -56,11 +59,11 @@ class TVMRTBackend(TVMBackend):
         return bool(self.config["debug_arena"])
 
     def get_tvmc_compile_args(self, out):
-        return super().get_tvmc_compile_args(out, executor="graph") + get_tvmrt_tvmc_args()
+        return super().get_tvmc_compile_args(out) + get_tvmrt_tvmc_args()
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None
-        with open(Path(path) / "executor-config" / "graph" / "graph.json", "r") as handle:
+        with open(Path(path) / "executor-config" / "graph" / "default.graph", "r") as handle:
             graph = handle.read()
         params = None
         with open(Path(path) / "parameters" / "default.params", "rb") as handle:

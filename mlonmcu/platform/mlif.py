@@ -28,7 +28,7 @@ from mlonmcu.target import SUPPORTED_TARGETS
 from mlonmcu.target.target import Target
 
 from .platform import CompilePlatform, TargetPlatform
-from .mlif_target import get_mlif_targets, create_mlif_target
+from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
 
 logger = get_logger()
 
@@ -49,6 +49,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "pext",
             "arm_mvei",
             "arm_dsp",
+            "auto_vectorize",
+            "benchmark",
         ]  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -60,9 +62,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "model_support_dir": None,
         "toolchain": "gcc",
         "prebuild_lib_path": None,
+        "optimize": None,  # values: 0,1,2,3,s
     }
 
     REQUIRED = ["mlif.src_dir"]
+    OPTIONAL = ["llvm.install_dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -106,11 +110,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             base = SUPPORTED_TARGETS[name]
         else:
             base = Target
-        return create_mlif_target(name, self, base=base)
+        return create_mlif_platform_target(name, self, base=base)
 
     @property
     def mlif_dir(self):
         return Path(self.config["mlif.src_dir"])
+
+    @property
+    def llvm_dir(self):
+        return self.config["llvm.install_dir"]
 
     @property
     def ignore_data(self):
@@ -136,24 +144,33 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def prebuild_lib_dir(self):
         return self.config["prebuild_lib_dir"]
 
+    @property
+    def optimize(self):
+        return self.config["optimize"]
+
     def get_supported_targets(self):
-        target_names = get_mlif_targets()
+        target_names = get_mlif_platform_targets()
         return target_names
 
     def close(self):
         if self.tempdir:
             self.tempdir.cleanup()
 
-    def get_common_cmake_args(self, num=1):
+    def get_common_cmake_args(self):
         args = []
-        args.append(f"-DNUM_RUNS={num}")
         args.append(f"-DTOOLCHAIN={self.toolchain}")
+        if self.toolchain == "llvm" and self.llvm_dir is None:
+            raise RuntimeError("Missing config variable: llvm.install_dir")
+        else:
+            args.append(f"-DLLVM_DIR={self.llvm_dir}")
+        if self.optimize:
+            args.append(f"-DOPTIMIZE={self.optimize}")
         return args
 
     def prepare(self):
         self.init_directory()
 
-    def configure(self, target, src, _model, num=1, data_file=None):
+    def configure(self, target, src, _model, data_file=None):
         del target
         if not isinstance(src, Path):
             src = Path(src)
@@ -162,7 +179,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             if isinstance(value, bool):
                 value = "ON" if value else "OFF"
             cmakeArgs.append(f"-D{key}={value}")
-        cmakeArgs.extend(self.get_common_cmake_args(num=num))
+        cmakeArgs.extend(self.get_common_cmake_args())
         if self.model_support_dir:
             cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
         else:
@@ -190,10 +207,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         return out
 
-    def compile(self, target, src=None, model=None, num=1, data_file=None):
+    def compile(self, target, src=None, model=None, data_file=None):
         out = ""
         if src:
-            out += self.configure(target, src, model, num=num, data_file=data_file)
+            out += self.configure(target, src, model, data_file=data_file)
         out += utils.make(
             self.goal,
             cwd=self.build_dir,
@@ -202,9 +219,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         return out
 
-    def generate_elf(self, src, target, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, data_file=None):
         artifacts = []
-        out = self.compile(target, src=src, model=model, num=num, data_file=data_file)
+        out = self.compile(target, src=src, model=model, data_file=data_file)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:

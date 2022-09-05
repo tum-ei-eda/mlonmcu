@@ -1,0 +1,101 @@
+mainmenu "MLonMCU"
+
+source "Kconfig.zephyr"
+menu "MLonMCU Options"
+
+    config MLONMCU_CODEGEN_DIR
+        string "Codegen Directory"
+        default "$(CODEGEN_SRC)"
+        help
+            Path to the directory with the codegen results.
+
+    # choice MLONMCU_FRAMEWORK
+    #     prompt "MLonMCU framework"
+    #     default MLONMCU_FRAMEWORK_TFLM
+    #     help
+    #         Choose a MLonMCU framework from the list.
+
+    #     config MLONMCU_FRAMEWORK_TFLM
+    #         bool "TFLite Micro"
+    #     config MLONMCU_FRAMEWORK_TVM
+    #         bool "TVM"
+    # endchoice
+
+    config MLONMCU_FRAMEWORK
+        string "Ued Framework"
+        # default "tflm" if MLONMCU_FRAMEWORK_TFLM
+        # default "tvm" if MLONMCU_FRAMEWORK_TVM
+        default "none"
+        help
+            TODO
+
+    # choice MLONMCU_BACKEND
+    #     prompt "MLonMCU backend"
+    #     default MLONMCU_BACKEND_TFLMI if MLONMCU_FRAMEWORK_TFLM
+    #     default MLONMCU_BACKEND_TVMAOT if MLONMCU_FRAMEWORK_TVM
+    #     help
+    #         Choose a MLonMCU backend for the chosen framwork.
+
+    #     config MLONMCU_BACKEND_TFLMI
+    #         bool "TFLite Micro Default Interpreter"
+    #         depends on MLONMCU_FRAMEWORK_TFLM
+    #     config MLONMCU_BACKEND_TFLMC
+    #         bool "TFLite Micro Compiler"
+    #         depends on MLONMCU_FRAMEWORK_TFLM
+    #     config MLONMCU_BACKEND_TVMAOT
+    #         bool "TVM AoT Executor"
+    #         depends on MLONMCU_FRAMEWORK_TVM
+    #     config MLONMCU_BACKEND_TVMRT
+    #         bool "TVM Graph Executor"
+    #         depends on MLONMCU_FRAMEWORK_TVM
+    #     config MLONMCU_BACKEND_TVMCG
+    #         bool "TVM Custom Codegenerator"
+    #         depends on MLONMCU_FRAMEWORK_TVM
+    # endchoice
+
+    config MLONMCU_BACKEND
+        string "Used backend"
+        default "none"
+        help
+            TODO
+
+    config MLONMCU_NUM_RUNS
+        int "Number of inferences"
+        default 1
+        help
+            How many times the network should be invoked. A negative value maps to a infinite number of runs.
+
+    config MLONMCU_VALIDATE
+        bool "Validate model output data"
+        default false
+        help
+            Compare model outputs with expected results (if available). Only works in DEBUG mode.
+
+    config MLONMCU_MODLE_DIR
+        string "Model Directory"
+        depends on MLONMCU_VALIDATE
+        default "$(MODEL_DIR)"
+        help
+            Directory where model support code and reference data can be found.
+endmenu
+
+menu "TVM Build Options"
+    config TVM_DIR
+        string "Path to TVM"
+        default "$(TVM_SRC)"
+        help
+            TVM directory path.
+    config TVM_CRT_CONFIG_DIR
+        string "Path to TVM CRT config directory"
+        default ""
+        help
+            TVM crt path.
+endmenu
+menu "TFLite Micro Build Options"
+
+    config TF_DIR
+        string "Path to TFLite Micro"
+        default "$(TF_SRC)"
+        help
+            TFLite Micro directory path.
+endmenu

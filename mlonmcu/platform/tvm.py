@@ -18,7 +18,6 @@
 #
 """TVM Platform"""
 
-
 import tempfile
 from pathlib import Path
 
@@ -30,16 +29,17 @@ from mlonmcu.config import str2bool
 from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args, get_rpc_tvmc_args
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 
-from .platform import TargetPlatform
-from .tvm_target import create_tvm_target
+from .platform import TargetPlatform, BuildPlatform
+from .tvm_target import create_tvm_platform_target
+from .tvm_backend import create_tvm_platform_backend, get_tvm_platform_backends
 
 logger = get_logger()
 
 
-class TvmPlatform(TargetPlatform):
+class TvmPlatform(BuildPlatform, TargetPlatform):
     """TVM Platform class."""
 
-    FEATURES = TargetPlatform.FEATURES + []  # TODO: validate?
+    FEATURES = TargetPlatform.FEATURES + ["benchmark"]  # TODO: validate?
 
     DEFAULTS = {
         **TargetPlatform.DEFAULTS,
@@ -51,6 +51,9 @@ class TvmPlatform(TargetPlatform):
         "print_top": False,
         "profile": False,
         "repeat": 1,
+        "number": 1,
+        "aggregate": "none",  # Allowed: avg, max, min, none, all
+        "total_time": False,
         "use_rpc": False,
         "rpc_key": None,
         "rpc_hostname": None,
@@ -70,6 +73,12 @@ class TvmPlatform(TargetPlatform):
         self.tempdir = None
         self.project_name = "app"
         self.project_dir = None
+
+    def create_backend(self, name):
+        supported = self.get_supported_backends()
+        assert name in supported, f"{name} is not a valid TVM platform backend"
+        base = supported[name]
+        return create_tvm_platform_backend(name, self, base=base)
 
     @property
     def fill_mode(self):
@@ -95,6 +104,21 @@ class TvmPlatform(TargetPlatform):
     @property
     def repeat(self):
         return self.config["repeat"]
+
+    @property
+    def number(self):
+        return self.config["number"]
+
+    @property
+    def aggregate(self):
+        value = self.config["aggregate"]
+        assert value in ["avg", "all", "max", "min", "none"]
+        return value
+
+    @property
+    def total_time(self):
+        value = self.config["total_time"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def use_rpc(self):
@@ -159,6 +183,10 @@ class TvmPlatform(TargetPlatform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
 
+    def get_supported_backends(self):
+        backend_names = get_tvm_platform_backends()
+        return backend_names
+
     def get_supported_targets(self):
         # TODO: get this via tvmc run --help
         target_names = ["cpu", "cuda", "cl", "metal", "vulkan", "rocm", "micro"]
@@ -173,13 +201,13 @@ class TvmPlatform(TargetPlatform):
             base = SUPPORTED_TARGETS[name]
         else:
             base = Target
-        return create_tvm_target(name, self, base=base)
+        return create_tvm_platform_target(name, self, base=base)
 
     def close(self):
         if self.tempdir:
             self.tempdir.cleanup()
 
-    def get_tvmc_run_args(self, path, device, num=1):
+    def get_tvmc_run_args(self, path, device):
         return [
             path,
             *["--device", device],
@@ -187,7 +215,7 @@ class TvmPlatform(TargetPlatform):
                 mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
             ),
             *get_bench_tvmc_args(
-                print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=num
+                print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=self.number
             ),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
@@ -200,14 +228,15 @@ class TvmPlatform(TargetPlatform):
             pre = [self.tvmc_custom_script]
         return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
 
-    def invoke_tvmc_run(self, path, device, num=1):
-        args = self.get_tvmc_run_args(path, device, num=num)
+    def invoke_tvmc_run(self, path, device):
+        args = self.get_tvmc_run_args(path, device)
         return self.invoke_tvmc("run", *args)
 
-    def run(self, elf, target, timeout=120, num=1):
+    def run(self, elf, target, timeout=120):
         # TODO: implement timeout
         # Here, elf is actually a directory
         # TODO: replace workaround with possibility to pass TAR directly
         tar_path = elf
-        output = self.invoke_tvmc_run(str(tar_path), target.device, num=num)
+        output = self.invoke_tvmc_run(str(tar_path), target.device)
+
         return output

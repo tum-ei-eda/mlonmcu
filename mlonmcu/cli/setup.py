@@ -48,12 +48,14 @@ def add_setup_options(parser):
         metavar="KEY=VALUE",
         nargs="+",
         action="append",
-        help="Set a number of key-value pairs "
-        "(do not put spaces before or after the = sign). "
-        "If a value contains spaces, you should define "
-        "it with double quotes: "
-        'foo="this is a sentence". Note that '
-        "values are always treated as strings.",
+        help=(
+            "Set a number of key-value pairs "
+            "(do not put spaces before or after the = sign). "
+            "If a value contains spaces, you should define "
+            "it with double quotes: "
+            'foo="this is a sentence". Note that '
+            "values are always treated as strings."
+        ),
     )
     setup_parser.add_argument(
         "-p",
@@ -80,6 +82,12 @@ def add_setup_options(parser):
         default=None,
         help="Invoke a single task manually by name (default: %(default)s)",
     )
+    setup_parser.add_argument(
+        "--visualize",
+        type=str,
+        nargs=1,
+        help="Export a .dot file for the dependency graph.",
+    )
 
 
 def get_parser(subparsers):
@@ -95,10 +103,12 @@ def get_parser(subparsers):
 def handle(args):
     with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
         # config, features = extract_config_and_init_features(args)
-        config, _ = extract_config_and_feature_names(args)
+        config, _, _, _ = extract_config_and_feature_names(args)
         # installer = setup.Setup(features=features, config=config, context=context)
         installer = setup.Setup(config=config, context=context)
-        if args.list:
+        if args.visualize:
+            installer.visualize(args.visualize[0], ordered=False)
+        elif args.list:
             order = installer.get_dependency_order()
             print("The following tasks have been selected:")
             print("\n".join(["- " + key for key in order]))

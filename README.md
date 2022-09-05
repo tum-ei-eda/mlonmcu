@@ -96,7 +96,7 @@ make install  # Alternative: python setup.py install
 
 #### Docker (Any other OS)
 
-See [`./docker/README.md`](htps://github.com/tum-ei-eda/mlonmcu/blob/main/docker/README.md) for more details.
+See [`./docker/README.md`](https://github.com/tum-ei-eda/mlonmcu/blob/main/docker/README.md) for more details.
 
 This repository ships three different types of docker images based on Debian:
 

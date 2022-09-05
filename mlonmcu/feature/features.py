@@ -19,7 +19,7 @@
 """Definition of MLonMCU features and the feature registry."""
 
 import re
-from pathlib import Path
+import pandas as pd
 
 from mlonmcu.utils import is_power_of_two
 from mlonmcu.config import str2bool
@@ -38,6 +38,7 @@ from .feature import (
 # from mlonmcu.flow import SUPPORTED_TVM_BACKENDS
 SUPPORTED_TVM_BACKENDS = [
     "tvmaot",
+    "tvmaotplus",
     "tvmrt",
     "tvmcg",
     "tvmllvm",
@@ -316,6 +317,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "vlen": 64,  # TODO; define reasonable default? (Or put defaults in target and overwrite of not None)
+        "elen": 32,
     }
 
     REQUIRED = []
@@ -327,13 +329,18 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     def vlen(self):
         return int(self.config["vlen"])
 
+    @property
+    def elen(self):
+        return int(self.config["elen"])
+
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
-        assert target in ["spike", "ovpsim", "etiss_pulpino"]
+        assert target in ["spike", "ovpsim", "etiss_pulpino", "riscv_qemu"]
         assert is_power_of_two(self.vlen)
         return {
             f"{target}.enable_vext": True,
             f"{target}.vlen": self.vlen,
+            f"{target}.elen": self.elen,
         }
 
     # It would be great if we could enforce an llvm toolchain here
@@ -425,7 +432,7 @@ class GdbServer(TargetFeature):
         return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
-        assert target in ["host_x86", "etiss_pulpino"]
+        assert target in ["host_x86", "etiss_pulpino", "ovpsim"]
         return filter_none(
             {
                 f"{target}.gdbserver_enable": self.enabled,
@@ -453,6 +460,8 @@ class ETISSDebug(SetupFeature, TargetFeature):
 @register_feature("trace")
 class Trace(TargetFeature):
     """Enable tracing of all memory accesses in ETISS."""
+
+    # TODO: support ovpsim --trace --tracemem SA
 
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
@@ -506,19 +515,6 @@ class Packing(FrontendFeature):
         assert frontend in ["tflm"], f"Unsupported feature '{self.name} for frontend '{frontend}''"
         raise NotImplementedError
         return {f"{frontend}.pack_weights": self.enabled}
-
-
-@register_feature("memplan")
-class Memplan(FrameworkFeature):
-    """Custom TVM memory planning feature by (@rafzi)"""
-
-    def __init__(self, features=None, config=None):
-        super().__init__("memplan", features=features, config=config)
-
-    def get_framework_config(self, framework):
-        assert framework in ["tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"
-        raise NotImplementedError
-        return {"tvm.memplan_enable": self.enabled}
 
 
 @register_feature("usmp")
@@ -691,7 +687,7 @@ class Autotune(BackendFeature, RunFeature):
         "results_file": None,
         "append": None,
         "tuner": None,
-        "trial": None,
+        "trials": None,
         "early_stopping": None,
         "num_workers": None,
         "max_parallel": None,
@@ -762,35 +758,6 @@ class Autotune(BackendFeature, RunFeature):
         return {"run.tune_enabled": self.enabled}
 
 
-@register_feature("fallback")
-class Fallback(FrameworkFeature, PlatformFeature):
-    """(Unimplemented) TFLite Fallback for unsupported and custom operators in TVM."""
-
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "config_file": None,
-    }
-
-    def __init__(self, features=None, config=None):
-        super().__init__("fallback", features=features, config=config)
-
-    @property
-    def config_file(self):
-        return str(self.config["config_file"]) if "config_file" in self.config else None
-
-    def get_framework_config(self, framework):
-        assert framework in ["tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"
-        raise NotImplementedError
-        return filter_none(
-            {
-                f"{framework}.fallback_enable": self.enabled,
-                f"{framework}.fallback_config_file": self.config_file,
-            }
-        )
-
-    # -> hard to model..., preprocess for tflmc?
-
-
 @register_feature("disable_legalize")
 class DisableLegalize(BackendFeature, SetupFeature):
     """Enable transformation to reduces sizes of intermediate buffers by skipping legalization passes."""
@@ -826,7 +793,7 @@ class DisableLegalize(BackendFeature, SetupFeature):
 
 
 @register_feature("demo")
-class Demo(BackendFeature, SetupFeature):
+class Demo(PlatformFeature):
     """Run demo application instead of benchmarking code."""
 
     DEFAULTS = {
@@ -961,7 +928,8 @@ class CacheSim(TargetFeature):
                             continue
                     value = int(value) if "%" not in value else float(value[:-1]) / 100
                     if prefix in prefixes:
-                        metrics.add(f"{prefix}-Cache {label}", value)
+                        for m in metrics:
+                            m.add(f"{prefix}-Cache {label}", value)
 
             return cachesim_callback
 
@@ -969,6 +937,9 @@ class CacheSim(TargetFeature):
 @register_feature("log_instrs")
 class LogInstructions(TargetFeature):
     """Enable logging of the executed instructions of a simulator-based target."""
+
+    # TODO: support ovpsim via --trace. Example Output:
+    #   Info 'riscvOVPsim/cpu', 0x0000000000010b92(...): fdc42583 lw      a1,-36(s0)
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
@@ -989,7 +960,7 @@ class LogInstructions(TargetFeature):
             extra_args_new.append("-l")
             # if self.to_file:
             #     extra_args_new.append("--log=?")
-            config.update({"extra_args": extra_args_new})
+            config.update({f"{target}.extra_args": extra_args_new})
         elif target == "etiss_pulpino":
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
@@ -1018,76 +989,6 @@ class LogInstructions(TargetFeature):
                     artifacts.append(instrs_artifact)
 
             return log_instrs_callback
-
-
-@register_feature("microtvm_etissvp")
-class MicrotvmEtissVp(PlatformFeature):
-    """Use ETISS VP for MicroTVM deployment in TVM."""
-
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "verbose": False,
-        "debug": False,
-        "transport": True,
-    }
-
-    REQUIRED = ["microtvm_etissvp.template", "etiss.install_dir", "etissvp.script", "riscv_gcc.install_dir"]
-
-    def __init__(self, features=None, config=None):
-        super().__init__("microtvm_etissvp", features=features, config=config)
-
-    @property
-    def microtvm_etissvp_template(self):
-        return self.config["microtvm_etissvp.template"]
-
-    @property
-    def etiss_install_dir(self):
-        return self.config["etiss.install_dir"]
-
-    @property
-    def etissvp_script(self):
-        return self.config["etissvp.script"]
-
-    @property
-    def riscv_gcc_install_dir(self):
-        return self.config["riscv_gcc.install_dir"]
-
-    @property
-    def verbose(self):
-        value = self.config["verbose"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def debug(self):
-        value = self.config["debug"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def transport(self):
-        value = self.config["transport"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    def get_platform_config(self, platform):
-        assert platform == "microtvm", f"Unsupported feature '{self.name}' for platform '{platform}'"
-        etissvp_ini = Path(self.microtvm_etissvp_template) / "scripts" / "memsegs.ini"
-
-        project_options = {
-            "project_type": "host_driven",
-            "verbose": str(self.verbose).lower(),
-            "debug": str(self.debug).lower(),
-            "transport": str(self.transport).lower(),
-            "etiss_path": str(self.etiss_install_dir),
-            "riscv_path": str(self.riscv_gcc_install_dir),
-            "etissvp_script": str(self.etissvp_script),
-            "etissvp_script_args": f"plic clint uart v -i{etissvp_ini}",  # TODO: remove v
-        }
-
-        return filter_none(
-            {
-                f"{platform}.project_template": self.microtvm_etissvp_template,
-                f"{platform}.project_options": project_options,
-            }
-        )
 
 
 @register_feature("arm_mvei")
@@ -1150,3 +1051,186 @@ class TargetOptimized(RunFeature):
 
     def get_run_config(self):
         return {"run.target_to_backend": self.enabled}
+
+
+# Needs: vext
+# RISC-V only
+# Warning: Auto-vectorization is turned on by default quite low optimization levels
+# Therfore this feature is mainly for debugging the auto-vectorization procedure
+@register_feature("auto_vectorize")
+class AutoVectorize(PlatformFeature):
+    """Enable auto_vectorization for supported MLIF platform targets."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "verbose": False,
+        "loop": True,
+        "slp": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("auto_vectorize", features=features, config=config)
+
+    @property
+    def verbose(self):
+        return str2bool(self.config["verbose"]) if isinstance(self.config["verbose"], str) else self.config["verbose"]
+
+    @property
+    def loop(self):
+        return str2bool(self.config["loop"]) if isinstance(self.config["loop"], str) else self.config["loop"]
+
+    @property
+    def slp(self):
+        return str2bool(self.config["slp"]) if isinstance(self.config["slp"], str) else self.config["slp"]
+
+    def get_platform_defs(self, platform):
+        return {
+            "RISCV_AUTO_VECTORIZE": self.enabled,
+            "RISCV_AUTO_VECTORIZE_VERBOSE": self.verbose,
+            "RISCV_AUTO_VECTORIZE_LOOP": self.loop and self.enabled,
+            "RISCV_AUTO_VECTORIZE_SLP": self.slp and self.enabled,
+        }
+
+
+@register_feature("benchmark")
+class Benchmark(PlatformFeature, TargetFeature):
+    """Profile code using supported platforms."""
+
+    # TODO: would make sense to move end_to_end here as well!
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "num_runs": 1,
+        "num_repeat": 1,
+        "total": False,
+        "aggregate": "avg",  # Allowed: avg, max, min, none, all
+    }
+
+    REQUIRED = []
+
+    def __init__(self, features=None, config=None):
+        super().__init__("benchmark", features=features, config=config)
+
+    @property
+    def num_runs(self):
+        return int(self.config["num_runs"])
+
+    @property
+    def num_repeat(self):
+        return int(self.config["num_repeat"])
+
+    @property
+    def total(self):
+        value = self.config["total"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def aggregate(self):
+        value = self.config["aggregate"]
+        assert value in ["avg", "all", "max", "min", "none"]
+        return value
+
+    def get_platform_config(self, platform):
+        supported = ["mlif", "tvm"]  # TODO: support microtvm and espidf
+        assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
+
+        if platform in ["tvm", "microtvm"]:
+            return {
+                f"{platform}.number": self.num_runs,
+                f"{platform}.repeat": self.num_repeat,
+                f"{platform}.aggregate": self.aggregate,
+                f"{platform}.total_time": self.total,
+            }
+        else:
+            return {}
+
+    def get_target_config(self, target):
+
+        return {
+            f"{target}.repeat": self.num_repeat,
+        }
+
+    def get_platform_defs(self, platform):
+        supported = ["mlif", "espidf", "tvm", "microtvm", "zephyr"]  # TODO: support microtvm and espidf
+        assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
+
+        if platform == "mlif":
+            return {"NUM_RUNS": self.num_runs}
+        elif platform == "espidf":
+            return {"MLONMCU_NUM_RUNS": self.num_runs}
+        else:
+            return {}
+
+    def get_target_callback(self, target):
+        if self.enabled:
+
+            def benchmark_callback(stdout, metrics, artifacts):
+                if len(metrics) <= 1:
+                    return
+                metrics_ = metrics[1:]  # drop first run (warmup)
+
+                # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc.
+                data_ = [
+                    {
+                        key: (float(value) / self.num_runs) if self.num_runs > 1 else value
+                        for key, value in m.data.items()
+                        if "cycle" in key.lower() or "time" in key.lower()
+                    }
+                    for m in metrics_
+                ]
+
+                df = pd.DataFrame(data_)
+
+                if self.aggregate == "all":
+                    aggs = ["mean", "min", "max"]
+                elif self.aggregate in ["avg", "mean"]:
+                    aggs = ["mean"]
+                elif self.aggregate == "min":
+                    aggs = ["min"]
+                elif self.aggregate == "max":
+                    aggs = ["max"]
+                elif self.aggregate == "none":
+                    aggs = []
+
+                if len(aggs) == 0:
+                    data = {}
+                else:
+                    df_ = df.agg(aggs)
+
+                    # rename columns
+                    index_mapping = {
+                        "mean": "Average",
+                        "min": "Min",
+                        "max": "Max",
+                    }
+
+                    df_ = df_.rename(index=index_mapping)
+
+                    data = df_.to_dict()
+
+                    data = {f"{prefix} {key}": value for key, temp in data.items() for prefix, value in temp.items()}
+                if self.total:
+                    data.update(
+                        {
+                            f"Total {key}": ((value * self.num_runs) if self.num_runs > 1 else value)
+                            for key, value in data_[-1].items()
+                            if "cycle" in key.lower() or "time" in key.lower()
+                        }
+                    )
+                metrics_ = metrics_[-1]
+                metrics_.data.update(data)
+
+                for key in data_[-1].keys():
+                    if key in metrics_.order:
+                        if self.total:
+                            metrics_.order.append(f"Total {key}")
+                        metrics_.order.remove(key)
+                for key in data.keys():
+                    if key not in metrics_.order:
+                        metrics_.order.append(key)
+                metrics.clear()
+                metrics.append(metrics_)
+
+            benchmark_callback.priority = 0
+
+            return benchmark_callback

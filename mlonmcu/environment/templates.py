@@ -47,7 +47,7 @@ def fill_template(name, data={}):
         if not isinstance(template_text, str):
             try:
                 template_text = template_text.decode("utf-8")
-            except (UnicodeDecodeError):
+            except UnicodeDecodeError:
                 pass
         tmpl = jinja2.Template(template_text)
         rendered = tmpl.render(**data)

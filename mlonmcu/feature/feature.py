@@ -35,11 +35,12 @@ class FeatureBase(ABC):
 
     DEFAULTS = {"enabled": True}
     REQUIRED = []
+    OPTIONAL = []
 
     def __init__(self, name, features=None, config=None):
         self.name = name
         self.config = config if config else {}
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.REQUIRED)
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         # assert features is None, "Features with features are currently not supported"
         # just ignore the supplied feature list for now
 
@@ -205,7 +206,8 @@ class SetupFeature(FeatureBase):  # TODO: alternative: CacheFeature
         own_flags = self.get_required_cache_flags()
         for key, flags in own_flags.items():
             if key in required_flags:
-                required_flags[key].append(flags)
+                # remove duplicates along the way
+                required_flags[key] = list(set(required_flags[key] + flags))
             else:
                 required_flags[key] = flags
 

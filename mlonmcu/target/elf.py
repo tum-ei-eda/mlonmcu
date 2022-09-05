@@ -71,6 +71,29 @@ def parseElf(inFile):
         # Espressif
         ".flash.appdesc",
         ".iram0.text_end",  # ?
+        # QEMU
+        ".htif",
+        # Zephyr
+        ".mcuboot_header",
+        ".metadata",
+        "ctors",
+        "initlevel",
+        "devices",
+        "device_handles",
+        "sw_isr_table",
+        "device_states",
+        ".mcuboot_header",
+        ".metadata",
+        "ctors",
+        "initlevel",
+        "devices",
+        "device_handles",
+        "sw_isr_table",
+        "device_states",
+        ".xt.prop",
+        ".xt.lit",
+        "k_heap_area",
+        "datas",
     ]
     ignorePrefixes = [
         ".gcc_except",
@@ -88,6 +111,7 @@ def parseElf(inFile):
         ".table",
         "dummy",
         "heap_start",
+        "rom_start",
         ".info",
     ]
 
@@ -95,17 +119,18 @@ def parseElf(inFile):
         e = elffile.ELFFile(f)
 
         for s in e.iter_sections():
-            if s.name.startswith(".text") or s.name.endswith(".text"):
+            if s.name.startswith(".text") or s.name.endswith(".text") or s.name == "text":
                 m["rom_code"] += s.data_size
             elif s.name.startswith(".srodata"):
                 m["rom_rodata"] += s.data_size
             elif s.name.startswith(".sdata"):
                 m["ram_data"] += s.data_size
-            elif s.name.endswith(".rodata"):
+            elif s.name.endswith(".rodata") or s.name == "rodata":
                 m["rom_rodata"] += s.data_size
             elif s.name in [
                 ".vectors",
                 "iram0.vectors",
+                ".iram0.vectors",
                 ".init_array",
                 ".fini_array",
                 ".fini",
@@ -116,7 +141,15 @@ def parseElf(inFile):
                 m["rom_misc"] += s.data_size
             elif s.name.endswith(".data"):
                 m["ram_data"] += s.data_size
-            elif s.name == ".bss" or s.name == ".sbss" or s.name == ".shbss" or s.name.endswith(".bss"):
+            elif (
+                s.name == ".bss"
+                or s.name == "bss"
+                or s.name == ".sbss"
+                or s.name == ".shbss"
+                or s.name.endswith(".bss")
+                or s.name.startswith(".sbss")
+                or s.name == "noinit"
+            ):
                 m["ram_zdata"] += s.data_size
             elif s.name in ignoreSections:
                 pass

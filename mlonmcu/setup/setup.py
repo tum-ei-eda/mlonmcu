@@ -43,11 +43,12 @@ class Setup:
     }
 
     REQUIRED = []
+    OPTIONAL = []
 
     def __init__(self, features=None, config=None, context=None, tasks_factory=Tasks):
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, "setup", self.DEFAULTS, self.REQUIRED)
+        self.config = filter_config(self.config, "setup", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.context = context
         self.tasks_factory = tasks_factory
         self.verbose = bool(self.config["print_outputs"])
@@ -90,13 +91,17 @@ class Setup:
             feature.add_setup_config(self.config)
         return features
 
-    def get_dependency_order(self):
+    def _get_task_graph(self):
         self.tasks_factory.reset_changes()
         task_graph = TaskGraph(
             self.tasks_factory.registry.keys(),
             self.tasks_factory.dependencies,
             self.tasks_factory.providers,
         )
+        return task_graph
+
+    def get_dependency_order(self):
+        task_graph = self._get_task_graph()
         V, E = task_graph.get_graph()
         order = task_graph.get_order()
         order_str = " -> ".join(order)
@@ -121,10 +126,17 @@ class Setup:
         cache_file = self.context.environment.paths["deps"].path / "cache.ini"
         self.context.cache.write_to_file(cache_file)
 
+    def visualize(self, path, ordered=False):
+        task_graph = self._get_task_graph()
+        task_graph.export_dot(path)
+        logger.debug("Written task graph to file: %s" % path)
+
     def invoke_single_task(self, name, progress=False, write_cache=True, rebuild=False):
         assert name in self.tasks_factory.registry, f"Invalid task name: {name}"
         func = self.tasks_factory.registry[name]
         func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose, threads=self.num_threads)
+        if write_cache:
+            self.write_cache_file()
 
     def install_dependencies(
         self,

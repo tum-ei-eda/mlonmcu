@@ -17,8 +17,11 @@
 # limitations under the License.
 #
 import re
+import os
 import tflite
 from tflite.TensorType import TensorType as TType
+
+from mlonmcu.models.model import ModelFormats
 
 
 class TensorInfo:
@@ -173,6 +176,72 @@ class PBModelInfo(ModelInfo):
         super().__init__(in_tensors, out_tensors)
 
 
+class ONNXModelInfo(ModelInfo):
+    def __init__(self, model_file):
+        from google.protobuf.json_format import MessageToDict
+        import onnx
+        from onnx.mapping import TENSOR_TYPE_TO_NP_TYPE
+
+        model = onnx.load(model_file)
+
+        def _helper(tensors):
+            ret = []
+            for tensor in tensors:
+                d = MessageToDict(tensor)
+                name = d["name"]
+                elem_type = d["type"]["tensorType"]["elemType"]
+                dims = d["type"]["elemType"]["shape"]["dim"]
+                shape = [int(x["dimValue"]) for x in dims]
+                dtype = str(TENSOR_TYPE_TO_NP_TYPE[elem_type])
+                ret.append(TensorInfo(name, shape, dtype))
+            return ret
+
+        in_tensors = _helper(model.graph.input)
+        out_tensors = _helper(model.graph.output)
+        super().__init__(in_tensors, out_tensors)
+
+
+class PaddleModelInfo(ModelInfo):
+    def __init__(self, model_file):
+        import paddle
+
+        paddle.enable_static()
+        paddle.disable_signal_handler()
+
+        exe = paddle.static.Executor(paddle.CPUPlace())
+        prefix = "".join(model_file.strip().split(".")[:-1])
+        program, _, _ = paddle.static.load_inference_model(prefix, exe)
+
+        output_names = list()
+        for block in program.blocks:
+            for op in block.ops:
+                if op.type == "fetch":
+                    output_names.append(op.input("X")[0])
+
+        def _convert_dtype_value(val):
+            """Converts a Paddle type id to a string."""
+            # See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/relay/frontend/paddlepaddle.py#L70
+
+            convert_dtype_map = {
+                21: "int8",
+                20: "uint8",
+                6: "float64",
+                5: "float32",
+                4: "float16",
+                3: "int64",
+                2: "int32",
+                1: "int16",
+                0: "bool",
+            }
+            if val not in convert_dtype_map:
+                msg = "Paddle data type value %d is not handled yet." % (val)
+                raise NotImplementedError(msg)
+            return convert_dtype_map[val]
+
+        raise NotImplementedError
+        # super().__init__(in_tensors, out_tensors)
+
+
 def get_tflite_model_info(model_buf):
     tflite_model = tflite.Model.GetRootAsModel(model_buf, 0)
     model_info = TfLiteModelInfo(tflite_model)
@@ -187,3 +256,32 @@ def get_relay_model_info(mod_text):
 def get_pb_model_info(model_file):
     model_info = PBModelInfo(model_file)
     return model_info
+
+
+def get_paddle_model_info(model_file):
+    model_info = PaddleModelInfo(model_file)
+    return model_info
+
+
+def get_onnx_model_info(model_file):
+    model_info = ONNXModelInfo(model_file)
+    return model_info
+
+
+def get_model_info(model, fmt, backend_name="unknown"):
+    ext = os.path.splitext(model)[1][1:]
+    fmt = ModelFormats.from_extension(ext)
+    if fmt == ModelFormats.TFLITE:
+        with open(model, "rb") as handle:
+            model_buf = handle.read()
+            return "tflite", get_tflite_model_info(model_buf)
+    elif fmt == ModelFormats.RELAY:
+        # Warning: the wrapper generateion does currently not work because of the
+        # missing possibility to get the relay models input names and shapes
+        with open(model, "r") as handle:
+            mod_text = handle.read()
+        return "relay", get_relay_model_info(mod_text)
+    elif fmt == ModelFormats.PB:
+        return "pb", get_pb_model_info(model)
+    else:
+        raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")

@@ -18,71 +18,38 @@
 #
 """MicroTVM Platform"""
 
+import re
 import tempfile
 from pathlib import Path
 
 from mlonmcu.setup import utils
+from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
-from mlonmcu.target import SUPPORTED_TARGETS
-from mlonmcu.target.target import Target
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
-from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args
+from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args, get_target_tvmc_args
 
-from .platform import CompilePlatform, TargetPlatform
-from .microtvm_target import create_microtvm_target
+from .platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
+from .microtvm_target import create_microtvm_platform_target, get_microtvm_platform_targets
+from .microtvm_backend import create_microtvm_platform_backend, get_microtvm_platform_backends
 
 logger = get_logger()
+# TODO: This file is very similar to the TVM platform -> Reuse as much as possible
 
 
-# TODO: Replace this hardcoded dict which dynamic lookup
-ALLOWED_PROJECT_OPTIONS = {
-    "arduino": {
-        "create": ["arduino_cli_cmd", "project_type", "warning_as_error"],
-        "build": ["arduino_board", "arduino_cli_cmd", "verbose"],
-        "flash": ["arduino_board", "arduino_cli_cmd", "port", "verbose"],
-        "run": ["arduino_board", "arduino_cli_cmd", "port"],
-    },
-    "zephyr": {
-        "create": [
-            "extra_files_tar",
-            "project_type",
-            "config_main_stack_size",
-            "warning_as_error",
-            "compile_definitions",
-            "zephyr_base",
-            "zephyr_board",
-        ],
-        "build": ["verbose", "west_cmd", "zephyr_base", "zephyr_board"],
-        "flash": ["zephyr_board"],
-        "run": ["gdbserver_port", "nrfjprog_snr", "openocd_serial", "zephyr_base", "zephyr_board"],
-    },
-    # "etissvp": {
-    "template": {
-        "create": [
-            "extra_files_tar",
-            "project_type",
-            "config_main_stack_size",
-            "warning_as_error",
-            "compile_definitions",
-        ],
-        "build": ["verbose", "riscv_path", "etiss_path"],
-        "flash": ["etiss_path", "etissvp_script", "etissvp_script_args", "transport"],
-        "run": ["etissvp_script", "etissvp_script_args", "etiss_path"],
-    },
-}
+def parse_project_options_from_stdout(out):
+    return re.compile(r"^\s+([A-Za-z0-9_]+)=", re.MULTILINE).findall(out)
+
+
+def filter_project_options(valid, options):
+    return {key: value for key, value in options.items() if key in valid}
 
 
 def get_project_option_args(template, stage, project_options):
     ret = []
-    # TODO: dynamically fetch allowed options per stage (create, build, run)
-    assert template[0] in ALLOWED_PROJECT_OPTIONS
-    assert stage in ALLOWED_PROJECT_OPTIONS[template[0]]
-    allowed = ALLOWED_PROJECT_OPTIONS[template[0]][stage]
     for key, value in project_options.items():
-        if key in allowed:
-            ret.append(f"{key}={value}")
+        ret.append(f"{key}={value}")
 
     if len(ret) > 0:
         ret = ["--project-option"] + ret
@@ -90,10 +57,7 @@ def get_project_option_args(template, stage, project_options):
     return ret
 
 
-# TODO: This file is very similar to the TVM platform -> Reuse as much as possible
-
-
-class MicroTvmPlatform(CompilePlatform, TargetPlatform):
+class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform):
     """TVM Platform class."""
 
     FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["microtvm_etissvp"]  # TODO: validate?
@@ -116,6 +80,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
         # "rpc_port": None,
         "tvmc_extra_args": [],
         "tvmc_custom_script": None,
+        "visualize_tuning": False,  # Needs upstream patches
+        "tune_tasks": None,  # Needs upstream patches
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -208,6 +174,17 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
     def project_template(self):
         return self.config["project_template"]
 
+    @property
+    def visualize_tuning(self):
+        # Visualize the tuning progress via matplotlib
+        value = self.config["visualize_tuning"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def tune_tasks(self):
+        # Effectively select which tasks should be tuned in the session
+        return self.config["tune_tasks"]
+
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
@@ -234,87 +211,131 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
 
-    def get_supported_targets(self):
-        # TODO: get this via tvmc micro create-project --help
-        target_names = ["zephyr", "arduino", "template"]
+    def get_supported_backends(self):
+        backend_names = get_microtvm_platform_backends()
+        return backend_names
 
-        return [f"microtvm_{name}" for name in target_names]
+    def create_backend(self, name):
+        supported = self.get_supported_backends()
+        assert name in supported, f"{name} is not a valid MicroTVM platform backend"
+        base = supported[name]
+        return create_microtvm_platform_backend(name, self, base=base)
+
+    def get_supported_targets(self):
+        return get_microtvm_platform_targets()
 
     def create_target(self, name):
-        assert name in self.get_supported_targets(), f"{name} is not a valid MicroTVM device"
-        if name in SUPPORTED_TARGETS:
-            base = SUPPORTED_TARGETS[name]
-        else:
-            base = Target
-        return create_microtvm_target(name, self, base=base)
+        supported = self.get_supported_targets()
+        assert name in supported, f"{name} is not a valid MicroTVM device"
+        base = supported[name]
+        return create_microtvm_platform_target(name, self, base=base)
 
-    def get_tvmc_run_args(self, path, device, num=1):
-        return [
+    def get_tvmc_run_args(self, path, device, list_options=False):
+        ret = [
             path,
             *["--device", device],
             *get_data_tvmc_args(
                 mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
             ),
             *get_bench_tvmc_args(
-                # print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=num
-                print_time=True,
+                # print_time=True,
+                print_time=False,
                 profile=False,
                 end_to_end=False,
-                repeat=self.repeat,
-                number=num,
+                # repeat=self.repeat,
+                # number=self.number,
             ),
             # *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
+        if list_options:
+            ret.append("--list-options")
+        return ret
 
-    def get_tvmc_micro_args(self, command, path, mlf_path, template):
+    def get_tvmc_micro_args(self, command, path, mlf_path, template, list_options=False, tune_args=None):
+        ret = [command]
         if "create" in command:
-            return [command, "--force", path, mlf_path, *template]
+            ret.extend(["--force", path, mlf_path])
+        elif command == "tune":
+            if tune_args:
+                ret.extend(tune_args)
+            if list_options:
+                ret.extend(["--output", "-", "_"])
         else:
-            return [command, path, *template]
+            ret.append(path)
+        ret.extend(template)
+        if list_options:
+            ret.append("--help")
+        return ret
 
-    def invoke_tvmc(self, command, *args):
+    def invoke_tvmc(self, command, *args, target=None):
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
+        if target:
+            target.update_environment(env)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:
             pre = [self.tvmc_custom_script]
         return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
 
-    def invoke_tvmc_micro(self, command, path, mlf_path, template, micro=True):
-        args = self.get_tvmc_micro_args(command, path, mlf_path, template)
-        args += get_project_option_args(template, command, self.project_options)
-        return self.invoke_tvmc("micro", *args)
+    def collect_available_project_options(self, command, path, mlf_path, template, micro=True):
+        args = self.get_tvmc_micro_args(command, path, mlf_path, template, list_options=True)
+        out = self.invoke_tvmc("micro", *args)
+        return parse_project_options_from_stdout(out)
 
-    def invoke_tvmc_run(self, path, device, template, num=1, micro=True):
-        args = self.get_tvmc_run_args(path, device, num=num)
+    def invoke_tvmc_micro(self, command, path, mlf_path, template, target, extra_args=None, micro=True, tune_args=None):
+        args = self.get_tvmc_micro_args(command, path, mlf_path, template, tune_args=tune_args)
+        options = filter_project_options(
+            self.collect_available_project_options(command, path, mlf_path, template), target.get_project_options()
+        )
+        args += get_project_option_args(template, command, options)
+        return self.invoke_tvmc("micro", *args, target=target)
+
+    def collect_available_run_project_options(self, path, device):
+        args = self.get_tvmc_run_args(path, device, list_options=True)
+        out = self.invoke_tvmc("run", *args)
+        return parse_project_options_from_stdout(out)
+
+    def invoke_tvmc_run(self, path, device, template, target, micro=True):
+        args = self.get_tvmc_run_args(path, device)
         if micro:
-            args.extend(get_project_option_args(template, "run", self.project_options))
-        return self.invoke_tvmc("run", *args)
+            options = filter_project_options(
+                self.collect_available_run_project_options(path, device), target.get_project_options()
+            )
+            args.extend(get_project_option_args(template, "run", options))
+        return self.invoke_tvmc("run", *args, target=target)
 
     def close(self):
         if self.tempdir:
             self.tempdir.cleanup()
 
     def get_template_args(self, target):
-        target_template = target.template
-        if target_template == "template":
-            assert self.project_template is not None
-            return (target_template, "--template-dir", self.project_template)
+        template = target.template
+        if target.template_path:
+            template = "template"
+            template_path = target.template_path
         else:
-            return (target_template,)
+            if template == "template":
+                assert self.project_template is not None
+                template_path = self.project_template
+            else:
+                template_path = None
+        if template_path:
+            return ("template", "--template-dir", template_path)
+        else:
+            return (template,)
 
     def prepare(self, mlf, target):
-        out = self.invoke_tvmc_micro("create", self.project_dir, mlf, self.get_template_args(target))
+        out = self.invoke_tvmc_micro("create", self.project_dir, mlf, self.get_template_args(target), target)
         return out
 
     def compile(self, target):
         out = ""
         # TODO: build with cmake options
-        out += self.invoke_tvmc_micro("build", self.project_dir, None, self.get_template_args(target))
+        out += self.invoke_tvmc_micro("build", self.project_dir, None, self.get_template_args(target), target)
         # TODO: support self.num_threads (e.g. patch esp-idf)
         return out
 
-    def generate_elf(self, src, target, model=None, num=1, data_file=None):
+    def generate_elf(self, src, target, model=None, data_file=None):
         # TODO: name missleading as we are not interested in the ELF
         src = Path(src) / "default.tar"  # TODO: lookup for *.tar file
         artifacts = []
@@ -333,13 +354,129 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform):
             logger.debug("Ignoring ELF file for microtvm platform")
         # TODO: implement timeout
         logger.debug("Flashing target software using MicroTVM ProjectAPI")
-        output = self.invoke_tvmc_micro("flash", self.project_dir, None, self.get_template_args(target))
+        output = self.invoke_tvmc_micro("flash", self.project_dir, None, self.get_template_args(target), target)
         return output
 
-    def run(self, elf, target, timeout=120, num=1):
+    def run(self, elf, target, timeout=120):
         # TODO: implement timeout
         output = self.flash(elf, target)
         output += self.invoke_tvmc_run(
-            str(self.project_dir), "micro", self.get_template_args(target), num=num, micro=True
+            str(self.project_dir), "micro", self.get_template_args(target), target, micro=True
         )
         return output
+
+    def get_micro_tune_args(self, model, backend, out):
+
+        tuner = backend.config.get("autotuning_tuner", "ga")
+        assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
+        trials = backend.config.get("autotuning_trials", 10)
+        if not isinstance(trials, int):
+            trials = int(trials)
+        early_stopping = backend.config.get("autotuning_early_stopping", None)
+        if early_stopping is None:
+            early_stopping = max(trials, 10)  # Let's see if this default works out...
+        early_stopping = int(early_stopping)
+        # max_parallel = backend.config.get("autotuning_max_parallel", 1)
+        # max_parallel = 1
+        timeout = backend.config.get("autotuning_timeout", 1000)
+        results_file = backend.config.get("autotuning_results_file", None)
+        desired_layout = backend.config.get("desired_layout", None)
+        ret = [
+            *get_target_tvmc_args(
+                # "llvm", extra_target=backend.extra_target, target_details=backend.get_target_details()
+                "c",
+                extra_target=backend.extra_target,
+                target_details=backend.get_target_details(),
+            ),
+            *(["--desired-layout", desired_layout] if desired_layout is not None else []),
+            # *get_rpc_tvmc_args(self.use_rpc, self.key, self.hostname, self.port),
+            # TODO: missing: pass config, disabled_pass, etc.
+            *["--tuner", tuner],
+            *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),
+            # *["--parallel", str(max_parallel)],
+            # *["--timeout", str(timeout * max_parallel)],
+            *["--timeout", str(timeout)],
+            *["--trials", str(trials)],
+            # *["--number", str(100)],
+            *(["--tuning-records", results_file] if results_file is not None else []),
+            *["--output", str(out)],
+            *(["--visualize"] if self.visualize_tuning else []),
+            *(["--tasks", str(self.tune_tasks)] if self.tune_tasks is not None else []),
+            # "--target-c-link-params",
+            # "1",
+            model,
+        ]
+        return ret
+
+    def tune_model(self, model_path, backend, target):
+        enable = backend.config["autotuning_enable"]
+        results_file = backend.config["autotuning_results_file"]
+        append = backend.config["autotuning_append"]
+        artifacts = []
+        if self.print_outputs:
+            verbose = True
+
+        content = ""
+        if enable:
+
+            if append:
+                if results_file is not None:
+                    with open(results_file, "r") as handle:
+                        content = handle.read()
+
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                with open(out_file, "w") as handle:
+                    handle.write(content)
+                    # TODO: newline or not?
+                # out = self.invoke_tvmc_tune(out_file, verbose=verbose)
+                tune_args = self.get_micro_tune_args(model_path, backend, out_file)
+                out = self.invoke_tvmc_micro(
+                    "tune", self.project_dir, None, self.get_template_args(target), target, tune_args=tune_args
+                )
+                with open(out_file, "r") as handle:
+                    content = handle.read()
+        else:
+            if results_file is None:
+                return []
+            assert Path(results_file).is_file()
+            with open(results_file, "r") as handle:
+                content = handle.read()
+
+        artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
+        artifacts.append(artifact)
+
+        # pick best records
+        def _pick_best(backend, records, verbose=False):
+            content_best = ""
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                in_file = Path(tmp_dir) / "tuning_results.log.txt"
+                with open(in_file, "w") as handle:
+                    handle.write(records)
+                out_file = Path(tmp_dir) / "best_tuning_results.log.txt"
+                args = [
+                    "--mode",
+                    "pick",
+                    "--i",
+                    in_file,
+                    "--o",
+                    out_file,
+                ]
+                env = prepare_python_environment(backend.tvm_pythonpath, backend.tvm_build_dir, backend.tvm_configs_dir)
+                utils.python("-m", "tvm.autotvm.record", *args, live=verbose, env=env)
+                with open(out_file, "r") as handle:
+                    content_best = handle.read()
+            return content_best
+
+        content_best = _pick_best(backend, content, verbose=verbose)
+        if len(content_best) > 0:
+            artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
+            artifacts.append(artifact_)
+
+        if enable:
+            stdout_artifact = Artifact(
+                "tvmc_micro_tune_out.log", content=out, fmt=ArtifactFormat.TEXT
+            )  # TODO: rename to tvmaot_out.log?
+            artifacts.append(stdout_artifact)
+
+        return artifacts

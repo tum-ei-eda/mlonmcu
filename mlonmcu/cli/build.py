@@ -23,8 +23,13 @@ from mlonmcu.flow import get_available_backend_names
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.load import handle as handle_load, add_load_options
 from mlonmcu.session.run import RunStage
-from mlonmcu.platform.lookup import get_platforms_targets
-from .helper.parse import extract_backend_names, extract_target_names, extract_platform_names
+from mlonmcu.platform.lookup import get_platforms_targets, get_platforms_backends
+from .helper.parse import (
+    extract_backend_names,
+    extract_target_names,
+    extract_platform_names,
+    extract_config_and_feature_names,
+)
 
 
 def add_build_options(parser):
@@ -60,7 +65,9 @@ def _handle(args, context):
     targets = extract_target_names(args, context=None)
     platforms = extract_platform_names(args, context=context)
 
-    platform_targets = get_platforms_targets(context)  # This will be slow?
+    new_config, _, _, _ = extract_config_and_feature_names(args, context=context)
+    platform_backends = get_platforms_backends(context, config=new_config)  # This will be slow?
+    platform_targets = get_platforms_targets(context, config=new_config)  # This will be slow?
 
     assert len(context.sessions) > 0
     session = context.sessions[-1]
@@ -69,6 +76,23 @@ def _handle(args, context):
         for target_name in targets:
             for backend_name in backends:
                 new_run = run.copy()
+                if backend_name is not None:
+                    platform_name = None
+                    for platform in platforms:
+                        candidates = platform_backends[platform]
+                        if backend_name in candidates:
+                            try:
+                                platform_name = platform
+                                new_run.add_platform_by_name(platform_name, context=context)
+                                break
+                            except AssertionError:  # TODO: replace with incompatble error
+                                platform_name = None
+                                continue
+                    # assert (
+                    #     platform_name is not None
+                    # ), f"Unable to find a suitable platform for the backend '{target_name}'"
+                    # assert platform_name is not None
+
                 if target_name is not None:
                     platform_name = None
                     for platform in platforms:

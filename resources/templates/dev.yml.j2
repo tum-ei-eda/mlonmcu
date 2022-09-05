@@ -167,6 +167,14 @@ targets:
     enabled: true
   esp32c3:
     enabled: true
+  microtvm_etissvp:
+    enabled: true
+  microtvm_espidf:
+    enabled: false
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
 platforms:
   mlif:
     enabled: true
@@ -175,6 +183,10 @@ platforms:
       validate: true
   espidf:
     enabled: true
+    features:
+      debug: true
+  zephyr:
+    enabled: false
     features:
       debug: true
 postprocesses:
@@ -192,3 +204,6 @@ vars:
   llvm.version: "11.1.0"
   runs_per_stage: true
   riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fi89JQF89pEiWwP6aQh7cM4H/rv32gcv.tar.xz"
+flags:
+  tflmc.exe:
+  - x86

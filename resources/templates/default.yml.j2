@@ -56,7 +56,7 @@ repos:
     ref: 2efabd3e6604b8a9e8f70baf52f57696680c7855
   cmsis:
     url: "https://github.com/PhilippvK/CMSIS_5.git"
-    ref: 4a52cabc5830b4666589d4c63f3a228eef5b4efb
+    ref: 21c549c7fdd4f92fb5a16e98212fb9b4df2ab672
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
     ref: 3f8e66b956fe1cf0d85a18d39d684816e92e2751
@@ -65,7 +65,7 @@ repos:
     ref: release/v4.4
   microtvm_etissvp:
     url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
-    ref: 8b48a897ed4354602454f18cdd890aef6df4a554
+    ref: 41e591ea5479484154598fa74e3d7097ded3da86
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -96,6 +96,15 @@ frameworks:
           autotune: true
           autotuned: true
       tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: true
+          disable_legalize: true
+          autotune: true
+          autotuned: true
+      tvmaotplus:
         enabled: true
         features:
           debug_arena: true
@@ -141,6 +150,10 @@ frontends:
   onnx:
     enabled: false
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
 # Platform extend the number of supported targets
 platforms:
   mlif:
@@ -152,6 +165,10 @@ platforms:
     enabled: true
     features:
       debug: true
+  zephyr:
+    enabled: false
+    features:
+      debug: true
   tvm:
     enabled: false
     features: []
@@ -159,9 +176,8 @@ platforms:
       # validate: true
   microtvm:
     enabled: false
-    features:
+    features: []
       # validate: true
-      microtvm_etissvp: true
 # List of supported targets in the environment
 targets:
   default: etiss_pulpino
@@ -196,6 +212,10 @@ targets:
       ethosu: false
       arm_mvei: false
       arm_dsp: false
+  microtvm_etissvp:
+    enabled: true
+  microtvm_espidf:
+    enabled: false
 postprocesses:
   use:
   # - detailed_cycles
@@ -212,5 +232,8 @@ vars:
   llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
   runs_per_stage: true
   riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
-  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiPX7H4WRQL9GXbeoo2sEexj/rv32gcv.tar.gz"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv32gcv_new.tar.gz"
   riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiNvP4mzVQ8uDvgT9Yf2bqNk/rv32gcp.tar.xz"
+flags:
+  tflmc.exe:
+  - x86

@@ -156,8 +156,8 @@ def cli(target, args: List[str] = None):
     exec_parser = subparsers.add_parser("exec", description="Run program with target")
 
     def _handle_execute(args):
-        config = extract_config(args)
-        feature_names = extract_feature_names(args)
+        config, _ = extract_config(args)
+        feature_names, _ = extract_feature_names(args)
         features = init_target_features(feature_names, config)
         target_inst = target(features=features, config=config)
         target_inst.exec(args.program, *args.extra_args, live=True)
@@ -170,8 +170,8 @@ def cli(target, args: List[str] = None):
     inspect_parser = subparsers.add_parser("inspect", description="Inspect program with target")
 
     def _handle_inspect(args):
-        config = extract_config(args)
-        feature_names = extract_feature_names(args)
+        config, _ = extract_config(args)
+        feature_names, _ = extract_feature_names(args)
         features = init_target_features(feature_names, config)
         target_inst = target(features=features, config=config)
         target_inst.inspect(args.program)

@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import venv
 import multiprocessing
 from pathlib import Path
 
@@ -145,7 +146,7 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
 @Tasks.param("muriscvnn", [False, True])
 @Tasks.param("cmsisnn", [False, True])
-@Tasks.param("dbg", False)
+@Tasks.param("dbg", [False, True])
 @Tasks.param("arch", ["x86"])  # TODO: compile for arm/riscv in the future
 @Tasks.validate(_validate_build_tflite_micro_compiler)
 @Tasks.register(category=TaskType.BACKEND)
@@ -158,13 +159,13 @@ def build_tflite_micro_compiler(
     dbg = params.get("dbg", False)
     arch = params.get("arch", "x86")
     flags = utils.makeFlags((True, arch), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
-    flags_ = utils.makeFlags((dbg, "dbg"))
+    # flags_ = utils.makeFlags((dbg, "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
     tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
     tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
     tflmcExe = tflmcInstallDir / "compiler"
-    tfSrcDir = context.cache["tf.src_dir", flags_]
-    tflmcSrcDir = context.cache["tflmc.src_dir", flags_]
+    tfSrcDir = context.cache["tf.src_dir"]
+    tflmcSrcDir = context.cache["tflmc.src_dir"]
     if rebuild or not utils.is_populated(tflmcBuildDir) or not tflmcExe.is_file():
         cmakeArgs = [
             "-DTF_SRC=" + str(tfSrcDir),
@@ -181,12 +182,14 @@ def build_tflite_micro_compiler(
             flags__ = utils.makeFlags((True, arch), (dbg, "dbg"))
             cmsisnnLib = context.cache["cmsisnn.lib", flags__]
             cmsisDir = Path(context.cache["cmsisnn.dir"])
-            cmsisIncs = [
-                str(cmsisDir),
-                str(cmsisDir / "CMSIS" / "Core" / "Include"),
-                str(cmsisDir / "CMSIS" / "NN" / "Include"),
-                str(cmsisDir / "CMSIS" / "DSP" / "Include"),
-            ]
+            cmsisIncs = r"\;".join(
+                [
+                    str(cmsisDir),
+                    str(cmsisDir / "CMSIS" / "Core" / "Include"),
+                    str(cmsisDir / "CMSIS" / "NN" / "Include"),
+                    str(cmsisDir / "CMSIS" / "DSP" / "Include"),
+                ]
+            )
             cmakeArgs.append("-DTFLM_OPTIMIZED_KERNEL=cmsis_nn")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_LIB={cmsisnnLib}")
             cmakeArgs.append(f"-DTFLM_OPTIMIZED_KERNEL_INCLUDE_DIR={cmsisIncs}")
@@ -212,6 +215,8 @@ def build_tflite_micro_compiler(
 
 
 def _validate_riscv_gcc(context: MlonMcuContext, params=None):
+    if not context.environment.has_toolchain("gcc"):
+        return False
     if not (
         context.environment.has_target("etiss_pulpino")
         or context.environment.has_target("spike")
@@ -313,7 +318,7 @@ def install_riscv_gcc(
 
 def _validate_llvm(context: MlonMcuContext, params=None):
     # return context.environment.has_framework("tvm") or context.environment.has_target("etiss_pulpino")
-    return context.environment.has_framework("tvm")
+    return context.environment.has_toolchain("llvm") or context.environment.has_framework("tvm")
 
 
 @Tasks.provides(["llvm.install_dir"])
@@ -632,6 +637,8 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
         assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
         toolchain = params.get("toolchain", "gcc")
+        if not context.environment.has_toolchain(toolchain):
+            return False
         target_arch = params.get("target_arch", "riscv")
         if target_arch == "riscv":
             if params.get("vext", False):
@@ -683,7 +690,8 @@ def clone_muriscvnn(
 @Tasks.needs(["muriscvnn.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
 # @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
 @Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
-@Tasks.param("dbg", [False, True])
+# @Tasks.param("dbg", [False, True])
+@Tasks.param("dbg", [False])  # disable due to bug with vext gcc
 @Tasks.param("vext", [False, True])
 @Tasks.param("pext", [False, True])
 @Tasks.param("toolchain", ["gcc"])
@@ -945,7 +953,7 @@ def clone_cmsis(
 ):
     """CMSIS repository."""
     cmsisName = utils.makeDirName("cmsis")
-    cmsisSrcDir = context.environment.paths["deps"].path / "src" / cmsisName
+    cmsisSrcDir = Path(context.environment.paths["deps"].path) / "src" / cmsisName
     # TODO: allow to skip this if cmsisnn.dir+cmsisnn.lib are provided by the user and corstone is not used
     # -> move those checks to validate?
     if rebuild or not utils.is_populated(cmsisSrcDir):
@@ -958,7 +966,8 @@ def clone_cmsis(
 @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
 @Tasks.provides(["cmsisnn.lib"])
 @Tasks.param("dbg", [False, True])
-@Tasks.param("target_arch", ["x86", "riscv", "arm"])
+# @Tasks.param("target_arch", ["x86", "riscv", "arm"])
+@Tasks.param("target_arch", ["x86", "riscv"])  # Arm currently broken
 @Tasks.param("mvei", [False, True])
 @Tasks.param("dsp", [False, True])
 @Tasks.validate(_validate_cmsisnn)
@@ -980,7 +989,7 @@ def build_cmsisnn(
     cmsisnnBuildDir = context.environment.paths["deps"].path / "build" / cmsisnnName
     cmsisnnInstallDir = context.environment.paths["deps"].path / "install" / cmsisnnName
     cmsisnnLib = cmsisnnInstallDir / "libcmsis-nn.a"
-    cmsisSrcDir = context.cache["cmsisnn.dir"]
+    cmsisSrcDir = Path(context.cache["cmsisnn.dir"])
     cmsisnnSrcDir = cmsisSrcDir / "CMSIS" / "NN"
     if rebuild or not utils.is_populated(cmsisnnBuildDir) or not cmsisnnLib.is_file():
         utils.mkdirs(cmsisnnBuildDir)
@@ -1032,8 +1041,12 @@ def build_cmsisnn(
     context.cache["cmsisnn.lib", flags] = cmsisnnLib
 
 
+def _validate_arm_gcc(context: MlonMcuContext, params=None):
+    return context.environment.has_toolchain("gcc")
+
+
 def _validate_corstone300(context: MlonMcuContext, params=None):
-    return context.environment.has_target("corstone300")
+    return context.environment.has_target("corstone300") and _validate_arm_gcc(context, params=params)
 
 
 @Tasks.provides(["arm_gcc.install_dir"])
@@ -1205,7 +1218,7 @@ def download_tflite_vizualize(
 
 
 def _validate_microtvm_etissvp(context: MlonMcuContext, params=None):
-    return context.environment.has_feature("microtvm_etissvp")
+    return context.environment.has_target("microtvm_etissvp")
 
 
 @Tasks.provides(["microtvm_etissvp.src_dir", "microtvm_etissvp.template"])
@@ -1222,3 +1235,79 @@ def clone_microtvm_etissvp(
         utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
     context.cache["microtvm_etissvp.src_dir"] = srcDir
     context.cache["microtvm_etissvp.template"] = srcDir / "template_project"
+
+
+def _validate_zephyr(context: MlonMcuContext, params=None):
+    return context.environment.has_platform("zephyr")
+
+
+# @Tasks.needs([])
+@Tasks.provides(["zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"])
+@Tasks.validate(_validate_zephyr)
+@Tasks.register(category=TaskType.PLATFORM)
+def install_zephyr(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Download and install support for the Zephyr Platform."""
+    zephyrName = utils.makeDirName("zephyr")
+    zephyrInstallDir = context.environment.paths["deps"].path / "install" / zephyrName
+    zephyrInstallDir.mkdir(exist_ok=True)
+    zephyrSdkDir = zephyrInstallDir / "sdk"
+    zephyrVenvDir = zephyrInstallDir / "venv"
+    zephyrModulesDir = zephyrInstallDir / "modules"
+    user_vars = context.environment.vars
+    if "zephyr.install_dir" in user_vars:  # TODO: also check command line flags?
+        assert "zephyr.sdk_dir" in user_vars
+        assert "zephyr.venv_dir" in user_vars
+        return False
+    # boards = ["espressif"]
+    # if "zephyr.boards" in user_vars:
+    #     boards = user_vars["zephyr.boards"]
+    # if not isinstance(boards, str):
+    #     assert isinstance(boards, list)
+    #     boards = ",".join(boards)
+    if (
+        not utils.is_populated(zephyrInstallDir)
+        or not utils.is_populated(zephyrSdkDir)
+        or not utils.is_populated(zephyrVenvDir)
+        or not utils.is_populated(zephyrModulesDir)
+        or rebuild
+    ):
+        zephyrVenvScript = zephyrVenvDir / "bin" / "activate"
+        if not utils.is_populated(zephyrVenvDir):
+            venv.create(zephyrVenvDir)
+        utils.exec_getout(f". {zephyrVenvScript} && pip install west", shell=True, print_output=False, live=verbose)
+        zephyrUrl = "https://github.com/zephyrproject-rtos/zephyr"
+        if not utils.is_populated(zephyrInstallDir / "zephyr"):
+            if "zephyr.version" in user_vars:
+                zephyrVersion = user_vars["zephyr.version"]
+            else:
+                zephyrVersion = "v3.1.0"
+            utils.exec_getout(
+                f". {zephyrVenvScript} && west init -m {zephyrUrl} --mr {zephyrVersion} {zephyrInstallDir}",
+                shell=True,
+                print_output=False,
+                live=verbose,
+            )
+        extra = zephyrInstallDir / "zephyr" / "scripts" / "requirements.txt"
+        utils.exec_getout(
+            f". {zephyrVenvScript} && pip install -r {extra}", shell=True, print_output=False, live=verbose
+        )
+        env = os.environ.copy()
+        env["ZEPHYR_BASE"] = str(zephyrInstallDir / "zephyr")
+        utils.exec_getout(f". {zephyrVenvScript} && west update", shell=True, print_output=False, live=verbose, env=env)
+        if "zephyr.sdk_version" in user_vars:
+            sdkVersion = user_vars["zephyr.sdk_version"]
+        else:
+            sdkVersion = "0.15.0-rc1"
+        sdkDist = "linux-x86_64"
+        sdkUrl = f"https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v{sdkVersion}/"
+        sdkArchive = f"zephyr-sdk-{sdkVersion}_{sdkDist}.tar.gz"
+        if not utils.is_populated(zephyrSdkDir):
+            utils.download_and_extract(sdkUrl, sdkArchive, zephyrSdkDir)
+        sdkScript = zephyrSdkDir / "setup.sh"
+        # TODO: allow to limit installed toolchains
+        utils.exec_getout(sdkScript, "-t", "all", "-h", print_output=False, live=verbose)
+    context.cache["zephyr.install_dir"] = zephyrInstallDir
+    context.cache["zephyr.sdk_dir"] = zephyrSdkDir
+    context.cache["zephyr.venv_dir"] = zephyrVenvDir

@@ -92,6 +92,7 @@ def create_environment_dict(environment):
             for platform in environment.platforms
         },
     }
+    data["toolchains"] = environment.toolchains
     data["targets"] = {
         "default": environment.defaults.default_target,
         **{
@@ -103,6 +104,7 @@ def create_environment_dict(environment):
         },
     }
     data["vars"] = environment.vars
+    data["flags"] = environment.flags
     return data
 
 

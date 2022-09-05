@@ -79,7 +79,7 @@ class TVMTuner:
     @property
     def tuner(self):
         tuner = str(self.config["tuner"])
-        assert tuner in ["ga", "gridsearch", "random,xgb", "xgb_knob", "xgb-rank"]
+        assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
         return tuner
 
     @property

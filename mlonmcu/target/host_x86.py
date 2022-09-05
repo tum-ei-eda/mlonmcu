@@ -21,6 +21,7 @@
 import stat
 from pathlib import Path
 
+from mlonmcu.config import str2bool
 from .common import cli, execute
 from .target import Target
 
@@ -31,7 +32,7 @@ class HostX86Target(Target):
     Mainly interesting to easy testing and debugging because benchmarking is not possible.
     """
 
-    FEATURES = ["gdbserver"]
+    FEATURES = Target.FEATURES + ["gdbserver"]
 
     DEFAULTS = {
         **Target.DEFAULTS,
@@ -47,11 +48,13 @@ class HostX86Target(Target):
 
     @property
     def gdbserver_enable(self):
-        return bool(self.config["gdbserver_enable"])
+        value = self.config["gdbserver_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def gdbserver_attach(self):
-        return bool(self.config["gdbserver_attach"])
+        value = self.config["gdbserver_attach"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def gdbserver_port(self):

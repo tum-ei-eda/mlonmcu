@@ -16,13 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
-
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
-from mlonmcu.models.model import ModelFormats
-from .model_info import get_tflite_model_info, get_relay_model_info, get_pb_model_info
+from .model_info import get_model_info
 from .tuner import TVMTuner
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
@@ -50,6 +47,9 @@ class TVMBackend(Backend):
         "target_mcpu": None,
         "target_march": None,
         "target_model": None,
+        "target_mtriple": None,
+        "target_mabi": None,
+        "target_mattr": None,
         "extra_target": None,
         "extra_target_mcpu": None,
         "desired_layout": None,  # optional: NCHW or NHWC
@@ -66,13 +66,17 @@ class TVMBackend(Backend):
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
-    def __init__(self, features=None, config=None):
+    def __init__(self, target="c", executor=None, runtime="crt", fmt="mlf", features=None, config=None):
         super().__init__(framework="tvm", features=features, config=config)
 
         self.model = None  # Actual filename!
         self.model_info = None
         self.input_shapes = None
         self.supported_formats = [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB]
+        self.target = target
+        self.runtime = runtime
+        self.executor = executor
+        self.fmt = fmt
 
         self.prefix = "default"
         self.artifacts = (
@@ -131,6 +135,18 @@ class TVMBackend(Backend):
     @property
     def target_march(self):
         return self.config["target_march"]
+
+    @property
+    def target_mtriple(self):
+        return self.config["target_mtriple"]
+
+    @property
+    def target_mabi(self):
+        return self.config["target_mabi"]
+
+    @property
+    def target_mattr(self):
+        return self.config["target_mattr"]
 
     @property
     def target_model(self):
@@ -202,6 +218,12 @@ class TVMBackend(Backend):
             ret["mcpu"] = self.target_mcpu
         if self.target_march:
             ret["march"] = self.target_march
+        if self.target_mtriple:
+            ret["mtriple"] = self.target_mtriple
+        if self.target_mabi:
+            ret["mabi"] = self.target_mabi
+        if self.target_mattr:
+            ret["mattr"] = self.target_mattr
         if self.target_model:
             ret["model"] = self.target_model
         return ret
@@ -212,17 +234,18 @@ class TVMBackend(Backend):
             ret["mcpu"] = self.extra_target_mcpu
         return ret
 
-    def get_tvmc_compile_args(self, out, executor=None, fmt="mlf", target="c", runtime="crt", dump=None):
-        assert executor in ["aot", "graph"], "Unsupported TVM executor"
+    def get_tvmc_compile_args(self, out, dump=None):
+        assert self.executor is not None
+        assert self.executor in ["aot", "graph"], "Unsupported TVM executor"
         args = [
             self.model,
             *get_target_tvmc_args(
-                target,
+                self.target,
                 extra_target=self.extra_target,
                 target_details=self.get_target_details(),
                 extra_target_details=self.get_extra_target_details(),
             ),
-            *get_runtime_executor_tvmc_args(runtime, executor),
+            *get_runtime_executor_tvmc_args(self.runtime, self.executor),
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
@@ -232,7 +255,7 @@ class TVMBackend(Backend):
             *self.tvmc_extra_args,
             *["--opt-level", str(self.opt_level)],
             *["--output", str(out)],
-            *["-f", fmt],
+            *["-f", self.fmt],
             *["--model-format", self.model_format],
         ]
         return args
@@ -261,23 +284,5 @@ class TVMBackend(Backend):
         self.model = model
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
-        ext = os.path.splitext(model)[1][1:]
-        fmt = ModelFormats.from_extension(ext)
-        if fmt == ModelFormats.TFLITE:
-            self.model_format = "tflite"
-            with open(model, "rb") as handle:
-                model_buf = handle.read()
-                self.model_info = get_tflite_model_info(model_buf)
-        elif fmt == ModelFormats.RELAY:
-            # Warning: the wrapper generateion does currently not work because of the
-            # missing possibility to get the relay models input names and shapes
-            self.model_format = "relay"
-            with open(model, "r") as handle:
-                mod_text = handle.read()
-            self.model_info = get_relay_model_info(mod_text)
-        elif fmt == ModelFormats.PB:
-            self.model_format = "pb"
-            self.model_info = get_pb_model_info(model)
-        else:
-            raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{self.name}'")
+        self.model_format, self.model_info = get_model_info(model, fmt, backend_name=self.name)
         self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

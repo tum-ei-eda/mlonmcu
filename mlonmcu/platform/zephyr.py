@@ -31,7 +31,7 @@ import serial
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
-from mlonmcu.target import SUPPORTED_TARGETS
+from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from mlonmcu.config import str2bool
 
@@ -174,8 +174,9 @@ project(ProjectName)
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid Zephyr target"
-        if name in SUPPORTED_TARGETS:
-            base = SUPPORTED_TARGETS[name]
+        targets = get_targets()
+        if name in targets:
+            base = targets[name]
         else:
             base = Target
         return create_zephyr_platform_target(name, self, base=base)

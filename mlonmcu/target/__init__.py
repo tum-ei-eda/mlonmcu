@@ -19,22 +19,9 @@
 """MLonMCU target submodule"""
 
 from .target import Target
+from ._target import register_target, get_targets
 from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarget
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
 
-__all__ = ["Target"]
-
-# from .esp32 import Esp32Target
-# from .esp32c3 import Esp32c3Target
-
-SUPPORTED_TARGETS = {
-    "etiss_pulpino": EtissPulpinoTarget,
-    "host_x86": HostX86Target,
-    "corstone300": Corstone300Target,
-    "spike": SpikeTarget,
-    "ovpsim": OVPSimTarget,
-    "riscv_qemu": RiscvQemuTarget,
-    # "esp32": Esp32Target,  # TODO: in the long term we should just fetch the supported esp-idf boards at runtime
-    # "esp32c3": Esp32c3Target,  # TODO: in the long term we should just fetch the supported esp-idf boards at runtime
-}
+__all__ = ["register_target", "get_targets", "Target"]

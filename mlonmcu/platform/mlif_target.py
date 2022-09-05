@@ -18,40 +18,14 @@
 #
 from enum import IntEnum
 
-from mlonmcu.target import (
-    Target,
-    EtissPulpinoTarget,
-    SpikeTarget,
-    OVPSimTarget,
-    Corstone300Target,
-    HostX86Target,
-    RiscvQemuTarget,
-)
+from mlonmcu.target import get_targets, Target
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
-MLIF_PLATFORM_TARGET_REGISTRY = {}
-
-
-def register_mlif_platform_target(target_name, t, override=False):
-    global MLIF_PLATFORM_TARGET_REGISTRY
-
-    if target_name in MLIF_PLATFORM_TARGET_REGISTRY and not override:
-        raise RuntimeError(f"MLIF platform target {target_name} is already registered")
-    MLIF_PLATFORM_TARGET_REGISTRY[target_name] = t
-
 
 def get_mlif_platform_targets():
-    return MLIF_PLATFORM_TARGET_REGISTRY
-
-
-register_mlif_platform_target("host_x86", HostX86Target)
-register_mlif_platform_target("etiss_pulpino", EtissPulpinoTarget)
-register_mlif_platform_target("corstone300", Corstone300Target)
-register_mlif_platform_target("spike", SpikeTarget)
-register_mlif_platform_target("ovpsim", OVPSimTarget)
-register_mlif_platform_target("riscv_qemu", RiscvQemuTarget)
+    return get_targets()
 
 
 class MlifExitCode(IntEnum):

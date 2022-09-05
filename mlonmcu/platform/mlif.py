@@ -24,7 +24,7 @@ from pathlib import Path
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
-from mlonmcu.target import SUPPORTED_TARGETS
+from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from mlonmcu.models.utils import get_data_source
 
@@ -142,8 +142,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid MLIF target"
-        if name in SUPPORTED_TARGETS:
-            base = SUPPORTED_TARGETS[name]
+        targets = get_targets()
+        if name in targets:
+            base = targets[name]
         else:
             base = Target
         return create_mlif_platform_target(name, self, base=base)

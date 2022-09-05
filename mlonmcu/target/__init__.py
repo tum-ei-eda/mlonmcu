@@ -24,4 +24,14 @@ from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarge
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
 
-__all__ = ["register_target", "get_targets", "Target"]
+__all__ = [
+    "register_target",
+    "get_targets",
+    "Target",
+    "EtissPulpinoTarget",
+    "SpikeTarget",
+    "OVPSimTarget",
+    "RiscvQemuTarget",
+    "Corstone300Target",
+    "HostX86Target",
+]

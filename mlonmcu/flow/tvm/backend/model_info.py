@@ -220,7 +220,8 @@ class PaddleModelInfo(ModelInfo):
 
         def _convert_dtype_value(val):
             """Converts a Paddle type id to a string."""
-            # See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/relay/frontend/paddlepaddle.py#L70
+            # See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/
+            # relay/frontend/paddlepaddle.py#L70
 
             convert_dtype_map = {
                 21: "int8",

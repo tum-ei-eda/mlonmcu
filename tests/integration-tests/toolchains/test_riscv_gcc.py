@@ -6,8 +6,6 @@ from mlonmcu.environment.config import PathConfig
 from mlonmcu.session.run import RunStage
 from mlonmcu.target.riscv.riscv import RISCVTarget
 from mlonmcu.target import register_target
-from mlonmcu.target import get_targets
-from mlonmcu.platform.mlif_target import get_mlif_platform_targets
 
 # Using muRISCV-NN feature to get a relatively good coverage
 # It would be nice if we would have specific test models which utilize all relevant kernels

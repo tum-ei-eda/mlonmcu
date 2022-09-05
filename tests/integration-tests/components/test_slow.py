@@ -245,7 +245,8 @@ def test_backend_tflmc(user_context, model_name, models_dir, feature_names, conf
 
 @pytest.mark.slow
 @pytest.mark.user_context
-# @pytest.mark.parametrize("model_name", DEFAULT_TFLITE_MODELS + DEFAULT_RELAY_MODELS + DEFAULT_PB_MODELS + DEFAULT_ONNX_MODELS + DEFAULT_PADDLE_MODELS)
+# @pytest.mark.parametrize("model_name", DEFAULT_TFLITE_MODELS + DEFAULT_RELAY_MODELS
+# + DEFAULT_PB_MODELS + DEFAULT_ONNX_MODELS + DEFAULT_PADDLE_MODELS)
 @pytest.mark.parametrize("model_name", DEFAULT_TFLITE_MODELS)
 @pytest.mark.parametrize("feature_names", [[]])
 @pytest.mark.parametrize(

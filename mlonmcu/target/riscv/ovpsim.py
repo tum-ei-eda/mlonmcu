@@ -52,11 +52,13 @@ class OVPSimTarget(RISCVTarget):
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
-        "vlen": 32,  # vectorization=off
+        "vlen": 0,  # vectorization=off
         "elen": 32,
         "enable_vext": False,
+        "vext_spec": 1.0,
+        "embedded_vext": True,
         "enable_pext": False,
-        "enable_fpu": True,
+        "pext_spec": 0.96,
         "variant": "RVB32I",
         "end_to_end_cycles": False,
         "gdbserver_enable": False,
@@ -86,7 +88,8 @@ class OVPSimTarget(RISCVTarget):
         if self.enable_pext and "p" not in ret:
             ret.append("p")
         if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
-            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
+            # if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
+            if False:
                 # if self.enable_fpu:
                 if True:
                     ret.append("zve32x")
@@ -110,11 +113,6 @@ class OVPSimTarget(RISCVTarget):
     @property
     def elen(self):
         return int(self.config["elen"])
-
-    @property
-    def enable_fpu(self):
-        value = self.config["enable_fpu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_vext(self):
@@ -145,6 +143,19 @@ class OVPSimTarget(RISCVTarget):
     def gdbserver_port(self):
         return int(self.config["gdbserver_port"])
 
+    @property
+    def vext_spec(self):
+        return self.config["vext_spec"]
+
+    @property
+    def embedded_vext(self):
+        value = self.config["embedded_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def pext_spec(self):
+        return self.config["pext_spec"]
+
     def get_default_ovpsim_args(self):
         extensions_before = sort_extensions_canonical(self.extensions, lower=False, unpack=True)
         extensions_after = replace_unsupported(extensions_before)
@@ -167,7 +178,7 @@ class OVPSimTarget(RISCVTarget):
                 ]
             )
         if self.enable_vext:
-            assert self.enable_fpu, "V-Extension requires enabled FPU"
+            assert self.has_fpu, "V-Extension requires enabled FPU"
             args.extend(
                 [
                     "--override",
@@ -179,9 +190,9 @@ class OVPSimTarget(RISCVTarget):
                 ]
             )
             args.extend(["--override", f"riscvOVPsim/cpu/mstatus_VS={int(self.enable_vext)}"])
-        if self.enable_fpu:
+        if self.has_fpu:
             assert "f" in self.extensions or "g" in self.extensions
-        args.extend(["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"])
+        args.extend(["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.has_fpu)}"])
         if self.gdbserver_enable:
             # args.append("--trace")
             args.extend(["--port", str(self.gdbserver_port)])
@@ -249,11 +260,13 @@ class OVPSimTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.enable_pext:
-            ret["RISCV_RVP_MAJOR"] = "0"
-            ret["RISCV_RVP_MINOR"] = "96"
+            major, minor = str(float(self.pext_spec)).split(".")[:2]
+            ret["RISCV_RVP_MAJOR"] = major
+            ret["RISCV_RVP_MINOR"] = minor
         if self.enable_vext:
-            ret["RISCV_RVV_MAJOR"] = "1"
-            ret["RISCV_RVV_MINOR"] = "0"
+            major, minor = str(float(self.vext_spec)).split(".")[:2]
+            ret["RISCV_RVV_MAJOR"] = major
+            ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 

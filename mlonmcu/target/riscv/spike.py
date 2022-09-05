@@ -40,7 +40,10 @@ class SpikeTarget(RISCVTarget):
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "enable_vext": False,
+        "vext_spec": 1.0,
+        "embedded_vext": True,
         "enable_pext": False,
+        "pext_spec": 0.92,  # ?
         "vlen": 0,  # vectorization=off
         "elen": 32,
         "spikepk_extra_args": [],
@@ -75,7 +78,8 @@ class SpikeTarget(RISCVTarget):
         if self.enable_pext and "p" not in ret:
             ret.append("p")
         if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
-            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
+            # if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
+            if False:
                 # if self.enable_fpu:
                 if True:
                     ret.append("zve32x")
@@ -108,6 +112,19 @@ class SpikeTarget(RISCVTarget):
     def end_to_end_cycles(self):
         value = self.config["end_to_end_cycles"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def vext_spec(self):
+        return self.config["vext_spec"]
+
+    @property
+    def embedded_vext(self):
+        value = self.config["embedded_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def pext_spec(self):
+        return self.config["pext_spec"]
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
@@ -177,11 +194,13 @@ class SpikeTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.enable_pext:
-            ret["RISCV_RVP_MAJOR"] = "0"
-            ret["RISCV_RVP_MINOR"] = "96"
+            major, minor = str(float(self.pext_spec)).split(".")[:2]
+            ret["RISCV_RVP_MAJOR"] = major
+            ret["RISCV_RVP_MINOR"] = minor
         if self.enable_vext:
-            ret["RISCV_RVV_MAJOR"] = "1"
-            ret["RISCV_RVV_MINOR"] = "0"
+            major, minor = str(float(self.vext_spec)).split(".")[:2]
+            ret["RISCV_RVV_MAJOR"] = major
+            ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 

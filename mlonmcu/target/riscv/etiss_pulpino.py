@@ -55,9 +55,11 @@ class EtissPulpinoTarget(RISCVTarget):
         "etissvp.ram_start": 0x800000,
         "etissvp.ram_size": 0x4000000,  # 64 MB
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
-        "enable_fpu": True,  # WIP
         "enable_vext": False,
+        "vext_spec": 1.0,
+        "embedded_vext": True,
         "enable_pext": False,
+        "pext_spec": 0.96,
         "vlen": 0,  # vectorization=off
         "elen": 32,
         "jit": None,
@@ -144,11 +146,6 @@ class EtissPulpinoTarget(RISCVTarget):
             return "RV32IMACFD"
 
     @property
-    def enable_fpu(self):
-        value = self.config["enable_fpu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
     def enable_vext(self):
         value = self.config["enable_vext"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -198,6 +195,19 @@ class EtissPulpinoTarget(RISCVTarget):
         value = self.config["end_to_end_cycles"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def vext_spec(self):
+        return self.config["vext_spec"]
+
+    @property
+    def embedded_vext(self):
+        value = self.config["embedded_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def pext_spec(self):
+        return self.config["pext_spec"]
+
     def write_ini(self, path):
         # TODO: Either create artifact for ini or prefer to use cmdline args.
         with open(path, "w") as f:
@@ -216,7 +226,7 @@ class EtissPulpinoTarget(RISCVTarget):
             f.write(f"simple_mem_system.memseg_length_01={hex(self.ram_size)}\n")
             f.write("\n")
             f.write(f"arch.cpu_cycle_time_ps={self.cycle_time_ps}\n")
-            if self.enable_fpu:
+            if self.has_fpu:
                 # TODO: do not hardcode cpu_arch
                 # TODO: i.e. use cpu_arch_lower
                 f.write("arch.rv32imacfdpv.mstatus_fs=1")
@@ -420,11 +430,13 @@ class EtissPulpinoTarget(RISCVTarget):
         ret["PULPINO_RAM_START"] = self.ram_start
         ret["PULPINO_RAM_SIZE"] = self.ram_size
         if self.enable_pext:
-            ret["RISCV_RVP_MAJOR"] = "0"
-            ret["RISCV_RVP_MINOR"] = "96"
+            major, minor = str(float(self.pext_spec)).split(".")[:2]
+            ret["RISCV_RVP_MAJOR"] = major
+            ret["RISCV_RVP_MINOR"] = minor
         if self.enable_vext:
-            ret["RISCV_RVV_MAJOR"] = "1"
-            ret["RISCV_RVV_MINOR"] = "0"
+            major, minor = str(float(self.vext_spec)).split(".")[:2]
+            ret["RISCV_RVV_MAJOR"] = major
+            ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 

@@ -319,6 +319,9 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
         **FeatureBase.DEFAULTS,
         "vlen": 64,  # TODO; define reasonable default? (Or put defaults in target and overwrite of not None)
         "elen": 32,
+        # use target-side settings by default
+        "spec": None,
+        "embedded": None,
     }
 
     REQUIRED = []
@@ -334,15 +337,27 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     def elen(self):
         return int(self.config["elen"])
 
+    @property
+    def spec(self):
+        return self.config["spec"]
+
+    @property
+    def embedded(self):
+        return self.config["embedded"]
+
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
         assert target in ["spike", "ovpsim", "etiss_pulpino", "riscv_qemu"]
         assert is_power_of_two(self.vlen)
-        return {
-            f"{target}.enable_vext": True,
-            f"{target}.vlen": self.vlen,
-            f"{target}.elen": self.elen,
-        }
+        return filter_none(
+            {
+                f"{target}.enable_vext": True,
+                f"{target}.vlen": self.vlen,
+                f"{target}.elen": self.elen,
+                f"{target}.vext_spec": self.spec,
+                f"{target}.embedded_vext": self.embedded,
+            }
+        )
 
     # It would be great if we could enforce an llvm toolchain here
     # def add_compile_config(self, config):
@@ -370,6 +385,8 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
+        # use target-side settings by default
+        "spec": None,
     }
 
     REQUIRED = []
@@ -377,11 +394,18 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
     def __init__(self, features=None, config=None):
         super().__init__("pext", features=features, config=config)
 
+    @property
+    def spec(self):
+        return self.config["spec"]
+
     def get_target_config(self, target):
         assert target in ["spike", "ovpsim", "etiss_pulpino"]
-        return {
-            f"{target}.enable_pext": True,  # Handle via arch characters in the future
-        }
+        return filter_none(
+            {
+                f"{target}.enable_pext": True,  # Handle via arch characters in the future
+                f"{target}.pext_spec": self.spec,
+            }
+        )
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"

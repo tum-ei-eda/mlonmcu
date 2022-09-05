@@ -68,3 +68,18 @@ def sort_extensions_canonical(extensions, lower=False, unpack=False):
     if lower:
         extensions_new = [x.lower() for x in extensions_new]
     return extensions_new
+
+
+def join_extensions(exts):
+    sep = ""
+    ret = ""
+    for ext in exts:
+        length = len(ext)
+        if sep == "_":
+            assert length > 1, "default extensions should come before any custom or sub-extensions"
+        if length > 1:
+            sep = "_"
+        if ret != "":
+            ret += sep
+        ret += ext
+    return ret

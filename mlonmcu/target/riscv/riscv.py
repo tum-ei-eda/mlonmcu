@@ -23,7 +23,7 @@ from pathlib import Path
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target import Target
-from .util import sort_extensions_canonical
+from .util import sort_extensions_canonical, join_extensions
 
 logger = get_logger()
 
@@ -39,6 +39,7 @@ class RISCVTarget(Target):
         "extensions": ["g", "c"],
         "timeout_sec": 0,  # disabled
         "extra_args": "",
+        "fpu": "double",  # allowed: none, single, double
         "arch": None,
         "abi": None,
         "attr": "",
@@ -61,8 +62,19 @@ class RISCVTarget(Target):
     @property
     def extensions(self):
         exts = self.config.get("extensions", []).copy()
+        print("exts", exts)
         if not isinstance(self.config["extensions"], list):
             exts = exts.split(",")
+        if "g" not in exts:
+            required = []
+            if self.fpu == "double":
+                required.append("d")
+                required.append("f")
+            if self.fpu == "single":
+                required.append("f")
+            for ext in required:
+                if ext not in exts:
+                    exts.append(ext)
         return exts
 
     @property
@@ -71,7 +83,7 @@ class RISCVTarget(Target):
         if temp:
             return temp
         else:
-            exts_str = "".join(sort_extensions_canonical(self.extensions, lower=True))
+            exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))
             return f"rv{self.xlen}{exts_str}"
 
     @property
@@ -115,6 +127,18 @@ class RISCVTarget(Target):
     @property
     def timeout_sec(self):
         return int(self.config["timeout_sec"])
+
+    @property
+    def fpu(self):
+        value = self.config["fpu"]
+        if value is None or not value:
+            value = "none"
+        assert value in ["none", "single", "double"]
+        return value
+
+    @property
+    def has_fpu(self):
+        return self.fpu != "none"
 
     def get_target_system(self):
         return "generic_riscv"  # TODO: rename to generic-rv32 for compatibility with LLVM

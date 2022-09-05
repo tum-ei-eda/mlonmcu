@@ -39,9 +39,11 @@ class RiscvQemuTarget(RISCVTarget):
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
-        "vlen": 32,  # TODO: check allowed range [128, 1024]
+        "vlen": 0,  # TODO: check allowed range [128, 1024]
         "elen": 32,
         "enable_vext": False,
+        "vext_spec": 1.0,
+        "embedded_vext": True,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["riscv32_qemu.exe"]  # TODO: 64 bit?
 
@@ -84,6 +86,15 @@ class RiscvQemuTarget(RISCVTarget):
     @property
     def enable_vext(self):
         value = self.config["enable_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def vext_spec(self):
+        return self.config["vext_spec"]
+
+    @property
+    def embedded_vext(self):
+        value = self.config["embedded_vext"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_cpu_str(self):
@@ -150,11 +161,11 @@ class RiscvQemuTarget(RISCVTarget):
         return self.name
 
     def get_platform_defs(self, platform):
-        assert platform == "mlif"
         ret = super().get_platform_defs(platform)
         if self.enable_vext:
-            ret["RISCV_RVV_MAJOR"] = "1"
-            ret["RISCV_RVV_MINOR"] = "0"
+            major, minor = str(float(self.vext_spec)).split(".")[:2]
+            ret["RISCV_RVV_MAJOR"] = major
+            ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 

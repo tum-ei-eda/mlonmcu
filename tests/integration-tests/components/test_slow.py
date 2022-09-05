@@ -20,12 +20,29 @@ DEFAULT_PADDLE_MODELS = ["paddle_resnet50"]
 
 MODEL_FRONTENDS = {
     "sine_model": "tflite",
+    "aww": "tflite",
     "onnx_mnist": "onnx",
     "test_cnn": "relay",
     "mobilenet_v1_1.0_224_frozen": "pb",  # or tflite
     "mobilenet_v1_1.0_224_quant": "pb",  # or tflite
     "mobilenet_v1_0.25_128": "pb",  # or tflite
     "paddle_resnet50": "paddle",
+}
+
+TARGET_PLATFORMS = {
+    "host_x86": "mlif",
+    "corstone300": "mlif",
+    "etiss_pulpino": "mlif",
+    "spike": "mlif",
+    "ovpsim": "mlif",
+    "riscv_qemu": "mlif",
+    "tvm_cpu": "tvm",
+    "microtvm_host": "microtvm",
+    "microtvm_spike": "microtvm",
+    "microtvm_espidf": "microtvm",
+    "microtvm_etissvp": "microtvm",
+    "microtvm_zephyr": "microtvm",
+    "microtvm_arduino": "microtvm",
 }
 
 DEFAULT_FRONTENDS = ["tflite"]  # TODO: needs to match with the DEFAULT_MODELS
@@ -326,6 +343,8 @@ def _test_compile_platform(
     platform_name, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
 ):
     frontend_name = MODEL_FRONTENDS[model_name]
+    if platform_name is None:
+        platform_name = TARGET_PLATFORMS[target_name]
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -357,6 +376,8 @@ def _test_run_platform(
     platform_name, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
 ):
     frontend_name = MODEL_FRONTENDS[model_name]
+    if platform_name is None:
+        platform_name = TARGET_PLATFORMS[target_name]
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -516,7 +537,9 @@ def test_feature_debug_arena(
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize(
-    "model_name", DEFAULT_TFLITE_MODELS
+    # "model_name", DEFAULT_TFLITE_MODELS
+    "model_name",
+    ["aww"],
 )  # TODO: add test model for this, also test with wrong data
 @pytest.mark.parametrize("backend_name", ["tflmi", "tvmaot"])
 @pytest.mark.parametrize("target_name", ["etiss_pulpino"])
@@ -527,8 +550,7 @@ def test_feature_validate(user_context, model_name, backend_name, target_name, m
         None, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="host_x86_out.log")) == 1
-    assert "debug_arena" in df["Features"][0]
+    assert len(lookup_artifacts(artifacts, name=f"{target_name}_out.log")) == 1
     # Check generated code
     assert "validate" in df["Features"][0]
     assert "Validation" in df.columns
@@ -1169,15 +1191,23 @@ def test_feature_disable_legalize(
 @pytest.mark.parametrize("model_name", ["sine_model"])  # TODO: add test model for this, also test with wrong data
 @pytest.mark.parametrize("frontend_name", ["tflite"])  # Validate is frontend feature as well
 @pytest.mark.parametrize(
-    "backend_name", ["tvmaot"]  # other tvm backends?
+    "backend_name", ["tvmllvm"]  # other tvm backends?
 )  # TODO: Single backend would be fine, but it has to be enabled
+@pytest.mark.parametrize("target_name", ["tvm_cpu"])
 @pytest.mark.parametrize("feature_names", [["autotune"]])
 @pytest.mark.parametrize("config", [{}])
-def test_feature_autotune(user_context, frontend_name, model_name, backend_name, models_dir, feature_names, config):
+def test_feature_autotune(
+    user_context, frontend_name, model_name, backend_name, target_name, models_dir, feature_names, config
+):
+    platform_name = "tvm"
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
         pytest.skip(f"Backend '{backend_name}' is not enabled.")
+    if not user_context.environment.has_platform(platform_name):
+        pytest.skip(f"Platform '{platform_name}' is not enabled.")  # TODO: not enabled -> not installed
+    if not user_context.environment.has_target(target_name):
+        pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: remove check?
     for feature in feature_names:
         if not user_context.environment.has_feature(feature):
             pytest.skip(f"Feature '{feature}' is not enabled.")
@@ -1187,6 +1217,8 @@ def test_feature_autotune(user_context, frontend_name, model_name, backend_name,
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
+    run.add_platform_by_name(platform_name, context=user_context)
+    run.add_target_by_name(target_name, context=user_context)
     run.add_backend_by_name(backend_name, context=user_context)
     success = session.process_runs(until=RunStage.TUNE, context=user_context)
     report = session.get_reports()
@@ -1201,17 +1233,23 @@ def test_feature_autotune(user_context, frontend_name, model_name, backend_name,
 @pytest.mark.parametrize("model_name", ["sine_model"])  # TODO: add test model for this, also test with wrong data
 @pytest.mark.parametrize("frontend_name", ["tflite"])  # Validate is frontend feature as well
 @pytest.mark.parametrize(
-    "backend_name", ["tvmaot"]  # other tvm backends?
+    "backend_name", ["tvmllvm"]  # other tvm backends?
 )  # TODO: Single backend would be fine, but it has to be enabled
+@pytest.mark.parametrize("target_name", ["tvm_cpu"])
 @pytest.mark.parametrize("feature_names", [["autotune", "autotuned"]])  # TODO: provide tuning records instead
 @pytest.mark.parametrize("config", [{"tvmaot.print_outputs": True}])
 def test_feature_autotuned(
-    user_context, frontend_name, model_name, backend_name, models_dir, feature_names, config, tmp_path
+    user_context, frontend_name, model_name, backend_name, target_name, models_dir, feature_names, config, tmp_path
 ):
+    platform_name = "tvm"
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
         pytest.skip(f"Backend '{backend_name}' is not enabled.")
+    if not user_context.environment.has_platform(platform_name):
+        pytest.skip(f"Platform '{platform_name}' is not enabled.")  # TODO: not enabled -> not installed
+    if not user_context.environment.has_target(target_name):
+        pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: remove check?
     for feature in feature_names:
         if not user_context.environment.has_feature(feature):
             pytest.skip(f"Feature '{feature}' is not enabled.")
@@ -1223,12 +1261,13 @@ def test_feature_autotuned(
     run = session.create_run(config=config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
+    run.add_platform_by_name(platform_name, context=user_context)
+    run.add_target_by_name(target_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
     run.add_backend_by_name(backend_name, context=user_context)
     success = session.process_runs(until=RunStage.BUILD, context=user_context)
     report = session.get_reports()
     df = report.df
-    print("artifacts", run.artifacts_per_stage)
     assert success
     assert len(df) == 1
     assert "autotuned" in df["Features"][0]

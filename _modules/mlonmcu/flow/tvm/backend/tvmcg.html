@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../logging.html">Logging and Verbosity</a></li>
@@ -123,7 +124,12 @@
 
 <div class="viewcode-block" id="TVMCGBackend.get_max_workspace_size_from_metadata"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMCGBackend.get_max_workspace_size_from_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_workspace_size_from_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
         <span class="n">max_workspace</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">][</span><span class="s2">&quot;operator_functions&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;modules&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">][</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># backwards compatibility</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;functions&quot;</span><span class="p">][</span><span class="s2">&quot;operator_functions&quot;</span><span class="p">]:</span>
             <span class="n">max_workspace</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
                 <span class="n">max_workspace</span><span class="p">,</span>
                 <span class="n">op</span><span class="p">[</span><span class="s2">&quot;workspace&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;workspace_size_bytes&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;workspace&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
@@ -146,7 +152,8 @@
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;metadata.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                         <span class="n">metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
                     <span class="n">tvmcg_exe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">]</span>
-                    <span class="n">graph_json_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;executor-config&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph.json&quot;</span>
+                    <span class="c1"># graph_json_file = mlf_path / &quot;executor-config&quot; / &quot;graph&quot; / &quot;graph.json&quot;</span>
+                    <span class="n">graph_json_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;executor-config&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph&quot;</span> <span class="o">/</span> <span class="s2">&quot;default.graph&quot;</span>
                     <span class="n">params_bin_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;parameters&quot;</span> <span class="o">/</span> <span class="s2">&quot;default.params&quot;</span>
                     <span class="n">max_workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_workspace_size_from_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
                     <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>

@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../logging.html">Logging and Verbosity</a></li>
@@ -133,7 +134,7 @@
     <span class="k">return</span> <span class="p">{</span><span class="n">helper</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip</span><span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="filter_config"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.filter_config">[docs]</a><span class="k">def</span> <span class="nf">filter_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">required_keys</span><span class="p">):</span>
+<div class="viewcode-block" id="filter_config"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.filter_config">[docs]</a><span class="k">def</span> <span class="nf">filter_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">optionals</span><span class="p">,</span> <span class="n">required_keys</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Filter the global config for a given component prefix.</span>
 
 <span class="sd">    Arguments</span>
@@ -144,6 +145,8 @@
 <span class="sd">        The prefix for the component.</span>
 <span class="sd">    defaults : dict</span>
 <span class="sd">        The default values used if not overwritten by user.</span>
+<span class="sd">    optionals : dict</span>
+<span class="sd">        The optional keys for the component.</span>
 <span class="sd">    required_keys : list</span>
 <span class="sd">        The required keys for the component.</span>
 
@@ -156,7 +159,7 @@
 <span class="sd">    ------</span>
 <span class="sd">    AssertionError: If a required key is missing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">remove_config_prefix</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">required_keys</span><span class="p">)</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">remove_config_prefix</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">required_keys</span> <span class="o">+</span> <span class="n">optionals</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">required</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">required</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
@@ -165,6 +168,15 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">required</span><span class="p">]</span>
             <span class="n">cfg</span><span class="p">[</span><span class="n">required</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Required config key can not be None: </span><span class="si">{</span><span class="n">required</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">for</span> <span class="n">optional</span> <span class="ow">in</span> <span class="n">optionals</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">optional</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">optional</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">optional</span><span class="p">]</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="n">optional</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="n">optional</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">defaults</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
@@ -179,7 +191,7 @@
 
 
 <div class="viewcode-block" id="resolve_required_config"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.resolve_required_config">[docs]</a><span class="k">def</span> <span class="nf">resolve_required_config</span><span class="p">(</span>
-    <span class="n">required_keys</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hints</span><span class="o">=</span><span class="kc">None</span>
+    <span class="n">required_keys</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_flags</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>  <span class="c1"># TODO: add framework, backend, and frontends as well?</span>
     <span class="sd">&quot;&quot;&quot;Utility which iterates over a set of given config keys and</span>
 <span class="sd">    resolves their values using the passed config and/or cache.</span>
@@ -198,6 +210,9 @@
 <span class="sd">    hints : List[str]</span>
 <span class="sd">        List of additional flags which can be provided as a hint to lookup a cache config.</span>
 
+<span class="sd">    default_flags : dict</span>
+<span class="sd">        User-provided mapping of cache flags for some cache entries.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    result : dict</span>
@@ -214,8 +229,11 @@
 
     <span class="n">hint_combinations</span> <span class="o">=</span> <span class="n">get_sublists</span><span class="p">(</span><span class="n">hints</span> <span class="k">if</span> <span class="n">hints</span> <span class="k">else</span> <span class="p">[])</span>
 
-    <span class="k">def</span> <span class="nf">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+            <span class="c1"># result.update({key: frozenset(value) for key, value in default.items()})</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">features</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">SETUP</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span><span class="o">.</span><span class="n">types</span><span class="p">():</span>
@@ -223,7 +241,7 @@
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">cache_flags</span> <span class="o">=</span> <span class="n">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+    <span class="n">cache_flags</span> <span class="o">=</span> <span class="n">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">default_flags</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;No dependency cache was provided. Either provide a cache or config.&quot;</span>
@@ -248,6 +266,23 @@
             <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">optional</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">optional</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;No dependency cache was provided. Either provide a cache or config.&quot;</span>
+                <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">flags</span> <span class="o">=</span> <span class="n">cache_flags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">hint_combination</span> <span class="ow">in</span> <span class="n">hint_combinations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span> <span class="o">+</span> <span class="n">hint_combination</span><span class="p">))</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">ret</span></div>
 

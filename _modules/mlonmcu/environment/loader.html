@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
@@ -274,6 +275,10 @@
                 <span class="n">platforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PlatformConfig</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">platform_features</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">platforms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;toolchains&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">toolchains</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;toolchains&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">toolchains</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">default_target</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="s2">&quot;targets&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
             <span class="n">targets</span> <span class="o">=</span> <span class="p">[]</span>
@@ -296,6 +301,10 @@
             <span class="n">variables</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">variables</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;flags&quot;</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="n">default_flags</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">&quot;flags&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">default_flags</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">defaults</span> <span class="o">=</span> <span class="n">DefaultsConfig</span><span class="p">(</span>
             <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
             <span class="n">log_to_file</span><span class="o">=</span><span class="n">log_to_file</span><span class="p">,</span>
@@ -314,8 +323,10 @@
             <span class="n">frameworks</span><span class="o">=</span><span class="n">frameworks</span><span class="p">,</span>
             <span class="n">frontends</span><span class="o">=</span><span class="n">frontends</span><span class="p">,</span>
             <span class="n">platforms</span><span class="o">=</span><span class="n">platforms</span><span class="p">,</span>
+            <span class="n">toolchains</span><span class="o">=</span><span class="n">toolchains</span><span class="p">,</span>
             <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
             <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+            <span class="n">default_flags</span><span class="o">=</span><span class="n">default_flags</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">env</span></div>
 </pre></div>

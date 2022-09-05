@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
@@ -236,8 +237,8 @@
     <span class="n">exec_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;exec&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run program with target&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_handle_execute</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="n">feature_names</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">feature_names</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">init_target_features</span><span class="p">(</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">target_inst</span> <span class="o">=</span> <span class="n">target</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="n">target_inst</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">extra_args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -250,8 +251,8 @@
     <span class="n">inspect_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;inspect&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Inspect program with target&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_handle_inspect</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="n">feature_names</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">feature_names</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">init_target_features</span><span class="p">(</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">target_inst</span> <span class="o">=</span> <span class="n">target</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="n">target_inst</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">program</span><span class="p">)</span>

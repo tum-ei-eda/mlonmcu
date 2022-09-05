@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../logging.html">Logging and Verbosity</a></li>
@@ -98,15 +99,17 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Flow module for frameworks and backend.&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflm.framework</span> <span class="kn">import</span> <span class="n">TFLMFramework</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.framework</span> <span class="kn">import</span> <span class="n">TVMFramework</span>
+
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tflm.backend.tflmc</span> <span class="kn">import</span> <span class="n">TFLMCBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tflm.backend.tflmi</span> <span class="kn">import</span> <span class="n">TFLMIBackend</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tflm.framework</span> <span class="kn">import</span> <span class="n">TFLMFramework</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmaot</span> <span class="kn">import</span> <span class="n">TVMAOTBackend</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmaotplus</span> <span class="kn">import</span> <span class="n">TVMAOTPlusBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmcg</span> <span class="kn">import</span> <span class="n">TVMCGBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmllvm</span> <span class="kn">import</span> <span class="n">TVMLLVMBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmrt</span> <span class="kn">import</span> <span class="n">TVMRTBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.framework</span> <span class="kn">import</span> <span class="n">TVMFramework</span>
 
 <span class="n">SUPPORTED_FRAMEWORKS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;tflm&quot;</span><span class="p">:</span> <span class="n">TFLMFramework</span><span class="p">,</span>
@@ -120,6 +123,7 @@
 
 <span class="n">SUPPORTED_TVM_BACKENDS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;tvmaot&quot;</span><span class="p">:</span> <span class="n">TVMAOTBackend</span><span class="p">,</span>
+    <span class="s2">&quot;tvmaotplus&quot;</span><span class="p">:</span> <span class="n">TVMAOTPlusBackend</span><span class="p">,</span>
     <span class="s2">&quot;tvmrt&quot;</span><span class="p">:</span> <span class="n">TVMRTBackend</span><span class="p">,</span>
     <span class="s2">&quot;tvmcg&quot;</span><span class="p">:</span> <span class="n">TVMCGBackend</span><span class="p">,</span>
     <span class="s2">&quot;tvmllvm&quot;</span><span class="p">:</span> <span class="n">TVMLLVMBackend</span><span class="p">,</span>

@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../logging.html">Logging and Verbosity</a></li>
@@ -98,8 +99,11 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">tflite</span>
 <span class="kn">from</span> <span class="nn">tflite.TensorType</span> <span class="kn">import</span> <span class="n">TensorType</span> <span class="k">as</span> <span class="n">TType</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.models.model</span> <span class="kn">import</span> <span class="n">ModelFormats</span>
 
 
 <div class="viewcode-block" id="TensorInfo"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.TensorInfo">[docs]</a><span class="k">class</span> <span class="nc">TensorInfo</span><span class="p">:</span>
@@ -254,6 +258,72 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="ONNXModelInfo"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.ONNXModelInfo">[docs]</a><span class="k">class</span> <span class="nc">ONNXModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">google.protobuf.json_format</span> <span class="kn">import</span> <span class="n">MessageToDict</span>
+        <span class="kn">import</span> <span class="nn">onnx</span>
+        <span class="kn">from</span> <span class="nn">onnx.mapping</span> <span class="kn">import</span> <span class="n">TENSOR_TYPE_TO_NP_TYPE</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">onnx</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_helper</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">MessageToDict</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="n">elem_type</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">][</span><span class="s2">&quot;tensorType&quot;</span><span class="p">][</span><span class="s2">&quot;elemType&quot;</span><span class="p">]</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">][</span><span class="s2">&quot;elemType&quot;</span><span class="p">][</span><span class="s2">&quot;shape&quot;</span><span class="p">][</span><span class="s2">&quot;dim&quot;</span><span class="p">]</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;dimValue&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">]</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">TENSOR_TYPE_TO_NP_TYPE</span><span class="p">[</span><span class="n">elem_type</span><span class="p">])</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TensorInfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="n">in_tensors</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
+        <span class="n">out_tensors</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PaddleModelInfo"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.PaddleModelInfo">[docs]</a><span class="k">class</span> <span class="nc">PaddleModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">paddle</span>
+
+        <span class="n">paddle</span><span class="o">.</span><span class="n">enable_static</span><span class="p">()</span>
+        <span class="n">paddle</span><span class="o">.</span><span class="n">disable_signal_handler</span><span class="p">()</span>
+
+        <span class="n">exe</span> <span class="o">=</span> <span class="n">paddle</span><span class="o">.</span><span class="n">static</span><span class="o">.</span><span class="n">Executor</span><span class="p">(</span><span class="n">paddle</span><span class="o">.</span><span class="n">CPUPlace</span><span class="p">())</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_file</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">program</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">paddle</span><span class="o">.</span><span class="n">static</span><span class="o">.</span><span class="n">load_inference_model</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">exe</span><span class="p">)</span>
+
+        <span class="n">output_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">program</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">ops</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;fetch&quot;</span><span class="p">:</span>
+                    <span class="n">output_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">_convert_dtype_value</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Converts a Paddle type id to a string.&quot;&quot;&quot;</span>
+            <span class="c1"># See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/relay/frontend/paddlepaddle.py#L70</span>
+
+            <span class="n">convert_dtype_map</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="mi">21</span><span class="p">:</span> <span class="s2">&quot;int8&quot;</span><span class="p">,</span>
+                <span class="mi">20</span><span class="p">:</span> <span class="s2">&quot;uint8&quot;</span><span class="p">,</span>
+                <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+                <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+                <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;float16&quot;</span><span class="p">,</span>
+                <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;int64&quot;</span><span class="p">,</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;int32&quot;</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">convert_dtype_map</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Paddle data type value </span><span class="si">%d</span><span class="s2"> is not handled yet.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">convert_dtype_map</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="c1"># super().__init__(in_tensors, out_tensors)</span>
+
+
 <div class="viewcode-block" id="get_tflite_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_tflite_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_tflite_model_info</span><span class="p">(</span><span class="n">model_buf</span><span class="p">):</span>
     <span class="n">tflite_model</span> <span class="o">=</span> <span class="n">tflite</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">GetRootAsModel</span><span class="p">(</span><span class="n">model_buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">TfLiteModelInfo</span><span class="p">(</span><span class="n">tflite_model</span><span class="p">)</span>
@@ -268,6 +338,35 @@
 <div class="viewcode-block" id="get_pb_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_pb_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_pb_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">PBModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model_info</span></div>
+
+
+<div class="viewcode-block" id="get_paddle_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_paddle_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_paddle_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">PaddleModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_info</span></div>
+
+
+<div class="viewcode-block" id="get_onnx_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_onnx_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_onnx_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">ONNXModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_info</span></div>
+
+
+<div class="viewcode-block" id="get_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">):</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">model</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">from_extension</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">model_buf</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">return</span> <span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="n">get_tflite_model_info</span><span class="p">(</span><span class="n">model_buf</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">RELAY</span><span class="p">:</span>
+        <span class="c1"># Warning: the wrapper generateion does currently not work because of the</span>
+        <span class="c1"># missing possibility to get the relay models input names and shapes</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">mod_text</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s2">&quot;relay&quot;</span><span class="p">,</span> <span class="n">get_relay_model_info</span><span class="p">(</span><span class="n">mod_text</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PB</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;pb&quot;</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported model format &#39;</span><span class="si">{</span><span class="n">fmt</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

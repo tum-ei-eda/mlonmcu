@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
@@ -135,8 +136,20 @@
 
 <div class="viewcode-block" id="extract_feature_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_feature_names">[docs]</a><span class="k">def</span> <span class="nf">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">feature</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">feature</span>
-    <span class="k">return</span> <span class="p">[]</span></div>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">feature</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;feature_gen&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">feature_gen</span><span class="p">:</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">feature_gen</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="p">[[]]</span>
+    <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">gen</span></div>
 
 
 <div class="viewcode-block" id="extract_config"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_config">[docs]</a><span class="k">def</span> <span class="nf">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -145,14 +158,26 @@
         <span class="n">configs</span> <span class="o">=</span> <span class="n">parse_vars</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">configs</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">return</span> <span class="n">configs</span></div>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;config_gen&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">config_gen</span><span class="p">:</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">config_gen</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">parse_vars</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="p">[{}]</span>
+
+    <span class="k">return</span> <span class="n">configs</span><span class="p">,</span> <span class="n">gen</span></div>
 
 
 <div class="viewcode-block" id="extract_config_and_feature_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_config_and_feature_names">[docs]</a><span class="k">def</span> <span class="nf">extract_config_and_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="c1"># TODO: get features from context?</span>
-    <span class="n">feature_names</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">config</span><span class="p">,</span> <span class="n">feature_names</span></div>
+    <span class="n">feature_names</span><span class="p">,</span> <span class="n">feature_gen</span> <span class="o">=</span> <span class="n">extract_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">config_gen</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span><span class="p">,</span> <span class="n">feature_names</span><span class="p">,</span> <span class="n">config_gen</span><span class="p">,</span> <span class="n">feature_gen</span></div>
 
 
 <div class="viewcode-block" id="extract_frontend_names"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.extract_frontend_names">[docs]</a><span class="k">def</span> <span class="nf">extract_frontend_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

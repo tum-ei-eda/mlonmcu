@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
@@ -99,11 +100,25 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definitions for TVMFramework.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.framework</span> <span class="kn">import</span> <span class="n">Framework</span>
 
 <span class="c1"># from mlonmcu.flow.tvm import TVMBackend</span>
+
+
+<div class="viewcode-block" id="get_crt_config_dir"><a class="viewcode-back" href="../../../../mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.get_crt_config_dir">[docs]</a><span class="k">def</span> <span class="nf">get_crt_config_dir</span><span class="p">():</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span>
+        <span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;frameworks&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="s2">&quot;crt_config&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;crt_config.h&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>
+        <span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;frameworks&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="s2">&quot;crt_config&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fname</span></div>
 
 
 <div class="viewcode-block" id="TVMFramework"><a class="viewcode-back" href="../../../../mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework">[docs]</a><span class="k">class</span> <span class="nc">TVMFramework</span><span class="p">(</span><span class="n">Framework</span><span class="p">):</span>
@@ -116,7 +131,7 @@
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;extra_incs&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;extra_libs&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;crt_config_dir&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># i.e. see mlonmcu/resources/frameworks/tvm/crt_config/</span>
+        <span class="s2">&quot;crt_config_dir&quot;</span><span class="p">:</span> <span class="n">get_crt_config_dir</span><span class="p">(),</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">]</span>

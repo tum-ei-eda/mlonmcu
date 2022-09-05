@@ -36,6 +36,14 @@ mlonmcu.platform.microtvm module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.platform.microtvm\_backend module
+-----------------------------------------
+
+.. automodule:: mlonmcu.platform.microtvm_backend
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.platform.microtvm\_target module
 ----------------------------------------
 
@@ -76,10 +84,34 @@ mlonmcu.platform.tvm module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.platform.tvm\_backend module
+------------------------------------
+
+.. automodule:: mlonmcu.platform.tvm_backend
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.platform.tvm\_target module
 -----------------------------------
 
 .. automodule:: mlonmcu.platform.tvm_target
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.platform.zephyr module
+------------------------------
+
+.. automodule:: mlonmcu.platform.zephyr
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mlonmcu.platform.zephyr\_target module
+--------------------------------------
+
+.. automodule:: mlonmcu.platform.zephyr_target
    :members:
    :undoc-members:
    :show-inheritance:

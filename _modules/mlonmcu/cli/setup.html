@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
@@ -128,12 +129,14 @@
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;KEY=VALUE&quot;</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set a number of key-value pairs &quot;</span>
-        <span class="s2">&quot;(do not put spaces before or after the = sign). &quot;</span>
-        <span class="s2">&quot;If a value contains spaces, you should define &quot;</span>
-        <span class="s2">&quot;it with double quotes: &quot;</span>
-        <span class="s1">&#39;foo=&quot;this is a sentence&quot;. Note that &#39;</span>
-        <span class="s2">&quot;values are always treated as strings.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Set a number of key-value pairs &quot;</span>
+            <span class="s2">&quot;(do not put spaces before or after the = sign). &quot;</span>
+            <span class="s2">&quot;If a value contains spaces, you should define &quot;</span>
+            <span class="s2">&quot;it with double quotes: &quot;</span>
+            <span class="s1">&#39;foo=&quot;this is a sentence&quot;. Note that &#39;</span>
+            <span class="s2">&quot;values are always treated as strings.&quot;</span>
+        <span class="p">),</span>
     <span class="p">)</span>
     <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
@@ -159,6 +162,12 @@
         <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Invoke a single task manually by name (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--visualize&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Export a .dot file for the dependency graph.&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -175,10 +184,12 @@
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.setup.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
         <span class="c1"># config, features = extract_config_and_init_features(args)</span>
-        <span class="n">config</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_config_and_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_config_and_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="c1"># installer = setup.Setup(features=features, config=config, context=context)</span>
         <span class="n">installer</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">visualize</span><span class="p">:</span>
+            <span class="n">installer</span><span class="o">.</span><span class="n">visualize</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">visualize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
             <span class="n">order</span> <span class="o">=</span> <span class="n">installer</span><span class="o">.</span><span class="n">get_dependency_order</span><span class="p">()</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The following tasks have been selected:&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;- &quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]))</span>

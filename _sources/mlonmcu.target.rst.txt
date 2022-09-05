@@ -1,6 +1,15 @@
 mlonmcu.target package
 ======================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mlonmcu.target.arm
+   mlonmcu.target.riscv
+
 Submodules
 ----------
 
@@ -12,26 +21,10 @@ mlonmcu.target.common module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.target.corstone300 module
----------------------------------
-
-.. automodule:: mlonmcu.target.corstone300
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.target.elf module
 -------------------------
 
 .. automodule:: mlonmcu.target.elf
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mlonmcu.target.etiss\_pulpino module
-------------------------------------
-
-.. automodule:: mlonmcu.target.etiss_pulpino
    :members:
    :undoc-members:
    :show-inheritance:
@@ -48,30 +41,6 @@ mlonmcu.target.metrics module
 -----------------------------
 
 .. automodule:: mlonmcu.target.metrics
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mlonmcu.target.ovpsim module
-----------------------------
-
-.. automodule:: mlonmcu.target.ovpsim
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mlonmcu.target.riscv module
----------------------------
-
-.. automodule:: mlonmcu.target.riscv
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mlonmcu.target.spike module
----------------------------
-
-.. automodule:: mlonmcu.target.spike
    :members:
    :undoc-members:
    :show-inheritance:

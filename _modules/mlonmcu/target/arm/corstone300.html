@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.target.corstone300 &mdash; ML on MCU 0.2.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <title>mlonmcu.target.arm.corstone300 &mdash; ML on MCU 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -24,13 +24,13 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+            <a href="../../../../index.html" class="icon icon-home"> ML on MCU
           </a>
               <div class="version">
                 0.2.0
               </div>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -39,18 +39,19 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
 </ul>
 
         </div>
@@ -59,16 +60,16 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">ML on MCU</a>
+          <a href="../../../../index.html">ML on MCU</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>mlonmcu.target.corstone300</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.target.arm.corstone300</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -77,7 +78,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for mlonmcu.target.corstone300</h1><div class="highlight"><pre>
+  <h1>Source code for mlonmcu.target.arm.corstone300</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
 <span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
 <span class="c1">#</span>
@@ -104,30 +105,31 @@
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
-<span class="kn">from</span> <span class="nn">.target</span> <span class="kn">import</span> <span class="n">Target</span>
-<span class="kn">from</span> <span class="nn">.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">resolve_cpu_features</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="Corstone300Target"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target">[docs]</a><span class="k">class</span> <span class="nc">Corstone300Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
+<div class="viewcode-block" id="Corstone300Target"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target">[docs]</a><span class="k">class</span> <span class="nc">Corstone300Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ethosu&quot;</span><span class="p">,</span> <span class="s2">&quot;arm_mvei&quot;</span><span class="p">,</span> <span class="s2">&quot;arm_dsp&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">Target</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="c1"># &quot;model&quot;: &quot;cortex-m55&quot;,  # Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)</span>
-        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Options: cortex-m4, cortex-m7, cortex-m55 (Frequency is fixed at 25MHz)</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;cortex-m55&quot;</span><span class="p">,</span>  <span class="c1"># Options: cortex-m{0,0plus,1,3,4,7,23,33,35p,55} (Frequency is fixed at 25MHz)</span>
         <span class="c1"># Warning: FVP is still M55 based!</span>
         <span class="s2">&quot;timeout_sec&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># disabled</span>
         <span class="s2">&quot;enable_ethosu&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;enable_fpu&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;enable_mvei&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># unused</span>
         <span class="s2">&quot;enable_dsp&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># unused</span>
         <span class="s2">&quot;ethosu_num_macs&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
         <span class="s2">&quot;extra_args&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;corstone300.exe&quot;</span><span class="p">,</span>
@@ -140,25 +142,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_mvei</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;corstone300.model was overwritten by the user&quot;</span>
-            <span class="k">return</span> <span class="s2">&quot;cortex-m55&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_dsp</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;corstone300.model was overwritten by the user&quot;</span>
-            <span class="k">return</span> <span class="s2">&quot;cortex-m33&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;cortex-m0&quot;</span>  <span class="c1"># Default chip</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enable_ethosu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_ethosu&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_ethosu&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enable_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_fpu&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enable_mvei</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_mvei&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_mvei&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enable_dsp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_dsp&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_dsp&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ethosu_num_macs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -185,7 +189,7 @@
         <span class="c1"># 0 = off</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout_sec&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="Corstone300Target.get_default_fvp_args"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_default_fvp_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_fvp_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Corstone300Target.get_default_fvp_args"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.get_default_fvp_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_fvp_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
             <span class="s2">&quot;mps3_board.visualisation.disable-visualisation=1&quot;</span><span class="p">,</span>
@@ -201,9 +205,15 @@
             <span class="s2">&quot;cpu0.CFGDTCMSZ=15&quot;</span><span class="p">,</span>  <span class="c1"># ?</span>
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
             <span class="s2">&quot;cpu0.CFGITCMSZ=15&quot;</span><span class="p">,</span>  <span class="c1"># ?</span>
+            <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;cpu0.FPU=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cpu0.MVE=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_mvei</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span> <span class="k">else</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_mvei</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">),</span>
         <span class="p">]</span></div>
 
-<div class="viewcode-block" id="Corstone300Target.get_ethosu_fvp_args"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_ethosu_fvp_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_ethosu_fvp_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Corstone300Target.get_ethosu_fvp_args"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.get_ethosu_fvp_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_ethosu_fvp_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;ethosu.num_macs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ethosu_num_macs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -211,7 +221,7 @@
             <span class="s1">&#39;ethosu.extra_args=&quot;--fast&quot;&#39;</span><span class="p">,</span>
         <span class="p">]</span></div>
 
-<div class="viewcode-block" id="Corstone300Target.exec"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Corstone300Target.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="n">fvp_args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">fvp_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_default_fvp_args</span><span class="p">())</span>
@@ -234,7 +244,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="Corstone300Target.parse_stdout"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Corstone300Target.parse_stdout"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">exit_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Application exit code: (.*)\.&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exit_match</span><span class="p">:</span>
             <span class="n">exit_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">exit_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
@@ -254,8 +264,7 @@
         <span class="c1"># mips = None  # TODO: parse mips?</span>
         <span class="k">return</span> <span class="n">cycles</span></div>
 
-<div class="viewcode-block" id="Corstone300Target.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">num</span> <span class="ow">is</span> <span class="kc">None</span>
+<div class="viewcode-block" id="Corstone300Target.get_metrics"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
@@ -266,34 +275,38 @@
         <span class="n">cycles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
 
         <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
-        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total Cycles&quot;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Cycles&quot;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="Corstone300Target.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+<div class="viewcode-block" id="Corstone300Target.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;CMSIS_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ARM_COMPILER_PREFIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_prefix</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ARM_CPU&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">cpu</span><span class="p">,</span> <span class="n">float_abi</span><span class="p">,</span> <span class="n">fpu</span> <span class="o">=</span> <span class="n">resolve_cpu_features</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">enable_fp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span><span class="p">,</span> <span class="n">enable_dsp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_dsp</span><span class="p">,</span> <span class="n">enable_mve</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_mvei</span>
+        <span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ARM_CPU&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cpu</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ARM_FLOAT_ABI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">float_abi</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ARM_FPU&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fpu</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="Corstone300Target.get_arch"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_arch">[docs]</a>    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Corstone300Target.get_arch"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.get_arch">[docs]</a>    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;arm&quot;</span>  <span class="c1"># TODO: use proper mapping (v6, v7, v8, v8.1...)</span></div>
 
-<div class="viewcode-block" id="Corstone300Target.get_backend_config"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.corstone300.Corstone300Target.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
+<div class="viewcode-block" id="Corstone300Target.get_backend_config"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;target_device&quot;</span><span class="p">:</span> <span class="s2">&quot;arm_cpu&quot;</span><span class="p">,</span>
                 <span class="c1"># &quot;target_march&quot;: self.get_arch(),</span>
                 <span class="s2">&quot;target_model&quot;</span><span class="p">:</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;target_mtriple&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_basename</span><span class="p">,</span>
+                <span class="s2">&quot;target_mtriple&quot;</span><span class="p">:</span> <span class="s2">&quot;arm-none-eabi&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;target_mcpu&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
                 <span class="c1"># &quot;target_mattr&quot;: &quot;?&quot;,</span>
                 <span class="c1"># &quot;target_mabi&quot;: self.abi,</span>
             <span class="p">}</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_dsp</span><span class="p">:</span>
-                <span class="k">pass</span>
-                <span class="c1"># ret.update({&quot;desired_layout&quot;: &quot;NHWC,HWOI&quot;})  # NOt yet supported by upstream TVMC</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;desired_layout&quot;</span><span class="p">:</span> <span class="s2">&quot;NHWC:HWOI&quot;</span><span class="p">})</span>  <span class="c1"># Not yet supported by upstream TVMC</span>
             <span class="k">return</span> <span class="n">ret</span>
         <span class="k">return</span> <span class="p">{}</span></div></div>
 

@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
@@ -98,36 +99,40 @@
 <span class="c1">#</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.host_x86</span> <span class="kn">import</span> <span class="n">HostX86Target</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.etiss_pulpino</span> <span class="kn">import</span> <span class="n">EtissPulpinoTarget</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.corstone300</span> <span class="kn">import</span> <span class="n">Corstone300Target</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.spike</span> <span class="kn">import</span> <span class="n">SpikeTarget</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.ovpsim</span> <span class="kn">import</span> <span class="n">OVPSimTarget</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Target</span><span class="p">,</span>
+    <span class="n">EtissPulpinoTarget</span><span class="p">,</span>
+    <span class="n">SpikeTarget</span><span class="p">,</span>
+    <span class="n">OVPSimTarget</span><span class="p">,</span>
+    <span class="n">Corstone300Target</span><span class="p">,</span>
+    <span class="n">HostX86Target</span><span class="p">,</span>
+    <span class="n">RiscvQemuTarget</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
-<span class="n">MLIF_TARGET_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">MLIF_PLATFORM_TARGET_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="register_mlif_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.register_mlif_target">[docs]</a><span class="k">def</span> <span class="nf">register_mlif_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">MLIF_TARGET_REGISTRY</span>
+<div class="viewcode-block" id="register_mlif_platform_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.register_mlif_platform_target">[docs]</a><span class="k">def</span> <span class="nf">register_mlif_platform_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">MLIF_PLATFORM_TARGET_REGISTRY</span>
 
-    <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">MLIF_TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MLIF target </span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
-    <span class="n">MLIF_TARGET_REGISTRY</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span></div>
-
-
-<div class="viewcode-block" id="get_mlif_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.get_mlif_targets">[docs]</a><span class="k">def</span> <span class="nf">get_mlif_targets</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">MLIF_TARGET_REGISTRY</span></div>
+    <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">MLIF_PLATFORM_TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MLIF platform target </span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
+    <span class="n">MLIF_PLATFORM_TARGET_REGISTRY</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span></div>
 
 
-<span class="n">register_mlif_target</span><span class="p">(</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">)</span>
-<span class="n">register_mlif_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">EtissPulpinoTarget</span><span class="p">)</span>
-<span class="n">register_mlif_target</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">,</span> <span class="n">Corstone300Target</span><span class="p">)</span>
-<span class="n">register_mlif_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">)</span>
-<span class="n">register_mlif_target</span><span class="p">(</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">)</span>
+<div class="viewcode-block" id="get_mlif_platform_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.get_mlif_platform_targets">[docs]</a><span class="k">def</span> <span class="nf">get_mlif_platform_targets</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">MLIF_PLATFORM_TARGET_REGISTRY</span></div>
+
+
+<span class="n">register_mlif_platform_target</span><span class="p">(</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">)</span>
+<span class="n">register_mlif_platform_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">EtissPulpinoTarget</span><span class="p">)</span>
+<span class="n">register_mlif_platform_target</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">,</span> <span class="n">Corstone300Target</span><span class="p">)</span>
+<span class="n">register_mlif_platform_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">)</span>
+<span class="n">register_mlif_platform_target</span><span class="p">(</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">)</span>
+<span class="n">register_mlif_platform_target</span><span class="p">(</span><span class="s2">&quot;riscv_qemu&quot;</span><span class="p">,</span> <span class="n">RiscvQemuTarget</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="MlifExitCode"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.MlifExitCode">[docs]</a><span class="k">class</span> <span class="nc">MlifExitCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
@@ -140,8 +145,8 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">cls</span><span class="p">))</span></div></div>
 
 
-<div class="viewcode-block" id="create_mlif_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.create_mlif_target">[docs]</a><span class="k">def</span> <span class="nf">create_mlif_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">MlifTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>  <span class="c1"># This is not ideal as we will have multiple different MlifTarget classes</span>
+<div class="viewcode-block" id="create_mlif_platform_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif_target.create_mlif_platform_target">[docs]</a><span class="k">def</span> <span class="nf">create_mlif_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">MlifPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
 
         <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
 
@@ -155,8 +160,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">validation_result</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">num</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
             <span class="c1"># This is wrapper around the original exec function to catch special return codes thrown by the inout data</span>
             <span class="c1"># feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))</span>
@@ -188,7 +192,7 @@
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;TARGET_SYSTEM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_system</span>
             <span class="k">return</span> <span class="n">ret</span>
 
-    <span class="k">return</span> <span class="n">MlifTarget</span></div>
+    <span class="k">return</span> <span class="n">MlifPlatformTarget</span></div>
 </pre></div>
 
            </div>

@@ -47,6 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
@@ -136,10 +137,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="mlonmcu.data.html">mlonmcu.data package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.data.html#module-mlonmcu.data">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="mlonmcu.environment.html">mlonmcu.environment package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.config">mlonmcu.environment.config module</a></li>
@@ -189,7 +186,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.convert_data">mlonmcu.models.convert_data module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.frontend">mlonmcu.models.frontend module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.group">mlonmcu.models.group module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.inout">mlonmcu.models.inout module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.lookup">mlonmcu.models.lookup module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.metadata">mlonmcu.models.metadata module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.html#module-mlonmcu.models.model">mlonmcu.models.model module</a></li>
@@ -204,12 +200,16 @@
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.espidf_target">mlonmcu.platform.espidf_target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.lookup">mlonmcu.platform.lookup module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.microtvm">mlonmcu.platform.microtvm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.microtvm_backend">mlonmcu.platform.microtvm_backend module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.microtvm_target">mlonmcu.platform.microtvm_target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.mlif">mlonmcu.platform.mlif module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.mlif_target">mlonmcu.platform.mlif_target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.platform">mlonmcu.platform.platform module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.tvm">mlonmcu.platform.tvm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.tvm_backend">mlonmcu.platform.tvm_backend module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.tvm_target">mlonmcu.platform.tvm_target module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.zephyr">mlonmcu.platform.zephyr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform.zephyr_target">mlonmcu.platform.zephyr_target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.platform.html#module-mlonmcu.platform">Module contents</a></li>
 </ul>
 </li>
@@ -241,16 +241,32 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="mlonmcu.target.html">mlonmcu.target package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.target.arm.html">mlonmcu.target.arm package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.arm.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.arm.html#module-mlonmcu.target.arm.corstone300">mlonmcu.target.arm.corstone300 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.arm.html#module-mlonmcu.target.arm.util">mlonmcu.target.arm.util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.arm.html#module-mlonmcu.target.arm">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.target.riscv.html">mlonmcu.target.riscv package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.riscv.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.etiss_pulpino">mlonmcu.target.riscv.etiss_pulpino module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.ovpsim">mlonmcu.target.riscv.ovpsim module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.riscv">mlonmcu.target.riscv.riscv module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.riscv_qemu">mlonmcu.target.riscv.riscv_qemu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.spike">mlonmcu.target.riscv.spike module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.util">mlonmcu.target.riscv.util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.common">mlonmcu.target.common module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.corstone300">mlonmcu.target.corstone300 module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.elf">mlonmcu.target.elf module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.etiss_pulpino">mlonmcu.target.etiss_pulpino module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.host_x86">mlonmcu.target.host_x86 module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.metrics">mlonmcu.target.metrics module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.ovpsim">mlonmcu.target.ovpsim module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.riscv">mlonmcu.target.riscv module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.spike">mlonmcu.target.spike module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target.target">mlonmcu.target.target module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.target.html#module-mlonmcu.target">Module contents</a></li>
 </ul>
@@ -384,7 +400,7 @@
 <p>Collection of utilities to manage MLonMCU configs.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.config.filter_config">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">filter_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#filter_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.filter_config" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">filter_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optionals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#filter_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.filter_config" title="Permalink to this definition"></a></dt>
 <dd><p>Filter the global config for a given component prefix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -417,7 +433,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.config.resolve_required_config">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">resolve_required_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#resolve_required_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.resolve_required_config" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">resolve_required_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#resolve_required_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.resolve_required_config" title="Permalink to this definition"></a></dt>
 <dd><p>Utility which iterates over a set of given config keys and
 resolves their values using the passed config and/or cache.</p>
 <dl class="field-list simple">
@@ -429,6 +445,8 @@ resolves their values using the passed config and/or cache.</p>
 <dt><strong>cache</strong><span class="classifier">TaskCache</span></dt><dd><p>Optional task cache parsed from the <cite>cache.ini</cite> file in the <cite>deps</cite> directory.</p>
 </dd>
 <dt><strong>hints</strong><span class="classifier">List[str]</span></dt><dd><p>List of additional flags which can be provided as a hint to lookup a cache config.</p>
+</dd>
+<dt><strong>default_flags</strong><span class="classifier">dict</span></dt><dd><p>User-provided mapping of cache flags for some cache entries.</p>
 </dd>
 </dl>
 </dd>

@@ -47,6 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
@@ -122,7 +123,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -147,7 +148,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.compile">
-<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf.html#EspIdfPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.compile" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf.html#EspIdfPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.compile" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -177,7 +178,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.generate_elf">
-<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf.html#EspIdfPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf.html#EspIdfPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.generate_elf" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -222,7 +223,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.prepare">
-<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf.html#EspIdfPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.prepare" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf.html#EspIdfPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.prepare" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -251,8 +252,8 @@
 <section id="module-mlonmcu.platform.espidf_target">
 <span id="mlonmcu-platform-espidf-target-module"></span><h2>mlonmcu.platform.espidf_target module<a class="headerlink" href="#module-mlonmcu.platform.espidf_target" title="Permalink to this headline"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="mlonmcu.platform.espidf_target.create_espidf_target">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf_target.</span></span><span class="sig-name descname"><span class="pre">create_espidf_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf_target.html#create_espidf_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf_target.create_espidf_target" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf_target.create_espidf_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf_target.</span></span><span class="sig-name descname"><span class="pre">create_espidf_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf_target.html#create_espidf_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf_target.create_espidf_platform_target" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
@@ -264,8 +265,18 @@
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.lookup.get_platforms_backends">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.lookup.</span></span><span class="sig-name descname"><span class="pre">get_platforms_backends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/lookup.html#get_platforms_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.lookup.get_platforms_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.platform.lookup.get_platforms_targets">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.lookup.</span></span><span class="sig-name descname"><span class="pre">get_platforms_targets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/lookup.html#get_platforms_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.lookup.get_platforms_targets" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.lookup.</span></span><span class="sig-name descname"><span class="pre">get_platforms_targets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/lookup.html#get_platforms_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.lookup.get_platforms_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.lookup.print_backends">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.lookup.</span></span><span class="sig-name descname"><span class="pre">print_backends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform_backends</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/lookup.html#print_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.lookup.print_backends" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -290,11 +301,11 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm.</span></span><span class="sig-name descname"><span class="pre">MicroTvmPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.platform.CompilePlatform" title="mlonmcu.platform.platform.CompilePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.CompilePlatform</span></code></a>, <a class="reference internal" href="#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.platform.CompilePlatform" title="mlonmcu.platform.platform.CompilePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.CompilePlatform</span></code></a>, <a class="reference internal" href="#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a>, <a class="reference internal" href="#mlonmcu.platform.platform.BuildPlatform" title="mlonmcu.platform.platform.BuildPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.BuildPlatform</span></code></a>, <a class="reference internal" href="#mlonmcu.platform.platform.TunePlatform" title="mlonmcu.platform.platform.TunePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TunePlatform</span></code></a></p>
 <p>TVM Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'fill_mode':</span> <span class="pre">'random',</span> <span class="pre">'ins_file':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'outs_file':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'print_top':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_options':</span> <span class="pre">{},</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'repeat':</span> <span class="pre">1,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[]}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'fill_mode':</span> <span class="pre">'random',</span> <span class="pre">'ins_file':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'outs_file':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'print_top':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_options':</span> <span class="pre">{},</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'repeat':</span> <span class="pre">1,</span> <span class="pre">'tune_tasks':</span> <span class="pre">None,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'visualize_tuning':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -313,8 +324,23 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.collect_available_project_options">
+<span class="sig-name descname"><span class="pre">collect_available_project_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlf_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">micro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.collect_available_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.collect_available_project_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.collect_available_run_project_options">
+<span class="sig-name descname"><span class="pre">collect_available_run_project_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.collect_available_run_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.collect_available_run_project_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.compile">
 <span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.create_backend">
+<span class="sig-name descname"><span class="pre">create_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.create_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.create_backend" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -334,7 +360,17 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.generate_elf">
-<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.get_micro_tune_args">
+<span class="sig-name descname"><span class="pre">get_micro_tune_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.get_micro_tune_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.get_micro_tune_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.get_supported_backends">
+<span class="sig-name descname"><span class="pre">get_supported_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.get_supported_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.get_supported_backends" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -349,12 +385,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_micro_args">
-<span class="sig-name descname"><span class="pre">get_tvmc_micro_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlf_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.get_tvmc_micro_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_micro_args" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_tvmc_micro_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlf_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.get_tvmc_micro_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_micro_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_run_args">
-<span class="sig-name descname"><span class="pre">get_tvmc_run_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.get_tvmc_run_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_run_args" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_tvmc_run_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.get_tvmc_run_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_run_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -369,17 +405,17 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc">
-<span class="sig-name descname"><span class="pre">invoke_tvmc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.invoke_tvmc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">invoke_tvmc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.invoke_tvmc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc_micro">
-<span class="sig-name descname"><span class="pre">invoke_tvmc_micro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlf_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">micro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.invoke_tvmc_micro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc_micro" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">invoke_tvmc_micro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlf_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">micro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.invoke_tvmc_micro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc_micro" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc_run">
-<span class="sig-name descname"><span class="pre">invoke_tvmc_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">micro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.invoke_tvmc_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc_run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">invoke_tvmc_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">micro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.invoke_tvmc_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.invoke_tvmc_run" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -414,7 +450,17 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.tune_model">
+<span class="sig-name descname"><span class="pre">tune_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#MicroTvmPlatform.tune_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.tune_model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.tune_tasks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tune_tasks</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.tune_tasks" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -442,24 +488,318 @@
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvmc_extra_args</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.tvmc_extra_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.visualize_tuning">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_tuning</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.visualize_tuning" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.filter_project_options">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm.</span></span><span class="sig-name descname"><span class="pre">filter_project_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#filter_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.filter_project_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.get_project_option_args">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm.</span></span><span class="sig-name descname"><span class="pre">get_project_option_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#get_project_option_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.get_project_option_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.parse_project_options_from_stdout">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm.</span></span><span class="sig-name descname"><span class="pre">parse_project_options_from_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm.html#parse_project_options_from_stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.parse_project_options_from_stdout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.microtvm_backend">
+<span id="mlonmcu-platform-microtvm-backend-module"></span><h2>mlonmcu.platform.microtvm_backend module<a class="headerlink" href="#module-mlonmcu.platform.microtvm_backend" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_backend.create_microtvm_platform_backend">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_backend.</span></span><span class="sig-name descname"><span class="pre">create_microtvm_platform_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.flow.tvm.backend.backend.TVMBackend'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_backend.html#create_microtvm_platform_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_backend.create_microtvm_platform_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_backend.get_microtvm_platform_backends">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_backend.</span></span><span class="sig-name descname"><span class="pre">get_microtvm_platform_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_backend.html#get_microtvm_platform_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_backend.get_microtvm_platform_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_backend.register_microtvm_platform_backend">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_backend.</span></span><span class="sig-name descname"><span class="pre">register_microtvm_platform_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_backend.html#register_microtvm_platform_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_backend.register_microtvm_platform_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-mlonmcu.platform.microtvm_target">
 <span id="mlonmcu-platform-microtvm-target-module"></span><h2>mlonmcu.platform.microtvm_target module<a class="headerlink" href="#module-mlonmcu.platform.microtvm_target" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">ArduinoMicroTvmPlatformTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#ArduinoMicroTvmPlatformTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget" title="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arduino_board':</span> <span class="pre">'?',</span> <span class="pre">'port':</span> <span class="pre">-1,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_type':</span> <span class="pre">'host_driven',</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'warning_as_error':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['arduino.install_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.arduino_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arduino_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.arduino_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.get_project_options">
+<span class="sig-name descname"><span class="pre">get_project_options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#ArduinoMicroTvmPlatformTarget.get_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.get_project_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.update_environment">
+<span class="sig-name descname"><span class="pre">update_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#ArduinoMicroTvmPlatformTarget.update_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ArduinoMicroTvmPlatformTarget.update_environment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">EtissvpMicroTvmPlatformTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#EtissvpMicroTvmPlatformTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget" title="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'compile_definitions':</span> <span class="pre">'',</span> <span class="pre">'config_main_stack_size':</span> <span class="pre">-1,</span> <span class="pre">'etissvp_script_args':</span> <span class="pre">'?',</span> <span class="pre">'extra_files_tar':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_type':</span> <span class="pre">'?',</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'transport':</span> <span class="pre">True,</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'warning_as_error':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['microtvm_etissvp.src_dir',</span> <span class="pre">'riscv_gcc.install_dir',</span> <span class="pre">'etiss.install_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.etiss_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">etiss_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.etiss_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.get_backend_config">
+<span class="sig-name descname"><span class="pre">get_backend_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#EtissvpMicroTvmPlatformTarget.get_backend_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.get_backend_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.get_project_options">
+<span class="sig-name descname"><span class="pre">get_project_options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#EtissvpMicroTvmPlatformTarget.get_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.get_project_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.microtvm_etissvp_src_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">microtvm_etissvp_src_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.microtvm_etissvp_src_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.riscv_gcc_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">riscv_gcc_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.EtissvpMicroTvmPlatformTarget.riscv_gcc_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">HostMicroTvmPlatformTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#HostMicroTvmPlatformTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget" title="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'verbose':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget.tvm_build_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_build_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.HostMicroTvmPlatformTarget.tvm_build_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">SpikeMicroTvmPlatformTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#SpikeMicroTvmPlatformTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget" title="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'pk_extra_args':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'spike_extra_args':</span> <span class="pre">None,</span> <span class="pre">'verbose':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['spike.exe',</span> <span class="pre">'spike.pk',</span> <span class="pre">'riscv_gcc.name',</span> <span class="pre">'riscv_gcc.install_dir',</span> <span class="pre">'tvm.src_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.get_backend_config">
+<span class="sig-name descname"><span class="pre">get_backend_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#SpikeMicroTvmPlatformTarget.get_backend_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.get_backend_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.get_project_options">
+<span class="sig-name descname"><span class="pre">get_project_options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#SpikeMicroTvmPlatformTarget.get_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.get_project_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.riscv_gcc_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">riscv_gcc_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.riscv_gcc_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.riscv_gcc_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">riscv_gcc_name</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.riscv_gcc_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.spike_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spike_exe</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.spike_exe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.spike_pk">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spike_pk</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.spike_pk" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.tvm_src_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_src_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.tvm_src_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.update_environment">
+<span class="sig-name descname"><span class="pre">update_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#SpikeMicroTvmPlatformTarget.update_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.SpikeMicroTvmPlatformTarget.update_environment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">TemplateMicroTvmPlatformTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#TemplateMicroTvmPlatformTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.target.Target" title="mlonmcu.target.target.Target"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.target.target.Target</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.get_project_options">
+<span class="sig-name descname"><span class="pre">get_project_options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#TemplateMicroTvmPlatformTarget.get_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.get_project_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.update_environment">
+<span class="sig-name descname"><span class="pre">update_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#TemplateMicroTvmPlatformTarget.update_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget.update_environment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">ZephyrMicroTvmPlatformTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#ZephyrMicroTvmPlatformTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget" title="mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.microtvm_target.TemplateMicroTvmPlatformTarget</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'compile_definitions':</span> <span class="pre">'',</span> <span class="pre">'config_main_stack_size':</span> <span class="pre">'16384',</span> <span class="pre">'extra_files_tar':</span> <span class="pre">None,</span> <span class="pre">'gdbserver_port':</span> <span class="pre">None,</span> <span class="pre">'nrfjprog_snr':</span> <span class="pre">None,</span> <span class="pre">'openocd_serial':</span> <span class="pre">None,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_type':</span> <span class="pre">'host_driven',</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'warning_as_error':</span> <span class="pre">True,</span> <span class="pre">'zephyr_board':</span> <span class="pre">''}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['zephyr.install_dir',</span> <span class="pre">'zephyr.sdk_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.get_project_options">
+<span class="sig-name descname"><span class="pre">get_project_options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#ZephyrMicroTvmPlatformTarget.get_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.get_project_options" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.update_environment">
+<span class="sig-name descname"><span class="pre">update_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#ZephyrMicroTvmPlatformTarget.update_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.update_environment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.zephyr_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.zephyr_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.zephyr_sdk_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_sdk_dir</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm_target.ZephyrMicroTvmPlatformTarget.zephyr_sdk_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
-<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.create_microtvm_target">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">create_microtvm_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#create_microtvm_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.create_microtvm_target" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.create_microtvm_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">create_microtvm_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#create_microtvm_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.create_microtvm_platform_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.get_microtvm_platform_targets">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">get_microtvm_platform_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#get_microtvm_platform_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.get_microtvm_platform_targets" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.name2template">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">name2template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#name2template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.name2template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm_target.register_microtvm_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.microtvm_target.</span></span><span class="sig-name descname"><span class="pre">register_microtvm_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm_target.html#register_microtvm_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm_target.register_microtvm_platform_target" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
@@ -473,12 +813,17 @@
 <p>Model Library Interface Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'fail_on_error':</span> <span class="pre">False,</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'fail_on_error':</span> <span class="pre">False,</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'validate',</span> <span class="pre">'muriscvnn',</span> <span class="pre">'cmsisnn',</span> <span class="pre">'muriscvnnbyoc',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'vext',</span> <span class="pre">'pext',</span> <span class="pre">'arm_mvei',</span> <span class="pre">'arm_dsp']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'validate',</span> <span class="pre">'muriscvnn',</span> <span class="pre">'cmsisnn',</span> <span class="pre">'muriscvnnbyoc',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'vext',</span> <span class="pre">'pext',</span> <span class="pre">'arm_mvei',</span> <span class="pre">'arm_dsp',</span> <span class="pre">'auto_vectorize',</span> <span class="pre">'benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['llvm.install_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.OPTIONAL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -493,12 +838,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.compile">
-<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif.html#MlifPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.compile" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif.html#MlifPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.compile" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.configure">
-<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif.html#MlifPlatform.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.configure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif.html#MlifPlatform.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.configure" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -513,12 +858,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.generate_elf">
-<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif.html#MlifPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif.html#MlifPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.generate_elf" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.get_common_cmake_args">
-<span class="sig-name descname"><span class="pre">get_common_cmake_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif.html#MlifPlatform.get_common_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.get_common_cmake_args" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_common_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif.html#MlifPlatform.get_common_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.get_common_cmake_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -537,6 +882,11 @@
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.llvm_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_dir</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.llvm_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.mlif_dir">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mlif_dir</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.mlif_dir" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -544,6 +894,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.model_support_dir">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_support_dir</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.model_support_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.optimize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.optimize" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -599,23 +954,55 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlonmcu.platform.mlif_target.create_mlif_target">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.mlif_target.</span></span><span class="sig-name descname"><span class="pre">create_mlif_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif_target.html#create_mlif_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif_target.create_mlif_target" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif_target.create_mlif_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.mlif_target.</span></span><span class="sig-name descname"><span class="pre">create_mlif_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif_target.html#create_mlif_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif_target.create_mlif_platform_target" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlonmcu.platform.mlif_target.get_mlif_targets">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.mlif_target.</span></span><span class="sig-name descname"><span class="pre">get_mlif_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif_target.html#get_mlif_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif_target.get_mlif_targets" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif_target.get_mlif_platform_targets">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.mlif_target.</span></span><span class="sig-name descname"><span class="pre">get_mlif_platform_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif_target.html#get_mlif_platform_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif_target.get_mlif_platform_targets" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlonmcu.platform.mlif_target.register_mlif_target">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.mlif_target.</span></span><span class="sig-name descname"><span class="pre">register_mlif_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif_target.html#register_mlif_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif_target.register_mlif_target" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif_target.register_mlif_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.mlif_target.</span></span><span class="sig-name descname"><span class="pre">register_mlif_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif_target.html#register_mlif_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif_target.register_mlif_platform_target" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
 <section id="module-mlonmcu.platform.platform">
 <span id="mlonmcu-platform-platform-module"></span><h2>mlonmcu.platform.platform module<a class="headerlink" href="#module-mlonmcu.platform.platform" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.BuildPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.platform.</span></span><span class="sig-name descname"><span class="pre">BuildPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#BuildPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.BuildPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.platform.Platform" title="mlonmcu.platform.platform.Platform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.Platform</span></code></a></p>
+<p>Abstract backend platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.BuildPlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'print_outputs':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.platform.BuildPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.BuildPlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.platform.BuildPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.BuildPlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.platform.BuildPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.BuildPlatform.export_elf">
+<span class="sig-name descname"><span class="pre">export_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#BuildPlatform.export_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.BuildPlatform.export_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.BuildPlatform.supports_build">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_build</span></span><a class="headerlink" href="#mlonmcu.platform.platform.BuildPlatform.supports_build" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.platform.</span></span><span class="sig-name descname"><span class="pre">CompilePlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform" title="Permalink to this definition"></a></dt>
@@ -642,13 +1029,8 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.export_elf">
-<span class="sig-name descname"><span class="pre">export_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.export_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.export_elf" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.generate_elf">
-<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.generate_elf" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -664,6 +1046,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.supports_compile">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_compile</span></span><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.supports_compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.tune_model">
+<span class="sig-name descname"><span class="pre">tune_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.tune_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.tune_model" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -684,8 +1071,18 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.Platform.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.platform.Platform.OPTIONAL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.Platform.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.platform.Platform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.Platform.get_supported_backends">
+<span class="sig-name descname"><span class="pre">get_supported_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#Platform.get_supported_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.Platform.get_supported_backends" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -709,6 +1106,11 @@
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.Platform.supports_build">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_build</span></span><a class="headerlink" href="#mlonmcu.platform.platform.Platform.supports_build" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.Platform.supports_compile">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_compile</span></span><a class="headerlink" href="#mlonmcu.platform.platform.Platform.supports_compile" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -721,6 +1123,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.Platform.supports_monitor">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_monitor</span></span><a class="headerlink" href="#mlonmcu.platform.platform.Platform.supports_monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.Platform.supports_tune">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_tune</span></span><a class="headerlink" href="#mlonmcu.platform.platform.Platform.supports_tune" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -777,6 +1184,38 @@
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.platform.</span></span><span class="sig-name descname"><span class="pre">TunePlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#TunePlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.platform.Platform" title="mlonmcu.platform.platform.Platform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.Platform</span></code></a></p>
+<p>Abstract backend platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'print_outputs':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.export_elf">
+<span class="sig-name descname"><span class="pre">export_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#TunePlatform.export_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.export_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.supports_tune">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_tune</span></span><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.supports_tune" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.get_platforms">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.platform.</span></span><span class="sig-name descname"><span class="pre">get_platforms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#get_platforms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.get_platforms" title="Permalink to this definition"></a></dt>
@@ -794,16 +1233,16 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm.</span></span><span class="sig-name descname"><span class="pre">TvmPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.platform.BuildPlatform" title="mlonmcu.platform.platform.BuildPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.BuildPlatform</span></code></a>, <a class="reference internal" href="#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a></p>
 <p>TVM Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fill_mode':</span> <span class="pre">'random',</span> <span class="pre">'ins_file':</span> <span class="pre">None,</span> <span class="pre">'outs_file':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'print_top':</span> <span class="pre">False,</span> <span class="pre">'profile':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'repeat':</span> <span class="pre">1,</span> <span class="pre">'rpc_hostname':</span> <span class="pre">None,</span> <span class="pre">'rpc_key':</span> <span class="pre">None,</span> <span class="pre">'rpc_port':</span> <span class="pre">None,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'use_rpc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'aggregate':</span> <span class="pre">'none',</span> <span class="pre">'fill_mode':</span> <span class="pre">'random',</span> <span class="pre">'ins_file':</span> <span class="pre">None,</span> <span class="pre">'number':</span> <span class="pre">1,</span> <span class="pre">'outs_file':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'print_top':</span> <span class="pre">False,</span> <span class="pre">'profile':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'repeat':</span> <span class="pre">1,</span> <span class="pre">'rpc_hostname':</span> <span class="pre">None,</span> <span class="pre">'rpc_key':</span> <span class="pre">None,</span> <span class="pre">'rpc_port':</span> <span class="pre">None,</span> <span class="pre">'total_time':</span> <span class="pre">False,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'use_rpc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -811,9 +1250,19 @@
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir',</span> <span class="pre">'tvm.pythonpath',</span> <span class="pre">'tvm.configs_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.aggregate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">aggregate</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.aggregate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.create_backend">
+<span class="sig-name descname"><span class="pre">create_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.create_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.create_backend" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -827,13 +1276,18 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.get_supported_backends">
+<span class="sig-name descname"><span class="pre">get_supported_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.get_supported_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.get_supported_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.get_supported_targets">
 <span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.get_supported_targets" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.get_tvmc_run_args">
-<span class="sig-name descname"><span class="pre">get_tvmc_run_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.get_tvmc_run_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.get_tvmc_run_args" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_tvmc_run_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.get_tvmc_run_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.get_tvmc_run_args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -853,7 +1307,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.invoke_tvmc_run">
-<span class="sig-name descname"><span class="pre">invoke_tvmc_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.invoke_tvmc_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.invoke_tvmc_run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">invoke_tvmc_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.invoke_tvmc_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.invoke_tvmc_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.number">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">number</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.number" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -893,7 +1352,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm.html#TvmPlatform.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.total_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_time</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.total_time" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -929,16 +1393,183 @@
 </dd></dl>
 
 </section>
+<section id="module-mlonmcu.platform.tvm_backend">
+<span id="mlonmcu-platform-tvm-backend-module"></span><h2>mlonmcu.platform.tvm_backend module<a class="headerlink" href="#module-mlonmcu.platform.tvm_backend" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm_backend.create_tvm_platform_backend">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm_backend.</span></span><span class="sig-name descname"><span class="pre">create_tvm_platform_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.flow.tvm.backend.backend.TVMBackend'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm_backend.html#create_tvm_platform_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm_backend.create_tvm_platform_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm_backend.get_tvm_platform_backends">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm_backend.</span></span><span class="sig-name descname"><span class="pre">get_tvm_platform_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm_backend.html#get_tvm_platform_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm_backend.get_tvm_platform_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm_backend.register_tvm_platform_backend">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm_backend.</span></span><span class="sig-name descname"><span class="pre">register_tvm_platform_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm_backend.html#register_tvm_platform_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm_backend.register_tvm_platform_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
 <section id="module-mlonmcu.platform.tvm_target">
 <span id="mlonmcu-platform-tvm-target-module"></span><h2>mlonmcu.platform.tvm_target module<a class="headerlink" href="#module-mlonmcu.platform.tvm_target" title="Permalink to this headline"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="mlonmcu.platform.tvm_target.create_tvm_target">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm_target.</span></span><span class="sig-name descname"><span class="pre">create_tvm_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm_target.html#create_tvm_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm_target.create_tvm_target" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm_target.create_tvm_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm_target.</span></span><span class="sig-name descname"><span class="pre">create_tvm_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm_target.html#create_tvm_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm_target.create_tvm_platform_target" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.platform.tvm_target.name2device">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm_target.</span></span><span class="sig-name descname"><span class="pre">name2device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm_target.html#name2device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm_target.name2device" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.zephyr">
+<span id="mlonmcu-platform-zephyr-module"></span><h2>mlonmcu.platform.zephyr module<a class="headerlink" href="#module-mlonmcu.platform.zephyr" title="Permalink to this headline"></a></h2>
+<p>Zephyr Platform</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.zephyr.</span></span><span class="sig-name descname"><span class="pre">ZephyrPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.platform.CompilePlatform" title="mlonmcu.platform.platform.CompilePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.CompilePlatform</span></code></a>, <a class="reference internal" href="#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a></p>
+<p>Zephyr Platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['zephyr.install_dir',</span> <span class="pre">'zephyr.sdk_dir',</span> <span class="pre">'zephyr.venv_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.baud">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">baud</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.baud" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.build_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.build_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.create_target">
+<span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.create_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.flash">
+<span class="sig-name descname"><span class="pre">flash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.flash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.flash" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.flash_only">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flash_only</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.flash_only" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.generate_elf">
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.get_serial">
+<span class="sig-name descname"><span class="pre">get_serial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.get_serial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.get_serial" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.get_supported_targets">
+<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.get_supported_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.get_west_cmake_args">
+<span class="sig-name descname"><span class="pre">get_west_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.get_west_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.get_west_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.init_directory">
+<span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.init_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.invoke_west">
+<span class="sig-name descname"><span class="pre">invoke_west</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.invoke_west"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.invoke_west" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.monitor">
+<span class="sig-name descname"><span class="pre">monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.optimize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.optimize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.prepare">
+<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#ZephyrPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.prepare" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.project_template">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_template</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.project_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.wait_for_user">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_user</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.wait_for_user" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_sdk_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_sdk_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_sdk_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_venv_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_venv_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_venv_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.get_project_template">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.zephyr.</span></span><span class="sig-name descname"><span class="pre">get_project_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'project2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr.html#get_project_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.get_project_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.zephyr_target">
+<span id="mlonmcu-platform-zephyr-target-module"></span><h2>mlonmcu.platform.zephyr_target module<a class="headerlink" href="#module-mlonmcu.platform.zephyr_target" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr_target.create_zephyr_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.zephyr_target.</span></span><span class="sig-name descname"><span class="pre">create_zephyr_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr_target.html#create_zephyr_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr_target.create_zephyr_platform_target" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>

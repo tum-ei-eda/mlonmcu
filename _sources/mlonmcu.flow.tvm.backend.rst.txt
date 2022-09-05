@@ -44,6 +44,14 @@ mlonmcu.flow.tvm.backend.tvmaot module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.flow.tvm.backend.tvmaotplus module
+------------------------------------------
+
+.. automodule:: mlonmcu.flow.tvm.backend.tvmaotplus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.flow.tvm.backend.tvmc\_utils module
 -------------------------------------------
 

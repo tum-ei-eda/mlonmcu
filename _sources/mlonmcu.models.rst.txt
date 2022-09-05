@@ -28,14 +28,6 @@ mlonmcu.models.group module
    :undoc-members:
    :show-inheritance:
 
-mlonmcu.models.inout module
----------------------------
-
-.. automodule:: mlonmcu.models.inout
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mlonmcu.models.lookup module
 ----------------------------
 

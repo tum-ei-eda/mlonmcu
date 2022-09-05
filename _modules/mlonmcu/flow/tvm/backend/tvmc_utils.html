@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html#components-in-detail">Components in Detail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../environments.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../postprocess.html">Postprocesses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../logging.html">Logging and Verbosity</a></li>
@@ -124,8 +125,38 @@
     <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--input-shapes&quot;</span><span class="p">,</span> <span class="n">arg</span><span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="check_allowed"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.check_allowed">[docs]</a><span class="k">def</span> <span class="nf">check_allowed</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="n">common</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;libs&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="s2">&quot;mcpu&quot;</span><span class="p">,</span> <span class="s2">&quot;device&quot;</span><span class="p">,</span> <span class="s2">&quot;keys&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;constants-byte-alignment&quot;</span><span class="p">,</span> <span class="s2">&quot;workspace-bytes-alignment&quot;</span><span class="p">,</span> <span class="s2">&quot;march&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">common</span>
+    <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;llvm&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">name</span>
+            <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;fast-math&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opt-level&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fast-math-ninf&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mattr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;num-cores&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fast-math-nsz&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fast-math-contract&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mtriple&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mfloat-abi&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fast-math-arcp&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fast-math-reassoc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mabi&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="n">common</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
 <div class="viewcode-block" id="gen_target_details_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.gen_target_details_args">[docs]</a><span class="k">def</span> <span class="nf">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">sum</span><span class="p">([[</span><span class="sa">f</span><span class="s2">&quot;--target-</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">target_details</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span> <span class="p">[])</span></div>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;--target-</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">target_details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">check_allowed</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">key</span><span class="p">)],</span> <span class="p">[]</span>
+    <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_target_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_target_tvmc_args">[docs]</a><span class="k">def</span> <span class="nf">get_target_tvmc_args</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">extra_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">extra_target_details</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -137,10 +168,9 @@
                 <span class="n">extra_target</span> <span class="o">=</span> <span class="p">[</span><span class="n">extra_target</span><span class="p">]</span>
         <span class="c1"># TODO: support multiple ones, currently only single one...</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra_target</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extra_target</span> <span class="o">+</span> <span class="p">[</span><span class="n">target</span><span class="p">])</span>
     <span class="k">return</span> <span class="p">[</span>
         <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
-        <span class="n">target</span><span class="p">,</span>
+        <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">extra_target</span> <span class="k">if</span> <span class="n">extra_target</span> <span class="k">else</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">[</span><span class="n">target</span><span class="p">]),</span>
         <span class="c1"># TODO: provide a feature which sets these automatically depending on the chosen target</span>
         <span class="o">*</span><span class="n">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">),</span>
         <span class="o">*</span><span class="p">(</span><span class="n">gen_target_details_args</span><span class="p">(</span><span class="n">extra_target</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">extra_target_details</span><span class="p">)</span> <span class="k">if</span> <span class="n">extra_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
@@ -179,11 +209,12 @@
     <span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="get_tvmrt_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tvmrt_tvmc_args">[docs]</a><span class="k">def</span> <span class="nf">get_tvmrt_tvmc_args</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">)],</span>
-        <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--executor-graph-link-params&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">)],</span>
-    <span class="p">]</span></div>
+<div class="viewcode-block" id="get_tvmrt_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tvmrt_tvmc_args">[docs]</a><span class="k">def</span> <span class="nf">get_tvmrt_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">):</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">&quot;crt&quot;</span><span class="p">:</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">)])</span>
+    <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--executor-graph-link-params&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
 
 
 <div class="viewcode-block" id="get_data_tvmc_args"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_data_tvmc_args">[docs]</a><span class="k">def</span> <span class="nf">get_data_tvmc_args</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ins_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outs_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_top</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>

@@ -250,6 +250,7 @@ def install_riscv_gcc(
     if not params:
         params = {}
     flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
+    # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
     riscvName = utils.makeDirName("riscv_gcc", flags=flags)
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     user_vars = context.environment.vars

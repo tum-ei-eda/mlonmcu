@@ -96,10 +96,12 @@ def _init_run(user_context, models_dir, config):
 
 
 def _test_frontend(frontend_name, user_context, model_name, models_dir, feature_names, config):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     _check_features(user_context, feature_names)
-    session, run = _init_run(user_context, models_dir, config)
+    session, run = _init_run(user_context, models_dir, user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -185,13 +187,15 @@ def test_frontend_paddle(user_context, model_name, models_dir, feature_names, co
 
 # TODO: decide if execute on a per-framework basis?
 def _test_backend(backend_name, user_context, model_name, models_dir, feature_names, config):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     frontend_name = MODEL_FRONTENDS[model_name]
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
         pytest.skip(f"Backend '{backend_name}' is not enabled.")
     _check_features(user_context, feature_names)
-    session, run = _init_run(user_context, models_dir, config)
+    session, run = _init_run(user_context, models_dir, user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -342,6 +346,8 @@ def test_backend_tvmcg(user_context, model_name, models_dir, feature_names, conf
 def _test_compile_platform(
     platform_name, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
 ):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     frontend_name = MODEL_FRONTENDS[model_name]
     if platform_name is None:
         platform_name = TARGET_PLATFORMS[target_name]
@@ -354,7 +360,7 @@ def _test_compile_platform(
     if not user_context.environment.has_target(target_name):
         pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: remove check?
     _check_features(user_context, feature_names)
-    session, run = _init_run(user_context, models_dir, config)
+    session, run = _init_run(user_context, models_dir, user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -375,6 +381,8 @@ def _test_compile_platform(
 def _test_run_platform(
     platform_name, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
 ):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     frontend_name = MODEL_FRONTENDS[model_name]
     if platform_name is None:
         platform_name = TARGET_PLATFORMS[target_name]
@@ -387,7 +395,7 @@ def _test_run_platform(
     if not user_context.environment.has_target(target_name):
         pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: remove check?
     _check_features(user_context, feature_names)
-    session, run = _init_run(user_context, models_dir, config)
+    session, run = _init_run(user_context, models_dir, user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)

@@ -264,14 +264,13 @@ vars:
   # tvm.make_tool: "ninja"
   llvm.version: "14.0.0"
   runs_per_stage: true
+  riscv_gcc.multilib: True
+  riscv_gcc.variant: "xuantie"
   riscv_gcc.dl_url: "https://occ-oss-prod.oss-cn-hangzhou.aliyuncs.com/resource//1659318201401/Xuantie-900-gcc-elf-newlib-x86_64-V2.6.0-20220715.tar.gz"
   ovpsim.exe: "/nfs/TUEIEDAscratch/ga87puy/work/riscv-ovpsim-plus/bin/Linux64/riscvOVPsimPlus.exe"
   # riscv32_qemu.exe: "/work/git/prj/qemu_experiments/newer/qemu/build/qemu-system-riscv32" # TODO: download/build
   # riscv32_qemu.exe: qemu-system-riscv32
   riscv32_qemu.exe: "/nfs/TUEIEDAscratch/ga87puy/work/qemu-system-riscv32"
-  # zephyr.install_dir: "/work/tools/zephyr_stuff2"
-  # zephyr.sdk_dir: "/work/tools/zephyr_stuff2/zephyr-sdk-0.15.0-rc1"
-  # zephyr.venv_dir: "/work/tools/zephyr_stuff2/.venv"
   tvm.experimental_tvmc_tune_tasks: true
   tvm.experimental_autotvm_visualize: true
   microtvm.experimental_tvmc_micro_tune: true

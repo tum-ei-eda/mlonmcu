@@ -227,8 +227,10 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     if params:
         vext = params.get("vext", False)
         pext = params.get("pext", False)
+        user_vars = context.environment.vars
+        multilib = user_vars.get("riscv_gcc.multilib", False)
         if vext and pext:
-            return False  # TODO: allow as soon as there is a compiler for this
+            return multilib
         elif vext:
             if not context.environment.has_feature("vext"):
                 return False
@@ -249,19 +251,24 @@ def install_riscv_gcc(
     """Download and install the RISCV GCC toolchain."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
-    # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
-    riscvName = utils.makeDirName("riscv_gcc", flags=flags)
-    riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     user_vars = context.environment.vars
     vext = params["vext"]
     pext = params["pext"]
-    assert not (vext and pext)  # Combination of both extensions is currently not supported
+    multilib = user_vars.get("riscv_gcc.multilib", False)
+    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
+    # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
+    if multilib:
+        riscvName = utils.makeDirName("riscv_gcc", flags=[])
+    else:
+        riscvName = utils.makeDirName("riscv_gcc", flags=flags)
+    riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     if (not vext) and (not pext) and "riscv_gcc.install_dir_default" in user_vars:
         riscvInstallDir = user_vars["riscv_gcc.install_dir_default"]
     if vext and "riscv_gcc.install_dir_vext" in user_vars:
+        assert not multilib, "Multilib toolchain does only support riscv_gcc.install_dir"
         riscvInstallDir = user_vars["riscv_gcc.install_dir_vext"]
     elif pext and "riscv_gcc.install_dir_pext" in user_vars:
+        assert not multilib, "Multilib toolchain does only support riscv_gcc.install_dir"
         riscvInstallDir = user_vars["riscv_gcc.install_dir_pext"]
     elif "riscv_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
@@ -275,8 +282,10 @@ def install_riscv_gcc(
             return riscvUrl, riscvFileName, riscvFileExtension
 
         if vext and "riscv_gcc.dl_url_vext" in user_vars:
+            assert not multilib, "Multilib toolchain does only support riscv_gcc.dl_url"
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url_vext"])
         elif pext and "riscv_gcc.dl_url_pext" in user_vars:
+            assert not multilib, "Multilib toolchain does only support riscv_gcc.dl_url"
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url_pext"])
         elif "riscv_gcc.dl_url" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url"])
@@ -302,13 +311,16 @@ def install_riscv_gcc(
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(riscvInstallDir):
             utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir)
-    gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
-    gccName = None
-    for name in gccNames:
-        if (Path(riscvInstallDir) / name).is_dir():
-            gccName = name
-            break
-    assert gccName is not None, "Toolchain name could not be dtemined automatically"
+    if "riscv_gcc.name" in user_vars:
+        gccName = user_vars["riscv_gcc.name"]
+    else:
+        gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
+        gccName = None
+        for name in gccNames:
+            if (Path(riscvInstallDir) / name).is_dir():
+                gccName = name
+                break
+    assert gccName is not None, "Toolchain name could not be determined automatically"
     context.cache["riscv_gcc.install_dir", flags] = riscvInstallDir
     context.cache["riscv_gcc.name", flags] = gccName
 

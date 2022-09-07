@@ -26,6 +26,7 @@ from mlonmcu.config import str2bool
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
+from .util import update_extensions
 
 logger = get_logger()
 
@@ -56,17 +57,8 @@ class RiscvQemuTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        ret = super().extensions
-        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
-            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
-                # if not self.enable_fpu:
-                if True:
-                    ret.append("zve32x")
-                else:
-                    ret.append("zve32f")
-            else:
-                ret.append("v")
-        return ret
+        exts = super().extensions
+        return update_extensions(exts, vext=self.enable_vext, elen=self.elen, embedded=self.embedded_vext, fpu=self.fpu)
 
     @property
     def attr(self):

@@ -240,7 +240,7 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     return True
 
 
-@Tasks.provides(["riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.provides(["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"])
 @Tasks.param("vext", [False, True])
 @Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_riscv_gcc)
@@ -255,6 +255,7 @@ def install_riscv_gcc(
     vext = params["vext"]
     pext = params["pext"]
     multilib = user_vars.get("riscv_gcc.multilib", False)
+    variant = user_vars.get("riscv_gcc.variant", "unknown")
     flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
     if multilib:
@@ -323,6 +324,7 @@ def install_riscv_gcc(
     assert gccName is not None, "Toolchain name could not be determined automatically"
     context.cache["riscv_gcc.install_dir", flags] = riscvInstallDir
     context.cache["riscv_gcc.name", flags] = gccName
+    context.cache["riscv_gcc.variant", flags] = variant
 
 
 ########

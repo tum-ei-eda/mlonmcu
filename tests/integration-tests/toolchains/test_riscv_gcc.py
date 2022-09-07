@@ -5,6 +5,7 @@ from mlonmcu.config import str2bool
 from mlonmcu.environment.config import PathConfig
 from mlonmcu.session.run import RunStage
 from mlonmcu.target.riscv.riscv import RISCVTarget
+from mlonmcu.target.riscv.util import update_extensions
 from mlonmcu.target import register_target
 
 # Using muRISCV-NN feature to get a relatively good coverage
@@ -50,41 +51,17 @@ class MyRISCVTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        ret = super().extensions
-        require = []
-        if self.enable_pext:
-            require.append("p")
-            require.append("zpn")
-            require.append("zpsfoperand")
-            # require.append("zbpbo")
-        if self.enable_vext:
-            if self.elen == 32:  # Required to tell the compiler that EEW=64 is not allowed...
-                if self.embedded_vext:
-                    if self.fpu in ["double", "single"]:
-                        require.append("zve32f")
-                    else:
-                        require.append("zve32x")
-                else:
-                    assert self.fpu == "double"
-                    require.append("v")
-            elif self.elen == 64:
-                if self.embedded_vext:
-                    if self.fpu == "double":
-                        require.append("zve64d")
-                    elif self.fpu == "single":
-                        require.append("zve64f")
-                    else:
-                        require.append("zve64x")
-                else:
-                    assert self.fpu == "double"
-                    require.append("v")
-            else:
-                raise RuntimeError(f"Unsupported ELEN: {self.elen}")
-
-        for ext in require:
-            if ext not in ret:
-                ret.append(ext)
-        return ret
+        exts = super().extensions
+        return update_extensions(
+            exts,
+            pext=self.enable_pext,
+            pext_spec=self.pext_spec,
+            vext=self.enable_vext,
+            elen=self.elen,
+            embedded=self.embedded_vext,
+            fpu=self.fpu,
+            variant=self.gcc_variant,
+        )
 
     @property
     def vlen(self):

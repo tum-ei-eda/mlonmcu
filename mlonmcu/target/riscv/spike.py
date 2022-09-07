@@ -28,8 +28,20 @@ from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
+from .util import update_extensions
 
 logger = get_logger()
+
+
+def filter_unsupported(arch):
+    return (
+        arch.replace("zve32x", "v")
+        .replace("zve32f", "v")
+        .replace("p", "pb")
+        .replace("zpsfoperand", "")
+        .replace("zpn", "")
+        .replace("zbpbo", "")
+    )
 
 
 class SpikeTarget(RISCVTarget):
@@ -74,20 +86,17 @@ class SpikeTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        ret = super().extensions
-        if self.enable_pext and "p" not in ret:
-            ret.append("p")
-        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
-            # if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
-            if False:
-                # if self.enable_fpu:
-                if True:
-                    ret.append("zve32x")
-                else:
-                    ret.append("zve32f")
-            else:
-                ret.append("v")
-        return ret
+        exts = super().extensions
+        return update_extensions(
+            exts,
+            pext=self.enable_pext,
+            pext_spec=self.pext_spec,
+            vext=self.enable_vext,
+            elen=self.elen,
+            embedded=self.embedded_vext,
+            fpu=self.fpu,
+            variant=self.gcc_variant,
+        )
 
     @property
     def attr(self):
@@ -131,7 +140,7 @@ class SpikeTarget(RISCVTarget):
         spike_args = []
         spikepk_args = []
 
-        arch_after = self.arch.replace("zve32x", "v").replace("zve32f", "v")
+        arch_after = filter_unsupported(self.arch)
         spike_args.append(f"--isa={arch_after}")
 
         if len(self.extra_args) > 0:

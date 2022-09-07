@@ -44,7 +44,7 @@ class RISCVTarget(Target):
         "abi": None,
         "attr": "",
     }
-    REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name"]
+    REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"]
     OPTIONAL = ["llvm.install_dir"]
 
     @property
@@ -54,6 +54,10 @@ class RISCVTarget(Target):
     @property
     def riscv_basename(self):
         return Path(self.config["riscv_gcc.name"])
+
+    @property
+    def gcc_variant(self):
+        return Path(self.config["riscv_gcc.variant"])
 
     @property
     def xlen(self):

@@ -28,6 +28,7 @@ from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget, sort_extensions_canonical
+from .util import update_extensions
 
 logger = get_logger()
 
@@ -37,6 +38,8 @@ def replace_unsupported(exts):
     for ext in exts:
         if "ZVE" in ext or "ZVL" in ext:
             ret.append("V")
+        if "zpn" in ext.lower() or "zpsfoperand" in ext.lower():
+            pass
         elif ext == "P":
             ret.append(ext)
             ret.append("B")
@@ -84,20 +87,17 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        ret = super().extensions
-        if self.enable_pext and "p" not in ret:
-            ret.append("p")
-        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
-            # if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
-            if False:
-                # if self.enable_fpu:
-                if True:
-                    ret.append("zve32x")
-                else:
-                    ret.append("zve32f")
-            else:
-                ret.append("v")
-        return ret
+        exts = super().extensions
+        return update_extensions(
+            exts,
+            pext=self.enable_pext,
+            pext_spec=self.pext_spec,
+            vext=self.enable_vext,
+            elen=self.elen,
+            embedded=self.embedded_vext,
+            fpu=self.fpu,
+            variant=self.gcc_variant,
+        )
 
     @property
     def attr(self):

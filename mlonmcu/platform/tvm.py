@@ -296,8 +296,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         desired_layout = backend.config.get("desired_layout", None)
         ret = [
             *get_target_tvmc_args(
-                # "llvm", extra_target=backend.extra_target, target_details=backend.get_target_details()
-                "c",
+                "llvm",
                 extra_target=backend.extra_target,
                 target_details=backend.get_target_details(),
             ),

@@ -35,6 +35,7 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_target_tvmc_args,
 )
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+from mlonmcu.flow.tvm.backend.tuner import TVMTuner
 
 from .platform import TargetPlatform, BuildPlatform, TunePlatform
 from .tvm_target import create_tvm_platform_target
@@ -69,9 +70,8 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         "tvmc_custom_script": None,
         "experimental_tvmc_tune_tasks": False,
         "experimental_tvmc_tune_visualize": False,
-        "visualize_tuning": False,  # Needs upstream patches
-        "tune_tasks": None,  # Needs upstream patches
         "num_workers": 1,
+        **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -168,17 +168,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
     @property
     def tvm_configs_dir(self):
         return self.config["tvm.configs_dir"]
-
-    @property
-    def visualize_tuning(self):
-        # Visualize the tuning progress via matplotlib
-        value = self.config["visualize_tuning"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def tune_tasks(self):
-        # Effectively select which tasks should be tuned in the session
-        return self.config["tune_tasks"]
 
     @property
     def experimental_tvmc_tune_tasks(self):
@@ -280,18 +269,18 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         return output
 
     def get_tune_args(self, model, backend, out):
-        tuner = backend.config.get("autotuning_tuner", "ga")
+        tuner = self.config.get("autotuning_tuner", "ga")
         assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
-        trials = backend.config.get("autotuning_trials", 10)
+        trials = self.config.get("autotuning_trials", 10)
         if not isinstance(trials, int):
             trials = int(trials)
-        early_stopping = backend.config.get("autotuning_early_stopping", None)
+        early_stopping = self.config.get("autotuning_early_stopping", None)
         if early_stopping is None:
             early_stopping = max(trials, 10)  # Let's see if this default works out...
         early_stopping = int(early_stopping)
-        max_parallel = backend.config.get("autotuning_max_parallel", 1)
-        timeout = backend.config.get("autotuning_timeout", 1000)
-        results_file = backend.config.get("autotuning_results_file", None)
+        max_parallel = self.config.get("autotuning_max_parallel", 1)
+        timeout = self.config.get("autotuning_timeout", 1000)
+        results_file = self.config.get("autotuning_results_file", None)
         desired_layout = backend.config.get("desired_layout", None)
         ret = [
             *get_target_tvmc_args(
@@ -312,21 +301,21 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
         ]
-        if self.visualize_tuning:
+        if self.config["autotuning_visualize"]:
             assert (
                 self.experimental_tvmc_tune_tasks
             ), f"{self.name}.visualize_tuning requires experimental_autotvm_visualize"
             ret.append("--visualize")
-        if self.tune_tasks:
+        if self.config["autotuning_tasks"]:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
-            ret.extend(["--tasks", str(self.tune_tasks)])
+            ret.extend(["--tasks", str(self.config["autotuning_tasks"])])
         ret.append(model)
         return ret
 
     def tune_model(self, model_path, backend, target):
-        enable = backend.config["autotuning_enable"]
-        results_file = backend.config["autotuning_results_file"]
-        append = backend.config["autotuning_append"]
+        enable = self.config["autotuning_enable"]
+        results_file = self.config["autotuning_results_file"]
+        append = self.config["autotuning_append"]
         artifacts = []
         verbose = False
         if self.print_outputs:
@@ -342,7 +331,9 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             if self.num_workers > 1:
                 assert self.experimental_tvmc_tune_tasks, "num_workers>1 requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix
-                assert self.tune_tasks is None, "tune_tasks not supported together with num_workers > 1"
+                assert (
+                    self.config["autotuning_tune_tasks"] is None
+                ), "tune_tasks not supported together with num_workers > 1"
 
                 def get_tune_tasks():
                     with tempfile.TemporaryDirectory() as tmp_dir:

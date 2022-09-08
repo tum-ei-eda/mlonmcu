@@ -31,6 +31,9 @@ class TVMTuner:
         "max_parallel": 1,
         "use_rpc": False,
         "timeout": 100,
+        "mode": "autotvm",  # Options: autotvm, auto_scheduler
+        "visualize": False,
+        "tasks": None,
     }
 
     def __init__(self, backend, config=None):

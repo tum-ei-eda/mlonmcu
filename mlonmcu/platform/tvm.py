@@ -289,31 +289,28 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         if early_stopping is None:
             early_stopping = max(trials, 10)  # Let's see if this default works out...
         early_stopping = int(early_stopping)
-        # max_parallel = backend.config.get("autotuning_max_parallel", 1)
-        # max_parallel = 1
+        max_parallel = backend.config.get("autotuning_max_parallel", 1)
         timeout = backend.config.get("autotuning_timeout", 1000)
         results_file = backend.config.get("autotuning_results_file", None)
         desired_layout = backend.config.get("desired_layout", None)
         ret = [
             *get_target_tvmc_args(
-                "llvm",
+                backend.target,
                 extra_target=backend.extra_target,
                 target_details=backend.get_target_details(),
             ),
             *(["--desired-layout", desired_layout] if desired_layout is not None else []),
-            # *get_rpc_tvmc_args(self.use_rpc, self.key, self.hostname, self.port),
+            *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
             # TODO: missing: pass config, disabled_pass, etc.
             *["--tuner", tuner],
             *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),
-            # *["--parallel", str(max_parallel)],
-            # *["--timeout", str(timeout * max_parallel)],
-            *["--timeout", str(timeout)],
+            *["--parallel", str(max_parallel)],
+            *["--timeout", str(timeout * max_parallel)],
             *["--trials", str(trials)],
-            # *["--number", str(100)],
+            *["--number", str(self.number)],  # TODO: increase while tuning?
+            *["--repeat", str(self.repeat)],  # TODO: increase while tuning?
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
-            # "--target-c-link-params",
-            # "1",
         ]
         if self.visualize_tuning:
             assert (
@@ -355,10 +352,11 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                         lines = out.split("\n")
                         for i, line in enumerate(lines):
                             if "Available Tasks for tuning" in line:
-                                lines = lines[i+1:]
+                                lines = lines[i + 1 :]
                                 break
                         tasks = [line.split(". ", 1)[1] for line in lines if len(line.strip()) > 0]
                         return tasks
+
                 num_tasks = len(get_tune_tasks())
                 workers = []
                 with concurrent.futures.ThreadPoolExecutor(self.num_workers) as executor:
@@ -375,6 +373,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                                 with open(out_file, "r") as handle:
                                     content = handle.read()
                             return (out, content)
+
                         workers.append(executor.submit(do_work, i, content))
                 all_out = ""
                 all_content = ""

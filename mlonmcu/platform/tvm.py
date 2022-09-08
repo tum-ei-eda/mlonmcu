@@ -19,6 +19,7 @@
 """TVM Platform"""
 
 import tempfile
+import concurrent
 from pathlib import Path
 
 from mlonmcu.setup import utils
@@ -70,6 +71,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         "experimental_tvmc_tune_visualize": False,
         "visualize_tuning": False,  # Needs upstream patches
         "tune_tasks": None,  # Needs upstream patches
+        "num_workers": 1,
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -187,6 +189,10 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
     def experimental_tvmc_tune_visualize(self):
         value = self.config["experimental_tvmc_tune_visualize"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def num_workers(self):
+        return int(self.config["num_workers"])
 
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
@@ -337,11 +343,55 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                     with open(results_file, "r") as handle:
                         content = handle.read()
 
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                out_file = Path(tmp_dir) / "tuning_results.log.txt"
-                with open(out_file, "w") as handle:
-                    handle.write(content)
-                    # TODO: newline or not?
+            if self.num_workers > 1:
+                assert self.experimental_tvmc_tune_tasks, "num_workers>1 requires experimental_tvmc_tune_tasks=1"
+                # TODO: fix
+                assert self.tune_tasks is None, "tune_tasks not supported together with num_workers > 1"
+
+                def get_tune_tasks():
+                    with tempfile.TemporaryDirectory() as tmp_dir:
+                        out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                        tune_args = self.get_tune_args(model_path, backend, out_file)
+                        out = self.invoke_tvmc("tune", *tune_args, "--task", "list")
+                        lines = out.split("\n")
+                        for i, line in enumerate(lines):
+                            if "Available Tasks for tuning" in line:
+                                lines = lines[i+1:]
+                                break
+                        tasks = [line.split(". ", 1)[1] for line in lines if len(line.strip()) > 0]
+                        return tasks
+                num_tasks = len(get_tune_tasks())
+                workers = []
+                with concurrent.futures.ThreadPoolExecutor(self.num_workers) as executor:
+                    for i in range(num_tasks):
+                        print(f"Created worker for task {i}")
+
+                        def do_work(idx, prepend):
+                            with tempfile.TemporaryDirectory() as tmp_dir:
+                                out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                                with open(out_file, "w") as handle:
+                                    handle.write(prepend)
+                                tune_args = self.get_tune_args(model_path, backend, out_file)
+                                out = self.invoke_tvmc("tune", *tune_args, "--task", str(idx))
+                                with open(out_file, "r") as handle:
+                                    content = handle.read()
+                            return (out, content)
+                        workers.append(executor.submit(do_work, i, content))
+                all_out = ""
+                all_content = ""
+                for i, w in enumerate(workers):
+                    print(f"Worker {i}: done")
+                    ret = w.result()
+                    out, content = ret
+                    all_out += out
+                    all_content += content
+                out = all_out
+                content = all_content
+            else:
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                    with open(out_file, "w") as handle:
+                        handle.write(content)
                 tune_args = self.get_tune_args(model_path, backend, out_file)
                 out = self.invoke_tvmc("tune", *tune_args)
                 with open(out_file, "r") as handle:

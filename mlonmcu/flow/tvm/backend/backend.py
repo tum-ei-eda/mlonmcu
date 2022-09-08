@@ -104,15 +104,15 @@ class TVMBackend(Backend):
     @property
     def tuning_records(self):
         if self._tuning_records:
-            return self.tuning_records
-        elif "autotuning_results_file" in self.config:
+            return self._tuning_records
+        elif "autotuning_results_file" in self.config and self.config["autotuning_results_file"]:
             return self.config["autotuning_results_file"]
         else:
             return None
 
     @tuning_records.setter
     def tuning_records(self, filepath):
-        self.tuning_records_file = filepath
+        self._tuning_records = filepath
 
     @property
     def pass_config(self):

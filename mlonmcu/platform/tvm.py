@@ -390,10 +390,10 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                     out_file = Path(tmp_dir) / "tuning_results.log.txt"
                     with open(out_file, "w") as handle:
                         handle.write(content)
-                tune_args = self.get_tune_args(model_path, backend, out_file)
-                out = self.invoke_tvmc("tune", *tune_args)
-                with open(out_file, "r") as handle:
-                    content = handle.read()
+                    tune_args = self.get_tune_args(model_path, backend, out_file)
+                    out = self.invoke_tvmc("tune", *tune_args)
+                    with open(out_file, "r") as handle:
+                        content = handle.read()
         else:
             if results_file is None:
                 return []

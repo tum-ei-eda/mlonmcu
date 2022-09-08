@@ -272,6 +272,8 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         tuner = self.config.get("autotuning_tuner", "ga")
         assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
         trials = self.config.get("autotuning_trials", 10)
+        mode = self.config.get("autotuning_mode", "autotvm")
+        assert mode in ["autotvm", "auto_scheduler"]
         if not isinstance(trials, int):
             trials = int(trials)
         early_stopping = self.config.get("autotuning_early_stopping", None)
@@ -309,6 +311,8 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         if self.config["autotuning_tasks"]:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
             ret.extend(["--tasks", str(self.config["autotuning_tasks"])])
+        if mode == "auto_scheduler":
+            ret.append("--enable-autoscheduler")
         ret.append(model)
         return ret
 

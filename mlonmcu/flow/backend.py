@@ -79,22 +79,9 @@ class Backend(ABC):
     def has_tuner(self):
         return self.tuner is not None
 
-    def tune_model(self):
-        if not self.has_tuner:
-            return
-            # raise NotImplementedError("Backend does not support autotuning")
-        self.tuner.tune()
-
     def set_tuning_records(self, filepath):
         if not self.has_tuner:
             raise NotImplementedError("Backend does not support autotuning")
-
-    def export_tuning_results(self, path):
-        if not self.has_tuner:
-            raise NotImplementedError("Backend does not support autotuning")
-        # artifact = self.tuner.get_results()
-        # TODO: write tuning report to file...
-        raise NotImplementedError
 
     def export_code(self, path):
         assert len(self.artifacts) > 0, "No artifacts found, please run generate_code() first"

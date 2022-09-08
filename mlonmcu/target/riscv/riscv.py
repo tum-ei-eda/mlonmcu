@@ -57,7 +57,7 @@ class RISCVTarget(Target):
 
     @property
     def gcc_variant(self):
-        return Path(self.config["riscv_gcc.variant"])
+        return self.config["riscv_gcc.variant"]
 
     @property
     def xlen(self):

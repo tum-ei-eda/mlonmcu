@@ -58,7 +58,7 @@ class EtissPulpinoTarget(RISCVTarget):
         "etissvp.cycle_time_ps": 31250,  # 32 MHz
         "enable_vext": False,
         "vext_spec": 1.0,
-        "embedded_vext": True,
+        "embedded_vext": False,
         "enable_pext": False,
         "pext_spec": 0.96,
         "vlen": 0,  # vectorization=off
@@ -196,7 +196,7 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def vext_spec(self):
-        return self.config["vext_spec"]
+        return float(self.config["vext_spec"])
 
     @property
     def embedded_vext(self):
@@ -205,7 +205,7 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def pext_spec(self):
-        return self.config["pext_spec"]
+        return float(self.config["pext_spec"])
 
     def write_ini(self, path):
         # TODO: Either create artifact for ini or prefer to use cmdline args.
@@ -429,11 +429,11 @@ class EtissPulpinoTarget(RISCVTarget):
         ret["PULPINO_RAM_START"] = self.ram_start
         ret["PULPINO_RAM_SIZE"] = self.ram_size
         if self.enable_pext:
-            major, minor = str(float(self.pext_spec)).split(".")[:2]
+            major, minor = str(self.pext_spec).split(".")[:2]
             ret["RISCV_RVP_MAJOR"] = major
             ret["RISCV_RVP_MINOR"] = minor
         if self.enable_vext:
-            major, minor = str(float(self.vext_spec)).split(".")[:2]
+            major, minor = str(self.vext_spec).split(".")[:2]
             ret["RISCV_RVV_MAJOR"] = major
             ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen

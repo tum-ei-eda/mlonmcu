@@ -33,6 +33,9 @@ from .util import update_extensions
 logger = get_logger()
 
 
+MAX_P_SPEC = 0.96
+
+
 def replace_unsupported(exts):
     ret = []
     for ext in exts:
@@ -59,7 +62,7 @@ class OVPSimTarget(RISCVTarget):
         "elen": 32,
         "enable_vext": False,
         "vext_spec": 1.0,
-        "embedded_vext": True,
+        "embedded_vext": False,
         "enable_pext": False,
         "pext_spec": 0.96,
         "variant": "RVB32I",
@@ -88,6 +91,7 @@ class OVPSimTarget(RISCVTarget):
     @property
     def extensions(self):
         exts = super().extensions
+        assert self.pext_spec <= MAX_P_SPEC, f"P-Extension spec {self.pext_spec} not supported by {self.name} target"
         return update_extensions(
             exts,
             pext=self.enable_pext,
@@ -145,7 +149,7 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def vext_spec(self):
-        return self.config["vext_spec"]
+        return float(self.config["vext_spec"])
 
     @property
     def embedded_vext(self):
@@ -154,7 +158,7 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def pext_spec(self):
-        return self.config["pext_spec"]
+        return float(self.config["pext_spec"])
 
     def get_default_ovpsim_args(self):
         extensions_before = sort_extensions_canonical(self.extensions, lower=False, unpack=True)
@@ -261,11 +265,11 @@ class OVPSimTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.enable_pext:
-            major, minor = str(float(self.pext_spec)).split(".")[:2]
+            major, minor = str(self.pext_spec).split(".")[:2]
             ret["RISCV_RVP_MAJOR"] = major
             ret["RISCV_RVP_MINOR"] = minor
         if self.enable_vext:
-            major, minor = str(float(self.vext_spec)).split(".")[:2]
+            major, minor = str(self.vext_spec).split(".")[:2]
             ret["RISCV_RVV_MAJOR"] = major
             ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen

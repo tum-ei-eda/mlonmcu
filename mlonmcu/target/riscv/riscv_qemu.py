@@ -44,7 +44,7 @@ class RiscvQemuTarget(RISCVTarget):
         "elen": 32,
         "enable_vext": False,
         "vext_spec": 1.0,
-        "embedded_vext": True,
+        "embedded_vext": False,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["riscv32_qemu.exe"]  # TODO: 64 bit?
 
@@ -82,7 +82,7 @@ class RiscvQemuTarget(RISCVTarget):
 
     @property
     def vext_spec(self):
-        return self.config["vext_spec"]
+        return float(self.config["vext_spec"])
 
     @property
     def embedded_vext(self):
@@ -155,7 +155,7 @@ class RiscvQemuTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.enable_vext:
-            major, minor = str(float(self.vext_spec)).split(".")[:2]
+            major, minor = str(self.vext_spec).split(".")[:2]
             ret["RISCV_RVV_MAJOR"] = major
             ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen

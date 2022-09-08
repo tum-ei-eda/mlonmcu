@@ -1256,3 +1256,40 @@ class Benchmark(PlatformFeature, TargetFeature):
             benchmark_callback.priority = 0
 
             return None, benchmark_callback
+
+
+@register_feature("tvm_rpc")
+class TvmRpc(PlatformFeature):
+    """Run TVM models on a RPC device."""
+
+    DEFAULTS = {**FeatureBase.DEFAULTS, "hostname": None, "port": None, "key": None}  # tracker
+
+    def __init__(self, features=None, config=None):
+        super().__init__("tvm_rpc", features=features, config=config)
+
+    @property
+    def use_rpc(self):
+        return self.config["use_rpc"]
+
+    @property
+    def hostname(self):
+        return self.config["hostname"]
+
+    @property
+    def port(self):
+        return self.config["port"]
+
+    @property
+    def key(self):
+        return self.config["key"]
+
+    def get_platform_config(self, platform):
+        assert platform in ["tvm"]
+        return filter_none(
+            {
+                f"{platform}.use_rpc": self.enabled,
+                f"{platform}.rpc_hostname": self.hostname,
+                f"{platform}.rpc_port": self.port,
+                f"{platform}.rpc_key": self.key,
+            }
+        )

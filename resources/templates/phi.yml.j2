@@ -103,7 +103,6 @@ frameworks:
           debug_arena: true
           # disable_legalize: true
           disable_legalize: false
-          autotune: true
           autotuned: true
           moiopt: true
       tvmaot:
@@ -113,7 +112,6 @@ frameworks:
           unpacked_api: true
           usmp: false
           disable_legalize: true
-          autotune: true
           autotuned: true
           moiopt: true
       tvmaotplus:
@@ -121,7 +119,6 @@ frameworks:
         features:
           debug_arena: true
           disable_legalize: true
-          autotune: true
           autotuned: true
           moiopt: true
       tvmllvm:
@@ -130,7 +127,6 @@ frameworks:
           # unpacked_api: true
           # disable_legalize: true
           disable_legalize: false
-          autotune: true
           autotuned: true
       tvmcg:
         enabled: true
@@ -138,7 +134,6 @@ frameworks:
           debug_arena: true
           # disable_legalize: true
           disable_legalize: false
-          autotune: true
           autotuned: true
     features:
       cmsisnnbyoc: true
@@ -194,6 +189,7 @@ platforms:
     features: []
       benchmark: true
       tvm_rpc: true
+      autotune: true
       # validate: true
   microtvm:
     enabled: true

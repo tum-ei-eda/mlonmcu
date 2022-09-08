@@ -39,7 +39,7 @@ class TVMBackend(Backend):
 
     name = None
 
-    FEATURES = ["autotune", "autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt"]
+    FEATURES = ["autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt"]
 
     DEFAULTS = {
         "print_outputs": False,
@@ -83,21 +83,6 @@ class TVMBackend(Backend):
         self.artifacts = (
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
-        # TODO: decide if artifacts should be handled by code (str) or file path or binary data
-        tuner_config = {  # This would be more compact with a helper function but for now its fine...
-            "enable": self.config["autotuning_enable"],
-            "results_file": self.config["autotuning_results_file"],
-            "append": self.config["autotuning_append"],
-            "tuner": self.config["autotuning_tuner"],
-            "trials": self.config["autotuning_trials"],
-            "early_stopping": self.config["autotuning_early_stopping"],
-            "num_workers": self.config["autotuning_num_workers"],
-            "max_parallel": self.config["autotuning_max_parallel"],
-            "use_rpc": self.config["autotuning_use_rpc"],
-            "timeout": self.config["autotuning_timeout"],
-            "print_outputs": self.config["print_outputs"],
-        }
-        self.tuner = TVMTuner(self, config=tuner_config)
         self._tuning_records = None
 
     @property

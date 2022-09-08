@@ -47,7 +47,7 @@ logger = get_logger()
 class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
     """TVM Platform class."""
 
-    FEATURES = TargetPlatform.FEATURES + ["benchmark", "tvm_rpc"]  # TODO: validate?
+    FEATURES = TargetPlatform.FEATURES + ["benchmark", "tvm_rpc", "autotune"]  # TODO: validate?
 
     DEFAULTS = {
         **TargetPlatform.DEFAULTS,

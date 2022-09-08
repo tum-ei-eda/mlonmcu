@@ -778,6 +778,8 @@ def test_feature_cmsisnnbyoc(
 def test_feature_vext(
     user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
 ):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -791,7 +793,7 @@ def test_feature_vext(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -826,6 +828,8 @@ def test_feature_vext(
 def test_feature_pext(
     user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
 ):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -839,7 +843,7 @@ def test_feature_pext(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -876,6 +880,8 @@ def test_feature_pext(
 def test_feature_arm_mvei(
     user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
 ):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -889,7 +895,7 @@ def test_feature_arm_mvei(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -926,6 +932,8 @@ def test_feature_arm_mvei(
 def test_feature_arm_dsp(
     user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
 ):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -939,7 +947,7 @@ def test_feature_arm_dsp(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)
@@ -974,6 +982,8 @@ def test_feature_arm_dsp(
 def test_feature_etissdbg(
     user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
 ):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
     if not user_context.environment.has_frontend(frontend_name):
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     if not user_context.environment.has_backend(backend_name):
@@ -987,7 +997,7 @@ def test_feature_etissdbg(
             pytest.skip(f"Feature '{feature}' is not enabled.")
     user_context.environment.paths["models"] = [PathConfig(models_dir)]
     session = user_context.create_session()
-    run = session.create_run(config=config)
+    run = session.create_run(config=user_config)
     run.add_features_by_name(feature_names, context=user_context)
     run.add_frontend_by_name(frontend_name, context=user_context)
     run.add_model_by_name(model_name, context=user_context)

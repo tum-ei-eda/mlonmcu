@@ -65,7 +65,8 @@ DEFAULT_ESPIDF_TARGETS = ["esp32", "esp32c3"]
 DEFAULT_TARGETS = DEFAULT_MLIF_TARGETS + DEFAULT_ESPIDF_TARGETS
 
 VEXT_TARGETS = ["spike", "ovpsim", "riscv_qemu"]  # TODO: etiss
-PEXT_TARGETS = ["spike", "ovpsim"]  # TODO: etiss
+# Spike PEXT support (0.92) is outdated compared to ovpsim (0.96)
+PEXT_TARGETS = ["ovpsim"]  # TODO: etiss, spike
 
 # RISCV_TARGETS = ["spike", "etiss_pulpino", "ovpsim"]
 RISCV_TARGETS = ["spike", "etiss_pulpino", "ovpsim", "riscv_qemu"]

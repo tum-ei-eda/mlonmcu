@@ -602,7 +602,6 @@ class Run:
         if self.has_stage(RunStage.TUNE):
             self.export_stage(RunStage.TUNE, optional=self.export_optional)
             if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
-                assert self.backend.tuner is not None
                 tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
                 if not tuning_artifact.exported:
                     tuning_artifact.export(self.dir)

@@ -23,6 +23,8 @@ from pathlib import Path
 from mlonmcu.target.target import Target
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.config import str2bool
+import mlonmcu.target.riscv.util as riscv_util
 
 from mlonmcu.logging import get_logger
 
@@ -64,11 +66,18 @@ class TemplateMicroTvmPlatformTarget(Target):
         # self.template = name2template(name)
 
     def get_project_options(self):
-        return {
-            key: str(value).lower() if isinstance(value, bool) else value
-            for key, value in self.config.items()
-            if key in self.option_names and value is not None
-        }
+        def _bool_helper(x):
+            return str(x).lower() if isinstance(x, bool) else x
+
+        def _filter_none(x):
+            return {key: value for key, value in x.items() if value is not None}
+
+        return _filter_none(
+            {
+                key: _bool_helper(getattr(self, key) if hasattr(self, key) else self.config.get(key, None))
+                for key in self.option_names
+            }
+        )
 
     def update_environment(self, env):
         pass
@@ -288,20 +297,31 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
 
 class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    FEATURES = Target.FEATURES + []
+    FEATURES = TemplateMicroTvmPlatformTarget.FEATURES + ["vext", "pext"]
 
     DEFAULTS = {
-        **Target.DEFAULTS,
+        **TemplateMicroTvmPlatformTarget.DEFAULTS,
         "verbose": True,
-        # "spike_exe": None,
-        # "spike_pk": None,
-        "arch": None,
+        "arch": "rv32gc",
         "abi": None,
         "spike_extra_args": None,
         "pk_extra_args": None,
-        # "triple": None,
+        "enable_vext": False,
+        "vext_spec": 1.0,
+        "embedded_vext": False,
+        "enable_pext": False,
+        "pext_spec": 0.92,  # ?
+        "vlen": 0,  # vectorization=off
+        "elen": 32,
     }
-    REQUIRED = Target.REQUIRED + ["spike.exe", "spike.pk", "riscv_gcc.name", "riscv_gcc.install_dir", "tvm.src_dir"]
+    REQUIRED = Target.REQUIRED + [
+        "spike.exe",
+        "spike.pk",
+        "riscv_gcc.name",
+        "riscv_gcc.install_dir",
+        "riscv_gcc.variant",
+        "tvm.src_dir",
+    ]
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -331,12 +351,109 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         return self.config["riscv_gcc.name"]
 
     @property
+    def gcc_variant(self):
+        return self.config["riscv_gcc.variant"]
+
+    @property
     def riscv_gcc_install_dir(self):
         return Path(self.config["riscv_gcc.install_dir"])
 
     @property
     def tvm_src_dir(self):
         return Path(self.config["tvm.src_dir"])
+
+    @property
+    def enable_vext(self):
+        value = self.config["enable_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_pext(self):
+        value = self.config["enable_pext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def fpu(self):
+        exts = self.extensions
+        if "g" in exts or "d" in exts:
+            return "double"
+        elif "f" in exts:
+            return "single"
+        return "none"
+
+    @property
+    def has_fpu(self):
+        return self.fpu != "none"
+
+    @property
+    def xlen(self):
+        arch = self.config["arch"]
+        xlen = int(arch[2:4])
+        return xlen
+
+    @property
+    def extensions(self):
+        arch = self.config["arch"]
+        exts_str = arch[4:]
+
+        def _split_exts(x):
+            ret = []
+            splitted = x.split("_")
+            for c in splitted:
+                lowered = c.lower()
+                assert len(c) > 0
+                if len(c) == 1:
+                    ret.append(lowered)
+                else:
+                    for i, cc in enumerate(lowered):
+                        if cc in ["x", "z"]:
+                            ret.append(lowered[i:])
+                            break
+                        else:
+                            ret.append(cc)
+            return ret
+
+        exts = _split_exts(exts_str)
+        if "g" in exts or "d" in exts:
+            fpu = "double"
+        elif "f" in exts:
+            fpu = "single"
+        return riscv_util.update_extensions(
+            exts,
+            pext=self.enable_pext,
+            pext_spec=self.pext_spec,
+            vext=self.enable_vext,
+            elen=self.elen,
+            embedded=self.embedded_vext,
+            fpu=fpu,
+            variant=self.gcc_variant,
+        )
+
+    @property
+    def vlen(self):
+        return int(self.config["vlen"])
+
+    @property
+    def elen(self):
+        return int(self.config["elen"])
+
+    @property
+    def vext_spec(self):
+        return float(self.config["vext_spec"])
+
+    @property
+    def embedded_vext(self):
+        value = self.config["embedded_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def pext_spec(self):
+        return float(self.config["pext_spec"])
+
+    @property
+    def arch(self):
+        exts_str = riscv_util.join_extensions(riscv_util.sort_extensions_canonical(self.extensions, lower=True))
+        return f"rv{self.xlen}{exts_str}"
 
     def get_project_options(self):
         ret = super().get_project_options()
@@ -357,18 +474,26 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             env["PATH"] = str(self.riscv_gcc_install_dir / "bin")
 
     def get_backend_config(self, backend):
+        ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
-            return {
-                "target_device": "riscv_cpu",
-                "target_march": self.config.get("arch", None),
-                # "target_model": "TODO",
-                # "target_mtriple": "TODO",
-                "target_mtriple": self.riscv_gcc_name,
-                "target_mabi": self.config.get("abi", None),
-                # "target_mattr": "TODO",
-                # "target_mcpu": "TODO",
-            }
-        return {}
+            ret.update(
+                {
+                    "target_device": "riscv_cpu",
+                    "target_march": self.arch,
+                    "target_model": f"spike-rv{self.xlen}",
+                    "target_mtriple": self.riscv_gcc_name,
+                    "target_mabi": self.config.get("abi", None),
+                }
+            )
+            if self.enable_pext or self.enable_vext:
+                ret.update(
+                    {
+                        # Warning: passing kernel layouts does not work with upstream TVM
+                        # TODO: allow passing map?
+                        "desired_layout": "NHWC:HWOI",
+                    }
+                )
+        return ret
 
 
 # register_microtvm_platform_target("microtvm_template", ZephyrMicroTvmPlatformTarget)

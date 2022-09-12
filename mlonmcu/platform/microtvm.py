@@ -29,6 +29,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args, get_target_tvmc_args
+from mlonmcu.flow.tvm.backend.tuner import TVMTuner
 
 from .platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from .microtvm_target import create_microtvm_platform_target, get_microtvm_platform_targets
@@ -60,7 +61,7 @@ def get_project_option_args(template, stage, project_options):
 class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform):
     """TVM Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["microtvm_etissvp"]  # TODO: validate?
+    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotune"]  # TODO: validate?
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -83,8 +84,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         "experimental_tvmc_micro_tune": False,
         "experimental_tvmc_tune_tasks": False,
         "experimental_autotvm_visualize": False,
-        "visualize_tuning": False,  # Needs upstream patches
-        "tune_tasks": None,  # Needs upstream patches
+        **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -384,23 +384,22 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         return output
 
     def get_micro_tune_args(self, model, backend, out):
-        tuner = backend.config.get("autotuning_tuner", "ga")
+        tuner = self.config.get("autotuning_tuner", "ga")
         assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
-        trials = backend.config.get("autotuning_trials", 10)
+        trials = self.config.get("autotuning_trials", 10)
         if not isinstance(trials, int):
             trials = int(trials)
-        early_stopping = backend.config.get("autotuning_early_stopping", None)
+        early_stopping = self.config.get("autotuning_early_stopping", None)
         if early_stopping is None:
             early_stopping = max(trials, 10)  # Let's see if this default works out...
         early_stopping = int(early_stopping)
-        # max_parallel = backend.config.get("autotuning_max_parallel", 1)
+        # max_parallel = self.config.get("autotuning_max_parallel", 1)
         # max_parallel = 1
-        timeout = backend.config.get("autotuning_timeout", 1000)
-        results_file = backend.config.get("autotuning_results_file", None)
+        timeout = self.config.get("autotuning_timeout", 1000)
+        results_file = self.config.get("autotuning_results_file", None)
         desired_layout = backend.config.get("desired_layout", None)
         ret = [
             *get_target_tvmc_args(
-                # "llvm", extra_target=backend.extra_target, target_details=backend.get_target_details()
                 "c",
                 extra_target=backend.extra_target,
                 target_details=backend.get_target_details(),
@@ -420,22 +419,22 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             # "--target-c-link-params",
             # "1",
         ]
-        if self.visualize_tuning:
+        if self.config["autotuning_visualize"]:
             assert (
                 self.experimental_tvmc_tune_tasks
             ), f"{self.name}.visualize_tuning requires experimental_autotvm_visualize"
             ret.append("--visualize")
-        if self.tune_tasks:
+        if self.config["autotuning_tasks"]:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
-            ret.extend(["--tasks", str(self.tune_tasks)])
+            ret.extend(["--tasks", str(self.config["autotuning_tasks"])])
         ret.append(model)
         return ret
 
     def tune_model(self, model_path, backend, target):
         assert self.experimental_tvmc_micro_tune, "Microtvm tuning requires experimental_tvmc_micro_tune"
-        enable = backend.config["autotuning_enable"]
-        results_file = backend.config["autotuning_results_file"]
-        append = backend.config["autotuning_append"]
+        enable = self.config["autotuning_enable"]
+        results_file = self.config["autotuning_results_file"]
+        append = self.config["autotuning_append"]
         artifacts = []
         verbose = False
         if self.print_outputs:
@@ -486,7 +485,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                     "--o",
                     out_file,
                 ]
-                env = prepare_python_environment(backend.tvm_pythonpath, backend.tvm_build_dir, backend.tvm_configs_dir)
+                env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
                 utils.python("-m", "tvm.autotvm.record", *args, live=verbose, env=env)
                 with open(out_file, "r") as handle:
                     content_best = handle.read()

@@ -818,8 +818,6 @@ def clone_spike_pk(
 
 @Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
 @Tasks.provides(["spikepk.build_dir", "spike.pk"])
-@Tasks.param("vext", [False, True])
-@Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike_pk(
@@ -831,8 +829,7 @@ def build_spike_pk(
     user_vars = context.environment.vars
     if "spike.pk" in user_vars:  # TODO: also check command line flags?
         return False
-    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
-    spikepkName = utils.makeDirName("spikepk", flags=flags)
+    spikepkName = utils.makeDirName("spikepk")
     spikepkSrcDir = context.cache["spikepk.src_dir"]
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
@@ -852,12 +849,8 @@ def build_spike_pk(
         elif "riscv_gcc.install_dir" in user_vars:
             riscv_gcc = user_vars["riscv_gcc.install_dir"]
         else:
-            riscv_gcc = context.cache["riscv_gcc.install_dir", flags]
-        arch = "rv32gc"
-        if pext:
-            arch += "p"
-        if vext:
-            arch += "v"
+            riscv_gcc = context.cache["riscv_gcc.install_dir"]
+        arch = "rv32imc"
         spikepkArgs = []
         spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
@@ -877,8 +870,8 @@ def build_spike_pk(
         # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
         utils.mkdirs(spikepkInstallDir)
         utils.move(spikepkBuildDir / "pk", spikepkBin)
-    context.cache["spikepk.build_dir", flags] = spikepkBuildDir
-    context.cache["spike.pk", flags] = spikepkBin
+    context.cache["spikepk.build_dir"] = spikepkBuildDir
+    context.cache["spike.pk"] = spikepkBin
 
 
 @Tasks.provides(["spike.src_dir"])

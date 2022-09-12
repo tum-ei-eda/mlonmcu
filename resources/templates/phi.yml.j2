@@ -101,7 +101,6 @@ frameworks:
         enabled: true
         features:
           debug_arena: true
-          # disable_legalize: true
           disable_legalize: false
           autotuned: true
           moiopt: true
@@ -111,28 +110,26 @@ frameworks:
           debug_arena: true
           unpacked_api: true
           usmp: false
-          disable_legalize: true
+          disable_legalize: false
           autotuned: true
           moiopt: true
       tvmaotplus:
         enabled: true
         features:
           debug_arena: true
-          disable_legalize: true
+          disable_legalize: false
           autotuned: true
           moiopt: true
       tvmllvm:
         enabled: true
         features:
           # unpacked_api: true
-          # disable_legalize: true
           disable_legalize: false
           autotuned: true
       tvmcg:
         enabled: true
         features:
           debug_arena: true
-          # disable_legalize: true
           disable_legalize: false
           autotuned: true
     features:
@@ -186,7 +183,7 @@ platforms:
       benchmark: true
   tvm:
     enabled: true
-    features: []
+    features:
       benchmark: true
       tvm_rpc: true
       autotune: true
@@ -219,7 +216,7 @@ targets:
       cachesim: true
       log_instrs: true
   ovpsim:
-    enabled: false
+    enabled: true
     features:
       vext: true
       pext: true
@@ -261,11 +258,12 @@ vars:
   # tvm.make_tool: "ninja"
   llvm.version: "14.0.0"
   runs_per_stage: true
-  riscv_gcc.multilib: True
   riscv_gcc.variant: "xuantie"
-  riscv_gcc.dl_url: "https://occ-oss-prod.oss-cn-hangzhou.aliyuncs.com/resource//1659318201401/Xuantie-900-gcc-elf-newlib-x86_64-V2.6.0-20220715.tar.gz"
+  # riscv_gcc.dl_url: "https://occ-oss-prod.oss-cn-hangzhou.aliyuncs.com/resource//1659318201401/Xuantie-900-gcc-elf-newlib-x86_64-V2.6.0-20220715.tar.gz"
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv32gcv_new.tar.gz"
+  riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiNvP4mzVQ8uDvgT9Yf2bqNk/rv32gcp.tar.xz"
   ovpsim.exe: "/nfs/TUEIEDAscratch/ga87puy/work/riscv-ovpsim-plus/bin/Linux64/riscvOVPsimPlus.exe"
-  # riscv32_qemu.exe: "/work/git/prj/qemu_experiments/newer/qemu/build/qemu-system-riscv32" # TODO: download/build
   # riscv32_qemu.exe: qemu-system-riscv32
   riscv32_qemu.exe: "/nfs/TUEIEDAscratch/ga87puy/work/qemu-system-riscv32"
   tvm.experimental_tvmc_tune_tasks: true

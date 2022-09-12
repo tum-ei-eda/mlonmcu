@@ -850,7 +850,7 @@ def build_spike_pk(
             riscv_gcc = user_vars["riscv_gcc.install_dir"]
         else:
             riscv_gcc = context.cache["riscv_gcc.install_dir"]
-        arch = "rv32imc"
+        arch = "rv32imafdc"
         spikepkArgs = []
         spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
@@ -922,7 +922,8 @@ def build_spike(
             str(spikeSrcDir / "configure"),
             *spikeArgs,
             cwd=spikeBuildDir,
-            live=verbose,
+            live=False,
+            print_output=False,
         )
         utils.make(cwd=spikeBuildDir, threads=threads, live=verbose)
         # utils.make(target="install", cwd=spikeBuildDir, threads=threads, live=verbose)

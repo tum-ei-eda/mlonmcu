@@ -144,10 +144,8 @@ def test_wrapper_graph(model_info, workspace_size, debug_arena):
         expected_lines.extend(
             [
                 "#if DEBUG_ARENA_USAGE",
-                (
-                    '    DBGPRINTF("\\nGraph executor arena max usage after model invocation: %lu bytes\\n",'
-                    " max_arena_usage);"
-                ),
+                '    DBGPRINTF("\\nGraph executor arena max usage after model invocation: %lu bytes\\n",'
+                " max_arena_usage);",
                 "#endif  // DEBUG_ARENA_USAGE",
             ]
         )
@@ -242,10 +240,8 @@ def test_wrapper_aot(model_info, workspace_size, mod_name, api, debug_arena):
     if api == "packed":
         expected_lines.extend(
             [
-                (
-                    f"int32_t tvmgen_{mod_name}_run(void* args, void* type_code, int num_args, void* out_value, void*"
-                    " out_type_code, void* resource_handle);"
-                ),
+                f"int32_t tvmgen_{mod_name}_run(void* args, void* type_code, int num_args, void* out_value, void*"
+                " out_type_code, void* resource_handle);",
                 "void TVMWrap_Run()",
                 "    static DLDevice fake_device = {kDLCPU, 0};",
                 "    static int64_t fake_dims = 0;",
@@ -281,10 +277,8 @@ def test_wrapper_aot(model_info, workspace_size, mod_name, api, debug_arena):
         expected_lines.extend(
             [
                 "#if DEBUG_ARENA_USAGE",
-                (
-                    '    DBGPRINTF("\\nAoT executor arena max usage after model invocation: %lu bytes\\n",'
-                    " max_arena_usage);"
-                ),
+                '    DBGPRINTF("\\nAoT executor arena max usage after model invocation: %lu bytes\\n",'
+                " max_arena_usage);",
                 "#endif  // DEBUG_ARENA_USAGE",
             ]
         )

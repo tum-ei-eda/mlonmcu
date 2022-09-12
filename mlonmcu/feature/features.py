@@ -1299,7 +1299,7 @@ class TvmRpc(PlatformFeature):
         return self.config["key"]
 
     def get_platform_config(self, platform):
-        assert platform in ["tvm"]
+        assert platform in ["tvm", "microtvm"]
         return filter_none(
             {
                 f"{platform}.use_rpc": self.enabled,

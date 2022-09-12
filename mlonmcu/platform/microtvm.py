@@ -28,7 +28,12 @@ from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
-from mlonmcu.flow.tvm.backend.tvmc_utils import get_bench_tvmc_args, get_data_tvmc_args, get_target_tvmc_args
+from mlonmcu.flow.tvm.backend.tvmc_utils import (
+    get_bench_tvmc_args,
+    get_data_tvmc_args,
+    get_target_tvmc_args,
+    get_rpc_tvmc_args,
+)
 from mlonmcu.flow.tvm.backend.tuner import TVMTuner
 
 from .platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
@@ -61,7 +66,7 @@ def get_project_option_args(template, stage, project_options):
 class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform):
     """TVM Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotune"]  # TODO: validate?
+    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotune", "tvm_rpc"]  # TODO: validate?
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -75,10 +80,10 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         "print_top": False,
         # "profile": False,
         "repeat": 1,
-        # "use_rpc": False,
-        # "rpc_key": None,
-        # "rpc_hostname": None,
-        # "rpc_port": None,
+        "use_rpc": False,
+        "rpc_key": None,
+        "rpc_hostname": None,
+        "rpc_port": None,
         "tvmc_extra_args": [],
         "tvmc_custom_script": None,
         "experimental_tvmc_micro_tune": False,
@@ -136,22 +141,22 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
     def repeat(self):
         return self.config["repeat"]
 
-    # @property
-    # def use_rpc(self):
-    #     value = self.config["use_rpc"]
-    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
+    @property
+    def use_rpc(self):
+        value = self.config["use_rpc"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    # @property
-    # def rpc_key(self):
-    #     return self.config["rpc_key"]
+    @property
+    def rpc_key(self):
+        return self.config["rpc_key"]
 
-    # @property
-    # def rpc_hostname(self):
-    #     return self.config["rpc_hostname"]
+    @property
+    def rpc_hostname(self):
+        return self.config["rpc_hostname"]
 
-    # @property
-    # def rpc_port(self):
-    #     return self.config["rpc_port"]
+    @property
+    def rpc_port(self):
+        return self.config["rpc_port"]
 
     @property
     def tvmc_extra_args(self):
@@ -249,6 +254,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         return create_microtvm_platform_target(name, self, base=base)
 
     def get_tvmc_run_args(self, path, device, list_options=False):
+        if self.use_rpc:
+            raise RuntimeError("RPC is only supported for tuning with microtvm platform")
         ret = [
             path,
             *["--device", device],
@@ -405,7 +412,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                 target_details=backend.get_target_details(),
             ),
             *(["--desired-layout", desired_layout] if desired_layout is not None else []),
-            # *get_rpc_tvmc_args(self.use_rpc, self.key, self.hostname, self.port),
+            *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
             # TODO: missing: pass config, disabled_pass, etc.
             *["--tuner", tuner],
             *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),

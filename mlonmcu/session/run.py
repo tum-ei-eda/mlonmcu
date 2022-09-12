@@ -620,6 +620,13 @@ class Run:
         self.lock()
         assert self.completed[RunStage.LOAD]
 
+        if self.target_to_backend:
+            assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
+            cfg = self.target.get_backend_config(self.backend.name)  # Do not expect a backend prefix here
+            if len(cfg) > 0:
+                logger.debug("Updating backend config based on given target.")
+                self.backend.config.update(cfg)
+
         self.export_stage(RunStage.LOAD, optional=self.export_optional)
         model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
         if not model_artifact.exported:

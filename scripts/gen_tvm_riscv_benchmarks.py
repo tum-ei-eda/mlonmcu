@@ -25,9 +25,15 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
         """Called at the end of a session."""
         df = report.post_df.copy()
         df["Schedules"] = df.apply(
-            lambda row: "RISC-V"
+            lambda row: "ARM (Tuned)"
+            if row.get("config_tvmaot.target_device", "") == "arm_cpu" and row.get("feature_autotuned")
+            else "ARM"
+            if row.get("config_tvmaot.target_device", "") == "arm_cpu"
+            else "RISC-V (Tuned)"
+            if row.get("feature_target_optimized") and row.get("feature_autotuned")
+            else "RISC-V"
             if row.get("feature_target_optimized")
-            else ("Autotuned" if row.get("feature_autotuned") else "Default"),
+            else ("Default (Tuned)" if row.get("feature_autotuned") else "Default"),
             axis=1,
         )
         # TODO: allow combinations
@@ -76,12 +82,17 @@ FEATURES = [
     "target_optimized",
     "auto_vectorize",
     "disable_legalize",
+    "arm_schedules",
+    "vext",
+    "pext",
     "none",
 ]
 
 DEFAULT_FEATURES = [
     "target_optimized",
     "auto_vectorize",
+    "vext",
+    "pext",
     # "disable_legalize",
 ]
 
@@ -96,21 +107,42 @@ TUNING_RECORDS = os.path.join(
 )
 
 
-def get_target_features(target, enable_default=False, enable_target_optimized=False, enable_auto_vectorize=False):
+def get_target_features(
+    target,
+    enable_default=False,
+    enable_target_optimized=False,
+    enable_auto_vectorize=False,
+    enable_vext=False,
+    enable_pext=False,
+):
     TARGET_FEATURES = {
         "spike": [
             *(
-                [[], ["vext", "auto_vectorize"] if enable_auto_vectorize else ["vext"], ["pext"]]
+                [
+                    [],
+                    *(
+                        ([["vext", "auto_vectorize"]] if enable_auto_vectorize and enable_vext else [["vext"]])
+                        if enable_vext
+                        else []
+                    ),
+                    *([["pext"]] if enable_pext else []),
+                ]
                 if enable_default
                 else []
             ),
             *(
                 [
                     ["target_optimized"],
-                    ["target_optimized", "vext", "auto_vectorize"]
-                    if enable_auto_vectorize
-                    else ["target_optimized", "vext"],
-                    ["target_optimized", "pext"],
+                    *(
+                        (
+                            [["target_optimized", "vext", "auto_vectorize"]]
+                            if enable_auto_vectorize and enable_vext
+                            else [["target_optimized", "vext"]]
+                        )
+                        if enable_vext
+                        else []
+                    ),
+                    *([["target_optimized", "pext"]] if enable_pext else []),
                 ]
                 if enable_target_optimized
                 else []
@@ -118,49 +150,61 @@ def get_target_features(target, enable_default=False, enable_target_optimized=Fa
         ],
         "ovpsim": [
             *(
-                [[], ["vext", "auto_vectorize"] if enable_auto_vectorize else ["vext"], ["pext"]]
-                if enable_default
-                else []
-            ),
-            *(
                 [
-                    ["target_optimized"],
-                    ["target_optimized", "vext", "auto_vectorize"]
-                    if enable_auto_vectorize
-                    else ["target_optimized", "vext"],
-                    ["target_optimized", "pext"],
+                    [],
+                    *(
+                        ([["vext", "auto_vectorize"]] if enable_auto_vectorize and enable_vext else [["vext"]])
+                        if enable_vext
+                        else []
+                    ),
+                    *([["pext"]] if enable_pext else []),
                 ]
-                if enable_target_optimized
-                else []
-            ),
-        ],
-        "etiss_pulpino": [
-            *(
-                # [[], ["vext", "auto_vectorize"] if enable_auto_vectorize else ["vext"], ["pext"]]
-                [[], ["pext"]]
                 if enable_default
                 else []
             ),
             *(
                 [
                     ["target_optimized"],
-                    # ["target_optimized", "vext", "auto_vectorize"]
-                    # if enable_auto_vectorize
-                    # else ["target_optimized", "vext"],
-                    ["target_optimized", "pext"],
+                    *(
+                        (
+                            [["target_optimized", "vext", "auto_vectorize"]]
+                            if enable_auto_vectorize and enable_vext
+                            else [["target_optimized", "vext"]]
+                        )
+                        if enable_vext
+                        else []
+                    ),
+                    *([["target_optimized", "pext"]] if enable_pext else []),
                 ]
                 if enable_target_optimized
                 else []
             ),
         ],
         "riscv_qemu": [
-            *([[], ["vext", "auto_vectorize"] if enable_auto_vectorize else ["vext"]] if enable_default else []),
+            *(
+                [
+                    [],
+                    *(
+                        ([["vext", "auto_vectorize"]] if enable_auto_vectorize and enable_vext else [["vext"]])
+                        if enable_vext
+                        else []
+                    ),
+                ]
+                if enable_default
+                else []
+            ),
             *(
                 [
                     ["target_optimized"],
-                    ["target_optimized", "vext", "auto_vectorize"]
-                    if enable_auto_vectorize
-                    else ["target_optimized", "vext"],
+                    *(
+                        (
+                            [["target_optimized", "vext", "auto_vectorize"]]
+                            if enable_auto_vectorize and enable_vext
+                            else [["target_optimized", "vext"]]
+                        )
+                        if enable_vext
+                        else []
+                    ),
                 ]
                 if enable_target_optimized
                 else []
@@ -190,12 +234,23 @@ def get_backend_features(backend, target, enable_autotuned=False, enable_disable
     return BACKEND_FEATURES[backend]
 
 
-def get_backend_config(backend, features, enable_autotuned=False):
+def get_backend_config(backend, features, enable_autotuned=False, enable_arm_schedules=False):
     # print("get_backend_config", backend, features, enable_autotuned)
     BACKEND_FEATURES = {
         "tvmaot": [
             *(
-                [{"tvmaot.desired_layout": "NCHW"}, {"tvmaot.desired_layout": "NHWC"}]
+                [
+                    {"tvmaot.desired_layout": "NCHW"},
+                    {"tvmaot.desired_layout": "NHWC"},
+                    *(
+                        [
+                            {"tvmaot.desired_layout": "NCHW", "tvmaot.target_device": "arm_cpu"},
+                            {"tvmaot.desired_layout": "NHWC", "tvmaot.target_device": "arm_cpu"},
+                        ]
+                        if enable_arm_schedules
+                        else []
+                    ),
+                ]
                 if "target_optimized" not in features
                 else [{}]
             ),
@@ -330,17 +385,24 @@ def benchmark(args):
                     enable_default = not args.skip_default
                     enable_target_optimized = "target_optimized" in args.feature
                     enable_auto_vectorize = "auto_vectorize" in args.feature
+                    enable_vext = "vext" in args.feature
+                    enable_pext = "pext" in args.feature
+                    enable_arm_schedules = "arm_schedules" in args.feature
                     for target_features in get_target_features(
                         target,
                         enable_default=enable_default,
                         enable_target_optimized=enable_target_optimized,
                         enable_auto_vectorize=enable_auto_vectorize,
+                        enable_vext=enable_vext,
+                        enable_pext=enable_pext,
                     ):
                         # print("target_features", target_features)
                         enable_autotuned = False
                         if args.autotuned:
-                            if "target_optimized" not in target_features and backend == "tvmaot":
-                                enable_autotuned = True
+                            # if "target_optimized" not in target_features and backend == "tvmaot":
+                            if backend == "tvmaot":
+                                pass
+                                # enable_autotuned = True
                         enable_disable_legalize = (
                             "disable_legalize" in args.feature and "target_optimized" not in target_features
                         )
@@ -354,7 +416,10 @@ def benchmark(args):
                             features = list(set(target_features + backend_features))
                             # print("features", features)
                             for backend_config in get_backend_config(
-                                backend, features, enable_autotuned=enable_autotuned
+                                backend,
+                                features,
+                                enable_autotuned=enable_autotuned,
+                                enable_arm_schedules=enable_arm_schedules,
                             ):
                                 vlens = [0]
                                 if "vext" in features:

@@ -401,9 +401,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         if early_stopping is None:
             early_stopping = max(trials, 10)  # Let's see if this default works out...
         early_stopping = int(early_stopping)
-        # max_parallel = self.config.get("autotuning_max_parallel", 1)
-        # max_parallel = 1
-        timeout = self.config.get("autotuning_timeout", 1000)
+        max_parallel = int(self.config.get("autotuning_max_parallel", 1))
+        timeout = int(self.config.get("autotuning_timeout", 1000))
         results_file = self.config.get("autotuning_results_file", None)
         desired_layout = backend.config.get("desired_layout", None)
         ret = [
@@ -417,11 +416,11 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             # TODO: missing: pass config, disabled_pass, etc.
             *["--tuner", tuner],
             *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),
-            # *["--parallel", str(max_parallel)],
-            # *["--timeout", str(timeout * max_parallel)],
-            *["--timeout", str(timeout)],
+            *["--parallel", str(max_parallel)],
+            *["--timeout", str(timeout * max_parallel)],
             *["--trials", str(trials)],
-            # *["--number", str(100)],
+            *["--number", str(1)],  # TODO: variable
+            *["--repeat", str(1)],  # TODO: variable
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
             # "--target-c-link-params",

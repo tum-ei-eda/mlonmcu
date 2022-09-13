@@ -275,8 +275,8 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         if early_stopping is None:
             early_stopping = max(trials, 10)  # Let's see if this default works out...
         early_stopping = int(early_stopping)
-        max_parallel = self.config.get("autotuning_max_parallel", 1)
-        timeout = self.config.get("autotuning_timeout", 1000)
+        max_parallel = int(self.config.get("autotuning_max_parallel", 1))
+        timeout = int(self.config.get("autotuning_timeout", 1000))
         results_file = self.config.get("autotuning_results_file", None)
         desired_layout = backend.config.get("desired_layout", None)
         ret = [

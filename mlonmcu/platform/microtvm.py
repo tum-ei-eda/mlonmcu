@@ -20,6 +20,7 @@
 
 import re
 import tempfile
+import concurrent
 from pathlib import Path
 
 from mlonmcu.setup import utils
@@ -442,6 +443,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         enable = self.config["autotuning_enable"]
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
+        num_workers = int(self.config["autotuning_num_workers"])
         artifacts = []
         verbose = False
         if self.print_outputs:
@@ -454,24 +456,79 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                     with open(results_file, "r") as handle:
                         content = handle.read()
 
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                out_file = Path(tmp_dir) / "tuning_results.log.txt"
-                with open(out_file, "w") as handle:
-                    handle.write(content)
-                    # TODO: newline or not?
-                # out = self.invoke_tvmc_tune(out_file, verbose=verbose)
-                tune_args = self.get_micro_tune_args(model_path, backend, out_file)
-                out = self.invoke_tvmc_micro(
-                    "tune", self.project_dir, None, self.get_template_args(target), target, tune_args=tune_args
-                )
-                with open(out_file, "r") as handle:
-                    content = handle.read()
-        else:
-            if results_file is None:
-                return []
-            assert Path(results_file).is_file()
-            with open(results_file, "r") as handle:
-                content = handle.read()
+            if num_workers > 1:
+                assert self.experimental_tvmc_tune_tasks, "num_workers>1 requires experimental_tvmc_tune_tasks=1"
+                # TODO: fix
+                assert (
+                    self.config["autotuning_tasks"] is None
+                ), "tune_tasks not supported together with num_workers > 1"
+
+                def get_tune_tasks():
+                    with tempfile.TemporaryDirectory() as tmp_dir:
+                        out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                        tune_args = self.get_micro_tune_args(model_path, backend, out_file)
+                        out = self.invoke_tvmc_micro(
+                            "tune",
+                            self.project_dir,
+                            None,
+                            self.get_template_args(target),
+                            target,
+                            tune_args=tune_args + ["--task", "list"],
+                        )
+                        lines = out.split("\n")
+                        for i, line in enumerate(lines):
+                            if "Available Tasks for tuning" in line:
+                                lines = lines[i + 1 :]
+                                break
+                        tasks = [line.split(". ", 1)[1] for line in lines if len(line.strip()) > 0]
+                        return tasks
+
+                num_tasks = len(get_tune_tasks())
+                workers = []
+                with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
+                    for i in range(num_tasks):
+                        print(f"Created worker for task {i}")
+
+                        def do_work(idx, prepend):
+                            with tempfile.TemporaryDirectory() as tmp_dir:
+                                out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                                with open(out_file, "w") as handle:
+                                    handle.write(prepend)
+                                tune_args = self.get_micro_tune_args(model_path, backend, out_file)
+                                out = self.invoke_tvmc_micro(
+                                    "tune",
+                                    self.project_dir,
+                                    None,
+                                    self.get_template_args(target),
+                                    target,
+                                    tune_args=tune_args + ["--task", str(idx)],
+                                )
+                                with open(out_file, "r") as handle:
+                                    content = handle.read()
+                            return (out, content)
+
+                        workers.append(executor.submit(do_work, i, content))
+                all_out = ""
+                all_content = ""
+                for i, w in enumerate(workers):
+                    print(f"Worker {i}: done")
+                    ret = w.result()
+                    out, content = ret
+                    all_out += out
+                    all_content += content
+                out = all_out
+                content = all_content
+            else:
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                    with open(out_file, "w") as handle:
+                        handle.write(content)
+                    tune_args = self.get_micro_tune_args(model_path, backend, out_file)
+                    out = self.invoke_tvmc_micro(
+                        "tune", self.project_dir, None, self.get_template_args(target), target, tune_args=tune_args
+                    )
+                    with open(out_file, "r") as handle:
+                        content = handle.read()
 
         artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
         artifacts.append(artifact)

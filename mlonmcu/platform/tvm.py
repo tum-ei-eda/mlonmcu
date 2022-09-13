@@ -70,7 +70,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         "tvmc_custom_script": None,
         "experimental_tvmc_tune_tasks": False,
         "experimental_tvmc_tune_visualize": False,
-        "num_workers": 1,
         **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
@@ -178,10 +177,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
     def experimental_tvmc_tune_visualize(self):
         value = self.config["experimental_tvmc_tune_visualize"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def num_workers(self):
-        return int(self.config["num_workers"])
 
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
@@ -320,6 +315,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         enable = self.config["autotuning_enable"]
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
+        num_workers = int(self.config["autotuning_num_workers"])
         artifacts = []
         verbose = False
         if self.print_outputs:
@@ -332,11 +328,11 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                     with open(results_file, "r") as handle:
                         content = handle.read()
 
-            if self.num_workers > 1:
+            if num_workers > 1:
                 assert self.experimental_tvmc_tune_tasks, "num_workers>1 requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix
                 assert (
-                    self.config["autotuning_tune_tasks"] is None
+                    self.config["autotuning_tasks"] is None
                 ), "tune_tasks not supported together with num_workers > 1"
 
                 def get_tune_tasks():
@@ -354,7 +350,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
 
                 num_tasks = len(get_tune_tasks())
                 workers = []
-                with concurrent.futures.ThreadPoolExecutor(self.num_workers) as executor:
+                with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
                     for i in range(num_tasks):
                         print(f"Created worker for task {i}")
 

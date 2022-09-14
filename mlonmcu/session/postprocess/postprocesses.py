@@ -341,7 +341,8 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         log_artifact = log_artifact[0]
         is_spike = "spike" in log_artifact.flags
         is_etiss = "etiss_pulpino" in log_artifact.flags
-        is_riscv = is_spike or is_etiss
+        is_ovpsim = "ovpsim" in log_artifact.flags
+        is_riscv = is_spike or is_etiss or is_ovpsim
         if is_spike:
             content = log_artifact.content
             if self.groups:
@@ -355,6 +356,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 encodings = [f"0b{enc}" for enc in encodings]
             if self.sequences:
                 names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[01]+\s.*").findall(content)
+        elif is_ovpsim:
+            content = log_artifact.content
+            if self.groups:
+                encodings = re.compile(r"riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s([0-9abcdef]+)\s+\w+\s+.*").findall(content)
+                encodings = [f"0x{enc}" for enc in encodings]
+            if self.sequences:
+                names = re.compile(r"riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+(\w+)\s+.*").findall(content)
         else:
             raise RuntimeError("Uable to determine the used target.")
 

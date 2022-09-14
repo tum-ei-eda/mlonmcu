@@ -977,8 +977,6 @@ class CacheSim(TargetFeature):
 class LogInstructions(TargetFeature):
     """Enable logging of the executed instructions of a simulator-based target."""
 
-    # TODO: support ovpsim via --trace. Example Output:
-    #   Info 'riscvOVPsim/cpu', 0x0000000000010b92(...): fdc42583 lw      a1,-36(s0)
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
@@ -991,7 +989,7 @@ class LogInstructions(TargetFeature):
         return bool(self.config["to_file"]) if self.config["to_file"] is not None else None
 
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino"]
+        assert target in ["spike", "etiss_pulpino", "ovpsim"]
         if not self.enabled:
             return
         if target == "spike":
@@ -1004,9 +1002,15 @@ class LogInstructions(TargetFeature):
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
+        elif target == "ovpsim":
+            extra_args_new = config.get("extra_args", [])
+            extra_args_new.append("--trace")
+            # if self.to_file:
+            #    extra_args_new.append("--tracefile")
+            config.update({f"{target}.extra_args": extra_args_new})
 
     def get_target_callbacks(self, target):
-        assert target in ["spike", "etiss_pulpino"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in ["spike", "etiss_pulpino", "ovpsim"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
             def log_instrs_callback(stdout, metrics, artifacts):
@@ -1020,6 +1024,8 @@ class LogInstructions(TargetFeature):
                             expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                         elif target == "spike":
                             expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
+                        elif target == "ovpsim":
+                            expr = re.compile(r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*")
                         match = expr.match(line)
                         if match is not None:
                             instrs.append(line)

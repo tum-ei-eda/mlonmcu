@@ -968,6 +968,7 @@ class CacheSim(TargetFeature):
                     if prefix in prefixes:
                         for m in metrics:
                             m.add(f"{prefix}-Cache {label}", value)
+                return stdout
 
             return None, cachesim_callback
 
@@ -1267,6 +1268,7 @@ class Benchmark(PlatformFeature, TargetFeature):
                         metrics_.order.append(key)
                 metrics.clear()
                 metrics.append(metrics_)
+                return stdout
 
             benchmark_callback.priority = 0
 

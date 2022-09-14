@@ -146,7 +146,7 @@ class Target:
                 metrics_, out, artifacts_ = self.get_metrics(elf, *args, temp_dir)
             metrics.append(metrics_)
         for callback in self.post_callbacks:
-            callback(out, metrics, artifacts_)
+            out = callback(out, metrics, artifacts_)
         artifacts.extend(artifacts_)
         if len(metrics) > 1:
             raise RuntimeError("Collected target metrics for multiple runs. Please aggregate them in a callback!")

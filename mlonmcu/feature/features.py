@@ -1325,3 +1325,23 @@ class TvmRpc(PlatformFeature):
                 f"{platform}.rpc_key": self.key,
             }
         )
+
+@register_feature("tvm_profile")
+class TvmProfile(PlatformFeature):
+    """Profile code using TVM Platform."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    REQUIRED = []
+
+    def __init__(self, features=None, config=None):
+        super().__init__("tvm_profile", features=features, config=config)
+
+    def get_platform_config(self, platform):
+        supported = ["tvm"]  # TODO: support microtvm
+        assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {
+            f"{platform}.profile": self.enabled,
+        }

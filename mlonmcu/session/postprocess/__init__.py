@@ -27,6 +27,7 @@ from .postprocesses import (
     VisualizePostprocess,
     Bytes2kBPostprocess,
     Artifact2ColumnPostprocess,
+    AnalyseInstructionsPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -38,4 +39,5 @@ SUPPORTED_POSTPROCESSES = {
     "visualize": VisualizePostprocess,
     "bytes2kb": Bytes2kBPostprocess,
     "artifact2cols": Artifact2ColumnPostprocess,
+    "analyse_instructions": AnalyseInstructionsPostprocess,
 }

@@ -1011,6 +1011,7 @@ class LogInstructions(TargetFeature):
 
             def log_instrs_callback(stdout, metrics, artifacts):
                 """Callback which parses the targets output and updates the generated metrics and artifacts."""
+                new_lines = []
                 if self.to_file:
                     # TODO: update stdout and remove log_instrs lines
                     instrs = []
@@ -1022,10 +1023,18 @@ class LogInstructions(TargetFeature):
                         match = expr.match(line)
                         if match is not None:
                             instrs.append(line)
+                        else:
+                            new_lines.append(line)
                     instrs_artifact = Artifact(
-                        f"{target}_instrs.log", content="\n".join(instrs), fmt=ArtifactFormat.TEXT
+                        f"{target}_instrs.log",
+                        content="\n".join(instrs),
+                        fmt=ArtifactFormat.TEXT,
+                        flags=(self.name, target),
                     )
                     artifacts.append(instrs_artifact)
+                    return "\n".join(new_lines)
+                else:
+                    return stdout
 
             return None, log_instrs_callback
 

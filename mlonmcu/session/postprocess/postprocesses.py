@@ -18,6 +18,7 @@
 #
 """Collection of (example) postprocesses integrated in MLonMCU."""
 
+import re
 import ast
 import tempfile
 from pathlib import Path
@@ -26,7 +27,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
-from mlonmcu.config import str2dict
+from mlonmcu.config import str2dict, str2bool
 from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
@@ -305,3 +306,161 @@ class Artifact2ColumnPostprocess(RunPostprocess):
             if matches[0].fmt != ArtifactFormat.TEXT:
                 raise RuntimeError("Can only put text into report columns")
             report.main_df[colname] = matches[0].content
+
+
+class AnalyseInstructionsPostprocess(RunPostprocess):
+    """Counting specific types of instructions."""
+
+    DEFAULTS = {**RunPostprocess.DEFAULTS, "groups": True, "sequences": True, "top": 10}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_instructions", features=features, config=config)
+
+    @property
+    def groups(self):
+        """Get groups property."""
+        value = self.config["groups"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def sequences(self):
+        """get sequences property."""
+        value = self.config["sequences"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def top(self):
+        """get sequences property."""
+        return int(self.config["top"])
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        ret_artifacts = []
+        log_artifact = lookup_artifacts(artifacts, flags=("log_instrs",), fmt=ArtifactFormat.TEXT, first_only=True)
+        assert len(log_artifact) == 1, "To use analyse_instructions process, please enable feature log_instrs."
+        log_artifact = log_artifact[0]
+        is_spike = "spike" in log_artifact.flags
+        is_etiss = "etiss_pulpino" in log_artifact.flags
+        is_riscv = is_spike or is_etiss
+        if is_spike:
+            content = log_artifact.content
+            if self.groups:
+                encodings = re.compile(r"\((0x[0-9abcdef]+)\)").findall(content)
+            if self.sequences:
+                names = re.compile(r"core\s+\d+:\s0x[0-9abcdef]+\s\(0x[0-9abcdef]+\)\s([\w.]+).*").findall(content)
+        elif is_etiss:
+            content = log_artifact.content
+            if self.groups:
+                encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([01]+)\s.*").findall(content)
+                encodings = [f"0b{enc}" for enc in encodings]
+            if self.sequences:
+                names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[01]+\s.*").findall(content)
+        else:
+            raise RuntimeError("Uable to determine the used target.")
+
+        def _helper(x, top=100):
+            counts = pd.Series(x).value_counts()
+            probs = counts / len(x)
+            return dict(counts.head(top)), dict(probs.head(top))
+
+        def _gen_csv(label, counts, probs):
+            lines = [f"{label};Count;Probablity"]
+            for x in counts:
+                line = f"{x};{counts[x]};{probs[x]:.3f}"
+                lines.append(line)
+            return "\n".join(lines)
+
+        if self.groups:
+            assert is_riscv, "Currently only riscv instrcutions can be analysed by groups"
+
+            def _extract_major_opcode(enc):
+                mapping = {
+                    0b0010011: "OP-IMM",
+                    0b0110111: "LUI",
+                    0b0010111: "AUIPC",
+                    0b0110011: "OP",
+                    0b1101111: "JAL",
+                    0b1100111: "JALR",
+                    0b1100011: "BRANCH",
+                    0b0000011: "LOAD",
+                    0b0100011: "STORE",
+                    0b0001111: "MISC-MEM",
+                    0b1110011: "SYSTEM",
+                    0b1000011: "MADD",
+                    0b1000111: "MSUB",
+                    0b1001011: "MNSUB",
+                    0b1001111: "MNADD",
+                    0b0000111: "LOAD-FP",
+                    0b0100111: "STORE-FP",
+                    0b0001011: "custom-0",
+                    0b0101011: "custom-1",
+                    0b1011011: "custom-2/rv128",
+                    0b1111011: "custom-3/rv128",
+                    0b1101011: "reserved",
+                    0b0101111: "AMO",
+                    0b1010011: "OP-FP",
+                    0b1010111: "OP-V",
+                    0b1110111: "OP-P",
+                    0b0011011: "OP-IMM-32",
+                    0b0111011: "OP-32",
+                }
+                enc = int(enc, 0)  # Convert from hexadecimal
+                opcode = enc & 0b1111111
+                lsbs = opcode & 0b11
+                if lsbs == 0b11:
+                    major = mapping.get(opcode, "UNKNOWN")
+                else:
+                    # 16-bit instruction
+                    msbs = (enc & 0b1110000000000000) >> 13
+                    rvc_mapping = {
+                        0b00000: "OP-IMM",
+                        0b00001: "OP-IMM",
+                        0b00010: "OP-IMM",
+                        0b00100: "LOAD",
+                        0b00101: "JAL",
+                        0b00110: "LOAD-FP",
+                        0b01000: "LOAD",
+                        0b01001: "OP-IMM",
+                        0b01010: "LOAD",
+                        0b01100: "LOAD-FP",
+                        0b01101: "OP-IMM",
+                        0b01110: "LOAD-FP",
+                        0b10000: "reserved",
+                        0b10001: "MISC-ALU",
+                        0b10010: "JALR",
+                        0b10100: "STORE-FP",
+                        0b10101: "JAL",
+                        0b10110: "STORE-FP",
+                        0b11000: "STORE",
+                        0b11001: "BRANCH",
+                        0b11010: "STORE",
+                        0b11100: "STORE-FP",
+                        0b11101: "BRANCH",
+                        0b11110: "STORE-FP",
+                    }
+                    combined = msbs << 2 | lsbs
+                    assert combined in rvc_mapping.keys()
+                    return f"{rvc_mapping[combined]} (Compressed)"
+                return major
+            majors = list(map(_extract_major_opcode, encodings))
+            major_counts, major_probs = _helper(majors, top=self.top)
+            majors_csv = _gen_csv("Major", major_counts, major_probs)
+            artifact = Artifact("analyse_instructions_majors.csv", content=majors_csv, fmt=ArtifactFormat.TEXT)
+            ret_artifacts.append(artifact)
+        if self.sequences:
+            max_len = 3
+
+            def _get_sublists(l, length):
+                ret = []
+                for i in range(len(l) - length + 1):
+                    ll = l[i : i + length]
+                    ret.append(",".join(ll))
+                return ret
+
+            for l in range(1, max_len + 1):
+                names_ = _get_sublists(names, l)
+                counts, probs = _helper(names_, top=self.top)
+                sequence_csv = _gen_csv("Sequence", counts, probs)
+                artifact = Artifact(f"analyse_instructions_seq{l}.csv", content=sequence_csv, fmt=ArtifactFormat.TEXT)
+                ret_artifacts.append(artifact)
+        return ret_artifacts

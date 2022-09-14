@@ -331,9 +331,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             if num_workers > 1:
                 assert self.experimental_tvmc_tune_tasks, "num_workers>1 requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix
-                assert (
-                    self.config["autotuning_tasks"] is None
-                ), "tune_tasks not supported together with num_workers > 1"
+                assert self.config["autotuning_tasks"] is None, "tune_tasks not supported together with num_workers > 1"
 
                 def get_tune_tasks():
                     with tempfile.TemporaryDirectory() as tmp_dir:

@@ -212,7 +212,11 @@ class OVPSimTarget(RISCVTarget):
         ovpsim_args.extend(self.get_default_ovpsim_args())
 
         if len(self.extra_args) > 0:
-            ovpsim_args.extend(self.extra_args.split(" "))
+            if isinstance(self.extra_args, str):
+                args = self.extra_args.split(" ")
+            else:
+                args = self.extra_args
+            ovpsim_args.extend(args)
 
         if self.timeout_sec > 0:
             raise NotImplementedError

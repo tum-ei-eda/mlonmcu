@@ -789,6 +789,7 @@ class Autotune(PlatformFeature, RunFeature):
                 f"{platform}.autotuning_timeout": self.timeout,
                 f"{platform}.autotuning_mode": self.mode,
                 f"{platform}.autotuning_visualize": self.visualize,
+                f"{platform}.autotuning_tasks": self.tasks,
             }
         )
 

@@ -171,6 +171,8 @@ class OVPSimTarget(RISCVTarget):
             f"riscvOVPsim/cpu/add_Extensions={extensions_str}",
             "--override",
             "riscvOVPsim/cpu/unaligned=T",
+            "--override",
+            "riscvOVPsim/cpu/pk/reportExitErrors=T",
         ]
         if self.enable_pext:
             args.extend(

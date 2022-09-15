@@ -359,10 +359,14 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         elif is_ovpsim:
             content = log_artifact.content
             if self.groups:
-                encodings = re.compile(r"riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s([0-9abcdef]+)\s+\w+\s+.*").findall(content)
+                encodings = re.compile(r"riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s([0-9abcdef]+)\s+\w+\s+.*").findall(
+                    content
+                )
                 encodings = [f"0x{enc}" for enc in encodings]
             if self.sequences:
-                names = re.compile(r"riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+(\w+)\s+.*").findall(content)
+                names = re.compile(r"riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+(\w+)\s+.*").findall(
+                    content
+                )
         else:
             raise RuntimeError("Uable to determine the used target.")
 

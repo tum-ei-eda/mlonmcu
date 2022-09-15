@@ -978,7 +978,6 @@ class CacheSim(TargetFeature):
 class LogInstructions(TargetFeature):
     """Enable logging of the executed instructions of a simulator-based target."""
 
-
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
     def __init__(self, features=None, config=None):
@@ -1011,7 +1010,11 @@ class LogInstructions(TargetFeature):
             config.update({f"{target}.extra_args": extra_args_new})
 
     def get_target_callbacks(self, target):
-        assert target in ["spike", "etiss_pulpino", "ovpsim"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in [
+            "spike",
+            "etiss_pulpino",
+            "ovpsim",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
             def log_instrs_callback(stdout, metrics, artifacts):
@@ -1026,7 +1029,9 @@ class LogInstructions(TargetFeature):
                         elif target == "spike":
                             expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
                         elif target == "ovpsim":
-                            expr = re.compile(r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*")
+                            expr = re.compile(
+                                r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
+                            )
                         match = expr.match(line)
                         if match is not None:
                             instrs.append(line)
@@ -1326,6 +1331,7 @@ class TvmRpc(PlatformFeature):
                 f"{platform}.rpc_key": self.key,
             }
         )
+
 
 @register_feature("tvm_profile")
 class TvmProfile(PlatformFeature):

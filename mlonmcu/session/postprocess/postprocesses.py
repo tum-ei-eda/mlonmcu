@@ -463,11 +463,11 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         if self.sequences:
             max_len = 3
 
-            def _get_sublists(l, length):
+            def _get_sublists(lst, length):
                 ret = []
-                for i in range(len(l) - length + 1):
-                    ll = l[i : i + length]
-                    ret.append(",".join(ll))
+                for i in range(len(lst) - length + 1):
+                    lst_ = lst[i : i + length]
+                    ret.append(",".join(lst_))
                 return ret
 
             for length in range(1, max_len + 1):

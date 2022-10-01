@@ -34,7 +34,7 @@ def get_config_dir():
 def init_config_dir():
     config_dir = Path(get_config_dir())
     config_dir.mkdir(parents=True)
-    subdirs = ["environments", "models"]
+    subdirs = ["environments", "models", "plugins"]
     files = ["environments.ini"]
     for subdir in subdirs:
         environments_dir = config_dir / subdir
@@ -54,12 +54,17 @@ def get_environments_file():
     return environments_file
 
 
+def get_plugins_dir():
+    environments_dir = os.path.join(get_config_dir(), "plugins")
+    return environments_dir
+
+
 DEFAULTS = {
     "environment": "default",
     "template": "default",
 }
 
-env_subdirs = ["deps"]
+env_subdirs = ["deps", "plugins"]
 
 
 # class LogLevel(Enum):

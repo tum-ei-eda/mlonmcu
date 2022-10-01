@@ -32,11 +32,12 @@ from mlonmcu.session.run import Run
 from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 import mlonmcu.setup.utils as utils
+from mlonmcu.plugins import process_extensions
 
 from mlonmcu.environment.environment import Environment, UserEnvironment
 
 from mlonmcu.environment.list import get_environments_map
-from mlonmcu.environment.config import get_environments_dir
+from mlonmcu.environment.config import get_environments_dir, get_plugins_dir
 
 logger = get_logger()
 
@@ -317,6 +318,27 @@ class MlonMcuContext:
                             return
         logger.info("No cache found in deps directory")
 
+    def load_extensions(self):
+        """If available load the extensions.py scripts in the plugin directories"""
+        # TODO: check vars.enable_extensions before!
+        def _load(plugins_dir, hint="Unknown"):
+            if plugins_dir.is_dir():
+                extensions_file = plugins_dir / "extensions.py"
+                if extensions_file.is_file():
+                    logger.info(f"Loading extensions.py ({hint})")
+                    process_extensions(extensions_file)
+
+        # global (user)
+        plugins_dir = Path(get_plugins_dir())
+        _load(plugins_dir, hint="User")
+
+        # local (environment)
+        if self.environment:
+            if self.environment.paths:
+                if "plugins" in self.environment.paths:
+                    plugins_dir = self.environment.paths["plugins"].path
+                    _load(plugins_dir, hint="Environment")
+
     def get_session(self, label="", resume=False, config=None) -> Session:
         """Get an active session if available, else create a new one.
 
@@ -346,6 +368,7 @@ class MlonMcuContext:
             except filelock.Timeout as err:
                 raise RuntimeError("Lock on current context could not be aquired.") from err
         self.load_cache()
+        self.load_extensions()
         return self
 
     def cleanup(self):

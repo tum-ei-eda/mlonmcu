@@ -65,8 +65,9 @@ class OVPSimTarget(RISCVTarget):
         "embedded_vext": False,
         "enable_pext": False,
         "pext_spec": 0.96,
+        "bitmanip_spec": 0.94,
         "variant": "RVB32I",
-        "end_to_end_cycles": False,
+        "end_to_end_cycles": True,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
@@ -178,9 +179,9 @@ class OVPSimTarget(RISCVTarget):
             args.extend(
                 [
                     "--override",
-                    "riscvOVPsim/cpu/dsp_version=0.9.6",
+                    f"riscvOVPsim/cpu/dsp_version={self.pext_spec}",
                     "--override",
-                    "riscvOVPsim/cpu/bitmanip_version=1.0.0",
+                    f"riscvOVPsim/cpu/bitmanip_version={self.bitmanip_spec}",
                 ]
             )
         if self.enable_vext:
@@ -188,7 +189,7 @@ class OVPSimTarget(RISCVTarget):
             args.extend(
                 [
                     "--override",
-                    "riscvOVPsim/cpu/vector_version=1.0-draft-20210130",
+                    "riscvOVPsim/cpu/vector_version=1.0-draft-20210130",  # TODO: use vext_spec
                     "--override",
                     f"riscvOVPsim/cpu/VLEN={self.vlen}",
                     "--override",
@@ -235,16 +236,16 @@ class OVPSimTarget(RISCVTarget):
     def parse_stdout(self, out):
         # cpi = 1
         if self.end_to_end_cycles:
-            cpu_cycles = re.search(r"  Simulated instructions:(.*)", out)
+            cpu_cycles = re.search(r".*  Simulated instructions:(.*)", out)
         else:
-            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+            cpu_cycles = re.search(r".* Total Cycles: (.*)", out)
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")
             cycles = None
         else:
             cycles = int(cpu_cycles.group(1).replace(",", ""))
         mips = None  # TODO: parse mips?
-        mips_match = re.search(r"  Simulated MIPS:(.*)", out)
+        mips_match = re.search(r".*  Simulated MIPS:(.*)", out)
         if mips_match:
             mips_str = float(mips_match.group(1))
             if "run too short for meaningful result" not in mips:

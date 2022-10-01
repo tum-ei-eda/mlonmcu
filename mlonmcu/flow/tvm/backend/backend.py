@@ -22,7 +22,6 @@ from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
 from .model_info import get_model_info, get_supported_formats
-from .tuner import TVMTuner
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
     get_target_tvmc_args,

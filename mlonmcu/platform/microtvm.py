@@ -308,7 +308,9 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         out = self.invoke_tvmc("micro", *args)
         return parse_project_options_from_stdout(out)
 
-    def invoke_tvmc_micro(self, command, path, mlf_path, template, target, extra_args=None, micro=True, tune_args=None, prefix=""):
+    def invoke_tvmc_micro(
+        self, command, path, mlf_path, template, target, extra_args=None, micro=True, tune_args=None, prefix=""
+    ):
         args = self.get_tvmc_micro_args(command, path, mlf_path, template, tune_args=tune_args)
         options = filter_project_options(
             self.collect_available_project_options(command, path, mlf_path, template), target.get_project_options()
@@ -499,7 +501,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                                     self.get_template_args(target),
                                     target,
                                     tune_args=tune_args + ["--task", str(idx)],
-                                    prefix=f"[worker-{idx}] "
+                                    prefix=f"[worker-{idx}] ",
                                 )
                                 with open(out_file, "r") as handle:
                                     content = handle.read()

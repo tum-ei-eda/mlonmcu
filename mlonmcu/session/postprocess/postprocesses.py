@@ -454,6 +454,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                     assert combined in rvc_mapping.keys()
                     return f"{rvc_mapping[combined]} (Compressed)"
                 return major
+
             majors = list(map(_extract_major_opcode, encodings))
             major_counts, major_probs = _helper(majors, top=self.top)
             majors_csv = _gen_csv("Major", major_counts, major_probs)

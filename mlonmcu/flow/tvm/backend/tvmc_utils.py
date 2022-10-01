@@ -121,9 +121,8 @@ def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api):
         *["--runtime-crt-system-lib", str(0)],
         *["--target-c-constants-byte-alignment", str(alignment_bytes)],
         *["--target-c-workspace-byte-alignment", str(alignment_bytes)],
-        *["--target-c-executor", "aot"],
-        *["--target-c-unpacked-api", str(int(unpacked_api))],
-        *["--target-c-interface-api", "c" if unpacked_api else "packed"],
+        *["--executor-aot-unpacked-api", str(int(unpacked_api))],
+        *["--executor-aot-interface-api", "c" if unpacked_api else "packed"],
     ]
 
 

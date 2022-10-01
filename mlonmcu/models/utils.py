@@ -95,7 +95,7 @@ def lookup_data_buffers(input_paths, output_paths):
                     assert len(paths) == 1, "Legacy mode only allows a single path"
                     data_index, tensor_index = list(map(int, base.split("_")))[:2]
                 else:
-                    data_index, tensor_index = int(base), i
+                    data_index, tensor_index = int(base), 0
                 hex_data = make_hex_array(Path(path) / filename, mode=used_fmt)
                 data.append((data_index, tensor_index, hex_data))
         sorted_data = sorted(data, key=lambda x: (x[0], x[1]))

@@ -385,7 +385,7 @@ class RelayFrontend(SimpleFrontend):
                         relayviz_text = handle.read()
 
                     relayviz_artifact = Artifact(
-                        f"relayviz.txt",
+                        "relayviz.txt",
                         content=relayviz_text,
                         fmt=ArtifactFormat.TEXT,
                     )

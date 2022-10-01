@@ -140,7 +140,7 @@ def test_frontend_tflite(user_context, model_name, models_dir, feature_names, co
 @pytest.mark.parametrize("config", [{}])
 def test_feature_tflite_visualize(user_context, model_name, models_dir, feature_names, config):
     _, artifacts = _test_frontend("tflite", user_context, model_name, models_dir, feature_names, config)
-    assert len(lookup_artifacts(artifacts, name=f"tflite_visualize.html")) == 1
+    assert len(lookup_artifacts(artifacts, name="tflite_visualize.html")) == 1
 
 
 @pytest.mark.user_context

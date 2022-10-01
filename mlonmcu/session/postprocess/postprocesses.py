@@ -470,10 +470,10 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                     ret.append(",".join(ll))
                 return ret
 
-            for l in range(1, max_len + 1):
-                names_ = _get_sublists(names, l)
+            for length in range(1, max_len + 1):
+                names_ = _get_sublists(names, length)
                 counts, probs = _helper(names_, top=self.top)
                 sequence_csv = _gen_csv("Sequence", counts, probs)
-                artifact = Artifact(f"analyse_instructions_seq{l}.csv", content=sequence_csv, fmt=ArtifactFormat.TEXT)
+                artifact = Artifact(f"analyse_instructions_seq{length}.csv", content=sequence_csv, fmt=ArtifactFormat.TEXT)
                 ret_artifacts.append(artifact)
         return ret_artifacts

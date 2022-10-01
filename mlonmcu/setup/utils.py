@@ -100,7 +100,7 @@ def exec(*args, **kwargs):
     subprocess.run([i for i in args], **kwargs, check=True)
 
 
-def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exit=None, **kwargs) -> str:
+def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exit=None, prefix="", **kwargs) -> str:
     """Execute a process with the given args and using the given kwards as Popen arguments and return the output.
 
     Parameters
@@ -123,7 +123,7 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exi
         process = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         try:
             for line in process.stdout:
-                new_line = line.decode(errors="replace")
+                new_line = prefix + line.decode(errors="replace")
                 outStr = outStr + new_line
                 print(new_line.replace("\n", ""))
             exit_code = None
@@ -146,7 +146,7 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exi
             exit_code = p.poll()
             # outStr = p.stdout.decode(errors="replace")
             if print_output:
-                logger.debug(outStr)
+                logger.debug(prefix + outStr)
             if handle_exit is not None:
                 exit_code = handle_exit(exit_code)
             if exit_code != 0:

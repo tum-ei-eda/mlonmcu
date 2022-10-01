@@ -480,7 +480,7 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 {
                     "target_device": "riscv_cpu",
                     "target_march": self.arch,
-                    "target_model": f"spike-rv{self.xlen}",
+                    "target_model": f"spike-{self.arch}",
                     "target_mtriple": self.riscv_gcc_name,
                     "target_mabi": self.config.get("abi", None),
                 }

@@ -1,0 +1,20 @@
+commit 1ac774cd01c6be140f728696c48c3c2466157158
+Author: Philipp van Kempen <philipp.van-kempen@tum.de>
+Date:   Mon Aug 8 16:22:38 2022 +0200
+
+    esp32c3 related fix: missing _zicsr support
+
+diff --git a/tools/cmake/toolchain-esp32c3.cmake b/tools/cmake/toolchain-esp32c3.cmake
+index 012d93d07..4fac9cefa 100644
+--- a/tools/cmake/toolchain-esp32c3.cmake
++++ b/tools/cmake/toolchain-esp32c3.cmake
+@@ -5,6 +5,6 @@ set(CMAKE_SYSTEM_NAME Generic)
+ # set(CMAKE_CXX_COMPILER riscv32-esp-elf-g++)
+ # set(CMAKE_ASM_COMPILER riscv32-esp-elf-gcc)
+ 
+-set(CMAKE_C_FLAGS "-march=rv32imc" CACHE STRING "C Compiler Base Flags")
+-set(CMAKE_CXX_FLAGS "-march=rv32imc" CACHE STRING "C++ Compiler Base Flags")
+-set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -march=rv32imc --specs=nosys.specs" CACHE STRING "Linker Base Flags")
++set(CMAKE_C_FLAGS "-march=rv32imc_zicsr" CACHE STRING "C Compiler Base Flags")
++set(CMAKE_CXX_FLAGS "-march=rv32imc_zicsr" CACHE STRING "C++ Compiler Base Flags")
++set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -march=rv32imc_zicsr --specs=nosys.specs" CACHE STRING "Linker Base Flags")

@@ -31,13 +31,10 @@ paths:
 repos:
   tensorflow:
     url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: f868a900f1f788fd0a55b5655b47fc352f9a0239
-  tflite_micro_compiler:
-    url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
-    ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
+    ref: f050eec7e32a0895f7658db21a4bdbd0975087a5
   tvm:
     url: "https://github.com/apache/tvm.git"
-    ref: 76b9ce9b1f7d2b7e64b4b9c9d456a02b8a010473
+    ref: de6d8067754d746d88262c530b5241b5577b9aae
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
@@ -46,31 +43,31 @@ repos:
     ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
-    ref: 04bda19e1d2a829d35394c630878d578eac27b0b
+    ref: c023b80a51c1b48ec62b9b092d047e9ac0bab3e8
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: 78716e7f8e9ee0be0b15d41815d75b35fa2ecaa5
+    ref: 4d2d26fb1fdb17e1da3a397c35d6f8877bf3ceab
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
-    ref: caf5a420ef7414031368739e16d60f3f418aa6ac
+    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
   spikepk:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
-    ref: 2efabd3e6604b8a9e8f70baf52f57696680c7855
+    ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
   cmsis:
     url: "https://github.com/PhilippvK/CMSIS_5.git"
-    ref: 21c549c7fdd4f92fb5a16e98212fb9b4df2ab672
+    ref: ad1c3cad8f1240ef14a2c55381a78d792d76ec4d
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 3f8e66b956fe1cf0d85a18d39d684816e92e2751
+    ref: 6e1ff47ecea0e56911c6c5a04fc53b30c9ea51a1
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
   microtvm_etissvp:
     url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
-    ref: 41e591ea5479484154598fa74e3d7097ded3da86
+    ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
   zephyr:
     url: "https://github.com/zephyrproject-rtos/zephyr.git"
-    ref: v3.1.0
+    ref: v3.2.0
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -80,8 +77,6 @@ frameworks:
     enabled: true
     backends:
       default: tflmi
-      tflmc:
-        enabled: false
       tflmi:
         enabled: true
         features:
@@ -97,40 +92,37 @@ frameworks:
         enabled: true
         features:
           debug_arena: true
-          disable_legalize: true
-          autotune: true
+          disable_legalize: false
           autotuned: true
+          moiopt: true
       tvmaot:
         enabled: true
         features:
           debug_arena: true
           unpacked_api: true
           usmp: true
-          disable_legalize: true
-          autotune: true
+          disable_legalize: false
           autotuned: true
+          moiopt: true
       tvmaotplus:
         enabled: true
         features:
           debug_arena: true
-          unpacked_api: true
-          usmp: true
-          disable_legalize: true
-          autotune: true
+          disable_legalize: false
           autotuned: true
+          moiopt: true
       tvmllvm:
         enabled: false
         features:
           # unpacked_api: true
-          disable_legalize: true
-          autotune: true
+          disable_legalize: false
           autotuned: true
+          moiopt: true
       tvmcg:
         enabled: true
         features:
           debug_arena: true
-          disable_legalize: true
-          autotune: true
+          disable_legalize: false
           autotuned: true
     features:
       cmsisnnbyoc: true
@@ -144,7 +136,7 @@ frontends:
       validate: true
       visualize: true
   relay:
-    enabled: false
+    enabled: true
     features:
       relayviz: true
   packed:
@@ -153,7 +145,11 @@ frontends:
       packing: true
       packed: true
   onnx:
-    enabled: false
+    enabled: true
+  pb:
+    enabled: true
+  paddle:
+    enabled: true
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
 # Some targets/platforms support multiple toolchains
 toolchains:
@@ -166,8 +162,9 @@ platforms:
     features:
       debug: true
       validate: true
+      benchmark: true
   espidf:
-    enabled: true
+    enabled: false
     features:
       debug: true
   zephyr:
@@ -175,12 +172,14 @@ platforms:
     features:
       debug: true
   tvm:
-    enabled: false
-    features: []
-      # rpc: true
-      # validate: true
+    enabled: true
+    features:
+      benchmark: true
+      tvm_rpc: true
+      autotune: true
+      tvm_profile: true
   microtvm:
-    enabled: false
+    enabled: true
     features: []
       # validate: true
 # List of supported targets in the environment
@@ -211,16 +210,31 @@ targets:
     features:
       vext: true
       pext: true
+      log_instrs: true
   corstone300:
     enabled: true
     features:
       ethosu: false
-      arm_mvei: false
-      arm_dsp: false
+      arm_mvei: true
+      arm_dsp: true
+  riscv_qemu:
+    enabled: true
+    features:
+      vext: true
+  microtvm_host:
+    enabled: true
+  microtvm_spike:
+    enabled: true
+  microtvm_zephyr:
+    enabled: false
+  microtvm_arduino:
+    enabled: false
   microtvm_etissvp:
     enabled: true
   microtvm_espidf:
     enabled: false
+  tvm_cpu:
+    enabled: true
 postprocesses:
   use:
   # - detailed_cycles
@@ -234,8 +248,7 @@ postprocesses:
 vars:
   allow_extensions: false
   # tvm.make_tool: "ninja"
-  llvm.version: "11.1.0"
-  llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
+  llvm.version: "14.0.0"
   runs_per_stage: true
   riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
   riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv32gcv_new.tar.gz"

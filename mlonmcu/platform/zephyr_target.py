@@ -29,7 +29,6 @@ logger = get_logger()
 
 def create_zephyr_platform_target(name, platform, base=Target):
     class ZephyrPlatformTarget(base):
-
         FEATURES = base.FEATURES + []
 
         DEFAULTS = {

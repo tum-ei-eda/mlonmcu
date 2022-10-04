@@ -33,7 +33,6 @@ def name2device(name):
 
 def create_tvm_platform_target(name, platform, base=Target):
     class TvmPlatformTarget(base):
-
         FEATURES = base.FEATURES + []
 
         DEFAULTS = {

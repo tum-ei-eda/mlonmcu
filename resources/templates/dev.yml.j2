@@ -17,6 +17,8 @@ paths:
   logs: logs
   # Location where reports and artifacts are written to
   results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
   # Directory for intermediate build products, should be located on a large enough drive
   temp: temp
   # A collection of models which will be used to look for models
@@ -200,6 +202,7 @@ postprocesses:
   # - visualize
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
+  allow_extensions: false
   # tvm.make_tool: "ninja"
   llvm.version: "11.1.0"
   runs_per_stage: true

@@ -185,6 +185,7 @@ def get_backend_config(backend, features, enable_autotuned=False):
 
 DEFAULT_CONFIG = {
     "mlif.num_threads": 4,
+    "mlif.optimize": "s",
 }
 
 BACKEND_DEFAULT_CONFIG = {
@@ -192,9 +193,9 @@ BACKEND_DEFAULT_CONFIG = {
     "tvmaot": {"usmp.algorithm": "hill_climb"},
 }
 
-VLENS = [64, 128, 256, 512, 1024]
+VLENS = [64, 128, 256, 512, 1024, 2048]
 
-DEFAULT_VLENS = [64, 128, 256, 512, 1024]
+DEFAULT_VLENS = [64, 128, 256, 512, 1024, 2048]
 
 MODELS = [
     # "sine_model",
@@ -227,6 +228,8 @@ POSTPROCESS_CONFIG = {
         "Runtime [s]",
         "Total ROM",
         "Total RAM",
+        "ROM read-only",
+        "ROM code",
         # "ROM read-only",
         # "ROM code",
         # "ROM misc",

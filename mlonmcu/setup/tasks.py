@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import pkg_resources
 import venv
 import multiprocessing
 from pathlib import Path
@@ -226,8 +227,10 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     if params:
         vext = params.get("vext", False)
         pext = params.get("pext", False)
+        user_vars = context.environment.vars
+        multilib = user_vars.get("riscv_gcc.multilib", False)
         if vext and pext:
-            return False  # TODO: allow as soon as there is a compiler for this
+            return multilib
         elif vext:
             if not context.environment.has_feature("vext"):
                 return False
@@ -237,7 +240,7 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     return True
 
 
-@Tasks.provides(["riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.provides(["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"])
 @Tasks.param("vext", [False, True])
 @Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_riscv_gcc)
@@ -248,18 +251,25 @@ def install_riscv_gcc(
     """Download and install the RISCV GCC toolchain."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
-    riscvName = utils.makeDirName("riscv_gcc", flags=flags)
-    riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     user_vars = context.environment.vars
     vext = params["vext"]
     pext = params["pext"]
-    assert not (vext and pext)  # Combination of both extensions is currently not supported
+    multilib = user_vars.get("riscv_gcc.multilib", False)
+    variant = user_vars.get("riscv_gcc.variant", "unknown")
+    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
+    # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
+    if multilib:
+        riscvName = utils.makeDirName("riscv_gcc", flags=[])
+    else:
+        riscvName = utils.makeDirName("riscv_gcc", flags=flags)
+    riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     if (not vext) and (not pext) and "riscv_gcc.install_dir_default" in user_vars:
         riscvInstallDir = user_vars["riscv_gcc.install_dir_default"]
     if vext and "riscv_gcc.install_dir_vext" in user_vars:
+        assert not multilib, "Multilib toolchain does only support riscv_gcc.install_dir"
         riscvInstallDir = user_vars["riscv_gcc.install_dir_vext"]
     elif pext and "riscv_gcc.install_dir_pext" in user_vars:
+        assert not multilib, "Multilib toolchain does only support riscv_gcc.install_dir"
         riscvInstallDir = user_vars["riscv_gcc.install_dir_pext"]
     elif "riscv_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
@@ -273,8 +283,10 @@ def install_riscv_gcc(
             return riscvUrl, riscvFileName, riscvFileExtension
 
         if vext and "riscv_gcc.dl_url_vext" in user_vars:
+            assert not multilib, "Multilib toolchain does only support riscv_gcc.dl_url"
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url_vext"])
         elif pext and "riscv_gcc.dl_url_pext" in user_vars:
+            assert not multilib, "Multilib toolchain does only support riscv_gcc.dl_url"
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url_pext"])
         elif "riscv_gcc.dl_url" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc.dl_url"])
@@ -300,15 +312,19 @@ def install_riscv_gcc(
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(riscvInstallDir):
             utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir)
-    gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
-    gccName = None
-    for name in gccNames:
-        if (Path(riscvInstallDir) / name).is_dir():
-            gccName = name
-            break
-    assert gccName is not None, "Toolchain name could not be dtemined automatically"
+    if "riscv_gcc.name" in user_vars:
+        gccName = user_vars["riscv_gcc.name"]
+    else:
+        gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
+        gccName = None
+        for name in gccNames:
+            if (Path(riscvInstallDir) / name).is_dir():
+                gccName = name
+                break
+    assert gccName is not None, "Toolchain name could not be determined automatically"
     context.cache["riscv_gcc.install_dir", flags] = riscvInstallDir
     context.cache["riscv_gcc.name", flags] = gccName
+    context.cache["riscv_gcc.variant", flags] = variant
 
 
 ########
@@ -757,7 +773,7 @@ def build_muriscvnn(
         )
         utils.make(cwd=muriscvnnBuildDir, threads=threads, live=verbose)
         utils.mkdirs(muriscvnnInstallDir)
-        utils.move(muriscvnnBuildDir / "Source" / "libmuriscv_nn.a", muriscvnnLib)
+        utils.move(muriscvnnBuildDir / "Source" / "libmuriscvnn.a", muriscvnnLib)
     context.cache["muriscvnn.build_dir", flags] = muriscvnnBuildDir
     context.cache["muriscvnn.lib", flags] = muriscvnnLib
 
@@ -803,8 +819,6 @@ def clone_spike_pk(
 
 @Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
 @Tasks.provides(["spikepk.build_dir", "spike.pk"])
-@Tasks.param("vext", [False, True])
-@Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike_pk(
@@ -816,8 +830,7 @@ def build_spike_pk(
     user_vars = context.environment.vars
     if "spike.pk" in user_vars:  # TODO: also check command line flags?
         return False
-    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
-    spikepkName = utils.makeDirName("spikepk", flags=flags)
+    spikepkName = utils.makeDirName("spikepk")
     spikepkSrcDir = context.cache["spikepk.src_dir"]
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
@@ -826,7 +839,7 @@ def build_spike_pk(
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikepkBuildDir)
         gccName = context.cache["riscv_gcc.name"]
-        assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
+        # assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
         vext = params.get("vext", False)
         pext = params.get("pext", False)
         assert not (pext and vext), "Currently only p or vector extension can be enabled at a time."
@@ -837,12 +850,8 @@ def build_spike_pk(
         elif "riscv_gcc.install_dir" in user_vars:
             riscv_gcc = user_vars["riscv_gcc.install_dir"]
         else:
-            riscv_gcc = context.cache["riscv_gcc.install_dir", flags]
-        arch = "rv32gc"
-        if pext:
-            arch += "p"
-        if vext:
-            arch += "v"
+            riscv_gcc = context.cache["riscv_gcc.install_dir"]
+        arch = "rv32imafdc"
         spikepkArgs = []
         spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
@@ -862,8 +871,8 @@ def build_spike_pk(
         # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
         utils.mkdirs(spikepkInstallDir)
         utils.move(spikepkBuildDir / "pk", spikepkBin)
-    context.cache["spikepk.build_dir", flags] = spikepkBuildDir
-    context.cache["spike.pk", flags] = spikepkBin
+    context.cache["spikepk.build_dir"] = spikepkBuildDir
+    context.cache["spike.pk"] = spikepkBin
 
 
 @Tasks.provides(["spike.src_dir"])
@@ -914,7 +923,8 @@ def build_spike(
             str(spikeSrcDir / "configure"),
             *spikeArgs,
             cwd=spikeBuildDir,
-            live=verbose,
+            live=False,
+            print_output=False,
         )
         utils.make(cwd=spikeBuildDir, threads=threads, live=verbose)
         # utils.make(target="install", cwd=spikeBuildDir, threads=threads, live=verbose)
@@ -967,7 +977,7 @@ def clone_cmsis(
 @Tasks.provides(["cmsisnn.lib"])
 @Tasks.param("dbg", [False, True])
 # @Tasks.param("target_arch", ["x86", "riscv", "arm"])
-@Tasks.param("target_arch", ["x86", "riscv"])  # Arm currently broken
+@Tasks.param("target_arch", ["x86"])  # Arm/riscv currently broken
 @Tasks.param("mvei", [False, True])
 @Tasks.param("dsp", [False, True])
 @Tasks.validate(_validate_cmsisnn)
@@ -1277,12 +1287,10 @@ def install_zephyr(
         if not utils.is_populated(zephyrVenvDir):
             venv.create(zephyrVenvDir)
         utils.exec_getout(f". {zephyrVenvScript} && pip install west", shell=True, print_output=False, live=verbose)
-        zephyrUrl = "https://github.com/zephyrproject-rtos/zephyr"
+        zephyrRepo = context.environment.repos["zephyr"]
+        zephyrUrl = zephyrRepo.url
         if not utils.is_populated(zephyrInstallDir / "zephyr"):
-            if "zephyr.version" in user_vars:
-                zephyrVersion = user_vars["zephyr.version"]
-            else:
-                zephyrVersion = "v3.1.0"
+            zephyrVersion = zephyrRepo.ref
             utils.exec_getout(
                 f". {zephyrVenvScript} && west init -m {zephyrUrl} --mr {zephyrVersion} {zephyrInstallDir}",
                 shell=True,
@@ -1308,6 +1316,15 @@ def install_zephyr(
         sdkScript = zephyrSdkDir / "setup.sh"
         # TODO: allow to limit installed toolchains
         utils.exec_getout(sdkScript, "-t", "all", "-h", print_output=False, live=verbose)
+        # Apply patch to fix esp32c3 support
+        patchFile = Path(
+            pkg_resources.resource_filename(
+                "mlonmcu", os.path.join("..", "resources", "patches", "zephyr", "fix_esp32c3_march.patch")
+            )
+        )
+        if patchFile.is_file():
+            xtensaDir = zephyrInstallDir / "modules" / "hal" / "xtensa"
+            utils.patch(patchFile, cwd=xtensaDir)
     context.cache["zephyr.install_dir"] = zephyrInstallDir
     context.cache["zephyr.sdk_dir"] = zephyrSdkDir
     context.cache["zephyr.venv_dir"] = zephyrVenvDir

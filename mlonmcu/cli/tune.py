@@ -39,10 +39,10 @@ def get_parser(subparsers, parent=None):
 
 def handle(args, ctx=None):
     if ctx:
-        handle_build(args, ctx)
+        handle_build(args, ctx, require_target=True)
     else:
         # args.features.append("autotune")  # TODO: enable autotuning automatically?
         # args.features.append("autotuned")  # ?
         with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
-            handle_build(args, context)
+            handle_build(args, context, require_target=True)
             kickoff_runs(args, RunStage.TUNE, context)

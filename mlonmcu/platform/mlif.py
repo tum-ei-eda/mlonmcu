@@ -24,8 +24,9 @@ from pathlib import Path
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
-from mlonmcu.target import SUPPORTED_TARGETS
+from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
+from mlonmcu.models.utils import get_data_source
 
 from .platform import CompilePlatform, TargetPlatform
 from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
@@ -63,6 +64,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "toolchain": "gcc",
         "prebuild_lib_path": None,
         "optimize": None,  # values: 0,1,2,3,s
+        "input_data_path": None,
+        "output_data_path": None,
     }
 
     REQUIRED = ["mlif.src_dir"]
@@ -77,6 +80,39 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         self.tempdir = None
         self.build_dir = None
         self.goal = "generic_mlif"
+
+    def gen_data_artifact(self):
+        in_paths = self.input_data_path
+        if not isinstance(in_paths, list):
+            in_paths = [in_paths]
+        in_paths_new = []
+        for in_path in in_paths:
+            if in_path.is_file():
+                raise NotImplementedError
+            elif in_path.is_dir():
+                in_paths_new.extend([f for f in Path(in_path).iterdir() if f.is_file()])
+            else:
+                logger.warning("TODO")
+                return None
+        in_paths = in_paths_new
+        out_paths = self.output_data_path
+        if not isinstance(out_paths, list):
+            out_paths = [out_paths]
+        out_paths_new = []
+        for out_path in out_paths:
+            if out_path.is_file():
+                raise NotImplementedError
+            elif out_path.is_dir():
+                out_paths_new.extend([f for f in Path(out_path).iterdir() if f.is_file()])
+            else:
+                logger.warning("TODO")
+                return None
+        out_paths = out_paths_new
+        if len(in_paths) == 0 or len(out_paths) == 0:
+            logger.warning("TODO")
+            return None
+        data_src = get_data_source(in_paths, out_paths)
+        return Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
 
     def init_directory(self, path=None, context=None):
         if self.build_dir is not None:
@@ -106,8 +142,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid MLIF target"
-        if name in SUPPORTED_TARGETS:
-            base = SUPPORTED_TARGETS[name]
+        targets = get_targets()
+        if name in targets:
+            base = targets[name]
         else:
             base = Target
         return create_mlif_platform_target(name, self, base=base)
@@ -148,6 +185,14 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def optimize(self):
         return self.config["optimize"]
 
+    @property
+    def input_data_path(self):
+        return self.config["input_data_path"]
+
+    @property
+    def output_data_path(self):
+        return self.config["output_data_path"]
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -170,7 +215,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def prepare(self):
         self.init_directory()
 
-    def configure(self, target, src, _model, data_file=None):
+    def configure(self, target, src, _model):
         del target
         if not isinstance(src, Path):
             src = Path(src)
@@ -184,19 +229,21 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
         else:
             pass
-            # args.append(f"-DMODEL_DIR={?}")
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():
             cmakeArgs.append("-DSRC_DIR=" + str(src))
         else:
             raise RuntimeError("Unable to find sources!")
-        # data_file = self.prepare(model, ignore_data=(not debug or self.ignore_data))
         if self.ignore_data:
             cmakeArgs.append("-DDATA_SRC=")
+            artifacts = []
         else:
-            assert data_file is not None, "No data.c file was supplied"
+            data_artifact = self.gen_data_artifact()
+            data_file = self.build_dir / data_artifact.name
+            data_artifact.export(data_file)
             cmakeArgs.append("-DDATA_SRC=" + str(data_file))
+            artifacts = [data_artifact]
         utils.mkdirs(self.build_dir)
         out = utils.cmake(
             self.mlif_dir,
@@ -205,29 +252,29 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             debug=self.debug,
             live=self.print_outputs,
         )
-        return out
+        return out, artifacts
 
     def compile(self, target, src=None, model=None, data_file=None):
         out = ""
         if src:
-            out += self.configure(target, src, model, data_file=data_file)
+            configure_out, artifacts = self.configure(target, src, model)
+            out += configure_out
         out += utils.make(
             self.goal,
             cwd=self.build_dir,
             threads=self.num_threads,
             live=self.print_outputs,
         )
-        return out
+        return out, artifacts
 
-    def generate_elf(self, src, target, model=None, data_file=None):
-        artifacts = []
-        out = self.compile(target, src=src, model=model, data_file=data_file)
+    def generate_elf(self, src, target, model=None):
+        out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
             data = handle.read()
             artifact = Artifact("generic_mlif", raw=data, fmt=ArtifactFormat.RAW)
-            artifacts.append(artifact)
+            artifacts.insert(0, artifact)  # First artifact should be the ELF
         metrics = self.get_metrics(elf_file)
         content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
         metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)

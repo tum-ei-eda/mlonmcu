@@ -16,11 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import multiprocessing
+
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
-from .model_info import get_model_info
-from .tuner import TVMTuner
+from .model_info import get_model_info, get_supported_formats
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
     get_target_tvmc_args,
@@ -33,12 +34,11 @@ from .tvmc_utils import (
 
 
 class TVMBackend(Backend):
-
     registry = {}
 
     name = None
 
-    FEATURES = ["autotune", "autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt"]
+    FEATURES = ["autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt"]
 
     DEFAULTS = {
         "print_outputs": False,
@@ -61,7 +61,7 @@ class TVMBackend(Backend):
         "use_tlcpack": False,
         # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py
         "tophub_url": None,
-        **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
+        "num_threads": multiprocessing.cpu_count(),
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -72,7 +72,7 @@ class TVMBackend(Backend):
         self.model = None  # Actual filename!
         self.model_info = None
         self.input_shapes = None
-        self.supported_formats = [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB]
+        self.supported_formats = get_supported_formats()
         self.target = target
         self.runtime = runtime
         self.executor = executor
@@ -82,35 +82,20 @@ class TVMBackend(Backend):
         self.artifacts = (
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
-        # TODO: decide if artifacts should be handled by code (str) or file path or binary data
-        tuner_config = {  # This would be more compact with a helper function but for now its fine...
-            "enable": self.config["autotuning_enable"],
-            "results_file": self.config["autotuning_results_file"],
-            "append": self.config["autotuning_append"],
-            "tuner": self.config["autotuning_tuner"],
-            "trials": self.config["autotuning_trials"],
-            "early_stopping": self.config["autotuning_early_stopping"],
-            "num_workers": self.config["autotuning_num_workers"],
-            "max_parallel": self.config["autotuning_max_parallel"],
-            "use_rpc": self.config["autotuning_use_rpc"],
-            "timeout": self.config["autotuning_timeout"],
-            "print_outputs": self.config["print_outputs"],
-        }
-        self.tuner = TVMTuner(self, config=tuner_config)
         self._tuning_records = None
 
     @property
     def tuning_records(self):
         if self._tuning_records:
-            return self.tuning_records
-        elif "autotuning_results_file" in self.config:
+            return self._tuning_records
+        elif "autotuning_results_file" in self.config and self.config["autotuning_results_file"]:
             return self.config["autotuning_results_file"]
         else:
             return None
 
     @tuning_records.setter
     def tuning_records(self, filepath):
-        self.tuning_records_file = filepath
+        self._tuning_records = filepath
 
     @property
     def pass_config(self):
@@ -210,6 +195,9 @@ class TVMBackend(Backend):
         value = self.config["use_tlcpack"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    def num_threads(self):
+        return self.config["num_threads"]
+
     def get_target_details(self):
         ret = {}
         if self.target_device:
@@ -262,7 +250,11 @@ class TVMBackend(Backend):
 
     def invoke_tvmc(self, command, *args, cwd=None):
         env = prepare_python_environment(
-            self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir, tophub_url=self.tophub_url
+            self.tvm_pythonpath,
+            self.tvm_build_dir,
+            self.tvm_configs_dir,
+            tophub_url=self.tophub_url,
+            num_threads=self.num_threads,
         )
         if self.use_tlcpack:
             pre = ["tvmc"]
@@ -284,5 +276,5 @@ class TVMBackend(Backend):
         self.model = model
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
-        self.model_format, self.model_info = get_model_info(model, fmt, backend_name=self.name)
+        self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
         self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

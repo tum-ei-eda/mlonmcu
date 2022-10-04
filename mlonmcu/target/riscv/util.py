@@ -68,3 +68,58 @@ def sort_extensions_canonical(extensions, lower=False, unpack=False):
     if lower:
         extensions_new = [x.lower() for x in extensions_new]
     return extensions_new
+
+
+def join_extensions(exts):
+    sep = ""
+    ret = ""
+    for ext in exts:
+        length = len(ext)
+        if sep == "_":
+            assert length > 1, "default extensions should come before any custom or sub-extensions"
+        if length > 1:
+            sep = "_"
+        if ret != "":
+            ret += sep
+        ret += ext
+    return ret
+
+
+def update_extensions(exts, pext=None, pext_spec=None, vext=None, elen=None, embedded=None, fpu=None, variant=None):
+    ret = exts.copy()
+    require = []
+    if pext and "p" not in ret:
+        require.append("p")
+        if variant == "xuantie":
+            require.append("zpn")
+            require.append("zpsfoperand")
+            if pext_spec and pext_spec > 0.96:
+                require.append("zbpbo")
+    if vext:
+        if elen == 32:  # Required to tell the compiler that EEW=64 is not allowed...
+            if embedded:
+                if fpu in ["double", "single"]:
+                    require.append("zve32f")
+                else:
+                    require.append("zve32x")
+            else:
+                assert fpu == "double"
+                require.append("v")
+        elif elen == 64:
+            if embedded:
+                if fpu == "double":
+                    require.append("zve64d")
+                elif fpu == "single":
+                    require.append("zve64f")
+                else:
+                    require.append("zve64x")
+            else:
+                assert fpu == "double"
+                require.append("v")
+        else:
+            raise RuntimeError(f"Unsupported ELEN: {elen}")
+
+    for ext in require:
+        if ext not in ret:
+            ret.append(ext)
+    return ret

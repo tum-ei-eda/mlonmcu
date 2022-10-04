@@ -25,7 +25,6 @@ from mlonmcu.target import EtissPulpinoTarget, HostX86Target
 
 
 class CustomTarget(Target):
-
     FEATURES = ["featureA"]
 
     def __init__(

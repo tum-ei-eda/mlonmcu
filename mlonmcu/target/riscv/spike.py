@@ -28,8 +28,22 @@ from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
+from .util import update_extensions
 
 logger = get_logger()
+
+MAX_P_SPEC = 0.92
+
+
+def filter_unsupported(arch):
+    return (
+        arch.replace("_zve32x", "v")
+        .replace("_zve32f", "v")
+        .replace("_zpsfoperand", "")
+        .replace("_zpn", "")
+        .replace("_zbpbo", "")
+        # .replace("p", "pb")
+    )
 
 
 class SpikeTarget(RISCVTarget):
@@ -40,7 +54,10 @@ class SpikeTarget(RISCVTarget):
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "enable_vext": False,
+        "vext_spec": 1.0,
+        "embedded_vext": False,
         "enable_pext": False,
+        "pext_spec": 0.92,  # ?
         "vlen": 0,  # vectorization=off
         "elen": 32,
         "spikepk_extra_args": [],
@@ -71,19 +88,18 @@ class SpikeTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        ret = super().extensions
-        if self.enable_pext and "p" not in ret:
-            ret.append("p")
-        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
-            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
-                # if self.enable_fpu:
-                if True:
-                    ret.append("zve32x")
-                else:
-                    ret.append("zve32f")
-            else:
-                ret.append("v")
-        return ret
+        exts = super().extensions
+        assert self.pext_spec <= MAX_P_SPEC, f"P-Extension spec {self.pext_spec} not supported by {self.name} target"
+        return update_extensions(
+            exts,
+            pext=self.enable_pext,
+            pext_spec=self.pext_spec,
+            vext=self.enable_vext,
+            elen=self.elen,
+            embedded=self.embedded_vext,
+            fpu=self.fpu,
+            variant=self.gcc_variant,
+        )
 
     @property
     def attr(self):
@@ -109,22 +125,43 @@ class SpikeTarget(RISCVTarget):
         value = self.config["end_to_end_cycles"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def vext_spec(self):
+        return float(self.config["vext_spec"])
+
+    @property
+    def embedded_vext(self):
+        value = self.config["embedded_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def pext_spec(self):
+        return float(self.config["pext_spec"])
+
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         spike_args = []
         spikepk_args = []
 
-        arch_after = self.arch.replace("zve32x", "v").replace("zve32f", "v")
+        arch_after = filter_unsupported(self.arch)
         spike_args.append(f"--isa={arch_after}")
 
         if len(self.extra_args) > 0:
-            spike_args.extend(self.extra_args)
+            if isinstance(self.extra_args, str):
+                args = self.extra_args.split(" ")
+            else:
+                args = self.extra_args
+            spike_args.extend(args)
 
         if self.end_to_end_cycles:
             spikepk_args.append("-s")
 
         if len(self.spikepk_extra_args) > 0:
-            spikepk_args.extend(self.spikepk_extra_args.split(" "))
+            if isinstance(self.spikepk_extra_args, str):
+                args = self.spikepk_extra_args.split(" ")
+            else:
+                args = self.spikepk_extra_args
+            spikepk_args.extend(args)
 
         if self.enable_vext:
             assert self.vlen > 0
@@ -159,13 +196,13 @@ class SpikeTarget(RISCVTarget):
         # mips = None  # TODO: parse mips?
         return cycles
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
         if self.print_outputs:
-            out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
         else:
             out += self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
         cycles = self.parse_stdout(out)
 
@@ -177,11 +214,13 @@ class SpikeTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.enable_pext:
-            ret["RISCV_RVP_MAJOR"] = "0"
-            ret["RISCV_RVP_MINOR"] = "96"
+            major, minor = str(self.pext_spec).split(".")[:2]
+            ret["RISCV_RVP_MAJOR"] = major
+            ret["RISCV_RVP_MINOR"] = minor
         if self.enable_vext:
-            ret["RISCV_RVV_MAJOR"] = "1"
-            ret["RISCV_RVV_MINOR"] = "0"
+            major, minor = str(self.vext_spec).split(".")[:2]
+            ret["RISCV_RVV_MAJOR"] = major
+            ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 

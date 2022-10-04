@@ -90,7 +90,6 @@ def list_models(directory, depth=1, formats=None, config=None):  # TODO: get con
                     main_model = submodels[0]
 
                 if main_model:
-
                     submodels.remove(main_model)
 
                     main_base = main_model.split("/")[-1]

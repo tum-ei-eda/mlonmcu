@@ -16,21 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
+"""Utilities for MLonMCUs extension mechanism."""
+import importlib
 
 
-def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir, tophub_url=None, num_threads=None):
-    env = os.environ.copy()
-    if pythonpath:
-        env["PYTHONPATH"] = str(pythonpath)
-    if tvm_build_dir:
-        env["TVM_LIBRARY_PATH"] = str(tvm_build_dir)
-    if tvm_configs_dir:
-        env["TVM_CONFIGS_JSON_DIR"] = str(tvm_configs_dir)
-    if tophub_url:
-        env["TOPHUB_LOCATION"] = tophub_url
-    if num_threads:
-        env["TVM_NUM_THREADS"] = str(num_threads)
-    # Use all cores/threads for building models and let OS scheduler decide on the mapping
-    env["TVM_BIND_THREADS"] = str(0)
-    return env
+def process_extensions(file):
+    spec = importlib.util.spec_from_file_location("plugins.extensions", file)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)

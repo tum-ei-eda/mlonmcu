@@ -26,6 +26,7 @@ from mlonmcu.config import str2bool
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
+from .util import update_extensions
 
 logger = get_logger()
 
@@ -39,9 +40,11 @@ class RiscvQemuTarget(RISCVTarget):
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
-        "vlen": 32,  # TODO: check allowed range [128, 1024]
+        "vlen": 0,  # TODO: check allowed range [128, 1024]
         "elen": 32,
         "enable_vext": False,
+        "vext_spec": 1.0,
+        "embedded_vext": False,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["riscv32_qemu.exe"]  # TODO: 64 bit?
 
@@ -54,17 +57,8 @@ class RiscvQemuTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        ret = super().extensions
-        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
-            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
-                # if not self.enable_fpu:
-                if True:
-                    ret.append("zve32x")
-                else:
-                    ret.append("zve32f")
-            else:
-                ret.append("v")
-        return ret
+        exts = super().extensions
+        return update_extensions(exts, vext=self.enable_vext, elen=self.elen, embedded=self.embedded_vext, fpu=self.fpu)
 
     @property
     def attr(self):
@@ -84,6 +78,15 @@ class RiscvQemuTarget(RISCVTarget):
     @property
     def enable_vext(self):
         value = self.config["enable_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def vext_spec(self):
+        return float(self.config["vext_spec"])
+
+    @property
+    def embedded_vext(self):
+        value = self.config["embedded_vext"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_cpu_str(self):
@@ -130,14 +133,14 @@ class RiscvQemuTarget(RISCVTarget):
             cycles = int(float(cpu_cycles.group(1)))
         return cycles
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
 
         if self.print_outputs:
-            out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
         else:
             out += self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
         total_cycles = self.parse_stdout(out, handle_exit=handle_exit)
 
@@ -150,11 +153,11 @@ class RiscvQemuTarget(RISCVTarget):
         return self.name
 
     def get_platform_defs(self, platform):
-        assert platform == "mlif"
         ret = super().get_platform_defs(platform)
         if self.enable_vext:
-            ret["RISCV_RVV_MAJOR"] = "1"
-            ret["RISCV_RVV_MINOR"] = "0"
+            major, minor = str(self.vext_spec).split(".")[:2]
+            ret["RISCV_RVV_MAJOR"] = major
+            ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 

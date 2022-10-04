@@ -362,6 +362,7 @@ class DefaultEnvironment(Environment):
             "deps": PathConfig("./deps"),
             "logs": PathConfig("./logs"),
             "results": PathConfig("./results"),
+            "plugins": PathConfig("./plugins"),
             "temp": PathConfig("out"),
             "models": [
                 PathConfig("./models"),

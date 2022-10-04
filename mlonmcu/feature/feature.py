@@ -152,14 +152,16 @@ class TargetFeature(FeatureBase):
         # TODO: cfg passed to method instead of contructor or self.config = config
         config.update(self.get_target_config(target))
 
-    def get_target_callback(self, target):
-        return None
+    def get_target_callbacks(self, target):
+        return None, None
 
-    def add_target_callback(self, target, callbacks):
+    def add_target_callbacks(self, target, pre_callbacks, post_callbacks):
         # TODO: cfg passed to method instead of contructor or self.config = config
-        callback = self.get_target_callback(target)
-        if callback is not None:
-            callbacks.append(callback)
+        pre_callback, post_callback = self.get_target_callbacks(target)
+        if pre_callback is not None and pre_callbacks is not None:
+            pre_callbacks.append(pre_callback)
+        if post_callback is not None and post_callbacks is not None:
+            post_callbacks.append(post_callback)
 
 
 class PlatformFeature(FeatureBase):

@@ -96,6 +96,7 @@ class DebugArena(BackendFeature):
     def get_backend_config(self, backend):
         assert backend in [
             "tvmaot",
+            "tvmaotplus",
             "tvmrt",
             "tflmi",
         ], f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -318,6 +319,9 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
         **FeatureBase.DEFAULTS,
         "vlen": 64,  # TODO; define reasonable default? (Or put defaults in target and overwrite of not None)
         "elen": 32,
+        # use target-side settings by default
+        "spec": None,
+        "embedded": None,
     }
 
     REQUIRED = []
@@ -333,15 +337,26 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     def elen(self):
         return int(self.config["elen"])
 
+    @property
+    def spec(self):
+        return self.config["spec"]
+
+    @property
+    def embedded(self):
+        return self.config["embedded"]
+
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
-        assert target in ["spike", "ovpsim", "etiss_pulpino", "riscv_qemu"]
         assert is_power_of_two(self.vlen)
-        return {
-            f"{target}.enable_vext": True,
-            f"{target}.vlen": self.vlen,
-            f"{target}.elen": self.elen,
-        }
+        return filter_none(
+            {
+                f"{target}.enable_vext": True,
+                f"{target}.vlen": self.vlen,
+                f"{target}.elen": self.elen,
+                f"{target}.vext_spec": self.spec,
+                f"{target}.embedded_vext": self.embedded,
+            }
+        )
 
     # It would be great if we could enforce an llvm toolchain here
     # def add_compile_config(self, config):
@@ -369,6 +384,8 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
+        # use target-side settings by default
+        "spec": None,
     }
 
     REQUIRED = []
@@ -376,11 +393,17 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
     def __init__(self, features=None, config=None):
         super().__init__("pext", features=features, config=config)
 
+    @property
+    def spec(self):
+        return self.config["spec"]
+
     def get_target_config(self, target):
-        assert target in ["spike", "ovpsim", "etiss_pulpino"]
-        return {
-            f"{target}.enable_pext": True,  # Handle via arch characters in the future
-        }
+        return filter_none(
+            {
+                f"{target}.enable_pext": True,  # Handle via arch characters in the future
+                f"{target}.pext_spec": self.spec,
+            }
+        )
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
@@ -679,7 +702,7 @@ class Autotuned(BackendFeature):
 
 
 @register_feature("autotune")
-class Autotune(BackendFeature, RunFeature):
+class Autotune(PlatformFeature, RunFeature):
     """Use the TVM autotuner inside the backend to generate tuning logs."""
 
     DEFAULTS = {
@@ -693,6 +716,9 @@ class Autotune(BackendFeature, RunFeature):
         "max_parallel": None,
         "use_rpc": None,
         "timeout": None,
+        "mode": None,
+        "visualize": None,
+        "tasks": None,
         # All None to use the defaults defined in the backend instead
     }
 
@@ -735,22 +761,35 @@ class Autotune(BackendFeature, RunFeature):
     def timeout(self):
         return self.config["timeout"] if "timeout" in self.config else None
 
-    def get_backend_config(self, backend):
-        assert backend in SUPPORTED_TVM_BACKENDS
+    @property
+    def mode(self):
+        return self.config["mode"]
+
+    @property
+    def visualize(self):
+        return self.config["visualize"]
+
+    @property
+    def tasks(self):
+        return self.config["tasks"]
+
+    def get_platform_config(self, platform):
+        assert platform in ["tvm", "microtvm"]
         # TODO: figure out a default path automatically
         return filter_none(
             {
-                f"{backend}.autotuning_enable": self.enabled,
-                # f"{backend}.autotuning_use_tuned": self.enabled,  # Should Autotuning ==> Autotuned?
-                f"{backend}.autotuning_results_file": self.results_file,
-                f"{backend}.autotuning_append": self.append,
-                f"{backend}.autotuning_tuner": self.tuner,
-                f"{backend}.autotuning_trials": self.trials,
-                f"{backend}.autotuning_early_stopping": self.early_stopping,
-                f"{backend}.autotuning_num_workers": self.num_workers,
-                f"{backend}.autotuning_max_parallel": self.max_parallel,
-                f"{backend}.autotuning_use_rpc": self.use_rpc,
-                f"{backend}.autotuning_timeout": self.timeout,
+                f"{platform}.autotuning_enable": self.enabled,
+                f"{platform}.autotuning_results_file": self.results_file,
+                f"{platform}.autotuning_append": self.append,
+                f"{platform}.autotuning_tuner": self.tuner,
+                f"{platform}.autotuning_trials": self.trials,
+                f"{platform}.autotuning_early_stopping": self.early_stopping,
+                f"{platform}.autotuning_num_workers": self.num_workers,
+                f"{platform}.autotuning_max_parallel": self.max_parallel,
+                f"{platform}.autotuning_timeout": self.timeout,
+                f"{platform}.autotuning_mode": self.mode,
+                f"{platform}.autotuning_visualize": self.visualize,
+                f"{platform}.autotuning_tasks": self.tasks,
             }
         )
 
@@ -906,7 +945,7 @@ class CacheSim(TargetFeature):
                 spike_args.append("--log-cache-miss")
             config.update({f"{target}.extra_args": spike_args})
 
-    def get_target_callback(self, target):
+    def get_target_callbacks(self, target):
         assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
@@ -930,16 +969,14 @@ class CacheSim(TargetFeature):
                     if prefix in prefixes:
                         for m in metrics:
                             m.add(f"{prefix}-Cache {label}", value)
+                return stdout
 
-            return cachesim_callback
+            return None, cachesim_callback
 
 
 @register_feature("log_instrs")
 class LogInstructions(TargetFeature):
     """Enable logging of the executed instructions of a simulator-based target."""
-
-    # TODO: support ovpsim via --trace. Example Output:
-    #   Info 'riscvOVPsim/cpu', 0x0000000000010b92(...): fdc42583 lw      a1,-36(s0)
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
@@ -952,7 +989,7 @@ class LogInstructions(TargetFeature):
         return bool(self.config["to_file"]) if self.config["to_file"] is not None else None
 
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino"]
+        assert target in ["spike", "etiss_pulpino", "ovpsim"]
         if not self.enabled:
             return
         if target == "spike":
@@ -965,13 +1002,24 @@ class LogInstructions(TargetFeature):
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
+        elif target == "ovpsim":
+            extra_args_new = config.get("extra_args", [])
+            extra_args_new.append("--trace")
+            # if self.to_file:
+            #    extra_args_new.append("--tracefile")
+            config.update({f"{target}.extra_args": extra_args_new})
 
-    def get_target_callback(self, target):
-        assert target in ["spike", "etiss_pulpino"], f"Unsupported feature '{self.name}' for target '{target}'"
+    def get_target_callbacks(self, target):
+        assert target in [
+            "spike",
+            "etiss_pulpino",
+            "ovpsim",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
             def log_instrs_callback(stdout, metrics, artifacts):
                 """Callback which parses the targets output and updates the generated metrics and artifacts."""
+                new_lines = []
                 if self.to_file:
                     # TODO: update stdout and remove log_instrs lines
                     instrs = []
@@ -980,15 +1028,27 @@ class LogInstructions(TargetFeature):
                             expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                         elif target == "spike":
                             expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
+                        elif target == "ovpsim":
+                            expr = re.compile(
+                                r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
+                            )
                         match = expr.match(line)
                         if match is not None:
                             instrs.append(line)
+                        else:
+                            new_lines.append(line)
                     instrs_artifact = Artifact(
-                        f"{target}_instrs.log", content="\n".join(instrs), fmt=ArtifactFormat.TEXT
+                        f"{target}_instrs.log",
+                        content="\n".join(instrs),
+                        fmt=ArtifactFormat.TEXT,
+                        flags=(self.name, target),
                     )
                     artifacts.append(instrs_artifact)
+                    return "\n".join(new_lines)
+                else:
+                    return stdout
 
-            return log_instrs_callback
+            return None, log_instrs_callback
 
 
 @register_feature("arm_mvei")
@@ -1145,7 +1205,6 @@ class Benchmark(PlatformFeature, TargetFeature):
             return {}
 
     def get_target_config(self, target):
-
         return {
             f"{target}.repeat": self.num_repeat,
         }
@@ -1161,7 +1220,7 @@ class Benchmark(PlatformFeature, TargetFeature):
         else:
             return {}
 
-    def get_target_callback(self, target):
+    def get_target_callbacks(self, target):
         if self.enabled:
 
             def benchmark_callback(stdout, metrics, artifacts):
@@ -1230,7 +1289,66 @@ class Benchmark(PlatformFeature, TargetFeature):
                         metrics_.order.append(key)
                 metrics.clear()
                 metrics.append(metrics_)
+                return stdout
 
             benchmark_callback.priority = 0
 
-            return benchmark_callback
+            return None, benchmark_callback
+
+
+@register_feature("tvm_rpc")
+class TvmRpc(PlatformFeature):
+    """Run TVM models on a RPC device."""
+
+    DEFAULTS = {**FeatureBase.DEFAULTS, "hostname": None, "port": None, "key": None}  # tracker
+
+    def __init__(self, features=None, config=None):
+        super().__init__("tvm_rpc", features=features, config=config)
+
+    @property
+    def use_rpc(self):
+        return self.config["use_rpc"]
+
+    @property
+    def hostname(self):
+        return self.config["hostname"]
+
+    @property
+    def port(self):
+        return self.config["port"]
+
+    @property
+    def key(self):
+        return self.config["key"]
+
+    def get_platform_config(self, platform):
+        assert platform in ["tvm", "microtvm"]
+        return filter_none(
+            {
+                f"{platform}.use_rpc": self.enabled,
+                f"{platform}.rpc_hostname": self.hostname,
+                f"{platform}.rpc_port": self.port,
+                f"{platform}.rpc_key": self.key,
+            }
+        )
+
+
+@register_feature("tvm_profile")
+class TvmProfile(PlatformFeature):
+    """Profile code using TVM Platform."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    REQUIRED = []
+
+    def __init__(self, features=None, config=None):
+        super().__init__("tvm_profile", features=features, config=config)
+
+    def get_platform_config(self, platform):
+        supported = ["tvm"]  # TODO: support microtvm
+        assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {
+            f"{platform}.profile": self.enabled,
+        }

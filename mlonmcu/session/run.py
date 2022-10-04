@@ -26,6 +26,7 @@ from enum import IntEnum
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
+from mlonmcu.config import str2bool
 from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
@@ -65,6 +66,7 @@ class Run:
         "export_optional": False,
         "tune_enabled": False,
         "target_to_backend": False,
+        "stage_subdirs": False,
     }
 
     REQUIRED = []
@@ -110,9 +112,9 @@ class Run:
         self.cache_hints = []
         self.config = config if config else {}
         self.features = features if features else []
-        self.run_config = config if config else {}
+        self.run_config = {}
         self.run_features = self.process_features(features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
+        self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.result = None
         self.failing = False  # -> RunStatus
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
@@ -126,18 +128,33 @@ class Run:
         features = get_matching_features(features, FeatureType.RUN)
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
-            feature.add_run_config(self.run_config)
+            tmp_run_config = {f"run.{key}": value for key, value in self.run_config.items()}
+            feature.add_run_config(tmp_run_config)
+            self.run_config = filter_config(tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         return features
 
     @property
     def tune_enabled(self):
         """Get tune_enabled property."""
-        return bool(self.run_config["tune_enabled"])
+        value = self.run_config["tune_enabled"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def target_to_backend(self):
         """Get target_to_backend property."""
-        return bool(self.run_config["target_to_backend"])
+        value = self.run_config["target_to_backend"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def export_optional(self):
+        """Get export_optional property."""
+        value = self.run_config["export_optional"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def stage_subdirs(self):
+        value = self.run_config["stage_subdirs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def build_platform(self):
@@ -239,6 +256,7 @@ class Run:
             # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
             # A solution would be to split up the framework runtime libs from the mlif...
             for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
+                # The stage_subdirs setting is ignored here because platforms can be multi-stage!
                 platform.init_directory(path=Path(self.dir) / platform.name)
 
     def copy(self):
@@ -343,13 +361,11 @@ class Run:
         """Setter for a feature instance."""
         self.features = [feature]
         self.run_features = self.process_features(self.features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
         self.features = features if not append else self.features + features
         self.run_features = self.process_features(self.features)
-        self.run_config = filter_config(self.run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
 
     def pick_model_frontend(self, model_hints, backend=None):
         assert len(model_hints) > 0
@@ -385,10 +401,14 @@ class Run:
         """Helper function to initialize and configure frontends by their names."""
         frontends = []
         for name in frontend_names:
-            assert context is not None and context.environment.has_frontend(
-                name
-            ), f"The frontend '{name}' is not enabled for this environment"
-            frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
+            try:
+                assert context is not None and context.environment.has_frontend(
+                    name
+                ), f"The frontend '{name}' is not enabled for this environment"
+                frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
+            except Exception:
+                continue
+        assert len(frontends) > 0, "No compatible frontend was found"
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):
@@ -457,11 +477,6 @@ class Run:
                 features.append(self.init_component(feature_cls, context=context))
         self.add_features(features, append=append)
 
-    @property
-    def export_optional(self):
-        """Get export_optional property."""
-        return bool(self.run_config["export_optional"])
-
     def __repr__(self):
         probs = []
         if self.model:
@@ -493,9 +508,10 @@ class Run:
         """Utility not implemented yet. (TODO: remove?)"""
         raise NotImplementedError
 
-    def export_stage(self, stage, optional=False, subdir=False):
+    def export_stage(self, stage, optional=False):
         """Export stage artifacts of this run to its directory."""
         # TODO: per stage subdirs?
+        subdir = self.stage_subdirs
         if stage in self.artifacts_per_stage:
             artifacts = self.artifacts_per_stage[stage]
             for artifact in artifacts:
@@ -503,13 +519,15 @@ class Run:
                     dest = self.dir
                     if subdir:
                         stage_idx = int(stage)
-                        dest = dest / f"stage_{stage_idx}"
+                        dest = dest / "stages" / str(stage_idx)
+                        # TODO: stages.txt for mapping between stage idx and name
+                    dest.mkdir(parents=True, exist_ok=True)
                     extract = artifact.fmt == ArtifactFormat.MLF
                     # extract = artifact.fmt == ArtifactFormat.MLF and not isinstance(self.platform, MicroTvmPlatform)
-                    artifact.export(self.dir)
+                    artifact.export(dest)
                     # Keep the tar as well as the extracted files
                     if extract:
-                        artifact.export(self.dir, extract=True)
+                        artifact.export(dest, extract=True)
 
     def postprocess(self):
         """Postprocess the 'run'."""
@@ -556,13 +574,8 @@ class Run:
         assert self.completed[RunStage.BUILD]
 
         self.export_stage(RunStage.BUILD, optional=self.export_optional)
-        codegen_dir = self.dir
-        data_file = None
-        for artifact in self.artifacts_per_stage[RunStage.LOAD]:
-            if artifact.name == "data.c":
-                artifact.export(self.dir)
-                data_file = Path(self.dir) / "data.c"
-        self.compile_platform.generate_elf(codegen_dir, self.target, data_file=data_file)
+        codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
+        self.compile_platform.generate_elf(codegen_dir, self.target)
         self.artifacts_per_stage[RunStage.COMPILE] = self.compile_platform.artifacts
 
         self.completed[RunStage.COMPILE] = True
@@ -589,7 +602,6 @@ class Run:
         if self.has_stage(RunStage.TUNE):
             self.export_stage(RunStage.TUNE, optional=self.export_optional)
             if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
-                assert self.backend.tuner is not None
                 tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
                 if not tuning_artifact.exported:
                     tuning_artifact.export(self.dir)
@@ -608,20 +620,21 @@ class Run:
         self.lock()
         assert self.completed[RunStage.LOAD]
 
+        if self.target_to_backend:
+            assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
+            cfg = self.target.get_backend_config(self.backend.name)  # Do not expect a backend prefix here
+            if len(cfg) > 0:
+                logger.debug("Updating backend config based on given target.")
+                self.backend.config.update(cfg)
+
         self.export_stage(RunStage.LOAD, optional=self.export_optional)
         model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
         if not model_artifact.exported:
             model_artifact.export(self.dir)
 
         # TODO: allow raw data as well as filepath in backends
-        if self.tune_platform:
-            res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
-        else:
-            self.backend.load_model(model=model_artifact.path)
-            self.backend.tune_model()
-            res = []
-            if self.backend.tuner is not None:
-                res = self.backend.tuner.get_results()
+        assert self.tune_platform, "Autotuning requires a TunePlatform"
+        res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
         if res:
             self.artifacts_per_stage[RunStage.TUNE] = res
         else:
@@ -639,7 +652,7 @@ class Run:
         self.frontend.generate_models(self.model)
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}
-        data_artifact = self.frontend.process_metadata(self.model, cfg=cfg_new)
+        self.frontend.process_metadata(self.model, cfg=cfg_new)
         if len(cfg_new) > 0:
             for key, value in cfg_new.items():
                 component, name = key.split(".")[:2]
@@ -651,8 +664,6 @@ class Run:
                             platform.config[name] = value
                 self.config[key] = value
         self.artifacts_per_stage[RunStage.LOAD] = self.frontend.artifacts
-        if data_artifact:
-            self.artifacts_per_stage[RunStage.LOAD].append(data_artifact)
 
         self.completed[RunStage.LOAD] = True
         self.unlock()

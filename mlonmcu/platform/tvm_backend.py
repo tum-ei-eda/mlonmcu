@@ -43,7 +43,6 @@ register_tvm_platform_backend("tvmllvm", TVMLLVMBackend)
 
 def create_tvm_platform_backend(name, platform, base=TVMBackend):
     class TvmPlatformBackend(base):
-
         FEATURES = base.FEATURES + []
 
         DEFAULTS = {

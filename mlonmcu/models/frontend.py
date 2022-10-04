@@ -30,13 +30,11 @@ from mlonmcu.setup import utils
 
 from mlonmcu.logging import get_logger
 
-from .utils import get_data_source
 
 logger = get_logger()
 
 
 class Frontend(ABC):
-
     FEATURES = ["validate"]
 
     DEFAULTS = {
@@ -107,9 +105,9 @@ class Frontend(ABC):
     def process_metadata(self, model, cfg=None):
         model_dir = Path(model.paths[0]).parent.resolve()
         metadata = model.metadata
+        in_paths = []
+        out_paths = []
         if self.use_inout_data:
-            in_paths = []
-            out_paths = []
             if metadata is not None and "network_parameters" in metadata:
                 network = metadata["network_parameters"]
                 assert "input_nodes" in network
@@ -140,10 +138,6 @@ class Frontend(ABC):
                 fallback_out_path = model_dir / "output"
                 if fallback_out_path.is_dir():
                     out_paths.append(fallback_out_path)
-            data_src = get_data_source(in_paths, out_paths)
-            data_artifact = Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
-        else:
-            data_artifact = None
 
         if metadata is not None and "backends" in metadata:
             assert cfg is not None
@@ -159,8 +153,16 @@ class Frontend(ABC):
             assert cfg is not None
             # TODO: onlu overwrite if unset?
             cfg.update({"mlif.model_support_dir": support_path})
-
-        return data_artifact
+            # cfg.update({"espidf.model_support_dir": support_path})
+            # cfg.update({"zephyr.model_support_dir": support_path})
+        if len(in_paths) > 0:
+            cfg.update({"mlif.input_data_path": in_paths})
+            # cfg.update({"espidf.input_data_path": in_paths})
+            # cfg.update({"zephyr.input_data_path": in_paths})
+        if len(out_paths) > 0:
+            cfg.update({"mlif.output_data_path": out_paths})
+            # cfg.update({"espidf.output_data_path": out_paths})
+            # cfg.update({"zephyr.output_data_path": out_paths})
 
     def generate_models(self, model):
         artifacts = []
@@ -229,7 +231,6 @@ class SimpleFrontend(Frontend):
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES + ["visualize"]
 
     DEFAULTS = {**Frontend.DEFAULTS, "visualize_enable": False, "visualize_script": None}
@@ -276,7 +277,7 @@ class TfLiteFrontend(SimpleFrontend):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 out_file = str(Path(tmpdirname) / f"tflite_visualize.{ext}")
 
-                utils.exec_getout(self.visualize_script, in_file, out_file, print_output=False)
+                utils.python(self.visualize_script, in_file, out_file, print_output=False)
 
                 with open(out_file, "r") as handle:
                     tflite_visualize_text = handle.read()
@@ -292,7 +293,6 @@ class TfLiteFrontend(SimpleFrontend):
 
 
 class RelayFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES + ["relayviz"]
 
     DEFAULTS = {**Frontend.DEFAULTS, "visualize_graph": False, "relayviz_plotter": "term"}
@@ -369,9 +369,9 @@ class RelayFrontend(SimpleFrontend):
                 viz.render(filename=out_file_base)
 
             in_file = model.paths[0]
-            ext = "txt" if self.relayviz_plotter == "term" else "pdf"
+            ext = "" if self.relayviz_plotter == "term" else "pdf"
             with tempfile.TemporaryDirectory() as tmpdirname:
-                out_file = str(Path(tmpdirname) / f"relayviz.{ext}")
+                out_file = str(Path(tmpdirname) / (f"relayviz.{ext}" if len(ext) > 0 else "relayviz"))
                 proc = multiprocessing.Process(
                     target=_relayviz,
                     args=[in_file, out_file, self.relayviz_plotter],
@@ -385,7 +385,7 @@ class RelayFrontend(SimpleFrontend):
                         relayviz_text = handle.read()
 
                     relayviz_artifact = Artifact(
-                        f"relayviz.{ext}",
+                        "relayviz.txt",
                         content=relayviz_text,
                         fmt=ArtifactFormat.TEXT,
                     )
@@ -404,7 +404,6 @@ class RelayFrontend(SimpleFrontend):
 
 
 class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do constructor?
-
     FEATURES = Frontend.FEATURES + ["packing", "packed"]
 
     DEFAULTS = {
@@ -514,7 +513,6 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
 
 
 class ONNXFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
@@ -533,7 +531,6 @@ class ONNXFrontend(SimpleFrontend):
 
 
 class PBFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
@@ -552,7 +549,6 @@ class PBFrontend(SimpleFrontend):
 
 
 class PaddleFrontend(SimpleFrontend):
-
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {

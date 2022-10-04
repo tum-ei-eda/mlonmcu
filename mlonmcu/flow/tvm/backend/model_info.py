@@ -220,7 +220,8 @@ class PaddleModelInfo(ModelInfo):
 
         def _convert_dtype_value(val):
             """Converts a Paddle type id to a string."""
-            # See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/relay/frontend/paddlepaddle.py#L70
+            # See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/
+            # relay/frontend/paddlepaddle.py#L70
 
             convert_dtype_map = {
                 21: "int8",
@@ -268,7 +269,7 @@ def get_onnx_model_info(model_file):
     return model_info
 
 
-def get_model_info(model, fmt, backend_name="unknown"):
+def get_model_info(model, backend_name="unknown"):
     ext = os.path.splitext(model)[1][1:]
     fmt = ModelFormats.from_extension(ext)
     if fmt == ModelFormats.TFLITE:
@@ -283,5 +284,13 @@ def get_model_info(model, fmt, backend_name="unknown"):
         return "relay", get_relay_model_info(mod_text)
     elif fmt == ModelFormats.PB:
         return "pb", get_pb_model_info(model)
+    elif fmt == ModelFormats.ONNX:
+        return "onnx", get_pb_model_info(model)
+    elif fmt == ModelFormats.PADDLE:
+        return "pdmodel", get_pb_model_info(model)
     else:
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
+
+
+def get_supported_formats():
+    return [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB, ModelFormats.ONNX, ModelFormats.PADDLE]

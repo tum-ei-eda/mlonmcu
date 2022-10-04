@@ -31,7 +31,6 @@ logger = get_logger()
 
 
 class TFLMCBackend(TFLMBackend):
-
     name = "tflmc"
 
     FEATURES = ["debug_arena"]

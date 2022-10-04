@@ -1,6 +1,3 @@
-#
-# Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
-#
 # This file is part of MLonMCU.
 # See https://github.com/tum-ei-eda/mlonmcu.git for further info.
 #
@@ -16,22 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""MLonMCU target submodule"""
-
-from .target import Target
-from ._target import register_target, get_targets
 from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarget
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
 
-__all__ = [
-    "register_target",
-    "get_targets",
-    "Target",
-    "EtissPulpinoTarget",
-    "SpikeTarget",
-    "OVPSimTarget",
-    "RiscvQemuTarget",
-    "Corstone300Target",
-    "HostX86Target",
-]
+TARGET_REGISTRY = {}
+
+
+def register_target(target_name, t, override=False):
+    global TARGET_REGISTRY
+
+    if target_name in TARGET_REGISTRY and not override:
+        raise RuntimeError(f"Target {target_name} is already registered")
+    TARGET_REGISTRY[target_name] = t
+
+
+def get_targets():
+    return TARGET_REGISTRY
+
+
+register_target("etiss_pulpino", EtissPulpinoTarget)
+register_target("host_x86", HostX86Target)
+register_target("corstone300", Corstone300Target)
+register_target("spike", SpikeTarget)
+register_target("ovpsim", OVPSimTarget)
+register_target("riscv_qemu", RiscvQemuTarget)

@@ -28,8 +28,12 @@ from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget, sort_extensions_canonical
+from .util import update_extensions
 
 logger = get_logger()
+
+
+MAX_P_SPEC = 0.96
 
 
 def replace_unsupported(exts):
@@ -37,6 +41,8 @@ def replace_unsupported(exts):
     for ext in exts:
         if "ZVE" in ext or "ZVL" in ext:
             ret.append("V")
+        if "zpn" in ext.lower() or "zpsfoperand" in ext.lower():
+            pass
         elif ext == "P":
             ret.append(ext)
             ret.append("B")
@@ -48,17 +54,20 @@ def replace_unsupported(exts):
 class OVPSimTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = RISCVTarget.FEATURES + ["vext", "pext", "gdbserver"]
+    FEATURES = RISCVTarget.FEATURES + ["vext", "pext", "gdbserver", "log_instrs"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
-        "vlen": 32,  # vectorization=off
+        "vlen": 0,  # vectorization=off
         "elen": 32,
         "enable_vext": False,
+        "vext_spec": 1.0,
+        "embedded_vext": False,
         "enable_pext": False,
-        "enable_fpu": True,
+        "pext_spec": 0.96,
+        "bitmanip_spec": 0.94,
         "variant": "RVB32I",
-        "end_to_end_cycles": False,
+        "end_to_end_cycles": True,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
@@ -82,19 +91,18 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def extensions(self):
-        ret = super().extensions
-        if self.enable_pext and "p" not in ret:
-            ret.append("p")
-        if self.enable_vext and ("v" not in ret and "zve32x" not in ret and "zve32f" not in ret):
-            if self.elen == 32:  # Required to tell the compiler that EEW is not allowed...
-                # if self.enable_fpu:
-                if True:
-                    ret.append("zve32x")
-                else:
-                    ret.append("zve32f")
-            else:
-                ret.append("v")
-        return ret
+        exts = super().extensions
+        assert self.pext_spec <= MAX_P_SPEC, f"P-Extension spec {self.pext_spec} not supported by {self.name} target"
+        return update_extensions(
+            exts,
+            pext=self.enable_pext,
+            pext_spec=self.pext_spec,
+            vext=self.enable_vext,
+            elen=self.elen,
+            embedded=self.embedded_vext,
+            fpu=self.fpu,
+            variant=self.gcc_variant,
+        )
 
     @property
     def attr(self):
@@ -110,11 +118,6 @@ class OVPSimTarget(RISCVTarget):
     @property
     def elen(self):
         return int(self.config["elen"])
-
-    @property
-    def enable_fpu(self):
-        value = self.config["enable_fpu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_vext(self):
@@ -145,6 +148,19 @@ class OVPSimTarget(RISCVTarget):
     def gdbserver_port(self):
         return int(self.config["gdbserver_port"])
 
+    @property
+    def vext_spec(self):
+        return float(self.config["vext_spec"])
+
+    @property
+    def embedded_vext(self):
+        value = self.config["embedded_vext"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def pext_spec(self):
+        return float(self.config["pext_spec"])
+
     def get_default_ovpsim_args(self):
         extensions_before = sort_extensions_canonical(self.extensions, lower=False, unpack=True)
         extensions_after = replace_unsupported(extensions_before)
@@ -156,22 +172,24 @@ class OVPSimTarget(RISCVTarget):
             f"riscvOVPsim/cpu/add_Extensions={extensions_str}",
             "--override",
             "riscvOVPsim/cpu/unaligned=T",
+            "--override",
+            "riscvOVPsim/cpu/pk/reportExitErrors=T",
         ]
         if self.enable_pext:
             args.extend(
                 [
                     "--override",
-                    "riscvOVPsim/cpu/dsp_version=0.9.6",
+                    f"riscvOVPsim/cpu/dsp_version={self.pext_spec}",
                     "--override",
-                    "riscvOVPsim/cpu/bitmanip_version=1.0.0",
+                    f"riscvOVPsim/cpu/bitmanip_version={self.bitmanip_spec}",
                 ]
             )
         if self.enable_vext:
-            assert self.enable_fpu, "V-Extension requires enabled FPU"
+            assert self.has_fpu, "V-Extension requires enabled FPU"
             args.extend(
                 [
                     "--override",
-                    "riscvOVPsim/cpu/vector_version=1.0-draft-20210130",
+                    "riscvOVPsim/cpu/vector_version=1.0-draft-20210130",  # TODO: use vext_spec
                     "--override",
                     f"riscvOVPsim/cpu/VLEN={self.vlen}",
                     "--override",
@@ -179,9 +197,9 @@ class OVPSimTarget(RISCVTarget):
                 ]
             )
             args.extend(["--override", f"riscvOVPsim/cpu/mstatus_VS={int(self.enable_vext)}"])
-        if self.enable_fpu:
+        if self.has_fpu:
             assert "f" in self.extensions or "g" in self.extensions
-        args.extend(["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.enable_fpu)}"])
+        args.extend(["--override", f"riscvOVPsim/cpu/mstatus_FS={int(self.has_fpu)}"])
         if self.gdbserver_enable:
             # args.append("--trace")
             args.extend(["--port", str(self.gdbserver_port)])
@@ -197,7 +215,11 @@ class OVPSimTarget(RISCVTarget):
         ovpsim_args.extend(self.get_default_ovpsim_args())
 
         if len(self.extra_args) > 0:
-            ovpsim_args.extend(self.extra_args.split(" "))
+            if isinstance(self.extra_args, str):
+                args = self.extra_args.split(" ")
+            else:
+                args = self.extra_args
+            ovpsim_args.extend(args)
 
         if self.timeout_sec > 0:
             raise NotImplementedError
@@ -206,6 +228,7 @@ class OVPSimTarget(RISCVTarget):
             self.ovpsim_exe.resolve(),
             *ovpsim_args,
             *args,  # Does this work?
+            cwd=cwd,
             **kwargs,
         )
         return ret
@@ -213,29 +236,29 @@ class OVPSimTarget(RISCVTarget):
     def parse_stdout(self, out):
         # cpi = 1
         if self.end_to_end_cycles:
-            cpu_cycles = re.search(r"  Simulated instructions:(.*)", out)
+            cpu_cycles = re.search(r".*  Simulated instructions:(.*)", out)
         else:
-            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+            cpu_cycles = re.search(r".* Total Cycles: (.*)", out)
         if not cpu_cycles:
             raise RuntimeError("unexpected script output (cycles)")
             cycles = None
         else:
             cycles = int(cpu_cycles.group(1).replace(",", ""))
         mips = None  # TODO: parse mips?
-        mips_match = re.search(r"  Simulated MIPS:(.*)", out)
+        mips_match = re.search(r".*  Simulated MIPS:(.*)", out)
         if mips_match:
             mips_str = float(mips_match.group(1))
             if "run too short for meaningful result" not in mips:
                 mips = float(mips_str)
         return cycles, mips
 
-    def get_metrics(self, elf, directory, handle_exit=None):
+    def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
         if self.print_outputs:
-            out += self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
         else:
             out += self.exec(
-                elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
         cycles, mips = self.parse_stdout(out)
 
@@ -249,11 +272,13 @@ class OVPSimTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.enable_pext:
-            ret["RISCV_RVP_MAJOR"] = "0"
-            ret["RISCV_RVP_MINOR"] = "96"
+            major, minor = str(self.pext_spec).split(".")[:2]
+            ret["RISCV_RVP_MAJOR"] = major
+            ret["RISCV_RVP_MINOR"] = minor
         if self.enable_vext:
-            ret["RISCV_RVV_MAJOR"] = "1"
-            ret["RISCV_RVV_MINOR"] = "0"
+            major, minor = str(self.vext_spec).split(".")[:2]
+            ret["RISCV_RVV_MAJOR"] = major
+            ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 

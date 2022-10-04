@@ -30,7 +30,6 @@ from .tvmc_utils import get_tvmaot_tvmc_args
 
 
 class TVMAOTBackend(TVMBackend):
-
     FEATURES = [
         *TVMBackend.FEATURES,
         "debug_arena",

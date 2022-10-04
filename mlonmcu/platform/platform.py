@@ -100,9 +100,10 @@ class Platform:
             return []
         features = get_matching_features(features, FeatureType.PLATFORM)
         for feature in features:
-            assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
-            feature.add_platform_config(self.name, self.config)
-            feature.add_platform_defs(self.name, self.definitions)
+            # assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
+            if feature.name in self.FEATURES:
+                feature.add_platform_config(self.name, self.config)
+                feature.add_platform_defs(self.name, self.definitions)
         return features
 
     def get_supported_backends(self):
@@ -251,7 +252,6 @@ class TargetPlatform(Platform):
     def run(self, elf, target, timeout=120):
         # Only allow one serial communication at a time
         with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
-
             self.flash(elf, target, timeout=timeout)
             output = self.monitor(target, timeout=timeout)
 

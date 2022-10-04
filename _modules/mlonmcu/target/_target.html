@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.platform.tvm_backend &mdash; ML on MCU 0.2.0 documentation</title>
+  <title>mlonmcu.target._target &mdash; ML on MCU 0.2.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -69,7 +69,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>mlonmcu.platform.tvm_backend</li>
+      <li>mlonmcu.target._target</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -78,11 +78,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for mlonmcu.platform.tvm_backend</h1><div class="highlight"><pre>
-<span></span><span class="c1">#</span>
-<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
-<span class="c1">#</span>
-<span class="c1"># This file is part of MLonMCU.</span>
+  <h1>Source code for mlonmcu.target._target</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
 <span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -97,45 +94,31 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span> <span class="nn">.riscv</span> <span class="kn">import</span> <span class="n">EtissPulpinoTarget</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">,</span> <span class="n">RiscvQemuTarget</span>
+<span class="kn">from</span> <span class="nn">.arm</span> <span class="kn">import</span> <span class="n">Corstone300Target</span>
+<span class="kn">from</span> <span class="nn">.host_x86</span> <span class="kn">import</span> <span class="n">HostX86Target</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.backend</span> <span class="kn">import</span> <span class="n">TVMBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmllvm</span> <span class="kn">import</span> <span class="n">TVMLLVMBackend</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
-
-<span class="n">TVM_PLATFORM_BACKEND_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">TARGET_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="register_tvm_platform_backend"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.tvm_backend.register_tvm_platform_backend">[docs]</a><span class="k">def</span> <span class="nf">register_tvm_platform_backend</span><span class="p">(</span><span class="n">backend_name</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">TVM_PLATFORM_BACKEND_REGISTRY</span>
+<div class="viewcode-block" id="register_target"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.register_target">[docs]</a><span class="k">def</span> <span class="nf">register_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">TARGET_REGISTRY</span>
 
-    <span class="k">if</span> <span class="n">backend_name</span> <span class="ow">in</span> <span class="n">TVM_PLATFORM_BACKEND_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TVM platform backend  </span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
-    <span class="n">TVM_PLATFORM_BACKEND_REGISTRY</span><span class="p">[</span><span class="n">backend_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span></div>
-
-
-<div class="viewcode-block" id="get_tvm_platform_backends"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.tvm_backend.get_tvm_platform_backends">[docs]</a><span class="k">def</span> <span class="nf">get_tvm_platform_backends</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">TVM_PLATFORM_BACKEND_REGISTRY</span></div>
+    <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target </span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
+    <span class="n">TARGET_REGISTRY</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span></div>
 
 
-<span class="n">register_tvm_platform_backend</span><span class="p">(</span><span class="s2">&quot;tvmllvm&quot;</span><span class="p">,</span> <span class="n">TVMLLVMBackend</span><span class="p">)</span>
+<div class="viewcode-block" id="get_targets"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.get_targets">[docs]</a><span class="k">def</span> <span class="nf">get_targets</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">TARGET_REGISTRY</span></div>
 
 
-<div class="viewcode-block" id="create_tvm_platform_backend"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.tvm_backend.create_tvm_platform_backend">[docs]</a><span class="k">def</span> <span class="nf">create_tvm_platform_backend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">TVMBackend</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">TvmPlatformBackend</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
-        <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
-
-        <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="o">**</span><span class="n">base</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
-
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;cpp&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;so&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
-
-    <span class="k">return</span> <span class="n">TvmPlatformBackend</span></div>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">EtissPulpinoTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">,</span> <span class="n">Corstone300Target</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;riscv_qemu&quot;</span><span class="p">,</span> <span class="n">RiscvQemuTarget</span><span class="p">)</span>
 </pre></div>
 
            </div>

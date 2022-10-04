@@ -113,11 +113,12 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.session.session</span> <span class="kn">import</span> <span class="n">Session</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.setup.cache</span> <span class="kn">import</span> <span class="n">TaskCache</span>
 <span class="kn">import</span> <span class="nn">mlonmcu.setup.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.plugins</span> <span class="kn">import</span> <span class="n">process_extensions</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.environment.environment</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">UserEnvironment</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.environment.list</span> <span class="kn">import</span> <span class="n">get_environments_map</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.environment.config</span> <span class="kn">import</span> <span class="n">get_environments_dir</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.environment.config</span> <span class="kn">import</span> <span class="n">get_environments_dir</span><span class="p">,</span> <span class="n">get_plugins_dir</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -398,6 +399,27 @@
                             <span class="k">return</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No cache found in deps directory&quot;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MlonMcuContext.load_extensions"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.load_extensions">[docs]</a>    <span class="k">def</span> <span class="nf">load_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If available load the extensions.py scripts in the plugin directories&quot;&quot;&quot;</span>
+        <span class="c1"># TODO: check vars.enable_extensions before!</span>
+        <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;Unknown&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">plugins_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="n">extensions_file</span> <span class="o">=</span> <span class="n">plugins_dir</span> <span class="o">/</span> <span class="s2">&quot;extensions.py&quot;</span>
+                <span class="k">if</span> <span class="n">extensions_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading extensions.py (</span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                    <span class="n">process_extensions</span><span class="p">(</span><span class="n">extensions_file</span><span class="p">)</span>
+
+        <span class="c1"># global (user)</span>
+        <span class="n">plugins_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">get_plugins_dir</span><span class="p">())</span>
+        <span class="n">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;User&quot;</span><span class="p">)</span>
+
+        <span class="c1"># local (environment)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;plugins&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                    <span class="n">plugins_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;plugins&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+                    <span class="n">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;Environment&quot;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="MlonMcuContext.get_session"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get an active session if available, else create a new one.</span>
 
@@ -427,6 +449,7 @@
             <span class="k">except</span> <span class="n">filelock</span><span class="o">.</span><span class="n">Timeout</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Lock on current context could not be aquired.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_extensions</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="MlonMcuContext.cleanup"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.context.MlonMcuContext.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

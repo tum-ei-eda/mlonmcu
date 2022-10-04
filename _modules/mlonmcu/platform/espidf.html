@@ -114,7 +114,7 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">get_targets</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
 
@@ -241,8 +241,9 @@
 
 <div class="viewcode-block" id="EspIdfPlatform.create_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.espidf.EspIdfPlatform.create_target">[docs]</a>    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid ESP-IDF target&quot;</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">SUPPORTED_TARGETS</span><span class="p">:</span>
-            <span class="n">base</span> <span class="o">=</span> <span class="n">SUPPORTED_TARGETS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">get_targets</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">base</span> <span class="o">=</span> <span class="n">Target</span>
         <span class="k">return</span> <span class="n">create_espidf_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">)</span></div>
@@ -411,7 +412,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_idf_monitor</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">_kill_monitor</span><span class="p">():</span>
-
                 <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">psutil</span><span class="o">.</span><span class="n">process_iter</span><span class="p">():</span>
                     <span class="c1"># check whether the process name matches</span>
                     <span class="n">cmdline</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">cmdline</span><span class="p">())</span>

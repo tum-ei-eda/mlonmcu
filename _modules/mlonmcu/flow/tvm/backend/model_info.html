@@ -302,7 +302,8 @@
 
         <span class="k">def</span> <span class="nf">_convert_dtype_value</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Converts a Paddle type id to a string.&quot;&quot;&quot;</span>
-            <span class="c1"># See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/relay/frontend/paddlepaddle.py#L70</span>
+            <span class="c1"># See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/</span>
+            <span class="c1"># relay/frontend/paddlepaddle.py#L70</span>
 
             <span class="n">convert_dtype_map</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="mi">21</span><span class="p">:</span> <span class="s2">&quot;int8&quot;</span><span class="p">,</span>
@@ -350,7 +351,7 @@
     <span class="k">return</span> <span class="n">model_info</span></div>
 
 
-<div class="viewcode-block" id="get_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">):</span>
     <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">model</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
     <span class="n">fmt</span> <span class="o">=</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">from_extension</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">:</span>
@@ -365,8 +366,16 @@
         <span class="k">return</span> <span class="s2">&quot;relay&quot;</span><span class="p">,</span> <span class="n">get_relay_model_info</span><span class="p">(</span><span class="n">mod_text</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PB</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;pb&quot;</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">ONNX</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;onnx&quot;</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PADDLE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;pdmodel&quot;</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported model format &#39;</span><span class="si">{</span><span class="n">fmt</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_supported_formats"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_supported_formats">[docs]</a><span class="k">def</span> <span class="nf">get_supported_formats</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">RELAY</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PB</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">ONNX</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PADDLE</span><span class="p">]</span></div>
 </pre></div>
 
            </div>

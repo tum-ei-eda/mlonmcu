@@ -61,6 +61,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.context">mlonmcu.context module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.logging">mlonmcu.logging module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.report">mlonmcu.report module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.utils">mlonmcu.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mlonmcu.version">mlonmcu.version module</a></li>
@@ -550,6 +551,12 @@ resolves their values using the passed config and/or cache.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.MlonMcuContext.load_extensions">
+<span class="sig-name descname"><span class="pre">load_extensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context.html#MlonMcuContext.load_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.MlonMcuContext.load_extensions" title="Permalink to this definition"></a></dt>
+<dd><p>If available load the extensions.py scripts in the plugin directories</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.context.MlonMcuContext.print_summary">
 <span class="sig-name descname"><span class="pre">print_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sessions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context.html#MlonMcuContext.print_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.MlonMcuContext.print_summary" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -725,6 +732,15 @@ The lookup follows a predefined order:
 <section id="module-mlonmcu.mlonmcu">
 <span id="mlonmcu-mlonmcu-module"></span><h2>mlonmcu.mlonmcu module<a class="headerlink" href="#module-mlonmcu.mlonmcu" title="Permalink to this headline"></a></h2>
 <p>Main module.</p>
+</section>
+<section id="module-mlonmcu.plugins">
+<span id="mlonmcu-plugins-module"></span><h2>mlonmcu.plugins module<a class="headerlink" href="#module-mlonmcu.plugins" title="Permalink to this headline"></a></h2>
+<p>Utilities for MLonMCUs extension mechanism.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.plugins.process_extensions">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.plugins.</span></span><span class="sig-name descname"><span class="pre">process_extensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/plugins.html#process_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.plugins.process_extensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-mlonmcu.report">
 <span id="mlonmcu-report-module"></span><h2>mlonmcu.report module<a class="headerlink" href="#module-mlonmcu.report" title="Permalink to this headline"></a></h2>

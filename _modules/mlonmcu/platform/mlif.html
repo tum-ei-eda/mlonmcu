@@ -105,8 +105,9 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>  <span class="c1"># TODO: Move one level up?</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">SUPPORTED_TARGETS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">get_targets</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.models.utils</span> <span class="kn">import</span> <span class="n">get_data_source</span>
 
 <span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span>
 <span class="kn">from</span> <span class="nn">.mlif_target</span> <span class="kn">import</span> <span class="n">get_mlif_platform_targets</span><span class="p">,</span> <span class="n">create_mlif_platform_target</span>
@@ -144,6 +145,8 @@
         <span class="s2">&quot;toolchain&quot;</span><span class="p">:</span> <span class="s2">&quot;gcc&quot;</span><span class="p">,</span>
         <span class="s2">&quot;prebuild_lib_path&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;optimize&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># values: 0,1,2,3,s</span>
+        <span class="s2">&quot;input_data_path&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;output_data_path&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mlif.src_dir&quot;</span><span class="p">]</span>
@@ -158,6 +161,39 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">goal</span> <span class="o">=</span> <span class="s2">&quot;generic_mlif&quot;</span>
+
+<div class="viewcode-block" id="MlifPlatform.gen_data_artifact"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.gen_data_artifact">[docs]</a>    <span class="k">def</span> <span class="nf">gen_data_artifact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">in_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_data_path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">in_paths</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">in_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">in_paths</span><span class="p">]</span>
+        <span class="n">in_paths_new</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">in_path</span> <span class="ow">in</span> <span class="n">in_paths</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">in_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+            <span class="k">elif</span> <span class="n">in_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="n">in_paths_new</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">in_path</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_file</span><span class="p">()])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;TODO&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">in_paths</span> <span class="o">=</span> <span class="n">in_paths_new</span>
+        <span class="n">out_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data_path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out_paths</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">out_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">out_paths</span><span class="p">]</span>
+        <span class="n">out_paths_new</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">out_path</span> <span class="ow">in</span> <span class="n">out_paths</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">out_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+            <span class="k">elif</span> <span class="n">out_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="n">out_paths_new</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_file</span><span class="p">()])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;TODO&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">out_paths</span> <span class="o">=</span> <span class="n">out_paths_new</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;TODO&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">data_src</span> <span class="o">=</span> <span class="n">get_data_source</span><span class="p">(</span><span class="n">in_paths</span><span class="p">,</span> <span class="n">out_paths</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;data.c&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">data_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlifPlatform.init_directory"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.init_directory">[docs]</a>    <span class="k">def</span> <span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -187,8 +223,9 @@
 
 <div class="viewcode-block" id="MlifPlatform.create_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.create_target">[docs]</a>    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid MLIF target&quot;</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">SUPPORTED_TARGETS</span><span class="p">:</span>
-            <span class="n">base</span> <span class="o">=</span> <span class="n">SUPPORTED_TARGETS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">get_targets</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">base</span> <span class="o">=</span> <span class="n">Target</span>
         <span class="k">return</span> <span class="n">create_mlif_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">)</span></div>
@@ -229,6 +266,14 @@
     <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimize&quot;</span><span class="p">]</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input_data_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_data_path&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">output_data_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output_data_path&quot;</span><span class="p">]</span>
+
 <div class="viewcode-block" id="MlifPlatform.get_supported_targets"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.get_supported_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">target_names</span> <span class="o">=</span> <span class="n">get_mlif_platform_targets</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">target_names</span></div>
@@ -251,7 +296,7 @@
 <div class="viewcode-block" id="MlifPlatform.prepare"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_directory</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="MlifPlatform.configure"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">_model</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MlifPlatform.configure"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">_model</span><span class="p">):</span>
         <span class="k">del</span> <span class="n">target</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
             <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
@@ -265,19 +310,21 @@
             <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DMODEL_SUPPORT_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_support_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
-            <span class="c1"># args.append(f&quot;-DMODEL_DIR={?}&quot;)</span>
         <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
             <span class="n">src</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">parent</span>  <span class="c1"># TODO deal with directories or files?</span>
         <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DSRC_DIR=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unable to find sources!&quot;</span><span class="p">)</span>
-        <span class="c1"># data_file = self.prepare(model, ignore_data=(not debug or self.ignore_data))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_data</span><span class="p">:</span>
             <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DDATA_SRC=&quot;</span><span class="p">)</span>
+            <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">data_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;No data.c file was supplied&quot;</span>
+            <span class="n">data_artifact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_artifact</span><span class="p">()</span>
+            <span class="n">data_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="n">data_artifact</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">data_artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
             <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DDATA_SRC=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_file</span><span class="p">))</span>
+            <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_artifact</span><span class="p">]</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mlif_dir</span><span class="p">,</span>
@@ -286,29 +333,29 @@
             <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
             <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">out</span></div>
+        <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span></div>
 
 <div class="viewcode-block" id="MlifPlatform.compile"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="n">src</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="n">data_file</span><span class="p">)</span>
+            <span class="n">configure_out</span><span class="p">,</span> <span class="n">artifacts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="n">configure_out</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">,</span>
             <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">,</span>
             <span class="n">threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">,</span>
             <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">out</span></div>
+        <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span></div>
 
-<div class="viewcode-block" id="MlifPlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data_file</span><span class="o">=</span><span class="n">data_file</span><span class="p">)</span>
+<div class="viewcode-block" id="MlifPlatform.generate_elf"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.mlif.MlifPlatform.generate_elf">[docs]</a>    <span class="k">def</span> <span class="nf">generate_elf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
         <span class="n">elf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;generic_mlif&quot;</span>
         <span class="c1"># TODO: just use path instead of raw data?</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">elf_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;generic_mlif&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">)</span>
-            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">artifact</span><span class="p">)</span>  <span class="c1"># First artifact should be the ELF</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">elf_file</span><span class="p">)</span>
         <span class="n">content</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># TODO: store df instead?</span>
         <span class="n">metrics_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;metrics.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>

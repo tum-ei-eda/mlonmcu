@@ -191,7 +191,6 @@
         <span class="n">registrations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># TODO: implement</span>
         <span class="n">ops_resolver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># TODO: implement</span>
     <span class="p">):</span>
-
         <span class="n">arena_size</span> <span class="o">=</span> <span class="n">arena_size</span> <span class="k">if</span> <span class="n">arena_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="k">if</span> <span class="n">ops</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -391,7 +390,6 @@
 
 
 <div class="viewcode-block" id="TFLMIBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflm.backend.html#mlonmcu.flow.tflm.TFLMIBackend">[docs]</a><span class="k">class</span> <span class="nc">TFLMIBackend</span><span class="p">(</span><span class="n">TFLMBackend</span><span class="p">):</span>
-
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tflmi&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>

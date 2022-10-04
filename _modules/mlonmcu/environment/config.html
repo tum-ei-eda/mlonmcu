@@ -115,7 +115,7 @@
 <div class="viewcode-block" id="init_config_dir"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.config.init_config_dir">[docs]</a><span class="k">def</span> <span class="nf">init_config_dir</span><span class="p">():</span>
     <span class="n">config_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">get_config_dir</span><span class="p">())</span>
     <span class="n">config_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;environments&quot;</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">]</span>
+    <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;environments&quot;</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">,</span> <span class="s2">&quot;plugins&quot;</span><span class="p">]</span>
     <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;environments.ini&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
         <span class="n">environments_dir</span> <span class="o">=</span> <span class="n">config_dir</span> <span class="o">/</span> <span class="n">subdir</span>
@@ -135,12 +135,17 @@
     <span class="k">return</span> <span class="n">environments_file</span></div>
 
 
+<div class="viewcode-block" id="get_plugins_dir"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.config.get_plugins_dir">[docs]</a><span class="k">def</span> <span class="nf">get_plugins_dir</span><span class="p">():</span>
+    <span class="n">environments_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_config_dir</span><span class="p">(),</span> <span class="s2">&quot;plugins&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">environments_dir</span></div>
+
+
 <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
     <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="n">env_subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span>
+<span class="n">env_subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">,</span> <span class="s2">&quot;plugins&quot;</span><span class="p">]</span>
 
 
 <span class="c1"># class LogLevel(Enum):</span>

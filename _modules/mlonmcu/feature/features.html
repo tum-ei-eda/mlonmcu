@@ -177,6 +177,7 @@
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tvmaotplus&quot;</span><span class="p">,</span>
             <span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span>
             <span class="s2">&quot;tflmi&quot;</span><span class="p">,</span>
         <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
@@ -399,6 +400,9 @@
         <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>  <span class="c1"># TODO; define reasonable default? (Or put defaults in target and overwrite of not None)</span>
         <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="c1"># use target-side settings by default</span>
+        <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;embedded&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
@@ -414,15 +418,26 @@
     <span class="k">def</span> <span class="nf">elen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;elen&quot;</span><span class="p">])</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">embedded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;embedded&quot;</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="c1"># TODO: enforce llvm toolchain using add_compile_config and CompileFeature?</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_qemu&quot;</span><span class="p">]</span>
         <span class="k">assert</span> <span class="n">is_power_of_two</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_vext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.vlen&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.elen&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_vext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.vlen&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.elen&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.vext_spec&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.embedded_vext&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedded</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
 
     <span class="c1"># It would be great if we could enforce an llvm toolchain here</span>
     <span class="c1"># def add_compile_config(self, config):</span>
@@ -450,6 +465,8 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="c1"># use target-side settings by default</span>
+        <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
@@ -457,11 +474,17 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_pext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># Handle via arch characters in the future</span>
-        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_pext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># Handle via arch characters in the future</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.pext_spec&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for platform &#39;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
@@ -760,7 +783,7 @@
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;autotune&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Autotune</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">,</span> <span class="n">RunFeature</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Autotune</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">,</span> <span class="n">RunFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Use the TVM autotuner inside the backend to generate tuning logs.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -774,6 +797,9 @@
         <span class="s2">&quot;max_parallel&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;use_rpc&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;visualize&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># All None to use the defaults defined in the backend instead</span>
     <span class="p">}</span>
 
@@ -816,22 +842,35 @@
     <span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;timeout&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;visualize&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="s2">&quot;microtvm&quot;</span><span class="p">]</span>
         <span class="c1"># TODO: figure out a default path automatically</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
-                <span class="c1"># f&quot;{backend}.autotuning_use_tuned&quot;: self.enabled,  # Should Autotuning ==&gt; Autotuned?</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_results_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_append&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_tuner&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_trials&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trials</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_early_stopping&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">early_stopping</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_num_workers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_max_parallel&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_parallel</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_use_rpc&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.autotuning_timeout&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_results_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_file</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_append&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_tuner&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_trials&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trials</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_early_stopping&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">early_stopping</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_num_workers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_max_parallel&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_parallel</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_timeout&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_visualize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">visualize</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_tasks&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
 
@@ -987,7 +1026,7 @@
                 <span class="n">spike_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--log-cache-miss&quot;</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">:</span> <span class="n">spike_args</span><span class="p">})</span>
 
-    <span class="k">def</span> <span class="nf">get_target_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
 
@@ -1011,16 +1050,14 @@
                     <span class="k">if</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
                             <span class="n">m</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-Cache </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">stdout</span>
 
-            <span class="k">return</span> <span class="n">cachesim_callback</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cachesim_callback</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">LogInstructions</span><span class="p">(</span><span class="n">TargetFeature</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enable logging of the executed instructions of a simulator-based target.&quot;&quot;&quot;</span>
-
-    <span class="c1"># TODO: support ovpsim via --trace. Example Output:</span>
-    <span class="c1">#   Info &#39;riscvOVPsim/cpu&#39;, 0x0000000000010b92(...): fdc42583 lw      a1,-36(s0)</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 
@@ -1033,7 +1070,7 @@
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
@@ -1046,13 +1083,24 @@
             <span class="n">plugins_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plugins&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">plugins_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PrintInstruction&quot;</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.plugins&quot;</span><span class="p">:</span> <span class="n">plugins_new</span><span class="p">})</span>
+        <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">:</span>
+            <span class="n">extra_args_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_args&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--trace&quot;</span><span class="p">)</span>
+            <span class="c1"># if self.to_file:</span>
+            <span class="c1">#    extra_args_new.append(&quot;--tracefile&quot;)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">:</span> <span class="n">extra_args_new</span><span class="p">})</span>
 
-    <span class="k">def</span> <span class="nf">get_target_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;spike&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span>
+        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">log_instrs_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
                 <span class="sd">&quot;&quot;&quot;Callback which parses the targets output and updates the generated metrics and artifacts.&quot;&quot;&quot;</span>
+                <span class="n">new_lines</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
                     <span class="c1"># TODO: update stdout and remove log_instrs lines</span>
                     <span class="n">instrs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1061,15 +1109,27 @@
                             <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[a-fA-F0-9]+: .* \[.*\]&quot;</span><span class="p">)</span>
                         <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
                             <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*&quot;</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">:</span>
+                            <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                                <span class="sa">r</span><span class="s2">&quot;Info &#39;riscvOVPsim\/cpu&#39;,\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*&quot;</span>
+                            <span class="p">)</span>
                         <span class="n">match</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="n">instrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                     <span class="n">instrs_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">_instrs.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">_instrs.log&quot;</span><span class="p">,</span>
+                        <span class="n">content</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">),</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                        <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="p">),</span>
                     <span class="p">)</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instrs_artifact</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">stdout</span>
 
-            <span class="k">return</span> <span class="n">log_instrs_callback</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">log_instrs_callback</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;arm_mvei&quot;</span><span class="p">)</span>
@@ -1226,7 +1286,6 @@
             <span class="k">return</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-
         <span class="k">return</span> <span class="p">{</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.repeat&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_repeat</span><span class="p">,</span>
         <span class="p">}</span>
@@ -1242,7 +1301,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">get_target_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">benchmark_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
@@ -1311,10 +1370,69 @@
                         <span class="n">metrics_</span><span class="o">.</span><span class="n">order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
                 <span class="n">metrics</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
                 <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics_</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">stdout</span>
 
             <span class="n">benchmark_callback</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="mi">0</span>
 
-            <span class="k">return</span> <span class="n">benchmark_callback</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">benchmark_callback</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;tvm_rpc&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TvmRpc</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run TVM models on a RPC device.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">&quot;hostname&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>  <span class="c1"># tracker</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;tvm_rpc&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">use_rpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_rpc&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hostname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;hostname&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="s2">&quot;microtvm&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.use_rpc&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.rpc_hostname&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.rpc_port&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.rpc_key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;tvm_profile&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TvmProfile</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Profile code using TVM Platform.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;tvm_profile&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">]</span>  <span class="c1"># TODO: support microtvm</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for platform &#39;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.profile&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+        <span class="p">}</span>
 </pre></div>
 
            </div>

@@ -104,7 +104,7 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">Target</span>
-<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">sort_extensions_canonical</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">sort_extensions_canonical</span><span class="p">,</span> <span class="n">join_extensions</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -120,11 +120,12 @@
         <span class="s2">&quot;extensions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">],</span>
         <span class="s2">&quot;timeout_sec&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># disabled</span>
         <span class="s2">&quot;extra_args&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fpu&quot;</span><span class="p">:</span> <span class="s2">&quot;double&quot;</span><span class="p">,</span>  <span class="c1"># allowed: none, single, double</span>
         <span class="s2">&quot;arch&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;abi&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;attr&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.variant&quot;</span><span class="p">]</span>
     <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -136,14 +137,28 @@
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gcc_variant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.variant&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">xlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;xlen&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">exts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extensions&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extensions&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">exts</span> <span class="o">=</span> <span class="n">exts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;g&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+            <span class="n">required</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span><span class="p">:</span>
+                <span class="n">required</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>
+                <span class="n">required</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span><span class="p">:</span>
+                <span class="n">required</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">required</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+                    <span class="n">exts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">exts</span>
 
     <span class="nd">@property</span>
@@ -152,7 +167,7 @@
         <span class="k">if</span> <span class="n">temp</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">temp</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">exts_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sort_extensions_canonical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extensions</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="n">exts_str</span> <span class="o">=</span> <span class="n">join_extensions</span><span class="p">(</span><span class="n">sort_extensions_canonical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extensions</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}{</span><span class="n">exts_str</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="nd">@property</span>
@@ -196,6 +211,18 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">timeout_sec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout_sec&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fpu&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;double&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpu</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span>
 
 <div class="viewcode-block" id="RISCVTarget.get_target_system"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.get_target_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;generic_riscv&quot;</span>  <span class="c1"># TODO: rename to generic-rv32 for compatibility with LLVM</span></div>

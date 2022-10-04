@@ -114,7 +114,6 @@
 
 
 <div class="viewcode-block" id="Backend"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.Backend">[docs]</a><span class="k">class</span> <span class="nc">Backend</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-
     <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[]</span>
@@ -162,22 +161,9 @@
     <span class="k">def</span> <span class="nf">has_tuner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Backend.tune_model"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.Backend.tune_model">[docs]</a>    <span class="k">def</span> <span class="nf">tune_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_tuner</span><span class="p">:</span>
-            <span class="k">return</span>
-            <span class="c1"># raise NotImplementedError(&quot;Backend does not support autotuning&quot;)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tuner</span><span class="o">.</span><span class="n">tune</span><span class="p">()</span></div>
-
 <div class="viewcode-block" id="Backend.set_tuning_records"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.Backend.set_tuning_records">[docs]</a>    <span class="k">def</span> <span class="nf">set_tuning_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_tuner</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Backend does not support autotuning&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Backend.export_tuning_results"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.Backend.export_tuning_results">[docs]</a>    <span class="k">def</span> <span class="nf">export_tuning_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_tuner</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Backend does not support autotuning&quot;</span><span class="p">)</span>
-        <span class="c1"># artifact = self.tuner.get_results()</span>
-        <span class="c1"># TODO: write tuning report to file...</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="Backend.export_code"><a class="viewcode-back" href="../../../mlonmcu.flow.html#mlonmcu.flow.backend.Backend.export_code">[docs]</a>    <span class="k">def</span> <span class="nf">export_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;No artifacts found, please run generate_code() first&quot;</span>

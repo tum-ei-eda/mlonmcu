@@ -140,10 +140,10 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">require_target</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">handle_load</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="n">backends</span> <span class="o">=</span> <span class="n">extract_backend_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-    <span class="n">targets</span> <span class="o">=</span> <span class="n">extract_target_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">extract_target_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span> <span class="k">if</span> <span class="n">require_target</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">platforms</span> <span class="o">=</span> <span class="n">extract_platform_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
 
     <span class="n">new_config</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_config_and_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
@@ -191,12 +191,12 @@
     <span class="n">session</span><span class="o">.</span><span class="n">runs</span> <span class="o">=</span> <span class="n">new_runs</span>
 
 
-<div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.build.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.build.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">require_target</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ctx</span><span class="p">:</span>
-        <span class="n">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="n">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">require_target</span><span class="o">=</span><span class="n">require_target</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
-            <span class="n">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+            <span class="n">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">require_target</span><span class="o">=</span><span class="n">require_target</span><span class="p">)</span>
             <span class="n">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 </pre></div>
 

@@ -111,11 +111,12 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.target.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span> <span class="nn">.riscv</span> <span class="kn">import</span> <span class="n">RISCVTarget</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">update_extensions</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="EtissPulpinoTarget"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss_pulpino.EtissPulpinoTarget">[docs]</a><span class="k">class</span> <span class="nc">EtissPulpinoTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
+<div class="viewcode-block" id="EtissPulpinoTarget"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget">[docs]</a><span class="k">class</span> <span class="nc">EtissPulpinoTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Target using a Pulpino-like VP running in the ETISS simulator&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="s2">&quot;vext&quot;</span><span class="p">]</span>
@@ -136,9 +137,11 @@
         <span class="s2">&quot;etissvp.ram_start&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>
         <span class="s2">&quot;etissvp.ram_size&quot;</span><span class="p">:</span> <span class="mh">0x4000000</span><span class="p">,</span>  <span class="c1"># 64 MB</span>
         <span class="s2">&quot;etissvp.cycle_time_ps&quot;</span><span class="p">:</span> <span class="mi">31250</span><span class="p">,</span>  <span class="c1"># 32 MHz</span>
-        <span class="s2">&quot;enable_fpu&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># WIP</span>
         <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;vext_spec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;embedded_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_pext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;pext_spec&quot;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">,</span>
         <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
         <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
         <span class="s2">&quot;jit&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -225,11 +228,6 @@
             <span class="k">return</span> <span class="s2">&quot;RV32IMACFD&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">enable_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_fpu&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enable_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_vext&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
@@ -253,19 +251,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extensions</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span> <span class="ow">and</span> <span class="s2">&quot;p&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;v&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span> <span class="ow">and</span> <span class="s2">&quot;zve32x&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span> <span class="ow">and</span> <span class="s2">&quot;zve32f&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>  <span class="c1"># Required to tell the compiler that EEW is not allowed...</span>
-                <span class="c1"># if self.enable_fpu:</span>
-                <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
-                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32x&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32f&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ret</span>
+        <span class="n">exts</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extensions</span>
+        <span class="k">return</span> <span class="n">update_extensions</span><span class="p">(</span>
+            <span class="n">exts</span><span class="p">,</span>
+            <span class="n">pext</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">,</span>
+            <span class="n">pext_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span><span class="p">,</span>
+            <span class="n">vext</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">,</span>
+            <span class="n">elen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="p">,</span>
+            <span class="n">embedded</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_vext</span><span class="p">,</span>
+            <span class="n">fpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fpu</span><span class="p">,</span>
+            <span class="n">variant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gcc_variant</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -279,7 +275,20 @@
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;end_to_end_cycles&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="EtissPulpinoTarget.write_ini"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss_pulpino.EtissPulpinoTarget.write_ini">[docs]</a>    <span class="k">def</span> <span class="nf">write_ini</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vext_spec&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">embedded_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;embedded_vext&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;pext_spec&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="EtissPulpinoTarget.write_ini"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.write_ini">[docs]</a>    <span class="k">def</span> <span class="nf">write_ini</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="c1"># TODO: Either create artifact for ini or prefer to use cmdline args.</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpu_arch</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit</span><span class="p">:</span>
@@ -297,7 +306,7 @@
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;simple_mem_system.memseg_length_01=</span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ram_size</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;arch.cpu_cycle_time_ps=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_time_ps</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_fpu</span><span class="p">:</span>
                 <span class="c1"># TODO: do not hardcode cpu_arch</span>
                 <span class="c1"># TODO: i.e. use cpu_arch_lower</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;arch.rv32imacfdpv.mstatus_fs=1&quot;</span><span class="p">)</span>
@@ -313,7 +322,7 @@
                 <span class="c1"># This could also be accomplished using `--plugin.gdbserver.port` on the cmdline</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plugin.gdbserver.port=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="EtissPulpinoTarget.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss_pulpino.EtissPulpinoTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="EtissPulpinoTarget.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="n">etiss_script_args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -355,7 +364,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="EtissPulpinoTarget.parse_stdout"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss_pulpino.EtissPulpinoTarget.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="EtissPulpinoTarget.parse_stdout"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">exit_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;exit called with code: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exit_match</span><span class="p">:</span>
             <span class="n">exit_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">exit_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
@@ -391,7 +400,7 @@
 
         <span class="k">return</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">mips</span></div>
 
-<div class="viewcode-block" id="EtissPulpinoTarget.get_metrics"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss_pulpino.EtissPulpinoTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="EtissPulpinoTarget.get_metrics"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span><span class="p">:</span>
             <span class="n">trace_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;dBusAccess.csv&quot;</span><span class="p">)</span>
@@ -405,10 +414,10 @@
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">metrics_file</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
-                <span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span>
+                <span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span>
             <span class="p">)</span>
         <span class="n">total_cycles</span><span class="p">,</span> <span class="n">mips</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
 
@@ -489,10 +498,10 @@
 
         <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span></div>
 
-<div class="viewcode-block" id="EtissPulpinoTarget.get_target_system"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss_pulpino.EtissPulpinoTarget.get_target_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="EtissPulpinoTarget.get_target_system"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.get_target_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
-<div class="viewcode-block" id="EtissPulpinoTarget.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss_pulpino.EtissPulpinoTarget.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+<div class="viewcode-block" id="EtissPulpinoTarget.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ETISS_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_dir</span>
@@ -501,15 +510,17 @@
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;PULPINO_RAM_START&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_start</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;PULPINO_RAM_SIZE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_size</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;96&quot;</span>
+            <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">major</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minor</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vext_spec</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">major</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minor</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_VLEN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="EtissPulpinoTarget.get_backend_config"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss_pulpino.EtissPulpinoTarget.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
+<div class="viewcode-block" id="EtissPulpinoTarget.get_backend_config"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">:</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;target_model&quot;</span><span class="p">:</span> <span class="s2">&quot;etissvp&quot;</span><span class="p">})</span>

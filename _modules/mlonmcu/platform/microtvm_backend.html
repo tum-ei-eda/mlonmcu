@@ -100,8 +100,10 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.backend</span> <span class="kn">import</span> <span class="n">TVMBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmaot</span> <span class="kn">import</span> <span class="n">TVMAOTBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmllvm</span> <span class="kn">import</span> <span class="n">TVMLLVMBackend</span>
+
+<span class="c1"># from mlonmcu.flow.tvm.backend.tvmaot import TVMAOTBackend</span>
+<span class="c1"># from mlonmcu.flow.tvm.backend.tvmaotplus import TVMAOTPlusBackend</span>
+<span class="c1"># from mlonmcu.flow.tvm.backend.tvmllvm import TVMLLVMBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmrt</span> <span class="kn">import</span> <span class="n">TVMRTBackend</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
@@ -121,14 +123,14 @@
     <span class="k">return</span> <span class="n">MICROTVM_PLATFORM_BACKEND_REGISTRY</span></div>
 
 
-<span class="n">register_microtvm_platform_backend</span><span class="p">(</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="n">TVMAOTBackend</span><span class="p">)</span>
+<span class="c1"># register_microtvm_platform_backend(&quot;tvmaot&quot;, TVMAOTBackend)</span>
+<span class="c1"># register_microtvm_platform_backend(&quot;tvmaotplus&quot;, TVMAOTPlusBackend)</span>
 <span class="n">register_microtvm_platform_backend</span><span class="p">(</span><span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span> <span class="n">TVMRTBackend</span><span class="p">)</span>
-<span class="n">register_microtvm_platform_backend</span><span class="p">(</span><span class="s2">&quot;tvmllvm&quot;</span><span class="p">,</span> <span class="n">TVMLLVMBackend</span><span class="p">)</span>
+<span class="c1"># register_microtvm_platform_backend(&quot;tvmllvm&quot;, TVMLLVMBackend)</span>
 
 
 <div class="viewcode-block" id="create_microtvm_platform_backend"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm_backend.create_microtvm_platform_backend">[docs]</a><span class="k">def</span> <span class="nf">create_microtvm_platform_backend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">TVMBackend</span><span class="p">):</span>
     <span class="k">class</span> <span class="nc">MicroTvmPlatformBackend</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
-
         <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
 
         <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>

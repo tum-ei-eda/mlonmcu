@@ -99,6 +99,7 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Collection of (example) postprocesses integrated in MLonMCU.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">ast</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
@@ -107,7 +108,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="n">lookup_artifacts</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2dict</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2dict</span><span class="p">,</span> <span class="n">str2bool</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="kn">from</span> <span class="nn">.postprocess</span> <span class="kn">import</span> <span class="n">SessionPostprocess</span><span class="p">,</span> <span class="n">RunPostprocess</span>
@@ -386,6 +387,179 @@
             <span class="k">if</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fmt</span> <span class="o">!=</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can only put text into report columns&quot;</span><span class="p">)</span>
             <span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">content</span></div></div>
+
+
+<div class="viewcode-block" id="AnalyseInstructionsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">AnalyseInstructionsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Counting specific types of instructions.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;sequences&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;analyse_instructions&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get groups property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;groups&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get sequences property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;sequences&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get sequences property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="AnalyseInstructionsPostprocess.post_run"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.post_run">[docs]</a>    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
+        <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">log_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">,),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">log_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;To use analyse_instructions process, please enable feature log_instrs.&quot;</span>
+        <span class="n">log_artifact</span> <span class="o">=</span> <span class="n">log_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">is_spike</span> <span class="o">=</span> <span class="s2">&quot;spike&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span>
+        <span class="n">is_etiss</span> <span class="o">=</span> <span class="s2">&quot;etiss_pulpino&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span>
+        <span class="n">is_ovpsim</span> <span class="o">=</span> <span class="s2">&quot;ovpsim&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span>
+        <span class="n">is_riscv</span> <span class="o">=</span> <span class="n">is_spike</span> <span class="ow">or</span> <span class="n">is_etiss</span> <span class="ow">or</span> <span class="n">is_ovpsim</span>
+        <span class="k">if</span> <span class="n">is_spike</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">content</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
+                <span class="n">encodings</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\((0x[0-9abcdef]+)\)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;core\s+\d+:\s0x[0-9abcdef]+\s\(0x[0-9abcdef]+\)\s([\w.]+).*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_etiss</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">content</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
+                <span class="n">encodings</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[0-9abcdef]+:\s\w+\s#\s([01]+)\s.*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+                <span class="n">encodings</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;0b</span><span class="si">{</span><span class="n">enc</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="n">encodings</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[0-9abcdef]+:\s(\w+)\s#\s[01]+\s.*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_ovpsim</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">content</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
+                <span class="n">encodings</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;riscvOVPsim\/cpu&#39;,\s0x[0-9abcdef]+\(.*\):\s([0-9abcdef]+)\s+\w+\s+.*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+                    <span class="n">content</span>
+                <span class="p">)</span>
+                <span class="n">encodings</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;0x</span><span class="si">{</span><span class="n">enc</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="n">encodings</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;riscvOVPsim\/cpu&#39;,\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+(\w+)\s+.*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+                    <span class="n">content</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Uable to determine the used target.&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_helper</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+            <span class="n">counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+            <span class="n">probs</span> <span class="o">=</span> <span class="n">counts</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">top</span><span class="p">)),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">top</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">_gen_csv</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">probs</span><span class="p">):</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">;Count;Probablity&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">;</span><span class="si">{</span><span class="n">counts</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="si">}</span><span class="s2">;</span><span class="si">{</span><span class="n">probs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">is_riscv</span><span class="p">,</span> <span class="s2">&quot;Currently only riscv instrcutions can be analysed by groups&quot;</span>
+
+            <span class="k">def</span> <span class="nf">_extract_major_opcode</span><span class="p">(</span><span class="n">enc</span><span class="p">):</span>
+                <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="mb">0b0010011</span><span class="p">:</span> <span class="s2">&quot;OP-IMM&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0110111</span><span class="p">:</span> <span class="s2">&quot;LUI&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0010111</span><span class="p">:</span> <span class="s2">&quot;AUIPC&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0110011</span><span class="p">:</span> <span class="s2">&quot;OP&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1101111</span><span class="p">:</span> <span class="s2">&quot;JAL&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1100111</span><span class="p">:</span> <span class="s2">&quot;JALR&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1100011</span><span class="p">:</span> <span class="s2">&quot;BRANCH&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0000011</span><span class="p">:</span> <span class="s2">&quot;LOAD&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0100011</span><span class="p">:</span> <span class="s2">&quot;STORE&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0001111</span><span class="p">:</span> <span class="s2">&quot;MISC-MEM&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1110011</span><span class="p">:</span> <span class="s2">&quot;SYSTEM&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1000011</span><span class="p">:</span> <span class="s2">&quot;MADD&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1000111</span><span class="p">:</span> <span class="s2">&quot;MSUB&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1001011</span><span class="p">:</span> <span class="s2">&quot;MNSUB&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1001111</span><span class="p">:</span> <span class="s2">&quot;MNADD&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0000111</span><span class="p">:</span> <span class="s2">&quot;LOAD-FP&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0100111</span><span class="p">:</span> <span class="s2">&quot;STORE-FP&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0001011</span><span class="p">:</span> <span class="s2">&quot;custom-0&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0101011</span><span class="p">:</span> <span class="s2">&quot;custom-1&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1011011</span><span class="p">:</span> <span class="s2">&quot;custom-2/rv128&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1111011</span><span class="p">:</span> <span class="s2">&quot;custom-3/rv128&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1101011</span><span class="p">:</span> <span class="s2">&quot;reserved&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0101111</span><span class="p">:</span> <span class="s2">&quot;AMO&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1010011</span><span class="p">:</span> <span class="s2">&quot;OP-FP&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1010111</span><span class="p">:</span> <span class="s2">&quot;OP-V&quot;</span><span class="p">,</span>
+                    <span class="mb">0b1110111</span><span class="p">:</span> <span class="s2">&quot;OP-P&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0011011</span><span class="p">:</span> <span class="s2">&quot;OP-IMM-32&quot;</span><span class="p">,</span>
+                    <span class="mb">0b0111011</span><span class="p">:</span> <span class="s2">&quot;OP-32&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">enc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">enc</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># Convert from hexadecimal</span>
+                <span class="n">opcode</span> <span class="o">=</span> <span class="n">enc</span> <span class="o">&amp;</span> <span class="mb">0b1111111</span>
+                <span class="n">lsbs</span> <span class="o">=</span> <span class="n">opcode</span> <span class="o">&amp;</span> <span class="mb">0b11</span>
+                <span class="k">if</span> <span class="n">lsbs</span> <span class="o">==</span> <span class="mb">0b11</span><span class="p">:</span>
+                    <span class="n">major</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">opcode</span><span class="p">,</span> <span class="s2">&quot;UNKNOWN&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># 16-bit instruction</span>
+                    <span class="n">msbs</span> <span class="o">=</span> <span class="p">(</span><span class="n">enc</span> <span class="o">&amp;</span> <span class="mb">0b1110000000000000</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">13</span>
+                    <span class="n">rvc_mapping</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="mb">0b00000</span><span class="p">:</span> <span class="s2">&quot;OP-IMM&quot;</span><span class="p">,</span>
+                        <span class="mb">0b00001</span><span class="p">:</span> <span class="s2">&quot;OP-IMM&quot;</span><span class="p">,</span>
+                        <span class="mb">0b00010</span><span class="p">:</span> <span class="s2">&quot;OP-IMM&quot;</span><span class="p">,</span>
+                        <span class="mb">0b00100</span><span class="p">:</span> <span class="s2">&quot;LOAD&quot;</span><span class="p">,</span>
+                        <span class="mb">0b00101</span><span class="p">:</span> <span class="s2">&quot;JAL&quot;</span><span class="p">,</span>
+                        <span class="mb">0b00110</span><span class="p">:</span> <span class="s2">&quot;LOAD-FP&quot;</span><span class="p">,</span>
+                        <span class="mb">0b01000</span><span class="p">:</span> <span class="s2">&quot;LOAD&quot;</span><span class="p">,</span>
+                        <span class="mb">0b01001</span><span class="p">:</span> <span class="s2">&quot;OP-IMM&quot;</span><span class="p">,</span>
+                        <span class="mb">0b01010</span><span class="p">:</span> <span class="s2">&quot;LOAD&quot;</span><span class="p">,</span>
+                        <span class="mb">0b01100</span><span class="p">:</span> <span class="s2">&quot;LOAD-FP&quot;</span><span class="p">,</span>
+                        <span class="mb">0b01101</span><span class="p">:</span> <span class="s2">&quot;OP-IMM&quot;</span><span class="p">,</span>
+                        <span class="mb">0b01110</span><span class="p">:</span> <span class="s2">&quot;LOAD-FP&quot;</span><span class="p">,</span>
+                        <span class="mb">0b10000</span><span class="p">:</span> <span class="s2">&quot;reserved&quot;</span><span class="p">,</span>
+                        <span class="mb">0b10001</span><span class="p">:</span> <span class="s2">&quot;MISC-ALU&quot;</span><span class="p">,</span>
+                        <span class="mb">0b10010</span><span class="p">:</span> <span class="s2">&quot;JALR&quot;</span><span class="p">,</span>
+                        <span class="mb">0b10100</span><span class="p">:</span> <span class="s2">&quot;STORE-FP&quot;</span><span class="p">,</span>
+                        <span class="mb">0b10101</span><span class="p">:</span> <span class="s2">&quot;JAL&quot;</span><span class="p">,</span>
+                        <span class="mb">0b10110</span><span class="p">:</span> <span class="s2">&quot;STORE-FP&quot;</span><span class="p">,</span>
+                        <span class="mb">0b11000</span><span class="p">:</span> <span class="s2">&quot;STORE&quot;</span><span class="p">,</span>
+                        <span class="mb">0b11001</span><span class="p">:</span> <span class="s2">&quot;BRANCH&quot;</span><span class="p">,</span>
+                        <span class="mb">0b11010</span><span class="p">:</span> <span class="s2">&quot;STORE&quot;</span><span class="p">,</span>
+                        <span class="mb">0b11100</span><span class="p">:</span> <span class="s2">&quot;STORE-FP&quot;</span><span class="p">,</span>
+                        <span class="mb">0b11101</span><span class="p">:</span> <span class="s2">&quot;BRANCH&quot;</span><span class="p">,</span>
+                        <span class="mb">0b11110</span><span class="p">:</span> <span class="s2">&quot;STORE-FP&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                    <span class="n">combined</span> <span class="o">=</span> <span class="n">msbs</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span> <span class="o">|</span> <span class="n">lsbs</span>
+                    <span class="k">assert</span> <span class="n">combined</span> <span class="ow">in</span> <span class="n">rvc_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rvc_mapping</span><span class="p">[</span><span class="n">combined</span><span class="p">]</span><span class="si">}</span><span class="s2"> (Compressed)&quot;</span>
+                <span class="k">return</span> <span class="n">major</span>
+
+            <span class="n">majors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_extract_major_opcode</span><span class="p">,</span> <span class="n">encodings</span><span class="p">))</span>
+            <span class="n">major_counts</span><span class="p">,</span> <span class="n">major_probs</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">majors</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+            <span class="n">majors_csv</span> <span class="o">=</span> <span class="n">_gen_csv</span><span class="p">(</span><span class="s2">&quot;Major&quot;</span><span class="p">,</span> <span class="n">major_counts</span><span class="p">,</span> <span class="n">major_probs</span><span class="p">)</span>
+            <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;analyse_instructions_majors.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">majors_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+            <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span><span class="p">:</span>
+            <span class="n">max_len</span> <span class="o">=</span> <span class="mi">3</span>
+
+            <span class="k">def</span> <span class="nf">_get_sublists</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">-</span> <span class="n">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">lst_</span> <span class="o">=</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">length</span><span class="p">]</span>
+                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lst_</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">ret</span>
+
+            <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">names_</span> <span class="o">=</span> <span class="n">_get_sublists</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+                <span class="n">counts</span><span class="p">,</span> <span class="n">probs</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">names_</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+                <span class="n">sequence_csv</span> <span class="o">=</span> <span class="n">_gen_csv</span><span class="p">(</span><span class="s2">&quot;Sequence&quot;</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">probs</span><span class="p">)</span>
+                <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;analyse_instructions_seq</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">sequence_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
+                <span class="p">)</span>
+                <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret_artifacts</span></div></div>
 </pre></div>
 
            </div>

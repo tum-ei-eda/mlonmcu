@@ -109,15 +109,21 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.target.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span> <span class="nn">.riscv</span> <span class="kn">import</span> <span class="n">RISCVTarget</span><span class="p">,</span> <span class="n">sort_extensions_canonical</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">update_extensions</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="replace_unsupported"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ovpsim.replace_unsupported">[docs]</a><span class="k">def</span> <span class="nf">replace_unsupported</span><span class="p">(</span><span class="n">exts</span><span class="p">):</span>
+<span class="n">MAX_P_SPEC</span> <span class="o">=</span> <span class="mf">0.96</span>
+
+
+<div class="viewcode-block" id="replace_unsupported"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.replace_unsupported">[docs]</a><span class="k">def</span> <span class="nf">replace_unsupported</span><span class="p">(</span><span class="n">exts</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;ZVE&quot;</span> <span class="ow">in</span> <span class="n">ext</span> <span class="ow">or</span> <span class="s2">&quot;ZVL&quot;</span> <span class="ow">in</span> <span class="n">ext</span><span class="p">:</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;zpn&quot;</span> <span class="ow">in</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s2">&quot;zpsfoperand&quot;</span> <span class="ow">in</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">pass</span>
         <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">)</span>
@@ -126,20 +132,23 @@
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
-<div class="viewcode-block" id="OVPSimTarget"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ovpsim.OVPSimTarget">[docs]</a><span class="k">class</span> <span class="nc">OVPSimTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
+<div class="viewcode-block" id="OVPSimTarget"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.OVPSimTarget">[docs]</a><span class="k">class</span> <span class="nc">OVPSimTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="s2">&quot;gdbserver&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;log_instrs&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
+        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
         <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
         <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;vext_spec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;embedded_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_pext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;enable_fpu&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;pext_spec&quot;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">,</span>
+        <span class="s2">&quot;bitmanip_spec&quot;</span><span class="p">:</span> <span class="mf">0.94</span><span class="p">,</span>
         <span class="s2">&quot;variant&quot;</span><span class="p">:</span> <span class="s2">&quot;RVB32I&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;end_to_end_cycles&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;end_to_end_cycles&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;gdbserver_enable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;gdbserver_attach&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;gdbserver_port&quot;</span><span class="p">:</span> <span class="mi">2222</span><span class="p">,</span>
@@ -163,19 +172,18 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extensions</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span> <span class="ow">and</span> <span class="s2">&quot;p&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;v&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span> <span class="ow">and</span> <span class="s2">&quot;zve32x&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span> <span class="ow">and</span> <span class="s2">&quot;zve32f&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>  <span class="c1"># Required to tell the compiler that EEW is not allowed...</span>
-                <span class="c1"># if self.enable_fpu:</span>
-                <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
-                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32x&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32f&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ret</span>
+        <span class="n">exts</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extensions</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span> <span class="o">&lt;=</span> <span class="n">MAX_P_SPEC</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;P-Extension spec </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span><span class="si">}</span><span class="s2"> not supported by </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> target&quot;</span>
+        <span class="k">return</span> <span class="n">update_extensions</span><span class="p">(</span>
+            <span class="n">exts</span><span class="p">,</span>
+            <span class="n">pext</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">,</span>
+            <span class="n">pext_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span><span class="p">,</span>
+            <span class="n">vext</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">,</span>
+            <span class="n">elen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="p">,</span>
+            <span class="n">embedded</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_vext</span><span class="p">,</span>
+            <span class="n">fpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fpu</span><span class="p">,</span>
+            <span class="n">variant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gcc_variant</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -191,11 +199,6 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">elen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;elen&quot;</span><span class="p">])</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">enable_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_fpu&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enable_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -226,7 +229,20 @@
     <span class="k">def</span> <span class="nf">gdbserver_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gdbserver_port&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="OVPSimTarget.get_default_ovpsim_args"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ovpsim.OVPSimTarget.get_default_ovpsim_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_ovpsim_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vext_spec&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">embedded_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;embedded_vext&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;pext_spec&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="OVPSimTarget.get_default_ovpsim_args"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.OVPSimTarget.get_default_ovpsim_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_ovpsim_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">extensions_before</span> <span class="o">=</span> <span class="n">sort_extensions_canonical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extensions</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">extensions_after</span> <span class="o">=</span> <span class="n">replace_unsupported</span><span class="p">(</span><span class="n">extensions_before</span><span class="p">)</span>
         <span class="n">extensions_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sort_extensions_canonical</span><span class="p">(</span><span class="n">extensions_after</span><span class="p">))</span>
@@ -237,22 +253,24 @@
             <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/add_Extensions=</span><span class="si">{</span><span class="n">extensions_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
             <span class="s2">&quot;riscvOVPsim/cpu/unaligned=T&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;riscvOVPsim/cpu/pk/reportExitErrors=T&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">:</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;riscvOVPsim/cpu/dsp_version=0.9.6&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/dsp_version=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;riscvOVPsim/cpu/bitmanip_version=1.0.0&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/bitmanip_version=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bitmanip_spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">]</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span><span class="p">,</span> <span class="s2">&quot;V-Extension requires enabled FPU&quot;</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_fpu</span><span class="p">,</span> <span class="s2">&quot;V-Extension requires enabled FPU&quot;</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;riscvOVPsim/cpu/vector_version=1.0-draft-20210130&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;riscvOVPsim/cpu/vector_version=1.0-draft-20210130&quot;</span><span class="p">,</span>  <span class="c1"># TODO: use vext_spec</span>
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/VLEN=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;--override&quot;</span><span class="p">,</span>
@@ -260,9 +278,9 @@
                 <span class="p">]</span>
             <span class="p">)</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--override&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/mstatus_VS=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_fpu</span><span class="p">:</span>
             <span class="k">assert</span> <span class="s2">&quot;f&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span> <span class="ow">or</span> <span class="s2">&quot;g&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--override&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/mstatus_FS=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--override&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;riscvOVPsim/cpu/mstatus_FS=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">has_fpu</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_enable</span><span class="p">:</span>
             <span class="c1"># args.append(&quot;--trace&quot;)</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--port&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_port</span><span class="p">)])</span>
@@ -270,7 +288,7 @@
                 <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--gdbconsole&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">args</span></div>
 
-<div class="viewcode-block" id="OVPSimTarget.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ovpsim.OVPSimTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="OVPSimTarget.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.OVPSimTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="n">ovpsim_args</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -278,7 +296,11 @@
         <span class="n">ovpsim_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_default_ovpsim_args</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ovpsim_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span>
+            <span class="n">ovpsim_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -287,36 +309,37 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ovpsim_exe</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
             <span class="o">*</span><span class="n">ovpsim_args</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># Does this work?</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="OVPSimTarget.parse_stdout"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ovpsim.OVPSimTarget.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+<div class="viewcode-block" id="OVPSimTarget.parse_stdout"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.OVPSimTarget.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
         <span class="c1"># cpi = 1</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_to_end_cycles</span><span class="p">:</span>
-            <span class="n">cpu_cycles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;  Simulated instructions:(.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+            <span class="n">cpu_cycles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*  Simulated instructions:(.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">cpu_cycles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Total Cycles: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+            <span class="n">cpu_cycles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.* Total Cycles: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cpu_cycles</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unexpected script output (cycles)&quot;</span><span class="p">)</span>
             <span class="n">cycles</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cycles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cpu_cycles</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
         <span class="n">mips</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: parse mips?</span>
-        <span class="n">mips_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;  Simulated MIPS:(.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="n">mips_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*  Simulated MIPS:(.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">mips_match</span><span class="p">:</span>
             <span class="n">mips_str</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mips_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
             <span class="k">if</span> <span class="s2">&quot;run too short for meaningful result&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mips</span><span class="p">:</span>
                 <span class="n">mips</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mips_str</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">mips</span></div>
 
-<div class="viewcode-block" id="OVPSimTarget.get_metrics"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ovpsim.OVPSimTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OVPSimTarget.get_metrics"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.OVPSimTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
-                <span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span>
+                <span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span>
             <span class="p">)</span>
         <span class="n">cycles</span><span class="p">,</span> <span class="n">mips</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
@@ -327,18 +350,20 @@
 
         <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="OVPSimTarget.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ovpsim.OVPSimTarget.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+<div class="viewcode-block" id="OVPSimTarget.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.OVPSimTarget.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;96&quot;</span>
+            <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">major</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minor</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vext_spec</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">major</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minor</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_VLEN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="OVPSimTarget.get_backend_config"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ovpsim.OVPSimTarget.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
+<div class="viewcode-block" id="OVPSimTarget.get_backend_config"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.OVPSimTarget.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">:</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;target_model&quot;</span><span class="p">:</span> <span class="s2">&quot;ovpsim-rv32&quot;</span><span class="p">})</span>

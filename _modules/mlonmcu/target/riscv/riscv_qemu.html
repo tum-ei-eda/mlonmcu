@@ -107,22 +107,25 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.target.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span> <span class="nn">.riscv</span> <span class="kn">import</span> <span class="n">RISCVTarget</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">update_extensions</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 <span class="c1"># TODO: create (Riscv)QemuTarget with variable machine</span>
 
 
-<div class="viewcode-block" id="RiscvQemuTarget"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_qemu.RiscvQemuTarget">[docs]</a><span class="k">class</span> <span class="nc">RiscvQemuTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
+<div class="viewcode-block" id="RiscvQemuTarget"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget">[docs]</a><span class="k">class</span> <span class="nc">RiscvQemuTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Target using a spike machine in the QEMU simulator&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">]</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>  <span class="c1"># TODO: check allowed range [128, 1024]</span>
+        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># TODO: check allowed range [128, 1024]</span>
         <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
         <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;vext_spec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;embedded_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;riscv32_qemu.exe&quot;</span><span class="p">]</span>  <span class="c1"># TODO: 64 bit?</span>
 
@@ -135,17 +138,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extensions</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;v&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span> <span class="ow">and</span> <span class="s2">&quot;zve32x&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span> <span class="ow">and</span> <span class="s2">&quot;zve32f&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>  <span class="c1"># Required to tell the compiler that EEW is not allowed...</span>
-                <span class="c1"># if not self.enable_fpu:</span>
-                <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
-                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32x&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32f&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ret</span>
+        <span class="n">exts</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extensions</span>
+        <span class="k">return</span> <span class="n">update_extensions</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="n">vext</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">,</span> <span class="n">elen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="p">,</span> <span class="n">embedded</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_vext</span><span class="p">,</span> <span class="n">fpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fpu</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -167,7 +161,16 @@
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_vext&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="RiscvQemuTarget.get_cpu_str"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_qemu.RiscvQemuTarget.get_cpu_str">[docs]</a>    <span class="k">def</span> <span class="nf">get_cpu_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vext_spec&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">embedded_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;embedded_vext&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="RiscvQemuTarget.get_cpu_str"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget.get_cpu_str">[docs]</a>    <span class="k">def</span> <span class="nf">get_cpu_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
             <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
@@ -176,7 +179,7 @@
             <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;vext_spec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;v1.0&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span></div>
 
-<div class="viewcode-block" id="RiscvQemuTarget.get_qemu_args"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_qemu.RiscvQemuTarget.get_qemu_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_qemu_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">):</span>
+<div class="viewcode-block" id="RiscvQemuTarget.get_qemu_args"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget.get_qemu_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_qemu_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-machine&quot;</span><span class="p">,</span> <span class="s2">&quot;spike&quot;</span><span class="p">])</span>
         <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-bios&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">])</span>
@@ -186,7 +189,7 @@
         <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-kernel&quot;</span><span class="p">,</span> <span class="n">program</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">args</span></div>
 
-<div class="viewcode-block" id="RiscvQemuTarget.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_qemu.RiscvQemuTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="RiscvQemuTarget.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Qemu does not support passing arguments.&quot;</span>
         <span class="n">qemu_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qemu_args</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
@@ -202,7 +205,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="RiscvQemuTarget.parse_stdout"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_qemu.RiscvQemuTarget.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RiscvQemuTarget.parse_stdout"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget.parse_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">cpu_cycles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Total Cycles: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cpu_cycles</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;unexpected script output (cycles)&quot;</span><span class="p">)</span>
@@ -211,14 +214,14 @@
             <span class="n">cycles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_cycles</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">cycles</span></div>
 
-<div class="viewcode-block" id="RiscvQemuTarget.get_metrics"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_qemu.RiscvQemuTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RiscvQemuTarget.get_metrics"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
-                <span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span>
+                <span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span>
             <span class="p">)</span>
         <span class="n">total_cycles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
 
@@ -227,15 +230,15 @@
 
         <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="RiscvQemuTarget.get_target_system"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_qemu.RiscvQemuTarget.get_target_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RiscvQemuTarget.get_target_system"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget.get_target_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
-<div class="viewcode-block" id="RiscvQemuTarget.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_qemu.RiscvQemuTarget.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span>
+<div class="viewcode-block" id="RiscvQemuTarget.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vext_spec</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">major</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minor</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_VLEN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span>
         <span class="k">return</span> <span class="n">ret</span></div></div>
 

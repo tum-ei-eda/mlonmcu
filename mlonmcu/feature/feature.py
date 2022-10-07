@@ -55,7 +55,12 @@ class FeatureBase(ABC):
         return {helper(key): value for key, value in config.items() if f"{self.name}." in key}
 
     def __repr__(self):
-        return type(self).__name__ + f"({self.name})"
+        probs = []
+        if self.name:
+            probs.append(self.name)
+        if self.config and len(self.config) > 0:
+            probs.append(str(self.config))
+        return "Feature(" + ",".join(probs) + ")"
 
     # @property
     # def types(self):

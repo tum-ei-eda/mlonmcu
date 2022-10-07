@@ -54,8 +54,14 @@ class Backend(ABC):
         self.tuner = None
 
     def __repr__(self):
-        name = type(self).name
-        return f"Backend({name})"
+        probs = []
+        if self.name:
+            probs.append(type(self).name)
+        if self.features and len(self.features) > 0:
+            probs.append(str(self.features))
+        if self.config and len(self.config) > 0:
+            probs.append(str(self.config))
+        return "Backend(" + ",".join(probs) + ")"
 
     def process_features(self, features):
         # Filter out non-backend features

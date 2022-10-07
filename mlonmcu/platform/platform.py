@@ -67,6 +67,16 @@ class Platform:
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.artifacts = []
 
+    def __repr__(self):
+        probs = []
+        if self.name:
+            probs.append(self.name)
+        if self.features and len(self.features) > 0:
+            probs.append(str(self.features))
+        if self.config and len(self.config) > 0:
+            probs.append(str(self.config))
+        return "Platform(" + ",".join(probs) + ")"
+
     def init_directory(self, path=None, context=None):
         raise NotImplementedError
 

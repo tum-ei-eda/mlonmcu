@@ -93,7 +93,14 @@ class Target:
         return self.config["repeat"]
 
     def __repr__(self):
-        return f"Target({self.name})"
+        probs = []
+        if self.name:
+            probs.append(self.name)
+        if self.features and len(self.features) > 0:
+            probs.append(str(self.features))
+        if self.config and len(self.config) > 0:
+            probs.append(str(self.config))
+        return "Target(" + ",".join(probs) + ")"
 
     def process_features(self, features):
         if features is None:

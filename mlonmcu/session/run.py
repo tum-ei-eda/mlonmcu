@@ -90,6 +90,7 @@ class Run:
         config=None,  # TODO: All config combined or explicit run-config?
         postprocesses=None,
         archived=False,
+        hidden=False,
         session=None,
         comment="",
     ):
@@ -98,9 +99,11 @@ class Run:
         self.frontends = frontends if frontends is not None else []
         self.framework = framework  # ???
         self.backend = backend
+        self.target = target
         self.platforms = platforms if platforms is not None else []
         self.artifacts_per_stage = {}
         self.archived = archived
+        self.hidden = hidden
         self.session = session
         self.postprocesses = postprocesses if postprocesses else []
         self.comment = comment
@@ -108,7 +111,6 @@ class Run:
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
         self.init_directory()
-        self.target = target
         self.cache_hints = []
         self.config = config if config else {}
         self.features = features if features else []
@@ -250,7 +252,14 @@ class Run:
             self.dir = Path(self.tempdir.name)
         else:
             self.tempdir = None
-            self.dir = self.session.runs_dir / str(self.idx)
+            if isinstance(self.idx, int):
+                dirname = str(self.idx)
+            else:
+                assert isinstance(self.idx, tuple)
+                dirname = "_".join(list(map(str, self.idx)))
+            if self.hidden:
+                dirname = "." + dirname
+            self.dir = self.session.runs_dir / dirname
             if not self.dir.is_dir():
                 os.mkdir(self.dir)
             # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
@@ -494,6 +503,80 @@ class Run:
         if self.config and len(self.config) > 0:
             probs.append(str(self.config))
         return "Run(" + ",".join(probs) + ")"
+
+    def get_hash(self, until=RunStage.DONE):
+        probs = {}
+        cfg = {}
+
+        def has_prefix(key):
+            """Returns true if the configuration key does not have global scope."""
+            return "." in key
+
+        def config_helper(obj, prefix=None):
+            """Helper to access the configuration of a given component object."""
+            if prefix:
+                name = prefix
+            else:
+                assert hasattr(obj, "name")
+                name = obj.name
+            ret = {
+                key if has_prefix(key) else f"{name}.{key}": value
+                for key, value in obj.config.items()
+            }
+            return ret
+
+        ret = {}
+        ret.update(
+            {key: value for key, value in self.config.items() if not has_prefix(key)}
+        )  # Only config without a prefix!
+        ret.update(self.run_config)
+        if until >= RunStage.LOAD:
+            probs["model"] = str(self.model)
+            # TODO: MODEL CFG
+            probs["frontends"] = str(self.frontends)
+            for frontend in self.frontends:
+                cfg.update(config_helper(frontend))
+        if until >= RunStage.TUNE:
+            if self.target_to_backend and self.target:
+                probs["target"] = str(self.target)
+                cfg.update(config_helper(self.target))
+            probs["backend"] = str(self.backend)
+            cfg.update(config_helper(self.backend))
+            probs["framework"] = str(self.framework)
+            cfg.update(config_helper(self.framework))
+            if self.tune_platform:
+                probs["tune_platform"] = str(self.tune_platform)
+                cfg.update(config_helper(self.tune_platform))
+        if until >= RunStage.BUILD:
+            if self.target_to_backend and self.target:
+                probs["target"] = str(self.target)
+            probs["backend"] = str(self.backend)
+            cfg.update(config_helper(self.backend))
+            probs["framework"] = str(self.framework)
+            cfg.update(config_helper(self.framework))
+            if self.build_platform:
+                probs["build_platform"] = str(self.build_platform)
+                cfg.update(config_helper(self.build_platform))
+        if until >= RunStage.COMPILE:
+            probs["target"] = str(self.target)
+            if self.compile_platform:
+                probs["compile_platform"] = str(self.compile_platform)
+                cfg.update(config_helper(self.compile_platform))
+        if until >= RunStage.RUN:
+            probs["target"] = str(self.target)
+            # if self.run_platform:
+            #     probs["run_platform"] = str(self.run_platform)
+            #     cfg.update(config_helper(self.run_platform))
+        if until >= RunStage.POSTPROCESS:
+            probs["postprocesses"] = self.postprocesses
+            for postprocess in self.postprocesses:
+                cfg.update(config_helper(postprocess))
+        probs["features"] = str(self.features)
+        for feature in self.features:
+            cfg.update(config_helper(feature))
+        # probs["config"] = str(cfg)
+        probs["config"] = str(self.run_config)
+        return "Run(" + str([f"{key}={value}" for key, value in probs.items()]) + ")"
 
     @property
     def frontend(self):

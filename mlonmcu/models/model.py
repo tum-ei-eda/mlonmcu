@@ -99,6 +99,9 @@ class Model:
         return self.config["outputs_path"]
 
     def __repr__(self):
-        if self.alt:
-            return f"Model({self.name},alt={self.alt})"
-        return f"Model({self.name})"
+        probs = []
+        if self.name:
+            probs.append(self.name)
+        if self.config and len(self.config) > 0:
+            probs.append(str(self.config))
+        return "Model(" + ",".join(probs) + ")"

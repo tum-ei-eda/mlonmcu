@@ -129,7 +129,7 @@ def get_environment_by_name(name: str) -> Environment:
     return None
 
 
-def get_ids(directory: Path) -> List[int]:
+def get_infos(directory: Path) -> List[tuple]:
     """Get a sorted list of ids for sessions/runs found in the given directory.
 
     Parameters
@@ -139,13 +139,26 @@ def get_ids(directory: Path) -> List[int]:
 
     Returns:
     list
-        List of integers representing the session numbers. Empty list if directory does not exist.
+        List of tuples containing the session/run numbers and their hidden attribute.
+        Empty list if directory does not exist.
     """
     if not directory.is_dir():
         return []
 
-    ids = [int(o) for o in os.listdir(directory) if os.path.isdir(directory / o) and not os.path.islink(directory / o)]
-    return sorted(ids)  # TODO: sort by session datetime?
+    def extract_idx(x):
+        hidden = False
+        if x[0] == ".":
+            hidden = True
+            x = x[1:]
+        if "_" in x:
+            idx = x.split("_")
+            idx = tuple(list(map(int, idx)))
+        else:
+            idx = int(x)
+        return idx, hidden
+
+    ids = [extract_idx(o) for o in os.listdir(directory) if os.path.isdir(directory / o) and not os.path.islink(directory / o)]
+    return sorted(ids, key=lambda x: x[0] if isinstance(x[0], tuple) else (x[0], ))  # TODO: sort by session datetime?
 
 
 def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
@@ -171,22 +184,23 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     sessions_directory = env.paths["temp"].path / "sessions"
 
     # TODO: in the future also strs (custom or hash) should be allowed
-    session_ids = get_ids(sessions_directory)
+    session_infos = get_infos(sessions_directory)
 
-    for sid in session_ids:
+    for sid, _ in session_infos:
         session_directory = sessions_directory / str(sid)
         # session_file = sessions_directory / str(sid) / "session.txt"
         # if not session_file.is_file():
         #     continue
         runs_directory = session_directory / "runs"
-        run_ids = get_ids(runs_directory)
+        run_infos = get_infos(runs_directory)
         runs = []
-        for rid in run_ids:
+        for rid, hidden in run_infos:
             run_directory = runs_directory / str(rid)
             # run_file = run_directory / "run.txt"
             # run = Run.from_file(run_file)  # TODO: actually implement run restore
             run = Run()  # TODO: fix
             run.archived = True
+            run.hidden = hidden
             run.dir = run_directory
             runs.append(run)
         session = Session(idx=sid, archived=True, dir=session_directory)

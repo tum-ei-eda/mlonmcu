@@ -706,7 +706,8 @@ def clone_muriscvnn(
 @Tasks.needs(["muriscvnn.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
 # @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
 @Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
-@Tasks.param("dbg", [False, True])
+# @Tasks.param("dbg", [False, True])
+@Tasks.param("dbg", [False])  # disable due to bug with vext gcc
 @Tasks.param("vext", [False, True])
 @Tasks.param("pext", [False, True])
 @Tasks.param("toolchain", ["gcc"])

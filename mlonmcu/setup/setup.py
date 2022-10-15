@@ -158,3 +158,10 @@ class Setup:
             self.write_cache_file()
         logger.info("Finished installing dependencies")
         return True
+
+    def generate_required_python_packages(
+        self
+    ):
+
+        logger.info("Finished installing dependencies")
+        return True

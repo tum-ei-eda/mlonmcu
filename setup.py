@@ -39,7 +39,7 @@ with open("HISTORY.md") as history_file:
     history = history_file.read()
 
 
-import gen_requirements
+import mlonmcu.setup.gen_requirements as gen_requirements
 
 requirements = gen_requirements.join_requirements()
 extra_require = {

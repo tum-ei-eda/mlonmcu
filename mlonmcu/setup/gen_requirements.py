@@ -73,6 +73,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "numpy",
                 "openpyxl",  # xlsx reports
                 "pandas",
+                "pyserial",  # for platforms
                 "pyyaml",
                 "tflite",
                 "tqdm",
@@ -117,7 +118,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
-    # Provide support for micro tvm.
+    # Provide support for microtvm.
     (
         "microtvm",
         (
@@ -128,8 +129,10 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
+    # Provide support for moiopt.
     ("moiopt", ("Requirements for moiopt", ["ortools"])),
-    ("platforms", ("Requirements for platforms", ["pyserial"])),
+    # Provide support for relay visualization.
+    ("relay-visualization", ("Requirements for relay visualization", ["relayviz"])),
     # Provide support for tvm.
     (
         "tvm",
@@ -145,10 +148,10 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "scipy",
                 "synr",
                 "tornado",
-                "xgboost",  # for autotuning on some target
             ],
         ),
     ),
+    ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost"])),# for autotuning on some target
     ("visualize_tflite", ("Requirements for visualization", ["tensorflow"]))
 ]
 

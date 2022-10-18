@@ -15,8 +15,8 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
-# Modified by Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
+#
+# Modifications copyright (C) 2022  TUM Department of Electrical and Computer Engineering
 
 """MLonMCU Python requirements.txt generator.
 

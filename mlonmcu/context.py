@@ -25,6 +25,7 @@ import tempfile
 from typing import List, Union
 from pathlib import Path
 import filelock
+from mlonmcu.read_write_file_lock.read_write_filelock import ReadFileLock, WriteFileLock
 
 from mlonmcu.utils import ask_user
 from mlonmcu.logging import get_logger, set_log_file
@@ -270,13 +271,17 @@ class MlonMcuContext:
 
     """
 
-    def __init__(self, name: str = None, path: str = None, lock: bool = False):
+    def __init__(self, name: str = None, path: str = None, lock: str = "write"):
         env_file = resolve_environment_file(name=name, path=path)
         assert env_file is not None, "Unable to find a MLonMCU environment"
         self.environment = UserEnvironment.from_file(env_file)  # TODO: move to __enter__
         setup_logging(self.environment)
         self.lock = lock
-        self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
+        assert lock == "read" or "write"
+        if lock == "read":
+            self.lockfile = ReadFileLock(os.path.join(self.environment.home, ".lock"))
+        elif lock == "write":
+            self.lockfile = WriteFileLock(os.path.join(self.environment.home, ".lock"))
         self.sessions = load_recent_sessions(self.environment)
         if self.environment.defaults.cleanup_auto:
             logger.debug("Cleaning up old sessions automaticaly")
@@ -360,11 +365,11 @@ class MlonMcuContext:
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")
         if self.lockfile.is_locked:
-            raise RuntimeError(f"Current context is locked via: {self.lockfile.lock_file}")
+            raise RuntimeError(f"Current context is locked via: {self.lockfile.filepath}")
         if self.lock:
             logger.debug("Locking context")
             try:
-                self.lockfile.acquire(timeout=0)
+                self.lockfile.acquire()
             except filelock.Timeout as err:
                 raise RuntimeError("Lock on current context could not be aquired.") from err
         self.load_cache()

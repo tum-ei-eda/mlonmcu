@@ -82,7 +82,7 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+    with mlonmcu.context.MlonMcuContext(path=args.home, lock="read") as context:
         if args.list:
             context.print_summary(sessions=True, runs=True, labels=True)
             return 0

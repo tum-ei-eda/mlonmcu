@@ -82,6 +82,6 @@ def handle(args, ctx=None):
     if ctx:
         _handle(args, ctx)
     else:
-        with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+        with mlonmcu.context.MlonMcuContext(path=args.home, lock="read") as context:
             _handle(args, context)
             kickoff_runs(args, RunStage.LOAD, context)

@@ -51,7 +51,7 @@ def get_parser(subparsers, parent=None):
 
 
 def handle_list_targets(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+    with mlonmcu.context.MlonMcuContext(path=args.home, lock="read") as context:
         mlonmcu.platform.lookup.print_summary(context=context)
 
 

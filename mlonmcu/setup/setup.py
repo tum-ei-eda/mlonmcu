@@ -163,11 +163,10 @@ class Setup:
         self,
     ):
         from .gen_requirements import join_requirements
-        from pathlib import Path
         import os
 
         requirements = join_requirements()
-        output_dir = Path(__file__).parents[2] / "requirements_addition.txt"
+        output_dir = os.path.join(self.context.environment.home, "requirements_addition.txt")
         def feature_enabled_and_supported(obj, feature):
             if getattr(obj, "enabled", True):
                 if getattr(obj, "name", None) == feature and getattr(obj, "supported", False):

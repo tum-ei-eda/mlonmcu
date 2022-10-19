@@ -79,7 +79,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "tqdm",
                 "xdg",
                 "xlsxwriter",  # xlsx reports
-                "xlwt", # xlsx reports
+                "xlwt",  # xlsx reports
             ],
         ),
     ),
@@ -151,7 +151,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
-    ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost"])),# for autotuning on some target
+    ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost"])),  # for autotuning on some target
     ("visualize_tflite", ("Requirements for visualization", ["tensorflow"]))
 ]
 
@@ -508,7 +508,7 @@ def semver_to_requirements(dep: str, constraint: str, joined_deps: typing.List[s
     max_ver_parts = (
         min_ver_parts[:fixed_index]
         + [str(fixed_part + 1)]
-        + ["0" for _ in min_ver_parts[fixed_index + 1 :]]
+        + ["0" for _ in min_ver_parts[fixed_index + 1:]]
     )
     joined_deps.append(f'{dep}>={".".join(min_ver_parts)},<{".".join(max_ver_parts)}')
 

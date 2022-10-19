@@ -22,6 +22,7 @@
 
 import os
 from setuptools import setup, find_packages
+import mlonmcu.setup.gen_requirements as gen_requirements
 
 
 def resource_files(directory):
@@ -37,9 +38,6 @@ with open("README.md") as readme_file:
 
 with open("HISTORY.md") as history_file:
     history = history_file.read()
-
-
-import mlonmcu.setup.gen_requirements as gen_requirements
 
 requirements = gen_requirements.join_requirements()
 extra_require = {
@@ -70,7 +68,7 @@ setup(
         ],
     },
     install_requires=requirements["core"][1],
-    extras_require = extra_require,
+    extras_require=extra_require,
     license="Apache License 2.0",
     long_description=readme + "\n\n" + history,
     long_description_content_type="text/markdown",

@@ -112,10 +112,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         "etiss",
         (
             "Requirements for using etiss",
-            [
-                "humanize",
-                "pyelftools"
-            ],
+            ["humanize", "pyelftools"],
         ),
     ),
     # Provide support for microtvm.
@@ -123,10 +120,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         "microtvm",
         (
             "Requirements for using microtvm",
-            [
-                "pyserial",
-                "pyusb"
-            ],
+            ["pyserial", "pyusb"],
         ),
     ),
     # Provide support for moiopt.
@@ -152,7 +146,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         ),
     ),
     ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost"])),  # for autotuning on some target
-    ("visualize_tflite", ("Requirements for visualization", ["tensorflow"]))
+    ("visualize_tflite", ("Requirements for visualization", ["tensorflow"])),
 ]
 
 ConstraintsType = typing.List[typing.Tuple[str, typing.Union[None, str]]]
@@ -296,16 +290,13 @@ def validate_requirements_by_piece() -> typing.List[str]:
             continue
 
         if list(sorted(deps)) != list(deps):
-            problems.append(
-                f"piece {piece}: deps must be sorted. Correct order:\n  {list(sorted(deps))!r}"
-            )
+            problems.append(f"piece {piece}: deps must be sorted. Correct order:\n  {list(sorted(deps))!r}")
 
         piece_deps = set()
         for d in deps:
             if CONSTRAINT_REGEX.search(d):
                 problems.append(
-                    f"piece {piece}: dependency {d} should not specify a version. "
-                    "Add it to CONSTRAINTS instead."
+                    f"piece {piece}: dependency {d} should not specify a version. " "Add it to CONSTRAINTS instead."
                 )
 
             if d.lower() in piece_deps:
@@ -313,22 +304,17 @@ def validate_requirements_by_piece() -> typing.List[str]:
 
             piece_deps.add(d.lower())
 
-    extras_pieces = [
-        k for (k, _) in REQUIREMENTS_BY_PIECE if k not in ("dev", "core") if isinstance(k, str)
-    ]
+    extras_pieces = [k for (k, _) in REQUIREMENTS_BY_PIECE if k not in ("dev", "core") if isinstance(k, str)]
     sorted_extras_pieces = list(sorted(extras_pieces))
     if sorted_extras_pieces != list(extras_pieces):
         problems.append(
-            'pieces other than "core" and "dev" must appear in alphabetical order: '
-            f"{sorted_extras_pieces}"
+            'pieces other than "core" and "dev" must appear in alphabetical order: ' f"{sorted_extras_pieces}"
         )
 
     return problems
 
 
-def parse_semver(
-    package: str, constraint: str, problems: typing.List[str]
-) -> typing.Tuple[typing.List[str], int, int]:
+def parse_semver(package: str, constraint: str, problems: typing.List[str]) -> typing.Tuple[typing.List[str], int, int]:
     """Parse a semantic versioning constraint of the form "^X.[.Y[.Z[...]]]]"
 
     Parameters
@@ -412,9 +398,7 @@ def validate_constraints() -> typing.List[str]:
             continue
 
         if not CONSTRAINT_REGEX.match(constraint):
-            problems.append(
-                f'{package}: constraint "{constraint}" does not look like a valid constraint'
-            )
+            problems.append(f'{package}: constraint "{constraint}" does not look like a valid constraint')
 
         if constraint.startswith("^"):
             parse_semver(package, constraint, problems)
@@ -422,9 +406,7 @@ def validate_constraints() -> typing.List[str]:
     all_constrained_packages = [p for (p, _) in CONSTRAINTS]
     sorted_constrained_packages = list(sorted(all_constrained_packages))
     if sorted_constrained_packages != all_constrained_packages:
-        problems.append(
-            "CONSTRAINTS entries should be in this sorted order: " f"{sorted_constrained_packages}"
-        )
+        problems.append("CONSTRAINTS entries should be in this sorted order: " f"{sorted_constrained_packages}")
 
     return problems
 
@@ -452,11 +434,7 @@ class ValidationError(Exception):
         for p in problems:
             assert isinstance(p, str), f"problems element not a str: {p}"
             formatted.append(
-                "\n".join(
-                    textwrap.wrap(
-                        f"{config}: {p}", width=80, initial_indent=" * ", subsequent_indent="   "
-                    )
-                )
+                "\n".join(textwrap.wrap(f"{config}: {p}", width=80, initial_indent=" * ", subsequent_indent="   "))
             )
 
         return "\n".join(formatted)
@@ -501,14 +479,10 @@ def semver_to_requirements(dep: str, constraint: str, joined_deps: typing.List[s
     problems: typing.List[str] = []
     min_ver_parts, fixed_index, fixed_part = parse_semver(dep, constraint, problems)
     text_problems = "\n" + "\n".join(f" * {p}" for p in problems)
-    assert (
-        not problems
-    ), f"should not happen: validated semver {constraint} parses with problems:{text_problems}"
+    assert not problems, f"should not happen: validated semver {constraint} parses with problems:{text_problems}"
 
     max_ver_parts = (
-        min_ver_parts[:fixed_index]
-        + [str(fixed_part + 1)]
-        + ["0" for _ in min_ver_parts[fixed_index + 1:]]
+        min_ver_parts[:fixed_index] + [str(fixed_part + 1)] + ["0" for _ in min_ver_parts[fixed_index + 1 :]]
     )
     joined_deps.append(f'{dep}>={".".join(min_ver_parts)},<{".".join(max_ver_parts)}')
 
@@ -587,9 +561,7 @@ def join_and_write_requirements(args: argparse.Namespace):
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--lint", action="store_true", help="Just lint dependencies, don't generate anything"
-    )
+    parser.add_argument("--lint", action="store_true", help="Just lint dependencies, don't generate anything")
     return parser.parse_args()
 
 

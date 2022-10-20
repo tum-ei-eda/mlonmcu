@@ -276,7 +276,8 @@ def validate_requirements_by_piece() -> typing.List[str]:
 
         if not isinstance(value, (tuple, list)) or len(value) != 2:
             problems.append(
-                f'piece {piece}: should be formatted like ("{piece}", ("<requirements.txt comment>", ["dep1", "dep2", ...])). got: {value!r}'
+                f'piece {piece}: should be formatted like ("{piece}", ("<requirements.txt comment>", ["dep1", "dep2", '
+                f"...])). got: {value!r} "
             )
             continue
 

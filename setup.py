@@ -40,9 +40,7 @@ with open("HISTORY.md") as history_file:
     history = history_file.read()
 
 requirements = gen_requirements.join_requirements()
-extra_require = {
-    piece: deps for piece, (_, deps) in requirements.items() if piece not in ("all", "core")
-}
+extra_require = {piece: deps for piece, (_, deps) in requirements.items() if piece not in ("all", "core")}
 
 test_requirements = []
 

@@ -107,7 +107,7 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, env_lock="write", latest_session_link_lock = True) as context:
+    with mlonmcu.context.MlonMcuContext(path=args.home, env_lock="write", latest_session_link_lock=True) as context:
         # config, features = extract_config_and_init_features(args)
         config, _, _, _ = extract_config_and_feature_names(args)
         # installer = setup.Setup(features=features, config=config, context=context)

@@ -137,7 +137,7 @@ class ReadFileLock:
         # 2. read the lock occupation situation
         if not os.path.exists(self.trackfilepath):
             # create a file to tack the lock occupation situation
-            with open(self.trackfilepath, "w") as track_file:
+            with open(self.trackfilepath, "w"):
                 pass
 
         with open(self.trackfilepath, "r") as stream:
@@ -232,7 +232,7 @@ class WriteFileLock:
             # read the current lock occupation situation
             try:
                 lock_occupy_info = yaml.safe_load(stream) or {}
-                if lock_occupy_info == None:
+                if lock_occupy_info is None:
                     lock_occupy_info = {}
             except yaml.YAMLError as exc:
                 print(exc)
@@ -262,7 +262,7 @@ class WriteFileLock:
         # 2. read the lock occupation situation
         if not os.path.exists(self.trackfilepath):
             # create a file to tack the lock occupation situation
-            with open(self.trackfilepath, "w") as track_file:
+            with open(self.trackfilepath, "w"):
                 pass
 
         with open(self.trackfilepath, "r") as stream:

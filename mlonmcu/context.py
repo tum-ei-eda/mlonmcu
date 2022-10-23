@@ -271,7 +271,7 @@ class MlonMcuContext:
 
     """
 
-    def __init__(self, name: str = None, path: str = None, env_lock: str = "write", latest_session_link_lock = False):
+    def __init__(self, name: str = None, path: str = None, env_lock: str = "write", latest_session_link_lock=False):
         env_file = resolve_environment_file(name=name, path=path)
         assert env_file is not None, "Unable to find a MLonMCU environment"
         self.environment = UserEnvironment.from_file(env_file)  # TODO: move to __enter__
@@ -282,7 +282,9 @@ class MlonMcuContext:
         elif env_lock == "write":
             self.env_lock = WriteFileLock(os.path.join(self.environment.home, ".env_lock"))
         if latest_session_link_lock:
-            self.latest_session_link_lock = filelock.FileLock(os.path.join(self.environment.home, ".latest_session_link_lock_lock"));
+            self.latest_session_link_lock = filelock.FileLock(
+                os.path.join(self.environment.home, ".latest_session_link_lock_lock")
+            )
         self.sessions = load_recent_sessions(self.environment)
         if self.environment.defaults.cleanup_auto:
             logger.debug("Cleaning up old sessions automaticaly")

@@ -43,5 +43,5 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, env_lock="read", latest_session_link_lock = True) as context:
+    with mlonmcu.context.MlonMcuContext(path=args.home, env_lock="read", latest_session_link_lock=True) as context:
         mlonmcu.models.print_summary(context, detailed=args.detailed)

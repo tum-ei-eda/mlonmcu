@@ -63,7 +63,7 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock="write") as context:
+    with mlonmcu.context.MlonMcuContext(path=args.home, env_lock="write", latest_session_link_lock = True) as context:
         interactive = not args.force
         keep = args.keep
         context.cleanup_sessions(keep=keep, interactive=interactive)

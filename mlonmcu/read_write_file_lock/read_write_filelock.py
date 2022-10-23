@@ -38,6 +38,7 @@ import atexit
 class ReadFileLock:
     def __init__(self, filepath):
         self.filepath = Path(filepath)
+        self.trackfilepath = self.filepath.parent / (str(self.filepath.stem) + "_track")
         self.lock = FileLock(self.filepath)
         random.seed(time.time())
         self.id = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
@@ -55,12 +56,12 @@ class ReadFileLock:
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
-        if not os.path.exists(self.filepath.parent / "lock_track"):
+        if not os.path.exists(self.trackfilepath):
             # create a file to tack the lock occupation situation
-            with open(self.filepath.parent / "lock_track", "w") as track_file:
+            with open(self.trackfilepath, "w") as track_file:
                 pass
 
-        with open(self.filepath.parent / "lock_track", "r") as stream:
+        with open(self.trackfilepath, "r") as stream:
             # read the current lock occupation situation
             try:
                 lock_occupy_info = yaml.safe_load(stream) or {}
@@ -81,12 +82,12 @@ class ReadFileLock:
             raise filelock.Timeout(self.lock)  # mimic filelock TimeOut Error
         else:
             lock_occupy_info[self.id] = {"time": "<time>", "type": "read"}
-            with open(self.filepath.parent / "lock_track", "w") as track_file:
+            with open(self.trackfilepath, "w") as track_file:
                 yaml.dump(lock_occupy_info, track_file, default_flow_style=False)
             lock_acquire_success = True
 
         self.lock.release()
-        atexit.register(self.release())
+        atexit.register(self.release)
         return lock_acquire_success
 
     def release(self):
@@ -100,11 +101,11 @@ class ReadFileLock:
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
-        if not os.path.exists(self.filepath.parent / "lock_track"):
+        if not os.path.exists(self.trackfilepath):
             # raise error if file does not exist
             raise RuntimeError("track file for read write log is missing.")
 
-        with open(self.filepath.parent / "lock_track", "r") as stream:
+        with open(self.trackfilepath, "r") as stream:
             # read the current lock occupation situation
             try:
                 lock_occupy_info = yaml.safe_load(stream) or {}
@@ -112,10 +113,11 @@ class ReadFileLock:
                 print(exc)
 
         # 3. delete the record of self.id
-        lock_occupy_info.pop(self.id)
+        if self.id in lock_occupy_info.keys():
+            lock_occupy_info.pop(self.id)
 
         # 4. write the updated lock occupation situation back, release filelock and return
-        with open(self.filepath.parent / "lock_track", "w") as track_file:
+        with open(self.trackfilepath, "w") as track_file:
             if lock_occupy_info:
                 yaml.dump(lock_occupy_info, track_file, default_flow_style=False)
 
@@ -133,12 +135,12 @@ class ReadFileLock:
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
-        if not os.path.exists(self.filepath.parent / "lock_track"):
+        if not os.path.exists(self.trackfilepath):
             # create a file to tack the lock occupation situation
-            with open(self.filepath.parent / "lock_track", "w") as track_file:
+            with open(self.trackfilepath, "w") as track_file:
                 pass
 
-        with open(self.filepath.parent / "lock_track", "r") as stream:
+        with open(self.trackfilepath, "r") as stream:
             # read the current lock occupation situation
             try:
                 lock_occupy_info = yaml.safe_load(stream) or {}
@@ -153,12 +155,13 @@ class ReadFileLock:
                 break
 
         self.lock.release()
-        return not write_occupied
+        return write_occupied
 
 
 class WriteFileLock:
     def __init__(self, filepath):
         self.filepath = Path(filepath)
+        self.trackfilepath = self.filepath.parent / (str(self.filepath.stem) + "_track")
         self.lock = FileLock(self.filepath)
         random.seed(time.time())
         self.id = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
@@ -176,12 +179,12 @@ class WriteFileLock:
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
-        if not os.path.exists(self.filepath.parent / "lock_track"):
+        if not os.path.exists(self.trackfilepath):
             # create a file to tack the lock occupation situation
-            with open(self.filepath.parent / "lock_track", "w") as track_file:
+            with open(self.trackfilepath, "w") as track_file:
                 pass
 
-        with open(self.filepath.parent / "lock_track", "r") as stream:
+        with open(self.trackfilepath, "r") as stream:
             # read the current lock occupation situation
             try:
                 lock_occupy_info = yaml.safe_load(stream) or {}
@@ -202,12 +205,12 @@ class WriteFileLock:
             raise filelock.Timeout(self.lock)  # mimic filelock TimeOut Error
         else:
             lock_occupy_info[self.id] = {"time": "<time>", "type": "write"}  # add new occupation info
-            with open(self.filepath.parent / "lock_track", "w") as track_file:
+            with open(self.trackfilepath, "w") as track_file:
                 yaml.dump(lock_occupy_info, track_file, default_flow_style=False)
             lock_acquire_success = True
 
         self.lock.release()
-        atexit.register(self.release())
+        atexit.register(self.release)
         return lock_acquire_success
 
     def release(self):
@@ -221,11 +224,11 @@ class WriteFileLock:
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
-        if not os.path.exists(self.filepath.parent / "lock_track"):
+        if not os.path.exists(self.trackfilepath):
             # raise error if file does not exist
             raise RuntimeError("track file for read write log is missing.")
 
-        with open(self.filepath.parent / "lock_track", "r") as stream:
+        with open(self.trackfilepath, "r") as stream:
             # read the current lock occupation situation
             try:
                 lock_occupy_info = yaml.safe_load(stream) or {}
@@ -235,17 +238,15 @@ class WriteFileLock:
                 print(exc)
 
         # 3. delete the record of self.id
-        lock_occupy_info.pop(self.id)
+        if self.id in lock_occupy_info.keys():
+            lock_occupy_info.pop(self.id)
 
         # 4. write the updated lock occupation situation back, release filelock and return
-        with open(self.filepath.parent / "lock_track", "w") as track_file:
+        with open(self.trackfilepath, "w") as track_file:
             if lock_occupy_info:
                 yaml.dump(lock_occupy_info, track_file, default_flow_style=False)
 
         self.lock.release()
-
-    def __del__(self):
-        self.release()
 
     @property
     def is_locked(self):
@@ -259,12 +260,12 @@ class WriteFileLock:
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
-        if not os.path.exists(self.filepath.parent / "lock_track"):
+        if not os.path.exists(self.trackfilepath):
             # create a file to tack the lock occupation situation
-            with open(self.filepath.parent / "lock_track", "w") as track_file:
+            with open(self.trackfilepath, "w") as track_file:
                 pass
 
-        with open(self.filepath.parent / "lock_track", "r") as stream:
+        with open(self.trackfilepath, "r") as stream:
             # read the current lock occupation situation
             try:
                 lock_occupy_info = yaml.safe_load(stream) or {}

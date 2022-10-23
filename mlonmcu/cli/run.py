@@ -50,7 +50,7 @@ def check_args(context, args):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock="read") as context:
+    with mlonmcu.context.MlonMcuContext(path=args.home, env_lock="read", latest_session_link_lock = True) as context:
         check_args(context, args)
         handle_compile(args, context)
         kickoff_runs(args, RunStage.RUN, context)

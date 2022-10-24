@@ -285,6 +285,8 @@ class MlonMcuContext:
             self.latest_session_link_lock = filelock.FileLock(
                 os.path.join(self.environment.home, ".latest_session_link_lock_lock")
             )
+        else:
+            self.latest_session_link_lock = None
         self.sessions = load_recent_sessions(self.environment)
         if self.environment.defaults.cleanup_auto:
             logger.debug("Cleaning up old sessions automaticaly")
@@ -295,7 +297,7 @@ class MlonMcuContext:
         self.cache = TaskCache()
 
     def create_session(self, label="", config=None):
-        if hasattr(self, "latest_session_link_lock"):
+        if self.latest_session_link_lock:
             try:
                 lock = self.latest_session_link_lock.acquire(timeout=10)
             except filelock.Timeout as err:

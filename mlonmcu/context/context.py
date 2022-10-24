@@ -33,7 +33,7 @@ from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 import mlonmcu.setup.utils as utils
 from mlonmcu.plugins import process_extensions
-from mlonmcu.read_write_file_lock.read_write_filelock import ReadFileLock, WriteFileLock
+from mlonmcu.context.read_write_filelock import ReadFileLock, WriteFileLock
 
 from mlonmcu.environment.environment import Environment, UserEnvironment
 
@@ -392,7 +392,8 @@ class MlonMcuContext:
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")
         if self.env_lock.is_locked:
-            raise RuntimeError(f"Current context is locked via: {self.env_lock.filepath}")
+            raise RuntimeError(f"Lock on current context could not be aquired. "
+                               f"Current context is locked via: {self.env_lock.filepath}")
         if self.env_lock:
             logger.debug("Locking context")
             try:

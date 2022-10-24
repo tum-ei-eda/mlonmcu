@@ -46,10 +46,10 @@ class ReadFileLock:
     def acquire(self, timeout=10):
         """:return: True means success. False means fail"""
         # the process is the following:
-        # 1. aquire filelock
+        # 1. acquire filelock
         # 2. read the lock occupation situation
         # 3. check if the lock is already occupied by another write process
-        # 4.1. relase filelock and raise exception if the lock is already occupied by another write process
+        # 4.1. release filelock and raise exception if the lock is already occupied by another write process
         # 4.2. otherwise write the updated lock occupation situation back, release filelock and return
 
         # 1. aquire filelock
@@ -92,7 +92,7 @@ class ReadFileLock:
 
     def release(self):
         # the process is the following:
-        # 1. aquire filelock
+        # 1. acquire filelock
         # 2. read the lock occupation situation
         # 3. delete the record of self.id
         # 4. write the updated lock occupation situation back, release filelock and return
@@ -127,11 +127,11 @@ class ReadFileLock:
     def is_locked(self):
         """:return: True means success. False means fail"""
         # the process is the following:
-        # 1. aquire filelock
+        # 1. acquire filelock
         # 2. read the lock occupation situation
         # 3. check if the lock is already occupied by another write process
 
-        # 1. aquire filelock
+        # 1. acquire filelock
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
@@ -169,13 +169,13 @@ class WriteFileLock:
     def acquire(self):
         """:return: True means success. False means fail"""
         # the process is the following:
-        # 1. aquire filelock
+        # 1. acquire filelock
         # 2. read the lock occupation situation
         # 3. check if the lock is already occupied by another process
-        # 4.1. relase filelock and raise exception if the lock is already occupied by another write process
+        # 4.1. release filelock and raise exception if the lock is already occupied by another write process
         # 4.2. otherwise write the updated lock occupation situation back, release filelock and return
 
-        # 1. aquire filelock
+        # 1. acquire filelock
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
@@ -215,12 +215,12 @@ class WriteFileLock:
 
     def release(self):
         # the process is the following:
-        # 1. aquire filelock
+        # 1. acquire filelock
         # 2. read the lock occupation situation
         # 3. delete the record of self.id
         # 4. write the updated lock occupation situation back, release filelock and return
 
-        # 1. aquire filelock
+        # 1. acquire filelock
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
@@ -252,11 +252,11 @@ class WriteFileLock:
     def is_locked(self):
         """:return: True means success. False means fail"""
         # the process is the following:
-        # 1. aquire filelock
+        # 1. acquire filelock
         # 2. read the lock occupation situation
         # 3. check if the lock is already occupied by another write process
 
-        # 1. aquire filelock
+        # 1. acquire filelock
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
@@ -284,7 +284,7 @@ class WriteFileLock:
 
 
 if __name__ == "__main__":
-    filepath = "hello"
+    filepath = "/tmp/read_write_file_lock/hello"
     readlock1 = ReadFileLock(filepath)
     print("read1: " + readlock1.id)
     writelock1 = WriteFileLock(filepath)

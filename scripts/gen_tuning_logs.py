@@ -2,7 +2,7 @@ import itertools
 import logging
 
 # import mlonmcu
-import mlonmcu.context
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import RunStage
 from mlonmcu.feature.features import (
     get_available_features,
@@ -101,7 +101,7 @@ def init_features_by_name(names, config, context=None):
         return features
 
 
-with mlonmcu.context.MlonMcuContext() as context:
+with MlonMcuContext() as context:
     session = context.create_session()
     for model_name in MODELS:
         for features_names, config in FEATURES_CONFIG:

@@ -18,7 +18,7 @@
 #
 from pathlib import Path
 import pytest
-import mlonmcu.context
+from mlonmcu.context.context import MlonMcuContext
 
 
 def create_minimal_environment_yaml(path):
@@ -50,7 +50,7 @@ def test_open_context(monkeypatch, fake_environment_directory: Path, fake_config
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
     ctx = None
-    with mlonmcu.context.MlonMcuContext() as context:
+    with MlonMcuContext() as context:
         assert context
         ctx = context
     assert ctx.is_clean
@@ -84,35 +84,35 @@ def test_open_context(monkeypatch, fake_environment_directory: Path, fake_config
 def test_reuse_context(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
-    with mlonmcu.context.MlonMcuContext() as context:
+    with MlonMcuContext() as context:
         assert context
-    with mlonmcu.context.MlonMcuContext() as context2:
+    with MlonMcuContext() as context2:
         assert context2
 
 
 def test_reuse_context_locked(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
-    with mlonmcu.context.MlonMcuContext() as context:
+    with MlonMcuContext() as context:
         assert context
-    with mlonmcu.context.MlonMcuContext() as context2:
+    with MlonMcuContext() as context2:
         assert context2
 
 
 def test_nest_context(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
-    with mlonmcu.context.MlonMcuContext() as context:
+    with MlonMcuContext() as context:
         assert context
-        with mlonmcu.context.MlonMcuContext() as context2:
+        with MlonMcuContext() as context2:
             assert context2
 
 
 def test_nest_context_locked(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
-    with mlonmcu.context.MlonMcuContext() as context:
+    with MlonMcuContext() as context:
         assert context
         with pytest.raises(RuntimeError, match=r".*could\ not\ be\ aquired.*"):
-            with mlonmcu.context.MlonMcuContext() as context2:
+            with MlonMcuContext() as context2:
                 assert context2

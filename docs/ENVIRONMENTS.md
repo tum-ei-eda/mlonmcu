@@ -136,8 +136,9 @@ For the best experience a MLonMCU environment should always we wrapped with a `M
 The typical using using a Python `with` block looks as follows:
 
 ```python
-import mlonmcu.context
-with mlonmcu.context.MlonMcuContext() as ctx:
+from mlonmcu.context.context import MlonMcuContext
+
+with MlonMcuContext() as ctx:
     pass
 ```
 

@@ -114,6 +114,6 @@ def handle(args, ctx=None, require_target=False):
     if ctx:
         _handle(args, ctx, require_target=require_target)
     else:
-        with mlonmcu.context.MlonMcuContext(path=args.home, env_lock="read") as context:
+        with mlonmcu.context.MlonMcuContext(path=args.home, deps_lock="read") as context:
             _handle(args, context, require_target=require_target)
             kickoff_runs(args, RunStage.BUILD, context)

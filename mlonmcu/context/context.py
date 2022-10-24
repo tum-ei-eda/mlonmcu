@@ -257,7 +257,7 @@ class MlonMcuContext:
     ----------
     environment : Environment
         The MLonMCU Environment where paths, repos, features,... are configured.
-    env_lock : bool
+    deps_lock : bool
         Holds if the environment should be limited to only one user or not.
     lockfile : FileLock
         The lock for the environment directory (optional).
@@ -271,16 +271,16 @@ class MlonMcuContext:
 
     """
 
-    def __init__(self, name: str = None, path: str = None, env_lock: str = "write"):
+    def __init__(self, name: str = None, path: str = None, deps_lock: str = "write"):
         env_file = resolve_environment_file(name=name, path=path)
         assert env_file is not None, "Unable to find a MLonMCU environment"
         self.environment = UserEnvironment.from_file(env_file)  # TODO: move to __enter__
         setup_logging(self.environment)
-        assert env_lock == "read" or "write"
-        if env_lock == "read":
-            self.env_lock = ReadFileLock(os.path.join(self.environment.home, ".env_lock"))
-        elif env_lock == "write":
-            self.env_lock = WriteFileLock(os.path.join(self.environment.home, ".env_lock"))
+        assert deps_lock == "read" or "write"
+        if deps_lock == "read":
+            self.deps_lock = ReadFileLock(os.path.join(self.environment.home, ".deps_lock"))
+        elif deps_lock == "write":
+            self.deps_lock = WriteFileLock(os.path.join(self.environment.home, ".deps_lock"))
         self.latest_session_link_lock = filelock.FileLock(
             os.path.join(self.environment.home, ".latest_session_link_lock_lock")
         )
@@ -373,15 +373,15 @@ class MlonMcuContext:
 
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")
-        if self.env_lock.is_locked:
+        if self.deps_lock.is_locked:
             raise RuntimeError(
                 f"Lock on current context could not be aquired. "
-                f"Current context is locked via: {self.env_lock.filepath}"
+                f"Current context is locked via: {self.deps_lock.filepath}"
             )
-        if self.env_lock:
+        if self.deps_lock:
             logger.debug("Locking context")
             try:
-                self.env_lock.acquire()
+                self.deps_lock.acquire()
             except filelock.Timeout as err:
                 raise RuntimeError("Lock on current context could not be aquired.") from err
         self.load_cache()
@@ -537,7 +537,7 @@ class MlonMcuContext:
     def __exit__(self, exception_type, exception_value, traceback):
         logger.debug("Exit MlonMcuContext")
         self.cleanup()
-        if self.env_lock:
+        if self.deps_lock:
             logger.debug("Releasing lock on context")
-            self.env_lock.release()
+            self.deps_lock.release()
         return False

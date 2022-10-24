@@ -271,7 +271,7 @@ class MlonMcuContext:
 
     """
 
-    def __init__(self, name: str = None, path: str = None, env_lock: str = "write", latest_session_link_lock=False):
+    def __init__(self, name: str = None, path: str = None, env_lock: str = "write"):
         env_file = resolve_environment_file(name=name, path=path)
         assert env_file is not None, "Unable to find a MLonMCU environment"
         self.environment = UserEnvironment.from_file(env_file)  # TODO: move to __enter__
@@ -281,12 +281,9 @@ class MlonMcuContext:
             self.env_lock = ReadFileLock(os.path.join(self.environment.home, ".env_lock"))
         elif env_lock == "write":
             self.env_lock = WriteFileLock(os.path.join(self.environment.home, ".env_lock"))
-        if latest_session_link_lock:
-            self.latest_session_link_lock = filelock.FileLock(
-                os.path.join(self.environment.home, ".latest_session_link_lock_lock")
-            )
-        else:
-            self.latest_session_link_lock = None
+        self.latest_session_link_lock = filelock.FileLock(
+            os.path.join(self.environment.home, ".latest_session_link_lock_lock")
+        )
         self.sessions = load_recent_sessions(self.environment)
         if self.environment.defaults.cleanup_auto:
             logger.debug("Cleaning up old sessions automaticaly")
@@ -297,44 +294,27 @@ class MlonMcuContext:
         self.cache = TaskCache()
 
     def create_session(self, label="", config=None):
-        if self.latest_session_link_lock:
-            try:
-                lock = self.latest_session_link_lock.acquire(timeout=10)
-            except filelock.Timeout as err:
-                raise RuntimeError("Lock on current context could not be aquired.") from err
-            else:
-                with lock:
-                    """Create a new session in the current context."""
-                    self.sessions = load_recent_sessions(self.environment)
-                    idx = self.session_idx + 1
-                    logger.debug("Creating a new session with idx %s", idx)
-                    temp_directory = self.environment.paths["temp"].path
-                    sessions_directory = temp_directory / "sessions"
-                    session_dir = sessions_directory / str(idx)
-                    session = Session(idx=idx, label=label, dir=session_dir, config=config)
-                    self.sessions.append(session)
-                    self.session_idx = idx
-                    # TODO: move this to a helper function
-                    session_link = sessions_directory / "latest"
-                    if os.path.islink(session_link):
-                        os.unlink(session_link)
-                    os.symlink(session_dir, session_link)
+        try:
+            lock = self.latest_session_link_lock.acquire(timeout=10)
+        except filelock.Timeout as err:
+            raise RuntimeError("Lock on current context could not be aquired.") from err
         else:
-            """Create a new session in the current context."""
-            self.sessions = load_recent_sessions(self.environment)
-            idx = self.session_idx + 1
-            logger.debug("Creating a new session with idx %s", idx)
-            temp_directory = self.environment.paths["temp"].path
-            sessions_directory = temp_directory / "sessions"
-            session_dir = sessions_directory / str(idx)
-            session = Session(idx=idx, label=label, dir=session_dir, config=config)
-            self.sessions.append(session)
-            self.session_idx = idx
-            # TODO: move this to a helper function
-            session_link = sessions_directory / "latest"
-            if os.path.islink(session_link):
-                os.unlink(session_link)
-            os.symlink(session_dir, session_link)
+            with lock:
+                """Create a new session in the current context."""
+                self.sessions = load_recent_sessions(self.environment)
+                idx = self.session_idx + 1
+                logger.debug("Creating a new session with idx %s", idx)
+                temp_directory = self.environment.paths["temp"].path
+                sessions_directory = temp_directory / "sessions"
+                session_dir = sessions_directory / str(idx)
+                session = Session(idx=idx, label=label, dir=session_dir, config=config)
+                self.sessions.append(session)
+                self.session_idx = idx
+                # TODO: move this to a helper function
+                session_link = sessions_directory / "latest"
+                if os.path.islink(session_link):
+                    os.unlink(session_link)
+                os.symlink(session_dir, session_link)
         return session
 
     def load_cache(self):
@@ -394,8 +374,10 @@ class MlonMcuContext:
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")
         if self.env_lock.is_locked:
-            raise RuntimeError(f"Lock on current context could not be aquired. "
-                               f"Current context is locked via: {self.env_lock.filepath}")
+            raise RuntimeError(
+                f"Lock on current context could not be aquired. "
+                f"Current context is locked via: {self.env_lock.filepath}"
+            )
         if self.env_lock:
             logger.debug("Locking context")
             try:

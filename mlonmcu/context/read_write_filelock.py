@@ -26,6 +26,7 @@ from filelock import FileLock
 import random  # this is used to create a identifier for every ReadFileLock and WriteFileLock instance.
 import string  # this is used to create a identifier for every ReadFileLock and WriteFileLock instance.
 import time  # this is used to track the lock actions
+import datetime
 import os
 import yaml
 from pathlib import Path
@@ -43,14 +44,24 @@ class ReadFileLock:
         random.seed(time.time())
         self.id = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
 
-    def acquire(self, timeout=10):
-        """:return: True means success. False means fail"""
-        # the process is the following:
-        # 1. acquire filelock
-        # 2. read the lock occupation situation
-        # 3. check if the lock is already occupied by another write process
-        # 4.1. release filelock and raise exception if the lock is already occupied by another write process
-        # 4.2. otherwise write the updated lock occupation situation back, release filelock and return
+    def acquire(self, raise_exception=True):
+        """
+        This function tried to acquire a ReadFileLock.
+        The process is the following:
+        1. acquire filelock
+        2. read the lock occupation situation
+        3. check if the lock is already occupied by another write process
+        4.1. release filelock and raise exception(or return 0) if the lock is already occupied by another write process
+        4.2. otherwise write the updated lock occupation situation back, release filelock and return
+
+            Parameters:
+                raise_exception (bool): whether an exception should be raised when failed (default: True)
+
+            Returns:
+                success (bool): whether succeeded or not.
+                    True means succeeded, False means failed (if the param raiseException is set to false).
+                    A filelock.Timeout exception will be raised if failed
+        """
 
         # 1. aquire filelock
         self.lock.acquire(timeout=2)
@@ -79,9 +90,11 @@ class ReadFileLock:
         if write_occupied:
             lock_acquire_success = False
             self.lock.release()
-            raise filelock.Timeout(self.lock)  # mimic filelock TimeOut Error
+            if raise_exception:
+                raise filelock.Timeout(self.lock)  # mimic filelock TimeOut Error
         else:
-            lock_occupy_info[self.id] = {"time": "<time>", "type": "read"}
+            time_info = datetime.datetime.now().replace(microsecond=0).isoformat()
+            lock_occupy_info[self.id] = {"time": f"{time_info}", "type": "read"}
             with open(self.trackfilepath, "w") as track_file:
                 yaml.dump(lock_occupy_info, track_file, default_flow_style=False)
             lock_acquire_success = True
@@ -91,11 +104,14 @@ class ReadFileLock:
         return lock_acquire_success
 
     def release(self):
-        # the process is the following:
-        # 1. acquire filelock
-        # 2. read the lock occupation situation
-        # 3. delete the record of self.id
-        # 4. write the updated lock occupation situation back, release filelock and return
+        """
+        This function releases a ReadFileLock.
+        the process is the following:
+        1. acquire filelock
+        2. read the lock occupation situation
+        3. delete the record of self.id (no exception will be raised if self.id is not found in the record)
+        4. write the updated lock occupation situation back, release filelock and return
+        """
 
         # 1. aquire filelock
         self.lock.acquire(timeout=2)
@@ -125,11 +141,16 @@ class ReadFileLock:
 
     @property
     def is_locked(self):
-        """:return: True means success. False means fail"""
-        # the process is the following:
-        # 1. acquire filelock
-        # 2. read the lock occupation situation
-        # 3. check if the lock is already occupied by another write process
+        """
+        This property returns if a lock is occupied(locked) by other processes.
+        the process is the following:
+        1. acquire filelock
+        2. read the lock occupation situation
+        3. check if the lock is already occupied(locked) by another write process
+
+            Returns:
+                is_locked (bool): whether the lock is already occupied(locked) by another write process
+        """
 
         # 1. acquire filelock
         self.lock.acquire(timeout=2)
@@ -166,14 +187,24 @@ class WriteFileLock:
         random.seed(time.time())
         self.id = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
 
-    def acquire(self):
-        """:return: True means success. False means fail"""
-        # the process is the following:
-        # 1. acquire filelock
-        # 2. read the lock occupation situation
-        # 3. check if the lock is already occupied by another process
-        # 4.1. release filelock and raise exception if the lock is already occupied by another write process
-        # 4.2. otherwise write the updated lock occupation situation back, release filelock and return
+    def acquire(self, raise_exception=True):
+        """
+        This function tried to acquire a WriteFileLock.
+        The process is the following:
+        1. acquire filelock
+        2. read the lock occupation situation
+        3. check if the lock is already occupied by another write process
+        4.1. release filelock and raise exception(or return 0) if the lock is already occupied by another write process
+        4.2. otherwise write the updated lock occupation situation back, release filelock and return
+
+            Parameters:
+                raise_exception (bool): whether raises an exception when failed (default: True)
+
+            Returns:
+                success (bool): whether succeeded or not.
+                    True means succeeded, False means failed (if the param raiseException is set to false).
+                    A filelock.Timeout exception will be raised if failed
+        """
 
         # 1. acquire filelock
         self.lock.acquire(timeout=2)
@@ -202,9 +233,11 @@ class WriteFileLock:
         if occupied:
             lock_acquire_success = False
             self.lock.release()
-            raise filelock.Timeout(self.lock)  # mimic filelock TimeOut Error
+            if raise_exception:
+                raise filelock.Timeout(self.lock)  # mimic filelock TimeOut Error
         else:
-            lock_occupy_info[self.id] = {"time": "<time>", "type": "write"}  # add new occupation info
+            time_info = datetime.datetime.now().isoformat()
+            lock_occupy_info[self.id] = {"time": f"{time_info}", "type": "read"}
             with open(self.trackfilepath, "w") as track_file:
                 yaml.dump(lock_occupy_info, track_file, default_flow_style=False)
             lock_acquire_success = True
@@ -214,11 +247,14 @@ class WriteFileLock:
         return lock_acquire_success
 
     def release(self):
-        # the process is the following:
-        # 1. acquire filelock
-        # 2. read the lock occupation situation
-        # 3. delete the record of self.id
-        # 4. write the updated lock occupation situation back, release filelock and return
+        """
+        This function releases a WriteFileLock.
+        the process is the following:
+        1. acquire filelock
+        2. read the lock occupation situation
+        3. delete the record of self.id (no exception will be raised if self.id is not found in the record)
+        4. write the updated lock occupation situation back, release filelock and return
+        """
 
         # 1. acquire filelock
         self.lock.acquire(timeout=2)
@@ -250,11 +286,16 @@ class WriteFileLock:
 
     @property
     def is_locked(self):
-        """:return: True means success. False means fail"""
-        # the process is the following:
-        # 1. acquire filelock
-        # 2. read the lock occupation situation
-        # 3. check if the lock is already occupied by another write process
+        """
+        This property returns if a lock is occupied(locked) by other processes.
+        the process is the following:
+        1. acquire filelock
+        2. read the lock occupation situation
+        3. check if the lock is already occupied(locked) by another write process
+
+            Returns:
+                is_locked (bool): whether the lock is already occupied(locked) by another write process
+        """
 
         # 1. acquire filelock
         self.lock.acquire(timeout=2)
@@ -284,14 +325,17 @@ class WriteFileLock:
 
 
 if __name__ == "__main__":
+
     filepath = "/tmp/read_write_file_lock/hello"
+    if not os.path.exists(Path(filepath).parent):
+        os.mkdir(Path(filepath).parent)
     readlock1 = ReadFileLock(filepath)
     print("read1: " + readlock1.id)
     writelock1 = WriteFileLock(filepath)
     print("write1: " + writelock1.id)
-    assert readlock1.acquire()
-    assert not writelock1.acquire()
-    time.sleep(2)
+    assert readlock1.acquire(raise_exception=False)
+    assert not writelock1.acquire(raise_exception=False)
+    time.sleep(20)
     readlock1.release()
     #
     # time.sleep(2)

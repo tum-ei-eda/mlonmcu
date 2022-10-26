@@ -257,10 +257,8 @@ class MlonMcuContext:
     ----------
     environment : Environment
         The MLonMCU Environment where paths, repos, features,... are configured.
-    deps_lock : bool
-        Holds if the environment should be limited to only one user or not.
-    lockfile : FileLock
-        The lock for the environment directory (optional).
+    deps_lock : str ("read" or "write" default "write")
+        Read means that the program does not write to the ./deps folder in the env folder.
     sessions : list
         List of sessions for the current environment.
     session_idx : list

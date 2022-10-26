@@ -18,10 +18,10 @@
 #
 """Command line subcommand for the build process."""
 
-import mlonmcu
 from mlonmcu.flow import get_available_backend_names
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.load import handle as handle_load, add_load_options
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import RunStage
 from mlonmcu.platform.lookup import get_platforms_targets, get_platforms_backends
 from .helper.parse import (
@@ -114,6 +114,6 @@ def handle(args, ctx=None, require_target=False):
     if ctx:
         _handle(args, ctx, require_target=require_target)
     else:
-        with mlonmcu.context.MlonMcuContext(path=args.home, deps_lock="read") as context:
+        with MlonMcuContext(path=args.home, deps_lock="read") as context:
             _handle(args, context, require_target=require_target)
             kickoff_runs(args, RunStage.BUILD, context)

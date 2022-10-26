@@ -18,9 +18,9 @@
 #
 """Command line subcommand for the tune stage."""
 
-import mlonmcu
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.build import add_build_options, handle as handle_build
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import RunStage
 
 
@@ -43,6 +43,6 @@ def handle(args, ctx=None):
     else:
         # args.features.append("autotune")  # TODO: enable autotuning automatically?
         # args.features.append("autotuned")  # ?
-        with mlonmcu.context.MlonMcuContext(path=args.home, deps_lock="read") as context:
+        with MlonMcuContext(path=args.home, deps_lock="read") as context:
             handle_build(args, context, require_target=True)
             kickoff_runs(args, RunStage.TUNE, context)

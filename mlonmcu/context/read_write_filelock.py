@@ -21,7 +21,6 @@
 # the two classes are non-blocking
 
 
-import filelock
 from filelock import FileLock
 import random  # this is used to create a identifier for every ReadFileLock and WriteFileLock instance.
 import string  # this is used to create a identifier for every ReadFileLock and WriteFileLock instance.

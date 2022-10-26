@@ -1,0 +1,161 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+# Here default clone_urls
+repos:
+  tensorflow:
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: f050eec7e32a0895f7658db21a4bdbd0975087a5
+  tvm:
+    url: "https://github.com/apache/tvm.git"
+    ref: de6d8067754d746d88262c530b5241b5577b9aae
+  muriscvnn:
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: c023b80a51c1b48ec62b9b092d047e9ac0bab3e8
+  etiss:
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: 4d2d26fb1fdb17e1da3a397c35d6f8877bf3ceab
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: 50c09c18ea003de976c5745d06b5f46dbb3f1273
+  microtvm_etissvp:
+    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
+    ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
+  performance_estimator:
+    url: "git@github.com:tum-ei-eda/PerformanceEstimator.git"
+    ref: b9b53e4fd71d7aaa20db23136fb9dd8288ec29a1
+# Here all supported frameworks with their specific features are defined
+# Optionally disable unwanted or incomatible backends or features here
+# The configured defaults are used if no backend was specified in the command line options
+frameworks:
+  default: tvm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: true
+      cmsisnn: true
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaotplus:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmllvm:
+        enabled: false
+        features:
+          # unpacked_api: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmcg:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+    features:
+      cmsisnnbyoc: true
+      muriscvnnbyoc: true
+# Some frontends are experimental and therefore disabled here
+# Features like packing are only available in certain environments
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+      visualize: true
+  relay:
+    enabled: true
+    features:
+      relayviz: true
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+      benchmark: true
+  microtvm:
+    enabled: true
+    features: []
+      # validate: true
+# List of supported targets in the environment
+targets:
+  default: etiss_pulpino
+  etiss_pulpino:
+    enabled: true
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+      performance_estimator: true
+  microtvm_etissvp:
+    enabled: true
+postprocesses:
+  use: []
+# This is where further options such as specific versions of dependencies can be set in the furture
+vars:
+  allow_extensions: false
+  llvm.version: "14.0.0"
+  runs_per_stage: true
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
+  etiss_pulpino.cpu_arch: "RISCV"

@@ -276,7 +276,7 @@ class MlonMcuContext:
         assert env_file is not None, "Unable to find a MLonMCU environment"
         self.environment = UserEnvironment.from_file(env_file)  # TODO: move to __enter__
         setup_logging(self.environment)
-        assert deps_lock == "read" or "write"
+        assert deps_lock in ["read", "write"]
         if deps_lock == "read":
             self.deps_lock = ReadFileLock(os.path.join(self.environment.home, ".deps_lock"))
         elif deps_lock == "write":

@@ -62,7 +62,7 @@ def test_read_after_write_exception_enabled(monkeypatch, fake_environment_direct
     print("read1: " + readlock1.id)
 
     assert writelock1.acquire()
-    with pytest.raises(RWLockTimeout, match=r".*The lock.*could not be acquired\..*"):
+    with pytest.raises(RWLockTimeout, match=r".*The lock.*could\ not\ be\ acquired\..*"):
         readlock1.acquire()
 
     writelock1.release()
@@ -92,7 +92,7 @@ def test_write_after_read_exception_enabled(monkeypatch, fake_environment_direct
     print("write1: " + writelock1.id)
 
     assert readlock1.acquire()
-    with pytest.raises(RWLockTimeout, match=r".*The lock.*could not be acquired\..*"):
+    with pytest.raises(RWLockTimeout, match=r".*The lock.*could\ not\ be\ acquired\..*"):
         writelock1.acquire()
 
     readlock1.release()
@@ -122,7 +122,7 @@ def test_write_after_write_exception_enabled(monkeypatch, fake_environment_direc
     print("write1: " + writelock2.id)
 
     assert writelock1.acquire()
-    with pytest.raises(RWLockTimeout, match=r".*The lock.*could not be acquired\..*"):
+    with pytest.raises(RWLockTimeout, match=r".*The lock.*could\ not\ be\ acquired\..*"):
         writelock2.acquire()
 
     writelock1.release()

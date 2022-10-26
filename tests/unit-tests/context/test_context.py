@@ -99,20 +99,41 @@ def test_reuse_context_locked(monkeypatch, fake_environment_directory: Path, fak
         assert context2
 
 
-def test_nest_context(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
+def test_nest_context_read_after_read(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
-    with MlonMcuContext() as context:
+    with MlonMcuContext(deps_lock="read") as context:
         assert context
-        with MlonMcuContext() as context2:
+        with MlonMcuContext(deps_lock="read") as context2:
             assert context2
 
 
-def test_nest_context_locked(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
+def test_nest_context_read_after_write(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
     monkeypatch.chdir(fake_environment_directory)
     create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
-    with MlonMcuContext() as context:
+
+    with MlonMcuContext(deps_lock="write") as context:
         assert context
-        with pytest.raises(RuntimeError, match=r".*could\ not\ be\ aquired.*"):
-            with MlonMcuContext() as context2:
+        with pytest.raises(RuntimeError, match=r".*could\ not\ be\ acquired\..*"):
+            with MlonMcuContext(deps_lock="read") as context2:
+                assert context2
+
+def test_nest_context_write_after_read(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
+    monkeypatch.chdir(fake_environment_directory)
+    create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
+
+    with MlonMcuContext(deps_lock="write") as context:
+        assert context
+        with pytest.raises(RuntimeError, match=r".*could\ not\ be\ acquired\..*"):
+            with MlonMcuContext(deps_lock="read") as context2:
+                assert context2
+
+def test_nest_context_write_after_write(monkeypatch, fake_environment_directory: Path, fake_config_home: Path):
+    monkeypatch.chdir(fake_environment_directory)
+    create_minimal_environment_yaml(fake_environment_directory / "environment.yml")
+
+    with MlonMcuContext(deps_lock="write") as context:
+        assert context
+        with pytest.raises(RuntimeError, match=r".*could\ not\ be\ acquired\..*"):
+            with MlonMcuContext(deps_lock="read") as context2:
                 assert context2

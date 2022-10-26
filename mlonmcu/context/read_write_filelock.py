@@ -33,7 +33,15 @@ from pathlib import Path
 import atexit
 
 
-# data structure of the file which serves as the lock
+class RWLockTimeout(TimeoutError):
+    """Raised when the lock could not be acquired in *timeout* seconds."""
+
+    def __init__(self, lock) -> None:
+        #: The path of the file lock.
+        self.lock = lock
+
+    def __str__(self) -> str:
+        return f"The lock with id '{self.lock.id}' " f"in env '{self.lock.filepath.parent}' could not be acquired."
 
 
 class ReadFileLock:
@@ -91,7 +99,7 @@ class ReadFileLock:
             lock_acquire_success = False
             self.lock.release()
             if raise_exception:
-                raise filelock.Timeout(self.lock)  # mimic filelock TimeOut Error
+                raise RWLockTimeout(self)  # mimic filelock TimeOut Error
         else:
             time_info = datetime.datetime.now().replace(microsecond=0).isoformat()
             lock_occupy_info[self.id] = {"time": f"{time_info}", "type": "read"}
@@ -234,10 +242,10 @@ class WriteFileLock:
             lock_acquire_success = False
             self.lock.release()
             if raise_exception:
-                raise filelock.Timeout(self.lock)  # mimic filelock TimeOut Error
+                raise RWLockTimeout(self)  # mimic filelock TimeOut Error
         else:
             time_info = datetime.datetime.now().isoformat()
-            lock_occupy_info[self.id] = {"time": f"{time_info}", "type": "read"}
+            lock_occupy_info[self.id] = {"time": f"{time_info}", "type": "write"}
             with open(self.trackfilepath, "w") as track_file:
                 yaml.dump(lock_occupy_info, track_file, default_flow_style=False)
             lock_acquire_success = True
@@ -322,48 +330,3 @@ class WriteFileLock:
 
         self.lock.release()
         return occupied
-
-
-if __name__ == "__main__":
-
-    filepath = "/tmp/read_write_file_lock/hello"
-    if not os.path.exists(Path(filepath).parent):
-        os.mkdir(Path(filepath).parent)
-    readlock1 = ReadFileLock(filepath)
-    print("read1: " + readlock1.id)
-    writelock1 = WriteFileLock(filepath)
-    print("write1: " + writelock1.id)
-    assert readlock1.acquire(raise_exception=False)
-    assert not writelock1.acquire(raise_exception=False)
-    time.sleep(20)
-    readlock1.release()
-    #
-    # time.sleep(2)
-    #
-    # readlock1 = ReadFileLock(filepath)
-    # print("read1: " + readlock1.id)
-    # readlock2 = ReadFileLock(filepath)
-    # print("read2: " + readlock2.id)
-    # assert readlock1.acquire()
-    # assert readlock2.acquire()
-    # time.sleep(2)
-    # readlock1.release()
-    # readlock2.release()
-    #
-    # time.sleep(2)
-    #
-    # readlock1 = ReadFileLock(filepath)
-    # print("read1: " + readlock1.id)
-    # writelock1 = WriteFileLock(filepath)
-    # print("write1: " + writelock1.id)
-    # assert writelock1.acquire()
-    # assert not readlock1.acquire()
-    # time.sleep(2)
-    # writelock1.release()
-
-    # filepath = "hello"
-    # readlock1 = ReadFileLock(filepath)
-    # print("read1: " + readlock1.id)
-    # print(readlock1.is_locked)
-
-    pass

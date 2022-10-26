@@ -33,7 +33,7 @@ from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 import mlonmcu.setup.utils as utils
 from mlonmcu.plugins import process_extensions
-from mlonmcu.context.read_write_filelock import ReadFileLock, WriteFileLock
+from mlonmcu.context.read_write_filelock import ReadFileLock, WriteFileLock, RWLockTimeout
 
 from mlonmcu.environment.environment import Environment, UserEnvironment
 
@@ -382,7 +382,7 @@ class MlonMcuContext:
             logger.debug("Locking context")
             try:
                 self.deps_lock.acquire()
-            except filelock.Timeout as err:
+            except RWLockTimeout as err:
                 raise RuntimeError("Lock on current context could not be aquired.") from err
         self.load_cache()
         self.load_extensions()

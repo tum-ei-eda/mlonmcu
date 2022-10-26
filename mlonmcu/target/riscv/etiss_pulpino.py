@@ -38,7 +38,7 @@ logger = get_logger()
 class EtissPulpinoTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext"]
+    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext", "performance_estimator"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -65,6 +65,7 @@ class EtissPulpinoTarget(RISCVTarget):
         "elen": 32,
         "jit": None,
         "end_to_end_cycles": False,
+        "extra_config": {},
     }
     REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
 
@@ -207,15 +208,32 @@ class EtissPulpinoTarget(RISCVTarget):
     def pext_spec(self):
         return float(self.config["pext_spec"])
 
+    @property
+    def extra_config(self):
+        cfg = self.config["extra_config"]
+        if isinstance(cfg, str):
+            cfg_split = cfg.split(" ")
+            cfg = {}
+            for x in cfg_split:
+                key, value = x.split("=")[:2]
+                cfg[key] = value
+        assert isinstance(cfg, dict)
+        return cfg
+
     def write_ini(self, path):
         # TODO: Either create artifact for ini or prefer to use cmdline args.
+        for key, value in self.extra_config.items():
+            if not isinstance(value, (str, int, bool)):
+                raise NotImplementedError(f"Type not handled: {type(value)}")
         with open(path, "w") as f:
-            if self.cpu_arch or self.jit:
-                f.write("[StringConfigurations]\n")
+            f.write("[StringConfigurations]\n")
             if self.cpu_arch:
                 f.write(f"arch.cpu={self.cpu_arch}\n")
             if self.jit:
                 f.write(f"jit.type={self.jit}JIT\n")
+            for key, value in self.extra_config.items():
+                if isinstance(value, str):
+                    f.write(f"{key}={value}\n")
             f.write("[IntConfigurations]\n")
             # f.write("etiss.max_block_size=100\n")
             # f.write("etiss.max_block_size=500\n")
@@ -225,6 +243,13 @@ class EtissPulpinoTarget(RISCVTarget):
             f.write(f"simple_mem_system.memseg_length_01={hex(self.ram_size)}\n")
             f.write("\n")
             f.write(f"arch.cpu_cycle_time_ps={self.cycle_time_ps}\n")
+            for key, value in self.extra_config.items():
+                if isinstance(value, int):
+                    f.write(f"{key}={value}\n")
+            f.write("[BoolConfigurations]\n")
+            for key, value in self.extra_config.items():
+                if isinstance(value, bool):
+                    f.write(f"{key}={value}\n")
             if self.has_fpu:
                 # TODO: do not hardcode cpu_arch
                 # TODO: i.e. use cpu_arch_lower

@@ -374,17 +374,24 @@ def _validate_etiss(context: MlonMcuContext, params={}):
         if dbg:
             if not context.environment.has_feature("etissdbg"):
                 return False
+    if "perf" in params:
+        perf = params["perf"]
+        if perf:
+            if not _validate_performance_estimator(context, params=params):
+                return False
     return context.environment.has_target("etiss_pulpino")
 
 
 @Tasks.provides(["etiss.src_dir"])
 @Tasks.validate(_validate_etiss)
+@Tasks.param("perf", [False, True])
 @Tasks.register(category=TaskType.TARGET)
 def clone_etiss(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
     """Clone the ETISS repository."""
-    etissName = utils.makeDirName("etiss")
+    flags = utils.makeFlags((params["perf"], "perf"))
+    etissName = utils.makeDirName("etiss", flags=flags)
     user_vars = context.environment.vars
     if "etiss.src_dir" in user_vars:
         etissSrcDir = Path(user_vars["etiss.src_dir"])
@@ -394,13 +401,19 @@ def clone_etiss(
     if rebuild or not utils.is_populated(etissSrcDir):
         etissRepo = context.environment.repos["etiss"]
         utils.clone(etissRepo.url, etissSrcDir, branch=etissRepo.ref)
-    context.cache["etiss.src_dir"] = etissSrcDir
+        if params["perf"]:
+            perfSrcDir = context.cache["performance_estimator.src_dir"]
+            linkDest = etissSrcDir / "PluginImpl" / "PerformanceEstimator"
+            utils.link(perfSrcDir, linkDest)
+    context.cache["etiss.src_dir", flags] = etissSrcDir
 
 
 # @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
 @Tasks.needs(["etiss.src_dir"])
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
+@Tasks.optional(["performance_estimator.src_dir"])
 @Tasks.param("dbg", [False, True])
+@Tasks.param("perf", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
 def build_etiss(
@@ -409,12 +422,14 @@ def build_etiss(
     """Build the ETISS simulator."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"))
+    flags = utils.makeFlags((params["dbg"], "dbg"), (params["perf"], "perf"))
+    flags_ = utils.makeFlags((params["perf"], "perf"))
     etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
     etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
     # llvmInstallDir = context.cache["llvm.install_dir"]
     user_vars = context.environment.vars
+    etissSrcDir = context.cache["etiss.src_dir", flags_]
     if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
         return False
     if rebuild or not utils.is_populated(etissBuildDir):
@@ -422,7 +437,7 @@ def build_etiss(
         env = os.environ.copy()
         # env["LLVM_DIR"] = str(llvmInstallDir)
         utils.cmake(
-            context.cache["etiss.src_dir"],
+            etissSrcDir,
             "-DCMAKE_INSTALL_PREFIX=" + str(etissInstallDir),
             cwd=etissBuildDir,
             debug=params["dbg"],
@@ -437,6 +452,7 @@ def build_etiss(
 @Tasks.needs(["etiss.build_dir"])
 @Tasks.provides(["etiss.install_dir", "etissvp.exe", "etissvp.script"])
 @Tasks.param("dbg", [False, True])
+@Tasks.param("perf", [False, True])
 @Tasks.validate(_validate_etiss)
 @Tasks.register(category=TaskType.TARGET)
 def install_etiss(
@@ -448,7 +464,7 @@ def install_etiss(
     user_vars = context.environment.vars
     if "etiss.install_dir" in user_vars and "etissvp.exe" in user_vars and "etissvp.script" in user_vars:
         return False
-    flags = utils.makeFlags((params["dbg"], "dbg"))
+    flags = utils.makeFlags((params["dbg"], "dbg"), (params["perf"], "perf"))
     # etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.cache["etiss.build_dir", flags]
     etissInstallDir = context.cache["etiss.install_dir", flags]
@@ -1328,3 +1344,22 @@ def install_zephyr(
     context.cache["zephyr.install_dir"] = zephyrInstallDir
     context.cache["zephyr.sdk_dir"] = zephyrSdkDir
     context.cache["zephyr.venv_dir"] = zephyrVenvDir
+
+
+def _validate_performance_estimator(context: MlonMcuContext, params={}):
+    return context.environment.has_feature("performance_estimator")
+
+
+@Tasks.provides(["performance_estimator.src_dir"])
+@Tasks.validate(_validate_performance_estimator)
+@Tasks.register(category=TaskType.FEATURE)
+def clone_performance_estimator(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the performance estimator repository."""
+    perfName = utils.makeDirName("performance_estimator")
+    perfSrcDir = context.environment.paths["deps"].path / "src" / perfName
+    if rebuild or not utils.is_populated(perfSrcDir):
+        perfRepo = context.environment.repos["performance_estimator"]
+        utils.clone(perfRepo.url, perfSrcDir, branch=perfRepo.ref, refresh=rebuild)
+    context.cache["performance_estimator.src_dir"] = perfSrcDir

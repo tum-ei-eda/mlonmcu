@@ -157,6 +157,12 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only print a list of the tasks to be processed and quit (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-g&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--generate_requirements&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate requirements_addition.txt listing the dependent python packages.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">setup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--task&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -199,6 +205,8 @@
                 <span class="n">progress</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">progress</span><span class="p">,</span>
                 <span class="n">rebuild</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">rebuild</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">generate_requirements</span><span class="p">:</span>
+            <span class="n">installer</span><span class="o">.</span><span class="n">generate_requirements</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">installer</span><span class="o">.</span><span class="n">install_dependencies</span><span class="p">(</span>
                 <span class="n">progress</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">progress</span><span class="p">,</span>

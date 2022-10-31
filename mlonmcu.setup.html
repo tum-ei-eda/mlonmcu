@@ -152,6 +152,171 @@
 <dd></dd></dl>
 
 </section>
+<section id="module-mlonmcu.setup.gen_requirements">
+<span id="mlonmcu-setup-gen-requirements-module"></span><h2>mlonmcu.setup.gen_requirements module<a class="headerlink" href="#module-mlonmcu.setup.gen_requirements" title="Permalink to this headline"></a></h2>
+<p>MLonMCU Python requirements.txt generator.</p>
+<p>This script generates a set of requirements.txt files (stored in <cite>./requirements</cite>) that describe
+MLonMCU’s Python dependencies.</p>
+<p>## Pieces</p>
+<p>MLonMCU can be roughly broken into these named pieces along the lines of Python dependencies:</p>
+<ul class="simple">
+<li><p>“core”: A core piece, which is intended to be buildable with very few external dependencies. Users
+can use Relay, compile models, and run autotuning with this part.</p></li>
+<li><p>Extra features (i.e. TVM). These enhance MLonMCU’s functionality, but aren’t required
+for basic operation.</p></li>
+</ul>
+<p>## What this tool does</p>
+<dl class="simple">
+<dt>From these pieces, this tool builds:</dt><dd><ul class="simple">
+<li><p>requirements/&lt;name&gt;.txt - Python dependencies for each named piece above, <cite>&lt;name&gt;</cite> is the same as
+the quoted piece name.</p></li>
+<li><p>requirements/all.txt - Consolidated Python dependencies for all pieces, excluding dev below.</p></li>
+<li><p>requirements/dev.txt - Python dependencies needed to develop MLONMCU, such as lint and test tools.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The data representing each piece is contained in the two maps below.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.ValidationError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">ValidationError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problems</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#ValidationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.ValidationError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when a validation error occurs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.ValidationError.format_problems">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format_problems</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problems</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#ValidationError.format_problems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.ValidationError.format_problems" title="Permalink to this definition"></a></dt>
+<dd><p>Format a list of problems with a global config variable into human-readable output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">str</span></dt><dd><p>Name of the global configuration variable of concern. Prepended to the output.</p>
+</dd>
+<dt><strong>problems: list[str]</strong></dt><dd><p>A list of strings, each one a distinct problem with that config variable.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>A human-readable string suitable for console, listing the problems as bullet points.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.join_and_write_requirements">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">join_and_write_requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">argparse.Namespace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#join_and_write_requirements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.join_and_write_requirements" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.join_requirements">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">join_requirements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#join_requirements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.join_requirements" title="Permalink to this definition"></a></dt>
+<dd><p>Validate, then join REQUIRMENTS_BY_PIECE against CONSTRAINTS and return the result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>An OrderedDict containing REQUIREMENTS_BY_PIECE, except any dependency mentioned in CONSTRAINTS</dt><dd></dd>
+<dt>is replaced by a setuptools-compatible constraint.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.main">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.parse_args">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">argparse.Namespace</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#parse_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.parse_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.parse_semver">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">parse_semver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problems</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#parse_semver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.parse_semver" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a semantic versioning constraint of the form “^X.[.Y[.Z[…]]]]”</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>package</strong><span class="classifier">str</span></dt><dd><p>Name of the package specifying this constraint, for reporting problems.</p>
+</dd>
+<dt><strong>constraint</strong><span class="classifier">str</span></dt><dd><p>The semver constraint. Must start with “^”</p>
+</dd>
+<dt><strong>problems</strong><span class="classifier">List[str]</span></dt><dd><p>A list of strings describing problems that have occurred validating the configuration.
+Problems encountered while validating constraint are appended to this list.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt>tuple[list[str], int, int]</dt><dd><p>A 3-tuple. The first element is a list containing an entry for each component in the
+semver string (components separated by “.”). The second element is the index of the
+component in the list which must not change to meet the semver constraint. The third element
+is an integer, the numeric value of the changing component (this can be non-trivial when
+the patch is the changing part but pre-, post-release, or build metadta.</p>
+<p>See “Caret requirements” at <a class="reference external" href="https://python-poetry.org/docs/versions/">https://python-poetry.org/docs/versions/</a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.semver_to_requirements">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">semver_to_requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joined_deps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#semver_to_requirements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.semver_to_requirements" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a SemVer-style constraint to a setuptools-compatible constraint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dep</strong><span class="classifier">str</span></dt><dd><p>Name of the PyPI package to depend on.</p>
+</dd>
+<dt><strong>constraint</strong><span class="classifier">str</span></dt><dd><p>The SemVer constraint, of the form “^&lt;semver constraint&gt;”</p>
+</dd>
+<dt><strong>joined_deps</strong><span class="classifier">list[str]</span></dt><dd><p>A list of strings, each a setuptools-compatible constraint which could be written to
+a line in requirements.txt. The converted constraint is appended to this list.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.validate_constraints">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">validate_constraints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#validate_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.validate_constraints" title="Permalink to this definition"></a></dt>
+<dd><p>Validate CONSTRAINTS, returning a list of problems found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list[str]</dt><dd><p>A list of strings, each one describing a distinct problem found in CONSTRAINTS.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.validate_or_raise">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">validate_or_raise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#validate_or_raise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.validate_or_raise" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.gen_requirements.validate_requirements_by_piece">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.gen_requirements.</span></span><span class="sig-name descname"><span class="pre">validate_requirements_by_piece</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/gen_requirements.html#validate_requirements_by_piece"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.gen_requirements.validate_requirements_by_piece" title="Permalink to this definition"></a></dt>
+<dd><p>Validate REQUIREMENTS_BY_PIECE, returning a list of problems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list[str]</dt><dd><p>A list of strings, each one describing a distinct problem with REQUIREMENTS_BY_PIECE.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-mlonmcu.setup.setup">
 <span id="mlonmcu-setup-setup-module"></span><h2>mlonmcu.setup.setup module<a class="headerlink" href="#module-mlonmcu.setup.setup" title="Permalink to this headline"></a></h2>
 <dl class="py class">
@@ -187,6 +352,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.clean_dependencies">
 <span class="sig-name descname"><span class="pre">clean_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup.clean_dependencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup.clean_dependencies" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.setup.setup.Setup.generate_requirements">
+<span class="sig-name descname"><span class="pre">generate_requirements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/setup/setup.html#Setup.generate_requirements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.setup.Setup.generate_requirements" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.setup.gen_requirements &mdash; ML on MCU 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>mlonmcu.setup.gen_requirements</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.setup.gen_requirements</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one</span>
+<span class="c1"># or more contributor license agreements.  See the NOTICE file</span>
+<span class="c1"># distributed with this work for additional information</span>
+<span class="c1"># regarding copyright ownership.  The ASF licenses this file</span>
+<span class="c1"># to you under the Apache License, Version 2.0 (the</span>
+<span class="c1"># &quot;License&quot;); you may not use this file except in compliance</span>
+<span class="c1"># with the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#   http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing,</span>
+<span class="c1"># software distributed under the License is distributed on an</span>
+<span class="c1"># &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
+<span class="c1"># KIND, either express or implied.  See the License for the</span>
+<span class="c1"># specific language governing permissions and limitations</span>
+<span class="c1"># under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># Modifications copyright (C) 2022  TUM Department of Electrical and Computer Engineering</span>
+
+<span class="sd">&quot;&quot;&quot;MLonMCU Python requirements.txt generator.</span>
+
+<span class="sd">This script generates a set of requirements.txt files (stored in `./requirements`) that describe</span>
+<span class="sd">MLonMCU&#39;s Python dependencies.</span>
+
+<span class="sd">## Pieces</span>
+
+<span class="sd">MLonMCU can be roughly broken into these named pieces along the lines of Python dependencies:</span>
+
+<span class="sd">- &quot;core&quot;: A core piece, which is intended to be buildable with very few external dependencies. Users</span>
+<span class="sd">  can use Relay, compile models, and run autotuning with this part.</span>
+<span class="sd">- Extra features (i.e. TVM). These enhance MLonMCU&#39;s functionality, but aren&#39;t required</span>
+<span class="sd">  for basic operation.</span>
+
+<span class="sd">## What this tool does</span>
+
+<span class="sd">From these pieces, this tool builds:</span>
+<span class="sd"> - requirements/&lt;name&gt;.txt - Python dependencies for each named piece above, `&lt;name&gt;` is the same as</span>
+<span class="sd">   the quoted piece name.</span>
+<span class="sd"> - requirements/all.txt - Consolidated Python dependencies for all pieces, excluding dev below.</span>
+<span class="sd"> - requirements/dev.txt - Python dependencies needed to develop MLONMCU, such as lint and test tools.</span>
+
+<span class="sd">The data representing each piece is contained in the two maps below.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+
+<span class="n">RequirementsByPieceType</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]</span>
+
+
+<span class="c1"># Maps named MLonMCU piece (see description above) to a list of names of Python packages. Please use</span>
+<span class="c1"># alphabetical order for each package list, and do not add version constraints here!</span>
+<span class="n">REQUIREMENTS_BY_PIECE</span><span class="p">:</span> <span class="n">RequirementsByPieceType</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Base requirements needed to install MLonMCU.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;core&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Base requirements needed to install MLonMCU&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;GitPython&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Pillow&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;filelock&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;jinja2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span>  <span class="c1"># visualization</span>
+                <span class="s2">&quot;networkx&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>  <span class="c1"># xlsx reports</span>
+                <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pyserial&quot;</span><span class="p">,</span>  <span class="c1"># for platforms</span>
+                <span class="s2">&quot;pyyaml&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tflite&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tqdm&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;xdg&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;xlsxwriter&quot;</span><span class="p">,</span>  <span class="c1"># xlsx reports</span>
+                <span class="s2">&quot;xlwt&quot;</span><span class="p">,</span>  <span class="c1"># xlsx reports</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="c1"># Provide support for espidf.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;espidf&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using espidf&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;bitstring&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;click&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;construct&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cryptography&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ecdsa&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;future&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;gdbgui&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;idf-component-manager&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;itsdangerous&quot;</span><span class="p">,</span>  <span class="c1"># there are two espidf in origin requirements.txt this is from the 2nd</span>
+                <span class="s2">&quot;jinja2&quot;</span><span class="p">,</span>  <span class="c1"># there are two espidf in origin requirements.txt this is from the 2nd</span>
+                <span class="s2">&quot;kconfiglib&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pygdbmi&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pyparsing&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;python-socketio&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reedsolo&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="c1"># Provide support for etiss.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;etiss&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using etiss&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;humanize&quot;</span><span class="p">,</span> <span class="s2">&quot;pyelftools&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="c1"># Provide support for microtvm.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;microtvm&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using microtvm&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;pyserial&quot;</span><span class="p">,</span> <span class="s2">&quot;pyusb&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="c1"># Provide support for moiopt.</span>
+    <span class="p">(</span><span class="s2">&quot;moiopt&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for moiopt&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ortools&quot;</span><span class="p">])),</span>
+    <span class="c1"># Provide support for relay visualization.</span>
+    <span class="p">(</span><span class="s2">&quot;relay-visualization&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for relay visualization&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;relayviz&quot;</span><span class="p">])),</span>
+    <span class="c1"># Provide support for tvm.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;tvm&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using tvm&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;attrs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cloudpickle&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;decorator&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;graphviz&quot;</span><span class="p">,</span>  <span class="c1"># for relay visualization</span>
+                <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;psutil&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;scipy&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;synr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tornado&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;tvm-autotuning&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for using tvm autotuning&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;xgboost&quot;</span><span class="p">])),</span>  <span class="c1"># for autotuning on some target</span>
+    <span class="p">(</span><span class="s2">&quot;visualize_tflite&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for visualization&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">])),</span>
+<span class="p">]</span>
+
+<span class="n">ConstraintsType</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span>
+
+<span class="c1"># Maps a named Python package (which should appear in REQUIREMENTS_BY_PIECE above) to a</span>
+<span class="c1"># semver or pip version constraint. Semver constraints are translated into requirements.txt-friendly</span>
+<span class="c1"># constraints.</span>
+<span class="c1">#</span>
+<span class="c1"># These constraints serve only to record technical reasons why a particular version can&#39;t be used.</span>
+<span class="c1"># They are the default install_requires used in setup.py. These can be further narrowed to restrict</span>
+<span class="c1"># dependencies to those tested or used in CI; however, that process is not done here.</span>
+<span class="c1">#</span>
+<span class="c1"># Policy for constraints listed here:</span>
+<span class="c1"># 1. Each package specified in REQUIREMENTS_BY_PIECE must be included here.</span>
+<span class="c1"># 2. If MLonMCU will functionally break against an old version of a dependency, specify a &gt;= relation</span>
+<span class="c1">#    here. Include a comment linking to context or explaining why the constraint is in place.</span>
+<span class="n">CONSTRAINTS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;GitPython&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Pillow&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;bitstring&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=3.1.6&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=7.0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;cloudpickle&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;construct&quot;</span><span class="p">,</span> <span class="s2">&quot;==2.10.54&quot;</span><span class="p">),</span>  <span class="c1"># From PR #213.</span>
+    <span class="p">(</span><span class="s2">&quot;cryptography&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=2.1.4&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;decorator&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;ecdsa&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=0.16.0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;filelock&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=0.15.2&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;gdbgui&quot;</span><span class="p">,</span> <span class="s2">&quot;==0.13.2.0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;graphviz&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;humanize&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;idf-component-manager&quot;</span><span class="p">,</span> <span class="s2">&quot;~=1.0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;itsdangerous&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;2.1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;jinja2&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;3.1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;kconfiglib&quot;</span><span class="p">,</span> <span class="s2">&quot;==13.7.1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;networkx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;ortools&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;psutil&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pyelftools&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pygdbmi&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=0.9.0.2&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pyparsing&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=2.0.3,&lt;2.4.0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pyserial&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;python-socketio&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;5&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pyusb&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pyyaml&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;reedsolo&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=1.5.3,&lt;=1.5.4&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;scipy&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;synr&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span> <span class="s2">&quot;~=2.8.0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;tornado&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;xdg&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span> <span class="s2">&quot;~=1.5.2&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;xlsxwriter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;xlwt&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># End of configuration options.</span>
+<span class="c1">################################################################################</span>
+
+
+<span class="c1"># Required keys in REQUIREMENTS_BY_PIECE.</span>
+<span class="n">REQUIRED_PIECES</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;core&quot;</span><span class="p">,</span> <span class="s2">&quot;dev&quot;</span><span class="p">]</span>
+
+<span class="c1"># Regex to validates piece names.</span>
+<span class="n">PIECE_REGEX</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[a-z0-9][a-z0-9-]*&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+<span class="c1"># Regex to match a constraint specification. Multiple constraints are not supported.</span>
+<span class="n">CONSTRAINT_REGEX</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?:\^|\&lt;|(?:~=)|(?:&lt;=)|(?:==)|(?:&gt;=)|\&gt;)[^&lt;&gt;=\^,]+&quot;</span><span class="p">)</span>
+
+<span class="c1"># Regex for parsing semantic versions. See</span>
+<span class="c1"># https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string</span>
+<span class="n">SEMVER_REGEX</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;^(?P&lt;major&gt;0|[1-9]\d*)\.(?P&lt;minor&gt;0|[1-9]\d*)\.(?P&lt;patch&gt;0|[1-9]\d*)&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot;(?:-(?P&lt;prerelease&gt;(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot;?(?:\+(?P&lt;buildmetadata&gt;[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$&quot;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="validate_requirements_by_piece"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.validate_requirements_by_piece">[docs]</a><span class="k">def</span> <span class="nf">validate_requirements_by_piece</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Validate REQUIREMENTS_BY_PIECE, returning a list of problems.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[str] :</span>
+<span class="sd">        A list of strings, each one describing a distinct problem with REQUIREMENTS_BY_PIECE.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">unseen_required_pieces</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">REQUIRED_PIECES</span><span class="p">)</span>
+    <span class="n">seen_pieces</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="c1"># Ensure that core is listed first and dev is listed last.</span>
+    <span class="n">saw_core</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">saw_dev</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">REQUIREMENTS_BY_PIECE</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;must be list or tuple, see </span><span class="si">{</span><span class="n">REQUIREMENTS_BY_PIECE</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">problems</span>
+
+    <span class="k">for</span> <span class="n">piece</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">REQUIREMENTS_BY_PIECE</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">!r}</span><span class="s2">: must be str&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">piece</span> <span class="ow">in</span> <span class="n">unseen_required_pieces</span><span class="p">:</span>
+            <span class="n">unseen_required_pieces</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+
+        <span class="n">piece_lower</span> <span class="o">=</span> <span class="n">piece</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">piece_lower</span> <span class="ow">in</span> <span class="n">seen_pieces</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">: listed twice&quot;</span><span class="p">)</span>
+
+        <span class="n">seen_pieces</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">piece_lower</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">saw_core</span> <span class="ow">and</span> <span class="n">piece</span> <span class="o">!=</span> <span class="s2">&quot;core&quot;</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s1">: must list after &quot;core&quot; (core must be first)&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">piece</span> <span class="o">==</span> <span class="s2">&quot;core&quot;</span><span class="p">:</span>
+            <span class="n">saw_core</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">saw_dev</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s1">: must list before &quot;dev&quot; (dev must be last)&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">piece</span> <span class="o">==</span> <span class="s2">&quot;dev&quot;</span><span class="p">:</span>
+            <span class="n">saw_dev</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s1">: should be formatted like (&quot;</span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s1">&quot;, (&quot;&lt;requirements.txt comment&gt;&quot;, [&quot;dep1&quot;, &quot;dep2&quot;, &#39;</span>
+                <span class="sa">f</span><span class="s2">&quot;...])). got: </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> &quot;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">description</span><span class="p">,</span> <span class="n">deps</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">: description should be a string, got </span><span class="si">{</span><span class="n">description</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">deps</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">):</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">: deps should be a list of strings, got </span><span class="si">{</span><span class="n">deps</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">deps</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="n">deps</span><span class="p">):</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">: deps must be sorted. Correct order:</span><span class="se">\n</span><span class="s2">  </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">deps</span><span class="p">))</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">piece_deps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CONSTRAINT_REGEX</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">: dependency </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2"> should not specify a version. &quot;</span> <span class="s2">&quot;Add it to CONSTRAINTS instead.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">piece_deps</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">: dependency </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2"> listed twice&quot;</span><span class="p">)</span>
+
+            <span class="n">piece_deps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+    <span class="n">extras_pieces</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">REQUIREMENTS_BY_PIECE</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;dev&quot;</span><span class="p">,</span> <span class="s2">&quot;core&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">)]</span>
+    <span class="n">sorted_extras_pieces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">extras_pieces</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">sorted_extras_pieces</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="n">extras_pieces</span><span class="p">):</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;pieces other than &quot;core&quot; and &quot;dev&quot; must appear in alphabetical order: &#39;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sorted_extras_pieces</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">problems</span></div>
+
+
+<div class="viewcode-block" id="parse_semver"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.parse_semver">[docs]</a><span class="k">def</span> <span class="nf">parse_semver</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Parse a semantic versioning constraint of the form &quot;^X.[.Y[.Z[...]]]]&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    package : str</span>
+<span class="sd">        Name of the package specifying this constraint, for reporting problems.</span>
+<span class="sd">    constraint : str</span>
+<span class="sd">        The semver constraint. Must start with &quot;^&quot;</span>
+<span class="sd">    problems : List[str]</span>
+<span class="sd">        A list of strings describing problems that have occurred validating the configuration.</span>
+<span class="sd">        Problems encountered while validating constraint are appended to this list.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[list[str], int, int] :</span>
+<span class="sd">        A 3-tuple. The first element is a list containing an entry for each component in the</span>
+<span class="sd">        semver string (components separated by &quot;.&quot;). The second element is the index of the</span>
+<span class="sd">        component in the list which must not change to meet the semver constraint. The third element</span>
+<span class="sd">        is an integer, the numeric value of the changing component (this can be non-trivial when</span>
+<span class="sd">        the patch is the changing part but pre-, post-release, or build metadta.</span>
+
+<span class="sd">        See &quot;Caret requirements&quot; at https://python-poetry.org/docs/versions/.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">SEMVER_REGEX</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">constraint</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">: invalid semver constraint </span><span class="si">{</span><span class="n">constraint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="n">min_ver_parts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;major&quot;</span><span class="p">),</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;minor&quot;</span><span class="p">),</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">)</span>
+        <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;prerelease&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;prerelease&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;buildmetadata&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;buildmetadata&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Major/minor version handling is simple</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">min_ver_parts</span><span class="p">[:</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">x</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">min_ver_parts</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span>
+
+    <span class="c1"># For patch version, consult only the numeric patch</span>
+    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">):</span>
+        <span class="n">patch_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">patch_int</span> <span class="ow">or</span> <span class="n">min_ver_parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">min_ver_parts</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">patch_int</span>
+
+    <span class="c1"># All 0&#39;s</span>
+    <span class="k">return</span> <span class="n">min_ver_parts</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="validate_constraints"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.validate_constraints">[docs]</a><span class="k">def</span> <span class="nf">validate_constraints</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Validate CONSTRAINTS, returning a list of problems found.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[str] :</span>
+<span class="sd">        A list of strings, each one describing a distinct problem found in CONSTRAINTS.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">CONSTRAINTS</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;must be list or tuple, see: </span><span class="si">{</span><span class="n">CONSTRAINTS</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">seen_packages</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">all_deps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">deps</span><span class="p">)</span> <span class="ow">in</span> <span class="n">REQUIREMENTS_BY_PIECE</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">:</span>
+            <span class="n">all_deps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+    <span class="k">for</span> <span class="n">package</span><span class="p">,</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="n">CONSTRAINTS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">seen_packages</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">: specified twice&quot;</span><span class="p">)</span>
+        <span class="n">seen_packages</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_deps</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">: not specified in REQUIREMENTS_BY_PIECE&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">constraint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># None is just a placeholder that allows for comments.</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">CONSTRAINT_REGEX</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">constraint</span><span class="p">):</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1">: constraint &quot;</span><span class="si">{</span><span class="n">constraint</span><span class="si">}</span><span class="s1">&quot; does not look like a valid constraint&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">constraint</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;^&quot;</span><span class="p">):</span>
+            <span class="n">parse_semver</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">problems</span><span class="p">)</span>
+
+    <span class="n">all_constrained_packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">CONSTRAINTS</span><span class="p">]</span>
+    <span class="n">sorted_constrained_packages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">all_constrained_packages</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">sorted_constrained_packages</span> <span class="o">!=</span> <span class="n">all_constrained_packages</span><span class="p">:</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CONSTRAINTS entries should be in this sorted order: &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sorted_constrained_packages</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">problems</span></div>
+
+
+<div class="viewcode-block" id="ValidationError"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.ValidationError">[docs]</a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when a validation error occurs.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ValidationError.format_problems"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.ValidationError.format_problems">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">format_problems</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Format a list of problems with a global config variable into human-readable output.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : str</span>
+<span class="sd">            Name of the global configuration variable of concern. Prepended to the output.</span>
+<span class="sd">        problems: list[str]</span>
+<span class="sd">            A list of strings, each one a distinct problem with that config variable.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str :</span>
+<span class="sd">            A human-readable string suitable for console, listing the problems as bullet points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">formatted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;problems element not a str: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">formatted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">initial_indent</span><span class="o">=</span><span class="s2">&quot; * &quot;</span><span class="p">,</span> <span class="n">subsequent_indent</span><span class="o">=</span><span class="s2">&quot;   &quot;</span><span class="p">))</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Describes an error that occurs validating one of the global config variables.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : str</span>
+<span class="sd">            Name of the global configuration variable of concern. Prepended to the output.</span>
+<span class="sd">        problems: list[str]</span>
+<span class="sd">            A list of strings, each one a distinct problem with that config variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ValidationError</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_problems</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">problems</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problems</span> <span class="o">=</span> <span class="n">problems</span></div>
+
+
+<div class="viewcode-block" id="validate_or_raise"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.validate_or_raise">[docs]</a><span class="k">def</span> <span class="nf">validate_or_raise</span><span class="p">():</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="n">validate_requirements_by_piece</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;REQUIREMENTS_BY_PIECE&quot;</span><span class="p">,</span> <span class="n">problems</span><span class="p">)</span>
+
+    <span class="n">problems</span> <span class="o">=</span> <span class="n">validate_constraints</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;CONSTRAINTS&quot;</span><span class="p">,</span> <span class="n">problems</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="semver_to_requirements"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.semver_to_requirements">[docs]</a><span class="k">def</span> <span class="nf">semver_to_requirements</span><span class="p">(</span><span class="n">dep</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joined_deps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a SemVer-style constraint to a setuptools-compatible constraint.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dep : str</span>
+<span class="sd">        Name of the PyPI package to depend on.</span>
+<span class="sd">    constraint : str</span>
+<span class="sd">        The SemVer constraint, of the form &quot;^&lt;semver constraint&gt;&quot;</span>
+<span class="sd">    joined_deps : list[str]</span>
+<span class="sd">        A list of strings, each a setuptools-compatible constraint which could be written to</span>
+<span class="sd">        a line in requirements.txt. The converted constraint is appended to this list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">min_ver_parts</span><span class="p">,</span> <span class="n">fixed_index</span><span class="p">,</span> <span class="n">fixed_part</span> <span class="o">=</span> <span class="n">parse_semver</span><span class="p">(</span><span class="n">dep</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">problems</span><span class="p">)</span>
+    <span class="n">text_problems</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; * </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">problems</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;should not happen: validated semver </span><span class="si">{</span><span class="n">constraint</span><span class="si">}</span><span class="s2"> parses with problems:</span><span class="si">{</span><span class="n">text_problems</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">max_ver_parts</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">min_ver_parts</span><span class="p">[:</span><span class="n">fixed_index</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">fixed_part</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">min_ver_parts</span><span class="p">[</span><span class="n">fixed_index</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]]</span>
+    <span class="p">)</span>
+    <span class="n">joined_deps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dep</span><span class="si">}</span><span class="s1">&gt;=</span><span class="si">{</span><span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">min_ver_parts</span><span class="p">)</span><span class="si">}</span><span class="s1">,&lt;</span><span class="si">{</span><span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">max_ver_parts</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="join_requirements"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.join_requirements">[docs]</a><span class="k">def</span> <span class="nf">join_requirements</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+    <span class="sd">&quot;&quot;&quot;Validate, then join REQUIRMENTS_BY_PIECE against CONSTRAINTS and return the result.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    An OrderedDict containing REQUIREMENTS_BY_PIECE, except any dependency mentioned in CONSTRAINTS</span>
+<span class="sd">    is replaced by a setuptools-compatible constraint.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validate_or_raise</span><span class="p">()</span>
+
+    <span class="n">constraints_map</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">([(</span><span class="n">p</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">CONSTRAINTS</span><span class="p">])</span>
+
+    <span class="n">to_return</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">all_deps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">piece</span><span class="p">,</span> <span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">deps</span><span class="p">)</span> <span class="ow">in</span> <span class="n">REQUIREMENTS_BY_PIECE</span><span class="p">:</span>
+        <span class="n">joined_deps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">:</span>
+            <span class="n">constraint</span> <span class="o">=</span> <span class="n">constraints_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">constraint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">joined_deps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">constraint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;^&quot;</span><span class="p">:</span>
+                <span class="n">semver_to_requirements</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">joined_deps</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">joined_deps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}{</span><span class="n">constraint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">piece</span> <span class="o">!=</span> <span class="s2">&quot;dev&quot;</span><span class="p">:</span>
+            <span class="n">all_deps</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">joined_deps</span><span class="p">)</span>
+
+        <span class="n">to_return</span><span class="p">[</span><span class="n">piece</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">joined_deps</span><span class="p">)</span>
+
+    <span class="n">to_return</span><span class="p">[</span><span class="s2">&quot;all-prod&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Combined dependencies for all MLONMCU pieces, excluding dev&quot;</span><span class="p">,</span>
+        <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">all_deps</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">to_return</span></div>
+
+
+<div class="viewcode-block" id="join_and_write_requirements"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.join_and_write_requirements">[docs]</a><span class="k">def</span> <span class="nf">join_and_write_requirements</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">joined_deps</span> <span class="o">=</span> <span class="n">join_requirements</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: invalid requirements configuration in </span><span class="si">{</span><span class="vm">__file__</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">lint</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;requirements&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;ERROR: output directory </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2"> exists but is not a dir. Delete it&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">piece</span><span class="p">,</span> <span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">deps</span><span class="p">)</span> <span class="ow">in</span> <span class="n">joined_deps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;# AUTOGENERATED by python/gen_requirements.py</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">description</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--lint&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Just lint dependencies, don&#39;t generate anything&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">join_and_write_requirements</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

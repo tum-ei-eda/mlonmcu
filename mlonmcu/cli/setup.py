@@ -76,6 +76,12 @@ def add_setup_options(parser):
         help="Only print a list of the tasks to be processed and quit (default: %(default)s)",
     )
     setup_parser.add_argument(
+        "-g",
+        "--generate_requirements",
+        action="store_true",
+        help="Generate requirements_addition.txt listing the dependent python packages.",
+    )
+    setup_parser.add_argument(
         "--task",
         type=str,
         nargs=1,
@@ -118,6 +124,8 @@ def handle(args):
                 progress=args.progress,
                 rebuild=args.rebuild,
             )
+        elif args.generate_requirements:
+            installer.generate_requirements()
         else:
             installer.install_dependencies(
                 progress=args.progress,

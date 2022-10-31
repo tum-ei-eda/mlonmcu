@@ -15,17 +15,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-# this file contains read lock and write lock classes based on filelock
-# the two classes are non-blocking
-
+#
+"""
+This file contains read lock and write lock classes based on filelock
+The locks are non-blocking.
+"""
 
 from filelock import FileLock
-import random  # this is used to create a identifier for every ReadFileLock and WriteFileLock instance.
-import string  # this is used to create a identifier for every ReadFileLock and WriteFileLock instance.
-import time  # this is used to track the lock actions
-import datetime
+import uuid  # this is used to create a identifier for every ReadFileLock and WriteFileLock instance.
+import datetime  # this is used to track the lock actions
 import os
 import yaml
 from pathlib import Path
@@ -33,10 +31,10 @@ import atexit
 
 
 class RWLockTimeout(TimeoutError):
-    """Raised when the lock could not be acquired in *timeout* seconds."""
+    """Raised when the lock could not be acquired."""
 
     def __init__(self, lock) -> None:
-        #: The path of the file lock.
+        #: The Read or Write lock instance.
         self.lock = lock
 
     def __str__(self) -> str:
@@ -48,8 +46,7 @@ class ReadFileLock:
         self.filepath = Path(filepath)
         self.trackfilepath = self.filepath.parent / (str(self.filepath.stem) + "_track")
         self.lock = FileLock(self.filepath)
-        random.seed(time.time())
-        self.id = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
+        self.id = str(uuid.uuid4())
 
     def acquire(self, raise_exception=True):
         """
@@ -66,11 +63,11 @@ class ReadFileLock:
 
             Returns:
                 success (bool): whether succeeded or not.
-                    True means succeeded, False means failed (if the param raiseException is set to false).
-                    A filelock.Timeout exception will be raised if failed
+                    True means succeeded, False means failed (if the param raiseException is set to False).
+                    A RWLockTimeout exception will be raised if failed (if the param raiseException is set to True).
         """
 
-        # 1. aquire filelock
+        # 1. acquire filelock
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
@@ -98,7 +95,7 @@ class ReadFileLock:
             lock_acquire_success = False
             self.lock.release()
             if raise_exception:
-                raise RWLockTimeout(self)  # mimic filelock TimeOut Error
+                raise RWLockTimeout(self)
         else:
             time_info = datetime.datetime.now().replace(microsecond=0).isoformat()
             lock_occupy_info[self.id] = {"time": f"{time_info}", "type": "read"}
@@ -120,7 +117,7 @@ class ReadFileLock:
         4. write the updated lock occupation situation back, release filelock and return
         """
 
-        # 1. aquire filelock
+        # 1. acquire filelock
         self.lock.acquire(timeout=2)
 
         # 2. read the lock occupation situation
@@ -191,8 +188,7 @@ class WriteFileLock:
         self.filepath = Path(filepath)
         self.trackfilepath = self.filepath.parent / (str(self.filepath.stem) + "_track")
         self.lock = FileLock(self.filepath)
-        random.seed(time.time())
-        self.id = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
+        self.id = str(uuid.uuid4())
 
     def acquire(self, raise_exception=True):
         """
@@ -209,8 +205,8 @@ class WriteFileLock:
 
             Returns:
                 success (bool): whether succeeded or not.
-                    True means succeeded, False means failed (if the param raiseException is set to false).
-                    A filelock.Timeout exception will be raised if failed
+                    True means succeeded, False means failed (if the param raiseException is set to False).
+                    A RWLockTimeout exception will be raised if failed (if the param raiseException is set to True).
         """
 
         # 1. acquire filelock
@@ -241,9 +237,9 @@ class WriteFileLock:
             lock_acquire_success = False
             self.lock.release()
             if raise_exception:
-                raise RWLockTimeout(self)  # mimic filelock TimeOut Error
+                raise RWLockTimeout(self)
         else:
-            time_info = datetime.datetime.now().isoformat()
+            time_info = datetime.datetime.now().replace(microsecond=0).isoformat()
             lock_occupy_info[self.id] = {"time": f"{time_info}", "type": "write"}
             with open(self.trackfilepath, "w") as track_file:
                 yaml.dump(lock_occupy_info, track_file, default_flow_style=False)

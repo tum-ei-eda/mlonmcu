@@ -18,12 +18,12 @@
 #
 """Command line subcommand for the run process."""
 
-import mlonmcu
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.build import (
     handle as handle_build,
     add_build_options,
 )
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import RunStage
 from mlonmcu.platform.lookup import get_platforms_targets
 from .helper.parse import extract_target_names, extract_platform_names, extract_config_and_feature_names
@@ -82,6 +82,6 @@ def handle(args, ctx=None):
     if ctx:
         _handle(args, ctx)
     else:
-        with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+        with MlonMcuContext(path=args.home, deps_lock="read") as context:
             _handle(args, context)
             kickoff_runs(args, RunStage.COMPILE, context)

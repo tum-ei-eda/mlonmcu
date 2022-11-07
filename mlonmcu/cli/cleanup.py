@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 """Command line subcommand for cleaning up the current environment."""
-import mlonmcu.context
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.setup import setup
 
 from mlonmcu.cli.common import (
@@ -63,7 +63,7 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+    with MlonMcuContext(path=args.home, lock="write") as context:
         interactive = not args.force
         keep = args.keep
         context.cleanup_sessions(keep=keep, interactive=interactive)

@@ -20,7 +20,7 @@
 
 import sys
 
-import mlonmcu.context
+from mlonmcu.context.context import MlonMcuContext
 import mlonmcu.platform.lookup
 import mlonmcu.cli.load as load
 import mlonmcu.cli.tune as tune
@@ -51,7 +51,7 @@ def get_parser(subparsers, parent=None):
 
 
 def handle_list_targets(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+    with MlonMcuContext(path=args.home, lock="read") as context:
         mlonmcu.platform.lookup.print_summary(context=context)
 
 

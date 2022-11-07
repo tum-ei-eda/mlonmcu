@@ -4,7 +4,7 @@ import multiprocessing
 import logging
 
 # import mlonmcu
-import mlonmcu.context
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import RunStage
 from mlonmcu.session.postprocess.postprocess import SessionPostprocess
 from mlonmcu.models.lookup import apply_modelgroups
@@ -302,7 +302,7 @@ def gen_config(backend, backend_config, features, vlen, enable_postprocesses=Fal
 
 
 def benchmark(args):
-    with mlonmcu.context.MlonMcuContext() as context:
+    with MlonMcuContext() as context:
         user_config = context.environment.vars  # TODO: get rid of this workaround
         session = context.create_session()
         models = apply_modelgroups(args.models, context=context)

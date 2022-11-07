@@ -87,9 +87,9 @@ def example_elf_file(request, tmp_path):
 
 @pytest.fixture()
 def user_context():
-    import mlonmcu.context
+    from mlonmcu.context.context import MlonMcuContext
 
-    with mlonmcu.context.MlonMcuContext() as context:
+    with MlonMcuContext() as context:
         yield context
 
 

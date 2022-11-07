@@ -33,6 +33,7 @@ from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 import mlonmcu.setup.utils as utils
 from mlonmcu.plugins import process_extensions
+from mlonmcu.context.read_write_filelock import ReadFileLock, WriteFileLock, RWLockTimeout
 
 from mlonmcu.environment.environment import Environment, UserEnvironment
 
@@ -256,10 +257,8 @@ class MlonMcuContext:
     ----------
     environment : Environment
         The MLonMCU Environment where paths, repos, features,... are configured.
-    lock : bool
-        Holds if the environment should be limited to only one user or not.
-    lockfile : FileLock
-        The lock for the environment directory (optional).
+    deps_lock : str ("read" or "write" default "write")
+        Read means that the program does not write to the ./deps folder in the env folder.
     sessions : list
         List of sessions for the current environment.
     session_idx : list
@@ -270,13 +269,19 @@ class MlonMcuContext:
 
     """
 
-    def __init__(self, name: str = None, path: str = None, lock: bool = False):
+    def __init__(self, name: str = None, path: str = None, deps_lock: str = "write"):
         env_file = resolve_environment_file(name=name, path=path)
         assert env_file is not None, "Unable to find a MLonMCU environment"
         self.environment = UserEnvironment.from_file(env_file)  # TODO: move to __enter__
         setup_logging(self.environment)
-        self.lock = lock
-        self.lockfile = filelock.FileLock(os.path.join(self.environment.home, ".lock"))
+        assert deps_lock in ["read", "write"]
+        if deps_lock == "read":
+            self.deps_lock = ReadFileLock(os.path.join(self.environment.home, ".deps_lock"))
+        elif deps_lock == "write":
+            self.deps_lock = WriteFileLock(os.path.join(self.environment.home, ".deps_lock"))
+        self.latest_session_link_lock = filelock.FileLock(
+            os.path.join(self.environment.home, ".latest_session_link_lock_lock")
+        )
         self.sessions = load_recent_sessions(self.environment)
         if self.environment.defaults.cleanup_auto:
             logger.debug("Cleaning up old sessions automaticaly")
@@ -287,20 +292,27 @@ class MlonMcuContext:
         self.cache = TaskCache()
 
     def create_session(self, label="", config=None):
-        """Create a new session in the current context."""
-        idx = self.session_idx + 1
-        logger.debug("Creating a new session with idx %s", idx)
-        temp_directory = self.environment.paths["temp"].path
-        sessions_directory = temp_directory / "sessions"
-        session_dir = sessions_directory / str(idx)
-        session = Session(idx=idx, label=label, dir=session_dir, config=config)
-        self.sessions.append(session)
-        self.session_idx = idx
-        # TODO: move this to a helper function
-        session_link = sessions_directory / "latest"
-        if os.path.islink(session_link):
-            os.unlink(session_link)
-        os.symlink(session_dir, session_link)
+        try:
+            lock = self.latest_session_link_lock.acquire(timeout=10)
+        except filelock.Timeout as err:
+            raise RuntimeError("Lock on current context could not be aquired.") from err
+        else:
+            with lock:
+                """Create a new session in the current context."""
+                self.sessions = load_recent_sessions(self.environment)
+                idx = self.session_idx + 1
+                logger.debug("Creating a new session with idx %s", idx)
+                temp_directory = self.environment.paths["temp"].path
+                sessions_directory = temp_directory / "sessions"
+                session_dir = sessions_directory / str(idx)
+                session = Session(idx=idx, label=label, dir=session_dir, config=config)
+                self.sessions.append(session)
+                self.session_idx = idx
+                # TODO: move this to a helper function
+                session_link = sessions_directory / "latest"
+                if os.path.islink(session_link):
+                    os.unlink(session_link)
+                os.symlink(session_dir, session_link)
         return session
 
     def load_cache(self):
@@ -359,14 +371,20 @@ class MlonMcuContext:
 
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")
-        if self.lockfile.is_locked:
-            raise RuntimeError(f"Current context is locked via: {self.lockfile.lock_file}")
-        if self.lock:
+        if self.deps_lock.is_locked:
+            raise RuntimeError(
+                f"Lock on current context could not be acquired. "
+                f"Current context is locked via: {self.deps_lock.filepath}"
+            )
+        if self.deps_lock:
             logger.debug("Locking context")
             try:
-                self.lockfile.acquire(timeout=0)
-            except filelock.Timeout as err:
-                raise RuntimeError("Lock on current context could not be aquired.") from err
+                self.deps_lock.acquire()
+            except RWLockTimeout as err:
+                raise RuntimeError(
+                    f"Lock on current context could not be aquired. "
+                    f"Current context is locked via: {self.deps_lock.filepath}"
+                ) from err
         self.load_cache()
         self.load_extensions()
         return self
@@ -520,7 +538,7 @@ class MlonMcuContext:
     def __exit__(self, exception_type, exception_value, traceback):
         logger.debug("Exit MlonMcuContext")
         self.cleanup()
-        if self.lock:
+        if self.deps_lock:
             logger.debug("Releasing lock on context")
-            self.lockfile.release()
+            self.deps_lock.release()
         return False

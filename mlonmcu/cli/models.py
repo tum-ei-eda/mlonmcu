@@ -19,6 +19,7 @@
 """Command line subcommand for managing models."""
 
 from mlonmcu.cli.common import add_common_options, add_context_options
+from mlonmcu.context.context import MlonMcuContext
 import mlonmcu.models
 
 
@@ -43,5 +44,5 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+    with MlonMcuContext(path=args.home, deps_lock="read") as context:
         mlonmcu.models.print_summary(context, detailed=args.detailed)

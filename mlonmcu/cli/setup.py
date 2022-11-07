@@ -17,8 +17,7 @@
 # limitations under the License.
 #
 """Command line subcommand for installing a mlonmcu environment."""
-import mlonmcu.setup.tasks
-import mlonmcu.context
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.setup import setup
 
 from mlonmcu.cli.common import (
@@ -107,7 +106,7 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+    with MlonMcuContext(path=args.home, lock="write") as context:
         # config, features = extract_config_and_init_features(args)
         config, _, _, _ = extract_config_and_feature_names(args)
         # installer = setup.Setup(features=features, config=config, context=context)

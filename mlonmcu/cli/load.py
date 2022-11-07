@@ -18,7 +18,6 @@
 #
 """Command line subcommand for the load stage."""
 
-import mlonmcu
 from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,
@@ -28,6 +27,7 @@ from mlonmcu.cli.common import (
 )
 
 from .helper.parse import extract_config_and_feature_names, extract_frontend_names, extract_postprocess_names
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.models import SUPPORTED_FRONTENDS
 from mlonmcu.models.lookup import apply_modelgroups
 from mlonmcu.session.run import RunStage
@@ -82,6 +82,6 @@ def handle(args, ctx=None):
     if ctx:
         _handle(args, ctx)
     else:
-        with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+        with MlonMcuContext(path=args.home, deps_lock="read") as context:
             _handle(args, context)
             kickoff_runs(args, RunStage.LOAD, context)

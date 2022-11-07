@@ -18,12 +18,12 @@
 #
 """Command line subcommand for the run process."""
 
-import mlonmcu
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.compile import (
     handle as handle_compile,
     add_compile_options,
 )
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import RunStage
 
 
@@ -50,7 +50,7 @@ def check_args(context, args):
 
 
 def handle(args):
-    with mlonmcu.context.MlonMcuContext(path=args.home, lock=True) as context:
+    with MlonMcuContext(path=args.home, deps_lock="read") as context:
         check_args(context, args)
         handle_compile(args, context)
         kickoff_runs(args, RunStage.RUN, context)

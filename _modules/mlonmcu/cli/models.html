@@ -67,9 +67,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>mlonmcu.cli.models</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.cli.models</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -100,6 +100,7 @@
 <span class="sd">&quot;&quot;&quot;Command line subcommand for managing models.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="n">add_common_options</span><span class="p">,</span> <span class="n">add_context_options</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
 <span class="kn">import</span> <span class="nn">mlonmcu.models</span>
 
 
@@ -124,7 +125,7 @@
 
 
 <div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.models.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">deps_lock</span><span class="o">=</span><span class="s2">&quot;read&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">mlonmcu</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">detailed</span><span class="p">)</span></div>
 </pre></div>
 

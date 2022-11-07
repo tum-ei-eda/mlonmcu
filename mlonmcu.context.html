@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.context package &mdash; ML on MCU 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.environment package" href="mlonmcu.environment.html" />
+    <link rel="prev" title="mlonmcu.cli.helper package" href="mlonmcu.cli.helper.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="modules.html">mlonmcu</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.html">mlonmcu package</a></li>
+      <li class="breadcrumb-item active">mlonmcu.context package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.context.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-context-package">
+<h1>mlonmcu.context package<a class="headerlink" href="#mlonmcu-context-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-mlonmcu.context.context">
+<span id="mlonmcu-context-context-module"></span><h2>mlonmcu.context.context module<a class="headerlink" href="#module-mlonmcu.context.context" title="Permalink to this headline"></a></h2>
+<p>Definition if the contextmanager for mlonmcu environments.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.context.context.</span></span><span class="sig-name descname"><span class="pre">MlonMcuContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deps_lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'write'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Contextmanager for mlonmcu environments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>environment</strong><span class="classifier">Environment</span></dt><dd><p>The MLonMCU Environment where paths, repos, features,… are configured.</p>
+</dd>
+<dt><strong>deps_lock</strong><span class="classifier">str (“read” or “write” default “write”)</span></dt><dd><p>Read means that the program does not write to the ./deps folder in the env folder.</p>
+</dd>
+<dt><strong>sessions</strong><span class="classifier">list</span></dt><dd><p>List of sessions for the current environment.</p>
+</dd>
+<dt><strong>session_idx</strong><span class="classifier">list</span></dt><dd><p>A counter for determining the next session index.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">TaskCache</span></dt><dd><p>The cache where paths of installed dependencies can be looked up.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.cleanup" title="Permalink to this definition"></a></dt>
+<dd><p>Clean up the context before leaving the context by closing all active sessions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.cleanup_sessions">
+<span class="sig-name descname"><span class="pre">cleanup_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.cleanup_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.cleanup_sessions" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to cleanup old sessions from the disk.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.create_session">
+<span class="sig-name descname"><span class="pre">create_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.create_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.create_session" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.export">
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.export" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.get_session">
+<span class="sig-name descname"><span class="pre">get_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlonmcu.session.html#mlonmcu.session.session.Session" title="mlonmcu.session.session.Session"><span class="pre">mlonmcu.session.session.Session</span></a></span></span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.get_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.get_session" title="Permalink to this definition"></a></dt>
+<dd><p>Get an active session if available, else create a new one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Session:</dt><dd><p>An active session</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.get_sessions_runs_idx">
+<span class="sig-name descname"><span class="pre">get_sessions_runs_idx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.get_sessions_runs_idx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.get_sessions_runs_idx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.is_clean">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_clean</span></span><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.is_clean" title="Permalink to this definition"></a></dt>
+<dd><p>Return true if all sessions in the context are inactive</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.load_cache">
+<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.load_cache" title="Permalink to this definition"></a></dt>
+<dd><p>If available load the cache.ini file in the deps directory</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.load_extensions">
+<span class="sig-name descname"><span class="pre">load_extensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.load_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.load_extensions" title="Permalink to this definition"></a></dt>
+<dd><p>If available load the extensions.py scripts in the plugin directories</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.context.MlonMcuContext.print_summary">
+<span class="sig-name descname"><span class="pre">print_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sessions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#MlonMcuContext.print_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.MlonMcuContext.print_summary" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.context.get_environment_by_name">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.context.</span></span><span class="sig-name descname"><span class="pre">get_environment_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><span class="pre">mlonmcu.environment.environment.Environment</span></a></span></span><a class="reference internal" href="_modules/mlonmcu/context/context.html#get_environment_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.get_environment_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to find an environment file using a supplied name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The name/alias if the environment.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Environment</dt><dd><p>The environment (if the lookup was successful).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.context.get_environment_by_path">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.context.</span></span><span class="sig-name descname"><span class="pre">get_environment_by_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><span class="pre">mlonmcu.environment.environment.Environment</span></a></span></span><a class="reference internal" href="_modules/mlonmcu/context/context.html#get_environment_by_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.get_environment_by_path" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to find an environment file using a supplied path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path</strong><span class="classifier">str/Path</span></dt><dd><p>The path of the environment (or its YAML file).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Environment:</dt><dd><p>The environment (if the lookup was successful).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.context.get_ids">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.context.</span></span><span class="sig-name descname"><span class="pre">get_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/context/context.html#get_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.get_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Get a sorted list of ids for sessions/runs found in the given directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>directory</strong><span class="classifier">Path</span></dt><dd><p>Directory where the sessions/runs are stored.</p>
+</dd>
+<dt><strong>Returns:</strong></dt><dd></dd>
+<dt><strong>list</strong></dt><dd><p>List of integers representing the session numbers. Empty list if directory does not exist.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.context.load_recent_sessions">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.context.</span></span><span class="sig-name descname"><span class="pre">load_recent_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><span class="pre">mlonmcu.environment.environment.Environment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.session.html#mlonmcu.session.session.Session" title="mlonmcu.session.session.Session"><span class="pre">mlonmcu.session.session.Session</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/context/context.html#load_recent_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.load_recent_sessions" title="Permalink to this definition"></a></dt>
+<dd><p>Get a list of recent sessions for the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>env</strong><span class="classifier">Environment</span></dt><dd><p>MLonMCU environment which should be used.</p>
+</dd>
+<dt><strong>count</strong><span class="classifier">int</span></dt><dd><p>Maximum number of sessions to return. Collect all if None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>list:</dt><dd><p>The resulting list of session objects.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.context.lookup_environment">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.context.</span></span><span class="sig-name descname"><span class="pre">lookup_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment" title="mlonmcu.environment.environment.Environment"><span class="pre">mlonmcu.environment.environment.Environment</span></a></span></span><a class="reference internal" href="_modules/mlonmcu/context/context.html#lookup_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.lookup_environment" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to automatically find a suitable environment.</p>
+<p>This function is used if neither a name nor a path of the environment was specified by the user.
+The lookup follows a predefined order:
+- Check current working directory
+- Check MLONMCU_HOME environment variable
+- Default environment for current user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>environment</strong><span class="classifier">Path</span></dt><dd><p>The environment (if the lookup was successful).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.context.resolve_environment_file">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.context.</span></span><span class="sig-name descname"><span class="pre">resolve_environment_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="reference internal" href="_modules/mlonmcu/context/context.html#resolve_environment_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.resolve_environment_file" title="Permalink to this definition"></a></dt>
+<dd><p>Utility to find the environment file by a optionally given name or path.</p>
+<p>The lookup is performed in a predefined order:
+- If specified: name/path
+- Else: see lookup_environment()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Hint for the environment name provided by the user.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Hint for the environment path provided by the user.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd><p>Path to the found environment.yml (if sucessful)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.context.context.setup_logging">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.context.context.</span></span><span class="sig-name descname"><span class="pre">setup_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/context.html#setup_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.context.setup_logging" title="Permalink to this definition"></a></dt>
+<dd><p>Check logging settings for environment and initialize the logs directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>environment</strong><span class="classifier">Environment</span></dt><dd><p>The MLonMCU Environment where paths, repos, features,… are configured.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.context.read_write_filelock">
+<span id="mlonmcu-context-read-write-filelock-module"></span><h2>mlonmcu.context.read_write_filelock module<a class="headerlink" href="#module-mlonmcu.context.read_write_filelock" title="Permalink to this headline"></a></h2>
+<p>This file contains read lock and write lock classes based on filelock
+The locks are non-blocking.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.RWLockTimeout">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.context.read_write_filelock.</span></span><span class="sig-name descname"><span class="pre">RWLockTimeout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/read_write_filelock.html#RWLockTimeout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.read_write_filelock.RWLockTimeout" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeoutError</span></code></p>
+<p>Raised when the lock could not be acquired.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.RWLockTimeout.lock">
+<span class="sig-name descname"><span class="pre">lock</span></span><a class="headerlink" href="#mlonmcu.context.read_write_filelock.RWLockTimeout.lock" title="Permalink to this definition"></a></dt>
+<dd><p>The Read or Write lock instance.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.ReadFileLock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.context.read_write_filelock.</span></span><span class="sig-name descname"><span class="pre">ReadFileLock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/read_write_filelock.html#ReadFileLock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.read_write_filelock.ReadFileLock" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.ReadFileLock.acquire">
+<span class="sig-name descname"><span class="pre">acquire</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/read_write_filelock.html#ReadFileLock.acquire"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.read_write_filelock.ReadFileLock.acquire" title="Permalink to this definition"></a></dt>
+<dd><p>This function tried to acquire a ReadFileLock.
+The process is the following:
+1. acquire filelock
+2. read the lock occupation situation
+3. check if the lock is already occupied by another write process
+4.1. release filelock and raise exception(or return 0) if the lock is already occupied by another write process
+4.2. otherwise write the updated lock occupation situation back, release filelock and return</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Parameters:</dt><dd><p>raise_exception (bool): whether an exception should be raised when failed (default: True)</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>success (bool): whether succeeded or not.</dt><dd><p>True means succeeded, False means failed (if the param raiseException is set to False).
+A RWLockTimeout exception will be raised if failed (if the param raiseException is set to True).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.ReadFileLock.is_locked">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_locked</span></span><a class="headerlink" href="#mlonmcu.context.read_write_filelock.ReadFileLock.is_locked" title="Permalink to this definition"></a></dt>
+<dd><p>This property returns if a lock is occupied(locked) by other processes.
+the process is the following:
+1. acquire filelock
+2. read the lock occupation situation
+3. check if the lock is already occupied(locked) by another write process</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Returns:</dt><dd><p>is_locked (bool): whether the lock is already occupied(locked) by another write process</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.ReadFileLock.release">
+<span class="sig-name descname"><span class="pre">release</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/read_write_filelock.html#ReadFileLock.release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.read_write_filelock.ReadFileLock.release" title="Permalink to this definition"></a></dt>
+<dd><p>This function releases a ReadFileLock.
+the process is the following:
+1. acquire filelock
+2. read the lock occupation situation
+3. delete the record of self.id (no exception will be raised if self.id is not found in the record)
+4. write the updated lock occupation situation back, release filelock and return</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.WriteFileLock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.context.read_write_filelock.</span></span><span class="sig-name descname"><span class="pre">WriteFileLock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/read_write_filelock.html#WriteFileLock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.read_write_filelock.WriteFileLock" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.WriteFileLock.acquire">
+<span class="sig-name descname"><span class="pre">acquire</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/read_write_filelock.html#WriteFileLock.acquire"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.read_write_filelock.WriteFileLock.acquire" title="Permalink to this definition"></a></dt>
+<dd><p>This function tried to acquire a WriteFileLock.
+The process is the following:
+1. acquire filelock
+2. read the lock occupation situation
+3. check if the lock is already occupied by another write process
+4.1. release filelock and raise exception(or return 0) if the lock is already occupied by another write process
+4.2. otherwise write the updated lock occupation situation back, release filelock and return</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Parameters:</dt><dd><p>raise_exception (bool): whether raises an exception when failed (default: True)</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>success (bool): whether succeeded or not.</dt><dd><p>True means succeeded, False means failed (if the param raiseException is set to False).
+A RWLockTimeout exception will be raised if failed (if the param raiseException is set to True).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.WriteFileLock.is_locked">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_locked</span></span><a class="headerlink" href="#mlonmcu.context.read_write_filelock.WriteFileLock.is_locked" title="Permalink to this definition"></a></dt>
+<dd><p>This property returns if a lock is occupied(locked) by other processes.
+the process is the following:
+1. acquire filelock
+2. read the lock occupation situation
+3. check if the lock is already occupied(locked) by another write process</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Returns:</dt><dd><p>is_locked (bool): whether the lock is already occupied(locked) by another write process</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.context.read_write_filelock.WriteFileLock.release">
+<span class="sig-name descname"><span class="pre">release</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/context/read_write_filelock.html#WriteFileLock.release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.context.read_write_filelock.WriteFileLock.release" title="Permalink to this definition"></a></dt>
+<dd><p>This function releases a WriteFileLock.
+the process is the following:
+1. acquire filelock
+2. read the lock occupation situation
+3. delete the record of self.id (no exception will be raised if self.id is not found in the record)
+4. write the updated lock occupation situation back, release filelock and return</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.context">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.context" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mlonmcu.cli.helper.html" class="btn btn-neutral float-left" title="mlonmcu.cli.helper package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.environment.html" class="btn btn-neutral float-right" title="mlonmcu.environment package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

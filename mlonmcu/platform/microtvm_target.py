@@ -582,7 +582,51 @@ def create_microtvm_platform_target(name, platform, base=Target):
 
             metrics = Metrics()
             time_s = mean_ms / 1e3 if mean_ms is not None else mean_ms
-            metrics.add("Mean Runtime [s]", time_s)
+            if time_s:
+                metrics.add("Runtime [s]", time_s)
+
+            if self.platform.profile:
+                print("out", out)
+                headers = None
+                skip = False
+                lines = out.split("\n")
+                extracted = []
+
+                def extract_cols(line):
+                    x = re.compile(r"(([^\s\[\]]+)(\s\S+)*)(\[.*\])?").findall(line)
+                    return [y[0] for y in x]
+
+                for line in lines:
+                    print("line", line)
+                    if skip:
+                        skip = False
+                        continue
+                    if headers is None:
+                        if "Name" in line:
+                            headers = extract_cols(line)
+                            print("headers", headers)
+                            skip = True
+                            continue
+                    else:
+                        if len(line.strip()) == 0:
+                            break
+                        cols = extract_cols(line)
+                        print("cols", cols)
+                        data = {headers[i]: val for i, val in enumerate(cols)}
+                        print("data", data)
+                        extracted.append(data)
+                        if "Total_time" in line:
+                            break
+                print("extracted", extracted)
+                assert len(extracted) > 0
+                metrics = {"default": metrics}
+                for item in extracted:
+                    if item["Node Name"] == "Total_time":
+                        metrics["default"].add("Runtime [s]", float(item["Time(us)"])/1e6)
+                    else:
+                        metrics_ = Metrics()
+                        metrics_.add("Runtime [s]", float(item["Time(us)"])/1e6)
+                        metrics[item["Node Name"]] = metrics_
 
             return metrics, out, []
 

@@ -130,6 +130,41 @@ def create_tvm_platform_target(name, platform, base=Target):
                 elif self.platform.aggregate == "max":
                     metrics.add("Max Runtime [s]", max_s)
 
+            if self.platform.profile:
+                print("out", out)
+                headers = None
+                lines = out.split("\n")
+                extracted = []
+
+                def extract_cols(line):
+                    # x = re.compile(r"(([^\s\[\]]+)(\s\(\S+\))*(((\[\d+(,\s\d+)*\])+)(, (\S+((\[\d+(,\s\d+)*\])+)))*)?)\s+").findall(line)
+                    x = re.compile(r"(([^\s\[\]]+)(\s\S+)*)(\[.*\])?").findall(line)
+                    return [y[0] for y in x]
+
+                for line in lines:
+                    print("line", line)
+                    if "---" in line:
+                        break
+                    if headers is None:
+                        if "Name" in line:
+                            headers = extract_cols(line)
+                            print("headers", headers)
+                    else:
+                        cols = extract_cols(line)
+                        print("cols", cols)
+                        data = {headers[i]: val for i, val in enumerate(cols)}
+                        print("data", data)
+                        extracted.append(data)
+                print("extracted", extracted)
+                assert len(extracted) > 0
+                metrics = {"default": metrics}
+                for item in extracted:
+                    metrics_ = Metrics()
+                    metrics_.add("Runtime [s]", float(item["Duration (us)"])/1e6)
+                    metrics[item["Name"]] = metrics_
+
+
+
             return metrics, out, []
 
         def get_arch(self):

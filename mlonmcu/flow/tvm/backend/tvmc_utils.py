@@ -130,7 +130,7 @@ def get_tvmrt_tvmc_args(runtime="crt"):
     ret = []
     if runtime == "crt":
         ret.extend(["--runtime-crt-system-lib", str(1)])
-    ret.extend(["--executor-graph-link-params", str(0)])
+    ret.extend(["--executor-graph-link-params", str(1)])
     return ret
 
 

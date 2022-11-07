@@ -1380,7 +1380,7 @@ class TvmProfile(PlatformFeature):
         super().__init__("tvm_profile", features=features, config=config)
 
     def get_platform_config(self, platform):
-        supported = ["tvm"]  # TODO: support microtvm
+        supported = ["tvm", "microtvm"]
         assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             f"{platform}.profile": self.enabled,

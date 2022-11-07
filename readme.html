@@ -51,12 +51,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#docker-any-other-os">Docker (Any other OS)</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#using-the-command-line">Using the command line</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#using-the-python-api">Using the Python API</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#important-terms">Important terms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#development">Development</a><ul>
@@ -132,14 +127,15 @@
 <li><p>Supporting a large combination of frameworks/backends/targets/features:</p>
 <ul>
 <li><p>Frameworks (Backends): TFLite Micro, MircoTVM</p></li>
-<li><p>Targets: Host (x86), ETISS (Pulpino)</p></li>
-<li><p>Features: Autotuning (WIP), Debugging</p></li>
+<li><p>Targets: Host (x86), ETISS (Pulpino), Corstone300 (ARM Cortex-M), QEMU (RISC-V), Spike (<code class="docutils literal notranslate"><span class="pre">riscv-isa-sim</span></code>),…</p></li>
+<li><p>Platforms: Zephyr, ESP-IDF,…</p></li>
+<li><p>Features: Autotuning, Debugging, RPC,…</p></li>
 </ul>
 </li>
 <li><p>Build-in parallel processing of large number of benchmarks</p></li>
 <li><p>Isolated enironments (not interfering with other installations)</p></li>
 <li><p>Command Line and Python Development Interfaces</p></li>
-<li><p>WIP: Docker images to get started quickly</p></li>
+<li><p>Docker images to get started quickly</p></li>
 <li><p>Extensive documentation on usage and code details</p></li>
 <li><p>CI/CD integration and high PyTest coverage</p></li>
 </ul>
@@ -177,7 +173,8 @@
 
 # Run this whenever your have updated the repository
 source .venv/bin/activate
-pip install -r requirements.txt
+
+# Environment-specific dependencies are installed later
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
@@ -216,15 +213,12 @@ pip install -r docs/requirements.txt
 <section id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h3>
 <p>Is is recommended to checkout the provided <a class="reference external" href="https://github.com/tum-ei-eda/mlonmcu/blob/main/ipynb/Demo.ipynb">Demo Jupyter Notebook</a> as it contains a end-to-end example which should help to understand the main concepts and methodology of the tool. The following paragraphs can be seen as a TL;DL version of the information in that Demo notebook.</p>
-<section id="using-the-command-line">
-<h4>Using the command line<a class="headerlink" href="#using-the-command-line" title="Permalink to this headline"></a></h4>
-<p>TODO</p>
-</section>
-<section id="using-the-python-api">
-<h4>Using the Python API<a class="headerlink" href="#using-the-python-api" title="Permalink to this headline"></a></h4>
-<p>TODO</p>
-<p>While some tools and features of this project work out of the box, some of them require setting up an environment where additional dependencies are installed.</p>
-<p>By default, this environment would be created intactively using the <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">init</span></code> command.</p>
+<p>While some tools and features of this project work out of the box, some of them require setting up an environment where additional dependencies are installed. This can be achived by creating a MLonMCU environment as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlonmcu init
+</pre></div>
+</div>
+<p>Make sure to point the <code class="docutils literal notranslate"><span class="pre">MLONMCU_HOME</span></code> environment variable to the location of the previously initialied environment. (Alternative: use the <code class="docutils literal notranslate"><span class="pre">default</span></code> environment or <code class="docutils literal notranslate"><span class="pre">--home</span></code> argument on the command line)</p>
+<p>Next, generate a <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file inside the environment directory using <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">setup</span> <span class="pre">-g</span></code> which now be installed by running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">$MLONMCU_HOME/requirements.txt</span></code> inside the virtual Python environment.</p>
 <p>To use the created environment in a python program, a <code class="docutils literal notranslate"><span class="pre">MlonMcuContext</span></code> needs to be created as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlonmcu.context</span>
 
@@ -232,30 +226,13 @@ pip install -r docs/requirements.txt
     <span class="k">pass</span>
 </pre></div>
 </div>
-<p>The following table shows which parts of <code class="docutils literal notranslate"><span class="pre">mlonmcu</span></code> require such an context as a prerequisite:</p>
-</section>
-</section>
-<section id="important-terms">
-<h3>Important terms<a class="headerlink" href="#important-terms" title="Permalink to this headline"></a></h3>
-<ul class="simple">
-<li><p>Context</p></li>
-<li><p>Environment</p></li>
-<li><p>Run</p></li>
-<li><p>Backend</p></li>
-<li><p>Feature</p></li>
-<li><p>Target</p></li>
-<li><p>(Flow)</p></li>
-<li><p>Framework</p></li>
-<li><p>Frontend</p></li>
-<li><p>Task</p></li>
-</ul>
-<p>TODO</p>
 </section>
 </section>
 <section id="development">
 <h2>Development<a class="headerlink" href="#development" title="Permalink to this headline"></a></h2>
 <p>Make sure to first install the additonal set of development Python packages into your virtual environment:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements_dev</span><span class="o">.</span><span class="n">txt</span>  <span class="c1"># Building distributions and running tests</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements_all</span><span class="o">.</span><span class="n">txt</span>  <span class="c1"># Install packages for every component (instead of using mlonmcu setup -g)</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements_dev</span><span class="o">.</span><span class="n">txt</span>  <span class="c1"># Building distributions and running tests</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">docs</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>  <span class="c1"># For working with the documentation</span>
 </pre></div>
 </div>

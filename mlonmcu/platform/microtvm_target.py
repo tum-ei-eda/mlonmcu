@@ -88,7 +88,7 @@ class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     DEFAULTS = {
         **Target.DEFAULTS,
-        "project_type": "host_driven",
+        "project_type": None,
         "warning_as_error": False,
         "arduino_board": "?",
         # "arduino_cli_cmd": None,

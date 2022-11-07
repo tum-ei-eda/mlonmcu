@@ -40,28 +40,52 @@ Tasks = TaskFactory()
 
 
 def _validate_tensorflow(context: MlonMcuContext, params=None):
+    andes_patch = params.get("andes_patch", False)
+    if andes_patch:
+        if not context.environment.has_feature("andes_libnn"):
+            return False
     return context.environment.has_framework("tflm")
 
 
 @Tasks.provides(["tf.src_dir"])
 @Tasks.validate(_validate_tensorflow)
+@Tasks.param("andes_patch", [False, "andescore-d25", "andescore-d45", "andescore-nx27v"])
 @Tasks.register(category=TaskType.FRAMEWORK)
 def clone_tensorflow(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
     """Clone the TF/TFLM repository."""
     tfName = utils.makeDirName("tf")
+    andes_patch = params.get("andes_patch", False)
+    flags = utils.makeFlags((andes_patch, andes_patch))
+    tfName = utils.makeDirName("tf", flags=flags)
     tfSrcDir = context.environment.paths["deps"].path / "src" / tfName
-    if rebuild or not utils.is_populated(tfSrcDir):
+    if andes_patch:
+        assert "andescore" in andes_patch
+        andesSrcDir = tfSrcDir / "tensorflow" / "lite" / "micro" / "tools" / "make" / "targets" / "andesevb" / "ae350"
+    if rebuild or not utils.is_populated(tfSrcDir) or (andes_patch and not utils.is_populated(andesSrcDir)):
         tfRepo = context.environment.repos["tensorflow"]
         utils.clone(tfRepo.url, tfSrcDir, branch=tfRepo.ref, refresh=rebuild)
-    context.cache["tf.src_dir"] = tfSrcDir
+        if andes_patch:
+            coreUrl = "https://raw.githubusercontent.com/mlcommons/tiny_results_v0.7/main/closed/Andes/code/"
+            coreFile = andes_patch.replace("-", "_")
+            coreExt = ".tgz"
+            coreArchive = coreFile + coreExt
+            utils.download_and_extract(coreUrl, coreArchive, tfSrcDir, merge=True, auto=False)
+            # Workaround for Makefile incompatibility
+            toRemove = tfSrcDir / "tensorflow" / "lite" / "micro" / "examples" / "mlperf_libnn" / "Makefile.inc"
+            utils.remove(toRemove)
+
+    context.cache["tf.src_dir", flags] = tfSrcDir
+    if andes_patch:
+        context.cache["andes_libnn.src_dir", flags] = andesSrcDir
 
 
 @Tasks.needs(["tf.src_dir"])
 @Tasks.provides(["tf.dl_dir", "tf.lib_path"])
 # @Tasks.param("dbg", False)
 @Tasks.param("dbg", True)
+@Tasks.param("andes_patch", [False, "andescore-d25", "andescore-d45", "andescore-nx27v"])
 @Tasks.validate(_validate_tensorflow)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def build_tensorflow(
@@ -70,9 +94,10 @@ def build_tensorflow(
     """Download tensorflow dependencies and build lib."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"))
+    flags = utils.makeFlags((params["andes_patch"], params["andes_patch"]), (params["dbg"], "dbg"))
+    flags_ = utils.makeFlags((params["andes_patch"], params["andes_patch"]))
     # tfName = utils.makeDirName("tf", flags=flags)
-    tfSrcDir = context.cache["tf.src_dir"]
+    tfSrcDir = context.cache["tf.src_dir", flags_]
     tflmDir = Path(tfSrcDir) / "tensorflow" / "lite" / "micro"
     tflmBuildDir = tflmDir / "tools" / "make"
     tflmDownloadsDir = tflmBuildDir / "downloads"
@@ -94,7 +119,7 @@ def build_tensorflow(
             cwd=tfSrcDir,
             live=verbose,
         )
-    context.cache["tf.dl_dir"] = tflmDownloadsDir
+    context.cache["tf.dl_dir", flags_] = tflmDownloadsDir
     context.cache["tf.lib_path", flags] = tflmLib  # ignore!
 
 

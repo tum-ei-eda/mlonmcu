@@ -29,7 +29,7 @@ class TFLMFramework(Framework):
 
     name = "tflm"
 
-    FEATURES = ["muriscvnn", "cmsisnn"]
+    FEATURES = ["muriscvnn", "cmsisnn", "andes_libnn"]
 
     DEFAULTS = {
         "optimized_kernel": None,

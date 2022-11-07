@@ -1352,3 +1352,49 @@ class TvmProfile(PlatformFeature):
         return {
             f"{platform}.profile": self.enabled,
         }
+
+
+@register_feature("andes_libnn")
+class AndesLibNN(SetupFeature, FrameworkFeature, PlatformFeature):
+    """AndesLib NN wrappers for TFLite Micro"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "core": "d25",  # Options: d25, d45, nv27v
+    }
+
+    REQUIRED = ["andes_libnn.src_dir"]
+
+    def __init__(self, features=None, config=None):
+        super().__init__("andes_libnn", features=features, config=config)
+
+    @property
+    def andes_libnn_dir(self):
+        return str(self.config["andes_libnn.src_dir"])
+
+    @property
+    def core(self):
+        return self.config["core"]
+
+    def add_framework_config(self, framework, config):
+        assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
+        if f"{framework}.optimized_kernel" in config and config[f"{framework}.optimized_kernel"] not in [
+            None,
+            "andes_libnn",
+        ]:
+            RuntimeError(f"There is already a optimized_kernel selected for framework '{framework}'")
+        else:
+            config[f"{framework}.optimized_kernel"] = "andes_libnn"
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {
+            "ANDES_LIBNN": self.enabled,
+            "ANDES_LIBNN_DIR": self.andes_libnn_dir,
+        }
+
+    def get_required_cache_flags(self):
+        ret = {}
+
+        ret["tf.src_dir"] = [f"andescore-{self.core}"]
+        return ret

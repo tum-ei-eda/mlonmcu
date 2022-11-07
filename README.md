@@ -24,12 +24,13 @@ This project contains research code related to the deployment of inference or le
 - Automatic resolution and installation of dependencies
 - Supporting a large combination of frameworks/backends/targets/features:
   - Frameworks (Backends): TFLite Micro, MircoTVM
-  - Targets: Host (x86), ETISS (Pulpino)
-  - Features: Autotuning (WIP), Debugging
+  - Targets: Host (x86), ETISS (Pulpino), Corstone300 (ARM Cortex-M), QEMU (RISC-V), Spike (`riscv-isa-sim`),...
+  - Platforms: Zephyr, ESP-IDF,...
+  - Features: Autotuning, Debugging, RPC,...
 - Build-in parallel processing of large number of benchmarks
 - Isolated enironments (not interfering with other installations)
 - Command Line and Python Development Interfaces
-- WIP: Docker images to get started quickly
+- Docker images to get started quickly
 - Extensive documentation on usage and code details
 - CI/CD integration and high PyTest coverage
 
@@ -74,7 +75,8 @@ python -m venv .venv  # Feel free to choose a different directory or use a conda
 
 # Run this whenever your have updated the repository
 source .venv/bin/activate
-pip install -r requirements.txt
+
+# Environment-specific dependencies are installed later
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
@@ -115,17 +117,16 @@ This repository ships three different types of docker images based on Debian:
 
 Is is recommended to checkout the provided [Demo Jupyter Notebook](https://github.com/tum-ei-eda/mlonmcu/blob/main/ipynb/Demo.ipynb) as it contains a end-to-end example which should help to understand the main concepts and methodology of the tool. The following paragraphs can be seen as a TL;DL version of the information in that Demo notebook.
 
-#### Using the command line
+While some tools and features of this project work out of the box, some of them require setting up an environment where additional dependencies are installed. This can be achived by creating a MLonMCU environment as follows:
 
-TODO
+```bash
+mlonmcu init
+```
 
-#### Using the Python API
+Make sure to point the `MLONMCU_HOME` environment variable to the location of the previously initialied environment. (Alternative: use the `default` environment or `--home` argument on the command line)
 
-TODO
+Next, generate a `requirements.txt` file inside the environment directory using `mlonmcu setup -g` which now be installed by running `pip install -r $MLONMCU_HOME/requirements.txt` inside the virtual Python environment.
 
-While some tools and features of this project work out of the box, some of them require setting up an environment where additional dependencies are installed.
-
-By default, this environment would be created intactively using the `mlonmcu init` command.
 
 To use the created environment in a python program, a `MlonMcuContext` needs to be created as follows:
 
@@ -136,27 +137,13 @@ with mlonmcu.context.MlonMcuContext() as context:
     pass
 ```
 
-The following table shows which parts of `mlonmcu` require such an context as a prerequisite:
 
-### Important terms
-
-- Context
-- Environment
-- Run
-- Backend
-- Feature
-- Target
-- (Flow)
-- Framework
-- Frontend
-- Task
-
-TODO
 ## Development
 
 Make sure to first install the additonal set of development Python packages into your virtual environment:
 
 ```
+pip install -r requirements_all.txt  # Install packages for every component (instead of using mlonmcu setup -g)
 pip install -r requirements_dev.txt  # Building distributions and running tests
 pip install -r docs/requirements.txt  # For working with the documentation
 ```

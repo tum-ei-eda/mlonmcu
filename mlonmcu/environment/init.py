@@ -186,3 +186,5 @@ def initialize_environment(
         register_environment(final_name, target_dir, overwrite=overwrite)
 
     print(f"Finished. Please add `export MLONMCU_HOME={target_dir}` to your shell configuration to use it anywhere")
+    print("Recommended next step: `mlonmcu setup` inside your virtual environment.")
+    print("Optional: `mlonmcu setup -g`")

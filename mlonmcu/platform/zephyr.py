@@ -26,7 +26,6 @@ import tempfile
 from pathlib import Path
 import pkg_resources
 
-import serial
 
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -389,6 +388,9 @@ project(ProjectName)
         port, baud = self.get_serial(target)
 
         def _monitor_helper(port, baud, verbose=False, start_match=None, end_match=None, timeout=60):
+            # Local import to get rid of pyserial dependency
+
+            import serial
             # start_match and end_match are inclusive
             found_start = start_match is None
             outStr = ""

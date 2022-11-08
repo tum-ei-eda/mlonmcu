@@ -18,8 +18,6 @@
 #
 import re
 import os
-import tflite
-from tflite.TensorType import TensorType as TType
 
 from mlonmcu.models.model import ModelFormats
 
@@ -51,6 +49,9 @@ class TensorInfo:
 
 class TfLiteTensorInfo(TensorInfo):
     def __init__(self, t, fix_names=False):
+        # Local imports to get rid of tflite dependency for non-tflite models
+        from tflite.TensorType import TensorType as TType
+
         name = t.Name().decode()
         shape = tuple([t.Shape(si) for si in range(0, t.ShapeLength())])
 
@@ -244,6 +245,9 @@ class PaddleModelInfo(ModelInfo):
 
 
 def get_tflite_model_info(model_buf):
+    # Local imports to get rid of tflite dependency for non-tflite models
+    import tflite
+
     tflite_model = tflite.Model.GetRootAsModel(model_buf, 0)
     model_info = TfLiteModelInfo(tflite_model)
     return model_info

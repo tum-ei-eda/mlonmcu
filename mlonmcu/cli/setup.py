@@ -76,7 +76,7 @@ def add_setup_options(parser):
     )
     setup_parser.add_argument(
         "-g",
-        "--generate_requirements",
+        "--generate-requirements",
         action="store_true",
         help="Generate requirements_addition.txt listing the dependent python packages.",
     )
@@ -106,7 +106,7 @@ def get_parser(subparsers):
 
 
 def handle(args):
-    with MlonMcuContext(path=args.home, lock="write") as context:
+    with MlonMcuContext(path=args.home, deps_lock="write") as context:
         # config, features = extract_config_and_init_features(args)
         config, _, _, _ = extract_config_and_feature_names(args)
         # installer = setup.Setup(features=features, config=config, context=context)
@@ -125,6 +125,7 @@ def handle(args):
             )
         elif args.generate_requirements:
             installer.generate_requirements()
+            print("Next you should run `python -m pip install $MLONMCU_HOME/requirements_addition.txt` inside your virtual environment.")
         else:
             installer.install_dependencies(
                 progress=args.progress,

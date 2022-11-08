@@ -197,10 +197,40 @@ class Setup:
                     logger.info("add dependencies for espidf")
                     break
             for config in config_pools:
+                if "zephyr" in config.name and config.enabled:
+                    for d in requirements["zephyr"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for zephyr")
+                    break
+            for config in config_pools:
+                if "tflm" in config.name and config.enabled:
+                    for d in requirements["tflm"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for tflm")
+                    break
+            for config in config_pools:
+                if "tflite" in config.name and config.enabled:
+                    for d in requirements["tflite"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for tflite")
+                    break
+            for config in config_pools:
+                if "onnx" in config.name and config.enabled:
+                    for d in requirements["onnx"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for onnx")
+                    break
+            for config in config_pools:
                 if "etiss" in config.name and config.enabled:
                     for d in requirements["etiss"][1]:
                         f.write(f"{d}{os.linesep}")
                     logger.info("add dependencies for etiss")
+                    break
+            for config in config_pools:
+                if "visualize" in config.name and config.enabled:
+                    for d in requirements["visualize"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for visualize")
                     break
             for config in config_pools:
                 if "microtvm" in config.name and config.enabled:

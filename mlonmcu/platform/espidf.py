@@ -27,7 +27,6 @@ import subprocess
 from pathlib import Path
 import pkg_resources
 
-import serial
 import psutil
 
 from mlonmcu.setup import utils
@@ -416,6 +415,9 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 baud = self.baud
 
             def _monitor_helper2(port, baud, verbose=False, start_match=None, end_match=None, timeout=60):
+                # Local import to make this only required for real HW targets
+                import serial
+
                 # start_match and end_match are inclusive
                 found_start = start_match is None
                 outStr = ""

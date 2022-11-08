@@ -65,17 +65,13 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             "Base requirements needed to install MLonMCU",
             [
                 "GitPython",
-                "Pillow",
                 "filelock",
                 "jinja2",
-                "matplotlib",  # visualization
                 "networkx",
                 "numpy",
                 "openpyxl",  # xlsx reports
                 "pandas",
-                "pyserial",  # for platforms
                 "pyyaml",
-                "tflite",
                 "tqdm",
                 "xdg",
                 "xlsxwriter",  # xlsx reports
@@ -102,6 +98,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "kconfiglib",
                 "pygdbmi",
                 "pyparsing",
+                "pyserial",  # for custom monitor
                 "python-socketio",
                 "reedsolo",
             ],
@@ -125,8 +122,30 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
     ),
     # Provide support for moiopt.
     ("moiopt", ("Requirements for moiopt", ["ortools"])),
+    # Provide support for onnx.
+    ("onnx", ("Requirements for onnx", ["onnx"])),
     # Provide support for relay visualization.
     ("relay-visualization", ("Requirements for relay visualization", ["relayviz"])),
+    # Provide support for tflite.
+    (
+        "tflite",
+        (
+            "Requirements for using tflite",
+            [
+                "tflite",
+            ],
+        ),
+    ),
+    # Provide support for tflm.
+    (
+        "tflm",
+        (
+            "Requirements for using tflm",
+            [
+                "Pillow",
+            ],
+        ),
+    ),
     # Provide support for tvm.
     (
         "tvm",
@@ -146,7 +165,25 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         ),
     ),
     ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost"])),  # for autotuning on some target
+    # Provide support for visualize.
+    (
+        "visualize",
+        (
+            "Requirements for using visualize",
+            ["matplotlib"],
+        ),
+    ),
     ("visualize_tflite", ("Requirements for visualization", ["tensorflow"])),
+    # Provide support for zephyr.
+    (
+        "zephyr",
+        (
+            "Requirements for using zephyr",
+            [
+                "pyserial",  # for custom monitor
+            ],
+        ),
+    ),
 ]
 
 ConstraintsType = typing.List[typing.Tuple[str, typing.Union[None, str]]]
@@ -185,6 +222,7 @@ CONSTRAINTS = [
     ("matplotlib", None),
     ("networkx", None),
     ("numpy", None),
+    ("onnx", None),
     ("openpyxl", None),
     ("ortools", None),
     ("pandas", None),

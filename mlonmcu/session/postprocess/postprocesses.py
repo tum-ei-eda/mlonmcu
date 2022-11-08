@@ -23,7 +23,6 @@ import ast
 import tempfile
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
@@ -256,6 +255,9 @@ class VisualizePostprocess(SessionPostprocess):
         for col in COLS:
             if col not in report.main_df.columns:
                 return []
+
+        # Local import to deal with optional dependencies
+        import matplotlib.pyplot as plt
         fig, axes = plt.subplots(ncols=len(COLS))
         plt.rcParams["figure.figsize"] = (15, 3)  # (w, h)
         for i, col in enumerate(COLS):

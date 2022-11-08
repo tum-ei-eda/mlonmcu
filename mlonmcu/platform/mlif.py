@@ -162,11 +162,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def ignore_data(self):
-        return bool(self.config["ignore_data"])
+        value = self.config["ignore_data"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def fail_on_error(self):
-        return bool(self.config["fail_on_error"])
+        value = self.config["fail_on_error"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def validate_outputs(self):

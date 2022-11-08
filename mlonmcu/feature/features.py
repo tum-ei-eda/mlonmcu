@@ -119,7 +119,8 @@ class Validate(FrontendFeature, PlatformFeature):
 
     @property
     def allow_missing(self):
-        return bool(self.config["allow_missing"])
+        value = self.config["allow_missing"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def fail_on_error(self):
@@ -448,8 +449,8 @@ class GdbServer(TargetFeature):
 
     @property
     def attach(self):
-        # TODO: implement get_bool_or_none?
-        return bool(self.config["attach"]) if self.config["attach"] is not None else None
+        value = self.config["attach"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     @property
     def port(self):
@@ -991,8 +992,8 @@ class LogInstructions(TargetFeature):
 
     @property
     def to_file(self):
-        # TODO: implement get_bool_or_none?
-        return bool(self.config["to_file"]) if self.config["to_file"] is not None else None
+        value = self.config["to_file"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     def add_target_config(self, target, config):
         assert target in ["spike", "etiss_pulpino", "ovpsim", "gvsoc_pulp"]
@@ -1162,15 +1163,18 @@ class AutoVectorize(PlatformFeature):
 
     @property
     def verbose(self):
-        return str2bool(self.config["verbose"]) if isinstance(self.config["verbose"], str) else self.config["verbose"]
+        value = self.config["verbose"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def loop(self):
-        return str2bool(self.config["loop"]) if isinstance(self.config["loop"], str) else self.config["loop"]
+        value = self.config["loop"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def slp(self):
-        return str2bool(self.config["slp"]) if isinstance(self.config["slp"], str) else self.config["slp"]
+        value = self.config["slp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_platform_defs(self, platform):
         return {

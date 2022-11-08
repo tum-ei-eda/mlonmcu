@@ -12,6 +12,14 @@ mlonmcu.setup.cache module
    :undoc-members:
    :show-inheritance:
 
+mlonmcu.setup.gen\_requirements module
+--------------------------------------
+
+.. automodule:: mlonmcu.setup.gen_requirements
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mlonmcu.setup.setup module
 --------------------------
 

@@ -11,3 +11,4 @@ Components in Detail
 
    components/cmsisnnbyoc
    components/muriscvnnbyoc
+   components/auto_vectorize

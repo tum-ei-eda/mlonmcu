@@ -190,8 +190,9 @@ class ONNXModelInfo(ModelInfo):
             for tensor in tensors:
                 d = MessageToDict(tensor)
                 name = d["name"]
-                elem_type = d["type"]["tensorType"]["elemType"]
-                dims = d["type"]["elemType"]["shape"]["dim"]
+                tensor_type = d["type"]["tensorType"]
+                elem_type = tensor_type["elemType"]
+                dims = tensor_type["shape"]["dim"]
                 shape = [int(x["dimValue"]) for x in dims]
                 dtype = str(TENSOR_TYPE_TO_NP_TYPE[elem_type])
                 ret.append(TensorInfo(name, shape, dtype))
@@ -289,7 +290,7 @@ def get_model_info(model, backend_name="unknown"):
     elif fmt == ModelFormats.PB:
         return "pb", get_pb_model_info(model)
     elif fmt == ModelFormats.ONNX:
-        return "onnx", get_pb_model_info(model)
+        return "onnx", get_onnx_model_info(model)
     elif fmt == ModelFormats.PADDLE:
         return "pdmodel", get_pb_model_info(model)
     else:

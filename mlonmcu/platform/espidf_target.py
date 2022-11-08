@@ -18,13 +18,163 @@
 #
 import re
 import os
+from enum import Enum
 
 from mlonmcu.target.target import Target
 from mlonmcu.target.metrics import Metrics
 
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.target.riscv.util import sort_extensions_canonical, join_extensions
+
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
+
+
+class Esp32C3PerfCount(Enum):
+    CYCLE = 1
+    INST = 2
+    LD_HAZARD = 4
+    JMP_HAZARD = 8
+    IDLE = 16
+    LOAD = 32
+    STORE = 64
+    JMP_UNCOND = 128
+    BRANCH = 256
+    BRANCH_TAKEN = 512
+    INST_COMP = 1024
+
+
+ESPIDF_PLATFORM_TARGET_REGISTRY = {}
+
+
+def register_espidf_platform_target(target_name, t, override=False):
+    global ESPIDF_PLATFORM_TARGET_REGISTRY
+
+    if target_name in ESPIDF_PLATFORM_TARGET_REGISTRY and not override:
+        raise RuntimeError(f"ESP-IDF platform target {target_name} is already registered")
+    ESPIDF_PLATFORM_TARGET_REGISTRY[target_name] = t
+
+
+def get_espidf_platform_targets():
+    return ESPIDF_PLATFORM_TARGET_REGISTRY
+
+
+class Esp32C3Target(Target):
+
+    FEATURES = Target.FEATURES + []
+
+    DEFAULTS = {
+        **Target.DEFAULTS,
+        "xlen": 32,
+        "extensions": ["i", "m", "c"],
+        "fpu": "none",
+        "arch": None,
+        "abi": None,
+        "attr": "",
+        "count": Esp32C3PerfCount.CYCLE,
+    }
+    REQUIRED = Target.REQUIRED + []
+    OPTIONAL = Target.OPTIONAL + []
+
+    @property
+    def xlen(self):
+        return int(self.config["xlen"])
+
+    @property
+    def extensions(self):
+        exts = self.config.get("extensions", []).copy()
+        if not isinstance(exts, list):
+            exts = exts.split(",")
+        if "g" not in exts:
+            required = []
+            if self.fpu == "double":
+                required.append("d")
+                required.append("f")
+            if self.fpu == "single":
+                required.append("f")
+            for ext in required:
+                if ext not in exts:
+                    exts.append(ext)
+        return exts
+
+    @property
+    def arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def abi(self):
+        temp = self.config["abi"]
+        if temp:
+            return temp
+        else:
+            if self.xlen == 32:
+                temp = "ilp32"
+            elif self.xlen == 64:
+                temp = "lp64"
+            else:
+                raise RuntimeError(f"Invalid xlen: {self.xlen}")
+            if "d" in self.extensions or "g" in self.extensions:
+                temp += "d"
+            elif "f" in self.extensions:
+                temp += "f"
+            return temp
+
+    @property
+    def attr(self):
+        attrs = str(self.config["attr"]).split(",")
+        if len(attrs) == 1 and len(attrs[0]) == 0:
+            attrs = []
+        for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):
+            attrs.append(f"+{ext}")
+        attrs = list(set(attrs))
+        return ",".join(attrs)
+
+    @property
+    def fpu(self):
+        value = self.config["fpu"]
+        if value is None or not value:
+            value = "none"
+        assert value in ["none", "single", "double"]
+        return value
+
+    @property
+    def count(self):
+        value = int(self.config["count"])
+        return value
+
+    @property
+    def has_fpu(self):
+        return self.fpu != "none"
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        ret["ESP32C3_PERF_COUNT"] = self.count
+        return ret
+
+    def get_target_system(self):
+        return "esp32c3"
+
+    def get_arch(self):
+        return "riscv"
+
+    def get_backend_config(self, backend):
+        if backend in SUPPORTED_TVM_BACKENDS:
+            return {
+                "target_device": "riscv_cpu",
+                "target_march": self.arch,
+                "target_model": "esp32c3_devkit",
+                "target_mtriple": "riscv32-esp-elf",
+                "target_mabi": self.abi,
+                "target_mattr": self.attr,
+                "target_mcpu": "esp32c3",
+            }
+        return {}
 
 
 def create_espidf_platform_target(name, platform, base=Target):

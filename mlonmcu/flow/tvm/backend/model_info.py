@@ -193,7 +193,7 @@ class ONNXModelInfo(ModelInfo):
                 tensor_type = d["type"]["tensorType"]
                 elem_type = tensor_type["elemType"]
                 dims = tensor_type["shape"]["dim"]
-                shape = [int(x["dimValue"]) for x in dims]
+                shape = [int(x["dimValue"]) if "dimValue" in x else 40 for x in dims]  # TODO: dyn shape
                 dtype = str(TENSOR_TYPE_TO_NP_TYPE[elem_type])
                 ret.append(TensorInfo(name, shape, dtype))
             return ret

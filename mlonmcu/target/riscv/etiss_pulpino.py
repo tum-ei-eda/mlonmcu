@@ -237,7 +237,7 @@ class EtissPulpinoTarget(RISCVTarget):
                 #     f.write(f"arch.rv32imacfdpv.elen={self.elen}")
 
             if self.gdbserver_enable:
-                f.write("[Plugin gdbserver]\n")
+                f.write("\n[Plugin gdbserver]\n")
                 # This could also be accomplished using `--plugin.gdbserver.port` on the cmdline
                 f.write(f"plugin.gdbserver.port={self.gdbserver_port}")
 

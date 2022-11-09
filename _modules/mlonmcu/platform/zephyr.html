@@ -107,7 +107,6 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">pkg_resources</span>
 
-<span class="kn">import</span> <span class="nn">serial</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
@@ -470,6 +469,10 @@
         <span class="n">port</span><span class="p">,</span> <span class="n">baud</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serial</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">_monitor_helper</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baud</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+            <span class="c1"># Local import to get rid of pyserial dependency</span>
+
+            <span class="kn">import</span> <span class="nn">serial</span>
+
             <span class="c1"># start_match and end_match are inclusive</span>
             <span class="n">found_start</span> <span class="o">=</span> <span class="n">start_match</span> <span class="ow">is</span> <span class="kc">None</span>
             <span class="n">outStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>

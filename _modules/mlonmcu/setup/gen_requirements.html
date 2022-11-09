@@ -146,17 +146,13 @@
             <span class="s2">&quot;Base requirements needed to install MLonMCU&quot;</span><span class="p">,</span>
             <span class="p">[</span>
                 <span class="s2">&quot;GitPython&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Pillow&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;filelock&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;jinja2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span>  <span class="c1"># visualization</span>
                 <span class="s2">&quot;networkx&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>  <span class="c1"># xlsx reports</span>
                 <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;pyserial&quot;</span><span class="p">,</span>  <span class="c1"># for platforms</span>
                 <span class="s2">&quot;pyyaml&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tflite&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;tqdm&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;xdg&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;xlsxwriter&quot;</span><span class="p">,</span>  <span class="c1"># xlsx reports</span>
@@ -183,6 +179,7 @@
                 <span class="s2">&quot;kconfiglib&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;pygdbmi&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;pyparsing&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pyserial&quot;</span><span class="p">,</span>  <span class="c1"># for custom monitor</span>
                 <span class="s2">&quot;python-socketio&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;reedsolo&quot;</span><span class="p">,</span>
             <span class="p">],</span>
@@ -206,8 +203,30 @@
     <span class="p">),</span>
     <span class="c1"># Provide support for moiopt.</span>
     <span class="p">(</span><span class="s2">&quot;moiopt&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for moiopt&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ortools&quot;</span><span class="p">])),</span>
+    <span class="c1"># Provide support for onnx.</span>
+    <span class="p">(</span><span class="s2">&quot;onnx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for onnx&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;onnx&quot;</span><span class="p">])),</span>
     <span class="c1"># Provide support for relay visualization.</span>
     <span class="p">(</span><span class="s2">&quot;relay-visualization&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for relay visualization&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;relayviz&quot;</span><span class="p">])),</span>
+    <span class="c1"># Provide support for tflite.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;tflite&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using tflite&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;tflite&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="c1"># Provide support for tflm.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;tflm&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using tflm&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;Pillow&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
     <span class="c1"># Provide support for tvm.</span>
     <span class="p">(</span>
         <span class="s2">&quot;tvm&quot;</span><span class="p">,</span>
@@ -227,7 +246,25 @@
         <span class="p">),</span>
     <span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;tvm-autotuning&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for using tvm autotuning&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;xgboost&quot;</span><span class="p">])),</span>  <span class="c1"># for autotuning on some target</span>
+    <span class="c1"># Provide support for visualize.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;visualize&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using visualize&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;visualize_tflite&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for visualization&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">])),</span>
+    <span class="c1"># Provide support for zephyr.</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;zephyr&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using zephyr&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;pyserial&quot;</span><span class="p">,</span>  <span class="c1"># for custom monitor</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
 <span class="p">]</span>
 
 <span class="n">ConstraintsType</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span>
@@ -266,6 +303,7 @@
     <span class="p">(</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;networkx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;onnx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;ortools&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
@@ -281,7 +319,7 @@
     <span class="p">(</span><span class="s2">&quot;scipy&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;synr&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span> <span class="s2">&quot;~=2.8.0&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=2.4.0&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;tornado&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;xdg&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span> <span class="s2">&quot;~=1.5.2&quot;</span><span class="p">),</span>
@@ -380,7 +418,7 @@
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">CONSTRAINT_REGEX</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
                 <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">: dependency </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2"> should not specify a version. &quot;</span> <span class="s2">&quot;Add it to CONSTRAINTS instead.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;piece </span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">: dependency </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2"> should not specify a version. Add it to CONSTRAINTS instead.&quot;</span>
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">piece_deps</span><span class="p">:</span>
@@ -391,9 +429,7 @@
     <span class="n">extras_pieces</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">REQUIREMENTS_BY_PIECE</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;dev&quot;</span><span class="p">,</span> <span class="s2">&quot;core&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">)]</span>
     <span class="n">sorted_extras_pieces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">extras_pieces</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">sorted_extras_pieces</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="n">extras_pieces</span><span class="p">):</span>
-        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;pieces other than &quot;core&quot; and &quot;dev&quot; must appear in alphabetical order: &#39;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sorted_extras_pieces</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pieces other than &quot;core&quot; and &quot;dev&quot; must appear in alphabetical order: </span><span class="si">{</span><span class="n">sorted_extras_pieces</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">problems</span></div>
 
@@ -490,7 +526,7 @@
     <span class="n">all_constrained_packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">CONSTRAINTS</span><span class="p">]</span>
     <span class="n">sorted_constrained_packages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">all_constrained_packages</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">sorted_constrained_packages</span> <span class="o">!=</span> <span class="n">all_constrained_packages</span><span class="p">:</span>
-        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CONSTRAINTS entries should be in this sorted order: &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sorted_constrained_packages</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONSTRAINTS entries should be in this sorted order: </span><span class="si">{</span><span class="n">sorted_constrained_packages</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">problems</span></div>
 
@@ -635,9 +671,7 @@
     <span class="k">for</span> <span class="n">piece</span><span class="p">,</span> <span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">deps</span><span class="p">)</span> <span class="ow">in</span> <span class="n">joined_deps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">piece</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;# AUTOGENERATED by python/gen_requirements.py</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">description</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;# AUTOGENERATED by python/gen_requirements.py</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2"># </span><span class="si">{</span><span class="n">description</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>

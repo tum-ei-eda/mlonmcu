@@ -100,8 +100,6 @@
 <span class="c1">#</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">tflite</span>
-<span class="kn">from</span> <span class="nn">tflite.TensorType</span> <span class="kn">import</span> <span class="n">TensorType</span> <span class="k">as</span> <span class="n">TType</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.models.model</span> <span class="kn">import</span> <span class="n">ModelFormats</span>
 
@@ -133,6 +131,9 @@
 
 <div class="viewcode-block" id="TfLiteTensorInfo"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.TfLiteTensorInfo">[docs]</a><span class="k">class</span> <span class="nc">TfLiteTensorInfo</span><span class="p">(</span><span class="n">TensorInfo</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Local imports to get rid of tflite dependency for non-tflite models</span>
+        <span class="kn">from</span> <span class="nn">tflite.TensorType</span> <span class="kn">import</span> <span class="n">TensorType</span> <span class="k">as</span> <span class="n">TType</span>
+
         <span class="n">name</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Name</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">ShapeLength</span><span class="p">())])</span>
 
@@ -271,15 +272,20 @@
             <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">:</span>
                 <span class="n">d</span> <span class="o">=</span> <span class="n">MessageToDict</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-                <span class="n">elem_type</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">][</span><span class="s2">&quot;tensorType&quot;</span><span class="p">][</span><span class="s2">&quot;elemType&quot;</span><span class="p">]</span>
-                <span class="n">dims</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">][</span><span class="s2">&quot;elemType&quot;</span><span class="p">][</span><span class="s2">&quot;shape&quot;</span><span class="p">][</span><span class="s2">&quot;dim&quot;</span><span class="p">]</span>
-                <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;dimValue&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">]</span>
+                <span class="n">tensor_type</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">][</span><span class="s2">&quot;tensorType&quot;</span><span class="p">]</span>
+                <span class="n">elem_type</span> <span class="o">=</span> <span class="n">tensor_type</span><span class="p">[</span><span class="s2">&quot;elemType&quot;</span><span class="p">]</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="n">tensor_type</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">][</span><span class="s2">&quot;dim&quot;</span><span class="p">]</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;dimValue&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="s2">&quot;dimValue&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">else</span> <span class="mi">40</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">]</span>  <span class="c1"># TODO: dyn shape</span>
                 <span class="n">dtype</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">TENSOR_TYPE_TO_NP_TYPE</span><span class="p">[</span><span class="n">elem_type</span><span class="p">])</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TensorInfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">ret</span>
 
         <span class="n">in_tensors</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
         <span class="n">out_tensors</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="c1"># TVM seems to ignore the original output names for ONNX models</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">out_tensors</span><span class="p">):</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;output</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">)</span></div>
 
 
@@ -326,6 +332,9 @@
 
 
 <div class="viewcode-block" id="get_tflite_model_info"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_tflite_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_tflite_model_info</span><span class="p">(</span><span class="n">model_buf</span><span class="p">):</span>
+    <span class="c1"># Local imports to get rid of tflite dependency for non-tflite models</span>
+    <span class="kn">import</span> <span class="nn">tflite</span>
+
     <span class="n">tflite_model</span> <span class="o">=</span> <span class="n">tflite</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">GetRootAsModel</span><span class="p">(</span><span class="n">model_buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">TfLiteModelInfo</span><span class="p">(</span><span class="n">tflite_model</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model_info</span></div>
@@ -367,7 +376,7 @@
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PB</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;pb&quot;</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">ONNX</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;onnx&quot;</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;onnx&quot;</span><span class="p">,</span> <span class="n">get_onnx_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PADDLE</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;pdmodel&quot;</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>

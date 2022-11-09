@@ -83,7 +83,7 @@ frameworks:
           debug_arena: true
     features:
       muriscvnn: true
-      cmsisnn: true
+      cmsisnn: false
   tvm:
     enabled: true
     backends:
@@ -125,7 +125,7 @@ frameworks:
           disable_legalize: false
           autotuned: true
     features:
-      cmsisnnbyoc: true
+      cmsisnnbyoc: false
       muriscvnnbyoc: true
 # Some frontends are experimental and therefore disabled here
 # Features like packing are only available in certain environments
@@ -212,7 +212,7 @@ targets:
       pext: true
       log_instrs: true
   corstone300:
-    enabled: true
+    enabled: false
     features:
       ethosu: false
       arm_mvei: true

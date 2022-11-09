@@ -89,7 +89,7 @@ def example_elf_file(request, tmp_path):
 def user_context():
     from mlonmcu.context.context import MlonMcuContext
 
-    with MlonMcuContext() as context:
+    with MlonMcuContext(deps_lock="read") as context:
         yield context
 
 

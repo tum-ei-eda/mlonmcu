@@ -200,6 +200,10 @@ class ONNXModelInfo(ModelInfo):
 
         in_tensors = _helper(model.graph.input)
         out_tensors = _helper(model.graph.output)
+
+        # TVM seems to ignore the original output names for ONNX models
+        for i, t in enumerate(out_tensors):
+            t.name = f"output{i}"
         super().__init__(in_tensors, out_tensors)
 
 

@@ -238,7 +238,7 @@ CONSTRAINTS = [
     ("scipy", None),
     ("synr", None),
     ("tensorflow", "~=2.8.0"),
-    ("tflite", None),
+    ("tflite", ">=2.4.0"),
     ("tornado", None),
     ("xdg", None),
     ("xgboost", "~=1.5.2"),

@@ -38,7 +38,7 @@ class RWLockTimeout(TimeoutError):
         self.lock = lock
 
     def __str__(self) -> str:
-        return f"The lock with id '{self.lock.id}' " f"in env '{self.lock.filepath.parent}' could not be acquired."
+        return f"The lock with id '{self.lock.id}' in env '{self.lock.filepath.parent}' could not be acquired."
 
 
 class ReadFileLock:

@@ -391,6 +391,7 @@ project(ProjectName)
             # Local import to get rid of pyserial dependency
 
             import serial
+
             # start_match and end_match are inclusive
             found_start = start_match is None
             outStr = ""

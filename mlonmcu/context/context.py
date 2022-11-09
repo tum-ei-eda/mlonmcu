@@ -373,7 +373,7 @@ class MlonMcuContext:
         logger.debug("Enter MlonMcuContext")
         if self.deps_lock.is_locked:
             raise RuntimeError(
-                f"Lock on current context could not be acquired. "
+                "Lock on current context could not be acquired. "
                 f"Current context is locked via: {self.deps_lock.filepath}"
             )
         if self.deps_lock:
@@ -382,7 +382,7 @@ class MlonMcuContext:
                 self.deps_lock.acquire()
             except RWLockTimeout as err:
                 raise RuntimeError(
-                    f"Lock on current context could not be aquired. "
+                    "Lock on current context could not be aquired. "
                     f"Current context is locked via: {self.deps_lock.filepath}"
                 ) from err
         self.load_cache()

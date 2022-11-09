@@ -258,6 +258,7 @@ class VisualizePostprocess(SessionPostprocess):
 
         # Local import to deal with optional dependencies
         import matplotlib.pyplot as plt
+
         fig, axes = plt.subplots(ncols=len(COLS))
         plt.rcParams["figure.figsize"] = (15, 3)  # (w, h)
         for i, col in enumerate(COLS):

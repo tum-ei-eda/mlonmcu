@@ -31,6 +31,7 @@ import urllib.request
 from pathlib import Path
 from typing import Union
 from git import Repo
+from tqdm import tqdm
 
 from mlonmcu import logging
 
@@ -276,18 +277,51 @@ def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
 #     a.replace(b)
 
 
-def download(url, dest):
-    urllib.request.urlretrieve(url, dest)
+def download(url, dest, progress=False):
+    def hook(t):
+        """Wraps tqdm instance."""
+        last_b = [0]
+
+        def update_to(b=1, bsize=1, tsize=None):
+            """
+            b  : int, optional
+                Number of blocks transferred so far [default: 1].
+            bsize  : int, optional
+                Size of each block (in tqdm units) [default: 1].
+            tsize  : int, optional
+                Total size (in tqdm units). If [default: None] remains unchanged.
+            """
+            if tsize is not None:
+                t.total = tsize
+            t.update((b - last_b[0]) * bsize)
+            last_b[0] = b
+
+        return update_to
+
+    if progress:
+        with tqdm(unit="B", unit_scale=True, unit_divisor=1024, miniters=1, desc="Downloading File") as t:
+            urllib.request.urlretrieve(url, dest, reporthook=hook(t))
+    else:
+        urllib.request.urlretrieve(url, dest)
 
 
-def extract(archive, dest):
+def extract(archive, dest, progress=False):
     ext = Path(archive).suffix[1:]
+
+    def handle(f):
+        if progress:
+            members = f.getmembers()
+            for m in tqdm(iterable=members, total=len(members), desc="Extracting..."):
+                f.extract(m, dest)
+        else:
+            f.extractall(dest)
+
     if ext == "zip":
         with zipfile.ZipFile(archive) as zip_file:
-            zip_file.extractall(dest)
+            handle(zip_file)
     elif ext in ["tar", "gz", "xz", "tgz", "bz2"]:
         with tarfile.open(archive) as tar_file:
-            tar_file.extractall(dest)
+            handle(tar_file)
     else:
         raise RuntimeError("Unable to detect the archive type")
 
@@ -310,7 +344,7 @@ def is_populated(path):
     return path.is_dir() and os.listdir(path.resolve())
 
 
-def download_and_extract(url, archive, dest):
+def download_and_extract(url, archive, dest, progress=False):
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_archive = os.path.join(tmp_dir, archive)
         base_name = Path(archive).stem
@@ -318,8 +352,8 @@ def download_and_extract(url, archive, dest):
             base_name = Path(base_name).stem
         if url[-1] != "/":
             url += "/"
-        download(url + archive, tmp_archive)
-        extract(tmp_archive, tmp_dir)
+        download(url + archive, tmp_archive, progress=progress)
+        extract(tmp_archive, tmp_dir, progress=progress)
         remove(os.path.join(tmp_dir, tmp_archive))
         mkdirs(dest.parent)
         if (Path(tmp_dir) / base_name).is_dir():  # Archive contains a subdirectory with the same name

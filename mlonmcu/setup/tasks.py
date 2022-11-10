@@ -311,7 +311,7 @@ def install_riscv_gcc(
         # if rebuild or not utils.is_populated(riscvInstallDir):
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(riscvInstallDir):
-            utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir)
+            utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir, progress=verbose)
     if "riscv_gcc.name" in user_vars:
         gccName = user_vars["riscv_gcc.name"]
     else:
@@ -359,7 +359,7 @@ def install_llvm(
         # if rebuild or not utils.is_populated(llvmInstallDir):
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(llvmInstallDir):
-            utils.download_and_extract(llvmUrl, llvmArchive, llvmInstallDir)
+            utils.download_and_extract(llvmUrl, llvmArchive, llvmInstallDir, progress=verbose)
     context.cache["llvm.install_dir"] = llvmInstallDir
 
 
@@ -1077,7 +1077,7 @@ def install_arm_gcc(
             armUrl = "https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/"
             armFileName = "gcc-arm-11.2-2022.02-x86_64-arm-none-eabi"
             armArchive = armFileName + ".tar.xz"
-            utils.download_and_extract(armUrl, armArchive, armInstallDir)
+            utils.download_and_extract(armUrl, armArchive, armInstallDir, progress=verbose)
     context.cache["arm_gcc.install_dir"] = armInstallDir
 
 
@@ -1101,7 +1101,7 @@ def install_corstone300(
             fvpUrl = "https://developer.arm.com/-/media/Arm%20Developer%20Community/Downloads/OSS/FVP/Corstone-300/"
             fvpFileName = "FVP_Corstone_SSE-300_11.16_26"
             fvpArchive = fvpFileName + ".tgz"
-            utils.download_and_extract(fvpUrl, fvpArchive, fvpInstallDir)
+            utils.download_and_extract(fvpUrl, fvpArchive, fvpInstallDir, progress=verbose)
             fvpScript = fvpInstallDir / "FVP_Corstone_SSE-300.sh"
             utils.exec_getout(
                 fvpScript, "--i-agree-to-the-contained-eula", "--no-interactive", "-d", fvpSubDir, print_output=False
@@ -1223,7 +1223,7 @@ def download_tflite_vizualize(
     if rebuild or not utils.is_populated(tfLiteVizualizeInstallDir):
         tfLiteVizualizeInstallDir.mkdir()
         url = "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/tools/visualize.py"
-        utils.download(url, tfLiteVizualizeExe)
+        utils.download(url, tfLiteVizualizeExe, progress=verbose)
     context.cache["tflite_visualize.exe"] = tfLiteVizualizeExe
 
 
@@ -1312,7 +1312,7 @@ def install_zephyr(
         sdkUrl = f"https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v{sdkVersion}/"
         sdkArchive = f"zephyr-sdk-{sdkVersion}_{sdkDist}.tar.gz"
         if not utils.is_populated(zephyrSdkDir):
-            utils.download_and_extract(sdkUrl, sdkArchive, zephyrSdkDir)
+            utils.download_and_extract(sdkUrl, sdkArchive, zephyrSdkDir, progress=verbose)
         sdkScript = zephyrSdkDir / "setup.sh"
         # TODO: allow to limit installed toolchains
         utils.exec_getout(sdkScript, "-t", "all", "-h", print_output=False, live=verbose)

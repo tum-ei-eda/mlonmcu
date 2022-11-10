@@ -132,7 +132,7 @@
 
 
 <div class="viewcode-block" id="handle_list_targets"><a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.flow.handle_list_targets">[docs]</a><span class="k">def</span> <span class="nf">handle_list_targets</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="s2">&quot;read&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">deps_lock</span><span class="o">=</span><span class="s2">&quot;read&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">mlonmcu</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span></div>
 
 

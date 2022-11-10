@@ -132,11 +132,11 @@
         <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;cpu_arch&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;etissvp.rom_start&quot;</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
-        <span class="s2">&quot;etissvp.rom_size&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>  <span class="c1"># 8 MB</span>
-        <span class="s2">&quot;etissvp.ram_start&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>
-        <span class="s2">&quot;etissvp.ram_size&quot;</span><span class="p">:</span> <span class="mh">0x4000000</span><span class="p">,</span>  <span class="c1"># 64 MB</span>
-        <span class="s2">&quot;etissvp.cycle_time_ps&quot;</span><span class="p">:</span> <span class="mi">31250</span><span class="p">,</span>  <span class="c1"># 32 MHz</span>
+        <span class="s2">&quot;rom_start&quot;</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
+        <span class="s2">&quot;rom_size&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>  <span class="c1"># 8 MB</span>
+        <span class="s2">&quot;ram_start&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>
+        <span class="s2">&quot;ram_size&quot;</span><span class="p">:</span> <span class="mh">0x4000000</span><span class="p">,</span>  <span class="c1"># 64 MB</span>
+        <span class="s2">&quot;cycle_time_ps&quot;</span><span class="p">:</span> <span class="mi">31250</span><span class="p">,</span>  <span class="c1"># 32 MHz</span>
         <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;vext_spec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="s2">&quot;embedded_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -200,23 +200,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rom_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.rom_start&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;rom_start&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rom_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.rom_size&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;rom_size&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ram_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.ram_start&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ram_start&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ram_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.ram_size&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ram_size&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cycle_time_ps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.cycle_time_ps&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cycle_time_ps&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cpu_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

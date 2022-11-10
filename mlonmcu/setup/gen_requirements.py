@@ -65,6 +65,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             "Base requirements needed to install MLonMCU",
             [
                 "GitPython",
+                "Pillow",  # convert data
                 "filelock",
                 "jinja2",
                 "networkx",

@@ -51,11 +51,11 @@ class EtissPulpinoTarget(RISCVTarget):
         "plugins": [],
         "verbose": False,
         "cpu_arch": None,
-        "etissvp.rom_start": 0x0,
-        "etissvp.rom_size": 0x800000,  # 8 MB
-        "etissvp.ram_start": 0x800000,
-        "etissvp.ram_size": 0x4000000,  # 64 MB
-        "etissvp.cycle_time_ps": 31250,  # 32 MHz
+        "rom_start": 0x0,
+        "rom_size": 0x800000,  # 8 MB
+        "ram_start": 0x800000,
+        "ram_size": 0x4000000,  # 64 MB
+        "cycle_time_ps": 31250,  # 32 MHz
         "enable_vext": False,
         "vext_spec": 1.0,
         "embedded_vext": False,
@@ -119,23 +119,27 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def rom_start(self):
-        return int(self.config["etissvp.rom_start"])
+        value = self.config["rom_start"]
+        return int(value, 0) if not isinstance(value, int) else value
 
     @property
     def rom_size(self):
-        return int(self.config["etissvp.rom_size"])
+        value = self.config["rom_size"]
+        return int(value, 0) if not isinstance(value, int) else value
 
     @property
     def ram_start(self):
-        return int(self.config["etissvp.ram_start"])
+        value = self.config["ram_start"]
+        return int(value, 0) if not isinstance(value, int) else value
 
     @property
     def ram_size(self):
-        return int(self.config["etissvp.ram_size"])
+        value = self.config["ram_size"]
+        return int(value, 0) if not isinstance(value, int) else value
 
     @property
     def cycle_time_ps(self):
-        return int(self.config["etissvp.cycle_time_ps"])
+        return int(self.config["cycle_time_ps"])
 
     @property
     def cpu_arch(self):

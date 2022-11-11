@@ -1328,3 +1328,70 @@ def install_zephyr(
     context.cache["zephyr.install_dir"] = zephyrInstallDir
     context.cache["zephyr.sdk_dir"] = zephyrSdkDir
     context.cache["zephyr.venv_dir"] = zephyrVenvDir
+
+
+#############
+# pulp-gcc  #
+#############
+
+
+def _validate_pulp_gcc(context: MlonMcuContext, params=None):
+    return context.environment.has_target("gvsoc_pulp") or context.environment.has_target("gvsoc_pulpissimo")
+
+
+@Tasks.provides(["pulp_gcc.install_dir"])
+@Tasks.validate(_validate_pulp_gcc)
+@Tasks.register(category=TaskType.TOOLCHAIN)
+def install_pulp_gcc(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Download and install the RISCV GCC toolchain."""
+    if not params:
+        params = {}
+    user_vars = context.environment.vars
+    multilib = user_vars.get("pulp_gcc.multilib", True)
+    flags = utils.makeFlags()
+    # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
+    if multilib:
+        pulpGccName = utils.makeDirName("pulp_gcc", flags=[])
+    else:
+        pulpGccName = utils.makeDirName("pulp_gcc", flags=flags)
+    pulpGccInstallDir = context.environment.paths["deps"].path / "install" / pulpGccName
+    if "pulp_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
+        # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
+        pulpGccInstallDir = user_vars["pulp_gcc.install_dir"]
+    else:
+        pulpGccName = utils.makeDirName("pulp_gcc")
+        pulpGccSrcDir = context.environment.paths["deps"].path / "src" / pulpGccName
+        if rebuild or not utils.is_populated(pulpGccInstallDir):
+            pulpGccRepo = context.environment.repos["pulp_gcc"]
+            # utils.clone(pulpGccRepo.url, pulpGccSrcDir, branch=pulpGccRepo.ref, refresh=rebuild, recursive=True)
+            # print("clone finsih")
+            pulpGccArgs = []
+            pulpGccArgs.append("--prefix=" + str(pulpGccInstallDir))
+            pulpGccArgs.append("--with-arch=rv32imc")
+            pulpGccArgs.append("--with-cmodel=medlow")
+            pulpGccArgs.append("--enable-multilib")
+            env = os.environ.copy()
+            env['PATH'] = str(pulpGccInstallDir) + ":" + env["PATH"]
+            print(env['PATH'])
+            print(str(pulpGccSrcDir / "configure"))
+            print(pulpGccArgs)
+            utils.exec(
+                str(pulpGccSrcDir / "configure"),
+                *pulpGccArgs,
+                cwd=pulpGccSrcDir,
+                env=env,
+                shell=True,
+                # print_output=True,
+            )
+            print("config finsih")
+            utils.exec(
+                f"make -C {pulpGccSrcDir}",
+                cwd=pulpGccSrcDir,
+                env=env,
+                shell=True,
+                # print_output=True,
+                )
+    context.cache["pulp_gcc.install_dir", flags] = pulpGccInstallDir
+

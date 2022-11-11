@@ -1365,8 +1365,8 @@ def install_pulp_gcc(
         pulpGccSrcDir = context.environment.paths["deps"].path / "src" / pulpGccName
         if rebuild or not utils.is_populated(pulpGccInstallDir):
             pulpGccRepo = context.environment.repos["pulp_gcc"]
-            # utils.clone(pulpGccRepo.url, pulpGccSrcDir, branch=pulpGccRepo.ref, refresh=rebuild, recursive=True)
-            # print("clone finsih")
+            utils.clone(pulpGccRepo.url, pulpGccSrcDir, branch=pulpGccRepo.ref, refresh=rebuild, recursive=True)
+            print("clone finsih")
             pulpGccArgs = []
             pulpGccArgs.append("--prefix=" + str(pulpGccInstallDir))
             pulpGccArgs.append("--with-arch=rv32imc")

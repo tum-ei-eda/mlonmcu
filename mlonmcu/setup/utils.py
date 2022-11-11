@@ -88,7 +88,6 @@ def makeDirName(base: str, *args, flags: list = None) -> str:
         names = names + flags
     return "_".join(names)
 
-
 def exec(*args, **kwargs):
     """Execute a process with the given args and using the given kwards as Popen arguments.
 

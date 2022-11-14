@@ -1420,7 +1420,7 @@ def clone_pulp_freertos(
 
 
 @Tasks.needs(["pulp_freertos.src_dir", "pulp_freertos.support_dir", "pulp_freertos.config_dir"])
-@Tasks.provides(["pulp_freertos.install_dir", "pulp_freertos.pythonpath"])
+@Tasks.provides(["pulp_freertos.install_dir", "pulp_freertos.pythonpath", "gvsoc.exe"])
 @Tasks.validate(_validate_pulp)
 @Tasks.register(category=TaskType.TARGET)
 def install_gvsoc(
@@ -1430,6 +1430,7 @@ def install_gvsoc(
     pulpRtosName = utils.makeDirName("pulp_freertos")
     pulpRtosInstallDir = context.environment.paths["deps"].path / "install" / pulpRtosName
     pulpRtosSupportDir = context.cache["pulp_freertos.support_dir"]
+    gvsocExe = pulpRtosSupportDir / "egvsoc.sh"
     pulpConfigDir = context.cache["pulp_freertos.config_dir"]
     pulpPythonPath = pulpRtosInstallDir / "python"
     if rebuild or not utils.is_populated(pulpRtosInstallDir) or not utils.is_populated(pulpPythonPath):
@@ -1454,3 +1455,4 @@ def install_gvsoc(
         )
     context.cache["pulp_freertos.install_dir"] = pulpRtosInstallDir
     context.cache["pulp_freertos.pythonpath"] = pulpPythonPath
+    context.cache["gvsoc.exe"] = gvsocExe

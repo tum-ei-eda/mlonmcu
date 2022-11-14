@@ -335,3 +335,7 @@ def download_and_extract(url, archive, dest):
 
 def patch(path, cwd=None):
     raise NotImplementedError
+
+
+def link(src, dest):
+    return os.symlink(src, dest)

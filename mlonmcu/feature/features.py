@@ -1352,3 +1352,61 @@ class TvmProfile(PlatformFeature):
         return {
             f"{platform}.profile": self.enabled,
         }
+
+
+@register_feature("performance_estimator")
+class PerformanceEstimator(TargetFeature, SetupFeature):
+    """Enable estimation of ETISS cycles."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "uarch": "SimpleRISCV",
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("performance_estimator", features=features, config=config)
+
+    @property
+    def uarch(self):
+        return self.config["uarch"]
+
+    def add_target_config(self, target, config):
+        assert target in ["etiss_pulpino"]
+        if not self.enabled:
+            return
+        if target == "etiss_pulpino":
+            plugins_new = config.get("plugins", [])
+            plugins_new.append("PerformanceEstimatorPlugin")
+            extra_config_new = config.get("extra_config", {})
+            extra_config_new.update(
+                {
+                    "plugin.perfEst.uArch": self.uarch,
+                }
+            )
+            config.update({f"{target}.plugins": plugins_new, f"{target}.extra_config": extra_config_new})
+
+    def get_target_callbacks(self, target):
+        assert target in ["etiss_pulpino"], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+            def performance_estimator_callback(stdout, metrics, artifacts):
+                """Callback which parses the targets output and updates the generated metrics and artifacts."""
+                assert len(metrics) == 1
+                res = re.compile(r">> Estimated number of processor cycles: (\d+)").findall(stdout)
+                assert len(res) == 1, "Unable to find estimated cycles in stdout"
+                estimated_cycles = int(res[0])
+                res = re.compile(r">> Estimated average number of processor cycles per instruction: (\d+(.\d+)?)").findall(stdout)
+                assert len(res) == 1 and len(res[0]) > 0, "Unable to find estimated cpi in stdout"
+                estimated_cpi = float(res[0][0])
+                metrics[0].add("Estimated Cycles", estimated_cycles)
+                metrics[0].add("Estimated CPI", estimated_cpi)
+                return stdout
+
+            return None, performance_estimator_callback
+
+    def get_required_cache_flags(self):
+        ret = {}
+
+        ret["etissvp.exe"] = ["perf"]
+        ret["etissvp.script"] = ["perf"]
+        ret["etiss.src_dir"] = ["perf"]
+        return ret

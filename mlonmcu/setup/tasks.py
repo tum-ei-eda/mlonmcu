@@ -1411,9 +1411,24 @@ def clone_pulp_freertos(
     pulpRtosSrcDir = context.environment.paths["deps"].path / "src" / pulpRtosName
     pulpRtosSupportDir = pulpRtosSrcDir / "support"
     pulpConfigsDir = pulpRtosSupportDir / "pulp-configs" / "configs"
-    if rebuild or not utils.is_populated(pulpRtosSrcDir) or not utils.is_populated(pulpRtosSupportDir) or not utils.is_populated(pulpConfigsDir):
+    if (
+        rebuild
+        or not utils.is_populated(pulpRtosSrcDir)
+        or not utils.is_populated(pulpRtosSupportDir)
+        or not utils.is_populated(pulpConfigsDir)
+    ):
         pulpRtosRepo = context.environment.repos["pulp_freertos"]
         utils.clone(pulpRtosRepo.url, pulpRtosSrcDir, branch=pulpRtosRepo.ref, refresh=rebuild, recursive=True)
+        user_vars = context.environment.vars
+        experimental_install = user_vars.get("pulp_freertos.experimental_install", False)
+        if experimental_install:
+            patchFile = Path(
+                pkg_resources.resource_filename(
+                    "mlonmcu", os.path.join("..", "resources", "patches", "pulp_freertos_support.patch")
+                )
+            )
+            if patchFile.is_file():
+                utils.patch(patchFile, cwd=pulpRtosSrcDir)
     context.cache["pulp_freertos.src_dir"] = pulpRtosSrcDir
     context.cache["pulp_freertos.support_dir"] = pulpRtosSupportDir
     context.cache["pulp_freertos.config_dir"] = pulpConfigsDir
@@ -1428,23 +1443,35 @@ def install_gvsoc(
 ):
     """Setup the pulp-freertos build."""
     pulpRtosName = utils.makeDirName("pulp_freertos")
-    pulpRtosInstallDir = context.environment.paths["deps"].path / "install" / pulpRtosName
+    user_vars = context.environment.vars
+    experimental_install = user_vars.get("pulp_freertos.experimental_install", False)
     pulpRtosSupportDir = context.cache["pulp_freertos.support_dir"]
     gvsocExe = pulpRtosSupportDir / "egvsoc.sh"
     pulpConfigDir = context.cache["pulp_freertos.config_dir"]
+    if experimental_install:
+        pulpRtosInstallDir = context.environment.paths["deps"].path / "install" / pulpRtosName
+    else:
+        pulpRtosInstallDir = pulpRtosSupportDir / "install"
     pulpPythonPath = pulpRtosInstallDir / "python"
     if rebuild or not utils.is_populated(pulpRtosInstallDir) or not utils.is_populated(pulpPythonPath):
         utils.mkdirs(pulpRtosInstallDir)
         env = os.environ.copy()
-        env.update({
-            "PULP_CURRENT_CONFIG": "pulpissimo@config_file=chips/pulpissimo/pulpissimo.json",
-            "PULP_CONFIGS_PATH": pulpConfigDir,
-            "PYTHONPATH": pulpRtosInstallDir / "python",
-            "INSTALL_DIR": pulpRtosInstallDir,
-            "ARCHI_DIR": pulpRtosSupportDir / "archi" / "include",
-            "SUPPORT_ROOT": pulpRtosSupportDir,
-            "SUPPORT_INSTALL_DIR": pulpRtosInstallDir,
-        })
+        env.update(
+            {
+                "PULP_CURRENT_CONFIG": "pulpissimo@config_file=chips/pulpissimo/pulpissimo.json",
+                "PULP_CONFIGS_PATH": pulpConfigDir,
+                "PYTHONPATH": pulpRtosInstallDir / "python",
+                "INSTALL_DIR": pulpRtosInstallDir,
+                "ARCHI_DIR": pulpRtosSupportDir / "archi" / "include",
+                "SUPPORT_ROOT": pulpRtosSupportDir,
+            }
+        )
+        if experimental_install:
+            env.update(
+                {
+                    "SUPPORT_INSTALL_DIR": pulpRtosInstallDir,
+                }
+            )
         makeArgs = ["-f", pulpRtosSupportDir / "support.mk", "gvsoc"]
         utils.make(
             *makeArgs,

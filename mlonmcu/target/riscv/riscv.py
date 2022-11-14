@@ -45,6 +45,7 @@ class RISCVTarget(Target):
         "attr": "",
     }
     REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"]
+    PUPL_GCC_TOOLCHAIN_REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"]
     OPTIONAL = ["llvm.install_dir"]
 
     @property

@@ -1400,3 +1400,57 @@ def install_pulp_gcc(
     # context.cache["pulp_gcc.build_dir", flags] = pulpGccBuildDir
 
 
+@Tasks.provides(["pulp_freertos.src_dir", "pulp_freertos.support_dir", "pulp_freertos.config_dir"])
+@Tasks.validate(_validate_pulp)
+@Tasks.register(category=TaskType.TARGET)
+def clone_pulp_freertos(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the pulp-freertos repository."""
+    pulpRtosName = utils.makeDirName("pulp_freertos")
+    pulpRtosSrcDir = context.environment.paths["deps"].path / "src" / pulpRtosName
+    pulpRtosSupportDir = pulpRtosSrcDir / "support"
+    pulpConfigsDir = pulpRtosSupportDir / "pulp-configs" / "configs"
+    if rebuild or not utils.is_populated(pulpRtosSrcDir) or not utils.is_populated(pulpRtosSupportDir) or not utils.is_populated(pulpConfigsDir):
+        pulpRtosRepo = context.environment.repos["pulp_freertos"]
+        utils.clone(pulpRtosRepo.url, pulpRtosSrcDir, branch=pulpRtosRepo.ref, refresh=rebuild, recursive=True)
+    context.cache["pulp_freertos.src_dir"] = pulpRtosSrcDir
+    context.cache["pulp_freertos.support_dir"] = pulpRtosSupportDir
+    context.cache["pulp_freertos.config_dir"] = pulpConfigsDir
+
+
+@Tasks.needs(["pulp_freertos.src_dir", "pulp_freertos.support_dir", "pulp_freertos.config_dir"])
+@Tasks.provides(["pulp_freertos.install_dir", "pulp_freertos.pythonpath"])
+@Tasks.validate(_validate_pulp)
+@Tasks.register(category=TaskType.TARGET)
+def install_gvsoc(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Setup the pulp-freertos build."""
+    pulpRtosName = utils.makeDirName("pulp_freertos")
+    pulpRtosInstallDir = context.environment.paths["deps"].path / "install" / pulpRtosName
+    pulpRtosSupportDir = context.cache["pulp_freertos.support_dir"]
+    pulpConfigDir = context.cache["pulp_freertos.config_dir"]
+    pulpPythonPath = pulpRtosInstallDir / "python"
+    if rebuild or not utils.is_populated(pulpRtosInstallDir) or not utils.is_populated(pulpPythonPath):
+        utils.mkdirs(pulpRtosInstallDir)
+        env = os.environ.copy()
+        env.update({
+            "PULP_CURRENT_CONFIG": "pulpissimo@config_file=chips/pulpissimo/pulpissimo.json",
+            "PULP_CONFIGS_PATH": pulpConfigDir,
+            "PYTHONPATH": pulpRtosInstallDir / "python",
+            "INSTALL_DIR": pulpRtosInstallDir,
+            "ARCHI_DIR": pulpRtosSupportDir / "archi" / "include",
+            "SUPPORT_ROOT": pulpRtosSupportDir,
+            "SUPPORT_INSTALL_DIR": pulpRtosInstallDir,
+        })
+        makeArgs = ["-f", pulpRtosSupportDir / "support.mk", "gvsoc"]
+        utils.make(
+            *makeArgs,
+            cwd=pulpRtosInstallDir,
+            env=env,
+            live=verbose,
+            threads=1,  # Script returns 2 exit code if parallel
+        )
+    context.cache["pulp_freertos.install_dir"] = pulpRtosInstallDir
+    context.cache["pulp_freertos.pythonpath"] = pulpPythonPath

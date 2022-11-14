@@ -52,6 +52,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "arm_dsp",
             "auto_vectorize",
             "benchmark",
+            "andes_libnn",
         ]  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 

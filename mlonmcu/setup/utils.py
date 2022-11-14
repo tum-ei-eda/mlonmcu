@@ -21,6 +21,7 @@ import signal
 import sys
 import multiprocessing
 import subprocess
+import distutils.dir_util
 
 # import logging
 import tarfile
@@ -297,11 +298,16 @@ def remove(path):
 
 
 def move(src, dest):
-    shutil.move(src, dest)
+    shutil.move(str(src), str(dest))
 
 
-def copy(src, dest):
-    shutil.copy(src, dest)
+def copy(src, dest, recursive=False):
+    if recursive:
+        # The following does not allow overwriting
+        # shutil.copytree(str(src), str(dest))
+        distutils.dir_util.copy_tree(str(src), str(dest))
+    else:
+        shutil.copy(str(src), str(dest))
 
 
 def is_populated(path):
@@ -310,7 +316,7 @@ def is_populated(path):
     return path.is_dir() and os.listdir(path.resolve())
 
 
-def download_and_extract(url, archive, dest):
+def download_and_extract(url, archive, dest, merge=False, auto=True):
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_archive = os.path.join(tmp_dir, archive)
         base_name = Path(archive).stem
@@ -323,14 +329,22 @@ def download_and_extract(url, archive, dest):
         remove(os.path.join(tmp_dir, tmp_archive))
         mkdirs(dest.parent)
         if (Path(tmp_dir) / base_name).is_dir():  # Archive contains a subdirectory with the same name
-            move(os.path.join(tmp_dir, base_name), dest)
+            if merge:
+                copy(os.path.join(tmp_dir, base_name), dest, recursive=True)
+            else:
+                move(os.path.join(tmp_dir, base_name), dest)
         else:
-            contents = list(Path(tmp_dir).glob("*"))
-            if len(contents) == 1:
-                tmp_dir_new = Path(tmp_dir) / contents[0]
-                if tmp_dir_new.is_dir():  # Archive contains a single subdirectory with a different name
-                    tmp_dir = tmp_dir_new
-            move(tmp_dir, dest)
+            if auto:
+                contents = list(Path(tmp_dir).glob("*"))
+                if len(contents) == 1:
+                    print("case 2.1")
+                    tmp_dir_new = Path(tmp_dir) / contents[0]
+                    if tmp_dir_new.is_dir():  # Archive contains a single subdirectory with a different name
+                        tmp_dir = tmp_dir_new
+            if merge:
+                copy(tmp_dir, dest, recursive=True)
+            else:
+                move(tmp_dir, dest)
 
 
 def patch(path, cwd=None):

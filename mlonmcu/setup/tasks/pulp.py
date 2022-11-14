@@ -73,7 +73,7 @@ def install_pulp_gcc(
                     pulpGccRepo = context.environment.repos["pulp_gcc"]
                     utils.clone(pulpGccRepo.url, pulpGccSrcDir, branch=pulpGccRepo.ref, refresh=rebuild, recursive=True)
                 env = os.environ.copy()
-                env['PATH'] = str(pulpGccInstallDir) + ":" + env["PATH"]
+                env["PATH"] = str(pulpGccInstallDir) + ":" + env["PATH"]
                 if rebuild or not utils.is_populated(pulpGccBuildDir):
                     pulpGccArgs = []
                     pulpGccArgs.append("--prefix=" + str(pulpGccInstallDir))

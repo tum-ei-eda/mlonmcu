@@ -49,11 +49,11 @@ class RISCVTarget(Target):
     OPTIONAL = ["llvm.install_dir"]
 
     @property
-    def riscv_prefix(self):
+    def riscv_gcc_prefix(self):
         return Path(self.config["riscv_gcc.install_dir"])
 
     @property
-    def riscv_basename(self):
+    def riscv_gcc_basename(self):
         return Path(self.config["riscv_gcc.name"])
 
     @property
@@ -149,8 +149,8 @@ class RISCVTarget(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_prefix
-        ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_basename
+        ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
+        ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
         ret["RISCV_ARCH"] = self.arch
         ret["RISCV_ABI"] = self.abi
         ret["RISCV_ATTR"] = self.attr  # TODO: use for clang
@@ -165,7 +165,7 @@ class RISCVTarget(Target):
                 "target_device": "riscv_cpu",
                 "target_march": self.arch,
                 "target_model": "unknown",
-                "target_mtriple": self.riscv_basename,  # TODO: riscv32-esp-elf for esp32c3!
+                "target_mtriple": self.riscv_gcc_basename,  # TODO: riscv32-esp-elf for esp32c3!
                 "target_mabi": self.abi,
                 "target_mattr": self.attr,
                 "target_mcpu": f"generic-rv{self.xlen}",

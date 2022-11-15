@@ -46,7 +46,7 @@ class GvsocPulpTarget(RISCVTarget):
         # "gdbserver_attach": False,
         # "gdbserver_port": 2222,
         # "debug_etiss": False,
-        # "trace_memory": False,
+        "trace_memory": False,
         # "plugins": ["PrintInstruction"],
         # "plugins": [],
         # "verbose": False,
@@ -66,11 +66,18 @@ class GvsocPulpTarget(RISCVTarget):
         # "jit": None,
         # "end_to_end_cycles": False,
     }
-    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + ["gvsoc.src_dir", "gvsoc.script"]  # "gvsoc.install_dir"
+    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + ["pulp_gcc.install_dir", "pulp_gcc.name", "gvsoc.src_dir", "gvsoc.script"]  # "gvsoc.install_dir"
 
     def __init__(self, name="gvsoc_pulp", features=None, config=None):
         super().__init__(name, features=features, config=config)
         # self.metrics_script = Path(self.etiss_src_dir) / "src" / "bare_etiss_processor" / "get_metrics.py"
+
+    @property
+    def pulp_gcc_prefix(self):
+        return Path(self.config["pulp_gcc.install_dir"])
+
+    def pulp_gcc_basename(self):
+        return Path(self.config["pulp_gcc.name"])
 
     @property
     def gvsoc_src_dir(self):
@@ -103,10 +110,10 @@ class GvsocPulpTarget(RISCVTarget):
     #     value = self.config["debug_etiss"]
     #     return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    # @property
-    # def trace_memory(self):
-    #     value = self.config["trace_memory"]
-    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
+    @property
+    def trace_memory(self):
+        value = self.config["trace_memory"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     # @property
     # def plugins(self):
@@ -427,20 +434,24 @@ class GvsocPulpTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         assert platform == "mlif"
         ret = super().get_platform_defs(platform)
-        ret["ETISS_DIR"] = self.etiss_dir
-        ret["PULPINO_ROM_START"] = self.rom_start
-        ret["PULPINO_ROM_SIZE"] = self.rom_size
-        ret["PULPINO_RAM_START"] = self.ram_start
-        ret["PULPINO_RAM_SIZE"] = self.ram_size
-        if self.enable_pext:
-            major, minor = str(self.pext_spec).split(".")[:2]
-            ret["RISCV_RVP_MAJOR"] = major
-            ret["RISCV_RVP_MINOR"] = minor
-        if self.enable_vext:
-            major, minor = str(self.vext_spec).split(".")[:2]
-            ret["RISCV_RVV_MAJOR"] = major
-            ret["RISCV_RVV_MINOR"] = minor
-            ret["RISCV_RVV_VLEN"] = self.vlen
+        ret['RISCV_ELF_GCC_PREFIX'] = self.pulp_gcc_prefix
+        ret['RISCV_ELF_GCC_BASENAME'] = self.riscv_gcc_basename
+        ret['RISCV_ABI'] = 'ilp32'
+        ret['GVSOC_BASIC_CMAKE_DIR'] = "/mnt/d/time_5_semester_TUM/hiwi/mlonmcu_env/deps/src/mlif/cmake/targets/gvsoc"
+        # ret["ETISS_DIR"] = self.etiss_dir
+        # ret["PULPINO_ROM_START"] = self.rom_start
+        # ret["PULPINO_ROM_SIZE"] = self.rom_size
+        # ret["PULPINO_RAM_START"] = self.ram_start
+        # ret["PULPINO_RAM_SIZE"] = self.ram_size
+        # if self.enable_pext:
+        #     major, minor = str(self.pext_spec).split(".")[:2]
+        #     ret["RISCV_RVP_MAJOR"] = major
+        #     ret["RISCV_RVP_MINOR"] = minor
+        # if self.enable_vext:
+        #     major, minor = str(self.vext_spec).split(".")[:2]
+        #     ret["RISCV_RVV_MAJOR"] = major
+        #     ret["RISCV_RVV_MINOR"] = minor
+        #     ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 
     def get_backend_config(self, backend):
@@ -459,4 +470,4 @@ class GvsocPulpTarget(RISCVTarget):
 
 
 if __name__ == "__main__":
-    cli(target=EtissPulpinoTarget)
+    cli(target=GvsocPulpTarget)

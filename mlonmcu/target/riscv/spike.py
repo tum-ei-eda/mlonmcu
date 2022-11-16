@@ -185,7 +185,6 @@ class SpikeTarget(RISCVTarget):
 
     def parse_stdout(self, out):
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-        cpu_instructions = re.search(r"Total Instructions: (.*)", out)
         if not cpu_cycles:
             logger.warning("unexpected script output (cycles)")
             cycles = None

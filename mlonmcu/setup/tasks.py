@@ -1343,7 +1343,7 @@ def _validate_pulp_gcc(context: MlonMcuContext, params=None):
     return context.environment.has_toolchain("gcc") and _validate_pulp
 
 
-@Tasks.provides(["pulp_gcc.install_dir"])
+@Tasks.provides(["pulp_gcc.install_dir", "pulp_gcc.name"])
 @Tasks.validate(_validate_pulp_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)
 def install_pulp_gcc(
@@ -1395,8 +1395,12 @@ def install_pulp_gcc(
                 assert pulpGccUrl, "pulp_gcc.dl_url undefined and environment and pulp_gcc.from_source=0"
                 pulpGccBaseUrl, pulpGccArchive = pulpGccUrl.rsplit("/", 1)
                 utils.download_and_extract(pulpGccBaseUrl, pulpGccArchive, pulpGccInstallDir)
-
+    if "pulp_gcc.name" in user_vars:
+        pulpGccName = user_vars["pulp_gcc.name"]
+    else:
+        pulpGccName = "riscv32-unknown-elf"
     context.cache["pulp_gcc.install_dir", flags] = pulpGccInstallDir
+    context.cache["pulp_gcc.name", flags] = pulpGccName
     # context.cache["pulp_gcc.build_dir", flags] = pulpGccBuildDir
 
 

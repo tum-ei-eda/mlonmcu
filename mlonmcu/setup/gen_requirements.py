@@ -185,6 +185,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
+    ("gvsoc", ("Requirements for gvsoc", ["PrettyTable"])),
 ]
 
 ConstraintsType = typing.List[typing.Tuple[str, typing.Union[None, str]]]

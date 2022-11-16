@@ -74,7 +74,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
     @property
     def drop_nan(self):
         """Get drop_nan property."""
-        value = (self.config["drop_nan"]
+        value = self.config["drop_nan"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property

@@ -297,4 +297,4 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "mlif_out.log", content=out, fmt=ArtifactFormat.TEXT
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
-        self.artifacts = artifacts
+        self.artifacts = {"default": artifacts}

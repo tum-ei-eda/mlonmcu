@@ -155,6 +155,20 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?
         target_names = text.split("\n")
 
+        def filter_names(x):
+            ret = []
+            for x in reversed(x):
+                if len(x) > 0:
+                    ret.append(x)
+                else:
+                    if len(ret) > 0:
+                        break
+                    else:
+                        continue
+            return reversed(ret)
+
+        target_names = filter_names(target_names)
+
         return [name for name in target_names if len(name) > 0 and " " not in name]
 
     def create_target(self, name):

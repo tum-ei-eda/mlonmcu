@@ -67,7 +67,16 @@ class GvsocPulpTarget(RISCVTarget):
         # "jit": None,
         # "end_to_end_cycles": False,
     }
-    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + ["pulp_gcc.install_dir", "pulp_gcc.name", "pulp_freertos.support_dir"]  # "gvsoc.install_dir"
+    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [
+        "pulp_gcc.install_dir",
+        "pulp_gcc.name",
+        "pulp_freertos.support_dir",
+        "pulp_gcc.name",
+        "gvsoc.exe",
+        "pulp_freertos.support_dir",
+        "pulp_freertos.config_dir",
+        "pulp_freertos.install_dir",
+    ]  # "gvsoc.install_dir"
 
     def __init__(self, name="gvsoc_pulp", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -82,16 +91,20 @@ class GvsocPulpTarget(RISCVTarget):
         return Path(self.config["pulp_gcc.name"])
 
     @property
-    def gvsoc_src_dir(self):
-        return Path(self.config["gvsoc.src_dir"])
+    def gvsoc_script(self):
+        return Path(self.config["gvsoc.exe"])
 
     @property
-    def gvsoc_dir(self):
+    def pulp_freertos_support_dir(self):
         return Path(self.config["pulp_freertos.support_dir"])
 
     @property
-    def gvsoc_script(self):
-        return Path(self.config["pulp_freertos.support_dir"]) / "egvsoc.sh"
+    def pulp_freertos_config_dir(self):
+        return Path(self.config["pulp_freertos.config_dir"])
+
+    @property
+    def pulp_freertos_install_dir(self):
+        return Path(self.config["pulp_freertos.install_dir"])
 
     # @property
     # def gdbserver_enable(self):
@@ -261,7 +274,7 @@ class GvsocPulpTarget(RISCVTarget):
             os.makedirs(gvsimDir)
         shutil.copyfile(program, gvsimDir / program.stem)
 
-        gvsoc_args=[]
+        gvsoc_args = []
         gvsoc_args.append(f"--dir={gvsimDir}")
 
         gvsoc_args.append(f"--config-file=pulp@config_file=chips/pulp/pulp.json")
@@ -272,12 +285,32 @@ class GvsocPulpTarget(RISCVTarget):
         gvsoc_args.append(f"--trace=pe0/insn")
         gvsoc_args.append(f"--trace=pe1/insn")
 
+        # prepare simulation by compile gvsoc according to defined archi
         env = os.environ.copy()
-        env["PULP_RISCV_GCC_TOOLCHAIN"] = str(self.pulp_gcc_prefix)
+        env.update(
+            {
+                "PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix),
+                "PULP_CURRENT_CONFIG": "pulpissimo@config_file=chips/pulp/pulp.json",
+                "PULP_CONFIGS_PATH": self.pulp_freertos_config_dir,
+                "PYTHONPATH": self.pulp_freertos_install_dir / "python",
+                "INSTALL_DIR": self.pulp_freertos_install_dir,
+                "ARCHI_DIR": self.pulp_freertos_support_dir / "archi" / "include",
+                "SUPPORT_ROOT": self.pulp_freertos_support_dir,
+            }
+        )
+        kwargs["live"] = True
+        ret1 = execute(
+            str(self.gvsoc_script),
+            *gvsoc_args,
+            env=env,
+            *args,
+            **kwargs,
+        )
 
-        cwd = gvsimDir
-
-        ret = execute(
+        # run simulation
+        env = os.environ.copy()
+        env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
+        ret2 = execute(
             str(self.gvsoc_script),
             *gvsoc_args,
             env=env,
@@ -285,8 +318,7 @@ class GvsocPulpTarget(RISCVTarget):
             *args,
             **kwargs,
         )
-        return ret
-
+        return ret1 + ret2
 
     def parse_stdout(self, out):
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
@@ -322,10 +354,10 @@ class GvsocPulpTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         assert platform == "mlif"
         ret = super().get_platform_defs(platform)
-        ret['RISCV_ELF_GCC_PREFIX'] = self.pulp_gcc_prefix
-        ret['RISCV_ELF_GCC_BASENAME'] = self.pulp_gcc_basename
-        ret['RISCV_ARCH'] = 'rv32gc'
-        ret['RISCV_ABI'] = 'ilp32'
+        ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
+        ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
+        ret["RISCV_ARCH"] = "rv32gc"
+        ret["RISCV_ABI"] = "ilp32"
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start
         # ret["PULPINO_ROM_SIZE"] = self.rom_size

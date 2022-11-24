@@ -19,6 +19,7 @@
 """MLonMCU ETISS/Pulpino Target definitions"""
 
 import os
+import pathlib
 import re
 import csv
 from pathlib import Path
@@ -334,7 +335,8 @@ class GvsocPulpTarget(RISCVTarget):
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
         ret["RISCV_ARCH"] = "rv32imac"
         ret["RISCV_ABI"] = "ilp32"
-        ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = self.pulp_gcc_prefix / 'lib'/'gcc'/'riscv32-unknown-elf'/'9.2.0'  # TODO version number should not be fixed
+        #  ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = self.pulp_gcc_prefix / 'lib'/'gcc'/'riscv32-unknown-elf'/'7.1.1'  # TODO version number should not be fixed
+        ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = pathlib.Path('/mnt/d/time_eternity/desktop_download_doc_pic_vid_music/Download/gcc_good/lib/gcc/riscv32-unknown-elf/9.2.0')  # TODO use tasks to download this folder
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start
         # ret["PULPINO_ROM_SIZE"] = self.rom_size

@@ -300,7 +300,6 @@ class GvsocPulpTarget(RISCVTarget):
         )
         return gvsoc_compile_retval + simulation_retval
 
-    @staticmethod
     def parse_stdout(self, out):
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         cpu_instructions = re.search(r"Total Instructions: (.*)", out)

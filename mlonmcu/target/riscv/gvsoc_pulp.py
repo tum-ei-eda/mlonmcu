@@ -68,15 +68,11 @@ class GvsocPulpTarget(RISCVTarget):
         # "end_to_end_cycles": False,
     }
     REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [
-        "pulp_gcc.install_dir",
-        "pulp_gcc.name",
-        "pulp_freertos.support_dir",
-        "pulp_gcc.name",
         "gvsoc.exe",
         "pulp_freertos.support_dir",
         "pulp_freertos.config_dir",
         "pulp_freertos.install_dir",
-    ]  # "gvsoc.install_dir"
+    ]
 
     def __init__(self, name="gvsoc_pulp", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -93,6 +89,10 @@ class GvsocPulpTarget(RISCVTarget):
     @property
     def gvsoc_script(self):
         return Path(self.config["gvsoc.exe"])
+
+    @property
+    def gvsoc_folder(self):
+        return Path(self.config["gvsoc.exe"]).parent / "gvsoc"
 
     @property
     def pulp_freertos_support_dir(self):
@@ -240,51 +240,61 @@ class GvsocPulpTarget(RISCVTarget):
             os.makedirs(gvsimDir)
         shutil.copyfile(program, gvsimDir / program.stem)
 
-        gvsoc_args = []
-        gvsoc_args.append(f"--dir={gvsimDir}")
+        # for debug
+        kwargs['live']=True
 
-        gvsoc_args.append(f"--config-file=pulp@config_file=chips/pulp/pulp.json")
-        gvsoc_args.append(f"--platform=gvsoc")
-        gvsoc_args.append(f"--binary={program.stem}")
-        gvsoc_args.append(f"prepare")
-        gvsoc_args.append(f"run")
-        gvsoc_args.append(f"--trace=pe0/insn")
-        gvsoc_args.append(f"--trace=pe1/insn")
+        # prepare simulation by compile gvsoc according to the chosen archi
+        gvsoc_compile_args = []
+        gvsoc_compile_args.append(f"build")
+        gvsoc_compile_args.append(f"ARCHI_DIR={self.pulp_freertos_support_dir / 'archi' / 'include'}")
 
-        # prepare simulation by compile gvsoc according to defined archi
         env = os.environ.copy()
         env.update(
             {
                 "PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix),
-                "PULP_CURRENT_CONFIG": "pulpissimo@config_file=chips/pulp/pulp.json",
-                "PULP_CONFIGS_PATH": self.pulp_freertos_config_dir,
-                "PYTHONPATH": self.pulp_freertos_install_dir / "python",
-                "INSTALL_DIR": self.pulp_freertos_install_dir,
-                "ARCHI_DIR": self.pulp_freertos_support_dir / "archi" / "include",
-                "SUPPORT_ROOT": self.pulp_freertos_support_dir,
+                "PULP_CURRENT_CONFIG": "pulp@config_file=chips/pulp/pulp.json",
+                "PULP_CONFIGS_PATH": str(self.pulp_freertos_config_dir),
+                "PYTHONPATH": str(self.pulp_freertos_install_dir / "python"),
+                "INSTALL_DIR": str(self.pulp_freertos_install_dir),
+                "ARCHI_DIR": str(self.pulp_freertos_support_dir / "archi" / "include"),
+                "SUPPORT_ROOT": str(self.pulp_freertos_support_dir),
             }
         )
-        kwargs["live"] = True
-        ret1 = execute(
-            str(self.gvsoc_script),
-            *gvsoc_args,
+
+        gvsoc_compile_retval = execute(
+            "make",
+            *gvsoc_compile_args,
             env=env,
+            cwd=self.gvsoc_folder,
             *args,
             **kwargs,
         )
 
+        gvsoc_simulating_arg = []
+        gvsoc_simulating_arg.append(f"--dir={gvsimDir}")
+        gvsoc_simulating_arg.append(f"--config-file=pulp@config_file=chips/pulp/pulp.json")
+        gvsoc_simulating_arg.append(f"--platform=gvsoc")
+        gvsoc_simulating_arg.append(f"--binary={program.stem}")
+        gvsoc_simulating_arg.append(f"prepare")
+        gvsoc_simulating_arg.append(f"run")
+        gvsoc_simulating_arg.append(f"--trace=pe0/insn")
+        gvsoc_simulating_arg.append(f"--trace=pe1/insn")
+
+        env = os.environ.copy()
+        env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
+
         # run simulation
         env = os.environ.copy()
         env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
-        ret2 = execute(
+        simulation_retval = execute(
             str(self.gvsoc_script),
-            *gvsoc_args,
+            *gvsoc_simulating_arg,
             env=env,
             cwd=cwd,
             *args,
             **kwargs,
         )
-        return ret1 + ret2
+        return gvsoc_compile_retval + simulation_retval
 
     def parse_stdout(self, out):
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
@@ -322,7 +332,7 @@ class GvsocPulpTarget(RISCVTarget):
         ret = super().get_platform_defs(platform)
         ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = "rv32gc"
+        ret["RISCV_ARCH"] = "rv32imac"
         ret["RISCV_ABI"] = "ilp32"
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start

@@ -187,7 +187,8 @@ class CompilePlatform(Platform):
 
     @property
     def debug(self):
-        return bool(self.config["debug"])
+        value = self.config["debug"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def num_threads(self):

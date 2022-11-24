@@ -233,40 +233,6 @@ class GvsocPulpTarget(RISCVTarget):
     # def pext_spec(self):
     #     return float(self.config["pext_spec"])
 
-    def write_ini(self, path):
-        # TODO: Either create artifact for ini or prefer to use cmdline args.
-        with open(path, "w") as f:
-            if self.cpu_arch or self.jit:
-                f.write("[StringConfigurations]\n")
-            if self.cpu_arch:
-                f.write(f"arch.cpu={self.cpu_arch}\n")
-            if self.jit:
-                f.write(f"jit.type={self.jit}JIT\n")
-            f.write("[IntConfigurations]\n")
-            # f.write("etiss.max_block_size=100\n")
-            # f.write("etiss.max_block_size=500\n")
-            # f.write(f"simple_mem_system.memseg_origin_00={hex(self.rom_start)}\n")
-            # f.write(f"simple_mem_system.memseg_length_00={hex(self.rom_size)}\n")
-            # f.write(f"simple_mem_system.memseg_origin_01={hex(self.ram_start)}\n")
-            # f.write(f"simple_mem_system.memseg_length_01={hex(self.ram_size)}\n")
-            f.write("\n")
-            # f.write(f"arch.cpu_cycle_time_ps={self.cycle_time_ps}\n")
-            # if self.has_fpu:
-            #     # TODO: do not hardcode cpu_arch
-            #     # TODO: i.e. use cpu_arch_lower
-            #     f.write("arch.rv32imacfdpv.mstatus_fs=1")
-            # if self.enable_vext:
-            #     f.write("arch.rv32imacfdpv.mstatus_vs=1")
-            #     if self.vlen > 0:
-            #         f.write(f"arch.rv32imacfdpv.vlen={self.vlen}")
-            #     # if self.elen > 0:
-            #     #     f.write(f"arch.rv32imacfdpv.elen={self.elen}")
-            #
-            # if self.gdbserver_enable:
-            #     f.write("\n[Plugin gdbserver]\n")
-            #     # This could also be accomplished using `--plugin.gdbserver.port` on the cmdline
-            #     f.write(f"plugin.gdbserver.port={self.gdbserver_port}")
-
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         gvsimDir = program.parent / "gvsim"
@@ -329,7 +295,7 @@ class GvsocPulpTarget(RISCVTarget):
             cycles = None
         else:
             cycles = int(float(cpu_cycles.group(1)))
-            instructions = int(float(cpu_cycles.group(1)))
+            instructions = int(float(cpu_instructions.group(1)))
         return cycles, instructions
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):

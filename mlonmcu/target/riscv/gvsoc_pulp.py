@@ -67,7 +67,7 @@ class GvsocPulpTarget(RISCVTarget):
         # "jit": None,
         # "end_to_end_cycles": False,
     }
-    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [
+    REQUIRED = RISCVTarget.REQUIRED + RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [  # TODO RISCVTarget.REQUIRED should be removed
         "gvsoc.exe",
         "pulp_freertos.support_dir",
         "pulp_freertos.config_dir",
@@ -334,6 +334,7 @@ class GvsocPulpTarget(RISCVTarget):
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
         ret["RISCV_ARCH"] = "rv32imac"
         ret["RISCV_ABI"] = "ilp32"
+        ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = self.pulp_gcc_prefix / 'lib'/'gcc'/'riscv32-unknown-elf'/'9.2.0'  # TODO version number should not be fixed
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start
         # ret["PULPINO_ROM_SIZE"] = self.rom_size

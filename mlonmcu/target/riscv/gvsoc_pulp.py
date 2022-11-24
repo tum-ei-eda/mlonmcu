@@ -247,13 +247,11 @@ class GvsocPulpTarget(RISCVTarget):
         # for debug
         kwargs['live']=True
 
-        gvsoc_args = []
+        # prepare simulation by compile gvsoc according to the chosen archi
+        gvsoc_compile_args = []
+        gvsoc_compile_args.append(f"build")
+        gvsoc_compile_args.append(f"ARCHI_DIR={self.pulp_freertos_support_dir / 'archi' / 'include'}")
 
-        # gvsoc_args.append(f"-C {self.gvsoc_folder}")
-        gvsoc_args.append(f"build")
-        gvsoc_args.append(f"ARCHI_DIR={self.pulp_freertos_support_dir / 'archi' / 'include'}")
-
-        # prepare simulation by compile gvsoc according to defined archi
         env = os.environ.copy()
         env.update(
             {
@@ -267,44 +265,42 @@ class GvsocPulpTarget(RISCVTarget):
             }
         )
 
-        ret1 = execute(
+        gvsoc_compile_retval = execute(
             "make",
-            *gvsoc_args,
+            *gvsoc_compile_args,
             env=env,
             cwd=self.gvsoc_folder,
             *args,
             **kwargs,
         )
 
-        gvsoc_args = []
-        gvsoc_args.append(f"--dir={gvsimDir}")
-
-        gvsoc_args.append(f"--config-file=pulp@config_file=chips/pulp/pulp.json")
-        gvsoc_args.append(f"--platform=gvsoc")
-        gvsoc_args.append(f"--binary={program.stem}")
-        gvsoc_args.append(f"prepare")
-        gvsoc_args.append(f"run")
-        gvsoc_args.append(f"--trace=pe0/insn")
-        gvsoc_args.append(f"--trace=pe1/insn")
+        gvsoc_simulating_arg = []
+        gvsoc_simulating_arg.append(f"--dir={gvsimDir}")
+        gvsoc_simulating_arg.append(f"--config-file=pulp@config_file=chips/pulp/pulp.json")
+        gvsoc_simulating_arg.append(f"--platform=gvsoc")
+        gvsoc_simulating_arg.append(f"--binary={program.stem}")
+        gvsoc_simulating_arg.append(f"prepare")
+        gvsoc_simulating_arg.append(f"run")
+        gvsoc_simulating_arg.append(f"--trace=pe0/insn")
+        gvsoc_simulating_arg.append(f"--trace=pe1/insn")
 
         env = os.environ.copy()
         env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
-
-
 
         # run simulation
         env = os.environ.copy()
         env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
-        ret2 = execute(
+        simulation_retval = execute(
             str(self.gvsoc_script),
-            *gvsoc_args,
+            *gvsoc_simulating_arg,
             env=env,
             cwd=cwd,
             *args,
             **kwargs,
         )
-        return ret1 + ret2
+        return gvsoc_compile_retval + simulation_retval
 
+    @staticmethod
     def parse_stdout(self, out):
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         cpu_instructions = re.search(r"Total Instructions: (.*)", out)

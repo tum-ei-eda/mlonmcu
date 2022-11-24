@@ -68,15 +68,11 @@ class GvsocPulpTarget(RISCVTarget):
         # "end_to_end_cycles": False,
     }
     REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [
-        "pulp_gcc.install_dir",
-        "pulp_gcc.name",
-        "pulp_freertos.support_dir",
-        "pulp_gcc.name",
         "gvsoc.exe",
         "pulp_freertos.support_dir",
         "pulp_freertos.config_dir",
         "pulp_freertos.install_dir",
-    ]  # "gvsoc.install_dir"
+    ]
 
     def __init__(self, name="gvsoc_pulp", features=None, config=None):
         super().__init__(name, features=features, config=config)

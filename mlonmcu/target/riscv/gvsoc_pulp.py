@@ -95,6 +95,10 @@ class GvsocPulpTarget(RISCVTarget):
         return Path(self.config["gvsoc.exe"])
 
     @property
+    def gvsoc_folder(self):
+        return Path(self.config["gvsoc.exe"]).parent / "gvsoc"
+
+    @property
     def pulp_freertos_support_dir(self):
         return Path(self.config["pulp_freertos.support_dir"])
 
@@ -240,6 +244,38 @@ class GvsocPulpTarget(RISCVTarget):
             os.makedirs(gvsimDir)
         shutil.copyfile(program, gvsimDir / program.stem)
 
+        # for debug
+        kwargs['live']=True
+
+        gvsoc_args = []
+
+        # gvsoc_args.append(f"-C {self.gvsoc_folder}")
+        gvsoc_args.append(f"build")
+        gvsoc_args.append(f"ARCHI_DIR={self.pulp_freertos_support_dir / 'archi' / 'include'}")
+
+        # prepare simulation by compile gvsoc according to defined archi
+        env = os.environ.copy()
+        env.update(
+            {
+                "PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix),
+                "PULP_CURRENT_CONFIG": "pulp@config_file=chips/pulp/pulp.json",
+                "PULP_CONFIGS_PATH": str(self.pulp_freertos_config_dir),
+                "PYTHONPATH": str(self.pulp_freertos_install_dir / "python"),
+                "INSTALL_DIR": str(self.pulp_freertos_install_dir),
+                "ARCHI_DIR": str(self.pulp_freertos_support_dir / "archi" / "include"),
+                "SUPPORT_ROOT": str(self.pulp_freertos_support_dir),
+            }
+        )
+
+        ret1 = execute(
+            "make",
+            *gvsoc_args,
+            env=env,
+            cwd=self.gvsoc_folder,
+            *args,
+            **kwargs,
+        )
+
         gvsoc_args = []
         gvsoc_args.append(f"--dir={gvsimDir}")
 
@@ -251,27 +287,10 @@ class GvsocPulpTarget(RISCVTarget):
         gvsoc_args.append(f"--trace=pe0/insn")
         gvsoc_args.append(f"--trace=pe1/insn")
 
-        # prepare simulation by compile gvsoc according to defined archi
         env = os.environ.copy()
-        env.update(
-            {
-                "PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix),
-                "PULP_CURRENT_CONFIG": "pulpissimo@config_file=chips/pulp/pulp.json",
-                "PULP_CONFIGS_PATH": self.pulp_freertos_config_dir,
-                "PYTHONPATH": self.pulp_freertos_install_dir / "python",
-                "INSTALL_DIR": self.pulp_freertos_install_dir,
-                "ARCHI_DIR": self.pulp_freertos_support_dir / "archi" / "include",
-                "SUPPORT_ROOT": self.pulp_freertos_support_dir,
-            }
-        )
-        kwargs["live"] = True
-        ret1 = execute(
-            str(self.gvsoc_script),
-            *gvsoc_args,
-            env=env,
-            *args,
-            **kwargs,
-        )
+        env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
+
+
 
         # run simulation
         env = os.environ.copy()
@@ -322,7 +341,7 @@ class GvsocPulpTarget(RISCVTarget):
         ret = super().get_platform_defs(platform)
         ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = "rv32gc"
+        ret["RISCV_ARCH"] = "rv32imac"
         ret["RISCV_ABI"] = "ilp32"
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start

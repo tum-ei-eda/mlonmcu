@@ -113,6 +113,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["humanize", "pyelftools"],
         ),
     ),
+    ("gvsoc", ("Requirements for gvsoc", ["PrettyTable"])),
     # Provide support for microtvm.
     (
         "microtvm",
@@ -185,7 +186,6 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
-    ("gvsoc", ("Requirements for gvsoc", ["PrettyTable"])),
 ]
 
 ConstraintsType = typing.List[typing.Tuple[str, typing.Union[None, str]]]

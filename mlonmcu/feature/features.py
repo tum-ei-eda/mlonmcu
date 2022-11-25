@@ -572,7 +572,7 @@ class Usmp(BackendFeature):
         tmp["tir.usmp.enable"] = self.enabled
         if self.algorithm in ["greedy_by_size", "greedy_by_conflicts", "hill_climb"]:
             tmp["tir.usmp.algorithm"] = self.algorithm
-       else:
+        else:
             tmp["tir.usmp.custom_algorithm"] = self.algorithm
         config.update(
             {f"{backend}.extra_pass_config": tmp, f"{backend}.arena_size": 0}

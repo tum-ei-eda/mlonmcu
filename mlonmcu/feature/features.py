@@ -570,7 +570,10 @@ class Usmp(BackendFeature):
             tmp = ast.literal_eval(tmp)
         assert isinstance(tmp, dict)
         tmp["tir.usmp.enable"] = self.enabled
-        tmp["tir.usmp.algorithm"] = self.algorithm
+        if self.algorithm in ["greedy_by_size", "greedy_by_conflicts", "hill_climb"]:
+            tmp["tir.usmp.algorithm"] = self.algorithm
+       else:
+            tmp["tir.usmp.custom_algorithm"] = self.algorithm
         config.update(
             {f"{backend}.extra_pass_config": tmp, f"{backend}.arena_size": 0}
         )  # In recent TVM versions USMP will have it's own arena.
@@ -587,6 +590,7 @@ class MOIOPT(BackendFeature):
         "noftp": False,
         "onlyftp": False,
         "norecurse": False,
+        "maxpartitions": 0,
     }
 
     def __init__(self, features=None, config=None):
@@ -604,6 +608,7 @@ class MOIOPT(BackendFeature):
         tmp["relay.moiopt.noftp"] = self.config["noftp"]
         tmp["relay.moiopt.onlyftp"] = self.config["onlyftp"]
         tmp["relay.moiopt.norecurse"] = self.config["norecurse"]
+        tmp["relay.moiopt.maxpartitions"] = self.config["maxpartitions"]
         config.update({f"{backend}.extra_pass_config": tmp})
 
     # -> enable this via backend

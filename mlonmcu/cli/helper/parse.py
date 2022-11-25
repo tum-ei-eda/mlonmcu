@@ -28,12 +28,10 @@ def parse_var(s):
     or
         foo="hello world"
     """
-    if "=" not in s:
-        raise RuntimeError(f"The argument {s} is not a key-value pair")
     items = s.split("=")
     key = items[0].strip()  # we remove blanks around keys, as is logical
-    assert len(key) > 0, "Empty key"
-    assert len(items) > 1, "Not enough items"
+    if len(key) == 0 or len(items) <= 1 or "=" not in s:
+        raise RuntimeError(f"The argument {s} is not a key-value pair")
     if len(items) > 1:
         # rejoin the rest:
         value = "=".join(items[1:])

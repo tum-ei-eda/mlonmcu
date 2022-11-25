@@ -28,9 +28,9 @@ def test_parse_var():
 
 
 def test_parse_var_invalid():
-    with pytest.raises(AssertionError):
+    with pytest.raises(RuntimeError):
         parse_var("foo")
-    with pytest.raises(AssertionError):
+    with pytest.raises(RuntimeError):
         parse_var("=bar")
 
 

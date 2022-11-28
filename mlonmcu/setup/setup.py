@@ -45,8 +45,9 @@ class Setup:
     REQUIRED = []
     OPTIONAL = []
 
-    def __init__(self, features=None, config=None, context=None):
-        tasks_factory = get_task_factory()
+    def __init__(self, features=None, config=None, context=None, tasks_factory=None):
+        if not tasks_factory:
+            tasks_factory = get_task_factory()
         self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, "setup", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)

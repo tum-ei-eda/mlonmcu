@@ -77,7 +77,7 @@ def join_extensions(exts):
         length = len(ext)
         if sep == "_":
             assert length > 1, "default extensions should come before any custom or sub-extensions"
-        if length > 1:
+        if length > 1 and ext not in ['xpulpv2', 'xpulpv3', 'xcorev']:
             sep = "_"
         if ret != "":
             ret += sep
@@ -122,4 +122,15 @@ def update_extensions(exts, pext=None, pext_spec=None, vext=None, elen=None, emb
     for ext in require:
         if ext not in ret:
             ret.append(ext)
+    return ret
+
+
+def update_extensions_pulp(exts, xpulpv2=None, xpulpv3=None, xcorev=None):
+    ret = exts.copy()
+    if xpulpv2:
+        ret.append("xpulpv2")
+    if xpulpv3:
+        ret.append("xpulpv3")
+    if xcorev:
+        ret.append("xcorev")
     return ret

@@ -25,7 +25,7 @@ from mlonmcu.logging import get_logger
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.config import filter_config
-from .tasks import Tasks
+from .tasks import get_task_factory
 from .task import TaskGraph
 from mlonmcu.utils import ask_user
 
@@ -45,7 +45,9 @@ class Setup:
     REQUIRED = []
     OPTIONAL = []
 
-    def __init__(self, features=None, config=None, context=None, tasks_factory=Tasks):
+    def __init__(self, features=None, config=None, context=None, tasks_factory=None):
+        if not tasks_factory:
+            tasks_factory = get_task_factory()
         self.config = config if config else {}
         self.features = self.process_features(features)
         self.config = filter_config(self.config, "setup", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)

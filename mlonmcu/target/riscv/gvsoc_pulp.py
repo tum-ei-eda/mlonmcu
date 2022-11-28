@@ -40,7 +40,7 @@ logger = get_logger()
 class GvsocPulpTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "xpulpv2", "xpulpv3", "xcorev"]
+    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "xpulp"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -64,9 +64,7 @@ class GvsocPulpTarget(RISCVTarget):
         # "enable_pext": False,
         "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
         "fpu": None,
-        "xpulpv2": True,
-        "xpulpv3": False,
-        "xcorev": False,
+        "xpulp_version": None,  # None means that xpulp extension is not used
         # "pext_spec": 0.96,
         # "vlen": 0,  # vectorization=off
         # "elen": 32,
@@ -74,12 +72,16 @@ class GvsocPulpTarget(RISCVTarget):
         # "end_to_end_cycles": False,
     }
 
-    REQUIRED = RISCVTarget.REQUIRED + RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [  # TODO RISCVTarget.REQUIRED should be removed
-        "gvsoc.exe",
-        "pulp_freertos.support_dir",
-        "pulp_freertos.config_dir",
-        "pulp_freertos.install_dir",
-    ]
+    REQUIRED = (
+        RISCVTarget.REQUIRED
+        + RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED
+        + [  # TODO RISCVTarget.REQUIRED should be removed
+            "gvsoc.exe",
+            "pulp_freertos.support_dir",
+            "pulp_freertos.config_dir",
+            "pulp_freertos.install_dir",
+        ]
+    )
 
     def __init__(self, name="gvsoc_pulp", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -114,19 +116,9 @@ class GvsocPulpTarget(RISCVTarget):
         return Path(self.config["pulp_freertos.install_dir"])
 
     @property
-    def xpulpv2(self):
-        value = self.config["xpulpv2"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def xpulpv3(self):
-        value = self.config["xpulpv3"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def xcorev(self):
-        value = self.config["xcorev"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+    def xpulp_version(self):
+        value = self.config["xpulp_version"]
+        return value
 
     # @property
     # def gdbserver_enable(self):
@@ -219,19 +211,7 @@ class GvsocPulpTarget(RISCVTarget):
     @property
     def extensions(self):
         exts = super().extensions
-        return update_extensions_pulp(
-            exts,
-            xpulpv2=self.xpulpv2,
-            xpulpv3=self.xpulpv3,
-            xcorev=self.xcorev,
-            # pext=self.enable_pext,
-            # pext_spec=self.pext_spec,
-            # vext=self.enable_vext,
-            # elen=self.elen,
-            # embedded=self.embedded_vext,
-            # fpu=self.fpu,
-            # variant=self.gcc_variant,
-        )
+        return update_extensions_pulp(exts, xpulp_version=self.xpulp_version)
 
     # @property
     # def attr(self):
@@ -266,7 +246,7 @@ class GvsocPulpTarget(RISCVTarget):
         shutil.copyfile(program, gvsimDir / program.stem)
 
         # for debug
-        kwargs['live']=True
+        kwargs["live"] = True
 
         # prepare simulation by compile gvsoc according to the chosen archi
         gvsoc_compile_args = []
@@ -302,8 +282,9 @@ class GvsocPulpTarget(RISCVTarget):
         gvsoc_simulating_arg.append(f"--binary={program.stem}")
         gvsoc_simulating_arg.append(f"prepare")
         gvsoc_simulating_arg.append(f"run")
-        gvsoc_simulating_arg.append(f"--trace=pe0/insn")
-        gvsoc_simulating_arg.append(f"--trace=pe1/insn")
+        # gvsoc_simulating_arg.append(f"--trace=insn")
+        # gvsoc_simulating_arg.append(f"--trace=pe0/insn")
+        # gvsoc_simulating_arg.append(f"--trace=pe1/insn")
 
         env = os.environ.copy()
         env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
@@ -357,9 +338,11 @@ class GvsocPulpTarget(RISCVTarget):
         ret = super().get_platform_defs(platform)
         ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        #ret["RISCV_ARCH"] = "rv32imcxpulpv3"
+        # ret["RISCV_ARCH"] = "rv32imcxpulpv3"
         ret["RISCV_ABI"] = "ilp32"
-        ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = self.pulp_gcc_prefix / 'lib'/'gcc'/'riscv32-unknown-elf'/'7.1.1'  # TODO version number should not be fixed
+        ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = (
+            self.pulp_gcc_prefix / "lib" / "gcc" / "riscv32-unknown-elf" / "7.1.1"
+        )  # TODO version number should not be fixed
         #  ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = pathlib.Path('/mnt/d/time_eternity/desktop_download_doc_pic_vid_music/Download/gcc_good/lib/gcc/riscv32-unknown-elf/9.2.0')  # TODO use tasks to download this folder
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start

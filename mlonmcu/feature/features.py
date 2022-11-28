@@ -20,6 +20,7 @@
 
 import re
 import pandas as pd
+from typing import Union
 
 from mlonmcu.utils import is_power_of_two
 from mlonmcu.config import str2bool
@@ -1357,3 +1358,153 @@ class TvmProfile(PlatformFeature):
         return {
             f"{platform}.profile": self.enabled,
         }
+
+
+@register_feature("xpulp")
+class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "xpulp_version": 2,
+        "nopostmod": False,
+        "noindregreg": False,
+        "novect": False,
+        "nohwloop": False,
+        "hwloopmin": 2,
+        "hwloopalign": False,
+        "nomac": False,
+        "nopartmac": False,
+        "nominmax": False,
+        "noabs": False,
+        "nobitop": False,
+        "nosext": False,
+        "noclip": False,
+        "noaddsubnormround": False,
+        "noshufflepack": False,
+        "nomulmacnormround": False,
+        "noshufflepack": False,
+    }
+
+    REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]
+
+    def __init__(self, features=None, config=None):
+        super().__init__("xpulp", features=features, config=config)
+
+    # Except the "enabled" in FeatureBase.DEFAULTS and "xpulp_version"
+    # every key in DEFAULTS should in principle have a getter function with the same name as the key
+    # These getter functions will be stored in getter_functions array.
+    # Default getter function for the keys whose corresponding value has bool type:
+    # def getter_bool(key_name):
+    #    return self.generalized_str2bool(self.config[key_name])
+    # Default getter function for the keys whose corresponding value has int type:
+    # def getter_int(self):
+    #    return int(self.config["<key>"])
+    # No default, i.e. customized getter functions are defined separately
+
+    # Default getter functions:
+    @staticmethod
+    def generalized_str2bool(input: Union[str, bool, int]) -> bool:
+        return str2bool(input) if isinstance(input, str) else input
+
+    def getter_bool(self, key_name: Union[str, bool, int]) -> bool:
+        return self.generalized_str2bool(self.config[key_name])
+
+    def getter_int(self, key_name: Union[str, bool, int]) -> int:
+        return int(self.config[key_name])
+
+    # No default, i.e. customized getter functions are defined in the following (now empty)
+
+    # custom_config_getter contains customized @property function which do not follow the pattern above.
+    getter_functions = {
+        "nopostmod": getter_bool,
+        "noindregreg": getter_bool,
+        "novect": getter_bool,
+        "nohwloop": getter_bool,
+        "hwloopmin": getter_int,
+        "hwloopalign": getter_bool,
+        "nomac": getter_bool,
+        "nopartmac": getter_bool,
+        "nominmax": getter_bool,
+        "noabs": getter_bool,
+        "nobitop": getter_bool,
+        "nosext": getter_bool,
+        "noclip": getter_bool,
+        "noaddsubnormround": getter_bool,
+        "noshufflepack": getter_bool,
+        "nomulmacnormround": getter_bool,
+        "noshufflepack": getter_bool,
+    }
+
+    @property
+    def xpulp_version(self):
+        value = self.config["xpulp_version"]
+        value = int(value) if not isinstance(value, int) else value  # convert to int
+        assert value in [None, 2, 3], f"xpulp_version must be None, 2 or 3, but get {value}"
+        return value
+
+    def get_platform_defs(self, platform):
+        # The following create EXTRA_FLAGS (type is str) for gcc
+        # example
+        # {"nopostmod": True, "novect": True, ...} ==> EXTRA_FLAGS = "-mnopostmod -mnovect ..."
+        EXTRA_FLAGS = ""
+        for key in self.getter_functions:
+            if isinstance(self.getter_functions[key](self, key), bool):
+                if self.getter_functions[key](self, key):
+                    EXTRA_FLAGS += f" -m{key}"
+                continue
+            if isinstance(self.getter_functions[key](self, key), int):
+                EXTRA_FLAGS += f" -m{key}={self.getter_functions[key](self, key)}"
+                continue
+        EXTRA_FLAGS = "'" + EXTRA_FLAGS.strip() + "'"
+        return {
+            # EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
+            "EXTRA_CMAKE_C_FLAGS": EXTRA_FLAGS,
+            # EXTRA_CMAKE_CXX_FLAGS will be directly append to CMAKE_CXX_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
+            "EXTRA_CMAKE_CXX_FLAGS": EXTRA_FLAGS,
+        }
+
+    def add_platform_defs(self, platform, defs):
+        addition_defs = self.get_platform_defs(platform)
+        self.merge_dicts(defs, addition_defs)
+
+    @staticmethod
+    def merge_dicts(dict1, dict2):
+        """
+        This function tries to merge dict1 and dict2 into dict1
+        :param dict1: A dictionary
+        :param dict2: A dictionary to be added
+        :return: Void
+        Example 1:
+        dict1 = {"a": 1, "b": "hello", "c": [1, 2, 3]}
+        dict2 = {"f": 3, "b": "world", "c": [4, 5, 6]}
+        merge_dicts(dict1, dict2)
+        print(dict1)
+        ==>
+        {"a": 1, "b": "hello world", "c": [1, 2, 3, 4, 5, 6], "f":3}
+        Note: Here "hello" and "world" are merged as two string join.
+        Here [1,2,3] and [4,5,6] are merged as list addition
+        Example 2:
+        dict1 = {"a": 1}
+        dict2 = {"a": 3}
+        merge_dicts(dict1, dict2)
+        ==>
+        RuntimeError: The method to merge a: 1 and a: 3 is not defined
+        """
+        for key in dict2.keys():
+            if key in dict1.keys():
+                dict1_value = dict1[key]
+                dict2_value = dict2[key]
+                if isinstance(dict1_value, (str, list)) and type(dict1_value) == type(dict2_value):
+                    if isinstance(dict1_value, str):
+                        dict1[key] = dict1_value + " " + dict2_value
+                    else:
+                        dict1[key] = dict1_value + dict2_value
+                else:
+                    raise RuntimeError(
+                        f"The method to merge {key}: {dict1_value} and {key}: {dict2_value} is not defined"
+                    )
+            else:
+                dict1[key] = dict2[key]
+
+    def get_target_config(self, target):
+        return filter_none({f"{target}.xpulp_version": self.xpulp_version})

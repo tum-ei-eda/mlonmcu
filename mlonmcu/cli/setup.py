@@ -126,7 +126,7 @@ def handle(args):
         elif args.generate_requirements:
             installer.generate_requirements()
             print(
-                "Next you should run `python -m pip install $MLONMCU_HOME/requirements_addition.txt` inside your"
+                "Next you should run `python -m pip install -r $MLONMCU_HOME/requirements_addition.txt` inside your"
                 " virtual environment."
             )
         else:

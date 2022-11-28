@@ -80,12 +80,15 @@ source .venv/bin/activate
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
-# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
-pip install -r ipynb/requirements.txt
+# Install minimal dependencies
+pip install -r requirements_dev.txt
 
 # Optional (only for development)
 pip install -r requirements_dev.txt
 pip install -r docs/requirements.txt
+
+# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
+pip install -r ipynb/requirements.txt
 ```
 
 Then you should be able to install the `mlonmcu` python package like this

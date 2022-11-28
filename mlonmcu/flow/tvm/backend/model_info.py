@@ -34,6 +34,7 @@ class TensorInfo:
             "uint8": 1,
             "int8": 1,
             "int32": 4,
+            "int64": 8,
         }
         assert dtype in size_lookup
         self.dtype = dtype
@@ -61,6 +62,7 @@ class TfLiteTensorInfo(TensorInfo):
             TType.INT8: "int8",
             TType.INT32: "int32",
             TType.BOOL: "int8",
+            TType.INT64: "int64",
         }
         dtype = type_lookup[t.Type()]
         super().__init__(name, shape, dtype, fix_names=fix_names)

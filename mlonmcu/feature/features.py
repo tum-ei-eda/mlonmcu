@@ -1352,3 +1352,41 @@ class TvmProfile(PlatformFeature):
         return {
             f"{platform}.profile": self.enabled,
         }
+
+
+@register_feature("xpulp")
+class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "nopostmod": True,
+        "novect": True,
+    }
+
+    REQUIRED = [
+        "pulp_gcc.install_dir",
+        "pulp_gcc.name"
+    ]
+
+    def __init__(self, features=None, config=None):
+        super().__init__("xpulp", features=features, config=config)
+
+    @property
+    def nopostmod(self):
+        return str2bool(self.config["nopostmod"]) if isinstance(self.config["nopostmod"], str) else self.config["nopostmod"]
+
+    def get_platform_defs(self, platform):
+        # The following create flags for gcc
+        # example     self.DEFAULTS={"enabled":True "a": True, "b": True}
+        #         ==> EXTRA_FLAGS = "-ma -mb"
+        EXTRA_FLAGS = ""
+        for key, value in self.DEFAULTS.items():
+            if value==True and key!="enabled":
+                EXTRA_FLAGS = EXTRA_FLAGS + " -m" + key # string append
+        EXTRA_FLAGS = "\'" + EXTRA_FLAGS.strip() + "\'"
+        return {
+            # EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
+            "EXTRA_CMAKE_C_FLAGS": EXTRA_FLAGS,
+            # EXTRA_CMAKE_CXX_FLAGS will be directly append to CMAKE_CXX_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
+            "EXTRA_CMAKE_CXX_FLAGS": EXTRA_FLAGS,
+        }

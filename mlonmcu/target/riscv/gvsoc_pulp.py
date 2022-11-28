@@ -40,7 +40,7 @@ logger = get_logger()
 class GvsocPulpTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "xpulpv2", "xpulpv3", "xcorev"]
+    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "xpulp", "xpulpv2", "xpulpv3", "xcorev"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -64,7 +64,7 @@ class GvsocPulpTarget(RISCVTarget):
         # "enable_pext": False,
         "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
         "fpu": None,
-        "xpulpv2": True,
+        "xpulpv2": False,
         "xpulpv3": False,
         "xcorev": False,
         # "pext_spec": 0.96,
@@ -302,8 +302,9 @@ class GvsocPulpTarget(RISCVTarget):
         gvsoc_simulating_arg.append(f"--binary={program.stem}")
         gvsoc_simulating_arg.append(f"prepare")
         gvsoc_simulating_arg.append(f"run")
-        gvsoc_simulating_arg.append(f"--trace=pe0/insn")
-        gvsoc_simulating_arg.append(f"--trace=pe1/insn")
+        # gvsoc_simulating_arg.append(f"--trace=insn")
+        # gvsoc_simulating_arg.append(f"--trace=pe0/insn")
+        # gvsoc_simulating_arg.append(f"--trace=pe1/insn")
 
         env = os.environ.copy()
         env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})

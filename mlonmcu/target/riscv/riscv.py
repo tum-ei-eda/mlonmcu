@@ -36,7 +36,7 @@ class RISCVTarget(Target):
     DEFAULTS = {
         **Target.DEFAULTS,
         "xlen": 32,
-        "extensions": ["g", "c"],
+        "extensions": ["g", "c"],  # TODO overwrite extensions elegantly
         "timeout_sec": 0,  # disabled
         "extra_args": "",
         "fpu": "double",  # allowed: none, single, double

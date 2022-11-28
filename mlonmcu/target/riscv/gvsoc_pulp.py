@@ -31,7 +31,7 @@ from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
-from .util import update_extensions
+from .util import update_extensions_pulp
 import shutil
 
 logger = get_logger()
@@ -40,7 +40,7 @@ logger = get_logger()
 class GvsocPulpTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext"]
+    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "xpulpv2", "xpulpv3", "xcorev"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -62,12 +62,18 @@ class GvsocPulpTarget(RISCVTarget):
         # "vext_spec": 1.0,
         # "embedded_vext": False,
         # "enable_pext": False,
+        "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
+        "fpu": None,
+        "xpulpv2": True,
+        "xpulpv3": False,
+        "xcorev": False,
         # "pext_spec": 0.96,
         # "vlen": 0,  # vectorization=off
         # "elen": 32,
         # "jit": None,
         # "end_to_end_cycles": False,
     }
+
     REQUIRED = RISCVTarget.REQUIRED + RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [  # TODO RISCVTarget.REQUIRED should be removed
         "gvsoc.exe",
         "pulp_freertos.support_dir",
@@ -106,6 +112,21 @@ class GvsocPulpTarget(RISCVTarget):
     @property
     def pulp_freertos_install_dir(self):
         return Path(self.config["pulp_freertos.install_dir"])
+
+    @property
+    def xpulpv2(self):
+        value = self.config["xpulpv2"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def xpulpv3(self):
+        value = self.config["xpulpv3"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def xcorev(self):
+        value = self.config["xcorev"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     # @property
     # def gdbserver_enable(self):
@@ -198,8 +219,11 @@ class GvsocPulpTarget(RISCVTarget):
     @property
     def extensions(self):
         exts = super().extensions
-        return update_extensions(
+        return update_extensions_pulp(
             exts,
+            xpulpv2=self.xpulpv2,
+            xpulpv3=self.xpulpv3,
+            xcorev=self.xcorev,
             # pext=self.enable_pext,
             # pext_spec=self.pext_spec,
             # vext=self.enable_vext,
@@ -333,10 +357,10 @@ class GvsocPulpTarget(RISCVTarget):
         ret = super().get_platform_defs(platform)
         ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = "rv32imac"
+        #ret["RISCV_ARCH"] = "rv32imcxpulpv3"
         ret["RISCV_ABI"] = "ilp32"
-        #  ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = self.pulp_gcc_prefix / 'lib'/'gcc'/'riscv32-unknown-elf'/'7.1.1'  # TODO version number should not be fixed
-        ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = pathlib.Path('/mnt/d/time_eternity/desktop_download_doc_pic_vid_music/Download/gcc_good/lib/gcc/riscv32-unknown-elf/9.2.0')  # TODO use tasks to download this folder
+        ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = self.pulp_gcc_prefix / 'lib'/'gcc'/'riscv32-unknown-elf'/'7.1.1'  # TODO version number should not be fixed
+        #  ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = pathlib.Path('/mnt/d/time_eternity/desktop_download_doc_pic_vid_music/Download/gcc_good/lib/gcc/riscv32-unknown-elf/9.2.0')  # TODO use tasks to download this folder
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start
         # ret["PULPINO_ROM_SIZE"] = self.rom_size

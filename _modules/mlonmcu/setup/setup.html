@@ -106,7 +106,7 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
-<span class="kn">from</span> <span class="nn">.tasks</span> <span class="kn">import</span> <span class="n">Tasks</span>
+<span class="kn">from</span> <span class="nn">.tasks</span> <span class="kn">import</span> <span class="n">get_task_factory</span>
 <span class="kn">from</span> <span class="nn">.task</span> <span class="kn">import</span> <span class="n">TaskGraph</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">ask_user</span>
 
@@ -126,7 +126,9 @@
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tasks_factory</span><span class="o">=</span><span class="n">Tasks</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tasks_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks_factory</span><span class="p">:</span>
+            <span class="n">tasks_factory</span> <span class="o">=</span> <span class="n">get_task_factory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">filter_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;setup&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">)</span>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.setup.tasks.tvm &mdash; ML on MCU 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.setup.tasks.tvm</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.setup.tasks.tvm</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.setup.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">get_task_factory</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+<span class="n">Tasks</span> <span class="o">=</span> <span class="n">get_task_factory</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;patch&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="s2">&quot;cmsisnn&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="clone_tvm"><a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.tvm.clone_tvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;tvm_extensions.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>  <span class="c1"># This is just a temporary workaround until the patch is hopefully upstreamed</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the TVM repository.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">patch</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">]</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">patch</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">))</span>
+    <span class="n">tvmName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">tvmSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">tvmName</span>
+    <span class="n">tvmPythonPath</span> <span class="o">=</span> <span class="n">tvmSrcDir</span> <span class="o">/</span> <span class="s2">&quot;python&quot;</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tvmSrcDir</span><span class="p">):</span>
+        <span class="n">tvmRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">tvmRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">tvmSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">tvmRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">patch</span><span class="p">:</span>
+            <span class="n">extSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm_extensions.src_dir&quot;</span><span class="p">]</span>
+            <span class="n">patchFile</span> <span class="o">=</span> <span class="n">extSrcDir</span> <span class="o">/</span> <span class="s2">&quot;tvmc_diff.patch&quot;</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">tvmSrcDir</span><span class="p">,</span> <span class="n">patchFile</span><span class="p">)</span>
+
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmSrcDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmSrcDir</span> <span class="o">/</span> <span class="s2">&quot;configs&quot;</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmPythonPath</span></div>
+
+
+<div class="viewcode-block" id="build_tvm"><a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.tvm.build_tvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.lib&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">build_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Build the TVM framework.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">],</span> <span class="s2">&quot;cmsisnn&quot;</span><span class="p">))</span>
+    <span class="n">dbg</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">])</span>
+    <span class="n">cmsisnn</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">])</span>
+    <span class="c1"># FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!</span>
+    <span class="c1"># This should help: TVM_LIBRARY_PATH -&gt; tvm.build_dir</span>
+    <span class="n">tvmName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">tvmSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">,</span> <span class="p">()]</span>  <span class="c1"># params[&quot;patch&quot;] does not affect the build</span>
+    <span class="n">tvmBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">tvmName</span>
+    <span class="n">tvmLib</span> <span class="o">=</span> <span class="n">tvmBuildDir</span> <span class="o">/</span> <span class="s2">&quot;libtvm.so&quot;</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tvmBuildDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">tvmLib</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">ninja</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
+            <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+            <span class="k">if</span> <span class="s2">&quot;tvm.make_tool&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;tvm.make_tool&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ninja&quot;</span><span class="p">:</span>
+                    <span class="n">ninja</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">tvmBuildDir</span><span class="p">)</span>
+        <span class="n">cfgFileSrc</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tvmSrcDir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;cmake&quot;</span> <span class="o">/</span> <span class="s2">&quot;config.cmake&quot;</span>
+        <span class="n">cfgFile</span> <span class="o">=</span> <span class="n">tvmBuildDir</span> <span class="o">/</span> <span class="s2">&quot;config.cmake&quot;</span>
+        <span class="n">llvmConfig</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;llvm-config&quot;</span><span class="p">)</span>
+        <span class="n">llvmConfigEscaped</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">llvmConfig</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">/&quot;</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">cfgFileSrc</span><span class="p">,</span> <span class="n">cfgFile</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+            <span class="s2">&quot;sed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;s/USE_MICRO OFF/USE_MICRO ON/g&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+            <span class="s2">&quot;sed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;s/USE_MICRO_STANDALONE_RUNTIME OFF/USE_MICRO_STANDALONE_RUNTIME ON/g&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+            <span class="s2">&quot;sed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;s/USE_LLVM \(OFF\|ON\)/USE_LLVM &quot;</span> <span class="o">+</span> <span class="n">llvmConfigEscaped</span> <span class="o">+</span> <span class="s2">&quot;/g&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">cmsisnn</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+                <span class="s2">&quot;sed&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+                <span class="sa">r</span><span class="s2">&quot;s/USE_CMSISNN \(OFF\|ON\)/USE_CMSISNN ON/g&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">cfgFile</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span><span class="n">tvmSrcDir</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">tvmBuildDir</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">dbg</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="n">ninja</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">tvmBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="n">ninja</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm.lib&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmLib</span></div>
+
+
+<span class="k">def</span> <span class="nf">_validate_tvm_extensions</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="clone_tvm_extensions"><a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.tvm.clone_tvm_extensions">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tvm_extensions.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm_extensions.wrapper&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm_extensions</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FEATURE</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone_tvm_extensions</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clone the TVM extensions repository.&quot;&quot;&quot;</span>
+    <span class="n">extName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tvm_extensions&quot;</span><span class="p">)</span>
+    <span class="n">extSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">extName</span>
+    <span class="n">extWrapper</span> <span class="o">=</span> <span class="n">extSrcDir</span> <span class="o">/</span> <span class="s2">&quot;tvmc_wrapper.py&quot;</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">extSrcDir</span><span class="p">):</span>
+        <span class="n">extRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;tvm_extensions&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">extRepo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">extSrcDir</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">extRepo</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">rebuild</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm_extensions.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extSrcDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tvm_extensions.wrapper&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extWrapper</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

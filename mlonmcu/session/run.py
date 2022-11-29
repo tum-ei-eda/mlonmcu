@@ -967,6 +967,7 @@ class Run:
             ret.update(
                 {key: value for key, value in self.config.items() if not has_prefix(key)}
             )  # Only config without a prefix!
+        ret.update(config_helper(self.model))
         for frontend in self.frontends:
             ret.update(config_helper(frontend))
         if self.backend:

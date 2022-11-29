@@ -154,13 +154,13 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size, debug_aren
             out += "shape_" + str(i) + ", "
         out += "};\n"
 
-        out += "size_t ndims[] = { "
+        out += "    size_t ndims[] = { "
         for i, t in enumerate(tensors):
             out += str(len(t.shape)) + ", "
         out += "};\n    "
 
         for i, t in enumerate(tensors):
-            out += "    static uint8_t data_" + str(i) + "[" + str(t.size) + "];\n"
+            out += "static uint8_t data_" + str(i) + "[" + str(t.size) + "];\n"
         out += "    uint8_t *data[] = { "
         for i, t in enumerate(tensors):
             out += "data_" + str(i) + ", "

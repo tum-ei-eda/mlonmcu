@@ -289,6 +289,7 @@ class Run:
     def add_model(self, model):
         """Setter for the model instance."""
         self.model = model
+        self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, [], [])
 
     def add_frontend(self, frontend):
         """Setter for the frontend instance."""
@@ -598,7 +599,11 @@ class Run:
         model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
         if not model_artifact.exported:
             model_artifact.export(self.dir)
-        self.backend.load_model(model=model_artifact.path)
+        input_shapes = self.model.input_shapes
+        output_shapes = self.model.output_shapes
+        input_types = self.model.input_types
+        output_types = self.model.output_types
+        self.backend.load_model(model=model_artifact.path, input_shapes=input_shapes, output_shapes=output_shapes, input_types=input_types, output_types=output_types)
         if self.has_stage(RunStage.TUNE):
             self.export_stage(RunStage.TUNE, optional=self.export_optional)
             if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
@@ -658,6 +663,11 @@ class Run:
                 component, name = key.split(".")[:2]
                 if self.backend is not None and component == self.backend.name:
                     self.backend.config[name] = value
+                elif component == self.model.name:
+                    # Do not overwrite user-provided shapes and types
+                    if self.model.config[name] is None:
+                        # self.model.config[name] = value
+                        self.model.config = filter_config({key: value}, self.model.name, self.model.config, [], [])
                 else:
                     for platform in self.platforms:
                         if platform is not None and component == platform.name:

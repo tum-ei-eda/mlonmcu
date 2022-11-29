@@ -21,7 +21,7 @@ import multiprocessing
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
-from .model_info import get_model_info, get_supported_formats
+from .model_info import get_model_info, get_fallback_model_info, get_supported_formats
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
     get_target_tvmc_args,
@@ -272,9 +272,12 @@ class TVMBackend(Backend):
         args = self.get_tvmc_compile_args(out)
         return self.invoke_tvmc("compile", *args, cwd=cwd)
 
-    def load_model(self, model):
+    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
         self.model = model
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
-        self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
+        if input_shapes and output_shapes and input_types and output_types:
+            self.model_format, self.model_info = get_fallback_model_info(model, input_shapes, output_shapes, input_types, output_types)
+        else:
+            self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
         self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

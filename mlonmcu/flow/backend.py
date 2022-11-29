@@ -68,7 +68,7 @@ class Backend(ABC):
         return features
 
     @abstractmethod
-    def load_model(self, model):
+    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
         pass
 
     @abstractmethod

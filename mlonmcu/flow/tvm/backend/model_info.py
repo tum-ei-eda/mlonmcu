@@ -303,5 +303,29 @@ def get_model_info(model, backend_name="unknown"):
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
 
 
+def get_fallback_model_info(model, input_shapes, output_shapes, input_types, output_types, backend_name="unknown"):
+    ext = os.path.splitext(model)[1][1:]
+    fmt = ModelFormats.from_extension(ext)
+    def helper(shapes, types):
+        return [TensorInfo(name, shape, types[name]) for name, shape in shapes.items()]
+    info = ModelInfo(
+        in_tensors = helper(input_shapes, input_types),
+        out_tensors = helper(output_shapes, output_types),
+    )
+
+    if fmt == ModelFormats.TFLITE:
+        return "tflite", info
+    elif fmt == ModelFormats.RELAY:
+        return "relay", info
+    elif fmt == ModelFormats.PB:
+        return "pb", info
+    elif fmt == ModelFormats.ONNX:
+        return "onnx", info
+    elif fmt == ModelFormats.PADDLE:
+        return "pdmodel", info
+    else:
+        raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
+
+
 def get_supported_formats():
     return [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB, ModelFormats.ONNX, ModelFormats.PADDLE]

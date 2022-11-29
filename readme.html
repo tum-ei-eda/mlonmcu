@@ -178,12 +178,15 @@ source .venv/bin/activate
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
-# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
-pip install -r ipynb/requirements.txt
+# Install minimal dependencies
+pip install -r requirements_dev.txt
 
 # Optional (only for development)
 pip install -r requirements_dev.txt
 pip install -r docs/requirements.txt
+
+# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
+pip install -r ipynb/requirements.txt
 </pre></div>
 </div>
 <p>Then you should be able to install the <code class="docutils literal notranslate"><span class="pre">mlonmcu</span></code> python package like this</p>

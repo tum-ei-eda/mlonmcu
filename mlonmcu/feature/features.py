@@ -1359,8 +1359,8 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "nopostmod": True,
-        "novect": True,
+        "nopostmod": False,
+        "novect": False,
     }
 
     REQUIRED = [
@@ -1375,14 +1375,19 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
     def nopostmod(self):
         return str2bool(self.config["nopostmod"]) if isinstance(self.config["nopostmod"], str) else self.config["nopostmod"]
 
+    @property
+    def novect(self):
+        return str2bool(self.config["novect"]) if isinstance(self.config["novect"], str) else self.config["novect"]
+
     def get_platform_defs(self, platform):
-        # The following create flags for gcc
-        # example     self.DEFAULTS={"enabled":True "a": True, "b": True}
-        #         ==> EXTRA_FLAGS = "-ma -mb"
+        # The following create EXTRA_FLAGS (type is str) for gcc
+        # example
+        # {"nopostmod": True, "novect": True, ...} ==> EXTRA_FLAGS = "-mnopostmod -mnovect ..."
         EXTRA_FLAGS = ""
-        for key, value in self.DEFAULTS.items():
-            if value==True and key!="enabled":
-                EXTRA_FLAGS = EXTRA_FLAGS + " -m" + key # string append
+        if self.nopostmod:
+            EXTRA_FLAGS += " -mnopostmod"
+        if self.novect:
+            EXTRA_FLAGS += " -mnovect"
         EXTRA_FLAGS = "\'" + EXTRA_FLAGS.strip() + "\'"
         return {
             # EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake

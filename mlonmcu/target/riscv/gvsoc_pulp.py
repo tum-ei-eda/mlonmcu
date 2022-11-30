@@ -64,7 +64,7 @@ class GvsocPulpTarget(RISCVTarget):
         # "enable_pext": False,
         "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
         "fpu": None,
-        "xpulpv2": False,
+        "xpulpv2": True,
         "xpulpv3": False,
         "xcorev": False,
         # "pext_spec": 0.96,

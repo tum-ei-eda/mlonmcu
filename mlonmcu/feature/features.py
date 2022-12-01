@@ -1359,8 +1359,13 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
+        "xpulp_version": 2,
         "nopostmod": False,
         "novect": False,
+
+        "nohwloop": False,
+        "hwloopmin": None,
+        "hwloopalign": False,
     }
 
     REQUIRED = [
@@ -1372,12 +1377,31 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
         super().__init__("xpulp", features=features, config=config)
 
     @property
+    def xpulp_version(self):
+        value = self.config["xpulp_version"]
+        value = int(value) if not isinstance(value, int) else value  # convert to int
+        assert value in [None, 2, 3], f"xpulp_version must be None, 2 or 3, but get {value}"
+        return value
+
+    @property
     def nopostmod(self):
         return str2bool(self.config["nopostmod"]) if isinstance(self.config["nopostmod"], str) else self.config["nopostmod"]
 
     @property
     def novect(self):
         return str2bool(self.config["novect"]) if isinstance(self.config["novect"], str) else self.config["novect"]
+
+    @property
+    def nohwloop(self):
+        return str2bool(self.config["nohwloop"]) if isinstance(self.config["nohwloop"], str) else self.config["nohwloop"]
+
+    @property
+    def hwloopmin(self):
+        return int(self.config["hwloopmin"]) if isinstance(self.config["hwloopmin"], str) else self.config["hwloopmin"]
+
+    @property
+    def hwloopalign(self):
+        return str2bool(self.config["hwloopalign"]) if isinstance(self.config["hwloopalign"], str) else self.config["nohwloop"]
 
     def get_platform_defs(self, platform):
         # The following create EXTRA_FLAGS (type is str) for gcc
@@ -1388,6 +1412,12 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
             EXTRA_FLAGS += " -mnopostmod"
         if self.novect:
             EXTRA_FLAGS += " -mnovect"
+        if self.nohwloop:
+            EXTRA_FLAGS += " -mnohwloop"
+        if self.hwloopmin:
+            EXTRA_FLAGS += f" -mhwloopmin={self.hwloopmin}"
+        if self.hwloopalign:
+            EXTRA_FLAGS += " -mhwloopalign"
         EXTRA_FLAGS = "\'" + EXTRA_FLAGS.strip() + "\'"
         return {
             # EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
@@ -1395,3 +1425,10 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
             # EXTRA_CMAKE_CXX_FLAGS will be directly append to CMAKE_CXX_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
             "EXTRA_CMAKE_CXX_FLAGS": EXTRA_FLAGS,
         }
+
+    def get_target_config(self, target):
+        return filter_none(
+            {
+                f"{target}.xpulp_version": self.xpulp_version
+            }
+        )

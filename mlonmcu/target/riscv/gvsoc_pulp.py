@@ -40,7 +40,7 @@ logger = get_logger()
 class GvsocPulpTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "xpulp", "xpulpv2", "xpulpv3", "xcorev"]
+    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "xpulp"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -64,9 +64,7 @@ class GvsocPulpTarget(RISCVTarget):
         # "enable_pext": False,
         "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
         "fpu": None,
-        "xpulpv2": True,
-        "xpulpv3": False,
-        "xcorev": False,
+        "xpulp_version": None,  # None means that xpulp extension is not used
         # "pext_spec": 0.96,
         # "vlen": 0,  # vectorization=off
         # "elen": 32,
@@ -114,19 +112,9 @@ class GvsocPulpTarget(RISCVTarget):
         return Path(self.config["pulp_freertos.install_dir"])
 
     @property
-    def xpulpv2(self):
-        value = self.config["xpulpv2"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def xpulpv3(self):
-        value = self.config["xpulpv3"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def xcorev(self):
-        value = self.config["xcorev"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+    def xpulp_version(self):
+        value = self.config["xpulp_version"]
+        return value
 
     # @property
     # def gdbserver_enable(self):
@@ -221,16 +209,7 @@ class GvsocPulpTarget(RISCVTarget):
         exts = super().extensions
         return update_extensions_pulp(
             exts,
-            xpulpv2=self.xpulpv2,
-            xpulpv3=self.xpulpv3,
-            xcorev=self.xcorev,
-            # pext=self.enable_pext,
-            # pext_spec=self.pext_spec,
-            # vext=self.enable_vext,
-            # elen=self.elen,
-            # embedded=self.embedded_vext,
-            # fpu=self.fpu,
-            # variant=self.gcc_variant,
+            xpulp_version = self.xpulp_version
         )
 
     # @property

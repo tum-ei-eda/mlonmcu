@@ -125,12 +125,8 @@ def update_extensions(exts, pext=None, pext_spec=None, vext=None, elen=None, emb
     return ret
 
 
-def update_extensions_pulp(exts, xpulpv2=None, xpulpv3=None, xcorev=None):
+def update_extensions_pulp(exts, xpulp_version):
     ret = exts.copy()
-    if xpulpv2:
-        ret.append("xpulpv2")
-    if xpulpv3:
-        ret.append("xpulpv3")
-    if xcorev:
-        ret.append("xcorev")
+    if xpulp_version:
+        ret.append(f"xpulpv{xpulp_version}")
     return ret

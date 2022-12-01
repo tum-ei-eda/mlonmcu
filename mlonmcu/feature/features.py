@@ -1442,17 +1442,19 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
         dict2 = {"f": 3, "b": "world", "c": [4, 5, 6]}
         ==>
         dict1 = {"a": 1, "b": "hello world", "c": [1, 2, 3, 4, 5, 6], "f":3}
+        Here "hello" and "world" are merged as two string join.
+        Here [1,2,3] and [4,5,6] are merged as list addition
         Example 2:
         dict1 = {"a": 1}
         dict2 = {"a": 3}
         ==>
-        raise Error
+        raise RuntimeError: The method to merge a: 1 and a: 3 is not defined
         """
         for key in dict2.keys():
             if key in dict1.keys():
                 dict1_value = dict1[key]
                 dict2_value = dict2[key]
-                if isinstance(dict1_value, (str, list, dict)) and type(dict1_value) == type(dict2_value):
+                if isinstance(dict1_value, (str, list)) and type(dict1_value) == type(dict2_value):
                     if isinstance(dict1_value, str):
                         dict1[key] = dict1_value + " " + dict2_value
                     else:

@@ -65,6 +65,7 @@ class GvsocPulpTarget(RISCVTarget):
         "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
         "fpu": None,
         "xpulp_version": None,  # None means that xpulp extension is not used
+        "model": "pulp",
         # "pext_spec": 0.96,
         # "vlen": 0,  # vectorization=off
         # "elen": 32,
@@ -114,6 +115,11 @@ class GvsocPulpTarget(RISCVTarget):
     @property
     def pulp_freertos_install_dir(self):
         return Path(self.config["pulp_freertos.install_dir"])
+
+    @property
+    def model(self):
+        assert self.config["model"] in ["pulp", "pulpissimo"]
+        return self.config["model"]
 
     @property
     def xpulp_version(self):
@@ -245,9 +251,6 @@ class GvsocPulpTarget(RISCVTarget):
             os.makedirs(gvsimDir)
         shutil.copyfile(program, gvsimDir / program.stem)
 
-        # for debug
-        kwargs["live"] = True
-
         # prepare simulation by compile gvsoc according to the chosen archi
         gvsoc_compile_args = []
         gvsoc_compile_args.append(f"build")
@@ -331,7 +334,10 @@ class GvsocPulpTarget(RISCVTarget):
         return metrics, out, []
 
     def get_target_system(self):
-        return self.name
+        if self.model == "pulp":
+            return "gvsoc_pulp"
+        if self.model == "pulpissimo":
+            return "gvsoc_pulpissimo"
 
     def get_platform_defs(self, platform):
         assert platform == "mlif"
@@ -343,7 +349,6 @@ class GvsocPulpTarget(RISCVTarget):
         ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = (
             self.pulp_gcc_prefix / "lib" / "gcc" / "riscv32-unknown-elf" / "7.1.1"
         )  # TODO version number should not be fixed
-        #  ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = pathlib.Path('/mnt/d/time_eternity/desktop_download_doc_pic_vid_music/Download/gcc_good/lib/gcc/riscv32-unknown-elf/9.2.0')  # TODO use tasks to download this folder
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start
         # ret["PULPINO_ROM_SIZE"] = self.rom_size

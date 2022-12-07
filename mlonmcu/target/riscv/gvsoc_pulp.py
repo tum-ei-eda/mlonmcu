@@ -23,7 +23,6 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
@@ -35,9 +34,9 @@ logger = get_logger()
 
 
 class GvsocPulpTarget(RISCVTarget):
-    """Target using a Pulpino-like VP running in the ETISS simulator"""
+    """Target using a Pulpino-like VP running in the GVSOC simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "xpulp"]
+    FEATURES = RISCVTarget.FEATURES + ["log_instrs", "xpulp"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -45,11 +44,12 @@ class GvsocPulpTarget(RISCVTarget):
         # "gdbserver_attach": False,
         # "gdbserver_port": 2222,
         # "debug_etiss": False,
-        "trace_memory": False,
+        # "trace_memory": False,
         # "plugins": ["PrintInstruction"],
         # "plugins": [],
         # "verbose": False,
         "cpu_arch": None,
+        "mabi": "ilp32",
         # "rom_start": 0x0,
         # "rom_size": 0x800000,  # 8 MB
         # "ram_start": 0x800000,
@@ -123,6 +123,11 @@ class GvsocPulpTarget(RISCVTarget):
         value = self.config["xpulp_version"]
         return value
 
+    @property
+    def mabi(self):
+        value = self.config["mabi"]
+        return value
+
     # @property
     # def gdbserver_enable(self):
     #     value = self.config["gdbserver_enable"]
@@ -142,10 +147,10 @@ class GvsocPulpTarget(RISCVTarget):
     #     value = self.config["debug_etiss"]
     #     return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    @property
-    def trace_memory(self):
-        value = self.config["trace_memory"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+    # @property
+    # def trace_memory(self):
+    #     value = self.config["trace_memory"]
+    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     # @property
     # def plugins(self):
@@ -345,7 +350,7 @@ class GvsocPulpTarget(RISCVTarget):
         ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
         # ret["RISCV_ARCH"] = "rv32imcxpulpv3"
-        ret["RISCV_ABI"] = "ilp32"
+        ret["RISCV_ABI"] = self.mabi
 
         # The commented code below attempted to use the GCC low-level runtime library (libgcc) come with the pulp-gcc
         # ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = (
@@ -371,15 +376,8 @@ class GvsocPulpTarget(RISCVTarget):
     def get_backend_config(self, backend):
         ret = super().get_backend_config(backend)
         if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update({"target_model": "etissvp"})
-            if self.enable_pext or self.enable_vext:
-                ret.update(
-                    {
-                        # Warning: passing kernel layouts does not work with upstream TVM
-                        # TODO: allow passing map?
-                        "desired_layout": "NHWC:HWOI",
-                    }
-                )
+            ret.update({"target_model": "gvsoc_pulp"})
+            ret.update({"target_mabi": self.mabi})
         return ret
 
 

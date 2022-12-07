@@ -226,7 +226,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 value = "ON" if value else "OFF"
             cmakeArgs.append(f"-D{key}={value}")
         cmakeArgs.extend(self.get_common_cmake_args())
-        cmakeArgs.append(f"-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")  # TODO for debug, should be removed
+        cmakeArgs.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")  # TODO for debug, should be removed
         if self.model_support_dir:
             cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
         else:

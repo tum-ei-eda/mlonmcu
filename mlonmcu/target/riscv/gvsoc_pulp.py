@@ -19,14 +19,11 @@
 """MLonMCU ETISS/Pulpino Target definitions"""
 
 import os
-import pathlib
 import re
-import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
-from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
@@ -253,7 +250,7 @@ class GvsocPulpTarget(RISCVTarget):
 
         # prepare simulation by compile gvsoc according to the chosen archi
         gvsoc_compile_args = []
-        gvsoc_compile_args.append(f"build")
+        gvsoc_compile_args.append("build")
         gvsoc_compile_args.append(f"ARCHI_DIR={self.pulp_freertos_support_dir / 'archi' / 'include'}")
 
         env = os.environ.copy()
@@ -280,20 +277,17 @@ class GvsocPulpTarget(RISCVTarget):
 
         gvsoc_simulating_arg = []
         gvsoc_simulating_arg.append(f"--dir={gvsimDir}")
-        gvsoc_simulating_arg.append(f"--config-file=pulp@config_file=chips/pulp/pulp.json")
-        gvsoc_simulating_arg.append(f"--platform=gvsoc")
+        gvsoc_simulating_arg.append("--config-file=pulp@config_file=chips/pulp/pulp.json")
+        gvsoc_simulating_arg.append("--platform=gvsoc")
         gvsoc_simulating_arg.append(f"--binary={program.stem}")
-        gvsoc_simulating_arg.append(f"prepare")
-        gvsoc_simulating_arg.append(f"run")
+        gvsoc_simulating_arg.append("prepare")
+        gvsoc_simulating_arg.append("run")
         if len(self.extra_args) > 0:
             if isinstance(self.extra_args, str):
                 extra_args = self.extra_args.split(" ")
             else:
                 extra_args = self.extra_args
             gvsoc_simulating_arg.extend(extra_args)
-        # gvsoc_simulating_arg.append(f"--trace=insn")
-        # gvsoc_simulating_arg.append(f"--trace=pe0/insn")
-        # gvsoc_simulating_arg.append(f"--trace=pe1/insn")
 
         env = os.environ.copy()
         env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
@@ -352,9 +346,12 @@ class GvsocPulpTarget(RISCVTarget):
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
         # ret["RISCV_ARCH"] = "rv32imcxpulpv3"
         ret["RISCV_ABI"] = "ilp32"
-        ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = (
-            self.pulp_gcc_prefix / "lib" / "gcc" / "riscv32-unknown-elf" / "7.1.1"
-        )  # TODO version number should not be fixed
+
+        # The commented code below attempted to use the GCC low-level runtime library (libgcc) come with the pulp-gcc
+        # ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = (
+        #     self.pulp_gcc_prefix / "lib" / "gcc" / "riscv32-unknown-elf" / "7.1.1"
+        # )  # version number should not be fixed
+
         # ret["ETISS_DIR"] = self.etiss_dir
         # ret["PULPINO_ROM_START"] = self.rom_start
         # ret["PULPINO_ROM_SIZE"] = self.rom_size

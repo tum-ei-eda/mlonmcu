@@ -1019,7 +1019,7 @@ class LogInstructions(TargetFeature):
             if self.to_file:
                 extra_args_new.append(f"--trace=insn:{target}_instrs.log")
             else:
-                extra_args_new.append(f"--trace=insn")
+                extra_args_new.append("--trace=insn")
             config.update({f"{target}.extra_args": extra_args_new})
 
     def get_target_callbacks(self, target):
@@ -1027,11 +1027,12 @@ class LogInstructions(TargetFeature):
             "spike",
             "etiss_pulpino",
             "ovpsim",
-            "gvsoc_pulp"
+            "gvsoc_pulp",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
             if not target == "gvsoc_pulp":
+
                 def log_instrs_callback(stdout, metrics, artifacts):
                     """Callback which parses the targets output and updates the generated metrics and artifacts."""
                     new_lines = []
@@ -1065,6 +1066,7 @@ class LogInstructions(TargetFeature):
 
                 return None, log_instrs_callback
         return None, None
+
 
 @register_feature("arm_mvei")
 class ArmMvei(SetupFeature, TargetFeature, PlatformFeature):

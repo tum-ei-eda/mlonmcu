@@ -285,6 +285,12 @@ class GvsocPulpTarget(RISCVTarget):
         gvsoc_simulating_arg.append(f"--binary={program.stem}")
         gvsoc_simulating_arg.append(f"prepare")
         gvsoc_simulating_arg.append(f"run")
+        if len(self.extra_args) > 0:
+            if isinstance(self.extra_args, str):
+                extra_args = self.extra_args.split(" ")
+            else:
+                extra_args = self.extra_args
+            gvsoc_simulating_arg.extend(extra_args)
         # gvsoc_simulating_arg.append(f"--trace=insn")
         # gvsoc_simulating_arg.append(f"--trace=pe0/insn")
         # gvsoc_simulating_arg.append(f"--trace=pe1/insn")

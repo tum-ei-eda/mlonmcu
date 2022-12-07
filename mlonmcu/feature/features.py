@@ -995,7 +995,7 @@ class LogInstructions(TargetFeature):
         return bool(self.config["to_file"]) if self.config["to_file"] is not None else None
 
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "ovpsim"]
+        assert target in ["spike", "etiss_pulpino", "ovpsim", "gvsoc_pulp"]
         if not self.enabled:
             return
         if target == "spike":
@@ -1014,48 +1014,57 @@ class LogInstructions(TargetFeature):
             # if self.to_file:
             #    extra_args_new.append("--tracefile")
             config.update({f"{target}.extra_args": extra_args_new})
+        elif target == "gvsoc_pulp":
+            extra_args_new = config.get("extra_args", [])
+            if self.to_file:
+                extra_args_new.append(f"--trace=insn:{target}_instrs.log")
+            else:
+                extra_args_new.append(f"--trace=insn")
+            config.update({f"{target}.extra_args": extra_args_new})
 
     def get_target_callbacks(self, target):
         assert target in [
             "spike",
             "etiss_pulpino",
             "ovpsim",
+            "gvsoc_pulp"
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
-            def log_instrs_callback(stdout, metrics, artifacts):
-                """Callback which parses the targets output and updates the generated metrics and artifacts."""
-                new_lines = []
-                if self.to_file:
-                    # TODO: update stdout and remove log_instrs lines
-                    instrs = []
-                    for line in stdout.split("\n"):
-                        if target == "etiss_pulpino":
-                            expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
-                        elif target == "spike":
-                            expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
-                        elif target == "ovpsim":
-                            expr = re.compile(
-                                r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
-                            )
-                        match = expr.match(line)
-                        if match is not None:
-                            instrs.append(line)
-                        else:
-                            new_lines.append(line)
-                    instrs_artifact = Artifact(
-                        f"{target}_instrs.log",
-                        content="\n".join(instrs),
-                        fmt=ArtifactFormat.TEXT,
-                        flags=(self.name, target),
-                    )
-                    artifacts.append(instrs_artifact)
-                    return "\n".join(new_lines)
-                else:
-                    return stdout
+            if not target == "gvsoc_pulp":
+                def log_instrs_callback(stdout, metrics, artifacts):
+                    """Callback which parses the targets output and updates the generated metrics and artifacts."""
+                    new_lines = []
+                    if self.to_file:
+                        # TODO: update stdout and remove log_instrs lines
+                        instrs = []
+                        for line in stdout.split("\n"):
+                            if target == "etiss_pulpino":
+                                expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
+                            elif target == "spike":
+                                expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
+                            elif target == "ovpsim":
+                                expr = re.compile(
+                                    r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
+                                )
+                            match = expr.match(line)
+                            if match is not None:
+                                instrs.append(line)
+                            else:
+                                new_lines.append(line)
+                        instrs_artifact = Artifact(
+                            f"{target}_instrs.log",
+                            content="\n".join(instrs),
+                            fmt=ArtifactFormat.TEXT,
+                            flags=(self.name, target),
+                        )
+                        artifacts.append(instrs_artifact)
+                        return "\n".join(new_lines)
+                    else:
+                        return stdout
 
-            return None, log_instrs_callback
-
+                return None, log_instrs_callback
+        return None, None
 
 @register_feature("arm_mvei")
 class ArmMvei(SetupFeature, TargetFeature, PlatformFeature):

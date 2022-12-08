@@ -49,7 +49,7 @@ class GvsocPulpTarget(RISCVTarget):
         # "plugins": [],
         # "verbose": False,
         "cpu_arch": None,
-        "mabi": "ilp32",
+        "abi": "ilp32",
         # "rom_start": 0x0,
         # "rom_size": 0x800000,  # 8 MB
         # "ram_start": 0x800000,
@@ -124,8 +124,8 @@ class GvsocPulpTarget(RISCVTarget):
         return value
 
     @property
-    def mabi(self):
-        value = self.config["mabi"]
+    def abi(self):
+        value = self.config["abi"]
         return value
 
     # @property
@@ -350,7 +350,7 @@ class GvsocPulpTarget(RISCVTarget):
         ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
         ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
         # ret["RISCV_ARCH"] = "rv32imcxpulpv3"
-        ret["RISCV_ABI"] = self.mabi
+        ret["RISCV_ABI"] = self.abi
 
         # The commented code below attempted to use the GCC low-level runtime library (libgcc) come with the pulp-gcc
         # ret["GCC_LOW_LEVEL_RUNTIME_LIB_DIR_PREFIX"] = (
@@ -377,7 +377,7 @@ class GvsocPulpTarget(RISCVTarget):
         ret = super().get_backend_config(backend)
         if backend in SUPPORTED_TVM_BACKENDS:
             ret.update({"target_model": "gvsoc_pulp"})
-            ret.update({"target_mabi": self.mabi})
+            ret.update({"target_mabi": self.abi})
         return ret
 
 

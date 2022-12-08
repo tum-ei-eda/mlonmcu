@@ -48,7 +48,7 @@ class GvsocPulpTarget(RISCVTarget):
         # "plugins": ["PrintInstruction"],
         # "plugins": [],
         # "verbose": False,
-        "cpu_arch": None,
+        # "cpu_arch": None,
         "abi": "ilp32",
         # "rom_start": 0x0,
         # "rom_size": 0x800000,  # 8 MB
@@ -70,28 +70,16 @@ class GvsocPulpTarget(RISCVTarget):
         # "end_to_end_cycles": False,
     }
 
-    REQUIRED = (
-        RISCVTarget.REQUIRED
-        + RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED
-        + [  # TODO RISCVTarget.REQUIRED should be removed
-            "gvsoc.exe",
-            "pulp_freertos.support_dir",
-            "pulp_freertos.config_dir",
-            "pulp_freertos.install_dir",
-        ]
-    )
+    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [
+        "gvsoc.exe",
+        "pulp_freertos.support_dir",
+        "pulp_freertos.config_dir",
+        "pulp_freertos.install_dir",
+    ]
 
     def __init__(self, name="gvsoc_pulp", features=None, config=None):
         super().__init__(name, features=features, config=config)
         # self.metrics_script = Path(self.etiss_src_dir) / "src" / "bare_etiss_processor" / "get_metrics.py"
-
-    @property
-    def pulp_gcc_prefix(self):
-        return Path(self.config["pulp_gcc.install_dir"])
-
-    @property
-    def pulp_gcc_basename(self):
-        return Path(self.config["pulp_gcc.name"])
 
     @property
     def gvsoc_script(self):
@@ -185,14 +173,14 @@ class GvsocPulpTarget(RISCVTarget):
     # def cycle_time_ps(self):
     #     return int(self.config["cycle_time_ps"])
 
-    @property
-    def cpu_arch(self):
-        if self.config.get("cpu_arch", None):
-            return self.config["cpu_arch"]
-        # elif self.enable_pext or self.enable_vext:
-        #     return "RV32IMACFDPV"
-        # else:
-        #     return "RV32IMACFD"
+    # @property
+    # def cpu_arch(self):
+    #     if self.config.get("cpu_arch", None):
+    #         return self.config["cpu_arch"]
+    #     elif self.enable_pext or self.enable_vext:
+    #         return "RV32IMACFDPV"
+    #     else:
+    #         return "RV32IMACFD"
 
     # @property
     # def enable_vext(self):
@@ -347,8 +335,6 @@ class GvsocPulpTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         assert platform == "mlif"
         ret = super().get_platform_defs(platform)
-        ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
-        ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
         # ret["RISCV_ARCH"] = "rv32imcxpulpv3"
         ret["RISCV_ABI"] = self.abi
 

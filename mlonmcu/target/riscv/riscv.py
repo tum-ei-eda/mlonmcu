@@ -57,6 +57,14 @@ class RISCVTarget(Target):
         return Path(self.config["riscv_gcc.name"])
 
     @property
+    def pulp_gcc_prefix(self):
+        return Path(self.config["pulp_gcc.install_dir"])
+
+    @property
+    def pulp_gcc_basename(self):
+        return Path(self.config["pulp_gcc.name"])
+
+    @property
     def gcc_variant(self):
         return self.config["riscv_gcc.variant"]
 
@@ -149,8 +157,12 @@ class RISCVTarget(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix  # two toolchains problem should be handled
-        ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename  # two toolchains problem should be handled
+        if "riscv_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the riscv_gcc toolchain
+            ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
+            ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
+        elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
+            ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
+            ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
         ret["RISCV_ARCH"] = self.arch
         ret["RISCV_ABI"] = self.abi
         ret["RISCV_ATTR"] = self.attr  # TODO: use for clang

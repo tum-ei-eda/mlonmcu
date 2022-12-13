@@ -194,10 +194,7 @@ class GvsocPulpTarget(RISCVTarget):
         return metrics, out, []
 
     def get_target_system(self):
-        if self.model == "pulp":
-            return "gvsoc_pulp"
-        if self.model == "pulpissimo":
-            return "gvsoc_pulpissimo"
+        return f"gvsoc_{self.model}"
 
     def get_platform_defs(self, platform):
         assert platform == "mlif"

@@ -1018,6 +1018,18 @@ class LogInstructions(TargetFeature):
             extra_args_new = config.get("extra_args", [])
             if self.to_file:
                 extra_args_new.append(f"--trace=insn:{target}_instrs.log")
+                """
+                TODO: The above code will generate a instruction log.
+                But it will not be recorded by Artifact (which should be done in get_target_callbacks).
+                The code to let it be recorded by Artifact is currently not added because of the following reasons:
+                1. This feature is rarely used.
+                2. GVSOC can directly write the instruction log into a file which should be much faster than
+                read/write from the output. This makes GVSOC special and difficult to be adapted in the current
+                code.
+                3. This difficulty reflected in that the methods add_target_config and get_target_callbacks should
+                have a consensus about where in the system file system the instruction log is written to and can be
+                read from. This is not feasible in current code and the realization requires a workaround.
+                """
             else:
                 extra_args_new.append("--trace=insn")
             config.update({f"{target}.extra_args": extra_args_new})
@@ -1405,11 +1417,11 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
     # every key in DEFAULTS should in principle have a getter function with the same name as the key
     # These getter functions will be stored in getter_functions array.
     # Default getter function for the keys whose corresponding value has bool type:
-    # def getter_bool(key_name):
+    # def getter_bool(self, key_name):
     #    return self.generalized_str2bool(self.config[key_name])
     # Default getter function for the keys whose corresponding value has int type:
-    # def getter_int(self):
-    #    return int(self.config["<key>"])
+    # def getter_int(self, key_name):
+    #    return int(self.config["<key_name>"])
     # No default, i.e. customized getter functions are defined separately
 
     # Default getter functions:

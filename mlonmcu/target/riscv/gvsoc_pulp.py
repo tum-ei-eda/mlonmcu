@@ -165,13 +165,17 @@ class GvsocPulpTarget(RISCVTarget):
 
     def parse_stdout(self, out):
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-        cpu_instructions = re.search(r"Total Instructions: (.*)", out)
         if not cpu_cycles:
             logger.warning("unexpected script output (cycles)")
-            logger.warning("unexpected script output (instructions)")
             cycles = None
         else:
             cycles = int(float(cpu_cycles.group(1)))
+
+        cpu_instructions = re.search(r"Total Instructions: (.*)", out)
+        if not cpu_instructions:
+            logger.warning("unexpected script output (instructions)")
+            cpu_instructions = None
+        else:
             instructions = int(float(cpu_instructions.group(1)))
         return cycles, instructions
 

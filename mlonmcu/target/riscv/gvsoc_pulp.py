@@ -97,7 +97,6 @@ class GvsocPulpTarget(RISCVTarget):
         exts = super().extensions
         return update_extensions_pulp(exts, xpulp_version=self.xpulp_version)
 
-    @property
     def gvsoc_preparation_env(self):
         return {
             "PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix),
@@ -108,6 +107,16 @@ class GvsocPulpTarget(RISCVTarget):
             "ARCHI_DIR": str(self.pulp_freertos_support_dir / "archi" / "include"),
             "SUPPORT_ROOT": str(self.pulp_freertos_support_dir),
         }
+
+    def get_basic_gvsoc_simulating_arg(self, program):
+        gvsoc_simulating_arg = []
+        gvsoc_simulating_arg.append(f"--dir={program.parent / 'gvsim'}")
+        gvsoc_simulating_arg.append("--config-file=pulp@config_file=chips/pulp/pulp.json")
+        gvsoc_simulating_arg.append("--platform=gvsoc")
+        gvsoc_simulating_arg.append(f"--binary={program.stem}")
+        gvsoc_simulating_arg.append("prepare")
+        gvsoc_simulating_arg.append("run")
+        return gvsoc_simulating_arg
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute an executable with given arguments"""
@@ -122,7 +131,7 @@ class GvsocPulpTarget(RISCVTarget):
         gvsoc_compile_args.append(f"ARCHI_DIR={self.pulp_freertos_support_dir / 'archi' / 'include'}")
 
         env = os.environ.copy()
-        env.update(self.gvsoc_preparation_env)
+        env.update(self.gvsoc_preparation_env())
 
         gvsoc_compile_retval = execute(
             "make",
@@ -133,13 +142,8 @@ class GvsocPulpTarget(RISCVTarget):
             **kwargs,
         )
 
-        gvsoc_simulating_arg = []
-        gvsoc_simulating_arg.append(f"--dir={gvsimDir}")
-        gvsoc_simulating_arg.append("--config-file=pulp@config_file=chips/pulp/pulp.json")
-        gvsoc_simulating_arg.append("--platform=gvsoc")
-        gvsoc_simulating_arg.append(f"--binary={program.stem}")
-        gvsoc_simulating_arg.append("prepare")
-        gvsoc_simulating_arg.append("run")
+        # run simulation
+        gvsoc_simulating_arg = self.get_basic_gvsoc_simulating_arg(program)
         if len(self.extra_args) > 0:
             if isinstance(self.extra_args, str):
                 extra_args = self.extra_args.split(" ")
@@ -147,7 +151,6 @@ class GvsocPulpTarget(RISCVTarget):
                 extra_args = self.extra_args
             gvsoc_simulating_arg.extend(extra_args)
 
-        # run simulation
         env = os.environ.copy()
         env.update({"PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix)})
         simulation_retval = execute(

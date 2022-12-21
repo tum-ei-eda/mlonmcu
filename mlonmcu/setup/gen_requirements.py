@@ -67,11 +67,13 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "GitPython",
                 "Pillow",  # convert data
                 "filelock",
+                "humanize",
                 "jinja2",
                 "networkx",
                 "numpy",
                 "openpyxl",  # xlsx reports
                 "pandas",
+                "pyelftools",
                 "pyyaml",
                 "tqdm",
                 "xdg",

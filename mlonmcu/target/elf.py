@@ -23,7 +23,6 @@
 # import sys
 import csv
 import argparse
-import humanize
 from elftools.elf import elffile
 
 from mlonmcu.logging import get_logger
@@ -169,6 +168,7 @@ def printSz(sz, unknown_msg=""):
     """Helper function for printing file sizes."""
     if sz is None:
         return f"unknown [{unknown_msg}]" if unknown_msg else "unknown"
+    import humanize
     return humanize.naturalsize(sz) + " (" + hex(sz) + ")"
 
 

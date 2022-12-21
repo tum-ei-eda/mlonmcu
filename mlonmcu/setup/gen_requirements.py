@@ -99,6 +99,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "itsdangerous",  # there are two espidf in origin requirements.txt this is from the 2nd
                 "jinja2",  # there are two espidf in origin requirements.txt this is from the 2nd
                 "kconfiglib",
+                "psutil",
                 "pygdbmi",
                 "pyparsing",
                 "pyserial",  # for custom monitor

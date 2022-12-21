@@ -27,7 +27,6 @@ import subprocess
 from pathlib import Path
 import pkg_resources
 
-import psutil
 
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -341,6 +340,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             return ""
 
         if self.use_idf_monitor:
+            import psutil
 
             def _kill_monitor():
                 for proc in psutil.process_iter():

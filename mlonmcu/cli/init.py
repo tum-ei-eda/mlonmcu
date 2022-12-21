@@ -20,7 +20,7 @@
 
 import os
 
-from mlonmcu.environment.templates import get_template_names
+from mlonmcu.environment.templates import get_environment_template_names
 from mlonmcu.environment.config import get_environments_dir, DEFAULTS
 from mlonmcu.environment.init import initialize_environment
 
@@ -45,7 +45,7 @@ def add_init_options(parser):
         # choices=get_template_names(),
         default=DEFAULTS["template"],
         help="Environment template name or path (default: %(default)s, available: "
-        + ", ".join(get_template_names())
+        + ", ".join(get_environment_template_names())
         + ")",
     )
     init_parser.add_argument(

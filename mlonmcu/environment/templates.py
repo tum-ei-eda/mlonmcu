@@ -28,12 +28,18 @@ from .config import get_config_dir
 
 def get_template_names():
     template_files = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "templates"))
-    names = [name.split(".yml.j2")[0] for name in template_files]
+    names = [name.split(".j2")[0] for name in template_files]
+    return names
+
+
+def get_environment_template_names():
+    temp = get_template_names()
+    names = [name.split(".yml")[0] for name in temp]
     return names
 
 
 def get_template_text(name):
-    return pkgutil.get_data("mlonmcu", os.path.join("..", "resources", "templates", name + ".yml.j2"))
+    return pkgutil.get_data("mlonmcu", os.path.join("..", "resources", "templates", name + ".j2"))
 
 
 def fill_template(name, data={}):
@@ -56,10 +62,15 @@ def fill_template(name, data={}):
 
 
 def fill_environment_yaml(template_name, home_dir):
-    return fill_template(template_name, {"home_dir": str(home_dir), "config_dir": str(get_config_dir())})
+    return fill_template(f"{template_name}.yml", {"home_dir": str(home_dir), "config_dir": str(get_config_dir())})
 
 
 def write_environment_yaml_from_template(path, template_name, home_dir):
     with open(path, "w") as yaml:
         text = fill_environment_yaml(template_name, home_dir)
+        yaml.write(text)
+
+def write_activate_from_template(path, home_dir):
+    with open(path, "w") as yaml:
+        text = fill_template("activate", {"home_dir": home_dir})
         yaml.write(text)

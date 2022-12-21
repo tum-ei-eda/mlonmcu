@@ -30,7 +30,7 @@ from .config import (
     DEFAULTS,
     init_config_dir,
 )
-from .templates import write_environment_yaml_from_template
+from .templates import write_environment_yaml_from_template, write_activate_from_template
 from mlonmcu.utils import in_virtualenv, ask_user
 from mlonmcu.logging import get_logger
 
@@ -52,13 +52,19 @@ def clone_models_repo(
     git.Repo.clone_from(url, dest)
 
 
-def create_venv_directory(base, hidden=True):
+def create_venv_directory(base, hidden=False):
     if not isinstance(base, Path):
         base = Path(base)
     dirname = ".venv" if hidden else "venv"
     venv_dir = base / dirname
     venv.create(venv_dir)
+    dest = os.path.join(base, "activate")
+    write_activate_from_template(dest, home_dir=base)
     print(f"Virtual environment was created in {venv_dir}. Make sure to activate it before using mlonmcu.")
+    print(f"Example: source {dest}")
+    # TODO: pip install mlonmcu (CURRENT VERSION! IF DEV DETECTED, FIND setup.py instead)
+    # TODO: mlonmcu setup -g
+    # TODO: pip install -r
 
 
 def initialize_environment(
@@ -132,7 +138,6 @@ def initialize_environment(
         if not in_virtualenv():
             print("It is strongly recommended to use mlonmcu inside a virtual Python environment.")
             if ask_user("Create one automatically?", default=False, interactive=interactive):
-                # TODO: create venv
                 create_venv_directory(target_dir)
         else:
             print("Skipping creation of virtual environment. (already inside one)")

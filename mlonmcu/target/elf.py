@@ -169,6 +169,7 @@ def printSz(sz, unknown_msg=""):
     if sz is None:
         return f"unknown [{unknown_msg}]" if unknown_msg else "unknown"
     import humanize
+
     return humanize.naturalsize(sz) + " (" + hex(sz) + ")"
 
 

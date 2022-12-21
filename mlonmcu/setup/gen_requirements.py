@@ -113,6 +113,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["humanize", "pyelftools"],
         ),
     ),
+    ("gvsoc", ("Requirements for gvsoc", ["PrettyTable"])),
     # Provide support for microtvm.
     (
         "microtvm",

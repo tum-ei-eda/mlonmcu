@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarget
+from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarget, GvsocPulpTarget
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
 
@@ -38,3 +38,4 @@ register_target("corstone300", Corstone300Target)
 register_target("spike", SpikeTarget)
 register_target("ovpsim", OVPSimTarget)
 register_target("riscv_qemu", RiscvQemuTarget)
+register_target("gvsoc_pulp", GvsocPulpTarget)

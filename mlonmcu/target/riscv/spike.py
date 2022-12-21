@@ -148,20 +148,20 @@ class SpikeTarget(RISCVTarget):
 
         if len(self.extra_args) > 0:
             if isinstance(self.extra_args, str):
-                args = self.extra_args.split(" ")
+                extra_args = self.extra_args.split(" ")
             else:
-                args = self.extra_args
-            spike_args.extend(args)
+                extra_args = self.extra_args
+            spike_args.extend(extra_args)
 
         if self.end_to_end_cycles:
             spikepk_args.append("-s")
 
         if len(self.spikepk_extra_args) > 0:
             if isinstance(self.spikepk_extra_args, str):
-                args = self.spikepk_extra_args.split(" ")
+                extra_args = self.spikepk_extra_args.split(" ")
             else:
-                args = self.spikepk_extra_args
-            spikepk_args.extend(args)
+                extra_args = self.spikepk_extra_args
+            spikepk_args.extend(extra_args)  # I rename args to extra_args because otherwise it overwrites *args
 
         if self.enable_vext:
             assert self.vlen > 0

@@ -148,7 +148,9 @@
 <div class="viewcode-block" id="MicroTvmPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform">[docs]</a><span class="k">class</span> <span class="nc">MicroTvmPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">,</span> <span class="n">BuildPlatform</span><span class="p">,</span> <span class="n">TunePlatform</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;TVM Platform class.&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm_rpc&quot;</span><span class="p">]</span>  <span class="c1"># TODO: validate?</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm_rpc&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm_profile&quot;</span><span class="p">]</span>
+    <span class="p">)</span>  <span class="c1"># TODO: validate?</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">CompilePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -160,7 +162,7 @@
         <span class="s2">&quot;ins_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;outs_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;print_top&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># &quot;profile&quot;: False,</span>
+        <span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;repeat&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
         <span class="s2">&quot;use_rpc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;rpc_key&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -171,6 +173,7 @@
         <span class="s2">&quot;experimental_tvmc_micro_tune&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;experimental_tvmc_tune_tasks&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;experimental_autotvm_visualize&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;experimental_tvmc_print_time&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="p">{(</span><span class="s2">&quot;autotuning_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">TVMTuner</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
     <span class="p">}</span>
 
@@ -214,10 +217,10 @@
     <span class="k">def</span> <span class="nf">print_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_top&quot;</span><span class="p">]</span>
 
-    <span class="c1"># @property</span>
-    <span class="c1"># def profile(self):</span>
-    <span class="c1">#     value = self.config[&quot;profile&quot;]</span>
-    <span class="c1">#     return str2bool(value) if not isinstance(value, (bool, int)) else value</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;profile&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -290,6 +293,11 @@
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;experimental_tvmc_tune_visualize&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">experimental_tvmc_print_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;experimental_tvmc_print_time&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
 <div class="viewcode-block" id="MicroTvmPlatform.init_directory"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.init_directory">[docs]</a>    <span class="k">def</span> <span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -338,6 +346,10 @@
 <div class="viewcode-block" id="MicroTvmPlatform.get_tvmc_run_args"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.microtvm.MicroTvmPlatform.get_tvmc_run_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_run_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;RPC is only supported for tuning with microtvm platform&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_print_time</span>
+            <span class="p">),</span> <span class="s2">&quot;MicroTVM profiloing is only supported in environments with microtvm.experimental_tvmc_print_time=1&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">path</span><span class="p">,</span>
             <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--device&quot;</span><span class="p">,</span> <span class="n">device</span><span class="p">],</span>
@@ -345,12 +357,11 @@
                 <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_mode</span><span class="p">,</span> <span class="n">ins_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ins_file</span><span class="p">,</span> <span class="n">outs_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">outs_file</span><span class="p">,</span> <span class="n">print_top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_top</span>
             <span class="p">),</span>
             <span class="o">*</span><span class="n">get_bench_tvmc_args</span><span class="p">(</span>
-                <span class="c1"># print_time=True,</span>
-                <span class="n">print_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">profile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">print_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_print_time</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+                <span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_print_time</span><span class="p">,</span>
                 <span class="n">end_to_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="c1"># repeat=self.repeat,</span>
-                <span class="c1"># number=self.number,</span>
+                <span class="c1"># repeat=self.repeat if self.experimental_tvmc_print_time else None,</span>
+                <span class="c1"># number=self.number if self.experimental_tvmc_print_time else None,</span>
             <span class="p">),</span>
             <span class="c1"># *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),</span>
         <span class="p">]</span>

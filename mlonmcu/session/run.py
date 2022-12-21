@@ -529,7 +529,8 @@ class Run:
                             dest = dest / "sub" / name
                         dest.mkdir(parents=True, exist_ok=True)
                         extract = artifact.fmt == ArtifactFormat.MLF
-                        # extract = artifact.fmt == ArtifactFormat.MLF and not isinstance(self.platform, MicroTvmPlatform)
+                        # extract = artifact.fmt == ArtifactFormat.MLF
+                        # and not isinstance(self.platform, MicroTvmPlatform)
                         artifact.export(dest)
                         # Keep the tar as well as the extracted files
                         if extract:

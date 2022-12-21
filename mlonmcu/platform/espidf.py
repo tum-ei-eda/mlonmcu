@@ -32,7 +32,6 @@ import psutil
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
-from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from mlonmcu.config import str2bool
 

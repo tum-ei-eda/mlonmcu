@@ -101,6 +101,7 @@
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">is_power_of_two</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
@@ -1075,7 +1076,7 @@
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
@@ -1094,47 +1095,70 @@
             <span class="c1"># if self.to_file:</span>
             <span class="c1">#    extra_args_new.append(&quot;--tracefile&quot;)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">:</span> <span class="n">extra_args_new</span><span class="p">})</span>
+        <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">:</span>
+            <span class="n">extra_args_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_args&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--trace=insn:</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">_instrs.log&quot;</span><span class="p">)</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                TODO: The above code will generate a instruction log.</span>
+<span class="sd">                But it will not be recorded by Artifact (which should be done in get_target_callbacks).</span>
+<span class="sd">                The code to let it be recorded by Artifact is currently not added because of the following reasons:</span>
+<span class="sd">                1. This feature is rarely used.</span>
+<span class="sd">                2. GVSOC can directly write the instruction log into a file which should be much faster than</span>
+<span class="sd">                read/write from the output. This makes GVSOC special and difficult to be adapted in the current</span>
+<span class="sd">                code.</span>
+<span class="sd">                3. This difficulty reflected in that the methods add_target_config and get_target_callbacks should</span>
+<span class="sd">                have a consensus about where in the system file system the instruction log is written to and can be</span>
+<span class="sd">                read from. This is not feasible in current code and the realization requires a workaround.</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--trace=insn&quot;</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">:</span> <span class="n">extra_args_new</span><span class="p">})</span>
 
     <span class="k">def</span> <span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="s2">&quot;spike&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
             <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">,</span>
         <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
 
-            <span class="k">def</span> <span class="nf">log_instrs_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
-                <span class="sd">&quot;&quot;&quot;Callback which parses the targets output and updates the generated metrics and artifacts.&quot;&quot;&quot;</span>
-                <span class="n">new_lines</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
-                    <span class="c1"># TODO: update stdout and remove log_instrs lines</span>
-                    <span class="n">instrs</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">:</span>
-                            <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[a-fA-F0-9]+: .* \[.*\]&quot;</span><span class="p">)</span>
-                        <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
-                            <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*&quot;</span><span class="p">)</span>
-                        <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">:</span>
-                            <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-                                <span class="sa">r</span><span class="s2">&quot;Info &#39;riscvOVPsim\/cpu&#39;,\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*&quot;</span>
-                            <span class="p">)</span>
-                        <span class="n">match</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="n">instrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                    <span class="n">instrs_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">_instrs.log&quot;</span><span class="p">,</span>
-                        <span class="n">content</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">),</span>
-                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
-                        <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="p">),</span>
-                    <span class="p">)</span>
-                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instrs_artifact</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">stdout</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">:</span>
 
-            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">log_instrs_callback</span>
+                <span class="k">def</span> <span class="nf">log_instrs_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+                    <span class="sd">&quot;&quot;&quot;Callback which parses the targets output and updates the generated metrics and artifacts.&quot;&quot;&quot;</span>
+                    <span class="n">new_lines</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                        <span class="c1"># TODO: update stdout and remove log_instrs lines</span>
+                        <span class="n">instrs</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">:</span>
+                                <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[a-fA-F0-9]+: .* \[.*\]&quot;</span><span class="p">)</span>
+                            <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
+                                <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*&quot;</span><span class="p">)</span>
+                            <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">:</span>
+                                <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                                    <span class="sa">r</span><span class="s2">&quot;Info &#39;riscvOVPsim\/cpu&#39;,\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*&quot;</span>
+                                <span class="p">)</span>
+                            <span class="n">match</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="n">instrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="n">instrs_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">_instrs.log&quot;</span><span class="p">,</span>
+                            <span class="n">content</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">),</span>
+                            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                            <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instrs_artifact</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">stdout</span>
+
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">log_instrs_callback</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;arm_mvei&quot;</span><span class="p">)</span>
@@ -1438,6 +1462,156 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.profile&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
         <span class="p">}</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;xpulp&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Xpulp</span><span class="p">(</span><span class="n">TargetFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">,</span> <span class="n">SetupFeature</span><span class="p">):</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;xpulp_version&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;nopostmod&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;noindregreg&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;novect&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;nohwloop&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;hwloopmin&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;hwloopalign&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;nomac&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;nopartmac&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;nominmax&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;noabs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;nobitop&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;nosext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;noclip&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;noaddsubnormround&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;noshufflepack&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;nomulmacnormround&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;noshufflepack&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pulp_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;pulp_gcc.name&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;xpulp&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Except the &quot;enabled&quot; in FeatureBase.DEFAULTS and &quot;xpulp_version&quot;</span>
+    <span class="c1"># every key in DEFAULTS should in principle have a getter function with the same name as the key</span>
+    <span class="c1"># These getter functions will be stored in getter_functions array.</span>
+    <span class="c1"># Default getter function for the keys whose corresponding value has bool type:</span>
+    <span class="c1"># def getter_bool(self, key_name):</span>
+    <span class="c1">#    return self.generalized_str2bool(self.config[key_name])</span>
+    <span class="c1"># Default getter function for the keys whose corresponding value has int type:</span>
+    <span class="c1"># def getter_int(self, key_name):</span>
+    <span class="c1">#    return int(self.config[&quot;&lt;key_name&gt;&quot;])</span>
+    <span class="c1"># No default, i.e. customized getter functions are defined separately</span>
+
+    <span class="c1"># Default getter functions:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">generalized_str2bool</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">input</span>
+
+    <span class="k">def</span> <span class="nf">getter_bool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generalized_str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">key_name</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">getter_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">key_name</span><span class="p">])</span>
+
+    <span class="c1"># No default, i.e. customized getter functions are defined in the following (now empty)</span>
+
+    <span class="c1"># custom_config_getter contains customized @property function which do not follow the pattern above.</span>
+    <span class="n">getter_functions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;nopostmod&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;noindregreg&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;novect&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;nohwloop&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;hwloopmin&quot;</span><span class="p">:</span> <span class="n">getter_int</span><span class="p">,</span>
+        <span class="s2">&quot;hwloopalign&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;nomac&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;nopartmac&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;nominmax&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;noabs&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;nobitop&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;nosext&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;noclip&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;noaddsubnormround&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;noshufflepack&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;nomulmacnormround&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+        <span class="s2">&quot;noshufflepack&quot;</span><span class="p">:</span> <span class="n">getter_bool</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xpulp_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;xpulp_version&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>  <span class="c1"># convert to int</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;xpulp_version must be None, 2 or 3, but get </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="c1"># The following create EXTRA_FLAGS (type is str) for gcc</span>
+        <span class="c1"># example</span>
+        <span class="c1"># {&quot;nopostmod&quot;: True, &quot;novect&quot;: True, ...} ==&gt; EXTRA_FLAGS = &quot;-mnopostmod -mnovect ...&quot;</span>
+        <span class="n">EXTRA_FLAGS</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter_functions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getter_functions</span><span class="p">[</span><span class="n">key</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">),</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter_functions</span><span class="p">[</span><span class="n">key</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                    <span class="n">EXTRA_FLAGS</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -m</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getter_functions</span><span class="p">[</span><span class="n">key</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">),</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">EXTRA_FLAGS</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -m</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">getter_functions</span><span class="p">[</span><span class="n">key</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">continue</span>
+        <span class="n">EXTRA_FLAGS</span> <span class="o">=</span> <span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="n">EXTRA_FLAGS</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="c1"># EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake</span>
+            <span class="s2">&quot;EXTRA_CMAKE_C_FLAGS&quot;</span><span class="p">:</span> <span class="n">EXTRA_FLAGS</span><span class="p">,</span>
+            <span class="c1"># EXTRA_CMAKE_CXX_FLAGS will be directly append to CMAKE_CXX_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake</span>
+            <span class="s2">&quot;EXTRA_CMAKE_CXX_FLAGS&quot;</span><span class="p">:</span> <span class="n">EXTRA_FLAGS</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">add_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
+        <span class="n">addition_defs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_dicts</span><span class="p">(</span><span class="n">defs</span><span class="p">,</span> <span class="n">addition_defs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">merge_dicts</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span> <span class="n">dict2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function tries to merge dict1 and dict2 into dict1</span>
+<span class="sd">        :param dict1: A dictionary</span>
+<span class="sd">        :param dict2: A dictionary to be added</span>
+<span class="sd">        :return: Void</span>
+<span class="sd">        Example 1:</span>
+<span class="sd">        dict1 = {&quot;a&quot;: 1, &quot;b&quot;: &quot;hello&quot;, &quot;c&quot;: [1, 2, 3]}</span>
+<span class="sd">        dict2 = {&quot;f&quot;: 3, &quot;b&quot;: &quot;world&quot;, &quot;c&quot;: [4, 5, 6]}</span>
+<span class="sd">        merge_dicts(dict1, dict2)</span>
+<span class="sd">        print(dict1)</span>
+<span class="sd">        ==&gt;</span>
+<span class="sd">        {&quot;a&quot;: 1, &quot;b&quot;: &quot;hello world&quot;, &quot;c&quot;: [1, 2, 3, 4, 5, 6], &quot;f&quot;:3}</span>
+<span class="sd">        Note: Here &quot;hello&quot; and &quot;world&quot; are merged as two string join.</span>
+<span class="sd">        Here [1,2,3] and [4,5,6] are merged as list addition</span>
+<span class="sd">        Example 2:</span>
+<span class="sd">        dict1 = {&quot;a&quot;: 1}</span>
+<span class="sd">        dict2 = {&quot;a&quot;: 3}</span>
+<span class="sd">        merge_dicts(dict1, dict2)</span>
+<span class="sd">        ==&gt;</span>
+<span class="sd">        RuntimeError: The method to merge a: 1 and a: 3 is not defined</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dict2</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dict1</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">dict1_value</span> <span class="o">=</span> <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">dict2_value</span> <span class="o">=</span> <span class="n">dict2</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict1_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">dict1_value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">dict2_value</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict1_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict1_value</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">dict2_value</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict1_value</span> <span class="o">+</span> <span class="n">dict2_value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The method to merge </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dict1_value</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dict2_value</span><span class="si">}</span><span class="s2"> is not defined&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict2</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.xpulp_version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xpulp_version</span><span class="p">})</span>
 </pre></div>
 
            </div>

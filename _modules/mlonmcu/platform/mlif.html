@@ -133,6 +133,7 @@
             <span class="s2">&quot;arm_dsp&quot;</span><span class="p">,</span>
             <span class="s2">&quot;auto_vectorize&quot;</span><span class="p">,</span>
             <span class="s2">&quot;benchmark&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;xpulp&quot;</span><span class="p">,</span>
         <span class="p">]</span>  <span class="c1"># TODO: allow Feature-Features with automatic resolution of initialization order</span>
     <span class="p">)</span>
 
@@ -306,6 +307,7 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span>
             <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-D</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_common_cmake_args</span><span class="p">())</span>
+        <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON&quot;</span><span class="p">)</span>  <span class="c1"># TODO for debug, should be removed</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_support_dir</span><span class="p">:</span>
             <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DMODEL_SUPPORT_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_support_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>

@@ -306,6 +306,118 @@
 </dd></dl>
 
 </section>
+<section id="module-mlonmcu.target.riscv.gvsoc_pulp">
+<span id="mlonmcu-target-riscv-gvsoc-pulp-module"></span><h2>mlonmcu.target.riscv.gvsoc_pulp module<a class="headerlink" href="#module-mlonmcu.target.riscv.gvsoc_pulp" title="Permalink to this headline"></a></h2>
+<p>MLonMCU GVSOC/Pulp or Pulpissimo Target definitions</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.gvsoc_pulp.</span></span><span class="sig-name descname"><span class="pre">GvsocPulpTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gvsoc_pulp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.target.riscv.riscv.RISCVTarget" title="mlonmcu.target.riscv.riscv.RISCVTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.target.riscv.riscv.RISCVTarget</span></code></a></p>
+<p>Target using a Pulpino-like VP running in the GVSOC simulator</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32',</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'c'],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fpu':</span> <span class="pre">None,</span> <span class="pre">'model':</span> <span class="pre">'pulp',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'xlen':</span> <span class="pre">32,</span> <span class="pre">'xpulp_version':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark',</span> <span class="pre">'log_instrs',</span> <span class="pre">'xpulp']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['pulp_gcc.install_dir',</span> <span class="pre">'pulp_gcc.name',</span> <span class="pre">'gvsoc.exe',</span> <span class="pre">'pulp_freertos.support_dir',</span> <span class="pre">'pulp_freertos.config_dir',</span> <span class="pre">'pulp_freertos.install_dir']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.abi">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abi</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.abi" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/mlonmcu/mlonmcu/docs'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.exec" title="Permalink to this definition"></a></dt>
+<dd><p>Use target to execute an executable with given arguments</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.extensions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.extensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_backend_config">
+<span class="sig-name descname"><span class="pre">get_backend_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_backend_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_backend_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_basic_gvsoc_simulating_arg">
+<span class="sig-name descname"><span class="pre">get_basic_gvsoc_simulating_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_basic_gvsoc_simulating_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_basic_gvsoc_simulating_arg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_metrics">
+<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_metrics" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_platform_defs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_target_system">
+<span class="sig-name descname"><span class="pre">get_target_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_target_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_target_system" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.gvsoc_folder">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gvsoc_folder</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.gvsoc_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.gvsoc_preparation_env">
+<span class="sig-name descname"><span class="pre">gvsoc_preparation_env</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.gvsoc_preparation_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.gvsoc_preparation_env" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.gvsoc_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gvsoc_script</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.gvsoc_script" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.model">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.parse_stdout">
+<span class="sig-name descname"><span class="pre">parse_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.parse_stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.parse_stdout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.pulp_freertos_config_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulp_freertos_config_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.pulp_freertos_config_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.pulp_freertos_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulp_freertos_install_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.pulp_freertos_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.pulp_freertos_support_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulp_freertos_support_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.pulp_freertos_support_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.xpulp_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xpulp_version</span></span><a class="headerlink" href="#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.xpulp_version" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-mlonmcu.target.riscv.ovpsim">
 <span id="mlonmcu-target-riscv-ovpsim-module"></span><h2>mlonmcu.target.riscv.ovpsim module<a class="headerlink" href="#module-mlonmcu.target.riscv.ovpsim" title="Permalink to this headline"></a></h2>
 <p>MLonMCU OVPSim Target definitions</p>
@@ -467,6 +579,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED">
+<span class="sig-name descname"><span class="pre">PUPL_GCC_TOOLCHAIN_REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['pulp_gcc.install_dir',</span> <span class="pre">'pulp_gcc.name']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['riscv_gcc.install_dir',</span> <span class="pre">'riscv_gcc.name',</span> <span class="pre">'riscv_gcc.variant']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.REQUIRED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -532,13 +649,23 @@
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.riscv_basename">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">riscv_basename</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.riscv_basename" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.pulp_gcc_basename">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulp_gcc_basename</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.pulp_gcc_basename" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.riscv_prefix">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">riscv_prefix</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.riscv_prefix" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.pulp_gcc_prefix">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulp_gcc_prefix</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.pulp_gcc_prefix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.riscv_gcc_basename">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">riscv_gcc_basename</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.riscv_gcc_basename" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.riscv_gcc_prefix">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">riscv_gcc_prefix</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.riscv_gcc_prefix" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -797,6 +924,11 @@
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.util.</span></span><span class="sig-name descname"><span class="pre">update_extensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pext_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/util.html#update_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.util.update_extensions" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.util.update_extensions_pulp">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.util.</span></span><span class="sig-name descname"><span class="pre">update_extensions_pulp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpulp_version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/util.html#update_extensions_pulp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.util.update_extensions_pulp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-mlonmcu.target.riscv">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.target.riscv" title="Permalink to this headline"></a></h2>
@@ -989,6 +1121,114 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.target.riscv.EtissPulpinoTarget.write_ini">
 <span class="sig-name descname"><span class="pre">write_ini</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/etiss_pulpino.html#EtissPulpinoTarget.write_ini"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.EtissPulpinoTarget.write_ini" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.</span></span><span class="sig-name descname"><span class="pre">GvsocPulpTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gvsoc_pulp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.target.riscv.riscv.RISCVTarget" title="mlonmcu.target.riscv.riscv.RISCVTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.target.riscv.riscv.RISCVTarget</span></code></a></p>
+<p>Target using a Pulpino-like VP running in the GVSOC simulator</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">'ilp32',</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'c'],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fpu':</span> <span class="pre">None,</span> <span class="pre">'model':</span> <span class="pre">'pulp',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'xlen':</span> <span class="pre">32,</span> <span class="pre">'xpulp_version':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark',</span> <span class="pre">'log_instrs',</span> <span class="pre">'xpulp']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['pulp_gcc.install_dir',</span> <span class="pre">'pulp_gcc.name',</span> <span class="pre">'gvsoc.exe',</span> <span class="pre">'pulp_freertos.support_dir',</span> <span class="pre">'pulp_freertos.config_dir',</span> <span class="pre">'pulp_freertos.install_dir']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.abi">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abi</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.abi" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/mlonmcu/mlonmcu/docs'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.exec" title="Permalink to this definition"></a></dt>
+<dd><p>Use target to execute an executable with given arguments</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.extensions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.extensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.get_backend_config">
+<span class="sig-name descname"><span class="pre">get_backend_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_backend_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.get_backend_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.get_basic_gvsoc_simulating_arg">
+<span class="sig-name descname"><span class="pre">get_basic_gvsoc_simulating_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_basic_gvsoc_simulating_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.get_basic_gvsoc_simulating_arg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.get_metrics">
+<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.get_metrics" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.get_platform_defs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.get_target_system">
+<span class="sig-name descname"><span class="pre">get_target_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.get_target_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.get_target_system" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.gvsoc_folder">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gvsoc_folder</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.gvsoc_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.gvsoc_preparation_env">
+<span class="sig-name descname"><span class="pre">gvsoc_preparation_env</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.gvsoc_preparation_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.gvsoc_preparation_env" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.gvsoc_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gvsoc_script</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.gvsoc_script" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.model">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.parse_stdout">
+<span class="sig-name descname"><span class="pre">parse_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/gvsoc_pulp.html#GvsocPulpTarget.parse_stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.parse_stdout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.pulp_freertos_config_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulp_freertos_config_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.pulp_freertos_config_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.pulp_freertos_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulp_freertos_install_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.pulp_freertos_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.pulp_freertos_support_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulp_freertos_support_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.pulp_freertos_support_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.GvsocPulpTarget.xpulp_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xpulp_version</span></span><a class="headerlink" href="#mlonmcu.target.riscv.GvsocPulpTarget.xpulp_version" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

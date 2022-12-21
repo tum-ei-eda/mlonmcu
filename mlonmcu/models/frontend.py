@@ -64,7 +64,8 @@ class Frontend(ABC):
 
     @property
     def use_inout_data(self):
-        return bool(self.config["use_inout_data"])
+        value = self.config["use_inout_data"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def supports_formats(self, ins=None, outs=None):
         """Returs true if the frontend can handle at least one combination of input and output formats."""
@@ -437,19 +438,23 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
 
     @property
     def ignore_existing(self):
-        return bool(self.config["ignore_existing"])
+        value = self.config["ignore_existing"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def fake_pack(self):
-        return bool(self.config["fake_pack"])
+        value = self.config["fake_pack"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def use_packed(self):
-        return bool(self.config["use_packed"])
+        value = self.config["use_packed"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def check(self):
-        return bool(self.config["check"])
+        value = self.config["check"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def produce_artifacts(self, model):
         tflite_data = None

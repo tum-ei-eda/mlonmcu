@@ -24,7 +24,7 @@ from tqdm import tqdm
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.config import filter_config
+from mlonmcu.config import filter_config, str2bool
 from .tasks import get_task_factory
 from .task import TaskGraph
 from mlonmcu.utils import ask_user
@@ -53,10 +53,14 @@ class Setup:
         self.config = filter_config(self.config, "setup", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.context = context
         self.tasks_factory = tasks_factory
-        self.verbose = bool(self.config["print_outputs"])
         self.num_threads = int(
             self.config["num_threads"] if self.config["num_threads"] else multiprocessing.cpu_count()
         )
+
+    @property
+    def verbose(self):
+        value = self.config["print_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def clean_cache(self, interactive=True):
         assert self.context is not None

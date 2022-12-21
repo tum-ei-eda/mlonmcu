@@ -74,17 +74,20 @@ class FilterColumnsPostprocess(SessionPostprocess):
     @property
     def drop_nan(self):
         """Get drop_nan property."""
-        return bool(self.config["drop_nan"])
+        value = self.config["drop_nan"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def drop_empty(self):
         """Get drop_empty property."""
-        return bool(self.config["drop_empty"])
+        value = self.config["drop_empty"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def drop_const(self):
         """Get drop_const property."""
-        return bool(self.config["drop_const"])
+        value = self.config["drop_const"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_session(self, report):
         """Called at the end of a session."""

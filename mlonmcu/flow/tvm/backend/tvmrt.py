@@ -26,6 +26,7 @@ from pathlib import Path
 from .backend import TVMBackend
 from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.flow.backend import main
+from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .tvmc_utils import get_tvmrt_tvmc_args
 
@@ -55,7 +56,8 @@ class TVMRTBackend(TVMBackend):
 
     @property
     def debug_arena(self):
-        return bool(self.config["debug_arena"])
+        value = self.config["debug_arena"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_tvmc_compile_args(self, out):
         return super().get_tvmc_compile_args(out) + get_tvmrt_tvmc_args()

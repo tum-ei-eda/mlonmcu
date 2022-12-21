@@ -155,7 +155,8 @@ class TVMBackend(Backend):
 
     @property
     def use_tuning_results(self):
-        return bool(self.config["use_tuning_results"])
+        value = self.config["use_tuning_results"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def tvmc_extra_args(self):

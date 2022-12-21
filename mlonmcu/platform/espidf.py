@@ -32,12 +32,11 @@ import psutil
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
-from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from mlonmcu.config import str2bool
 
 from .platform import CompilePlatform, TargetPlatform
-from .espidf_target import create_espidf_platform_target
+from .espidf_target import create_espidf_platform_target, get_espidf_platform_targets
 
 logger = get_logger()
 
@@ -155,11 +154,25 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?
         target_names = text.split("\n")
 
+        def filter_names(x):
+            ret = []
+            for x in reversed(x):
+                if len(x) > 0:
+                    ret.append(x)
+                else:
+                    if len(ret) > 0:
+                        break
+                    else:
+                        continue
+            return reversed(ret)
+
+        target_names = filter_names(target_names)
+
         return [name for name in target_names if len(name) > 0 and " " not in name]
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid ESP-IDF target"
-        targets = get_targets()
+        targets = get_espidf_platform_targets()
         if name in targets:
             base = targets[name]
         else:

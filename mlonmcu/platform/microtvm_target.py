@@ -88,7 +88,7 @@ class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     DEFAULTS = {
         **Target.DEFAULTS,
-        "project_type": "host_driven",
+        "project_type": None,
         "warning_as_error": False,
         "arduino_board": "?",
         # "arduino_cli_cmd": None,
@@ -280,20 +280,72 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         return {}
 
 
-# class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-#
-#     FEATURES = Target.FEATURES + []
-#
-#     DEFAULTS = {
-#         **Target.DEFAULTS,
-#         "verbose": False,
-#         "?": "?",  # TODO
-#     }
-#     REQUIRED = Target.REQUIRED + ["microtvm_espidf.src_dir", "espidf.src_dir", "espidf.install_dir"]
-#
-#     def __init__(self, name=None, features=None, config=None):
-#         super().__init__(name=name, features=features, config=config)
-#         self.template_path = None
+class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+
+    FEATURES = TemplateMicroTvmPlatformTarget.FEATURES + []
+
+    DEFAULTS = {
+        **Target.DEFAULTS,
+        "project_type": "host_driven",
+        "verbose": False,
+        "board": None,
+        "port": None,
+        "baud": None,
+    }
+    REQUIRED = Target.REQUIRED + ["microtvm_espidf.template", "espidf.src_dir", "espidf.install_dir"]
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+        self.template_path = self.microtvm_espidf_template
+        # TODO: interate into TVM build config
+        self.option_names = [
+            "project_type",
+            "verbose",
+            "idf_path"
+            "idf_tools_path"
+            "idf_target"
+            "idf_serial_port"
+            "idf_serial_baud"
+            "warning_as_error"
+            "compile_definitions"
+            "extra_files_tar",
+        ]
+
+    @property
+    def microtvm_espidf_template(self):
+        return Path(self.config["microtvm_espidf.template"])
+
+    @property
+    def esp_idf_src_dir(self):
+        return Path(self.config["espidf.src_dir"])
+
+    @property
+    def esp_idf_install_dir(self):
+        return Path(self.config["espidf.install_dir"])
+
+    @property
+    def board(self):
+        return self.config["board"]
+
+    @property
+    def port(self):
+        return self.config["port"]
+
+    @property
+    def baud(self):
+        return self.config["baud"]
+
+    def get_project_options(self):
+        ret = super().get_project_options()
+        ret.update({"idf_path": self.esp_idf_src_dir})
+        ret.update({"idf_tools_path": self.esp_idf_install_dir})
+        assert self.board, "microtvm_espidf.board has do be defined"
+        ret.update({"idf_target": self.board})
+        if self.port:
+            ret.update({"idf_serial_port": self.port})
+        if self.baud:
+            ret.update({"idf_serial_baud": self.baud})
+        return ret
 
 
 class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
@@ -501,7 +553,7 @@ register_microtvm_platform_target("microtvm_zephyr", ZephyrMicroTvmPlatformTarge
 register_microtvm_platform_target("microtvm_arduino", ArduinoMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_host", HostMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_etissvp", EtissvpMicroTvmPlatformTarget)
-# register_microtvm_platform_target("microtvm_espidf", EtissvpMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_espidf", EspidfMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
 
 
@@ -582,7 +634,51 @@ def create_microtvm_platform_target(name, platform, base=Target):
 
             metrics = Metrics()
             time_s = mean_ms / 1e3 if mean_ms is not None else mean_ms
-            metrics.add("Mean Runtime [s]", time_s)
+            if time_s:
+                metrics.add("Runtime [s]", time_s)
+
+            if self.platform.profile:
+                print("out", out)
+                headers = None
+                skip = False
+                lines = out.split("\n")
+                extracted = []
+
+                def extract_cols(line):
+                    x = re.compile(r"(([^\s\[\]]+)(\s\S+)*)(\[.*\])?").findall(line)
+                    return [y[0] for y in x]
+
+                for line in lines:
+                    print("line", line)
+                    if skip:
+                        skip = False
+                        continue
+                    if headers is None:
+                        if "Name" in line:
+                            headers = extract_cols(line)
+                            print("headers", headers)
+                            skip = True
+                            continue
+                    else:
+                        if len(line.strip()) == 0:
+                            break
+                        cols = extract_cols(line)
+                        print("cols", cols)
+                        data = {headers[i]: val for i, val in enumerate(cols)}
+                        print("data", data)
+                        extracted.append(data)
+                        if "Total_time" in line:
+                            break
+                print("extracted", extracted)
+                assert len(extracted) > 0
+                metrics = {"default": metrics}
+                for item in extracted:
+                    if item["Node Name"] == "Total_time":
+                        metrics["default"].add("Runtime [s]", float(item["Time(us)"]) / 1e6)
+                    else:
+                        metrics_ = Metrics()
+                        metrics_.add("Runtime [s]", float(item["Time(us)"]) / 1e6)
+                        metrics[item["Node Name"]] = metrics_
 
             return metrics, out, []
 

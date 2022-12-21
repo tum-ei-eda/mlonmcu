@@ -2,7 +2,7 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v\d+.\d+.\d+' # Push events for v0.1.0, v20.15.10 but not v0.1.0dev0
 
 name: Create Release
 
@@ -32,3 +32,14 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
           draft: true
           prerelease: false
+
+
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
+    steps:
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}

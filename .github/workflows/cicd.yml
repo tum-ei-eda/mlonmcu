@@ -149,7 +149,7 @@ jobs:
       id: report
       run: |
         source .venv/bin/activate
-        echo ::set-output name=percent::$(coverage report | awk '$1 == "TOTAL" {print $NF+0 "%"}')
+        echo "name=percent::$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')" >> $GITHUB_OUTPUT
     - name: Test coverage Text
       run: echo "|${{ steps.report.outputs.percent }}|"
     - name: Create coverage badge

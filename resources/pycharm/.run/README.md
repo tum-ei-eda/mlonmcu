@@ -4,7 +4,7 @@ To use them, you do the following steps:
 - Open the mlonmcu folder as a project in PyCharm. 
   The run configuration will be automatically searched and loaded by PyCharm
 
-- Select the right python interpreter (the path to the virtual environment or the path to a conda environment) for this project in PyCharm, create a new one if it does not exist.
+- Select the right python interpreter (the path to a virtual environment or the path to a conda environment) for this project in PyCharm, create a new one if it does not exist.
 
 - Install the mlonmcu project as an editable project using the following command in the terminal in the PyCharm ide.
     ```
@@ -57,17 +57,17 @@ To use them, you do the following steps:
     > 
     > `-t gvsoc_pulp` means using `gvsoc_pulp` as the target.
     > 
-    > `-c gvsoc_pulp.model=pulpissimo` means use the pulpissimo model 
+    > `-c gvsoc_pulp.model=pulpissimo` means using the pulpissimo model 
     > instead of pulp model for the target.
     > 
     > `-f xpulp` means using `xpulp` ISA extension.
     >
-    > `-c xpulp_version=2` means use the version2 of `xpulp`
+    > `-c xpulp_version=2` means using the version2 of `xpulp`
     > 
-    > `-c mlif.print_outputs=1` means shows the mlif (Machine Learning Interface) informations in the 
+    > `-c mlif.print_outputs=1` means showing the mlif (Machine Learning Interface) informations in the 
     > terminal
     > 
-    > `-v` means show the commands executed by mlonmcu in the terminal
+    > `-v` means showing the commands executed by mlonmcu in the terminal
 
     
 

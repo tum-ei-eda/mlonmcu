@@ -503,7 +503,9 @@ class Run:
 
     @property
     def artifacts(self):
-        return list(itertools.chain([subs[subs.keys[0]] for stage, subs in self.artifacts_per_stage.items()]))  # TODO: fix default only
+        return list(
+            itertools.chain([subs[subs.keys[0]] for stage, subs in self.artifacts_per_stage.items()])
+        )  # TODO: fix default only
 
     def toDict(self):
         """Utility not implemented yet. (TODO: remove?)"""
@@ -565,13 +567,13 @@ class Run:
                 self.target.generate_metrics(elf_artifact.path)
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
-                    self.artifacts_per_stage[RunStage.RUN].update({
-                        key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()
-                    })
+                    self.artifacts_per_stage[RunStage.RUN].update(
+                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
+                    )
                 else:
-                    self.artifacts_per_stage[RunStage.RUN].update({
-                        name if name in ["", "default"] else f"{name}": artifacts
-                    })
+                    self.artifacts_per_stage[RunStage.RUN].update(
+                        {name if name in ["", "default"] else f"{name}": artifacts}
+                    )
         else:
             assert self.completed[RunStage.BUILD]  # Used for tvm platform
             self.export_stage(RunStage.BUILD, optional=self.export_optional)
@@ -580,13 +582,13 @@ class Run:
                 self.target.generate_metrics(shared_object_artifact.path)
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
-                    self.artifacts_per_stage[RunStage.RUN].update({
-                        key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()
-                    })
+                    self.artifacts_per_stage[RunStage.RUN].update(
+                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
+                    )
                 else:
-                    self.artifacts_per_stage[RunStage.RUN].update({
-                        name if name in ["", "default"] else f"{name}": artifacts
-                    })
+                    self.artifacts_per_stage[RunStage.RUN].update(
+                        {name if name in ["", "default"] else f"{name}": artifacts}
+                    )
 
         self.completed[RunStage.RUN] = True
         self.unlock()
@@ -607,13 +609,13 @@ class Run:
             self.compile_platform.generate_elf(codegen_dir, self.target)  # TODO: has to go into different dirs
             artifacts = self.compile_platform.artifacts
             if isinstance(artifacts, dict):
-                self.artifacts_per_stage[RunStage.COMPILE].update({
-                    key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()
-                })
+                self.artifacts_per_stage[RunStage.COMPILE].update(
+                    {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
+                )
             else:
-                self.artifacts_per_stage[RunStage.COMPILE].update({
-                    name if name in ["", "default"] else f"{name}": artifacts
-                })
+                self.artifacts_per_stage[RunStage.COMPILE].update(
+                    {name if name in ["", "default"] else f"{name}": artifacts}
+                )
 
         self.completed[RunStage.COMPILE] = True
         self.unlock()
@@ -650,13 +652,13 @@ class Run:
             self.backend.generate_code()
             artifacts = self.backend.artifacts
             if isinstance(artifacts, dict):
-                self.artifacts_per_stage[RunStage.BUILD].update({
-                    key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()
-                })
+                self.artifacts_per_stage[RunStage.BUILD].update(
+                    {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
+                )
             else:
-                self.artifacts_per_stage[RunStage.BUILD].update({
-                    name if name in ["", "default"] else f"{name}": artifacts
-                })
+                self.artifacts_per_stage[RunStage.BUILD].update(
+                    {name if name in ["", "default"] else f"{name}": artifacts}
+                )
 
         self.completed[RunStage.BUILD] = True
         self.unlock()
@@ -686,13 +688,13 @@ class Run:
             res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
             if res:
                 if isinstance(res, dict):
-                    self.artifacts_per_stage[RunStage.TUNE].update({
-                        key if name in ["", "default"] else f"{name}_{key}": value for key, value in res.items()
-                    })
+                    self.artifacts_per_stage[RunStage.TUNE].update(
+                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in res.items()}
+                    )
                 else:
-                    self.artifacts_per_stage[RunStage.TUNE].update({
-                        name if name in ["", "default"] else f"{name}": res
-                    })
+                    self.artifacts_per_stage[RunStage.TUNE].update(
+                        {name if name in ["", "default"] else f"{name}": res}
+                    )
             else:
                 self.artifacts_per_stage[RunStage.TUNE][name] = []
 
@@ -947,7 +949,10 @@ class Run:
 
         if RunStage.RUN in self.artifacts_per_stage:
             names = self.artifacts_per_stage[RunStage.RUN].keys()
-            if RunStage.COMPILE in self.artifacts_per_stage and len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1:
+            if (
+                RunStage.COMPILE in self.artifacts_per_stage
+                and len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
+            ):
                 assert len(names) == len(subs), "Run and Compile Stage should have the same number of subs"  # TODO: fix
             subs = names
             for name in self.artifacts_per_stage[RunStage.RUN]:

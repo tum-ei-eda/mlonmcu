@@ -308,7 +308,7 @@ class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             "idf_serial_baud"
             "warning_as_error"
             "compile_definitions"
-            "extra_files_tar"
+            "extra_files_tar",
         ]
 
     @property
@@ -674,10 +674,10 @@ def create_microtvm_platform_target(name, platform, base=Target):
                 metrics = {"default": metrics}
                 for item in extracted:
                     if item["Node Name"] == "Total_time":
-                        metrics["default"].add("Runtime [s]", float(item["Time(us)"])/1e6)
+                        metrics["default"].add("Runtime [s]", float(item["Time(us)"]) / 1e6)
                     else:
                         metrics_ = Metrics()
-                        metrics_.add("Runtime [s]", float(item["Time(us)"])/1e6)
+                        metrics_.add("Runtime [s]", float(item["Time(us)"]) / 1e6)
                         metrics[item["Node Name"]] = metrics_
 
             return metrics, out, []

@@ -67,7 +67,9 @@ def get_project_option_args(template, stage, project_options):
 class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform):
     """TVM Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotune", "tvm_rpc", "tvm_profile"]  # TODO: validate?
+    FEATURES = (
+        CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotune", "tvm_rpc", "tvm_profile"]
+    )  # TODO: validate?
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -264,7 +266,9 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         if self.use_rpc:
             raise RuntimeError("RPC is only supported for tuning with microtvm platform")
         if self.profile:
-            assert self.experimental_tvmc_print_time, "MicroTVM profiloing is only supported in environments with microtvm.experimental_tvmc_print_time=1"
+            assert (
+                self.experimental_tvmc_print_time
+            ), "MicroTVM profiloing is only supported in environments with microtvm.experimental_tvmc_print_time=1"
         ret = [
             path,
             *["--device", device],

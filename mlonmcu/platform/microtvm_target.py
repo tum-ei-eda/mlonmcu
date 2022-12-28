@@ -300,13 +300,13 @@ class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         self.option_names = [
             "project_type",
             "verbose",
-            "idf_path"
-            "idf_tools_path"
-            "idf_target"
-            "idf_serial_port"
-            "idf_serial_baud"
-            "warning_as_error"
-            "compile_definitions"
+            "idf_path",
+            "idf_tools_path",
+            "idf_target",
+            "idf_serial_port",
+            "idf_serial_baud",
+            "warning_as_error",
+            "compile_definitions",
             "extra_files_tar",
         ]
 

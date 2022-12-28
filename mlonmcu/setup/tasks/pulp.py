@@ -43,7 +43,7 @@ def _validate_pulp(context: MlonMcuContext, params=None):
 
 
 def _validate_pulp_gcc(context: MlonMcuContext, params=None):
-    return context.environment.has_toolchain("gcc") and _validate_pulp
+    return context.environment.has_toolchain("gcc") and _validate_pulp(context, params)
 
 
 @Tasks.provides(["pulp_gcc.install_dir", "pulp_gcc.name"])

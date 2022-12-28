@@ -97,7 +97,10 @@ def update_extensions(exts, pext=None, pext_spec=None, vext=None, elen=None, emb
             if pext_spec and pext_spec > 0.96:
                 require.append("zbpbo")
     if vext:
-        if elen == 32:  # Required to tell the compiler that EEW=64 is not allowed...
+        if elen is None:
+            elen = 32
+        assert elen in [32, 64], f"Unsupported ELEN: {elen}"
+        if elen >= 32:  # Required to tell the compiler that EEW=64 is not allowed...
             if embedded:
                 if fpu in ["double", "single"]:
                     require.append("zve32f")
@@ -106,7 +109,7 @@ def update_extensions(exts, pext=None, pext_spec=None, vext=None, elen=None, emb
             else:
                 assert fpu == "double"
                 require.append("v")
-        elif elen == 64:
+        if elen == 64:
             if embedded:
                 if fpu == "double":
                     require.append("zve64d")
@@ -117,8 +120,6 @@ def update_extensions(exts, pext=None, pext_spec=None, vext=None, elen=None, emb
             else:
                 assert fpu == "double"
                 require.append("v")
-        else:
-            raise RuntimeError(f"Unsupported ELEN: {elen}")
 
     for ext in require:
         if ext not in ret:

@@ -281,7 +281,6 @@ class EtissvpMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
 
 class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-
     FEATURES = TemplateMicroTvmPlatformTarget.FEATURES + []
 
     DEFAULTS = {

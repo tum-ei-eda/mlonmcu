@@ -61,7 +61,6 @@ def get_espidf_platform_targets():
 
 
 class Esp32C3Target(Target):
-
     FEATURES = Target.FEATURES + []
 
     DEFAULTS = {

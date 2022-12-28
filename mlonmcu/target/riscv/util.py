@@ -67,6 +67,7 @@ def sort_extensions_canonical(extensions, lower=False, unpack=False):
 
     if lower:
         extensions_new = [x.lower() for x in extensions_new]
+
     return extensions_new
 
 

@@ -1043,7 +1043,6 @@ class LogInstructions(TargetFeature):
             "gvsoc_pulp",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
-
             if not target == "gvsoc_pulp":
 
                 def log_instrs_callback(stdout, metrics, artifacts):
@@ -1389,7 +1388,6 @@ class TvmProfile(PlatformFeature):
 
 @register_feature("xpulp")
 class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
-
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "xpulp_version": 2,

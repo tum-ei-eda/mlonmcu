@@ -83,7 +83,7 @@ def lookup_data_buffers(input_paths, output_paths):
     assert len(input_paths) > 0
     legacy = False
     used_fmt = None
-    allowed_fmts = ["bin", "npy"]
+    allowed_fmts = ["bin", "npy", "npz"]
 
     def helper(paths):
         nonlocal used_fmt, legacy

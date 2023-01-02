@@ -20,7 +20,8 @@
 
 # pylint: disable=wildcard-import, redefined-builtin
 
-from .platform import register_platform, get_platforms
+from .platform import Platform
+from ._platform import register_platform, get_platforms
 from . import _platform
 
-__all__ = ["register_platform", "get_platforms", "_platform"]
+__all__ = ["Platform", "register_platform", "get_platforms", "_platform"]

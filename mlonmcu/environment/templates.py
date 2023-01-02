@@ -37,6 +37,8 @@ def get_template_text(name):
 
 
 def fill_template(name, data={}):
+    if isinstance(name, Path):
+        name = str(name)
     if name.endswith(".j2"):  # Template from file
         assert Path(name).is_file(), f"Template does not exits: {name}"
         with open(name, "r") as handle:
@@ -47,8 +49,8 @@ def fill_template(name, data={}):
         if not isinstance(template_text, str):
             try:
                 template_text = template_text.decode("utf-8")
-            except UnicodeDecodeError:
-                pass
+            except UnicodeDecodeError as e:
+                raise e
         tmpl = jinja2.Template(template_text)
         rendered = tmpl.render(**data)
         return rendered

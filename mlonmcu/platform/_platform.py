@@ -16,14 +16,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from .platform import register_platform
 from .mlif import MlifPlatform
 from .espidf import EspIdfPlatform
 from .zephyr import ZephyrPlatform
 from .tvm import TvmPlatform
 from .microtvm import MicroTvmPlatform
-
 # from .arduino import ArduinoPlatform
+
+
+PLATFORM_REGISTRY = {}
+
+
+def register_platform(platform_name, p, override=False):
+    global PLATFORM_REGISTRY
+
+    if platform_name in PLATFORM_REGISTRY and not override:
+        raise RuntimeError(f"Platform {platform_name} is already registered")
+    PLATFORM_REGISTRY[platform_name] = p
+
+
+def get_platforms():
+    return PLATFORM_REGISTRY
+
 
 register_platform("mlif", MlifPlatform)
 register_platform("espidf", EspIdfPlatform)

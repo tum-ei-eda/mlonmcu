@@ -25,4 +25,5 @@ class ModelGroup:
         self.description = description
 
     def __repr__(self):
-        return f"ModelGroup({self.name},models={self.models})"
+        models_str = ",".join(self.models)
+        return f"ModelGroup({self.name},models=[{models_str}])"

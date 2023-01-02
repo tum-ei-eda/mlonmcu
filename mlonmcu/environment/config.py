@@ -33,7 +33,7 @@ def get_config_dir():
 
 def init_config_dir():
     config_dir = Path(get_config_dir())
-    config_dir.mkdir(parents=True)
+    config_dir.mkdir(parents=True, exist_ok=True)
     subdirs = ["environments", "models", "plugins"]
     files = ["environments.ini"]
     for subdir in subdirs:

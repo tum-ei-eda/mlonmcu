@@ -24,7 +24,7 @@ def parse_metadata(path):
     with open(path, "r") as yamlfile:
         try:
             content = yaml.safe_load(yamlfile)
-        except yaml.YAMLError as err:
+        except yaml.YAMLError as err:  # pragma: no cover
             raise RuntimeError(f"Could not open YAML file: {path}") from err
     return content
 

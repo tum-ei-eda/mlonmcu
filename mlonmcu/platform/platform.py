@@ -32,21 +32,6 @@ from mlonmcu.config import str2bool
 logger = get_logger()
 
 
-PLATFORM_REGISTRY = {}
-
-
-def register_platform(platform_name, p, override=False):
-    global PLATFORM_REGISTRY
-
-    if platform_name in PLATFORM_REGISTRY and not override:
-        raise RuntimeError(f"Platform {platform_name} is already registered")
-    PLATFORM_REGISTRY[platform_name] = p
-
-
-def get_platforms():
-    return PLATFORM_REGISTRY
-
-
 class Platform:
     """Abstract platform class."""
 

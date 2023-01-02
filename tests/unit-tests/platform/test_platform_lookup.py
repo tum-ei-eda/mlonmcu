@@ -16,10 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import pytest
 import mock
 import mlonmcu.platform.platform
 from mlonmcu.platform.platform import TargetPlatform
 import mlonmcu.platform.lookup
+from mlonmcu.platform import register_platform, get_platforms
 
 
 # TODO: also support non-target platforms and show their type in the list
@@ -45,6 +47,9 @@ class MyPlatformB(TargetPlatform):
     def get_supported_targets(self):
         return ["target_1"]
 
+    def get_supported_backends(self):
+        return ["backend_1"]
+
 
 class MyPlatformC(TargetPlatform):
     def __init__(self, features=None, config=None):
@@ -57,11 +62,78 @@ class MyPlatformC(TargetPlatform):
     def get_supported_targets(self):
         return ["target_1", "target_2"]
 
+    def get_supported_backends(self):
+        return ["backend_1", "backend_2"]
+
+
+def test_platform_get_platforms_targets(fake_context):
+    # empty
+    with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=[]):
+        with mock.patch("mlonmcu.platform._platform.get_platforms", return_value={}):
+            res = mlonmcu.platform.lookup.get_platforms_targets(fake_context, config={"a": "b"})
+            assert len(res) == 0
+
+    # single platform, no targets
+    with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=["platform_a"]):
+        with mock.patch("mlonmcu.platform.lookup.get_platforms", return_value={"platform_a": MyPlatformA}):
+            res = mlonmcu.platform.lookup.get_platforms_targets(fake_context, config={"a": "b"})
+            assert len(res) == 1
+            assert len(res["platform_a"]) == 0
+
+    # single platform, single target
+    with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=["platform_b"]):
+        with mock.patch("mlonmcu.platform.lookup.get_platforms", return_value={"platform_b": MyPlatformB}):
+            res = mlonmcu.platform.lookup.get_platforms_targets(fake_context, config={"a": "b"})
+            assert len(res) == 1
+            assert len(res["platform_b"]) == 1
+
+    # multiple platforms, overlapping targets
+    with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=["platform_b", "platform_c"]):
+        with mock.patch(
+            "mlonmcu.platform.lookup.get_platforms", return_value={"platform_b": MyPlatformB, "platform_c": MyPlatformC}
+        ):
+            res = mlonmcu.platform.lookup.get_platforms_targets(fake_context, config={"a": "b"})
+            assert len(res) == 2
+            assert len(res["platform_b"]) == 1
+            assert len(res["platform_c"]) == 2
+
+
+def test_platform_get_platforms_backends(fake_context):
+    # empty
+    with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=[]):
+        with mock.patch("mlonmcu.platform._platform.get_platforms", return_value={}):
+            res = mlonmcu.platform.lookup.get_platforms_backends(fake_context, config={"a": "b"})
+            assert len(res) == 0
+
+    # single platform, no backends
+    with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=["platform_a"]):
+        with mock.patch("mlonmcu.platform.lookup.get_platforms", return_value={"platform_a": MyPlatformA}):
+            res = mlonmcu.platform.lookup.get_platforms_backends(fake_context, config={"a": "b"})
+            assert len(res) == 1
+            assert len(res["platform_a"]) == 0
+
+    # single platform, single backend
+    with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=["platform_b"]):
+        with mock.patch("mlonmcu.platform.lookup.get_platforms", return_value={"platform_b": MyPlatformB}):
+            res = mlonmcu.platform.lookup.get_platforms_backends(fake_context, config={"a": "b"})
+            assert len(res) == 1
+            assert len(res["platform_b"]) == 1
+
+    # multiple platforms, overlapping backends
+    with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=["platform_b", "platform_c"]):
+        with mock.patch(
+            "mlonmcu.platform.lookup.get_platforms", return_value={"platform_b": MyPlatformB, "platform_c": MyPlatformC}
+        ):
+            res = mlonmcu.platform.lookup.get_platforms_backends(fake_context, config={"a": "b"})
+            assert len(res) == 2
+            assert len(res["platform_b"]) == 1
+            assert len(res["platform_c"]) == 2
+
 
 def test_platform_print_summary(capsys, fake_context):
     # empty
     with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=[]):
-        with mock.patch("mlonmcu.platform.platform.get_platforms", return_value={}):
+        with mock.patch("mlonmcu.platform._platform.get_platforms", return_value={}):
             mlonmcu.platform.lookup.print_summary(fake_context)
             out, err = capsys.readouterr()
             split = out.split("\n")
@@ -85,6 +157,7 @@ def test_platform_print_summary(capsys, fake_context):
             split = out.split("\n")
             assert "  - platform_b" in split
             assert "  - target_1 [platform_b]" in split
+            assert "  - backend_1 [platform_b]" in split
 
     # multiple platforms, overlapping targets
     with mock.patch("mlonmcu.platform.lookup.get_platform_names", return_value=["platform_b", "platform_c"]):
@@ -97,3 +170,26 @@ def test_platform_print_summary(capsys, fake_context):
             assert "  - platform_b" in split
             assert "  - target_1 [platform_b, platform_c]" in split
             assert "  - target_2 [platform_c]" in split
+            assert "  - backend_1 [platform_b, platform_c]" in split
+            assert "  - backend_2 [platform_c]" in split
+
+
+def test_platform_registry():
+    before = len(get_platforms())
+    register_platform("foo", MyPlatformA)
+    register_platform("bar", MyPlatformB)
+    assert len(get_platforms()) == before + 2
+    with pytest.raises(RuntimeError):
+        register_platform("foo", MyPlatformA)
+    assert len(get_platforms()) == before + 2
+    register_platform("foo", MyPlatformA, override=True)
+    assert len(get_platforms()) == before + 2
+
+
+def test_platform_get_platform_names(fake_context):
+    def lookup_platform_configs(names_only=True):
+        assert names_only
+        return ["foo", "bar"]
+    fake_context.environment.lookup_platform_configs = lookup_platform_configs
+    res = mlonmcu.platform.lookup.get_platform_names(fake_context)
+    assert res == ["foo", "bar"]

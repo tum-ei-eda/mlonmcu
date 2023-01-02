@@ -108,28 +108,44 @@ const size_t data_size_out[] = {sizeof(data_buffer_out_0_0), sizeof(data_buffer_
     )
 
 
-def test_models_utils_lookup_data_buffers_legacy(tmp_path_factory):
+@pytest.mark.parametrize("files", [False, True])
+@pytest.mark.parametrize("fmt", ["bin", "npy", "npz", "foo"])
+def test_models_utils_lookup_data_buffers_legacy(tmp_path_factory, files, fmt):
     ins_dir = tmp_path_factory.mktemp("ins")
     outs_dir = tmp_path_factory.mktemp("outs")
 
     def helper(fname):
-        with open(fname, "wb") as f:
-            f.write(bytes([1]))
+        if fmt in ["npy", "npz"]:
+            compressed = fmt == "npz"
+            if compressed:
+                np.savez(fname, np.ones(1, dtype="int8"))
+            else:
+                np.save(fname, np.ones(1, dtype="int8"))
+        else:  # bin, foo
+            with open(fname, "wb") as f:
+                f.write(bytes([1]))
 
     in_names = ["0", "1", "2"]
     out_names = ["0", "1", "2"]
 
-    in_files = [ins_dir / f"{name}.bin" for name in in_names]
-    out_files = [outs_dir / f"{name}.bin" for name in out_names]
+    in_files = [ins_dir / f"{name}.{fmt}" for name in in_names]
+    out_files = [outs_dir / f"{name}.{fmt}" for name in out_names]
 
     list(map(helper, in_files))
     list(map(helper, out_files))
 
-    ins, outs = lookup_data_buffers([ins_dir], [outs_dir])
+    if files:
+        ins, outs = lookup_data_buffers(in_files, out_files)
+    else:
+        ins, outs = lookup_data_buffers([ins_dir], [outs_dir])
     assert len(ins) == len(outs)
 
-    assert ins == [["0x01, "], ["0x01, "], ["0x01, "]]
-    assert outs == [["0x01, "], ["0x01, "], ["0x01, "]]
+    if fmt in ["bin", "npy", "npz"]:
+        assert ins == [["0x01, "], ["0x01, "], ["0x01, "]]
+        assert outs == [["0x01, "], ["0x01, "], ["0x01, "]]
+    else:
+        assert ins == []
+        assert outs == []
 
 
 def test_models_utils_lookup_data_buffers_legacy_multi(tmp_path_factory):

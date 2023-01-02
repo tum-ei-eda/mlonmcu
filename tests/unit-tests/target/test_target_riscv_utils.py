@@ -50,6 +50,9 @@ def test_target_riscv_join_extensions():
     assert join_extensions(["g", "c", "xcustom"]) == "gc_xcustom"
     assert join_extensions(["g", "c", "xcorev"]) == "gcxcorev"
 
+    with pytest.raises(AssertionError):
+        join_extensions(["g", "xcustom", "c"])
+
 
 def test_target_riscv_update_extensions():
     # default
@@ -78,7 +81,8 @@ def test_target_riscv_update_extensions():
     # assert update_extensions(["i", "m", "c", "p"], pext=False) == ["i", "m", "c", "?"]
 
     # vext
-    assert update_extensions(["g", "c"], vext=True, fpu="double") == ["g", "c", "v"]
+    assert update_extensions(["g", "c"], vext=True, fpu="double", elen=32) == ["g", "c", "v"]
+    assert update_extensions(["g", "c"], vext=True, fpu="double", elen=64) == ["g", "c", "v"]
     with pytest.raises(AssertionError):
         assert update_extensions(["g", "c"], vext=True, fpu="single")
     with pytest.raises(AssertionError):
@@ -89,6 +93,12 @@ def test_target_riscv_update_extensions():
     assert update_extensions(["g", "c"], vext=True, fpu=None, embedded=True, elen=64) == ["g", "c", "zve32x", "zve64x"]
     assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=32) == ["g", "c", "zve32f"]
     assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=32) == ["g", "c", "zve32f"]
+    assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=64) == [
+        "g",
+        "c",
+        "zve32f",
+        "zve64f",
+    ]
     assert update_extensions(["g", "c"], vext=True, fpu="double", embedded=True, elen=64) == [
         "g",
         "c",

@@ -115,7 +115,7 @@
 
 
 <div class="viewcode-block" id="Corstone300Target"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.Corstone300Target">[docs]</a><span class="k">class</span> <span class="nc">Corstone300Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ethosu&quot;</span><span class="p">,</span> <span class="s2">&quot;arm_mvei&quot;</span><span class="p">,</span> <span class="s2">&quot;arm_dsp&quot;</span><span class="p">]</span>
 
@@ -222,7 +222,7 @@
         <span class="p">]</span></div>
 
 <div class="viewcode-block" id="Corstone300Target.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.Corstone300Target.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="n">fvp_args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">fvp_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_default_fvp_args</span><span class="p">())</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_ethosu</span><span class="p">:</span>

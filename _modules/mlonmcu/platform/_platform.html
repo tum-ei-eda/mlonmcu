@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.feature.type &mdash; ML on MCU 0.3.0dev0 documentation</title>
+  <title>mlonmcu.platform._platform &mdash; ML on MCU 0.3.0dev0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -69,7 +69,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">mlonmcu.feature.type</li>
+      <li class="breadcrumb-item active">mlonmcu.platform._platform</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -78,7 +78,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for mlonmcu.feature.type</h1><div class="highlight"><pre>
+  <h1>Source code for mlonmcu.platform._platform</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
 <span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
 <span class="c1">#</span>
@@ -97,21 +97,34 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">.mlif</span> <span class="kn">import</span> <span class="n">MlifPlatform</span>
+<span class="kn">from</span> <span class="nn">.espidf</span> <span class="kn">import</span> <span class="n">EspIdfPlatform</span>
+<span class="kn">from</span> <span class="nn">.zephyr</span> <span class="kn">import</span> <span class="n">ZephyrPlatform</span>
+<span class="kn">from</span> <span class="nn">.tvm</span> <span class="kn">import</span> <span class="n">TvmPlatform</span>
+<span class="kn">from</span> <span class="nn">.microtvm</span> <span class="kn">import</span> <span class="n">MicroTvmPlatform</span>
+<span class="c1"># from .arduino import ArduinoPlatform</span>
 
 
-<div class="viewcode-block" id="FeatureType"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FeatureType">[docs]</a><span class="k">class</span> <span class="nc">FeatureType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for Feature types.&quot;&quot;&quot;</span>
+<span class="n">PLATFORM_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="n">OTHER</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">SETUP</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">FRONTEND</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">FRAMEWORK</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">BACKEND</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">TARGET</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="c1"># COMPILE = 6</span>
-    <span class="n">PLATFORM</span> <span class="o">=</span> <span class="mi">6</span>
-    <span class="n">RUN</span> <span class="o">=</span> <span class="mi">7</span></div>
+
+<div class="viewcode-block" id="register_platform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.register_platform">[docs]</a><span class="k">def</span> <span class="nf">register_platform</span><span class="p">(</span><span class="n">platform_name</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">PLATFORM_REGISTRY</span>
+
+    <span class="k">if</span> <span class="n">platform_name</span> <span class="ow">in</span> <span class="n">PLATFORM_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Platform </span><span class="si">{</span><span class="n">platform_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
+    <span class="n">PLATFORM_REGISTRY</span><span class="p">[</span><span class="n">platform_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span></div>
+
+
+<div class="viewcode-block" id="get_platforms"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.get_platforms">[docs]</a><span class="k">def</span> <span class="nf">get_platforms</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">PLATFORM_REGISTRY</span></div>
+
+
+<span class="n">register_platform</span><span class="p">(</span><span class="s2">&quot;mlif&quot;</span><span class="p">,</span> <span class="n">MlifPlatform</span><span class="p">)</span>
+<span class="n">register_platform</span><span class="p">(</span><span class="s2">&quot;espidf&quot;</span><span class="p">,</span> <span class="n">EspIdfPlatform</span><span class="p">)</span>
+<span class="n">register_platform</span><span class="p">(</span><span class="s2">&quot;zephyr&quot;</span><span class="p">,</span> <span class="n">ZephyrPlatform</span><span class="p">)</span>
+<span class="n">register_platform</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="n">TvmPlatform</span><span class="p">)</span>
+<span class="n">register_platform</span><span class="p">(</span><span class="s2">&quot;microtvm&quot;</span><span class="p">,</span> <span class="n">MicroTvmPlatform</span><span class="p">)</span>
 </pre></div>
 
            </div>

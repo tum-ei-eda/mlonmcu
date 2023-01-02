@@ -109,7 +109,7 @@
 
 
 <div class="viewcode-block" id="FeatureBase"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase">[docs]</a><span class="k">class</span> <span class="nc">FeatureBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Feature base class&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature base class&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">scope</span> <span class="o">=</span> <span class="kc">None</span>
@@ -145,7 +145,7 @@
 
 <div class="viewcode-block" id="FeatureBase.types"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FeatureBase.types">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Find out which types the features is based on.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find out which types the features is based on.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="n">feature_type</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">]</span></div></div>
 
     <span class="c1"># This does not make sense because the get_?_config methods may beed a parameter</span>
@@ -161,13 +161,13 @@
 
 
 <div class="viewcode-block" id="Feature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.Feature">[docs]</a><span class="k">class</span> <span class="nc">Feature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Feature of unknown type&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature of unknown type&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">OTHER</span></div>
 
 
 <div class="viewcode-block" id="FrontendFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FrontendFeature">[docs]</a><span class="k">class</span> <span class="nc">FrontendFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Frontend related feature&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Frontend related feature&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">FRONTEND</span>
 
@@ -186,7 +186,7 @@
 
 
 <div class="viewcode-block" id="FrameworkFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.FrameworkFeature">[docs]</a><span class="k">class</span> <span class="nc">FrameworkFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Framework related feature&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Framework related feature&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">FRAMEWORK</span>
 
@@ -202,7 +202,7 @@
 
 
 <div class="viewcode-block" id="BackendFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.BackendFeature">[docs]</a><span class="k">class</span> <span class="nc">BackendFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Backend related feature&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Backend related feature&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">BACKEND</span>
 
@@ -219,7 +219,7 @@
 
 
 <div class="viewcode-block" id="TargetFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.TargetFeature">[docs]</a><span class="k">class</span> <span class="nc">TargetFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Target related feature&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Target related feature&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">TARGET</span>
 
@@ -247,7 +247,7 @@
 
 
 <div class="viewcode-block" id="PlatformFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.PlatformFeature">[docs]</a><span class="k">class</span> <span class="nc">PlatformFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Platform/Compile related feature&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Platform/Compile related feature&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">PLATFORM</span>
 
@@ -268,7 +268,7 @@
 
 
 <div class="viewcode-block" id="SetupFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature">[docs]</a><span class="k">class</span> <span class="nc">SetupFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>  <span class="c1"># TODO: alternative: CacheFeature</span>
-    <span class="sd">&quot;&quot;&quot;Setup/Cache related feature&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup/Cache related feature&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">SETUP</span>
 
@@ -297,7 +297,7 @@
 
 
 <div class="viewcode-block" id="RunFeature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.feature.RunFeature">[docs]</a><span class="k">class</span> <span class="nc">RunFeature</span><span class="p">(</span><span class="n">FeatureBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Run related feature&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run related feature&quot;&quot;&quot;</span>
 
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">RUN</span>
 

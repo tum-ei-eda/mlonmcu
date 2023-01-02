@@ -115,7 +115,7 @@
 
 
 <div class="viewcode-block" id="RiscvQemuTarget"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget">[docs]</a><span class="k">class</span> <span class="nc">RiscvQemuTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Target using a spike machine in the QEMU simulator&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using a spike machine in the QEMU simulator&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">]</span>
 
@@ -190,7 +190,7 @@
         <span class="k">return</span> <span class="n">args</span></div>
 
 <div class="viewcode-block" id="RiscvQemuTarget.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.RiscvQemuTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Qemu does not support passing arguments.&quot;</span>
         <span class="n">qemu_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qemu_args</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
 

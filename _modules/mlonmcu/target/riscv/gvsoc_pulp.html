@@ -115,7 +115,7 @@
 
 
 <div class="viewcode-block" id="GvsocPulpTarget"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget">[docs]</a><span class="k">class</span> <span class="nc">GvsocPulpTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Target using a Pulpino-like VP running in the GVSOC simulator&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using a Pulpino-like VP running in the GVSOC simulator&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="s2">&quot;xpulp&quot;</span><span class="p">]</span>
 
@@ -191,7 +191,7 @@
 
 <div class="viewcode-block" id="GvsocPulpTarget.get_basic_gvsoc_simulating_arg"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.get_basic_gvsoc_simulating_arg">[docs]</a>    <span class="k">def</span> <span class="nf">get_basic_gvsoc_simulating_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">):</span>
         <span class="n">gvsoc_simulating_arg</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">gvsoc_simulating_arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--dir=</span><span class="si">{</span><span class="n">program</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;gvsim&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">gvsoc_simulating_arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--dir=</span><span class="si">{</span><span class="n">program</span><span class="o">.</span><span class="n">parent</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;gvsim&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">gvsoc_simulating_arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--config-file=pulp@config_file=chips/pulp/pulp.json&quot;</span><span class="p">)</span>
         <span class="n">gvsoc_simulating_arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--platform=gvsoc&quot;</span><span class="p">)</span>
         <span class="n">gvsoc_simulating_arg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--binary=</span><span class="si">{</span><span class="n">program</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -200,7 +200,7 @@
         <span class="k">return</span> <span class="n">gvsoc_simulating_arg</span></div>
 
 <div class="viewcode-block" id="GvsocPulpTarget.exec"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.gvsoc_pulp.GvsocPulpTarget.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Use target to execute an executable with given arguments&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to execute an executable with given arguments&quot;&quot;&quot;</span>
         <span class="n">gvsimDir</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;gvsim&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gvsimDir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">gvsimDir</span><span class="p">)</span>
@@ -209,7 +209,7 @@
         <span class="c1"># prepare simulation by compile gvsoc according to the chosen chip</span>
         <span class="n">gvsoc_compile_args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">gvsoc_compile_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;build&quot;</span><span class="p">)</span>
-        <span class="n">gvsoc_compile_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ARCHI_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pulp_freertos_support_dir</span> <span class="o">/</span> <span class="s1">&#39;archi&#39;</span> <span class="o">/</span> <span class="s1">&#39;include&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">gvsoc_compile_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ARCHI_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pulp_freertos_support_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;archi&#39;</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;include&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gvsoc_preparation_env</span><span class="p">())</span>

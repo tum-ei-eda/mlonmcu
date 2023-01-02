@@ -112,7 +112,7 @@
 
 
 <div class="viewcode-block" id="RWLockTimeout"><a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.RWLockTimeout">[docs]</a><span class="k">class</span> <span class="nc">RWLockTimeout</span><span class="p">(</span><span class="ne">TimeoutError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when the lock could not be acquired.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when the lock could not be acquired.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lock</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1">#: The Read or Write lock instance.</span>
@@ -130,7 +130,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
 
 <div class="viewcode-block" id="ReadFileLock.acquire"><a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.ReadFileLock.acquire">[docs]</a>    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function tried to acquire a ReadFileLock.</span>
 <span class="sd">        The process is the following:</span>
 <span class="sd">        1. acquire filelock</span>
@@ -189,7 +189,7 @@
         <span class="k">return</span> <span class="n">lock_acquire_success</span></div>
 
 <div class="viewcode-block" id="ReadFileLock.release"><a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.ReadFileLock.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function releases a ReadFileLock.</span>
 <span class="sd">        the process is the following:</span>
 <span class="sd">        1. acquire filelock</span>
@@ -226,7 +226,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This property returns if a lock is occupied(locked) by other processes.</span>
 <span class="sd">        the process is the following:</span>
 <span class="sd">        1. acquire filelock</span>
@@ -272,7 +272,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
 
 <div class="viewcode-block" id="WriteFileLock.acquire"><a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.WriteFileLock.acquire">[docs]</a>    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function tried to acquire a WriteFileLock.</span>
 <span class="sd">        The process is the following:</span>
 <span class="sd">        1. acquire filelock</span>
@@ -331,7 +331,7 @@
         <span class="k">return</span> <span class="n">lock_acquire_success</span></div>
 
 <div class="viewcode-block" id="WriteFileLock.release"><a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.WriteFileLock.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function releases a WriteFileLock.</span>
 <span class="sd">        the process is the following:</span>
 <span class="sd">        1. acquire filelock</span>
@@ -370,7 +370,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This property returns if a lock is occupied(locked) by other processes.</span>
 <span class="sd">        the process is the following:</span>
 <span class="sd">        1. acquire filelock</span>

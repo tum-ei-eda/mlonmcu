@@ -140,7 +140,7 @@
 <div class="viewcode-block" id="generate_header"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_header">[docs]</a><span class="k">def</span> <span class="nf">generate_header</span><span class="p">():</span>
     <span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
     <span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;// This file is generated. Do not edit.</span>
-<span class="s2">// Generated on: </span><span class="si">{</span><span class="n">time</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">// Generated on: </span><span class="si">{</span><span class="n">time</span><span class="si">}</span>
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">header</span></div>
 
@@ -260,8 +260,8 @@
     <span class="n">mainCode</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 
 
-<span class="s2">#define CRT_MEMORY_NUM_PAGES $</span><span class="si">{numPages}</span><span class="s2"></span>
-<span class="s2">#define CRT_MEMORY_PAGE_SIZE_LOG2 $</span><span class="si">{pageSizeLog2}</span><span class="s2"></span>
+<span class="s2">#define CRT_MEMORY_NUM_PAGES $</span><span class="si">{numPages}</span>
+<span class="s2">#define CRT_MEMORY_PAGE_SIZE_LOG2 $</span><span class="si">{pageSizeLog2}</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">debug_arena</span><span class="p">:</span>  <span class="c1"># This will enable the feature only if it is not overwritten by the user/compiler</span>
@@ -280,13 +280,13 @@
 <span class="s2">static MemoryManagerInterface* g_memory_manager;</span>
 
 <span class="s2">/*! </span><span class="se">\\</span><span class="s2">brief macro to do C API call */</span>
-<span class="s2">#define TVM_CCALL(func)                                                                   </span><span class="se">\\</span><span class="s2"></span>
-<span class="s2">    do {                                                                                  </span><span class="se">\\</span><span class="s2"></span>
-<span class="s2">        tvm_crt_error_t ret = (func);                                                     </span><span class="se">\\</span><span class="s2"></span>
-<span class="s2">        if (ret != kTvmErrorNoError) {                                                    </span><span class="se">\\</span><span class="s2"></span>
-<span class="s2">            TVMLogf(&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%d</span><span class="s2">: error: </span><span class="si">%s</span><span class="se">\\</span><span class="s2">n&quot;, __FILE__, __LINE__, TVMGetLastError());       </span><span class="se">\\</span><span class="s2"></span>
-<span class="s2">            TVMPlatformAbort(ret);                                                        </span><span class="se">\\</span><span class="s2"></span>
-<span class="s2">        }                                                                                 </span><span class="se">\\</span><span class="s2"></span>
+<span class="s2">#define TVM_CCALL(func)                                                                   </span><span class="se">\\</span>
+<span class="s2">    do {                                                                                  </span><span class="se">\\</span>
+<span class="s2">        tvm_crt_error_t ret = (func);                                                     </span><span class="se">\\</span>
+<span class="s2">        if (ret != kTvmErrorNoError) {                                                    </span><span class="se">\\</span>
+<span class="s2">            TVMLogf(&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%d</span><span class="s2">: error: </span><span class="si">%s</span><span class="se">\\</span><span class="s2">n&quot;, __FILE__, __LINE__, TVMGetLastError());       </span><span class="se">\\</span>
+<span class="s2">            TVMPlatformAbort(ret);                                                        </span><span class="se">\\</span>
+<span class="s2">        }                                                                                 </span><span class="se">\\</span>
 <span class="s2">    } while (0)</span>
 
 <span class="s2">TVMModuleHandle TVMArgs_AsModuleHandle(const TVMArgs* args, size_t index);</span>
@@ -373,7 +373,7 @@
 
 <span class="s2">void *TVMWrap_GetInputPtr(int index)</span>
 <span class="s2">{</span>
-<span class="s2">    $</span><span class="si">{inMeta}</span><span class="s2"></span>
+<span class="s2">    $</span><span class="si">{inMeta}</span>
 
 <span class="s2">    DLTensor input;</span>
 <span class="s2">    input.data = (void*)data[index];</span>
@@ -393,7 +393,7 @@
 
 <span class="s2">size_t TVMWrap_GetInputSize(int index)</span>
 <span class="s2">{</span>
-<span class="s2">    $</span><span class="si">{inSizes}</span><span class="s2"></span>
+<span class="s2">    $</span><span class="si">{inSizes}</span>
 
 <span class="s2">    return sizes[index];</span>
 <span class="s2">}</span>
@@ -414,7 +414,7 @@
 
 <span class="s2">void *TVMWrap_GetOutputPtr(int index)</span>
 <span class="s2">{</span>
-<span class="s2">    $</span><span class="si">{outMeta}</span><span class="s2"></span>
+<span class="s2">    $</span><span class="si">{outMeta}</span>
 
 <span class="s2">    DLTensor output;</span>
 <span class="s2">    output.data = (void*)data[index];</span>
@@ -434,7 +434,7 @@
 
 <span class="s2">size_t TVMWrap_GetOutputSize(int index)</span>
 <span class="s2">{</span>
-<span class="s2">    $</span><span class="si">{outSizes}</span><span class="s2"></span>
+<span class="s2">    $</span><span class="si">{outSizes}</span>
 
 <span class="s2">    return sizes[index];</span>
 <span class="s2">}</span>
@@ -633,7 +633,7 @@
 
 <span class="s2">size_t TVMWrap_GetInputSize(int index)</span>
 <span class="s2">{</span>
-<span class="s2">    $</span><span class="si">{inSizes}</span><span class="s2"></span>
+<span class="s2">    $</span><span class="si">{inSizes}</span>
 
 <span class="s2">    return sizes[index];</span>
 <span class="s2">}</span>
@@ -700,7 +700,7 @@
 
 <span class="s2">size_t TVMWrap_GetOutputSize(int index)</span>
 <span class="s2">{</span>
-<span class="s2">    $</span><span class="si">{outSizes}</span><span class="s2"></span>
+<span class="s2">    $</span><span class="si">{outSizes}</span>
 
 <span class="s2">    return sizes[index];</span>
 <span class="s2">}</span>

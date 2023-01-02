@@ -106,64 +106,64 @@
 <section id="environment-yml-explained">
 <h2><code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> Explained<a class="headerlink" href="#environment-yml-explained" title="Permalink to this headline"></a></h2>
 <p>Each MLonMCU environment has a unique directory which can be chosen by the user where dependencies are installed and exports are written to. In this directory which can also be referred as MLonMCU-Home the environment configuration file <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> can be found. The basic structure of this YAML file can be summarized as follows:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># The MLONMCU_HOME is filled in automatically when creating the environment</span><span class="w"></span>
-<span class="nt">home</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">home_dir</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"></span>
-<span class="nt">logging</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="c1"># Default locations for certain directoriescan be changed here</span><span class="w"></span>
-<span class="c1"># Non-absolute paths will always be threated relative to the MLONMCU_HOME</span><span class="w"></span>
-<span class="nt">paths</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">deps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deps</span><span class="w"></span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="c1"># Here default clone_urls</span><span class="w"></span>
-<span class="nt">repos</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">some_repo</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;insert_repo_url_here&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">optional_branch_tag_or_commit</span><span class="w"></span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># The MLONMCU_HOME is filled in automatically when creating the environment</span>
+<span class="nt">home</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">home_dir</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="nt">logging</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="c1"># Default locations for certain directoriescan be changed here</span>
+<span class="c1"># Non-absolute paths will always be threated relative to the MLONMCU_HOME</span>
+<span class="nt">paths</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">deps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deps</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="c1"># Here default clone_urls</span>
+<span class="nt">repos</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">some_repo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;insert_repo_url_here&quot;</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">optional_branch_tag_or_commit</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 
-<span class="c1"># Here all supported frameworks with their specific features are defined</span><span class="w"></span>
-<span class="c1"># Optionally disable unwanted or incomatible backends or features here</span><span class="w"></span>
-<span class="c1"># The configured defaults are used if no backend was specified in the command line options</span><span class="w"></span>
-<span class="nt">frameworks</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some_framework</span><span class="w"></span>
-<span class="w">  </span><span class="nt">some_framework</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">backends</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some_backend</span><span class="w"></span>
-<span class="w">      </span><span class="nt">some_backend</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">        </span><span class="nt">features</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="nt">some_feature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="w">    </span><span class="nt">features</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">another_feature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="c1"># The enabled fronends are processed in the order defined here until a compatible one is found for a given model type</span><span class="w"></span>
-<span class="nt">frontends</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">some_frontend</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">features</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">some_feature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="w">  </span><span class="nt">another_frontend</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="c1"># List of supported targets in the environment</span><span class="w"></span>
-<span class="nt">targets</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some_target</span><span class="w"></span>
-<span class="w">  </span><span class="nt">some_target</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="nt">features</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">some_featuee</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-<span class="c1"># This is where further options such as specific versions of dependencies can be set in the furture</span><span class="w"></span>
-<span class="nt">vars</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">some_backend.some_var</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w"></span>
-<span class="w">  </span><span class="nt">foo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;bar&quot;</span><span class="w"></span>
+<span class="c1"># Here all supported frameworks with their specific features are defined</span>
+<span class="c1"># Optionally disable unwanted or incomatible backends or features here</span>
+<span class="c1"># The configured defaults are used if no backend was specified in the command line options</span>
+<span class="nt">frameworks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some_framework</span>
+<span class="w">  </span><span class="nt">some_framework</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">backends</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some_backend</span>
+<span class="w">      </span><span class="nt">some_backend</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">features</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">some_feature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">    </span><span class="nt">features</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">another_feature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="c1"># The enabled fronends are processed in the order defined here until a compatible one is found for a given model type</span>
+<span class="nt">frontends</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">some_frontend</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">features</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">some_feature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">another_frontend</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="c1"># List of supported targets in the environment</span>
+<span class="nt">targets</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some_target</span>
+<span class="w">  </span><span class="nt">some_target</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">features</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">some_featuee</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="c1"># This is where further options such as specific versions of dependencies can be set in the furture</span>
+<span class="nt">vars</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">some_backend.some_var</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="nt">foo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;bar&quot;</span>
 </pre></div>
 </div>
 <p>While some parts of the file can theoretically be omitted, it is not recommended to do do. Also it has to be noted, that frameworks, backends, targets, frontends and features need to be explicitly enabled in the environment file to be available in the MLonMCU flow.</p>

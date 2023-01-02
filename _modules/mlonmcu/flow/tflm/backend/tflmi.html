@@ -291,7 +291,7 @@
 
 <span class="s2">class DummyReporter : public tflite::ErrorReporter {</span>
 <span class="s2">public:</span>
-<span class="s2">  ~DummyReporter() </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">  ~DummyReporter() </span><span class="si">{}</span>
 <span class="s2">  int Report(const char *, va_list) override { return 0; }</span>
 
 <span class="s2">private:</span>
@@ -347,42 +347,42 @@
 <span class="s2">&quot;&quot;&quot;</span>
 
         <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_ptr(int id) </span><span class="se">{{</span><span class="s2"></span>
+<span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_ptr(int id) </span><span class="se">{{</span>
 <span class="s2">  return interpreter-&gt;input(id)-&gt;data.data;</span>
-<span class="se">}}</span><span class="s2"></span>
+<span class="se">}}</span>
 
-<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_size(int id) </span><span class="se">{{</span><span class="s2"></span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_size(int id) </span><span class="se">{{</span>
 <span class="s2">  return interpreter-&gt;input(id)-&gt;bytes;</span>
-<span class="se">}}</span><span class="s2"></span>
+<span class="se">}}</span>
 
-<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_inputs() </span><span class="se">{{</span><span class="s2"></span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_inputs() </span><span class="se">{{</span>
 <span class="s2">  return interpreter-&gt;inputs_size();</span>
-<span class="se">}}</span><span class="s2"></span>
+<span class="se">}}</span>
 
-<span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_ptr(int id) </span><span class="se">{{</span><span class="s2"></span>
+<span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_ptr(int id) </span><span class="se">{{</span>
 <span class="s2">  return interpreter-&gt;output(id)-&gt;data.data;</span>
-<span class="se">}}</span><span class="s2"></span>
+<span class="se">}}</span>
 
-<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_size(int id) </span><span class="se">{{</span><span class="s2"></span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_size(int id) </span><span class="se">{{</span>
 <span class="s2">  return interpreter-&gt;output(id)-&gt;bytes;</span>
-<span class="se">}}</span><span class="s2"></span>
+<span class="se">}}</span>
 
-<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_outputs() </span><span class="se">{{</span><span class="s2"></span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_outputs() </span><span class="se">{{</span>
 <span class="s2">  return interpreter-&gt;outputs_size();</span>
-<span class="se">}}</span><span class="s2"></span>
+<span class="se">}}</span>
 
-<span class="s2">void </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_invoke() </span><span class="se">{{</span><span class="s2"></span>
+<span class="s2">void </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_invoke() </span><span class="se">{{</span>
 <span class="s2">  // Run inference, and report any error</span>
 <span class="s2">  TfLiteStatus invoke_status = interpreter-&gt;Invoke();</span>
-<span class="s2">  if (invoke_status != kTfLiteOk) </span><span class="se">{{</span><span class="s2"></span>
+<span class="s2">  if (invoke_status != kTfLiteOk) </span><span class="se">{{</span>
 <span class="s2">    error_reporter-&gt;Report(&quot;Invoke failed</span><span class="se">\\</span><span class="s2">n&quot;);</span>
 <span class="s2">    exit(1);</span>
-<span class="s2">  </span><span class="se">}}</span><span class="s2"></span>
+<span class="s2">  </span><span class="se">}}</span>
 <span class="s2">#if DEBUG_ARENA_USAGE</span>
 <span class="s2">  size_t used = interpreter-&gt;arena_used_bytes();</span>
 <span class="s2">  error_reporter-&gt;Report(&quot;Arena Usage after model invocation: %d bytes</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
 <span class="s2">#endif  // DEBUG_ARENA_USAGE</span>
-<span class="se">}}</span><span class="s2"></span>
+<span class="se">}}</span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">wrapper_content</span><span class="p">,</span> <span class="n">header_content</span>

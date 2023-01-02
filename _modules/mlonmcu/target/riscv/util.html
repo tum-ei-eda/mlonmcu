@@ -101,7 +101,7 @@
 
 
 <div class="viewcode-block" id="sort_extensions_canonical"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.util.sort_extensions_canonical">[docs]</a><span class="k">def</span> <span class="nf">sort_extensions_canonical</span><span class="p">(</span><span class="n">extensions</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Utility to get the canonical architecture name string.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility to get the canonical architecture name string.&quot;&quot;&quot;</span>
 
     <span class="c1"># See: https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf#table.22.1</span>
     <span class="n">ORDER</span> <span class="o">=</span> <span class="p">[</span>
@@ -148,6 +148,7 @@
 
     <span class="k">if</span> <span class="n">lower</span><span class="p">:</span>
         <span class="n">extensions_new</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">extensions_new</span><span class="p">]</span>
+
     <span class="k">return</span> <span class="n">extensions_new</span></div>
 
 
@@ -177,7 +178,10 @@
             <span class="k">if</span> <span class="n">pext_spec</span> <span class="ow">and</span> <span class="n">pext_spec</span> <span class="o">&gt;</span> <span class="mf">0.96</span><span class="p">:</span>
                 <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zbpbo&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">vext</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">elen</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>  <span class="c1"># Required to tell the compiler that EEW=64 is not allowed...</span>
+        <span class="k">if</span> <span class="n">elen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">elen</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">assert</span> <span class="n">elen</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported ELEN: </span><span class="si">{</span><span class="n">elen</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">elen</span> <span class="o">&gt;=</span> <span class="mi">32</span><span class="p">:</span>  <span class="c1"># Required to tell the compiler that EEW=64 is not allowed...</span>
             <span class="k">if</span> <span class="n">embedded</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">fpu</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;double&quot;</span><span class="p">,</span> <span class="s2">&quot;single&quot;</span><span class="p">]:</span>
                     <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32f&quot;</span><span class="p">)</span>
@@ -186,7 +190,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span>
                 <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">elen</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">elen</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">embedded</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span><span class="p">:</span>
                     <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve64d&quot;</span><span class="p">)</span>
@@ -197,8 +201,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span>
                 <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported ELEN: </span><span class="si">{</span><span class="n">elen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">require</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>

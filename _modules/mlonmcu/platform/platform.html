@@ -113,23 +113,8 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<span class="n">PLATFORM_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
-
-
-<div class="viewcode-block" id="register_platform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.register_platform">[docs]</a><span class="k">def</span> <span class="nf">register_platform</span><span class="p">(</span><span class="n">platform_name</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">PLATFORM_REGISTRY</span>
-
-    <span class="k">if</span> <span class="n">platform_name</span> <span class="ow">in</span> <span class="n">PLATFORM_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Platform </span><span class="si">{</span><span class="n">platform_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
-    <span class="n">PLATFORM_REGISTRY</span><span class="p">[</span><span class="n">platform_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span></div>
-
-
-<div class="viewcode-block" id="get_platforms"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.get_platforms">[docs]</a><span class="k">def</span> <span class="nf">get_platforms</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">PLATFORM_REGISTRY</span></div>
-
-
 <div class="viewcode-block" id="Platform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.Platform">[docs]</a><span class="k">class</span> <span class="nc">Platform</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Abstract platform class.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -195,7 +180,7 @@
 
 
 <div class="viewcode-block" id="BuildPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.BuildPlatform">[docs]</a><span class="k">class</span> <span class="nc">BuildPlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract backend platform class.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract backend platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
 
@@ -222,7 +207,7 @@
 
 
 <div class="viewcode-block" id="TunePlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TunePlatform">[docs]</a><span class="k">class</span> <span class="nc">TunePlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract backend platform class.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract backend platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
 
@@ -249,7 +234,7 @@
 
 
 <div class="viewcode-block" id="CompilePlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform">[docs]</a><span class="k">class</span> <span class="nc">CompilePlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract compile platform class.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract compile platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span>
 
@@ -304,7 +289,7 @@
 
 
 <div class="viewcode-block" id="TargetPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform">[docs]</a><span class="k">class</span> <span class="nc">TargetPlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract target platform class.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract target platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
 

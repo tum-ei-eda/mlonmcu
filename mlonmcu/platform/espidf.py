@@ -343,6 +343,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             import psutil
 
             def _kill_monitor():
+                import psutil
                 for proc in psutil.process_iter():
                     # check whether the process name matches
                     cmdline = " ".join(proc.cmdline())

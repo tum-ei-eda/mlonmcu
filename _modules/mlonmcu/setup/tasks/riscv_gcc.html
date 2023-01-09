@@ -211,6 +211,7 @@
         <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">):</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">riscvUrl</span><span class="p">,</span> <span class="n">riscvArchive</span><span class="p">,</span> <span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;riscv_gcc.name&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
         <span class="n">gccName</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>

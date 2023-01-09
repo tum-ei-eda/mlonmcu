@@ -23,6 +23,7 @@ import os
 from mlonmcu.environment.templates import get_template_names
 from mlonmcu.environment.config import get_environments_dir, DEFAULTS
 from mlonmcu.environment.init import initialize_environment
+from .helper.parse import extract_config
 
 
 def add_init_options(parser):
@@ -87,6 +88,21 @@ def add_init_options(parser):
         action="store_true",
         help="Allow overwriting an existing environment directory",
     )
+    init_parser.add_argument(
+        "-c",
+        "--config",
+        metavar="KEY=VALUE",
+        nargs="+",
+        action="append",
+        help=(
+            "Set a number of key-value pairs "
+            "(do not put spaces before or after the = sign). "
+            "If a value contains spaces, you should define "
+            "it with double quotes: "
+            'foo="this is a sentence". Note that '
+            "values are always treated as strings."
+        ),
+    )
 
 
 def get_parser(subparsers):
@@ -100,6 +116,7 @@ def get_parser(subparsers):
 def handle(args):
     """Callback function which will be called to process the init subcommand"""
     name = args.name[0] if isinstance(args.name, list) else args.name
+    config, _ = extract_config(args)
     initialize_environment(
         args.DIR,
         name,
@@ -109,4 +126,5 @@ def handle(args):
         register=args.register,
         template=args.template[0] if isinstance(args.template, list) else args.template,
         allow_exists=args.allow_exists,
+        config=config,
     )

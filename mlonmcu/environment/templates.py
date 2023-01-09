@@ -57,11 +57,13 @@ def fill_template(name, data={}):
     return None
 
 
-def fill_environment_yaml(template_name, home_dir):
-    return fill_template(template_name, {"home_dir": str(home_dir), "config_dir": str(get_config_dir())})
+def fill_environment_yaml(template_name, home_dir, config=None):
+    if not config:
+        config = {}
+    return fill_template(template_name, {"home_dir": str(home_dir), "config_dir": str(get_config_dir()), **config})
 
 
-def write_environment_yaml_from_template(path, template_name, home_dir):
+def write_environment_yaml_from_template(path, template_name, home_dir, config=None):
     with open(path, "w") as yaml:
-        text = fill_environment_yaml(template_name, home_dir)
+        text = fill_environment_yaml(template_name, home_dir, config=config)
         yaml.write(text)

@@ -130,6 +130,7 @@ def install_riscv_gcc(
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(riscvInstallDir):
             utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir, progress=verbose)
+    assert utils.is_populated(riscvInstallDir)
     if "riscv_gcc.name" in user_vars:
         gccName = user_vars["riscv_gcc.name"]
     else:

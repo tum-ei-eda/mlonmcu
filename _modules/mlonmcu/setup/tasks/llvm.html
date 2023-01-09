@@ -114,8 +114,12 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_llvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="c1"># return context.environment.has_framework(&quot;tvm&quot;) or context.environment.has_target(&quot;etiss_pulpino&quot;)</span>
-    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_toolchain</span><span class="p">(</span><span class="s2">&quot;llvm&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_toolchain</span><span class="p">(</span><span class="s2">&quot;llvm&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">):</span>
+        <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+        <span class="k">if</span> <span class="s2">&quot;tvm.use_tlcpack&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;use_tlcpack&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
 
 <div class="viewcode-block" id="install_llvm"><a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.llvm.install_llvm">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>

@@ -38,7 +38,7 @@ def _validate_tvm(context: MlonMcuContext, params=None):
         if not context.environment.has_feature("disable_legalize"):
             return False
     if "cmsisnn" in params and bool(params["cmsisnn"]):
-        if not context.environment.has_feature("cmsisnnbyoc"):
+        if not (context.environment.has_feature("cmsisnnbyoc") or context.environment.has_feature("muriscvnnbyoc")):
             return False
 
     return context.environment.has_framework("tvm")

@@ -345,6 +345,9 @@ def is_populated(path):
 
 
 def download_and_extract(url, archive, dest, progress=False):
+    if isinstance(dest, str):
+        dest = Path(dest)
+    assert isinstance(dest, Path)
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_archive = os.path.join(tmp_dir, archive)
         base_name = Path(archive).stem

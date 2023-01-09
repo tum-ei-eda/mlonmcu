@@ -33,8 +33,12 @@ Tasks = get_task_factory()
 
 
 def _validate_llvm(context: MlonMcuContext, params=None):
-    # return context.environment.has_framework("tvm") or context.environment.has_target("etiss_pulpino")
-    return context.environment.has_toolchain("llvm") or context.environment.has_framework("tvm")
+    if context.environment.has_toolchain("llvm"):
+        return True
+    if context.environment.has_framework("tvm"):
+        user_vars = context.environment.vars
+        if "tvm.use_tlcpack" in user_vars and not user_vars["use_tlcpack"]:
+            return True
 
 
 @Tasks.provides(["llvm.install_dir"])

@@ -954,23 +954,25 @@ class Run:
                 RunStage.COMPILE in self.artifacts_per_stage
                 and len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
             ):
-                assert len(names) == len(subs), "Run and Compile Stage should have the same number of subs"  # TODO: fix
-            subs = names
-            for name in self.artifacts_per_stage[RunStage.RUN]:
-                run_metrics_artifact = lookup_artifacts(
-                    self.artifacts_per_stage[RunStage.RUN][name], name="metrics.csv"
-                )[0]
-                run_metrics = Metrics.from_csv(run_metrics_artifact.content)
-                # Combine with compile metrics
-                if name in metrics_by_sub:
-                    metrics_data = metrics_by_sub[name].get_data()
-                else:
-                    metrics_data = {}
-                run_metrics_data = run_metrics.get_data()
-                for key, value in metrics_data.items():
-                    if key not in run_metrics_data:
-                        run_metrics.add(key, value)
-                metrics_by_sub[name] = run_metrics
+                if not self.failing:
+                    assert len(names) == len(subs), "Run and Compile Stage should have the same number of subs"  # TODO: fix
+            if not self.failing:
+                subs = names
+                for name in self.artifacts_per_stage[RunStage.RUN]:
+                    run_metrics_artifact = lookup_artifacts(
+                        self.artifacts_per_stage[RunStage.RUN][name], name="metrics.csv"
+                    )[0]
+                    run_metrics = Metrics.from_csv(run_metrics_artifact.content)
+                    # Combine with compile metrics
+                    if name in metrics_by_sub:
+                        metrics_data = metrics_by_sub[name].get_data()
+                    else:
+                        metrics_data = {}
+                    run_metrics_data = run_metrics.get_data()
+                    for key, value in metrics_data.items():
+                        if key not in run_metrics_data:
+                            run_metrics.add(key, value)
+                    metrics_by_sub[name] = run_metrics
 
         pres = []
         mains = []

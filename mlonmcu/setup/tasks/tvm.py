@@ -38,6 +38,7 @@ def _validate_tvm(context: MlonMcuContext, params=None):
 
 
 def _validate_tvm_build(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
     if not _validate_tvm(context, params=params):
         return False
     if "tvm.use_tlcpack" in user_vars and user_vars["tvm.use_tlcpack"]:

@@ -206,7 +206,7 @@ class GvsocPulpTarget(RISCVTarget):
     def get_backend_config(self, backend):
         ret = super().get_backend_config(backend)
         if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update({"target_model": "gvsoc_pulp"})
+            ret.update({"target_model": f"gvsoc_{self.model}"})
             ret.update({"target_mabi": self.abi})
         return ret
 

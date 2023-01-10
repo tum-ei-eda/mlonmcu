@@ -195,7 +195,7 @@ class TVMBackend(Backend):
     @property
     def use_tlcpack(self):
         value = self.config["tvm.use_tlcpack"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     def num_threads(self):
         return self.config["num_threads"]

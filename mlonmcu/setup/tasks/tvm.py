@@ -34,22 +34,24 @@ Tasks = get_task_factory()
 
 
 def _validate_tvm(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    patch = bool(params.get("patch", False))
+    if patch:
+        if not context.environment.has_feature("disable_legalize"):
+            return False
     return context.environment.has_framework("tvm")
 
 
 def _validate_tvm_build(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
-    if not _validate_tvm(context, params=params):
-        return False
-    if "tvm.use_tlcpack" in user_vars and user_vars["tvm.use_tlcpack"]:
-        assert not context.environment.has_feature("disable_legalize")
-        return False
-    if "patch" in params and bool(params["patch"]):
+    use_tlcpack = user_vars.get("tvm.use_tlcpack", False)
+    patch = bool(params.get("patch", False))
+    if patch:
         if not context.environment.has_feature("disable_legalize"):
             return False
-    if "cmsisnn" in params and bool(params["cmsisnn"]):
-        if not (context.environment.has_feature("cmsisnnbyoc") or context.environment.has_feature("muriscvnnbyoc")):
-            return False
+    if use_tlcpack:
+        assert not context.environment.has_feature("disable_legalize")
+        return False
 
     return context.environment.has_framework("tvm")
 

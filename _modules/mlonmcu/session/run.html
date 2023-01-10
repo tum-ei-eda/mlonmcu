@@ -1035,23 +1035,25 @@
                 <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span>
                 <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">][</span><span class="n">name</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span>
             <span class="p">):</span>
-                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">),</span> <span class="s2">&quot;Run and Compile Stage should have the same number of subs&quot;</span>  <span class="c1"># TODO: fix</span>
-            <span class="n">subs</span> <span class="o">=</span> <span class="n">names</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">]:</span>
-                <span class="n">run_metrics_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">][</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;metrics.csv&quot;</span>
-                <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">run_metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">run_metrics_artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-                <span class="c1"># Combine with compile metrics</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">metrics_by_sub</span><span class="p">:</span>
-                    <span class="n">metrics_data</span> <span class="o">=</span> <span class="n">metrics_by_sub</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">metrics_data</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="n">run_metrics_data</span> <span class="o">=</span> <span class="n">run_metrics</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metrics_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">run_metrics_data</span><span class="p">:</span>
-                        <span class="n">run_metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                <span class="n">metrics_by_sub</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_metrics</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">failing</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">),</span> <span class="s2">&quot;Run and Compile Stage should have the same number of subs&quot;</span>  <span class="c1"># TODO: fix</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">failing</span><span class="p">:</span>
+                <span class="n">subs</span> <span class="o">=</span> <span class="n">names</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">]:</span>
+                    <span class="n">run_metrics_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">RUN</span><span class="p">][</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;metrics.csv&quot;</span>
+                    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">run_metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">run_metrics_artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+                    <span class="c1"># Combine with compile metrics</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">metrics_by_sub</span><span class="p">:</span>
+                        <span class="n">metrics_data</span> <span class="o">=</span> <span class="n">metrics_by_sub</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">metrics_data</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">run_metrics_data</span> <span class="o">=</span> <span class="n">run_metrics</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metrics_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">run_metrics_data</span><span class="p">:</span>
+                            <span class="n">run_metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                    <span class="n">metrics_by_sub</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_metrics</span>
 
         <span class="n">pres</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">mains</span> <span class="o">=</span> <span class="p">[]</span>

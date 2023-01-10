@@ -377,6 +377,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
             "muriscvnn.lib": ["vext"],
             "tflmc.exe": ["vext"],
             "riscv_gcc.install_dir": ["vext"],
+            "riscv_gcc.name": ["vext"],
         }
 
 
@@ -417,6 +418,7 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
             "muriscvnn.lib": ["pext"],
             "tflmc.exe": ["pext"],
             "riscv_gcc.install_dir": ["pext"],
+            "riscv_gcc.name": ["pext"],
         }
 
 

@@ -30,6 +30,7 @@ from .microtvm_espidf_target import EspidfMicroTvmPlatformTarget
 from .microtvm_host_target import HostMicroTvmPlatformTarget
 from .microtvm_etissvp_target import EtissvpMicroTvmPlatformTarget
 from .microtvm_spike_target import SpikeMicroTvmPlatformTarget
+from .microtvm_gvsoc_target import GVSocMicroTvmPlatformTarget
 
 logger = get_logger()
 
@@ -59,6 +60,7 @@ register_microtvm_platform_target("microtvm_host", HostMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_etissvp", EtissvpMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_espidf", EspidfMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_gvsoc", GVSocMicroTvmPlatformTarget)
 
 
 def create_microtvm_platform_target(name, platform, base=Target):

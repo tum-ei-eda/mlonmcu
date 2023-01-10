@@ -125,6 +125,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["pyserial", "pyusb"],
         ),
     ),
+    ("microtvm_gvsoc", ("Requirements for microtvm_gvsoc target", ["hydra-core"])),
     # Provide support for moiopt.
     ("moiopt", ("Requirements for moiopt", ["ortools"])),
     # Provide support for onnx.
@@ -221,6 +222,7 @@ CONSTRAINTS = [
     ("gdbgui", "==0.13.2.0"),
     ("graphviz", None),
     ("humanize", None),
+    ("hydra-core", None),
     ("idf-component-manager", "~=1.0"),
     ("itsdangerous", "<2.1"),
     ("jinja2", "<3.1"),

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.microtvm.microtvm_spike_target &mdash; ML on MCU 0.3.0dev0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.3.0dev0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.platform.microtvm.microtvm_spike_target</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.platform.microtvm.microtvm_spike_target</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">import</span> <span class="nn">mlonmcu.target.riscv.util</span> <span class="k">as</span> <span class="nn">riscv_util</span>
+
+<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="kn">from</span> <span class="nn">.microtvm_template_target</span> <span class="kn">import</span> <span class="n">TemplateMicroTvmPlatformTarget</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="SpikeMicroTvmPlatformTarget"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_spike_target.SpikeMicroTvmPlatformTarget">[docs]</a><span class="k">class</span> <span class="nc">SpikeMicroTvmPlatformTarget</span><span class="p">(</span><span class="n">TemplateMicroTvmPlatformTarget</span><span class="p">):</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">TemplateMicroTvmPlatformTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="s2">&quot;pext&quot;</span><span class="p">]</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">TemplateMicroTvmPlatformTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;arch&quot;</span><span class="p">:</span> <span class="s2">&quot;rv32gc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;abi&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;spike_extra_args&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;pk_extra_args&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;vext_spec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;embedded_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;enable_pext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;pext_spec&quot;</span><span class="p">:</span> <span class="mf">0.92</span><span class="p">,</span>  <span class="c1"># ?</span>
+        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
+        <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Target</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="s2">&quot;spike.exe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;spike.pk&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;riscv_gcc.variant&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_src_dir</span> <span class="o">/</span> <span class="s2">&quot;apps&quot;</span> <span class="o">/</span> <span class="s2">&quot;microtvm&quot;</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span>
+        <span class="c1"># TODO: interate into TVM build config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;verbose&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_exe&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_pk&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;arch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;abi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;triple&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_extra_args&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pk_extra_args&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spike_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spike_pk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spike.pk&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">riscv_gcc_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gcc_variant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.variant&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">riscv_gcc_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tvm_src_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enable_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_vext&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enable_pext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_pext&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">exts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span>
+        <span class="k">if</span> <span class="s2">&quot;g&quot;</span> <span class="ow">in</span> <span class="n">exts</span> <span class="ow">or</span> <span class="s2">&quot;d&quot;</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;double&quot;</span>
+        <span class="k">elif</span> <span class="s2">&quot;f&quot;</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;single&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;none&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpu</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">arch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arch&quot;</span><span class="p">]</span>
+        <span class="n">xlen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">arch</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">xlen</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">arch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arch&quot;</span><span class="p">]</span>
+        <span class="n">exts_str</span> <span class="o">=</span> <span class="n">arch</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+
+        <span class="k">def</span> <span class="nf">_split_exts</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">splitted</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">splitted</span><span class="p">:</span>
+                <span class="n">lowered</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lowered</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lowered</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">cc</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]:</span>
+                            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lowered</span><span class="p">[</span><span class="n">i</span><span class="p">:])</span>
+                            <span class="k">break</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cc</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="n">exts</span> <span class="o">=</span> <span class="n">_split_exts</span><span class="p">(</span><span class="n">exts_str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;g&quot;</span> <span class="ow">in</span> <span class="n">exts</span> <span class="ow">or</span> <span class="s2">&quot;d&quot;</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+            <span class="n">fpu</span> <span class="o">=</span> <span class="s2">&quot;double&quot;</span>
+        <span class="k">elif</span> <span class="s2">&quot;f&quot;</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+            <span class="n">fpu</span> <span class="o">=</span> <span class="s2">&quot;single&quot;</span>
+        <span class="k">return</span> <span class="n">riscv_util</span><span class="o">.</span><span class="n">update_extensions</span><span class="p">(</span>
+            <span class="n">exts</span><span class="p">,</span>
+            <span class="n">pext</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">,</span>
+            <span class="n">pext_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span><span class="p">,</span>
+            <span class="n">vext</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">,</span>
+            <span class="n">elen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="p">,</span>
+            <span class="n">embedded</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_vext</span><span class="p">,</span>
+            <span class="n">fpu</span><span class="o">=</span><span class="n">fpu</span><span class="p">,</span>
+            <span class="n">variant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gcc_variant</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vlen&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">elen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;elen&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vext_spec&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">embedded_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;embedded_vext&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;pext_spec&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">exts_str</span> <span class="o">=</span> <span class="n">riscv_util</span><span class="o">.</span><span class="n">join_extensions</span><span class="p">(</span><span class="n">riscv_util</span><span class="o">.</span><span class="n">sort_extensions_canonical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extensions</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}{</span><span class="n">exts_str</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="SpikeMicroTvmPlatformTarget.get_project_options"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_spike_target.SpikeMicroTvmPlatformTarget.get_project_options">[docs]</a>    <span class="k">def</span> <span class="nf">get_project_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_project_options</span><span class="p">()</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;spike_exe&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spike_exe</span><span class="p">),</span>
+                <span class="s2">&quot;spike_pk&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spike_pk</span><span class="p">),</span>
+                <span class="s2">&quot;triple&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_install_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_name</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="SpikeMicroTvmPlatformTarget.update_environment"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_spike_target.SpikeMicroTvmPlatformTarget.update_environment">[docs]</a>    <span class="k">def</span> <span class="nf">update_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update_environment</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;PATH&quot;</span> <span class="ow">in</span> <span class="n">env</span><span class="p">:</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_install_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_install_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpikeMicroTvmPlatformTarget.get_backend_config"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_spike_target.SpikeMicroTvmPlatformTarget.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;target_device&quot;</span><span class="p">:</span> <span class="s2">&quot;riscv_cpu&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;target_march&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
+                    <span class="s2">&quot;target_model&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;spike-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;target_mtriple&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_name</span><span class="p">,</span>
+                    <span class="s2">&quot;target_mabi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;abi&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="c1"># Warning: passing kernel layouts does not work with upstream TVM</span>
+                        <span class="c1"># TODO: allow passing map?</span>
+                        <span class="s2">&quot;desired_layout&quot;</span><span class="p">:</span> <span class="s2">&quot;NHWC:HWOI&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.zephyr package &mdash; ML on MCU 0.3.0dev0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.session package" href="mlonmcu.session.html" />
+    <link rel="prev" title="mlonmcu.platform.tvm package" href="mlonmcu.platform.tvm.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.3.0dev0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="modules.html">mlonmcu</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.html">mlonmcu package</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.platform.html">mlonmcu.platform package</a></li>
+      <li class="breadcrumb-item active">mlonmcu.platform.zephyr package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.platform.zephyr.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-platform-zephyr-package">
+<h1>mlonmcu.platform.zephyr package<a class="headerlink" href="#mlonmcu-platform-zephyr-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-mlonmcu.platform.zephyr.zephyr">
+<span id="mlonmcu-platform-zephyr-zephyr-module"></span><h2>mlonmcu.platform.zephyr.zephyr module<a class="headerlink" href="#module-mlonmcu.platform.zephyr.zephyr" title="Permalink to this headline"></a></h2>
+<p>Zephyr Platform</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.zephyr.zephyr.</span></span><span class="sig-name descname"><span class="pre">ZephyrPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform" title="mlonmcu.platform.platform.CompilePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.CompilePlatform</span></code></a>, <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a></p>
+<p>Zephyr Platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['zephyr.install_dir',</span> <span class="pre">'zephyr.sdk_dir',</span> <span class="pre">'zephyr.venv_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.baud">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">baud</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.baud" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.build_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.build_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.create_target">
+<span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.create_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.flash">
+<span class="sig-name descname"><span class="pre">flash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.flash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.flash" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.flash_only">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flash_only</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.flash_only" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.generate_elf">
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_serial">
+<span class="sig-name descname"><span class="pre">get_serial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.get_serial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_serial" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_supported_targets">
+<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_supported_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_west_cmake_args">
+<span class="sig-name descname"><span class="pre">get_west_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.get_west_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_west_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.init_directory">
+<span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.init_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.invoke_west">
+<span class="sig-name descname"><span class="pre">invoke_west</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.invoke_west"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.invoke_west" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.monitor">
+<span class="sig-name descname"><span class="pre">monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.optimize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.optimize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.prepare">
+<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.prepare" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.project_template">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_template</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.project_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.wait_for_user">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_user</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.wait_for_user" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.zephyr_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.zephyr_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.zephyr_sdk_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_sdk_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.zephyr_sdk_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.zephyr_venv_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_venv_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.zephyr_venv_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr.get_project_template">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.zephyr.zephyr.</span></span><span class="sig-name descname"><span class="pre">get_project_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'project2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#get_project_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr.get_project_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.zephyr.zephyr_target">
+<span id="mlonmcu-platform-zephyr-zephyr-target-module"></span><h2>mlonmcu.platform.zephyr.zephyr_target module<a class="headerlink" href="#module-mlonmcu.platform.zephyr.zephyr_target" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.zephyr_target.create_zephyr_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.zephyr.zephyr_target.</span></span><span class="sig-name descname"><span class="pre">create_zephyr_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr_target.html#create_zephyr_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.zephyr_target.create_zephyr_platform_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.zephyr">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.platform.zephyr" title="Permalink to this headline"></a></h2>
+<p>MLonMCU Zephyr platform</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.zephyr.</span></span><span class="sig-name descname"><span class="pre">ZephyrPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform" title="mlonmcu.platform.platform.CompilePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.CompilePlatform</span></code></a>, <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a></p>
+<p>Zephyr Platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['zephyr.install_dir',</span> <span class="pre">'zephyr.sdk_dir',</span> <span class="pre">'zephyr.venv_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.baud">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">baud</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.baud" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.build_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.build_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.create_target">
+<span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.create_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.flash">
+<span class="sig-name descname"><span class="pre">flash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.flash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.flash" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.flash_only">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flash_only</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.flash_only" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.generate_elf">
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.get_serial">
+<span class="sig-name descname"><span class="pre">get_serial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.get_serial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.get_serial" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.get_supported_targets">
+<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.get_supported_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.get_west_cmake_args">
+<span class="sig-name descname"><span class="pre">get_west_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.get_west_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.get_west_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.init_directory">
+<span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.init_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.invoke_west">
+<span class="sig-name descname"><span class="pre">invoke_west</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.invoke_west"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.invoke_west" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.monitor">
+<span class="sig-name descname"><span class="pre">monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.optimize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.optimize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.prepare">
+<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/zephyr/zephyr.html#ZephyrPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.prepare" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.project_template">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_template</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.project_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.wait_for_user">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_user</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.wait_for_user" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_sdk_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_sdk_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_sdk_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_venv_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zephyr_venv_dir</span></span><a class="headerlink" href="#mlonmcu.platform.zephyr.ZephyrPlatform.zephyr_venv_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mlonmcu.platform.tvm.html" class="btn btn-neutral float-left" title="mlonmcu.platform.tvm package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.session.html" class="btn btn-neutral float-right" title="mlonmcu.session package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

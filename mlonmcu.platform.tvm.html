@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.tvm package &mdash; ML on MCU 0.3.0dev0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.platform.zephyr package" href="mlonmcu.platform.zephyr.html" />
+    <link rel="prev" title="mlonmcu.platform.mlif package" href="mlonmcu.platform.mlif.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.3.0dev0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="modules.html">mlonmcu</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.html">mlonmcu package</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.platform.html">mlonmcu.platform package</a></li>
+      <li class="breadcrumb-item active">mlonmcu.platform.tvm package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.platform.tvm.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-platform-tvm-package">
+<h1>mlonmcu.platform.tvm package<a class="headerlink" href="#mlonmcu-platform-tvm-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-mlonmcu.platform.tvm.tvm">
+<span id="mlonmcu-platform-tvm-tvm-module"></span><h2>mlonmcu.platform.tvm.tvm module<a class="headerlink" href="#module-mlonmcu.platform.tvm.tvm" title="Permalink to this headline"></a></h2>
+<p>TVM Platform</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm.tvm.</span></span><span class="sig-name descname"><span class="pre">TvmPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.BuildPlatform" title="mlonmcu.platform.platform.BuildPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.BuildPlatform</span></code></a>, <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a>, <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TunePlatform" title="mlonmcu.platform.platform.TunePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TunePlatform</span></code></a></p>
+<p>TVM Platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'aggregate':</span> <span class="pre">'none',</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_mode':</span> <span class="pre">'autotvm',</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_print_outputs':</span> <span class="pre">False,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_tasks':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'autotuning_visualize':</span> <span class="pre">False,</span> <span class="pre">'experimental_tvmc_tune_tasks':</span> <span class="pre">False,</span> <span class="pre">'experimental_tvmc_tune_visualize':</span> <span class="pre">False,</span> <span class="pre">'fill_mode':</span> <span class="pre">'random',</span> <span class="pre">'ins_file':</span> <span class="pre">None,</span> <span class="pre">'number':</span> <span class="pre">1,</span> <span class="pre">'outs_file':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'print_top':</span> <span class="pre">False,</span> <span class="pre">'profile':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'repeat':</span> <span class="pre">1,</span> <span class="pre">'rpc_hostname':</span> <span class="pre">None,</span> <span class="pre">'rpc_key':</span> <span class="pre">None,</span> <span class="pre">'rpc_port':</span> <span class="pre">None,</span> <span class="pre">'total_time':</span> <span class="pre">False,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'use_rpc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark',</span> <span class="pre">'tvm_rpc',</span> <span class="pre">'autotune',</span> <span class="pre">'tvm_profile']</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir',</span> <span class="pre">'tvm.pythonpath',</span> <span class="pre">'tvm.configs_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.aggregate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">aggregate</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.aggregate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.create_backend">
+<span class="sig-name descname"><span class="pre">create_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.create_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.create_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.create_target">
+<span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.create_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.experimental_tvmc_tune_tasks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">experimental_tvmc_tune_tasks</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.experimental_tvmc_tune_tasks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.experimental_tvmc_tune_visualize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">experimental_tvmc_tune_visualize</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.experimental_tvmc_tune_visualize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.fill_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fill_mode</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.fill_mode" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.get_supported_backends">
+<span class="sig-name descname"><span class="pre">get_supported_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.get_supported_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.get_supported_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.get_supported_targets">
+<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.get_supported_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.get_tune_args">
+<span class="sig-name descname"><span class="pre">get_tune_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.get_tune_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.get_tune_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.get_tvmc_run_args">
+<span class="sig-name descname"><span class="pre">get_tvmc_run_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.get_tvmc_run_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.get_tvmc_run_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.init_directory">
+<span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.init_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.ins_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ins_file</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.ins_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.invoke_tvmc">
+<span class="sig-name descname"><span class="pre">invoke_tvmc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.invoke_tvmc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.invoke_tvmc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.invoke_tvmc_run">
+<span class="sig-name descname"><span class="pre">invoke_tvmc_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.invoke_tvmc_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.invoke_tvmc_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.number">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">number</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.number" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.outs_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outs_file</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.outs_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.print_top">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_top</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.print_top" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.profile">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.profile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.repeat">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">repeat</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.repeat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.rpc_hostname">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rpc_hostname</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.rpc_hostname" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.rpc_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rpc_key</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.rpc_key" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.rpc_port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rpc_port</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.rpc_port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.total_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_time</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.total_time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.tune_model">
+<span class="sig-name descname"><span class="pre">tune_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.tune_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.tune_model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.tvm_build_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_build_dir</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.tvm_build_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.tvm_configs_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_configs_dir</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.tvm_configs_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.tvm_pythonpath">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_pythonpath</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.tvm_pythonpath" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.tvmc_custom_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvmc_custom_script</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.tvmc_custom_script" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.tvmc_extra_args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvmc_extra_args</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.tvmc_extra_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm.TvmPlatform.use_rpc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_rpc</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.tvm.TvmPlatform.use_rpc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.tvm.tvm_backend">
+<span id="mlonmcu-platform-tvm-tvm-backend-module"></span><h2>mlonmcu.platform.tvm.tvm_backend module<a class="headerlink" href="#module-mlonmcu.platform.tvm.tvm_backend" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm_backend.create_tvm_platform_backend">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm.tvm_backend.</span></span><span class="sig-name descname"><span class="pre">create_tvm_platform_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.flow.tvm.backend.backend.TVMBackend'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm_backend.html#create_tvm_platform_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm_backend.create_tvm_platform_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm_backend.get_tvm_platform_backends">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm.tvm_backend.</span></span><span class="sig-name descname"><span class="pre">get_tvm_platform_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm_backend.html#get_tvm_platform_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm_backend.get_tvm_platform_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm_backend.register_tvm_platform_backend">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm.tvm_backend.</span></span><span class="sig-name descname"><span class="pre">register_tvm_platform_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm_backend.html#register_tvm_platform_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm_backend.register_tvm_platform_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.tvm.tvm_target">
+<span id="mlonmcu-platform-tvm-tvm-target-module"></span><h2>mlonmcu.platform.tvm.tvm_target module<a class="headerlink" href="#module-mlonmcu.platform.tvm.tvm_target" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm_target.create_tvm_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm.tvm_target.</span></span><span class="sig-name descname"><span class="pre">create_tvm_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm_target.html#create_tvm_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm_target.create_tvm_platform_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.tvm_target.name2device">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm.tvm_target.</span></span><span class="sig-name descname"><span class="pre">name2device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm_target.html#name2device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.tvm_target.name2device" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.tvm">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.platform.tvm" title="Permalink to this headline"></a></h2>
+<p>MLonMCU TVM platform</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.tvm.</span></span><span class="sig-name descname"><span class="pre">TvmPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.BuildPlatform" title="mlonmcu.platform.platform.BuildPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.BuildPlatform</span></code></a>, <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a>, <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TunePlatform" title="mlonmcu.platform.platform.TunePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TunePlatform</span></code></a></p>
+<p>TVM Platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'aggregate':</span> <span class="pre">'none',</span> <span class="pre">'autotuning_append':</span> <span class="pre">None,</span> <span class="pre">'autotuning_early_stopping':</span> <span class="pre">None,</span> <span class="pre">'autotuning_enable':</span> <span class="pre">False,</span> <span class="pre">'autotuning_max_parallel':</span> <span class="pre">1,</span> <span class="pre">'autotuning_mode':</span> <span class="pre">'autotvm',</span> <span class="pre">'autotuning_num_workers':</span> <span class="pre">1,</span> <span class="pre">'autotuning_print_outputs':</span> <span class="pre">False,</span> <span class="pre">'autotuning_results_file':</span> <span class="pre">None,</span> <span class="pre">'autotuning_tasks':</span> <span class="pre">None,</span> <span class="pre">'autotuning_timeout':</span> <span class="pre">100,</span> <span class="pre">'autotuning_trials':</span> <span class="pre">10,</span> <span class="pre">'autotuning_tuner':</span> <span class="pre">'ga',</span> <span class="pre">'autotuning_use_rpc':</span> <span class="pre">False,</span> <span class="pre">'autotuning_visualize':</span> <span class="pre">False,</span> <span class="pre">'experimental_tvmc_tune_tasks':</span> <span class="pre">False,</span> <span class="pre">'experimental_tvmc_tune_visualize':</span> <span class="pre">False,</span> <span class="pre">'fill_mode':</span> <span class="pre">'random',</span> <span class="pre">'ins_file':</span> <span class="pre">None,</span> <span class="pre">'number':</span> <span class="pre">1,</span> <span class="pre">'outs_file':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'print_top':</span> <span class="pre">False,</span> <span class="pre">'profile':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'repeat':</span> <span class="pre">1,</span> <span class="pre">'rpc_hostname':</span> <span class="pre">None,</span> <span class="pre">'rpc_key':</span> <span class="pre">None,</span> <span class="pre">'rpc_port':</span> <span class="pre">None,</span> <span class="pre">'total_time':</span> <span class="pre">False,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'use_rpc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark',</span> <span class="pre">'tvm_rpc',</span> <span class="pre">'autotune',</span> <span class="pre">'tvm_profile']</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['tvm.build_dir',</span> <span class="pre">'tvm.pythonpath',</span> <span class="pre">'tvm.configs_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.aggregate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">aggregate</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.aggregate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.create_backend">
+<span class="sig-name descname"><span class="pre">create_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.create_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.create_backend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.create_target">
+<span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.create_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.experimental_tvmc_tune_tasks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">experimental_tvmc_tune_tasks</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.experimental_tvmc_tune_tasks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.experimental_tvmc_tune_visualize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">experimental_tvmc_tune_visualize</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.experimental_tvmc_tune_visualize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.fill_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fill_mode</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.fill_mode" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.get_supported_backends">
+<span class="sig-name descname"><span class="pre">get_supported_backends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.get_supported_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.get_supported_backends" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.get_supported_targets">
+<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.get_supported_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.get_tune_args">
+<span class="sig-name descname"><span class="pre">get_tune_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.get_tune_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.get_tune_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.get_tvmc_run_args">
+<span class="sig-name descname"><span class="pre">get_tvmc_run_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.get_tvmc_run_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.get_tvmc_run_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.init_directory">
+<span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.init_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.ins_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ins_file</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.ins_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.invoke_tvmc">
+<span class="sig-name descname"><span class="pre">invoke_tvmc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.invoke_tvmc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.invoke_tvmc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.invoke_tvmc_run">
+<span class="sig-name descname"><span class="pre">invoke_tvmc_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.invoke_tvmc_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.invoke_tvmc_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.number">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">number</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.number" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.outs_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outs_file</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.outs_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.print_top">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_top</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.print_top" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.profile">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.profile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.repeat">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">repeat</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.repeat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.rpc_hostname">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rpc_hostname</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.rpc_hostname" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.rpc_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rpc_key</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.rpc_key" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.rpc_port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rpc_port</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.rpc_port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.total_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_time</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.total_time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.tune_model">
+<span class="sig-name descname"><span class="pre">tune_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/tvm/tvm.html#TvmPlatform.tune_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.tune_model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.tvm_build_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_build_dir</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.tvm_build_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.tvm_configs_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_configs_dir</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.tvm_configs_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.tvm_pythonpath">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvm_pythonpath</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.tvm_pythonpath" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.tvmc_custom_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvmc_custom_script</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.tvmc_custom_script" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.tvmc_extra_args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tvmc_extra_args</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.tvmc_extra_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.tvm.TvmPlatform.use_rpc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_rpc</span></span><a class="headerlink" href="#mlonmcu.platform.tvm.TvmPlatform.use_rpc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mlonmcu.platform.mlif.html" class="btn btn-neutral float-left" title="mlonmcu.platform.mlif package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.platform.zephyr.html" class="btn btn-neutral float-right" title="mlonmcu.platform.zephyr package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.espidf package &mdash; ML on MCU 0.3.0dev0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.platform.microtvm package" href="mlonmcu.platform.microtvm.html" />
+    <link rel="prev" title="mlonmcu.platform package" href="mlonmcu.platform.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ML on MCU
+          </a>
+              <div class="version">
+                0.3.0dev0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="modules.html">mlonmcu</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.html">mlonmcu package</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.platform.html">mlonmcu.platform package</a></li>
+      <li class="breadcrumb-item active">mlonmcu.platform.espidf package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.platform.espidf.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-platform-espidf-package">
+<h1>mlonmcu.platform.espidf package<a class="headerlink" href="#mlonmcu-platform-espidf-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-mlonmcu.platform.espidf.espidf">
+<span id="mlonmcu-platform-espidf-espidf-module"></span><h2>mlonmcu.platform.espidf.espidf module<a class="headerlink" href="#module-mlonmcu.platform.espidf.espidf" title="Permalink to this headline"></a></h2>
+<p>ESP-IDF Platform</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf.espidf.</span></span><span class="sig-name descname"><span class="pre">EspIdfPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform" title="mlonmcu.platform.platform.CompilePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.CompilePlatform</span></code></a>, <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a></p>
+<p>ESP-IDF Platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'use_idf_monitor':</span> <span class="pre">True,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['espidf.install_dir',</span> <span class="pre">'espidf.src_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.baud">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">baud</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.baud" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.create_target">
+<span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.create_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.espidf_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">espidf_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.espidf_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.espidf_src_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">espidf_src_dir</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.espidf_src_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.flash">
+<span class="sig-name descname"><span class="pre">flash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.flash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.flash" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.flash_only">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flash_only</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.flash_only" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.generate_elf">
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.get_idf_cmake_args">
+<span class="sig-name descname"><span class="pre">get_idf_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.get_idf_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.get_idf_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.get_idf_serial_args">
+<span class="sig-name descname"><span class="pre">get_idf_serial_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.get_idf_serial_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.get_idf_serial_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.get_supported_targets">
+<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.get_supported_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.idf_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idf_exe</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.idf_exe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.init_directory">
+<span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.init_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.invoke_idf_exe">
+<span class="sig-name descname"><span class="pre">invoke_idf_exe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.invoke_idf_exe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.invoke_idf_exe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.monitor">
+<span class="sig-name descname"><span class="pre">monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.prepare">
+<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.prepare" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.project_template">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_template</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.project_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.use_idf_monitor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_idf_monitor</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.use_idf_monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.wait_for_user">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_user</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.wait_for_user" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.get_project_template">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf.espidf.</span></span><span class="sig-name descname"><span class="pre">get_project_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'project'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#get_project_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.get_project_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.espidf.espidf_target">
+<span id="mlonmcu-platform-espidf-espidf-target-module"></span><h2>mlonmcu.platform.espidf.espidf_target module<a class="headerlink" href="#module-mlonmcu.platform.espidf.espidf_target" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf.espidf_target.</span></span><span class="sig-name descname"><span class="pre">Esp32C3PerfCount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#Esp32C3PerfCount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.BRANCH">
+<span class="sig-name descname"><span class="pre">BRANCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">256</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.BRANCH" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.BRANCH_TAKEN">
+<span class="sig-name descname"><span class="pre">BRANCH_TAKEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">512</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.BRANCH_TAKEN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.CYCLE">
+<span class="sig-name descname"><span class="pre">CYCLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.CYCLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.IDLE">
+<span class="sig-name descname"><span class="pre">IDLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.IDLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.INST">
+<span class="sig-name descname"><span class="pre">INST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.INST" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.INST_COMP">
+<span class="sig-name descname"><span class="pre">INST_COMP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1024</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.INST_COMP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.JMP_HAZARD">
+<span class="sig-name descname"><span class="pre">JMP_HAZARD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.JMP_HAZARD" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.JMP_UNCOND">
+<span class="sig-name descname"><span class="pre">JMP_UNCOND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">128</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.JMP_UNCOND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.LD_HAZARD">
+<span class="sig-name descname"><span class="pre">LD_HAZARD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.LD_HAZARD" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.LOAD">
+<span class="sig-name descname"><span class="pre">LOAD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.LOAD" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.STORE">
+<span class="sig-name descname"><span class="pre">STORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.STORE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf.espidf_target.</span></span><span class="sig-name descname"><span class="pre">Esp32C3Target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.feature.html#mlonmcu.feature.feature.Feature" title="mlonmcu.feature.feature.Feature"><span class="pre">mlonmcu.feature.feature.Feature</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#Esp32C3Target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.target.Target" title="mlonmcu.target.target.Target"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.target.target.Target</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'count':</span> <span class="pre">Esp32C3PerfCount.CYCLE,</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'c'],</span> <span class="pre">'fpu':</span> <span class="pre">'none',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.OPTIONAL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.abi">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abi</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.abi" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.arch">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.arch" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.attr">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attr</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.attr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.count" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.extensions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.extensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.fpu">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fpu</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.fpu" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_arch">
+<span class="sig-name descname"><span class="pre">get_arch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#Esp32C3Target.get_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_arch" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_backend_config">
+<span class="sig-name descname"><span class="pre">get_backend_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#Esp32C3Target.get_backend_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_backend_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#Esp32C3Target.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_platform_defs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_target_system">
+<span class="sig-name descname"><span class="pre">get_target_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#Esp32C3Target.get_target_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_target_system" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.has_fpu">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_fpu</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.has_fpu" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.xlen">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xlen</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.xlen" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.create_espidf_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf.espidf_target.</span></span><span class="sig-name descname"><span class="pre">create_espidf_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base=&lt;class</span> <span class="pre">'mlonmcu.target.target.Target'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#create_espidf_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.create_espidf_platform_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.get_espidf_platform_targets">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf.espidf_target.</span></span><span class="sig-name descname"><span class="pre">get_espidf_platform_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#get_espidf_platform_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.get_espidf_platform_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.register_espidf_platform_target">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf.espidf_target.</span></span><span class="sig-name descname"><span class="pre">register_espidf_platform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf_target.html#register_espidf_platform_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.register_espidf_platform_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.platform.espidf">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.platform.espidf" title="Permalink to this headline"></a></h2>
+<p>MLonMCU ESP-IDF platform</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.espidf.</span></span><span class="sig-name descname"><span class="pre">EspIdfPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform" title="mlonmcu.platform.platform.CompilePlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.CompilePlatform</span></code></a>, <a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform" title="mlonmcu.platform.platform.TargetPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.platform.platform.TargetPlatform</span></code></a></p>
+<p>ESP-IDF Platform class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">2,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'use_idf_monitor':</span> <span class="pre">True,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'benchmark']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['espidf.install_dir',</span> <span class="pre">'espidf.src_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.baud">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">baud</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.baud" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.create_target">
+<span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.create_target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.espidf_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">espidf_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.espidf_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.espidf_src_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">espidf_src_dir</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.espidf_src_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.flash">
+<span class="sig-name descname"><span class="pre">flash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.flash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.flash" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.flash_only">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flash_only</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.flash_only" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.generate_elf">
+<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.get_idf_cmake_args">
+<span class="sig-name descname"><span class="pre">get_idf_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.get_idf_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.get_idf_serial_args">
+<span class="sig-name descname"><span class="pre">get_idf_serial_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.get_idf_serial_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.get_idf_serial_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.get_supported_targets">
+<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.get_supported_targets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.idf_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idf_exe</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.idf_exe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.init_directory">
+<span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.init_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.invoke_idf_exe">
+<span class="sig-name descname"><span class="pre">invoke_idf_exe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.invoke_idf_exe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.invoke_idf_exe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.monitor">
+<span class="sig-name descname"><span class="pre">monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.prepare">
+<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.prepare" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.project_template">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_template</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.project_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.use_idf_monitor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_idf_monitor</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.use_idf_monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.wait_for_user">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_for_user</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.wait_for_user" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mlonmcu.platform.html" class="btn btn-neutral float-left" title="mlonmcu.platform package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.platform.microtvm.html" class="btn btn-neutral float-right" title="mlonmcu.platform.microtvm package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

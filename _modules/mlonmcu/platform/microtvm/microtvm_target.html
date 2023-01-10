@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.platform.tvm_target &mdash; ML on MCU 0.3.0dev0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <title>mlonmcu.platform.microtvm.microtvm_target &mdash; ML on MCU 0.3.0dev0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -24,13 +24,13 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> ML on MCU
+            <a href="../../../../index.html" class="icon icon-home"> ML on MCU
           </a>
               <div class="version">
                 0.3.0dev0
               </div>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -39,19 +39,19 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
 </ul>
 
         </div>
@@ -60,16 +60,16 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">ML on MCU</a>
+          <a href="../../../../index.html">ML on MCU</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">mlonmcu.platform.tvm_target</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.platform.microtvm.microtvm_target</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -78,7 +78,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for mlonmcu.platform.tvm_target</h1><div class="highlight"><pre>
+  <h1>Source code for mlonmcu.platform.microtvm.microtvm_target</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
 <span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
 <span class="c1">#</span>
@@ -105,15 +105,45 @@
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
+<span class="kn">from</span> <span class="nn">.microtvm_zephyr_target</span> <span class="kn">import</span> <span class="n">ZephyrMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_arduino_target</span> <span class="kn">import</span> <span class="n">ArduinoMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_espidf_target</span> <span class="kn">import</span> <span class="n">EspidfMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_host_target</span> <span class="kn">import</span> <span class="n">HostMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_etissvp_target</span> <span class="kn">import</span> <span class="n">EtissvpMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_spike_target</span> <span class="kn">import</span> <span class="n">SpikeMicroTvmPlatformTarget</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="name2device"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.tvm_target.name2device">[docs]</a><span class="k">def</span> <span class="nf">name2device</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;tvm_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="name2template"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_target.name2template">[docs]</a><span class="k">def</span> <span class="nf">name2template</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;microtvm_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="create_tvm_platform_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.tvm_target.create_tvm_platform_target">[docs]</a><span class="k">def</span> <span class="nf">create_tvm_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">TvmPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+<span class="n">MICROTVM_PLATFORM_TARGET_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="register_microtvm_platform_target"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_target.register_microtvm_platform_target">[docs]</a><span class="k">def</span> <span class="nf">register_microtvm_platform_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">MICROTVM_PLATFORM_TARGET_REGISTRY</span>
+
+    <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">MICROTVM_PLATFORM_TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MicroTVM platform target </span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
+    <span class="n">MICROTVM_PLATFORM_TARGET_REGISTRY</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span></div>
+
+
+<div class="viewcode-block" id="get_microtvm_platform_targets"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_target.get_microtvm_platform_targets">[docs]</a><span class="k">def</span> <span class="nf">get_microtvm_platform_targets</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">MICROTVM_PLATFORM_TARGET_REGISTRY</span></div>
+
+
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_zephyr&quot;</span><span class="p">,</span> <span class="n">ZephyrMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_arduino&quot;</span><span class="p">,</span> <span class="n">ArduinoMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_host&quot;</span><span class="p">,</span> <span class="n">HostMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_etissvp&quot;</span><span class="p">,</span> <span class="n">EtissvpMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_espidf&quot;</span><span class="p">,</span> <span class="n">EspidfMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_spike&quot;</span><span class="p">,</span> <span class="n">SpikeMicroTvmPlatformTarget</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="create_microtvm_platform_target"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_target.create_microtvm_platform_target">[docs]</a><span class="k">def</span> <span class="nf">create_microtvm_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">MicroTvmPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
         <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
 
         <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -125,7 +155,7 @@
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">name2device</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="n">name2template</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
         <span class="nd">@property</span>
         <span class="k">def</span> <span class="nf">timeout_sec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -185,35 +215,17 @@
                     <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="n">mean_ms</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">max_ms</span><span class="p">,</span> <span class="n">min_ms</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="n">mean_ms</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
             <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
-            <span class="n">mean_s</span> <span class="o">=</span> <span class="n">mean_ms</span> <span class="o">/</span> <span class="mf">1e3</span> <span class="k">if</span> <span class="n">mean_ms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mean_ms</span>
-            <span class="n">min_s</span> <span class="o">=</span> <span class="n">min_ms</span> <span class="o">/</span> <span class="mf">1e3</span> <span class="k">if</span> <span class="n">min_ms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">min_ms</span>
-            <span class="n">max_s</span> <span class="o">=</span> <span class="n">max_ms</span> <span class="o">/</span> <span class="mf">1e3</span> <span class="k">if</span> <span class="n">max_ms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">max_ms</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">number</span> <span class="o">==</span> <span class="mi">1</span>
-                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">repeat</span> <span class="o">==</span> <span class="mi">1</span>
-                <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">total_time</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">aggregate</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">)</span>
-            <span class="p">):</span>
-                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="n">mean_s</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">total_time</span><span class="p">:</span>
-                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total Runtime [s]&quot;</span><span class="p">,</span> <span class="n">mean_s</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
-                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Average Runtime [s]&quot;</span><span class="p">,</span> <span class="n">mean_s</span><span class="p">)</span>
-                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Min Runtime [s]&quot;</span><span class="p">,</span> <span class="n">min_s</span><span class="p">)</span>
-                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Max Runtime [s]&quot;</span><span class="p">,</span> <span class="n">max_s</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">aggregate</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;avg&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">]:</span>
-                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Average Runtime [s]&quot;</span><span class="p">,</span> <span class="n">mean_s</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span>
-                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Min Runtime [s]&quot;</span><span class="p">,</span> <span class="n">min_s</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">aggregate</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
-                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Max Runtime [s]&quot;</span><span class="p">,</span> <span class="n">max_s</span><span class="p">)</span>
+            <span class="n">time_s</span> <span class="o">=</span> <span class="n">mean_ms</span> <span class="o">/</span> <span class="mf">1e3</span> <span class="k">if</span> <span class="n">mean_ms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mean_ms</span>
+            <span class="k">if</span> <span class="n">time_s</span><span class="p">:</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="n">time_s</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">profile</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
                 <span class="n">headers</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">extracted</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -222,28 +234,40 @@
                     <span class="k">return</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
 
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="s2">&quot;---&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                        <span class="k">break</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+                        <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">continue</span>
                     <span class="k">if</span> <span class="n">headers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">if</span> <span class="s2">&quot;Name&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
                             <span class="n">headers</span> <span class="o">=</span> <span class="n">extract_cols</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+                            <span class="n">skip</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">continue</span>
                     <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">break</span>
                         <span class="n">cols</span> <span class="o">=</span> <span class="n">extract_cols</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">headers</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cols</span><span class="p">)}</span>
                         <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="s2">&quot;Total_time&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                            <span class="k">break</span>
                 <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">extracted</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
                 <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">metrics</span><span class="p">}</span>
                 <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">extracted</span><span class="p">:</span>
-                    <span class="n">metrics_</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
-                    <span class="n">metrics_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;Duration (us)&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
-                    <span class="n">metrics</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">metrics_</span>
+                    <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;Node Name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Total_time&quot;</span><span class="p">:</span>
+                        <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;Time(us)&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">metrics_</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
+                        <span class="n">metrics_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;Time(us)&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+                        <span class="n">metrics</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;Node Name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">metrics_</span>
 
             <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span>
 
         <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="s2">&quot;unkwown&quot;</span>
 
-    <span class="k">return</span> <span class="n">TvmPlatformTarget</span></div>
+    <span class="k">return</span> <span class="n">MicroTvmPlatformTarget</span></div>
 </pre></div>
 
            </div>

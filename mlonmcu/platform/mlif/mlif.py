@@ -29,7 +29,7 @@ from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from mlonmcu.models.utils import get_data_source
 
-from .platform import CompilePlatform, TargetPlatform
+from ..platform import CompilePlatform, TargetPlatform
 from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
 
 logger = get_logger()

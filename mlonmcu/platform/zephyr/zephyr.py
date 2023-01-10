@@ -34,7 +34,7 @@ from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from mlonmcu.config import str2bool
 
-from .platform import CompilePlatform, TargetPlatform
+from ..platform import CompilePlatform, TargetPlatform
 from .zephyr_target import create_zephyr_platform_target
 
 logger = get_logger()

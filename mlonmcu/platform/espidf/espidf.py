@@ -34,7 +34,7 @@ from mlonmcu.logging import get_logger
 from mlonmcu.target.target import Target
 from mlonmcu.config import str2bool
 
-from .platform import CompilePlatform, TargetPlatform
+from ..platform import CompilePlatform, TargetPlatform
 from .espidf_target import create_espidf_platform_target, get_espidf_platform_targets
 
 logger = get_logger()

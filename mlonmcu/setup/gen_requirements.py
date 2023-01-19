@@ -116,7 +116,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["humanize", "pyelftools"],
         ),
     ),
-    ("gvsoc", ("Requirements for gvsoc", ["PrettyTable"])),
+    ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
     # Provide support for microtvm.
     (
         "microtvm",
@@ -232,6 +232,7 @@ CONSTRAINTS = [
     ("openpyxl", None),
     ("ortools", None),
     ("pandas", None),
+    ("prettytable", None),
     ("psutil", None),
     ("pyelftools", None),
     ("pygdbmi", "<=0.9.0.2"),

@@ -233,6 +233,12 @@ class Setup:
                     logger.info("add dependencies for etiss")
                     break
             for config in config_pools:
+                if "gvsoc_pulp" in config.name and config.enabled:
+                    for d in requirements["gvsoc_pulp"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for gvsoc_pulp")
+                    break
+            for config in config_pools:
                 if "visualize" in config.name and config.enabled:
                     for d in requirements["visualize"][1]:
                         f.write(f"{d}{os.linesep}")

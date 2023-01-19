@@ -93,6 +93,12 @@ def parseElf(inFile):
         ".xt.lit",
         "k_heap_area",
         "datas",
+        # Pulp
+        ".data_tiny_fc",
+        ".data_tiny_l1",
+        ".l1cluster_g",
+        ".heap_l2_shared",
+        ".Pulp_Chip.Info",
     ]
     ignorePrefixes = [
         ".gcc_except",

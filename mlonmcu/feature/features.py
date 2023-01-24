@@ -1535,3 +1535,30 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
 
     def get_target_config(self, target):
         return filter_none({f"{target}.xpulp_version": self.xpulp_version})
+
+
+@register_feature("split_layers")
+class SplitLayers(FrontendFeature):
+    """Split TFLite models into subruns."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    REQUIRED = ["tflite_pack.exe"]
+
+    def __init__(self, features=None, config=None):
+        super().__init__("split_layers", features=features, config=config)
+
+    @property
+    def tflite_pack_exe(self):
+        return self.config["tflite_pack.exe"]
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        return filter_none(
+            {
+                f"{frontend}.split_layers": self.enabled,
+                f"{frontend}.pack_script": self.tflite_pack_exe,
+            }
+        )

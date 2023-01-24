@@ -383,12 +383,12 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.SimpleFrontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'pack_script':</span> <span class="pre">None,</span> <span class="pre">'split_layers':</span> <span class="pre">False,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['validate',</span> <span class="pre">'visualize']</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['validate',</span> <span class="pre">'visualize',</span> <span class="pre">'split_layers']</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -397,8 +397,23 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.generate_models">
+<span class="sig-name descname"><span class="pre">generate_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.generate_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.generate_models" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.pack_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pack_script</span></span><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.pack_script" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.produce_artifacts">
 <span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.produce_artifacts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.split_layers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_layers</span></span><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.split_layers" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -758,12 +773,12 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.SimpleFrontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'pack_script':</span> <span class="pre">None,</span> <span class="pre">'split_layers':</span> <span class="pre">False,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['validate',</span> <span class="pre">'visualize']</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['validate',</span> <span class="pre">'visualize',</span> <span class="pre">'split_layers']</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -772,8 +787,23 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.generate_models">
+<span class="sig-name descname"><span class="pre">generate_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.generate_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.generate_models" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.pack_script">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pack_script</span></span><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.pack_script" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.produce_artifacts">
 <span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.produce_artifacts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.split_layers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_layers</span></span><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.split_layers" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

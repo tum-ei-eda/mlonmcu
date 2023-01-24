@@ -68,6 +68,9 @@ repos:
   zephyr:
     url: "https://github.com/zephyrproject-rtos/zephyr.git"
     ref: v3.2.0
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: d6b4fd2ed3909bd87c1d775eb1747377b571aad6
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -135,6 +138,7 @@ frontends:
     features:
       validate: true
       visualize: true
+      tflite_pack: true
   relay:
     enabled: true
     features:

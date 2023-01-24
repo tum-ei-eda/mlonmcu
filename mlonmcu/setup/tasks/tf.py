@@ -90,3 +90,40 @@ def build_tensorflow(
         )
     context.cache["tf.dl_dir"] = tflmDownloadsDir
     context.cache["tf.lib_path", flags] = tflmLib  # ignore!
+
+
+def _validate_tflite_pack(context: MlonMcuContext, params=None):
+    return context.environment.has_frontend("tflite") and context.environment.has_feature("split_layers")
+
+
+@Tasks.provides(["tflite_pack.exe", "tflite_pack.src_dir"])
+@Tasks.validate(_validate_tflite_pack)
+@Tasks.register(category=TaskType.FEATURE)
+def clone_tflite_pack(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the tflite packing utilities."""
+    name = utils.makeDirName("tflite_pack")
+    srcDir = context.environment.paths["deps"].path / "src" / name
+    if rebuild or not utils.is_populated(srcDir):
+        repo = context.environment.repos["tflite_pack"]
+        utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
+    context.cache["tflite_pack.src_dir"] = srcDir
+    context.cache["tflite_pack.exe"] = srcDir / "run.sh"
+
+
+@Tasks.provides(["tflite_pack.exe"])
+@Tasks.needs(["tflite_pack.src_dir"])
+@Tasks.validate(_validate_tflite_pack)
+@Tasks.register(category=TaskType.FEATURE)
+def install_tflite_pack(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Install the tflite packing utilities."""
+    name = utils.makeDirName("tflite_pack")
+    srcDir = context.cache["tflite_pack.src_dir"]
+    installDir = context.environment.paths["deps"].path / "install" / name
+    if rebuild or not utils.is_populated(installDir):
+        installScript = srcDir / "install.sh"
+        utils.exec_getout(installScript, installDir, live=verbose, print_output=False)
+    context.cache["tflite_pack.exe"] = installDir / "run.sh"

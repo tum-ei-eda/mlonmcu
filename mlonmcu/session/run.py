@@ -569,7 +569,7 @@ class Run:
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
                     self.artifacts_per_stage[RunStage.RUN].update(
-                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
+                        {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
                     )
                 else:
                     self.artifacts_per_stage[RunStage.RUN].update(
@@ -584,7 +584,7 @@ class Run:
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
                     self.artifacts_per_stage[RunStage.RUN].update(
-                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
+                        {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
                     )
                 else:
                     self.artifacts_per_stage[RunStage.RUN].update(
@@ -611,7 +611,7 @@ class Run:
             artifacts = self.compile_platform.artifacts
             if isinstance(artifacts, dict):
                 self.artifacts_per_stage[RunStage.COMPILE].update(
-                    {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
+                    {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
                 )
             else:
                 self.artifacts_per_stage[RunStage.COMPILE].update(
@@ -654,7 +654,7 @@ class Run:
             artifacts = self.backend.artifacts
             if isinstance(artifacts, dict):
                 self.artifacts_per_stage[RunStage.BUILD].update(
-                    {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
+                    {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
                 )
             else:
                 self.artifacts_per_stage[RunStage.BUILD].update(

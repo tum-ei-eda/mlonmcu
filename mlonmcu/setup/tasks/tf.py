@@ -112,8 +112,8 @@ def clone_tflite_pack(
     context.cache["tflite_pack.exe"] = srcDir / "run.sh"
 
 
-@Tasks.provides(["tflite_pack.exe"])
 @Tasks.needs(["tflite_pack.src_dir"])
+@Tasks.provides(["tflite_pack.exe"])
 @Tasks.validate(_validate_tflite_pack)
 @Tasks.register(category=TaskType.FEATURE)
 def install_tflite_pack(

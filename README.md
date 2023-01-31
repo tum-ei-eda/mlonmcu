@@ -80,10 +80,7 @@ source .venv/bin/activate
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
-# Install minimal dependencies
-pip install -r requirements_dev.txt
-
-# Optional (only for development)
+# Install ptional dependecies (only for development)
 pip install -r requirements_dev.txt
 pip install -r docs/requirements.txt
 
@@ -128,7 +125,7 @@ mlonmcu init
 
 Make sure to point the `MLONMCU_HOME` environment variable to the location of the previously initialied environment. (Alternative: use the `default` environment or `--home` argument on the command line)
 
-Next, generate a `requirements.txt` file inside the environment directory using `mlonmcu setup -g` which now be installed by running `pip install -r $MLONMCU_HOME/requirements.txt` inside the virtual Python environment.
+Next, generate a `requirements_addition.txt` file inside the environment directory using `mlonmcu setup -g` which now be installed by running `pip install -r $MLONMCU_HOME/requirements_addition.txt` inside the virtual Python environment.
 
 
 To use the created environment in a python program, a `MlonMcuContext` needs to be created as follows:
@@ -158,14 +155,6 @@ Coverage can be determined by running `make coverage`. The latest coverage repor
 Documentation is mainly generated automatically from doctrings (triggered via `make html`). It is also possible to include markdown files from the repo into the `.rst` files found in the [`docs/`](./docs/) directory. There is a GitHub workflow which publishes the documentation for the default branch to our [GitHub Pages](https://tum-ei-eda.github.io/mlonmcu).
 
 Regarding coding style, it is recommended to run `black` before every commit. The default line length should be given in the `setup.cfg` file.
-
-### Future Work
-
-- [ ] Finish beta version `v0.1.0`
-- [ ] Open Source Release
-  - [ ] Make repository public
-  - [ ] Release python package
-  - [ ] Publish docs automatically to https://readthedocs.org
 
 ## Credits
 

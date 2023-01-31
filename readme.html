@@ -54,10 +54,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#development">Development</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#future-work">Future Work</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#development">Development</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#credits">Credits</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#developers">Developers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#other">Other</a></li>
@@ -178,10 +175,7 @@ source .venv/bin/activate
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
-# Install minimal dependencies
-pip install -r requirements_dev.txt
-
-# Optional (only for development)
+# Install ptional dependecies (only for development)
 pip install -r requirements_dev.txt
 pip install -r docs/requirements.txt
 
@@ -221,7 +215,7 @@ pip install -r ipynb/requirements.txt
 </pre></div>
 </div>
 <p>Make sure to point the <code class="docutils literal notranslate"><span class="pre">MLONMCU_HOME</span></code> environment variable to the location of the previously initialied environment. (Alternative: use the <code class="docutils literal notranslate"><span class="pre">default</span></code> environment or <code class="docutils literal notranslate"><span class="pre">--home</span></code> argument on the command line)</p>
-<p>Next, generate a <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file inside the environment directory using <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">setup</span> <span class="pre">-g</span></code> which now be installed by running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">$MLONMCU_HOME/requirements.txt</span></code> inside the virtual Python environment.</p>
+<p>Next, generate a <code class="docutils literal notranslate"><span class="pre">requirements_addition.txt</span></code> file inside the environment directory using <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">setup</span> <span class="pre">-g</span></code> which now be installed by running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">$MLONMCU_HOME/requirements_addition.txt</span></code> inside the virtual Python environment.</p>
 <p>To use the created environment in a python program, a <code class="docutils literal notranslate"><span class="pre">MlonMcuContext</span></code> needs to be created as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlonmcu.context</span>
 
@@ -243,19 +237,6 @@ pip install -r ipynb/requirements.txt
 <p>Coverage can be determined by running <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">coverage</span></code>. The latest coverage report (HTML) for the default branch can also be found as an artifact of the CI/CD workflow.</p>
 <p>Documentation is mainly generated automatically from doctrings (triggered via <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>). It is also possible to include markdown files from the repo into the <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files found in the <a class="reference internal" href="docs.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">docs/</span></code></span></a> directory. There is a GitHub workflow which publishes the documentation for the default branch to our <a class="reference external" href="https://tum-ei-eda.github.io/mlonmcu">GitHub Pages</a>.</p>
 <p>Regarding coding style, it is recommended to run <code class="docutils literal notranslate"><span class="pre">black</span></code> before every commit. The default line length should be given in the <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code> file.</p>
-<section id="future-work">
-<h3>Future Work<a class="headerlink" href="#future-work" title="Permalink to this headline"></a></h3>
-<ul class="simple">
-<li><p>[ ] Finish beta version <code class="docutils literal notranslate"><span class="pre">v0.1.0</span></code></p></li>
-<li><p>[ ] Open Source Release</p>
-<ul>
-<li><p>[ ] Make repository public</p></li>
-<li><p>[ ] Release python package</p></li>
-<li><p>[ ] Publish docs automatically to https://readthedocs.org</p></li>
-</ul>
-</li>
-</ul>
-</section>
 </section>
 <section id="credits">
 <h2>Credits<a class="headerlink" href="#credits" title="Permalink to this headline"></a></h2>

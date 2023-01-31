@@ -22,11 +22,7 @@ This project contains research code related to the deployment of inference or le
 
 - Highly configurable python package
 - Automatic resolution and installation of dependencies
-- Supporting a large combination of frameworks/backends/targets/features:
-  - Frameworks (Backends): TFLite Micro, MircoTVM
-  - Targets: Host (x86), ETISS (Pulpino), Corstone300 (ARM Cortex-M), QEMU (RISC-V), Spike (`riscv-isa-sim`),...
-  - Platforms: Zephyr, ESP-IDF,...
-  - Features: Autotuning, Debugging, RPC,...
+- Supporting a large combination of frameworks/backends/targets/features
 - Build-in parallel processing of large number of benchmarks
 - Isolated enironments (not interfering with other installations)
 - Command Line and Python Development Interfaces

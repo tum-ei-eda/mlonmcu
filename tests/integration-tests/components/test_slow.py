@@ -242,7 +242,6 @@ def test_backend_tflmc(user_context, model_name, models_dir, feature_names, conf
     assert len(lookup_artifacts(artifacts, name="model.cc")) == 1
     assert len(lookup_artifacts(artifacts, name="model.cc.h")) == 1
     assert len(lookup_artifacts(artifacts, name="tflmc_out.log")) == 1
-    # TODO: check if non-empty
 
 
 @pytest.mark.slow

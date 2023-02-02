@@ -207,7 +207,9 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created directory.&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating environment.yml based on template &#39;</span><span class="si">{</span><span class="n">template</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
     <span class="c1"># TODO: create and maintain environments.yml in user directory?</span>
-    <span class="n">write_environment_yaml_from_template</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="s2">&quot;environment.yml&quot;</span><span class="p">),</span> <span class="n">template</span><span class="p">,</span> <span class="n">home_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">write_environment_yaml_from_template</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="s2">&quot;environment.yml&quot;</span><span class="p">),</span> <span class="n">template</span><span class="p">,</span> <span class="n">home_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+    <span class="p">)</span>
 
     <span class="c1"># FIXME: controversial?</span>
     <span class="k">if</span> <span class="n">create_venv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

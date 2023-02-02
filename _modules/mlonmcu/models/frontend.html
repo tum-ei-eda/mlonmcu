@@ -316,10 +316,15 @@
 <div class="viewcode-block" id="TfLiteFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend">[docs]</a><span class="k">class</span> <span class="nc">TfLiteFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;visualize&quot;</span><span class="p">,</span> <span class="s2">&quot;split_layers&quot;</span><span class="p">]</span>
 
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">&quot;visualize_enable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;visualize_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;split_layers&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;pack_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;visualize_enable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;visualize_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;split_layers&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;pack_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
-
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -401,6 +406,7 @@
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_outs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; frontend should not return more than </span><span class="si">{</span><span class="n">max_outs</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">artifacts</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span>
             <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdirname</span><span class="p">:</span>
+
                 <span class="k">def</span> <span class="nf">get_num_layers</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
                     <span class="n">tflite_pack_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;--count-layers&quot;</span><span class="p">,</span> <span class="s2">&quot;--noop&quot;</span><span class="p">]</span>
                     <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pack_script</span><span class="p">,</span> <span class="o">*</span><span class="n">tflite_pack_args</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>

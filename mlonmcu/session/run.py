@@ -23,6 +23,7 @@ import copy
 import tempfile
 from pathlib import Path
 from enum import IntEnum
+from collections import defaultdict
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
@@ -116,6 +117,7 @@ class Run:
         self.run_features = self.process_features(features)
         self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.sub_names = []
+        self.sub_parents = {}
         self.result = None
         self.failing = False  # -> RunStatus
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
@@ -229,6 +231,17 @@ class Run:
             if not self.completed[stage.value] and self.has_stage(stage):
                 return stage
         return RunStage.DONE
+
+    @property
+    def last_stage(self):
+        """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
+        last = None
+        for stage in RunStage:
+            if self.has_stage(stage):
+                if not self.completed[stage.value]:
+                    return last
+                last = stage
+        return None
 
     def lock(self):
         """Aquire a mutex to lock the current run."""
@@ -503,9 +516,22 @@ class Run:
 
     @property
     def artifacts(self):
-        return list(
-            itertools.chain([subs[subs.keys[0]] for stage, subs in self.artifacts_per_stage.items()])
+        sub = "default"
+        ret = list(
+            itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items()])
         )  # TODO: fix default only
+        return ret
+
+    def get_all_sub_artifacts(self, sub, stage=None):
+        if sub is None:
+            return []
+        assert sub in self.sub_names
+        if stage is None:
+            stage = self.last_stage
+        parents = self.sub_parents[(stage, sub)]
+        stage_, sub_ = parents
+        artifacts = self.get_all_sub_artifacts(sub_, stage_) + self.artifacts_per_stage[stage][sub]
+        return artifacts
 
     def toDict(self):
         """Utility not implemented yet. (TODO: remove?)"""
@@ -542,13 +568,44 @@ class Run:
         self.lock()
         # assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback
 
-        self.artifacts_per_stage[RunStage.POSTPROCESS] = []
+        def _merge_dicts_of_lists(*args):
+            if len(args) == 0:
+                return {}
+            a = args[0]
+            de = defaultdict(list, a)
+            for b in args[1:]:
+                for i, j, in b.items():
+                    de[i].extend(j)
+            return dict(de)
+
+        self.artifacts_per_stage[RunStage.POSTPROCESS] = {"default": []}
         temp_report = self.get_report()
-        for postprocess in self.postprocesses:
-            if isinstance(postprocess, RunPostprocess):
-                artifacts = postprocess.post_run(temp_report, self.artifacts)
-                if artifacts is not None:
-                    self.artifacts_per_stage[RunStage.POSTPROCESS].extend(artifacts)  # TODO: subs?
+        last_stage = self.last_stage
+        assert last_stage is not None
+        self.export_stage(last_stage, optional=self.export_optional)
+        for name in self.artifacts_per_stage[last_stage]:
+            merged = {"default": []}
+            for postprocess in self.postprocesses:
+                if isinstance(postprocess, RunPostprocess):
+                    before = self.get_all_sub_artifacts(name)
+                    artifacts = postprocess.post_run(temp_report, before)
+                    if artifacts is None:
+                        artifacts = []
+                    new = {}
+                    if isinstance(artifacts, dict):
+                        new.update(
+                            {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
+                        )
+                    else:
+                        new.update(
+                            {name if name in ["", "default"] else f"{name}": artifacts}
+                        )
+                    merged = _merge_dicts_of_lists(merged, new)
+            self.artifacts_per_stage[RunStage.POSTPROCESS].update(merged)
+            self.sub_parents.update({(RunStage.POSTPROCESS, key): (self.last_stage, name) for key in merged.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.POSTPROCESS])
+        self.sub_names = list(set(self.sub_names))
+
         self.report = temp_report
 
         self.completed[RunStage.POSTPROCESS] = True
@@ -568,13 +625,11 @@ class Run:
                 self.target.generate_metrics(elf_artifact.path)
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
-                    self.artifacts_per_stage[RunStage.RUN].update(
-                        {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
-                    )
+                    new = {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
                 else:
-                    self.artifacts_per_stage[RunStage.RUN].update(
-                        {name if name in ["", "default"] else f"{name}": artifacts}
-                    )
+                    new = {name if name in ["", "default"] else f"{name}": artifacts}
+                self.artifacts_per_stage[RunStage.RUN].update(new)
+                self.sub_parents.update({(RunStage.RUN, key): (self.last_stage, name) for key in new.keys()})
         else:
             assert self.completed[RunStage.BUILD]  # Used for tvm platform
             self.export_stage(RunStage.BUILD, optional=self.export_optional)
@@ -583,13 +638,13 @@ class Run:
                 self.target.generate_metrics(shared_object_artifact.path)
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
-                    self.artifacts_per_stage[RunStage.RUN].update(
-                        {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
-                    )
+                    new = {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
                 else:
-                    self.artifacts_per_stage[RunStage.RUN].update(
-                        {name if name in ["", "default"] else f"{name}": artifacts}
-                    )
+                    new = {name if name in ["", "default"] else f"{name}": artifacts}
+                self.artifacts_per_stage[RunStage.RUN].update(new)
+                self.sub_parents.update({(RunStage.RUN, key): (self.last_stage, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.RUN])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.RUN] = True
         self.unlock()
@@ -610,13 +665,13 @@ class Run:
             self.compile_platform.generate_elf(codegen_dir, self.target)  # TODO: has to go into different dirs
             artifacts = self.compile_platform.artifacts
             if isinstance(artifacts, dict):
-                self.artifacts_per_stage[RunStage.COMPILE].update(
-                    {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
-                )
+                new = {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
             else:
-                self.artifacts_per_stage[RunStage.COMPILE].update(
-                    {name if name in ["", "default"] else f"{name}": artifacts}
-                )
+                new = {name if name in ["", "default"] else f"{name}": artifacts}
+            self.artifacts_per_stage[RunStage.COMPILE].update(new)
+            self.sub_parents.update({(RunStage.COMPILE, key): (self.last_stage, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.COMPILE])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.COMPILE] = True
         self.unlock()
@@ -653,13 +708,13 @@ class Run:
             self.backend.generate_code()
             artifacts = self.backend.artifacts
             if isinstance(artifacts, dict):
-                self.artifacts_per_stage[RunStage.BUILD].update(
-                    {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
-                )
+                new = {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
             else:
-                self.artifacts_per_stage[RunStage.BUILD].update(
-                    {name if name in ["", "default"] else f"{name}": artifacts}
-                )
+                new = {name if name in ["", "default"] else f"{name}": artifacts}
+            self.artifacts_per_stage[RunStage.BUILD].update(new)
+            self.sub_parents.update({(RunStage.BUILD, key): (self.last_stage, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.BUILD])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.BUILD] = True
         self.unlock()
@@ -687,17 +742,16 @@ class Run:
             # TODO: allow raw data as well as filepath in backends
             assert self.tune_platform, "Autotuning requires a TunePlatform"
             res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
+            new = {f"{name}": []}
             if res:
                 if isinstance(res, dict):
-                    self.artifacts_per_stage[RunStage.TUNE].update(
-                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in res.items()}
-                    )
+                    new = {key if name in ["", "default"] else f"{name}_{key}": value for key, value in res.items()}
                 else:
-                    self.artifacts_per_stage[RunStage.TUNE].update(
-                        {name if name in ["", "default"] else f"{name}": res}
-                    )
-            else:
-                self.artifacts_per_stage[RunStage.TUNE][name] = []
+                    new = {name if name in ["", "default"] else f"{name}": res}
+            self.artifacts_per_stage[RunStage.TUNE].update(new)
+            self.sub_parents.update({(RunStage.TUNE, key): (RunStage.LOAD, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.TUNE])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.TUNE] = True
         self.unlock()
@@ -727,6 +781,9 @@ class Run:
             self.artifacts_per_stage[RunStage.LOAD] = artifacts
         else:
             self.artifacts_per_stage[RunStage.LOAD] = {"default": artifacts}
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.LOAD])
+        self.sub_names = list(set(self.sub_names))
+        self.sub_parents.update({(RunStage.LOAD, key): (None, None) for key in self.artifacts_per_stage[RunStage.LOAD].keys()})
 
         self.completed[RunStage.LOAD] = True
         self.unlock()

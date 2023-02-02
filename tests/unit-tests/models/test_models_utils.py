@@ -18,7 +18,6 @@
 #
 import pytest
 import numpy as np
-from io import StringIO
 
 from mlonmcu.models.utils import make_hex_array, fill_data_source, lookup_data_buffers, get_data_source
 

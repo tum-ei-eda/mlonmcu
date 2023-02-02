@@ -34,7 +34,7 @@ Tasks = get_task_factory()
 
 
 def _validate_tvm(context: MlonMcuContext, params=None):
-    user_vars = context.environment.vars
+    # user_vars = context.environment.vars
     patch = bool(params.get("patch", False))
     if patch:
         if not context.environment.has_feature("disable_legalize"):

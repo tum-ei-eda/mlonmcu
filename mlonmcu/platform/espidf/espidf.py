@@ -340,7 +340,6 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             return ""
 
         if self.use_idf_monitor:
-            import psutil
 
             def _kill_monitor():
                 import psutil

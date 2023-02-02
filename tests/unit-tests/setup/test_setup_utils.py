@@ -16,25 +16,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import pytest
-from io import StringIO
 
-from mlonmcu.setup.utils import (
-    makeFlags,
-    makeDirName,
-    mkdirs,
-    clone,
-    apply,
-    make,
-    cmake,
-    download,
-    extract,
-    remove,
-    move,
-    copy,
-    is_populated,
-    download_and_extract,
-)
+# from mlonmcu.setup.utils import (
+#     makeFlags,
+#     makeDirName,
+#     mkdirs,
+#     clone,
+#     apply,
+#     make,
+#     cmake,
+#     download,
+#     extract,
+#     remove,
+#     move,
+#     copy,
+#     is_populated,
+#     download_and_extract,
+# )
 
 
 def test_setup_utils_makeFlags():
@@ -111,7 +109,8 @@ def test_setup_download_and_extract():
 # def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exit=None, prefix="", **kwargs) -> str:
 # def python(*args, **kwargs):
 # def mkdirs(path: Union[str, bytes, os.PathLike]):
-# def clone( url: str, dest: Union[str, bytes, os.PathLike], branch: str = "", recursive: bool = False, refresh: bool = False,):
+# def clone( url: str, dest: Union[str, bytes, os.PathLike], branch: str = "",
+#     recursive: bool = False, refresh: bool = False,):
 # def apply( repo_dir: Path, patch_file: Path,):
 # def make(*args, threads=multiprocessing.cpu_count(), use_ninja=False, cwd=None, verbose=False, **kwargs):
 # def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):

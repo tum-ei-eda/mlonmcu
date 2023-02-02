@@ -115,7 +115,7 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="c1"># user_vars = context.environment.vars</span>
     <span class="n">patch</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">patch</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">):</span>

@@ -235,10 +235,15 @@ class SimpleFrontend(Frontend):
 class TfLiteFrontend(SimpleFrontend):
     FEATURES = Frontend.FEATURES + ["visualize", "split_layers"]
 
-    DEFAULTS = {**Frontend.DEFAULTS, "visualize_enable": False, "visualize_script": None, "split_layers": False, "pack_script": None}
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+        "visualize_enable": False,
+        "visualize_script": None,
+        "split_layers": False,
+        "pack_script": None,
+    }
 
     REQUIRED = Frontend.REQUIRED + []
-
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -320,6 +325,7 @@ class TfLiteFrontend(SimpleFrontend):
             assert len(ret) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
             artifacts["default"] = ret
             with tempfile.TemporaryDirectory() as tmpdirname:
+
                 def get_num_layers(file):
                     tflite_pack_args = [path, "--count-layers", "--noop"]
                     out = utils.exec_getout(self.pack_script, *tflite_pack_args, print_output=False)

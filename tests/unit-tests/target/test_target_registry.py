@@ -23,7 +23,6 @@ from mlonmcu.target import Target, register_target, get_targets
 
 
 class MyTarget(Target):
-
     def __init__(self, name="foo", features=None, config=None):
         super().__init__(name, features=features, config=config)
 

@@ -574,7 +574,10 @@ class Run:
             a = args[0]
             de = defaultdict(list, a)
             for b in args[1:]:
-                for i, j, in b.items():
+                for (
+                    i,
+                    j,
+                ) in b.items():
                     de[i].extend(j)
             return dict(de)
 
@@ -594,12 +597,15 @@ class Run:
                     new = {}
                     if isinstance(artifacts, dict):
                         new.update(
-                            {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
+                            {
+                                key
+                                if name in ["", "default"]
+                                else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                                for key, value in artifacts.items()
+                            }
                         )
                     else:
-                        new.update(
-                            {name if name in ["", "default"] else f"{name}": artifacts}
-                        )
+                        new.update({name if name in ["", "default"] else f"{name}": artifacts})
                     merged = _merge_dicts_of_lists(merged, new)
             self.artifacts_per_stage[RunStage.POSTPROCESS].update(merged)
             self.sub_parents.update({(RunStage.POSTPROCESS, key): (self.last_stage, name) for key in merged.keys()})
@@ -625,7 +631,12 @@ class Run:
                 self.target.generate_metrics(elf_artifact.path)
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
-                    new = {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
+                    new = {
+                        key
+                        if name in ["", "default"]
+                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        for key, value in artifacts.items()
+                    }
                 else:
                     new = {name if name in ["", "default"] else f"{name}": artifacts}
                 self.artifacts_per_stage[RunStage.RUN].update(new)
@@ -638,7 +649,12 @@ class Run:
                 self.target.generate_metrics(shared_object_artifact.path)
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
-                    new = {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
+                    new = {
+                        key
+                        if name in ["", "default"]
+                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        for key, value in artifacts.items()
+                    }
                 else:
                     new = {name if name in ["", "default"] else f"{name}": artifacts}
                 self.artifacts_per_stage[RunStage.RUN].update(new)
@@ -665,7 +681,10 @@ class Run:
             self.compile_platform.generate_elf(codegen_dir, self.target)  # TODO: has to go into different dirs
             artifacts = self.compile_platform.artifacts
             if isinstance(artifacts, dict):
-                new = {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
+                new = {
+                    key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                    for key, value in artifacts.items()
+                }
             else:
                 new = {name if name in ["", "default"] else f"{name}": artifacts}
             self.artifacts_per_stage[RunStage.COMPILE].update(new)
@@ -708,7 +727,10 @@ class Run:
             self.backend.generate_code()
             artifacts = self.backend.artifacts
             if isinstance(artifacts, dict):
-                new = {key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value for key, value in artifacts.items()}
+                new = {
+                    key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                    for key, value in artifacts.items()
+                }
             else:
                 new = {name if name in ["", "default"] else f"{name}": artifacts}
             self.artifacts_per_stage[RunStage.BUILD].update(new)
@@ -783,7 +805,9 @@ class Run:
             self.artifacts_per_stage[RunStage.LOAD] = {"default": artifacts}
         self.sub_names.extend(self.artifacts_per_stage[RunStage.LOAD])
         self.sub_names = list(set(self.sub_names))
-        self.sub_parents.update({(RunStage.LOAD, key): (None, None) for key in self.artifacts_per_stage[RunStage.LOAD].keys()})
+        self.sub_parents.update(
+            {(RunStage.LOAD, key): (None, None) for key in self.artifacts_per_stage[RunStage.LOAD].keys()}
+        )
 
         self.completed[RunStage.LOAD] = True
         self.unlock()
@@ -1012,7 +1036,9 @@ class Run:
                 and len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
             ):
                 if not self.failing:
-                    assert len(names) == len(subs), "Run and Compile Stage should have the same number of subs"  # TODO: fix
+                    assert len(names) == len(
+                        subs
+                    ), "Run and Compile Stage should have the same number of subs"  # TODO: fix
             if not self.failing:
                 subs = names
                 for name in self.artifacts_per_stage[RunStage.RUN]:

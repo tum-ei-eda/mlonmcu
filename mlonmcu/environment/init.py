@@ -126,7 +126,9 @@ def initialize_environment(
         print("Created directory.")
     print(f"Creating environment.yml based on template '{template}'.")
     # TODO: create and maintain environments.yml in user directory?
-    write_environment_yaml_from_template(os.path.join(target_dir, "environment.yml"), template, home_dir=target_dir, config=config)
+    write_environment_yaml_from_template(
+        os.path.join(target_dir, "environment.yml"), template, home_dir=target_dir, config=config
+    )
 
     # FIXME: controversial?
     if create_venv is None:

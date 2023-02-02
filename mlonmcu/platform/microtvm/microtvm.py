@@ -324,7 +324,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
     ):
         args = self.get_tvmc_micro_args(command, path, mlf_path, template, tune_args=tune_args)
         options = filter_project_options(
-            self.collect_available_project_options(command, path, mlf_path, template, target=target), target.get_project_options()
+            self.collect_available_project_options(command, path, mlf_path, template, target=target),
+            target.get_project_options(),
         )
         args += get_project_option_args(template, command, options)
         return self.invoke_tvmc("micro", *args, target=target, prefix=prefix)

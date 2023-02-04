@@ -76,8 +76,7 @@ FROM mlonmcu AS mlonmcu-bench
 
 WORKDIR /environment
 
-RUN mlonmcu init --template ${MLONMCU_TEMPLATE} --non-interactive /environment
-RUN cp -r /mlonmcu/models/* /environment/models && cp -r /mlonmcu/sw /environment/sw
+RUN mlonmcu init --template ${MLONMCU_TEMPLATE} --non-interactive /environment --clone-models
 ENV MLONMCU_HOME=/environment
 
 RUN mlonmcu setup -g

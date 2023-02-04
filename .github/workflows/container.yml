@@ -208,4 +208,4 @@ jobs:
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: tumeda/mlonmcu-bench:${{ github.event.inputs.version }}
+          tags: tumeda/mlonmcu-bench:${{ github.event.inputs.template }}-${{ github.event.inputs.version }}

@@ -143,6 +143,9 @@ jobs:
           pull: true
           push: true
           target: mlonmcu
+          build-args: |
+            ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
@@ -203,6 +206,9 @@ jobs:
           file: docker/Dockerfile
           push: true
           target: mlonmcu-bench
+          build-args: |
+            ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}

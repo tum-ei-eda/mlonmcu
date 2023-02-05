@@ -29,30 +29,21 @@ paths:
     - "{{ config_dir }}/models"
 # Here default clone_urls
 repos:
-  tensorflow:  # TODO: rename to tflite-micro?
-    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-micro.git"
-    ref: feature/tflmc_support2
-  tflite_micro_compiler:
-    url: "git@gitlab.lrz.de:philippvk/tflite_micro_compiler.git"
-    ref: philippvk_new2
   tvm:
-    url: "git@github.com:PhilippvK/tvm.git"
+    url: "https://github.com/PhilippvK/tvm.git"
     ref: philippvk-current-4-new
   utvm_staticrt_codegen:
-    url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
+    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
   tvm_extensions:
-    url: "git@github.com:tum-ei-eda/tvm_extensions.git"
+    url: "https://github.com/tum-ei-eda/tvm_extensions.git"
     ref: main
   muriscvnn:
-    url: "git@github.com:tum-ei-eda/muriscv-nn.git"
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
     ref: master
   etiss:
-    url: "git@github.com:PhilippvK/etiss.git"
+    url: "https://github.com/PhilippvK/etiss.git"
     ref: coredsl2-rvp-rvv-rebased2
-  packer:
-    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
-    ref: main
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
@@ -63,19 +54,19 @@ repos:
     url: "https://github.com/PhilippvK/CMSIS_5.git"
     ref: tumeda-patches-newer
   mlif:
-    url: "git@github.com:tum-ei-eda/mlonmcu-sw.git"
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
     ref: main
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
   microtvm_etissvp:
-    url: "git@github.com:PhilippvK/microtvm-etissvp-template.git"
+    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
     ref: main
   microtvm_espidf:
-    url: "git@github.com:PhilippvK/microtvm-espidf-template.git"
+    url: "https://github.com/PhilippvK/microtvm-espidf-template.git"
     ref: main
   zephyr:
-    url: "git@github.com:PhilippvK/zephyr.git"
+    url: "https://github.com/PhilippvK/zephyr.git"
     ref: philippvk
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here

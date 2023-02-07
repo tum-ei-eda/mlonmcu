@@ -131,7 +131,6 @@ def create_tvm_platform_target(name, platform, base=Target):
                     metrics.add("Max Runtime [s]", max_s)
 
             if self.platform.profile:
-                print("out", out)
                 headers = None
                 lines = out.split("\n")
                 extracted = []

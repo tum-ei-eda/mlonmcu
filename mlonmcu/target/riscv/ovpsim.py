@@ -66,7 +66,7 @@ class OVPSimTarget(RISCVTarget):
         "enable_pext": False,
         "pext_spec": 0.96,
         "bitmanip_spec": 0.94,
-        "variant": "RVB32I",
+        "variant": None,
         "end_to_end_cycles": True,
         "gdbserver_enable": False,
         "gdbserver_attach": False,

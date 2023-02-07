@@ -121,6 +121,20 @@
     <span class="k">return</span> <span class="n">groups</span></div>
 
 
+<span class="k">def</span> <span class="nf">_check_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^((?:[a-zA-Z\d\-_ \.\[\]]+)(?:,[a-zA-Z\d\-_ \.\[\]]+)*)$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">_check_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="FilterColumnsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">FilterColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can be used to drop unwanted columns from a report.&quot;&quot;&quot;</span>
 
@@ -141,7 +155,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get keep property.&quot;&quot;&quot;</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;keep&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_parse_cfg</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cfg</span>
 
     <span class="nd">@property</span>
@@ -149,7 +163,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop property.&quot;&quot;&quot;</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_parse_cfg</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cfg</span>
 
     <span class="nd">@property</span>

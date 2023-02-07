@@ -20,6 +20,7 @@
 
 import os
 import re
+import time
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
@@ -198,16 +199,22 @@ class SpikeTarget(RISCVTarget):
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
+        start_time = time.time()
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
         else:
-            out += self.exec(
+            out = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        # size instead of readelf?
         cycles = self.parse_stdout(out)
 
         metrics = Metrics()
         metrics.add("Cycles", cycles)
+        metrics.add("MIPS", (cycles / diff) / 1e6)
 
         return metrics, out, []
 

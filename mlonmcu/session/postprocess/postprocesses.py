@@ -40,6 +40,20 @@ def match_rows(df, cols):
     return groups
 
 
+def _check_cfg(value):
+    res = re.compile(r"^((?:[a-zA-Z\d\-_ \.\[\]]+)(?:,[a-zA-Z\d\-_ \.\[\]]+)*)$").match(value)
+    if res is None:
+        return False
+    return True
+
+
+def _parse_cfg(value):
+    if _check_cfg(value):
+        return value.split(",")
+    else:
+        return ast.literal_eval(value)
+
+
 class FilterColumnsPostprocess(SessionPostprocess):
     """Postprocess which can be used to drop unwanted columns from a report."""
 
@@ -60,7 +74,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
         """Get keep property."""
         cfg = self.config["keep"]
         if isinstance(cfg, str):
-            return ast.literal_eval(cfg)
+            return _parse_cfg(cfg)
         return cfg
 
     @property
@@ -68,7 +82,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
         """Get drop property."""
         cfg = self.config["drop"]
         if isinstance(cfg, str):
-            return ast.literal_eval(cfg)
+            return _parse_cfg(cfg)
         return cfg
 
     @property

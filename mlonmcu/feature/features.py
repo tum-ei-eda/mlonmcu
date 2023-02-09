@@ -836,6 +836,50 @@ class DisableLegalize(BackendFeature, SetupFeature):
         return ret
 
 
+@register_feature("uma_backends")
+class UMABackends(BackendFeature, SetupFeature):
+    """Add directories that contain UMA backends."""
+
+    REQUIRED = ["tvm_extensions.wrapper"]
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "uma_dir": "",
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("uma_backends", features=features, config=config)
+
+    @property
+    def tvm_extensions_wrapper(self):
+        return self.config["tvm_extensions.wrapper"]
+
+    @property
+    def uma_dir(self):
+        return self.config["uma_dir"]
+
+    def add_backend_config(self, backend, config):
+        assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
+        tvmcArgs = ["--uma-backends", self.uma_dir, "--target", "{}"]#"c,vanilla_accelerator"]
+        if f"{backend}.tvmc_extra_args" in config:
+            config[f"{backend}.tvmc_extra_args"].extend(tvmcArgs)
+        else:
+            config[f"{backend}.tvmc_extra_args"] = tvmcArgs
+        if f"{backend}.tvmc_custom_script" in config:
+            assert config[f"{backend}.tvmc_custom_script"] is None or str(
+                config[f"{backend}.tvmc_custom_script"]
+            ) == str(
+                self.tvm_extensions_wrapper
+            ), f"{backend}.tvmc_custom_script is already set. Can't enable feature: {self.name}"
+        config[f"{backend}.tvmc_custom_script"] = self.tvm_extensions_wrapper
+
+    def get_required_cache_flags(self):
+        ret = {}
+
+        ret["tvm.pythonpath"] = ["patch"]
+        return ret
+
+
 @register_feature("demo")
 class Demo(PlatformFeature):
     """Run demo application instead of benchmarking code."""

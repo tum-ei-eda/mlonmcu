@@ -125,6 +125,13 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             r"s/USE_LLVM \(OFF\|ON\)/USE_LLVM " + llvmConfigEscaped + "/g",
             str(cfgFile),
         )
+        utils.exec(
+            "sed",
+            "-i",
+            "--",
+            r"s/USE_UMA OFF/USE_UMA ON/g",
+            str(cfgFile),
+        )
         if cmsisnn:
             utils.exec(
                 "sed",

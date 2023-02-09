@@ -20,7 +20,7 @@
 
 from abc import ABC
 
-from mlonmcu.config import filter_config
+from mlonmcu.config import filter_config, str2bool
 from .type import FeatureType
 
 
@@ -46,7 +46,8 @@ class FeatureBase(ABC):
 
     @property
     def enabled(self):
-        return bool(self.config.get("enabled", None))
+        value = self.config["enabled"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def remove_config_prefix(self, config):  # TODO: move to different place
         def helper(key):

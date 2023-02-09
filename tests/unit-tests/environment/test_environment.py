@@ -28,8 +28,9 @@ from mlonmcu.environment.init import (
     ask_user,
     initialize_environment,
 )
-from mlonmcu.environment.list import get_alternative_name
-from mlonmcu.environment.templates import fill_template, write_environment_yaml_from_template
+from mlonmcu.environment.list import get_alternative_name, register_environment
+from mlonmcu.environment.templates import fill_template, write_environment_yaml_from_template, get_template_text
+from mlonmcu.environment.config import get_environments_file, init_config_dir
 
 
 def test_environment_create_environment_directories(fake_environment_directory):
@@ -109,8 +110,31 @@ def test_environment_get_alternative_name():
     assert get_alternative_name("foo_9", ["foo_9", "foo_10", "foo_9_0"]) == "foo_9_1"
 
 
-def test_environment_register_environment():
-    pass  # TODO
+def test_environment_register_environment(
+    fake_config_home,
+):
+    pass
+
+
+def test_environment_register_environment_invalid(
+    fake_config_home,
+):
+    init_config_dir()
+    register_environment("foo", "/a/b/c", False)
+
+    # already exists
+    with pytest.raises(RuntimeError):
+        register_environment("foo", "/a/b/c", False)
+    register_environment("foo", "/a/b/c", True)
+
+    # rel path
+    with pytest.raises(RuntimeError):
+        register_environment("bar", "a", False)
+
+    # missing envs file
+    os.remove(get_environments_file())
+    with pytest.raises(RuntimeError):
+        register_environment("bar", "/a/b/c", True)
 
 
 @pytest.mark.parametrize("interactive", [False])  # We do not want to mock the user input here
@@ -181,13 +205,29 @@ def test_environment_initialize_environment_duplicate(
 # template
 
 
-def test_environment_fill_template():
+def test_environment_get_template_text():
+    assert len(get_template_text("default")) > 0
+
+
+def test_environment_fill_template(tmp_path_factory):
+    # by file name
+    fname = tmp_path_factory.mktemp("dir") / "file.yml.j2"
+    with open(fname, "w") as f:
+        f.write("{{ key }}: {{ value }}\n")
+    assert fill_template(fname, data={"key": "foo", "value": "bar"}) == "foo: bar"
+
+    # by template name
     with mock.patch(
         "mlonmcu.environment.templates.get_template_text", return_value=str.encode("{{ key }}: {{ value }}")
     ):
         assert fill_template("", data={"key": "foo", "value": "bar"}) == "foo: bar"
     with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=None):
         assert fill_template("", data={"key": "foo", "value": "bar"}) is None
+
+    # error handling
+    with pytest.raises(UnicodeDecodeError):
+        with mock.patch("mlonmcu.environment.templates.get_template_text", return_value=b"\xff"):
+            assert fill_template("")
 
 
 def test_environment_write_environment_yaml_from_template(fake_environment_directory, fake_config_home):

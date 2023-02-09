@@ -58,7 +58,7 @@ repos:
     ref: ad1c3cad8f1240ef14a2c55381a78d792d76ec4d
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 2ab749d3747c04f3b01973ef955bda5be0964f0f
+    ref: 4b9a32659f7c5340e8de26a0b8c4135ca67d64ac
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
@@ -68,6 +68,9 @@ repos:
   zephyr:
     url: "https://github.com/zephyrproject-rtos/zephyr.git"
     ref: v3.2.0
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -126,7 +129,7 @@ frameworks:
           autotuned: true
     features:
       cmsisnnbyoc: false
-      muriscvnnbyoc: true
+      muriscvnnbyoc: false
 # Some frontends are experimental and therefore disabled here
 # Features like packing are only available in certain environments
 frontends:
@@ -135,6 +138,7 @@ frontends:
     features:
       validate: true
       visualize: true
+      split_layers: true
   relay:
     enabled: true
     features:

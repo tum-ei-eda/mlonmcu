@@ -67,11 +67,13 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "GitPython",
                 "Pillow",  # convert data
                 "filelock",
+                "humanize",
                 "jinja2",
                 "networkx",
                 "numpy",
                 "openpyxl",  # xlsx reports
                 "pandas",
+                "pyelftools",
                 "pyyaml",
                 "tqdm",
                 "xdg",
@@ -97,6 +99,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "itsdangerous",  # there are two espidf in origin requirements.txt this is from the 2nd
                 "jinja2",  # there are two espidf in origin requirements.txt this is from the 2nd
                 "kconfiglib",
+                "psutil",
                 "pygdbmi",
                 "pyparsing",
                 "pyserial",  # for custom monitor
@@ -113,6 +116,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["humanize", "pyelftools"],
         ),
     ),
+    ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
     # Provide support for microtvm.
     (
         "microtvm",
@@ -162,6 +166,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "scipy",
                 "synr",
                 "tornado",
+                "typing_extensions",
             ],
         ),
     ),
@@ -227,6 +232,7 @@ CONSTRAINTS = [
     ("openpyxl", None),
     ("ortools", None),
     ("pandas", None),
+    ("prettytable", None),
     ("psutil", None),
     ("pyelftools", None),
     ("pygdbmi", "<=0.9.0.2"),
@@ -241,6 +247,7 @@ CONSTRAINTS = [
     ("tensorflow", "~=2.8.0"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
+    ("typing_extensions", None),
     ("xdg", None),
     ("xgboost", "~=1.5.2"),
     ("xlsxwriter", None),

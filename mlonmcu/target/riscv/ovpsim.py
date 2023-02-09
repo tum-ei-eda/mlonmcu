@@ -66,7 +66,7 @@ class OVPSimTarget(RISCVTarget):
         "enable_pext": False,
         "pext_spec": 0.96,
         "bitmanip_spec": 0.94,
-        "variant": "RVB32I",
+        "variant": None,
         "end_to_end_cycles": True,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
@@ -216,10 +216,10 @@ class OVPSimTarget(RISCVTarget):
 
         if len(self.extra_args) > 0:
             if isinstance(self.extra_args, str):
-                args = self.extra_args.split(" ")
+                extra_args = self.extra_args.split(" ")
             else:
-                args = self.extra_args
-            ovpsim_args.extend(args)
+                extra_args = self.extra_args
+            ovpsim_args.extend(extra_args)  # I rename args to extra_args because otherwise it overwrites *args
 
         if self.timeout_sec > 0:
             raise NotImplementedError

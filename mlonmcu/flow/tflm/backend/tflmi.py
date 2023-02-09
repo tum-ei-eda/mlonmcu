@@ -19,6 +19,7 @@
 import sys
 
 from .backend import TFLMBackend
+from mlonmcu.config import str2bool
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -335,11 +336,13 @@ class TFLMIBackend(TFLMBackend):
 
     @property
     def legacy(self):
-        return bool(self.config["legacy"])
+        value = self.config["legacy"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def debug_arena(self):
-        return bool(self.config["debug_arena"])
+        value = self.config["debug_arena"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def arena_size(self):

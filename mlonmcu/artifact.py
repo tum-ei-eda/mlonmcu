@@ -130,10 +130,12 @@ class Artifact:
             If archive: extract to destination.
 
         """
+        if not isinstance(dest, Path):
+            dest = Path(dest)
         if dest.is_dir():
-            filename = Path(dest) / self.name
+            filename = dest / self.name
         else:
-            filename = Path(dest)
+            filename = dest
         if self.fmt in [ArtifactFormat.TEXT, ArtifactFormat.SOURCE]:
             assert not extract, "extract option is only available for ArtifactFormat.MLF"
             with open(filename, "w", encoding="utf-8") as handle:

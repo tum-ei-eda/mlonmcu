@@ -23,6 +23,7 @@ import copy
 import tempfile
 from pathlib import Path
 from enum import IntEnum
+from collections import defaultdict
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
@@ -115,6 +116,8 @@ class Run:
         self.run_config = {}
         self.run_features = self.process_features(features)
         self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
+        self.sub_names = []
+        self.sub_parents = {}
         self.result = None
         self.failing = False  # -> RunStatus
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
@@ -228,6 +231,17 @@ class Run:
             if not self.completed[stage.value] and self.has_stage(stage):
                 return stage
         return RunStage.DONE
+
+    @property
+    def last_stage(self):
+        """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
+        last = None
+        for stage in RunStage:
+            if self.has_stage(stage):
+                if not self.completed[stage.value]:
+                    return last
+                last = stage
+        return None
 
     def lock(self):
         """Aquire a mutex to lock the current run."""
@@ -502,7 +516,22 @@ class Run:
 
     @property
     def artifacts(self):
-        return list(itertools.chain(*self.artifacts_per_stage.values()))
+        sub = "default"
+        ret = list(
+            itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items()])
+        )  # TODO: fix default only
+        return ret
+
+    def get_all_sub_artifacts(self, sub, stage=None):
+        if sub is None:
+            return []
+        assert sub in self.sub_names
+        if stage is None:
+            stage = self.last_stage
+        parents = self.sub_parents[(stage, sub)]
+        stage_, sub_ = parents
+        artifacts = self.get_all_sub_artifacts(sub_, stage_) + self.artifacts_per_stage[stage][sub]
+        return artifacts
 
     def toDict(self):
         """Utility not implemented yet. (TODO: remove?)"""
@@ -513,21 +542,25 @@ class Run:
         # TODO: per stage subdirs?
         subdir = self.stage_subdirs
         if stage in self.artifacts_per_stage:
-            artifacts = self.artifacts_per_stage[stage]
-            for artifact in artifacts:
-                if not artifact.optional or optional:
-                    dest = self.dir
-                    if subdir:
-                        stage_idx = int(stage)
-                        dest = dest / "stages" / str(stage_idx)
-                        # TODO: stages.txt for mapping between stage idx and name
-                    dest.mkdir(parents=True, exist_ok=True)
-                    extract = artifact.fmt == ArtifactFormat.MLF
-                    # extract = artifact.fmt == ArtifactFormat.MLF and not isinstance(self.platform, MicroTvmPlatform)
-                    artifact.export(dest)
-                    # Keep the tar as well as the extracted files
-                    if extract:
-                        artifact.export(dest, extract=True)
+            for name in self.artifacts_per_stage[stage]:
+                artifacts = self.artifacts_per_stage[stage][name]
+                for artifact in artifacts:
+                    if not artifact.optional or optional:
+                        dest = self.dir
+                        if subdir:
+                            stage_idx = int(stage)
+                            dest = dest / "stages" / str(stage_idx)
+                            # TODO: stages.txt for mapping between stage idx and name
+                        if name not in ["", "default"]:
+                            dest = dest / "sub" / name
+                        dest.mkdir(parents=True, exist_ok=True)
+                        extract = artifact.fmt == ArtifactFormat.MLF
+                        # extract = artifact.fmt == ArtifactFormat.MLF
+                        # and not isinstance(self.platform, MicroTvmPlatform)
+                        artifact.export(dest)
+                        # Keep the tar as well as the extracted files
+                        if extract:
+                            artifact.export(dest, extract=True)
 
     def postprocess(self):
         """Postprocess the 'run'."""
@@ -535,13 +568,50 @@ class Run:
         self.lock()
         # assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback
 
-        self.artifacts_per_stage[RunStage.POSTPROCESS] = []
+        def _merge_dicts_of_lists(*args):
+            if len(args) == 0:
+                return {}
+            a = args[0]
+            de = defaultdict(list, a)
+            for b in args[1:]:
+                for (
+                    i,
+                    j,
+                ) in b.items():
+                    de[i].extend(j)
+            return dict(de)
+
+        self.artifacts_per_stage[RunStage.POSTPROCESS] = {"default": []}
         temp_report = self.get_report()
-        for postprocess in self.postprocesses:
-            if isinstance(postprocess, RunPostprocess):
-                artifacts = postprocess.post_run(temp_report, self.artifacts)
-                if artifacts is not None:
-                    self.artifacts_per_stage[RunStage.POSTPROCESS].extend(artifacts)
+        last_stage = self.last_stage
+        assert last_stage is not None
+        self.export_stage(last_stage, optional=self.export_optional)
+        for name in self.artifacts_per_stage[last_stage]:
+            merged = {"default": []}
+            for postprocess in self.postprocesses:
+                if isinstance(postprocess, RunPostprocess):
+                    before = self.get_all_sub_artifacts(name)
+                    artifacts = postprocess.post_run(temp_report, before)
+                    if artifacts is None:
+                        artifacts = []
+                    new = {}
+                    if isinstance(artifacts, dict):
+                        new.update(
+                            {
+                                key
+                                if name in ["", "default"]
+                                else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                                for key, value in artifacts.items()
+                            }
+                        )
+                    else:
+                        new.update({name if name in ["", "default"] else f"{name}": artifacts})
+                    merged = _merge_dicts_of_lists(merged, new)
+            self.artifacts_per_stage[RunStage.POSTPROCESS].update(merged)
+            self.sub_parents.update({(RunStage.POSTPROCESS, key): (self.last_stage, name) for key in merged.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.POSTPROCESS])
+        self.sub_names = list(set(self.sub_names))
+
         self.report = temp_report
 
         self.completed[RunStage.POSTPROCESS] = True
@@ -552,17 +622,45 @@ class Run:
         logger.debug("%s Processing stage RUN", self.prefix)
         self.lock()
         # Alternative: drop artifacts of higher stages when re-triggering a lower one?
+        self.artifacts_per_stage[RunStage.RUN] = {}
         if self.has_stage(RunStage.COMPILE):
             assert self.completed[RunStage.COMPILE]
             self.export_stage(RunStage.COMPILE, optional=self.export_optional)
-            elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][0]
-            self.target.generate_metrics(elf_artifact.path)
+            for name in self.artifacts_per_stage[RunStage.COMPILE]:
+                elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][name][0]
+                self.target.generate_metrics(elf_artifact.path)
+                artifacts = self.target.artifacts
+                if isinstance(artifacts, dict):
+                    new = {
+                        key
+                        if name in ["", "default"]
+                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        for key, value in artifacts.items()
+                    }
+                else:
+                    new = {name if name in ["", "default"] else f"{name}": artifacts}
+                self.artifacts_per_stage[RunStage.RUN].update(new)
+                self.sub_parents.update({(RunStage.RUN, key): (self.last_stage, name) for key in new.keys()})
         else:
             assert self.completed[RunStage.BUILD]  # Used for tvm platform
             self.export_stage(RunStage.BUILD, optional=self.export_optional)
-            shared_object_artifact = self.artifacts_per_stage[RunStage.BUILD][0]
-            self.target.generate_metrics(shared_object_artifact.path)
-        self.artifacts_per_stage[RunStage.RUN] = self.target.artifacts
+            for name in self.artifacts_per_stage[RunStage.BUILD]:
+                shared_object_artifact = self.artifacts_per_stage[RunStage.BUILD][name][0]
+                self.target.generate_metrics(shared_object_artifact.path)
+                artifacts = self.target.artifacts
+                if isinstance(artifacts, dict):
+                    new = {
+                        key
+                        if name in ["", "default"]
+                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        for key, value in artifacts.items()
+                    }
+                else:
+                    new = {name if name in ["", "default"] else f"{name}": artifacts}
+                self.artifacts_per_stage[RunStage.RUN].update(new)
+                self.sub_parents.update({(RunStage.RUN, key): (self.last_stage, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.RUN])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.RUN] = True
         self.unlock()
@@ -574,9 +672,25 @@ class Run:
         assert self.completed[RunStage.BUILD]
 
         self.export_stage(RunStage.BUILD, optional=self.export_optional)
-        codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
-        self.compile_platform.generate_elf(codegen_dir, self.target)
-        self.artifacts_per_stage[RunStage.COMPILE] = self.compile_platform.artifacts
+        self.artifacts_per_stage[RunStage.COMPILE] = {}
+        for name in self.artifacts_per_stage[RunStage.BUILD]:
+            codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
+            if name not in ["", "default"]:
+                codegen_dir = codegen_dir / "sub" / name
+            # TODO!
+            self.compile_platform.generate_elf(codegen_dir, self.target)  # TODO: has to go into different dirs
+            artifacts = self.compile_platform.artifacts
+            if isinstance(artifacts, dict):
+                new = {
+                    key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                    for key, value in artifacts.items()
+                }
+            else:
+                new = {name if name in ["", "default"] else f"{name}": artifacts}
+            self.artifacts_per_stage[RunStage.COMPILE].update(new)
+            self.sub_parents.update({(RunStage.COMPILE, key): (self.last_stage, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.COMPILE])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.COMPILE] = True
         self.unlock()
@@ -595,21 +709,34 @@ class Run:
                 self.backend.config.update(cfg)
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
-        model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
-        if not model_artifact.exported:
-            model_artifact.export(self.dir)
-        self.backend.load_model(model=model_artifact.path)
-        if self.has_stage(RunStage.TUNE):
-            self.export_stage(RunStage.TUNE, optional=self.export_optional)
-            if len(self.artifacts_per_stage[RunStage.TUNE]) > 0:
-                tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][0]
-                if not tuning_artifact.exported:
-                    tuning_artifact.export(self.dir)
-                self.backend.tuning_records = tuning_artifact.path
+        self.artifacts_per_stage[RunStage.BUILD] = {}
+        for name in self.artifacts_per_stage[RunStage.LOAD]:
+            model_artifact = self.artifacts_per_stage[RunStage.LOAD][name][0]
+            if not model_artifact.exported:
+                model_artifact.export(self.dir)
+            self.backend.load_model(model=model_artifact.path)
+            if self.has_stage(RunStage.TUNE):
+                self.export_stage(RunStage.TUNE, optional=self.export_optional)
+                if len(self.artifacts_per_stage[RunStage.TUNE][name]) > 0:  # TODO: inaccurate!
+                    tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][name][0]
+                    if not tuning_artifact.exported:
+                        tuning_artifact.export(self.dir)
+                    self.backend.tuning_records = tuning_artifact.path
 
-        # TODO: allow raw data as well as filepath in backends
-        self.backend.generate_code()
-        self.artifacts_per_stage[RunStage.BUILD] = self.backend.artifacts
+            # TODO: allow raw data as well as filepath in backends
+            self.backend.generate_code()
+            artifacts = self.backend.artifacts
+            if isinstance(artifacts, dict):
+                new = {
+                    key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                    for key, value in artifacts.items()
+                }
+            else:
+                new = {name if name in ["", "default"] else f"{name}": artifacts}
+            self.artifacts_per_stage[RunStage.BUILD].update(new)
+            self.sub_parents.update({(RunStage.BUILD, key): (self.last_stage, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.BUILD])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.BUILD] = True
         self.unlock()
@@ -628,17 +755,25 @@ class Run:
                 self.backend.config.update(cfg)
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)
-        model_artifact = self.artifacts_per_stage[RunStage.LOAD][0]
-        if not model_artifact.exported:
-            model_artifact.export(self.dir)
+        self.artifacts_per_stage[RunStage.TUNE] = {}
+        for name in self.artifacts_per_stage[RunStage.LOAD]:
+            model_artifact = self.artifacts_per_stage[RunStage.LOAD][name][0]
+            # if not model_artifact.exported:
+            #     model_artifact.export(self.dir)
 
-        # TODO: allow raw data as well as filepath in backends
-        assert self.tune_platform, "Autotuning requires a TunePlatform"
-        res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
-        if res:
-            self.artifacts_per_stage[RunStage.TUNE] = res
-        else:
-            self.artifacts_per_stage[RunStage.TUNE] = []
+            # TODO: allow raw data as well as filepath in backends
+            assert self.tune_platform, "Autotuning requires a TunePlatform"
+            res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
+            new = {f"{name}": []}
+            if res:
+                if isinstance(res, dict):
+                    new = {key if name in ["", "default"] else f"{name}_{key}": value for key, value in res.items()}
+                else:
+                    new = {name if name in ["", "default"] else f"{name}": res}
+            self.artifacts_per_stage[RunStage.TUNE].update(new)
+            self.sub_parents.update({(RunStage.TUNE, key): (RunStage.LOAD, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.TUNE])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.TUNE] = True
         self.unlock()
@@ -663,7 +798,16 @@ class Run:
                         if platform is not None and component == platform.name:
                             platform.config[name] = value
                 self.config[key] = value
-        self.artifacts_per_stage[RunStage.LOAD] = self.frontend.artifacts
+        artifacts = self.frontend.artifacts
+        if isinstance(artifacts, dict):
+            self.artifacts_per_stage[RunStage.LOAD] = artifacts
+        else:
+            self.artifacts_per_stage[RunStage.LOAD] = {"default": artifacts}
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.LOAD])
+        self.sub_names = list(set(self.sub_names))
+        self.sub_parents.update(
+            {(RunStage.LOAD, key): (None, None) for key in self.artifacts_per_stage[RunStage.LOAD].keys()}
+        )
 
         self.completed[RunStage.LOAD] = True
         self.unlock()
@@ -859,28 +1003,75 @@ class Run:
 
         self.export_stage(RunStage.RUN, optional=self.export_optional)
 
-        metrics = Metrics()
+        subs = []
+        if RunStage.LOAD in self.artifacts_per_stage:
+            names = self.artifacts_per_stage[RunStage.LOAD].keys()
+            subs = names
+        if RunStage.TUNE in self.artifacts_per_stage:
+            names = self.artifacts_per_stage[RunStage.TUNE].keys()
+            subs = names
+        if RunStage.BUILD in self.artifacts_per_stage:
+            names = self.artifacts_per_stage[RunStage.BUILD].keys()
+            subs = names
+        # metrics = Metrics()
+        metrics_by_sub = {}
         if RunStage.COMPILE in self.artifacts_per_stage:
-            if len(self.artifacts_per_stage[RunStage.COMPILE]) > 1:  # TODO: look for artifact of type metrics instead
-                compile_metrics_artifact = lookup_artifacts(
-                    self.artifacts_per_stage[RunStage.COMPILE], name="metrics.csv"
-                )[0]
-                compile_metrics = Metrics.from_csv(compile_metrics_artifact.content)
-                metrics = compile_metrics
+            names = self.artifacts_per_stage[RunStage.COMPILE].keys()
+            subs = names
+            for name in self.artifacts_per_stage[RunStage.COMPILE]:
+                metrics_by_sub[name] = Metrics()
+                if (
+                    len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
+                ):  # TODO: look for artifact of type metrics instead
+                    compile_metrics_artifact = lookup_artifacts(
+                        self.artifacts_per_stage[RunStage.COMPILE][name], name="metrics.csv"
+                    )[0]
+                    compile_metrics = Metrics.from_csv(compile_metrics_artifact.content)
+                    metrics_by_sub[name] = compile_metrics
 
         if RunStage.RUN in self.artifacts_per_stage:
-            run_metrics_artifact = lookup_artifacts(self.artifacts_per_stage[RunStage.RUN], name="metrics.csv")[0]
-            run_metrics = Metrics.from_csv(run_metrics_artifact.content)
-            # Combine with compile metrics
-            metrics_data = metrics.get_data()
-            run_metrics_data = run_metrics.get_data()
-            for key, value in metrics_data.items():
-                if key not in run_metrics_data:
-                    run_metrics.add(key, value)
-            metrics = run_metrics
+            names = self.artifacts_per_stage[RunStage.RUN].keys()
+            if (
+                RunStage.COMPILE in self.artifacts_per_stage
+                and len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
+            ):
+                if not self.failing:
+                    assert len(names) == len(
+                        subs
+                    ), "Run and Compile Stage should have the same number of subs"  # TODO: fix
+            if not self.failing:
+                subs = names
+                for name in self.artifacts_per_stage[RunStage.RUN]:
+                    run_metrics_artifact = lookup_artifacts(
+                        self.artifacts_per_stage[RunStage.RUN][name], name="metrics.csv"
+                    )[0]
+                    run_metrics = Metrics.from_csv(run_metrics_artifact.content)
+                    # Combine with compile metrics
+                    if name in metrics_by_sub:
+                        metrics_data = metrics_by_sub[name].get_data()
+                    else:
+                        metrics_data = {}
+                    run_metrics_data = run_metrics.get_data()
+                    for key, value in metrics_data.items():
+                        if key not in run_metrics_data:
+                            run_metrics.add(key, value)
+                    metrics_by_sub[name] = run_metrics
 
-        main = metrics.get_data(include_optional=self.export_optional)
-        report.set(pre=[pre], main=[main] if len(main) > 0 else {"Incomplete": [True]}, post=[post])
+        pres = []
+        mains = []
+        posts = []
+        for sub in subs:
+            if sub not in ["", "default"]:
+                pres.append({**pre, "Sub": sub})
+            else:
+                pres.append(pre)
+            if sub in metrics_by_sub:
+                main = metrics_by_sub[sub].get_data(include_optional=self.export_optional)
+            else:
+                main = {}
+            mains.append(main if len(main) > 0 else {"Incomplete": [True]})
+            posts.append(post)  # TODO: omit for subs?
+        report.set(pre=pres, main=mains, post=posts)
         return report
 
     def export(self, path=None, optional=False):

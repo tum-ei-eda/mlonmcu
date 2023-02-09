@@ -21,6 +21,7 @@ import tempfile
 
 from pathlib import Path
 
+from mlonmcu.config import str2bool
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
@@ -28,7 +29,7 @@ from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from mlonmcu.models.utils import get_data_source
 
-from .platform import CompilePlatform, TargetPlatform
+from ..platform import CompilePlatform, TargetPlatform
 from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
 
 logger = get_logger()
@@ -52,6 +53,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "arm_dsp",
             "auto_vectorize",
             "benchmark",
+            "xpulp",
         ]  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -66,6 +68,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "optimize": None,  # values: 0,1,2,3,s
         "input_data_path": None,
         "output_data_path": None,
+        "mem_only": False,
     }
 
     REQUIRED = ["mlif.src_dir"]
@@ -159,11 +162,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def ignore_data(self):
-        return bool(self.config["ignore_data"])
+        value = self.config["ignore_data"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def fail_on_error(self):
-        return bool(self.config["fail_on_error"])
+        value = self.config["fail_on_error"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def validate_outputs(self):
@@ -193,6 +198,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def output_data_path(self):
         return self.config["output_data_path"]
 
+    @property
+    def mem_only(self):
+        value = self.config["mem_only"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -220,11 +230,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = []
-        for key, value in self.definitions.items():
+        definitions = self.definitions
+        if self.mem_only:
+            definitions["QUIET"] = True
+        for key, value in definitions.items():
             if isinstance(value, bool):
                 value = "ON" if value else "OFF"
             cmakeArgs.append(f"-D{key}={value}")
         cmakeArgs.extend(self.get_common_cmake_args())
+        cmakeArgs.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")  # TODO for debug, should be removed
         if self.model_support_dir:
             cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
         else:
@@ -283,4 +297,4 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "mlif_out.log", content=out, fmt=ArtifactFormat.TEXT
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
-        self.artifacts = artifacts
+        self.artifacts = {"default": artifacts}

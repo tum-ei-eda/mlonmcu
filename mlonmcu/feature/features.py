@@ -20,6 +20,7 @@
 
 import re
 import pandas as pd
+from typing import Union
 
 from mlonmcu.utils import is_power_of_two
 from mlonmcu.config import str2bool
@@ -118,7 +119,8 @@ class Validate(FrontendFeature, PlatformFeature):
 
     @property
     def allow_missing(self):
-        return bool(self.config["allow_missing"])
+        value = self.config["allow_missing"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def fail_on_error(self):
@@ -375,6 +377,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
             "muriscvnn.lib": ["vext"],
             "tflmc.exe": ["vext"],
             "riscv_gcc.install_dir": ["vext"],
+            "riscv_gcc.name": ["vext"],
         }
 
 
@@ -415,6 +418,7 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
             "muriscvnn.lib": ["pext"],
             "tflmc.exe": ["pext"],
             "riscv_gcc.install_dir": ["pext"],
+            "riscv_gcc.name": ["pext"],
         }
 
 
@@ -447,8 +451,8 @@ class GdbServer(TargetFeature):
 
     @property
     def attach(self):
-        # TODO: implement get_bool_or_none?
-        return bool(self.config["attach"]) if self.config["attach"] is not None else None
+        value = self.config["attach"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     @property
     def port(self):
@@ -1034,11 +1038,11 @@ class LogInstructions(TargetFeature):
 
     @property
     def to_file(self):
-        # TODO: implement get_bool_or_none?
-        return bool(self.config["to_file"]) if self.config["to_file"] is not None else None
+        value = self.config["to_file"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "ovpsim"]
+        assert target in ["spike", "etiss_pulpino", "ovpsim", "gvsoc_pulp"]
         if not self.enabled:
             return
         if target == "spike":
@@ -1057,47 +1061,69 @@ class LogInstructions(TargetFeature):
             # if self.to_file:
             #    extra_args_new.append("--tracefile")
             config.update({f"{target}.extra_args": extra_args_new})
+        elif target == "gvsoc_pulp":
+            extra_args_new = config.get("extra_args", [])
+            if self.to_file:
+                extra_args_new.append(f"--trace=insn:{target}_instrs.log")
+                """
+                TODO: The above code will generate a instruction log.
+                But it will not be recorded by Artifact (which should be done in get_target_callbacks).
+                The code to let it be recorded by Artifact is currently not added because of the following reasons:
+                1. This feature is rarely used.
+                2. GVSOC can directly write the instruction log into a file which should be much faster than
+                read/write from the output. This makes GVSOC special and difficult to be adapted in the current
+                code.
+                3. This difficulty reflected in that the methods add_target_config and get_target_callbacks should
+                have a consensus about where in the system file system the instruction log is written to and can be
+                read from. This is not feasible in current code and the realization requires a workaround.
+                """
+            else:
+                extra_args_new.append("--trace=insn")
+            config.update({f"{target}.extra_args": extra_args_new})
 
     def get_target_callbacks(self, target):
         assert target in [
             "spike",
             "etiss_pulpino",
             "ovpsim",
+            "gvsoc_pulp",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
+            if not target == "gvsoc_pulp":
 
-            def log_instrs_callback(stdout, metrics, artifacts):
-                """Callback which parses the targets output and updates the generated metrics and artifacts."""
-                new_lines = []
-                if self.to_file:
-                    # TODO: update stdout and remove log_instrs lines
-                    instrs = []
-                    for line in stdout.split("\n"):
-                        if target == "etiss_pulpino":
-                            expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
-                        elif target == "spike":
-                            expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
-                        elif target == "ovpsim":
-                            expr = re.compile(
-                                r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
-                            )
-                        match = expr.match(line)
-                        if match is not None:
-                            instrs.append(line)
-                        else:
-                            new_lines.append(line)
-                    instrs_artifact = Artifact(
-                        f"{target}_instrs.log",
-                        content="\n".join(instrs),
-                        fmt=ArtifactFormat.TEXT,
-                        flags=(self.name, target),
-                    )
-                    artifacts.append(instrs_artifact)
-                    return "\n".join(new_lines)
-                else:
-                    return stdout
+                def log_instrs_callback(stdout, metrics, artifacts):
+                    """Callback which parses the targets output and updates the generated metrics and artifacts."""
+                    new_lines = []
+                    if self.to_file:
+                        # TODO: update stdout and remove log_instrs lines
+                        instrs = []
+                        for line in stdout.split("\n"):
+                            if target == "etiss_pulpino":
+                                expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
+                            elif target == "spike":
+                                expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
+                            elif target == "ovpsim":
+                                expr = re.compile(
+                                    r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
+                                )
+                            match = expr.match(line)
+                            if match is not None:
+                                instrs.append(line)
+                            else:
+                                new_lines.append(line)
+                        instrs_artifact = Artifact(
+                            f"{target}_instrs.log",
+                            content="\n".join(instrs),
+                            fmt=ArtifactFormat.TEXT,
+                            flags=(self.name, target),
+                        )
+                        artifacts.append(instrs_artifact)
+                        return "\n".join(new_lines)
+                    else:
+                        return stdout
 
-            return None, log_instrs_callback
+                return None, log_instrs_callback
+        return None, None
 
 
 @register_feature("arm_mvei")
@@ -1182,15 +1208,18 @@ class AutoVectorize(PlatformFeature):
 
     @property
     def verbose(self):
-        return str2bool(self.config["verbose"]) if isinstance(self.config["verbose"], str) else self.config["verbose"]
+        value = self.config["verbose"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def loop(self):
-        return str2bool(self.config["loop"]) if isinstance(self.config["loop"], str) else self.config["loop"]
+        value = self.config["loop"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def slp(self):
-        return str2bool(self.config["slp"]) if isinstance(self.config["slp"], str) else self.config["slp"]
+        value = self.config["slp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_platform_defs(self, platform):
         return {
@@ -1396,8 +1425,184 @@ class TvmProfile(PlatformFeature):
         super().__init__("tvm_profile", features=features, config=config)
 
     def get_platform_config(self, platform):
-        supported = ["tvm"]  # TODO: support microtvm
+        supported = ["tvm", "microtvm"]
         assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             f"{platform}.profile": self.enabled,
         }
+
+
+@register_feature("xpulp")
+class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "xpulp_version": 2,
+        "nopostmod": False,
+        "noindregreg": False,
+        "novect": False,
+        "nohwloop": False,
+        "hwloopmin": 2,
+        "hwloopalign": False,
+        "nomac": False,
+        "nopartmac": False,
+        "nominmax": False,
+        "noabs": False,
+        "nobitop": False,
+        "nosext": False,
+        "noclip": False,
+        "noaddsubnormround": False,
+        "noshufflepack": False,
+        "nomulmacnormround": False,
+        "noshufflepack": False,
+    }
+
+    REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]
+
+    def __init__(self, features=None, config=None):
+        super().__init__("xpulp", features=features, config=config)
+
+    # Except the "enabled" in FeatureBase.DEFAULTS and "xpulp_version"
+    # every key in DEFAULTS should in principle have a getter function with the same name as the key
+    # These getter functions will be stored in getter_functions array.
+    # Default getter function for the keys whose corresponding value has bool type:
+    # def getter_bool(self, key_name):
+    #    return self.generalized_str2bool(self.config[key_name])
+    # Default getter function for the keys whose corresponding value has int type:
+    # def getter_int(self, key_name):
+    #    return int(self.config["<key_name>"])
+    # No default, i.e. customized getter functions are defined separately
+
+    # Default getter functions:
+    @staticmethod
+    def generalized_str2bool(input: Union[str, bool, int]) -> bool:
+        return str2bool(input) if isinstance(input, str) else input
+
+    def getter_bool(self, key_name: Union[str, bool, int]) -> bool:
+        return self.generalized_str2bool(self.config[key_name])
+
+    def getter_int(self, key_name: Union[str, bool, int]) -> int:
+        return int(self.config[key_name])
+
+    # No default, i.e. customized getter functions are defined in the following (now empty)
+
+    # custom_config_getter contains customized @property function which do not follow the pattern above.
+    getter_functions = {
+        "nopostmod": getter_bool,
+        "noindregreg": getter_bool,
+        "novect": getter_bool,
+        "nohwloop": getter_bool,
+        "hwloopmin": getter_int,
+        "hwloopalign": getter_bool,
+        "nomac": getter_bool,
+        "nopartmac": getter_bool,
+        "nominmax": getter_bool,
+        "noabs": getter_bool,
+        "nobitop": getter_bool,
+        "nosext": getter_bool,
+        "noclip": getter_bool,
+        "noaddsubnormround": getter_bool,
+        "noshufflepack": getter_bool,
+        "nomulmacnormround": getter_bool,
+        "noshufflepack": getter_bool,
+    }
+
+    @property
+    def xpulp_version(self):
+        value = self.config["xpulp_version"]
+        value = int(value) if not isinstance(value, int) else value  # convert to int
+        assert value in [None, 2, 3], f"xpulp_version must be None, 2 or 3, but get {value}"
+        return value
+
+    def get_platform_defs(self, platform):
+        # The following create EXTRA_FLAGS (type is str) for gcc
+        # example
+        # {"nopostmod": True, "novect": True, ...} ==> EXTRA_FLAGS = "-mnopostmod -mnovect ..."
+        EXTRA_FLAGS = ""
+        for key in self.getter_functions:
+            if isinstance(self.getter_functions[key](self, key), bool):
+                if self.getter_functions[key](self, key):
+                    EXTRA_FLAGS += f" -m{key}"
+                continue
+            if isinstance(self.getter_functions[key](self, key), int):
+                EXTRA_FLAGS += f" -m{key}={self.getter_functions[key](self, key)}"
+                continue
+        EXTRA_FLAGS = "'" + EXTRA_FLAGS.strip() + "'"
+        return {
+            # EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
+            "EXTRA_CMAKE_C_FLAGS": EXTRA_FLAGS,
+            # EXTRA_CMAKE_CXX_FLAGS will be directly append to CMAKE_CXX_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
+            "EXTRA_CMAKE_CXX_FLAGS": EXTRA_FLAGS,
+        }
+
+    def add_platform_defs(self, platform, defs):
+        addition_defs = self.get_platform_defs(platform)
+        self.merge_dicts(defs, addition_defs)
+
+    @staticmethod
+    def merge_dicts(dict1, dict2):
+        """
+        This function tries to merge dict1 and dict2 into dict1
+        :param dict1: A dictionary
+        :param dict2: A dictionary to be added
+        :return: Void
+        Example 1:
+        dict1 = {"a": 1, "b": "hello", "c": [1, 2, 3]}
+        dict2 = {"f": 3, "b": "world", "c": [4, 5, 6]}
+        merge_dicts(dict1, dict2)
+        print(dict1)
+        ==>
+        {"a": 1, "b": "hello world", "c": [1, 2, 3, 4, 5, 6], "f":3}
+        Note: Here "hello" and "world" are merged as two string join.
+        Here [1,2,3] and [4,5,6] are merged as list addition
+        Example 2:
+        dict1 = {"a": 1}
+        dict2 = {"a": 3}
+        merge_dicts(dict1, dict2)
+        ==>
+        RuntimeError: The method to merge a: 1 and a: 3 is not defined
+        """
+        for key in dict2.keys():
+            if key in dict1.keys():
+                dict1_value = dict1[key]
+                dict2_value = dict2[key]
+                if isinstance(dict1_value, (str, list)) and type(dict1_value) == type(dict2_value):
+                    if isinstance(dict1_value, str):
+                        dict1[key] = dict1_value + " " + dict2_value
+                    else:
+                        dict1[key] = dict1_value + dict2_value
+                else:
+                    raise RuntimeError(
+                        f"The method to merge {key}: {dict1_value} and {key}: {dict2_value} is not defined"
+                    )
+            else:
+                dict1[key] = dict2[key]
+
+    def get_target_config(self, target):
+        return filter_none({f"{target}.xpulp_version": self.xpulp_version})
+
+
+@register_feature("split_layers")
+class SplitLayers(FrontendFeature):
+    """Split TFLite models into subruns."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    REQUIRED = ["tflite_pack.exe"]
+
+    def __init__(self, features=None, config=None):
+        super().__init__("split_layers", features=features, config=config)
+
+    @property
+    def tflite_pack_exe(self):
+        return self.config["tflite_pack.exe"]
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        return filter_none(
+            {
+                f"{frontend}.split_layers": self.enabled,
+                f"{frontend}.pack_script": self.tflite_pack_exe,
+            }
+        )

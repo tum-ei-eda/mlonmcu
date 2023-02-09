@@ -23,17 +23,29 @@ from pathlib import Path
 
 def make_hex_array(filename, mode="bin"):
     out = ""
+    if mode == "auto":
+        _, ext = os.path.splitext(filename)
+        assert len(ext) > 1, "Could not detect format because of missing file extension"
+        mode = ext[1:]
     if mode == "bin":
         with open(filename, "rb") as f:
             data = f.read(1)
+            length = 0
             while data:
+                length += 1
                 out += "0x" + data.hex() + ", "
                 data = f.read(1)
-    elif mode == "npy":
+            assert length > 0, "Data can not be empty"
+    elif mode in ["npy", "npz"]:
         data = np.load(filename)
         # TODO: figure out endianess
+        if hasattr(data, "files"):
+            files = data.files
+            assert len(files) == 1
+            data = data[files[0]]
         byte_data = data.tobytes()
-        out = ", ".join(["0x{:02x}".format(x) for x in byte_data])
+        assert len(byte_data) > 0, "Data can not be empty"
+        out = ", ".join(["0x{:02x}".format(x) for x in byte_data] + [""])
     else:
         raise RuntimeError(f"Unsupported mode: {mode}")
     return out
@@ -71,7 +83,7 @@ def lookup_data_buffers(input_paths, output_paths):
     assert len(input_paths) > 0
     legacy = False
     used_fmt = None
-    allowed_fmts = ["bin", "npy"]
+    allowed_fmts = ["bin", "npy", "npz"]
 
     def helper(paths):
         nonlocal used_fmt, legacy

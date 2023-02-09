@@ -52,11 +52,11 @@ jobs:
       matrix:
         python-version: [3.8]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     # TODO: caching
@@ -85,6 +85,11 @@ jobs:
       run: |
         source .venv/bin/activate
         mlonmcu setup -H home/ -v
+    - name: Install environment-specific Python packages
+      run: |
+        source .venv/bin/activate
+        MLONMCU_HOME=$(pwd)/home/ mlonmcu setup -g
+        pip install -r home/requirements_addition.txt
     - name: Run MLonMCU flow
       run: |
         source .venv/bin/activate

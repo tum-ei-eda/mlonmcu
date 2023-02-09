@@ -21,6 +21,7 @@
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "riscv/csr.h"
 #include "esp_system.h"
 #include "esp_timer.h"
 
@@ -30,6 +31,7 @@
 
 void app_main(void)
 {
+    RV_WRITE_CSR(CSR_PCER_MACHINE,8);
     printf("MLonMCU: START\n");
     uint64_t us_before = esp_timer_get_time();
     esp_cpu_ccount_t cc_before = esp_cpu_get_ccount();

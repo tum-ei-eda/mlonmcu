@@ -23,6 +23,7 @@
 import os
 from setuptools import setup, find_packages
 import mlonmcu.setup.gen_requirements as gen_requirements
+from mlonmcu import __version__
 
 
 def resource_files(directory):
@@ -57,6 +58,9 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     description="This project contains research code related to the deployment of inference"
     "or learning applications on tiny micro-controllers.",
@@ -78,6 +82,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/tum-ei-eda/mlonmcu",
-    version="0.2.0",
+    version=__version__,
     zip_safe=False,
 )

@@ -79,11 +79,11 @@ PLATFORM = "mlif"
 
 BACKENDS = [
     "tflmi",
-    "tvmaot",
+    "tvmaotplus",
 ]
 DEFAULT_BACKENDS = [
     "tflmi",
-    "tvmaot",
+    "tvmaotplus",
 ]
 
 FEATURES = [
@@ -152,14 +152,14 @@ TARGET_ARCH = {
 
 BACKEND_DEFAULT_FEATURES = {
     "tflmi": [],
-    "tvmaot": ["unpacked_api", "usmp"],
+    "tvmaotplus": [],
 }
 
 
 def get_backend_features(backend, target, enable_autotuned=False):
     BACKEND_FEATURES = {
         "tflmi": [[]],
-        "tvmaot": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else [])],
+        "tvmaotplus": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else [])],
     }
     return BACKEND_FEATURES[backend]
 
@@ -167,17 +167,17 @@ def get_backend_features(backend, target, enable_autotuned=False):
 def get_backend_config(backend, features, enable_autotuned=False):
     BACKEND_FEATURES = {
         "tflmi": [{}],
-        "tvmaot": [
+        "tvmaotplus": [
             *([{}] if "muriscvnn" in features or "cmsisnn" in features else []),
             *(
-                [{"tvmaot.desired_layout": "NCHW"}, {"tvmaot.desired_layout": "NHWC"}]
+                [{"tvmaotplus.desired_layout": "NCHW"}, {"tvmaotplus.desired_layout": "NHWC"}]
                 if "muriscvnn" not in features and "cmsisnn" not in features
                 else []
             ),
         ],
     }
     ret = BACKEND_FEATURES[backend]
-    if enable_autotuned and backend == "tvmaot":
+    if enable_autotuned and backend == "tvmaotplus":
         for cfg in ret:
             cfg.update({"autotuned.results_file": TUNING_RECORDS})
     return ret
@@ -190,7 +190,7 @@ DEFAULT_CONFIG = {
 
 BACKEND_DEFAULT_CONFIG = {
     "tflmi": {},
-    "tvmaot": {"usmp.algorithm": "hill_climb"},
+    "tvmaotplus": {"usmp.algorithm": "hill_climb"},
 }
 
 VLENS = [64, 128, 256, 512, 1024, 2048]
@@ -248,7 +248,7 @@ POSTPROCESS_CONFIG = {
     "rename_cols.mapping": {
         "config_spike.vlen": "VLEN",
         "config_ovpsim.vlen": "VLEN",
-        "config_tvmaot.desired_layout": "Layout",
+        "config_tvmaotplus.desired_layout": "Layout",
     },
     "filter_cols.drop_nan": True,
 }
@@ -259,7 +259,7 @@ def gen_features(backend, features, validate=False):
     ret.extend(BACKEND_DEFAULT_FEATURES[backend])
     if validate:
         ret += VALIDATE_FEATURES
-    if backend == "tvmaot":
+    if backend == "tvmaotplus":
         # Rename muriscvnn -> muriscvnnbyoc etc.
         for feature in features:
             if "muriscvnn" in feature:
@@ -284,16 +284,16 @@ def gen_config(backend, backend_config, features, vlen, enable_postprocesses=Fal
         for feature in features:
             if feature == "pext":
                 assert vlen == 0
-                if backend == "tvmaot":
+                if backend == "tvmaotplus":
                     ret["muriscvnnbyoc.mcpu"] = "cortex-m33"
             elif feature == "vext":
-                if backend == "tvmaot":
+                if backend == "tvmaotplus":
                     ret["muriscvnnbyoc.mcpu"] = "cortex-m55"
                 ret["vext.vlen"] = vlen
             # else:
             # assert vlen == 0
     if "cmsisnnbyoc" in features:
-        assert backend == "tvmaot"
+        assert backend == "tvmaotplus"
         if "arm_mvei" in features:
             ret["cmsisnnbyoc.mcpu"] = "cortex-m55"
         elif "arm_dsp" in features:
@@ -323,7 +323,7 @@ def benchmark(args):
                             if (
                                 "cmsisnn" not in target_features
                                 and "muriscvnn" not in target_features
-                                and backend == "tvmaot"
+                                and backend == "tvmaotplus"
                             ):
                                 enable_autotuned = True
                         for backend_features in get_backend_features(

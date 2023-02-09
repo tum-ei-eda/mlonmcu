@@ -24,6 +24,7 @@ from pathlib import Path
 
 from .backend import TVMBackend
 from mlonmcu.flow.backend import main
+from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
 from .tvmc_utils import get_tvmaot_tvmc_args
@@ -57,11 +58,13 @@ class TVMAOTBackend(TVMBackend):
 
     @property
     def unpacked_api(self):
-        return bool(self.config["unpacked_api"])
+        value = self.config["unpacked_api"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def debug_arena(self):
-        return bool(self.config["debug_arena"])
+        value = self.config["debug_arena"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def alignment_bytes(self):

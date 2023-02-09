@@ -37,6 +37,8 @@ def get_template_text(name):
 
 
 def fill_template(name, data={}):
+    if isinstance(name, Path):
+        name = str(name)
     if name.endswith(".j2"):  # Template from file
         assert Path(name).is_file(), f"Template does not exits: {name}"
         with open(name, "r") as handle:
@@ -47,19 +49,21 @@ def fill_template(name, data={}):
         if not isinstance(template_text, str):
             try:
                 template_text = template_text.decode("utf-8")
-            except UnicodeDecodeError:
-                pass
+            except UnicodeDecodeError as e:
+                raise e
         tmpl = jinja2.Template(template_text)
         rendered = tmpl.render(**data)
         return rendered
     return None
 
 
-def fill_environment_yaml(template_name, home_dir):
-    return fill_template(template_name, {"home_dir": str(home_dir), "config_dir": str(get_config_dir())})
+def fill_environment_yaml(template_name, home_dir, config=None):
+    if not config:
+        config = {}
+    return fill_template(template_name, {"home_dir": str(home_dir), "config_dir": str(get_config_dir()), **config})
 
 
-def write_environment_yaml_from_template(path, template_name, home_dir):
+def write_environment_yaml_from_template(path, template_name, home_dir, config=None):
     with open(path, "w") as yaml:
-        text = fill_environment_yaml(template_name, home_dir)
+        text = fill_environment_yaml(template_name, home_dir, config=config)
         yaml.write(text)

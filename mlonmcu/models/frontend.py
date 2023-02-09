@@ -16,13 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import re
 import tempfile
 import multiprocessing
 from pathlib import Path
 from abc import ABC, abstractmethod
 
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.models.model import ModelFormats
+from mlonmcu.models.model import ModelFormats, Model
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -64,7 +65,8 @@ class Frontend(ABC):
 
     @property
     def use_inout_data(self):
-        return bool(self.config["use_inout_data"])
+        value = self.config["use_inout_data"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def supports_formats(self, ins=None, outs=None):
         """Returs true if the frontend can handle at least one combination of input and output formats."""
@@ -231,9 +233,15 @@ class SimpleFrontend(Frontend):
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES + ["visualize"]
+    FEATURES = Frontend.FEATURES + ["visualize", "split_layers"]
 
-    DEFAULTS = {**Frontend.DEFAULTS, "visualize_enable": False, "visualize_script": None}
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+        "visualize_enable": False,
+        "visualize_script": None,
+        "split_layers": False,
+        "pack_script": None,
+    }
 
     REQUIRED = Frontend.REQUIRED + []
 
@@ -251,8 +259,17 @@ class TfLiteFrontend(SimpleFrontend):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def split_layers(self):
+        value = self.config["split_layers"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def visualize_script(self):
         return self.config["visualize_script"]
+
+    @property
+    def pack_script(self):
+        return self.config["pack_script"]
 
     def produce_artifacts(self, model):
         assert len(self.input_formats) == len(model.paths) == 1
@@ -290,6 +307,63 @@ class TfLiteFrontend(SimpleFrontend):
                 artifacts.append(tflite_visualize_artifact)
 
         return artifacts
+
+    def generate_models(self, model):
+        if self.split_layers:
+            artifacts = {}
+
+            name = model.name
+            path = model.paths[0]
+            formats = model.formats
+            assert self.supports_formats(formats), f"Invalid model format for '{self.name}' frontend"
+
+            ret = self.produce_artifacts(model)
+            if not isinstance(ret, list):
+                ret = [ret]
+            assert len(ret) > 0, f"'{self.name}' frontend should produce at least one model"
+            max_outs = len(self.output_formats)
+            assert len(ret) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
+            artifacts["default"] = ret
+            with tempfile.TemporaryDirectory() as tmpdirname:
+
+                def get_num_layers(file):
+                    tflite_pack_args = [path, "--count-layers", "--noop"]
+                    out = utils.exec_getout(self.pack_script, *tflite_pack_args, print_output=False)
+                    matches = re.compile(r"Found\s(\d+)\slayers.").findall(out)
+                    assert len(matches) == 1
+                    num = int(matches[0])
+                    return num
+
+                def gen_layer_files(file, dest):
+                    results = []
+                    num_layers = get_num_layers(file)
+                    assert num_layers > 0
+                    for i in range(num_layers):
+                        out_name = f"layer{i}"
+                        out_file = Path(dest) / out_name
+                        tflite_pack_args = [path, "-k", str(i), "--out", out_file]
+                        utils.exec_getout(self.pack_script, *tflite_pack_args, print_output=False)
+                        assert out_file.is_file()
+                        results.append(out_file)
+                    return results
+
+                layer_files = gen_layer_files(path, tmpdirname)
+
+                for i, layer_file in enumerate(layer_files):
+                    subrun = f"layer{i}"
+                    layer_name = f"{name}_{subrun}"
+                    layer_model = Model(layer_name, [layer_file])
+                    ret = self.produce_artifacts(layer_model)
+                    if not isinstance(ret, list):
+                        ret = [ret]
+                    assert len(ret) > 0, f"'{self.name}' frontend should produce at least one model"
+                    max_outs = len(self.output_formats)
+                    assert len(ret) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
+                    artifacts[subrun] = ret
+
+            self.artifacts = artifacts
+        else:
+            super().generate_models(model)
 
 
 class RelayFrontend(SimpleFrontend):
@@ -437,19 +511,23 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
 
     @property
     def ignore_existing(self):
-        return bool(self.config["ignore_existing"])
+        value = self.config["ignore_existing"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def fake_pack(self):
-        return bool(self.config["fake_pack"])
+        value = self.config["fake_pack"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def use_packed(self):
-        return bool(self.config["use_packed"])
+        value = self.config["use_packed"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def check(self):
-        return bool(self.config["check"])
+        value = self.config["check"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def produce_artifacts(self, model):
         tflite_data = None

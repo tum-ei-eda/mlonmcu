@@ -33,11 +33,16 @@ class Metrics:
         lines = text.splitlines()
         assert len(lines) == 2, "Metrics should only have two lines"
         # headers, data = lines[0].split(","), lines[1]
-        reader = csv.DictReader(lines)
-        data = list(reader)[0]
+        empty = False
+        for line in lines:
+            if len(line.strip()) == 0:
+                empty = True
         ret = Metrics()
-        ret.data = data
-        ret.order = list(data.keys())
+        if not empty:
+            reader = csv.DictReader(lines)
+            data = list(reader)[0]
+            ret.data = data
+            ret.order = list(data.keys())
         return ret
 
     def add(self, name, value, optional=False, overwrite=False, prepend=False):

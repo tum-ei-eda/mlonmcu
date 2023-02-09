@@ -206,7 +206,10 @@ def resolve_required_config(
     return ret
 
 
-def str2bool(value):
+def str2bool(value, allow_none=False):
+    if value is None:
+        assert allow_none, "str2bool received None value while allow_none=False"
+        return value
     assert isinstance(value, str)
     return bool(value) if isinstance(value, (int, bool)) else bool(distutils.util.strtobool(value))
 

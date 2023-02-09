@@ -34,12 +34,24 @@ Tasks = get_task_factory()
 
 
 def _validate_tvm(context: MlonMcuContext, params=None):
-    if "patch" in params and bool(params["patch"]):
+    # user_vars = context.environment.vars
+    patch = bool(params.get("patch", False))
+    if patch:
         if not context.environment.has_feature("disable_legalize"):
             return False
-    if "cmsisnn" in params and bool(params["cmsisnn"]):
-        if not context.environment.has_feature("cmsisnnbyoc"):
+    return context.environment.has_framework("tvm")
+
+
+def _validate_tvm_build(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    use_tlcpack = user_vars.get("tvm.use_tlcpack", False)
+    patch = bool(params.get("patch", False))
+    if patch:
+        if not context.environment.has_feature("disable_legalize"):
             return False
+    if use_tlcpack:
+        assert not context.environment.has_feature("disable_legalize")
+        return False
 
     return context.environment.has_framework("tvm")
 
@@ -76,7 +88,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 @Tasks.provides(["tvm.build_dir", "tvm.lib"])
 @Tasks.param("dbg", False)
 @Tasks.param("cmsisnn", [False, True])
-@Tasks.validate(_validate_tvm)
+@Tasks.validate(_validate_tvm_build)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Build the TVM framework."""
@@ -91,13 +103,12 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     tvmSrcDir = context.cache["tvm.src_dir", ()]  # params["patch"] does not affect the build
     tvmBuildDir = context.environment.paths["deps"].path / "build" / tvmName
     tvmLib = tvmBuildDir / "libtvm.so"
+    user_vars = context.environment.vars
     if rebuild or not utils.is_populated(tvmBuildDir) or not tvmLib.is_file():
         ninja = False
-        if context:
-            user_vars = context.environment.vars
-            if "tvm.make_tool" in user_vars:
-                if user_vars["tvm.make_tool"] == "ninja":
-                    ninja = True
+        if "tvm.make_tool" in user_vars:
+            if user_vars["tvm.make_tool"] == "ninja":
+                ninja = True
         utils.mkdirs(tvmBuildDir)
         cfgFileSrc = Path(tvmSrcDir) / "cmake" / "config.cmake"
         cfgFile = tvmBuildDir / "config.cmake"
@@ -148,7 +159,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 
 
 def _validate_tvm_extensions(context: MlonMcuContext, params=None):
-    return _validate_tvm(context, params=params) and context.environment.has_feature("disable_legalize")
+    return _validate_tvm_build(context, params=params) and context.environment.has_feature("disable_legalize")
 
 
 @Tasks.provides(["tvm_extensions.src_dir", "tvm_extensions.wrapper"])

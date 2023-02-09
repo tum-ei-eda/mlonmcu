@@ -58,7 +58,7 @@ RUN apt-get update \
     autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
     virtualenv git python3-dev python3-pip python3-setuptools libtinfo5 \
-    gcc libedit-dev libxml2-dev gcc-arm-none-eabi libopenblas-dev liblapack-dev gfortran cmake unzip ninja-build python-is-python3 device-tree-compiler
+    gcc libedit-dev libxml2-dev gcc-arm-none-eabi libopenblas-dev liblapack-dev gfortran cmake unzip ninja-build python-is-python3 device-tree-compiler libboost-all-dev
 
 CMD /bin/bash
 
@@ -76,9 +76,12 @@ FROM mlonmcu AS mlonmcu-bench
 
 WORKDIR /environment
 
-RUN mlonmcu init --template ${MLONMCU_TEMPLATE} --non-interactive /environment --skip-sw
-RUN cp -r /mlonmcu/models/* /environment/models && cp -r /mlonmcu/sw /environment/sw
+RUN mlonmcu init --template ${MLONMCU_TEMPLATE} --non-interactive /environment --clone-models
 ENV MLONMCU_HOME=/environment
+
+RUN mlonmcu setup -g
+
+RUN pip3 install -r /environment/requirements_addition.txt
 
 RUN mlonmcu setup -v
 

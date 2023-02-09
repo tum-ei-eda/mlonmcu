@@ -37,7 +37,7 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.flow.tvm.backend.tuner import TVMTuner
 
-from .platform import TargetPlatform, BuildPlatform, TunePlatform
+from ..platform import TargetPlatform, BuildPlatform, TunePlatform
 from .tvm_target import create_tvm_platform_target
 from .tvm_backend import create_tvm_platform_backend, get_tvm_platform_backends
 

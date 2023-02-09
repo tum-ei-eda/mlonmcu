@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Set up QEMU
@@ -97,7 +97,7 @@ jobs:
     needs: minimal
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Set up QEMU
@@ -143,6 +143,9 @@ jobs:
           pull: true
           push: true
           target: mlonmcu
+          build-args: |
+            ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
@@ -155,7 +158,7 @@ jobs:
     if: ${{ github.event.inputs.enable_bench }} == "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Set up QEMU
@@ -203,9 +206,12 @@ jobs:
           file: docker/Dockerfile
           push: true
           target: mlonmcu-bench
+          build-args: |
+            ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: tumeda/mlonmcu-bench:${{ github.event.inputs.version }}
+          tags: tumeda/mlonmcu-bench:${{ github.event.inputs.template }}-${{ github.event.inputs.version }}

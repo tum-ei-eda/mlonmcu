@@ -16,14 +16,14 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ##
-name: Run Benchmarks
+name: Run Benchmarks in Docker Container
 on:
   workflow_dispatch:
     inputs:
       bench_image:
         description: 'Base Docker Image'
         required: true
-        default: "ghcr.io/tum-ei-eda/mlonmcu-bench:latest"
+        default: "tumeda/mlonmcu-bench:default-latest"
       bench_cmd:
         description: 'Benchmarking Command'
         required: true

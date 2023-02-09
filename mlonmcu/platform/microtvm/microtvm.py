@@ -37,7 +37,7 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
 )
 from mlonmcu.flow.tvm.backend.tuner import TVMTuner
 
-from .platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
+from ..platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from .microtvm_target import create_microtvm_platform_target, get_microtvm_platform_targets
 from .microtvm_backend import create_microtvm_platform_backend, get_microtvm_platform_backends
 
@@ -67,7 +67,9 @@ def get_project_option_args(template, stage, project_options):
 class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform):
     """TVM Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotune", "tvm_rpc"]  # TODO: validate?
+    FEATURES = (
+        CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotune", "tvm_rpc", "tvm_profile"]
+    )  # TODO: validate?
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -79,7 +81,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         "ins_file": None,
         "outs_file": None,
         "print_top": False,
-        # "profile": False,
+        "profile": False,
         "repeat": 1,
         "use_rpc": False,
         "rpc_key": None,
@@ -90,6 +92,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         "experimental_tvmc_micro_tune": False,
         "experimental_tvmc_tune_tasks": False,
         "experimental_autotvm_visualize": False,
+        "experimental_tvmc_print_time": False,
         **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
     }
 
@@ -133,10 +136,10 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
     def print_top(self):
         return self.config["print_top"]
 
-    # @property
-    # def profile(self):
-    #     value = self.config["profile"]
-    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
+    @property
+    def profile(self):
+        value = self.config["profile"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def repeat(self):
@@ -209,6 +212,11 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         value = self.config["experimental_tvmc_tune_visualize"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def experimental_tvmc_print_time(self):
+        value = self.config["experimental_tvmc_print_time"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
@@ -257,6 +265,10 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
     def get_tvmc_run_args(self, path, device, list_options=False):
         if self.use_rpc:
             raise RuntimeError("RPC is only supported for tuning with microtvm platform")
+        if self.profile:
+            assert (
+                self.experimental_tvmc_print_time
+            ), "MicroTVM profiloing is only supported in environments with microtvm.experimental_tvmc_print_time=1"
         ret = [
             path,
             *["--device", device],
@@ -264,12 +276,11 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                 mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
             ),
             *get_bench_tvmc_args(
-                # print_time=True,
-                print_time=False,
-                profile=False,
+                print_time=self.experimental_tvmc_print_time and not self.profile,
+                profile=self.profile and self.experimental_tvmc_print_time,
                 end_to_end=False,
-                # repeat=self.repeat,
-                # number=self.number,
+                # repeat=self.repeat if self.experimental_tvmc_print_time else None,
+                # number=self.number if self.experimental_tvmc_print_time else None,
             ),
             # *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
@@ -303,9 +314,9 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             pre = [self.tvmc_custom_script]
         return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env, prefix=prefix)
 
-    def collect_available_project_options(self, command, path, mlf_path, template, micro=True):
+    def collect_available_project_options(self, command, path, mlf_path, template, micro=True, target=None):
         args = self.get_tvmc_micro_args(command, path, mlf_path, template, list_options=True)
-        out = self.invoke_tvmc("micro", *args)
+        out = self.invoke_tvmc("micro", *args, target=target)
         return parse_project_options_from_stdout(out)
 
     def invoke_tvmc_micro(
@@ -313,7 +324,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
     ):
         args = self.get_tvmc_micro_args(command, path, mlf_path, template, tune_args=tune_args)
         options = filter_project_options(
-            self.collect_available_project_options(command, path, mlf_path, template), target.get_project_options()
+            self.collect_available_project_options(command, path, mlf_path, template, target=target),
+            target.get_project_options(),
         )
         args += get_project_option_args(template, command, options)
         return self.invoke_tvmc("micro", *args, target=target, prefix=prefix)

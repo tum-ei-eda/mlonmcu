@@ -1,0 +1,55 @@
+diff --git a/support/support.mk b/support/support.mk
+index 6b22f93..fc128b4 100644
+--- a/support/support.mk
++++ b/support/support.mk
+@@ -17,26 +17,27 @@
+ 
+ # Try to build a full dependency tree for all libraries
+ 
++SUPPORT_INSTALL_DIR ?= $(SUPPORT_ROOT)/install
+ SUPPORT_LIB_DIR = $(SUPPORT_ROOT)/install/lib
+ 
+ $(SUPPORT_LIB_DIR)/libjson.a: \
+ $(shell find "$(SUPPORT_ROOT)/json-tools" -name '*.cpp' -o -name '*.hpp')
+-	INSTALL_DIR="$(SUPPORT_ROOT)/install" $(MAKE) -C "$(SUPPORT_ROOT)/json-tools" all install
++	INSTALL_DIR="$(SUPPORT_INSTALL_DIR)" $(MAKE) -C "$(SUPPORT_ROOT)/json-tools" all install
+ 
+ $(SUPPORT_LIB_DIR)/libpulpdebugbridge.so: $(SUPPORT_LIB_DIR)/libjson.a \
+ $(shell find "$(SUPPORT_ROOT)/pulp-debug-bridge" -name '*.cpp' -o -name '*.hpp')
+-	INSTALL_DIR="$(SUPPORT_ROOT)/install" $(MAKE) -C "$(SUPPORT_ROOT)/pulp-debug-bridge" build
++	INSTALL_DIR="$(SUPPORT_INSTALL_DIR)" $(MAKE) -C "$(SUPPORT_ROOT)/pulp-debug-bridge" build
+ 
+ $(SUPPORT_LIB_DIR)/libpulpperiph.so $(SUPPORT_LIB_DIR)/libpulpdpi.so: \
+ $(SUPPORT_LIB_DIR)/libjson.a $(SUPPORT_LIB_DIR)/libpulpdebugbridge.so \
+ $(shell find "$(SUPPORT_ROOT)/dpi-models" -name '*.cpp' -o -name '*.hpp')
+-	INSTALL_DIR="$(SUPPORT_ROOT)/install" $(MAKE) -C "$(SUPPORT_ROOT)/dpi-models" build
++	INSTALL_DIR="$(SUPPORT_INSTALL_DIR)" $(MAKE) -C "$(SUPPORT_ROOT)/dpi-models" build
+ 
+-$(SUPPORT_ROOT)/install/bin/plpinfo:
+-	INSTALL_DIR="$(SUPPORT_ROOT)/install" $(MAKE) -C "$(SUPPORT_ROOT)/pulp-configs" all_scons
++$(SUPPORT_INSTALL_DIR)/bin/plpinfo:
++	INSTALL_DIR="$(SUPPORT_INSTALL_DIR)" $(MAKE) -C "$(SUPPORT_ROOT)/pulp-configs" all_scons
+ 
+-$(SUPPORT_ROOT)/install/bin/plp_mkflash:
+-	INSTALL_DIR="$(SUPPORT_ROOT)/install" $(MAKE) -C "$(SUPPORT_ROOT)/runner" sdk.build
++$(SUPPORT_INSTALL_DIR)/bin/plp_mkflash:
++	INSTALL_DIR="$(SUPPORT_INSTALL_DIR)" $(MAKE) -C "$(SUPPORT_ROOT)/runner" sdk.build
+ 
+ 
+ ## Build the gvsoc simulator
+@@ -45,12 +46,12 @@ gvsoc: $(addprefix $(SUPPORT_LIB_DIR)/,libpulpvp.so libpulpvplauncher.so libpulp
+ # TODO: fix build configuration per chip thing
+ $(addprefix $(SUPPORT_LIB_DIR)/,libpulpvp.so libpulpvplauncher.so libpulpvp-debug.so): \
+ $(SUPPORT_LIB_DIR)/libjson.a $(SUPPORT_LIB_DIR)/libpulpdpi.so \
+-$(SUPPORT_ROOT)/install/bin/plpinfo $(SUPPORT_ROOT)/install/bin/plp_mkflash \
++$(SUPPORT_INSTALL_DIR)/bin/plpinfo $(SUPPORT_INSTALL_DIR)/bin/plp_mkflash \
+ $(shell find "$(SUPPORT_ROOT)/gvsoc" -name '*.cpp' -o -name '*.hpp' -o -name '*.py')
+ 	PULP_CURRENT_CONFIG=pulp@config_file=chips/pulp/pulp.json \
+ 	PULP_CONFIGS_PATH=$(SUPPORT_ROOT)/pulp-configs/configs \
+-	PYTHONPATH=$(SUPPORT_ROOT)/install/python \
+-	INSTALL_DIR="$(SUPPORT_ROOT)/install" \
++	PYTHONPATH=$(SUPPORT_INSTALL_DIR)/python \
++	INSTALL_DIR="$(SUPPORT_INSTALL_DIR)" \
+ 	$(MAKE) -C "$(SUPPORT_ROOT)/gvsoc" build ARCHI_DIR=$(SUPPORT_ROOT)/archi/include
+ 
+ 

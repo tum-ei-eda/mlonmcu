@@ -58,13 +58,14 @@ class TVMBackend(Backend):
         "use_tuning_results": False,
         "tvmc_extra_args": [],  # Currently compile subcommand only!
         "tvmc_custom_script": None,
-        "use_tlcpack": False,
         # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py
         "tophub_url": None,
         "num_threads": multiprocessing.cpu_count(),
     }
 
-    REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
+    REQUIRED = []
+
+    OPTIONAL = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir", "tvm.use_tlcpack"]
 
     def __init__(self, target="c", executor=None, runtime="crt", fmt="mlf", features=None, config=None):
         super().__init__(framework="tvm", features=features, config=config)
@@ -155,7 +156,8 @@ class TVMBackend(Backend):
 
     @property
     def use_tuning_results(self):
-        return bool(self.config["use_tuning_results"])
+        value = self.config["use_tuning_results"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def tvmc_extra_args(self):
@@ -192,8 +194,8 @@ class TVMBackend(Backend):
 
     @property
     def use_tlcpack(self):
-        value = self.config["use_tlcpack"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        value = self.config["tvm.use_tlcpack"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     def num_threads(self):
         return self.config["num_threads"]
@@ -250,9 +252,9 @@ class TVMBackend(Backend):
 
     def invoke_tvmc(self, command, *args, cwd=None):
         env = prepare_python_environment(
-            self.tvm_pythonpath,
-            self.tvm_build_dir,
-            self.tvm_configs_dir,
+            None if self.use_tlcpack else self.tvm_pythonpath,
+            None if self.use_tlcpack else self.tvm_build_dir,
+            None if self.use_tlcpack else self.tvm_configs_dir,
             tophub_url=self.tophub_url,
             num_threads=self.num_threads,
         )

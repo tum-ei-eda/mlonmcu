@@ -40,6 +40,20 @@ def match_rows(df, cols):
     return groups
 
 
+def _check_cfg(value):
+    res = re.compile(r"^((?:[a-zA-Z\d\-_ \.\[\]]+)(?:,[a-zA-Z\d\-_ \.\[\]]+)*)$").match(value)
+    if res is None:
+        return False
+    return True
+
+
+def _parse_cfg(value):
+    if _check_cfg(value):
+        return value.split(",")
+    else:
+        return ast.literal_eval(value)
+
+
 class FilterColumnsPostprocess(SessionPostprocess):
     """Postprocess which can be used to drop unwanted columns from a report."""
 
@@ -60,7 +74,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
         """Get keep property."""
         cfg = self.config["keep"]
         if isinstance(cfg, str):
-            return ast.literal_eval(cfg)
+            return _parse_cfg(cfg)
         return cfg
 
     @property
@@ -68,23 +82,26 @@ class FilterColumnsPostprocess(SessionPostprocess):
         """Get drop property."""
         cfg = self.config["drop"]
         if isinstance(cfg, str):
-            return ast.literal_eval(cfg)
+            return _parse_cfg(cfg)
         return cfg
 
     @property
     def drop_nan(self):
         """Get drop_nan property."""
-        return bool(self.config["drop_nan"])
+        value = self.config["drop_nan"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def drop_empty(self):
         """Get drop_empty property."""
-        return bool(self.config["drop_empty"])
+        value = self.config["drop_empty"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def drop_const(self):
         """Get drop_const property."""
-        return bool(self.config["drop_const"])
+        value = self.config["drop_const"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -305,7 +322,7 @@ class Artifact2ColumnPostprocess(RunPostprocess):
             matches = lookup_artifacts(artifacts, name=filename, first_only=True)
             if not matches:
                 report.main_df[colname] = ""
-                return
+                continue
             if matches[0].fmt != ArtifactFormat.TEXT:
                 raise RuntimeError("Can only put text into report columns")
             report.main_df[colname] = matches[0].content
@@ -379,9 +396,9 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             return dict(counts.head(top)), dict(probs.head(top))
 
         def _gen_csv(label, counts, probs):
-            lines = [f"{label};Count;Probablity"]
+            lines = [f"{label},Count,Probablity"]
             for x in counts:
-                line = f"{x};{counts[x]};{probs[x]:.3f}"
+                line = f"{x},{counts[x]},{probs[x]:.3f}"
                 lines.append(line)
             return "\n".join(lines)
 
@@ -470,7 +487,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 ret = []
                 for i in range(len(lst) - length + 1):
                     lst_ = lst[i : i + length]
-                    ret.append(",".join(lst_))
+                    ret.append(";".join(lst_))
                 return ret
 
             for length in range(1, max_len + 1):

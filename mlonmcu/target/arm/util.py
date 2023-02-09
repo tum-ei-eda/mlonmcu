@@ -18,7 +18,7 @@
 #
 """MLonMCU ARM Cortex-M utilities"""
 
-DSP_TARGETS = ["cortex-m4", "cortex-m7", "cortex-m33", "cortex-35p", "cortex-m55"]
+DSP_TARGETS = ["cortex-m4", "cortex-m7", "cortex-m33", "cortex-m35p", "cortex-m55"]
 
 MVE_TARGETS = ["cortex-m55"]
 

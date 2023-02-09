@@ -332,6 +332,7 @@ class MlonMcuContext:
 
     def load_extensions(self):
         """If available load the extensions.py scripts in the plugin directories"""
+
         # TODO: check vars.enable_extensions before!
         def _load(plugins_dir, hint="Unknown"):
             if plugins_dir.is_dir():

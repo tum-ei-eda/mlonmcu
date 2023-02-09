@@ -103,7 +103,7 @@ const unsigned char *const data_buffers_in[] = {data_buffer_in_0_0, data_buffer_
 const unsigned char *const data_buffers_out[] = {data_buffer_out_0_0, data_buffer_out_1_0, data_buffer_out_2_0, };
 const size_t data_size_in[] = {sizeof(data_buffer_in_0_0), sizeof(data_buffer_in_1_0), sizeof(data_buffer_in_2_0), };
 const size_t data_size_out[] = {sizeof(data_buffer_out_0_0), sizeof(data_buffer_out_1_0), sizeof(data_buffer_out_2_0), };
-""" # noqa: E501
+"""  # noqa: E501
     )
 
 

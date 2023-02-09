@@ -322,7 +322,7 @@ class Artifact2ColumnPostprocess(RunPostprocess):
             matches = lookup_artifacts(artifacts, name=filename, first_only=True)
             if not matches:
                 report.main_df[colname] = ""
-                return
+                continue
             if matches[0].fmt != ArtifactFormat.TEXT:
                 raise RuntimeError("Can only put text into report columns")
             report.main_df[colname] = matches[0].content

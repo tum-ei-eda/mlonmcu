@@ -320,8 +320,15 @@ class EtissPulpinoTarget(RISCVTarget):
             mips = None
         else:
             mips = int(float(mips_match.group(1)))
+        mems_match = re.search(r"Memory Accesses: (.*)", out)
+        if not mems_match:
+            if exit_code == 0:
+                raise logger.warning("unexpected script output (memory accesses)")
+            mems = None
+        else:
+            mems = int(mems_match.group(1))
 
-        return cycles, mips
+        return cycles, mips, mems
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -342,7 +349,7 @@ class EtissPulpinoTarget(RISCVTarget):
             out += self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
-        total_cycles, mips = self.parse_stdout(out, handle_exit=handle_exit)
+        total_cycles, mips, mems = self.parse_stdout(out, handle_exit=handle_exit)
 
         get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")
@@ -365,6 +372,7 @@ class EtissPulpinoTarget(RISCVTarget):
         metrics = Metrics()
         metrics.add("Cycles", total_cycles)
         metrics.add("MIPS", mips, optional=True)
+        metrics.add("MemAccesses", mems, optional=True)
 
         metrics_file = os.path.join(directory, "metrics.csv")
         with open(metrics_file, "r") as handle:

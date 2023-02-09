@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
 import sys
 import tempfile
 import json
@@ -90,6 +91,18 @@ class TVMAOTBackend(TVMBackend):
             with open(mlf_path / "metadata.json") as handle:
                 metadata = json.load(handle)
             # metadata_txt = json.dumps(metadata)
+            macsFile = Path(temp_dir) / "macs.txt"
+            if os.path.exists(macsFile):
+                with open(macsFile) as handle:
+                    artifacts.append(Artifact("macs.txt", content=handle.read(), fmt=ArtifactFormat.TEXT))
+            memFile = Path(temp_dir) / "memsize.txt"
+            if os.path.exists(memFile):
+                with open(memFile) as handle:
+                    artifacts.append(Artifact("memsize.txt", content=handle.read(), fmt=ArtifactFormat.TEXT))
+            splitLogFile = Path(temp_dir) / "splitcfglog.txt"
+            if os.path.exists(splitLogFile):
+                with open(splitLogFile) as handle:
+                    artifacts.append(Artifact("splitcfglog.txt", content=handle.read(), fmt=ArtifactFormat.TEXT))
             with open(out_path, "rb") as handle:
                 mlf_data = handle.read()
                 artifacts.append(

@@ -488,14 +488,26 @@ class ETISSDebug(SetupFeature, TargetFeature):
 class Trace(TargetFeature):
     """Enable tracing of all memory accesses in ETISS."""
 
-    # TODO: support ovpsim --trace --tracemem SA
+    DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": True}  # ETISS can only trace to file
+
+    @property
+    def to_file(self):
+        value = self.config["to_file"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
 
-    def get_target_config(self, target):
-        assert target in ["etiss_pulpino"]
-        return {"etiss_pulpino.trace_memory": self.enabled}
+    def add_target_config(self, target, config):
+        assert target in ["etiss_pulpino", "ovpsim"]
+        if target == "etiss_pulpino":
+            config.update({"etiss_pulpino.trace_memory": self.enabled})
+        elif target == "ovpsim":
+            extra_args_new = config.get("extra_args", [])
+            extra_args_new.append("--trace --tracemem SAX")
+            # if self.to_file:
+            #    extra_args_new.append("--tracefile")
+            config.update({f"{target}.extra_args": extra_args_new})
 
 
 @register_feature("unpacked_api")

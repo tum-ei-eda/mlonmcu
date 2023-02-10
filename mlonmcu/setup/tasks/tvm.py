@@ -159,7 +159,9 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 
 
 def _validate_tvm_extensions(context: MlonMcuContext, params=None):
-    return _validate_tvm_build(context, params=params) and context.environment.has_feature("disable_legalize")
+    return _validate_tvm_build(context, params=params) and (
+        context.environment.has_feature("disable_legalize") or context.environment.has_feature("uma_backends")
+    )
 
 
 @Tasks.provides(["tvm_extensions.src_dir", "tvm_extensions.wrapper"])

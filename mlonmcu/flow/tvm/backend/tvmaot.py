@@ -80,7 +80,7 @@ class TVMAOTBackend(TVMBackend):
             # backwards compatibility
             return metadata["memory"]["functions"]["main"][0]["workspace_size_bytes"]
 
-    def generate_code(self):
+    def _generate_code(self):
         artifacts = []
         assert self.model is not None
         full = False  # Required due to bug in TVM
@@ -150,7 +150,7 @@ class TVMAOTBackend(TVMBackend):
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
         # assert self.target
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

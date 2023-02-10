@@ -132,7 +132,7 @@ class Target:
 
         return metrics, out, []
 
-    def generate_metrics(self, elf):
+    def _generate_metrics(self, elf):
         artifacts = []
         metrics = []
         total = 1 + (self.repeat if self.repeat else 0)
@@ -156,18 +156,29 @@ class Target:
         artifacts_ = {"default": artifacts}
         if not isinstance(metrics, dict):
             metrics = {"default": metrics}
-        for name, metrics_ in metrics.items():
-            content = metrics_.to_csv(include_optional=True)  # TODO: store df instead?
-            artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
-            # Alternative: artifact = Artifact("metrics.csv", data=df/dict, fmt=ArtifactFormat.DATA)
-            if name not in artifacts_:
-                artifacts_[name] = []
-            artifacts_[name].append(artifact)
         stdout_artifact = Artifact(
             f"{self.name}_out.log", content=out, fmt=ArtifactFormat.TEXT
         )  # TODO: rename to tvmaot_out.log?
         artifacts_["default"].append(stdout_artifact)
-        self.artifacts = artifacts_
+        return artifacts_, metrics
+
+    def generate_metrics(self, elf):
+        start_time = time.time()
+        artifacts, metrics = self._generate_metrics(elf)
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Run Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)  # TODO: store df instead?
+            artifact = Artifact("run_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            # Alternative: artifact = Artifact("metrics.csv", data=df/dict, fmt=ArtifactFormat.DATA)
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+
+        self.artifacts = artifacts
 
     def export_metrics(self, path):
         assert len(self.artifacts) > 0, "No artifacts found, please run generate_metrics() first"

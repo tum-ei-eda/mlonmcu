@@ -683,8 +683,10 @@ class Run:
             if name not in ["", "default"]:
                 codegen_dir = codegen_dir / "sub" / name
             # TODO!
-            self.compile_platform.generate_elf(codegen_dir, self.target)  # TODO: has to go into different dirs
-            artifacts = self.compile_platform.artifacts
+            artifacts = self.compile_platform.generate_elf(
+                codegen_dir, self.target
+            )  # TODO: has to go into different dirs
+            # artifacts = self.compile_platform.artifacts
             if isinstance(artifacts, dict):
                 new = {
                     key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
@@ -1009,58 +1011,43 @@ class Run:
         self.export_stage(RunStage.RUN, optional=self.export_optional)
 
         subs = []
-        if RunStage.LOAD in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.LOAD].keys()
-            subs = names
-        if RunStage.TUNE in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.TUNE].keys()
-            subs = names
-        if RunStage.BUILD in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.BUILD].keys()
-            subs = names
         # metrics = Metrics()
         metrics_by_sub = {}
-        if RunStage.COMPILE in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.COMPILE].keys()
-            subs = names
-            for name in self.artifacts_per_stage[RunStage.COMPILE]:
-                metrics_by_sub[name] = Metrics()
-                if (
-                    len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
-                ):  # TODO: look for artifact of type metrics instead
-                    compile_metrics_artifact = lookup_artifacts(
-                        self.artifacts_per_stage[RunStage.COMPILE][name], name="metrics.csv"
-                    )[0]
-                    compile_metrics = Metrics.from_csv(compile_metrics_artifact.content)
-                    metrics_by_sub[name] = compile_metrics
 
-        if RunStage.RUN in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.RUN].keys()
-            if (
-                RunStage.COMPILE in self.artifacts_per_stage
-                and len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
-            ):
-                if not self.failing:
-                    assert len(names) == len(
-                        subs
-                    ), "Run and Compile Stage should have the same number of subs"  # TODO: fix
-            if not self.failing:
+        def metrics_helper(stage, subs):
+            # if self.failing:
+            #     return subs
+            if stage in self.artifacts_per_stage:
+                names = self.artifacts_per_stage[stage].keys()
                 subs = names
-                for name in self.artifacts_per_stage[RunStage.RUN]:
-                    run_metrics_artifact = lookup_artifacts(
-                        self.artifacts_per_stage[RunStage.RUN][name], name="metrics.csv"
-                    )[0]
-                    run_metrics = Metrics.from_csv(run_metrics_artifact.content)
-                    # Combine with compile metrics
-                    if name in metrics_by_sub:
-                        metrics_data = metrics_by_sub[name].get_data()
-                    else:
-                        metrics_data = {}
-                    run_metrics_data = run_metrics.get_data()
-                    for key, value in metrics_data.items():
-                        if key not in run_metrics_data:
-                            run_metrics.add(key, value)
-                    metrics_by_sub[name] = run_metrics
+                for name in self.artifacts_per_stage[stage]:
+                    # metrics_by_sub[name] = Metrics()
+                    if len(self.artifacts_per_stage[stage][name]) > 1:
+                        filename = f"{stage.name.lower()}_metrics.csv"
+                        metrics_artifact = lookup_artifacts(self.artifacts_per_stage[stage][name], name=filename)
+                        if len(metrics_artifact) == 0:
+                            continue
+                        assert len(metrics_artifact) == 1
+                        metrics_artifact = metrics_artifact[0]
+                        metrics = Metrics.from_csv(metrics_artifact.content)
+                        metrics_data = metrics.get_data(include_optional=self.export_optional)
+                        # Combine with existing metrics
+                        parents = self.sub_parents[(stage, name)]
+                        parent_stage, parent_name = parents
+                        if parent_name in metrics_by_sub:
+                            parent_metrics_data = metrics_by_sub[parent_name].get_data(
+                                include_optional=self.export_optional
+                            )
+                        else:
+                            parent_metrics_data = {}
+                        for key, value in parent_metrics_data.items():
+                            if key not in metrics_data:
+                                metrics.add(key, value)
+                        metrics_by_sub[name] = metrics
+            return subs
+
+        for stage in range(RunStage.LOAD, RunStage.POSTPROCESS):
+            subs = metrics_helper(RunStage(stage), subs)
 
         pres = []
         mains = []

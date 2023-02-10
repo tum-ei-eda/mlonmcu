@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import re
+import time
 import tempfile
 import multiprocessing
 from pathlib import Path
@@ -28,6 +29,7 @@ from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
+from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.logging import get_logger
 
@@ -167,7 +169,7 @@ class Frontend(ABC):
             # cfg.update({"espidf.output_data_path": out_paths})
             # cfg.update({"zephyr.output_data_path": out_paths})
 
-    def generate_models(self, model):
+    def _generate_models(self, model):
         artifacts = []
 
         count = len(model.paths)
@@ -186,6 +188,24 @@ class Frontend(ABC):
         assert len(artifacts) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
 
         # If we want to use the same instance of this Frontend in parallel, we need to get rid of self.artifacts...
+        return {"default": artifacts}, {}
+
+    def generate_models(self, model):
+        start_time = time.time()
+        artifacts, metrics = self._generate_models(model)
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Load Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)
+            artifact = Artifact("load_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
         self.artifacts = artifacts
 
     def export_models(self, path):
@@ -309,7 +329,7 @@ class TfLiteFrontend(SimpleFrontend):
 
         return artifacts
 
-    def generate_models(self, model):
+    def _generate_models(self, model):
         if self.split_layers:
             artifacts = {}
 
@@ -362,9 +382,9 @@ class TfLiteFrontend(SimpleFrontend):
                     assert len(ret) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
                     artifacts[subrun] = ret
 
-            self.artifacts = artifacts
+            return artifacts, {}
         else:
-            super().generate_models(model)
+            return super()._generate_models(model)
 
 
 class RelayFrontend(SimpleFrontend):

@@ -59,7 +59,7 @@ class TVMLLVMBackend(TVMBackend):
 
         return graph, params
 
-    def generate_code(self, verbose=False):
+    def _generate_code(self, verbose=False):
         artifacts = []
         assert self.model is not None
 
@@ -94,7 +94,7 @@ class TVMLLVMBackend(TVMBackend):
                 header_src = generate_wrapper_header()
                 artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
             artifacts.append(stdout_artifact)
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

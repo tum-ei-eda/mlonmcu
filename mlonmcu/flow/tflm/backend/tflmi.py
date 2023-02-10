@@ -372,7 +372,7 @@ class TFLMIBackend(TFLMBackend):
         )
         artifacts.append(workspace_size_artifact)
         # TODO: stdout_artifact (Would need to invoke TFLMI in subprocess to get stdout)
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

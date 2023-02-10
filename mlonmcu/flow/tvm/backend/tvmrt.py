@@ -72,7 +72,7 @@ class TVMRTBackend(TVMBackend):
 
         return graph, params
 
-    def generate_code(self):
+    def _generate_code(self):
         artifacts = []
         assert self.model is not None
         full = False  # Required due to bug in TVM
@@ -139,7 +139,7 @@ class TVMRTBackend(TVMBackend):
         # prepare -> common?
         # invoke_tvmc -> common?
         # generate_wrapper()
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import os
+import time
 import argparse
 from pathlib import Path
 from abc import ABC, abstractmethod
@@ -25,8 +26,9 @@ from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.artifact import ArtifactFormat
+from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
+from mlonmcu.target.metrics import Metrics
 
 logger = get_logger()
 
@@ -73,8 +75,26 @@ class Backend(ABC):
         pass
 
     @abstractmethod
+    def _generate_code(self):
+        return {}, {}
+
     def generate_code(self):
-        pass
+        start_time = time.time()
+        artifacts, metrics = self._generate_code()
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Build Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)  # TODO: store df instead?
+            artifact = Artifact("build_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+        self.artifacts = artifacts
 
     @property
     def has_tuner(self):

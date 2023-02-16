@@ -47,6 +47,7 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "pext_spec": 0.92,  # ?
         "vlen": 0,  # vectorization=off
         "elen": 32,
+        "toolchain": "gcc",  # gcc or llvm allowed
     }
     REQUIRED = Target.REQUIRED + [
         "spike.exe",
@@ -56,6 +57,8 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "riscv_gcc.variant",
         "tvm.src_dir",
     ]
+
+    OPTIONAL = ["llvm.install_dir"]
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -70,6 +73,9 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             "triple",
             "spike_extra_args",
             "pk_extra_args",
+            "toolchain",
+            "vlen",
+            "elen",
         ]
 
     @property
@@ -95,6 +101,12 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     @property
     def tvm_src_dir(self):
         return Path(self.config["tvm.src_dir"])
+
+    @property
+    def toolchain(self):
+        value = self.config["toolchain"]
+        assert value in ["gcc", "llvm"]
+        return value
 
     @property
     def enable_vext(self):
@@ -189,13 +201,31 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         exts_str = riscv_util.join_extensions(riscv_util.sort_extensions_canonical(self.extensions, lower=True))
         return f"rv{self.xlen}{exts_str}"
 
+    @property
+    def llvm_dir(self):
+        return self.config["llvm.install_dir"]
+
+    @property
+    def vlen(self):
+        return int(self.config["vlen"])
+
+    @property
+    def elen(self):
+        return int(self.config["elen"])
+
     def get_project_options(self):
         ret = super().get_project_options()
+        spike_extra_args = []
+        if self.enable_vext:
+            assert self.vlen > 0
         ret.update(
             {
                 "spike_exe": str(self.spike_exe),
                 "spike_pk": str(self.spike_pk),
                 "triple": str(self.riscv_gcc_install_dir / "bin" / self.riscv_gcc_name),
+                "toolchain": self.toolchain,
+                "vlen": self.vlen,
+                "elen": self.elen,
             }
         )
         return ret

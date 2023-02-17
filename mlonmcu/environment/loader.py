@@ -21,7 +21,7 @@ import pathlib
 import logging
 
 from .config import (
-    DefaultsConfig,
+    DefaultsConfigOld,
     PathConfig,
     RepoConfig,
     FrameworkConfig,
@@ -224,7 +224,7 @@ def load_environment_from_file(filename, base):
             default_flags = loaded["flags"]
         else:
             default_flags = None
-        defaults = DefaultsConfig(
+        defaults = DefaultsConfigOld(
             log_level=log_level,
             log_to_file=log_to_file,
             log_rotate=log_rotate,

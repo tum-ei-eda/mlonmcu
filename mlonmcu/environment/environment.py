@@ -19,7 +19,7 @@
 import logging
 
 from .config import (
-    DefaultsConfig,
+    DefaultsConfigOld,
     PathConfig,
     RepoConfig,
     FrameworkConfig,
@@ -61,7 +61,7 @@ class Environment:
     def __init__(self):
         self._home = None
         self.alias = None
-        self.defaults = DefaultsConfig()
+        self.defaults = DefaultsConfigOld()
         self.paths = {}
         self.repos = {}
         self.frameworks = []
@@ -349,7 +349,7 @@ class Environment:
 class DefaultEnvironment(Environment):
     def __init__(self):
         super().__init__()
-        self.defaults = DefaultsConfig(
+        self.defaults = DefaultsConfigOld(
             log_level=logging.DEBUG,
             log_to_file=False,
             default_framework=None,

@@ -22,6 +22,7 @@
 import os
 import xdg
 import logging
+from collections import namedtuple
 from enum import Enum
 from pathlib import Path
 
@@ -88,20 +89,40 @@ class DefaultsConfig(BaseConfig):
         log_level=logging.INFO,
         log_to_file=False,
         log_rotate=False,
-        default_framework=None,
-        default_backends={},
-        default_target=None,
         cleanup_auto=False,
         cleanup_keep=100,
     ):
         self.log_level = log_level
         self.log_to_file = log_to_file
         self.log_rotate = log_rotate
+        self.cleanup_auto = cleanup_auto
+        self.cleanup_keep = cleanup_keep
+
+
+class DefaultsConfigOld(DefaultsConfig):
+    # TODO: loglevels enum
+
+    def __init__(
+        self,
+        log_level=logging.INFO,
+        log_to_file=False,
+        log_rotate=False,
+        cleanup_auto=False,
+        cleanup_keep=100,
+        default_framework=None,
+        default_backends={},
+        default_target=None,
+    ):
+        super().__init__(
+            log_level=log_level,
+            log_to_file=log_to_file,
+            log_rotate=log_rotate,
+            cleanup_auto=False,
+            cleanup_keep=100,
+        )
         self.default_framework = default_framework
         self.default_backends = default_backends
         self.default_target = default_target
-        self.cleanup_auto = cleanup_auto
-        self.cleanup_keep = cleanup_keep
 
 
 class PathConfig(BaseConfig):
@@ -129,6 +150,9 @@ class RepoConfig(BaseConfig):
     def __init__(self, url, ref=None):
         self.url = url
         self.ref = ref
+
+
+ComponentConfig = namedtuple("ComponentConfig", "supported used")
 
 
 class BackendConfig(BaseConfig):

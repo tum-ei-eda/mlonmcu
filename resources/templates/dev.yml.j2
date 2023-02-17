@@ -1,5 +1,7 @@
+# Generated with MLonMCU version {{ TODO }}
 ---
 # The MLONMCU_HOME is filled in automatically when creating the environment
+version: 2
 home: "{{ home_dir }}"
 logging:
   level: DEBUG
@@ -68,139 +70,89 @@ repos:
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
-
-# Here all supported frameworks with their specific features are defined
-# Optionally disable unwanted or incomatible backends or features here
-# The configured defaults are used if no backend was specified in the command line options
 frameworks:
-  default: tvm
-  tflm:
-    enabled: true
-    backends:
-      default: tflmi
-      tflmc:
-        enabled: false
-      tflmi:
-        enabled: true
-        features:
-          debug_arena: true
-    features:
-      muriscvnn: true
-      cmsisnn: true
-  tvm:
-    enabled: true
-    backends:
-      default: tvmaot
-      tvmrt:
-        enabled: true
-        features:
-          debug_arena: true
-          disable_legalize: true
-          autotune: true
-          autotuned: true
-      tvmaot:
-        enabled: true
-        features:
-          debug_arena: true
-          unpacked_api: true
-          usmp: true
-          disable_legalize: true
-          autotune: true
-          autotuned: true
-      tvmcg:
-        enabled: true
-        features:
-          debug_arena: true
-          disable_legalize: true
-          autotune: true
-          autotuned: true
-    features:
-      cmsisnnbyoc: false
-# Some frontends are eperimental and therefore disabled here
-# Features like packing are only available in certain environments
-#
+  supported: &supported_frameworks
+    - tflm
+    - tvm
+  use: *supported_frameworks
+backends:
+  supported:
+    - tflmc
+    - tflmi
+    - tvmaot
+    - tvmrt
+    - tvmcg
+  use:
+    - tvmaot
 frontends:
-  tflite:
-    enabled: true
-    features:
-      validate: true
-      visualize: true
-  relay:
-    enabled: true
-    features:
-      relayviz: true
-  packed:
-    enabled: false
-    features:
-      packing: true
-      packed: true
-  onnx:
-    enabled: false
-  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+  supported: &supported_frontends
+    - tflite
+    - relay
+    # - packed
+    # - onnx
+  use: *supported_frontends
 # List of supported targets in the environment
 targets:
-  default: etiss_pulpino
-  etiss_pulpino:
-    enabled: true
-    features:
-      gdbserver: true
-      etissdbg: true
-      trace: true
-      log_instrs: true
-  host_x86:
-    enabled: true
-    features:
-      gdbserver: true
-  spike:
-    enabled: true
-    features:
-      vext: true
-      cachesim: true
-      log_instrs: true
-  ovpsim:
-    enabled: true
-    features:
-      vext: true
-  corstone300:
-    enabled: true
-    features:
-      ethosu: false
-  esp32:
-    enabled: true
-  esp32c3:
-    enabled: true
-  microtvm_etissvp:
-    enabled: true
-  microtvm_espidf:
-    enabled: false
+  supported:
+    - etiss_pulpino  # mlif
+    - spike  # mlif
+    - ovpsim  # mlif
+    - host_x86  # mlif
+    - corstone300  # mlif
+    # espidf targets do not need to be listed here
+    # - esp32  # espidf
+    # - esp32c3  # espidf
+    # tvm targets do not need to be listed here
+    # - tvm_cpu  # tvm
+    # microtvm targets need to be listed here if they have dependencies which need to be fetched
+    - microtvm_zephyr  # microtvm
+    - microtvm_host  # microtvm
+    # - microtvm_spike  # microtvm
+    # - microtvm_etissvp  # microtvm
+    # - microtvm_espidf  # microtvm
+  use:
+    - etiss_pulpino
 # Some targets/platforms support multiple toolchains
 toolchains:
-  gcc: true
-  llvm: true
+  supported: &supported_toolchains
+    gcc: true  # TODO: split into gcc, riscv_gcc, arm_gcc
+    llvm: true
+  # use: NO EFFECT
 platforms:
-  mlif:
-    enabled: true
-    features:
-      debug: true
-      validate: true
-  espidf:
-    enabled: true
-    features:
-      debug: true
-  zephyr:
-    enabled: false
-    features:
-      debug: true
+  supported: &supported_platforms
+    - mlif
+    - espidf
+    - zephyr
+    # - arduino
+  use: *supported_platforms
+features:
+  supported:
+    - gdbserver
+    - etissdbg
+    - vext
+    - trace
+    - disable_legalize
+    - debug_arena
+    - unpacked_api
+    - usmp
+    - cmsisnn
+    - muriscvnn
+    # - cmsisnnbyoc
+    # - packing
+    # - packed
+    # - ethosu
+  use: []
+# Issues: Do we need to add user-provided postprocesses to the list as well?
 postprocesses:
-  use:
-  # - detailed_cycles
-  # - average_cycles
-  # - filter_cols
-  # - features2cols
-  # - config2cols
-  # - bytes2kb
-  # - visualize
-# This is where further options such as specific versions of dependencies can be set in the furture
+  supported:
+    - detailed_cycles
+    - average_cycles
+    - filter_cols
+    - features2cols
+    - config2cols
+    - bytes2kb
+    - visualize
+  use: []
 vars:
   allow_extensions: false
   # tvm.make_tool: "ninja"

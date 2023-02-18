@@ -120,5 +120,5 @@ class PathConfig(BaseConfig):
         return f"PathConfig({self.path})"
 
 
-RepoConfig = namedtuple("RepoConfig", "url ref")
-ComponentConfig = namedtuple("ComponentConfig", "supported used")
+RepoConfig = namedtuple("RepoConfig", "url ref", defaults=[None, None])
+ComponentConfig = namedtuple("ComponentConfig", "supported used", defaults=[False, False])

@@ -40,12 +40,12 @@ def _validate_spike(context: MlonMcuContext, params=None):
     if params.get("vext", False):
         if params.get("pext", False):
             return False  # Can not use booth at a time
-        if not context.environment.supports_feature("vext"):
+        if not context.environment.has_feature("vext"):
             return False
     if params.get("pext", False):
         if params.get("vext", False):
             return False  # Can not use booth at a time
-        if not context.environment.supports_feature("pext"):
+        if not context.environment.has_feature("pext"):
             return False
     user_vars = context.environment.vars
     if "spike.pk" not in user_vars:  # TODO: also check command line flags?

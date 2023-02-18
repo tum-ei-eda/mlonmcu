@@ -156,7 +156,7 @@ class Environment(BaseEnvironment):
     def has_platform(self, name):
         return name in self.get_supported_platforms()
 
-    def get_supported_target(self):
+    def get_supported_targets(self):
         supported = [name for name, config in self.targets.items() if config.supported]
         return supported
 

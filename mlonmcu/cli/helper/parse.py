@@ -109,8 +109,8 @@ def extract_frontend_names(args, context=None):
         # No need to specify a default, because we just use the provided order in the environment.yml
         assert frontend_names is None, "TODO"
         assert context is not None, "Need context to resolve default frontends"
-        all_frontend_names = context.environment.lookup_frontend_configs(names_only=True)
-        names.extend(all_frontend_names)
+        default_frontend_names = context.environment.get_used_frontends()
+        names.extend(default_frontend_names)
     return names
 
 
@@ -155,5 +155,5 @@ def extract_platform_names(args, context=None):
         assert args.platform is None
         if context is None:
             return [None]
-        platforms = context.environment.lookup_platform_configs(names_only=True)
+        platforms = context.environment.get_used_platforms()
     return platforms

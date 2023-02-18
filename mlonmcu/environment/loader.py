@@ -20,21 +20,17 @@ import yaml
 import pathlib
 import logging
 
+from mlonmcu.logging import get_logger
 from .config import (
-    DefaultsConfigOld,
+    DefaultsConfig,
     PathConfig,
     RepoConfig,
-    FrameworkConfig,
-    FrameworkFeatureConfig,
-    BackendConfig,
-    BackendFeatureConfig,
-    TargetConfig,
-    TargetFeatureConfig,
-    PlatformConfig,
-    PlatformFeatureConfig,
-    FrontendConfig,
-    FrontendFeatureConfig,
+    ComponentConfig,
 )
+from .legacy.loader import load_environment_from_file as load_legacy_environment_from_file
+from .legacy.environment import UserEnvironment as UserEnvironmentOld
+
+logger = get_logger()
 
 # def load_environment_from_file(filename):
 #     """Utility to initialize a mlonmcu environment from a YAML file."""
@@ -62,6 +58,16 @@ def load_environment_from_file(filename, base):
         loaded = yaml.safe_load(yaml_file)
         if not loaded:
             raise RuntimeError("Invalid YAML contents")
+        if "version" in loaded:
+            version = int(loaded["version"])
+        else:
+            version = 1
+        if version == 1:
+            # fallback
+            logger.warning("Environment format v1 is deprecated. Please convert environment files to v2.")
+            from .convert import convert_v1_to_v2
+            return convert_v1_to_v2(load_legacy_environment_from_file(filename, UserEnvironmentOld))
+        assert version == 2, "Unsupported version of environment file"
         if "home" in loaded:
             home = loaded["home"]
         else:
@@ -119,103 +125,23 @@ def load_environment_from_file(filename, base):
                     repos[key] = RepoConfig(repo["url"])
         else:
             repos = None
-        default_framework = None
-        default_backends = {}
-        if "frameworks" in loaded:
-            frameworks = []
-            default_framework = loaded["frameworks"].pop("default", None)
-            for key in loaded["frameworks"]:
-                framework = loaded["frameworks"][key]
-                if "enabled" in framework:
-                    enabled = bool(framework["enabled"])
-                else:
-                    enabled = False
-                backends = []
-                if "backends" in framework:
-                    default_backend = framework["backends"].pop("default", None)
-                    default_backends[key] = default_backend
-                    for key2 in framework["backends"]:
-                        backend = framework["backends"][key2]
-                        if "enabled" in backend:
-                            enabled2 = bool(backend["enabled"])
-                        else:
-                            enabled2 = True
-                        backend_features = []
-                        if "features" in backend:
-                            for key3 in backend["features"]:
-                                supported = bool(backend["features"][key3])
-                                backend_features.append(BackendFeatureConfig(key3, backend=key2, supported=supported))
-                        backends.append(BackendConfig(key2, enabled=enabled2, features=backend_features))
-                framework_features = []
-                if "features" in framework:
-                    for key2 in framework["features"]:
-                        supported = bool(framework["features"][key2])
-                        framework_features.append(FrameworkFeatureConfig(key2, framework=key, supported=supported))
-                frameworks.append(
-                    FrameworkConfig(
-                        key,
-                        enabled=enabled,
-                        backends=backends,
-                        features=framework_features,
-                    )
-                )
-        else:
-            frameworks = None
-        if "frontends" in loaded:
-            frontends = []
-            for key in loaded["frontends"]:
-                frontend = loaded["frontends"][key]
 
-                if "enabled" in frontend:
-                    enabled = frontend["enabled"]
-                else:
-                    enabled = True
-                frontend_features = []
-                if "features" in frontend:
-                    for key2 in frontend["features"]:
-                        supported = bool(frontend["features"][key2])
-                        frontend_features.append(FrontendFeatureConfig(key2, frontend=key, supported=supported))
-                frontends.append(FrontendConfig(key, enabled=enabled, features=frontend_features))
-        else:
-            frontends = None
-        if "platforms" in loaded:
-            platforms = []
-            for key in loaded["platforms"]:
-                platform = loaded["platforms"][key]
-                if "enabled" in platform:
-                    enabled = platform["enabled"]
-                else:
-                    enabled = True
-                platform_features = []
-                if "features" in platform:
-                    for key2 in platform["features"]:
-                        supported = bool(platform["features"][key2])
-                        platform_features.append(PlatformFeatureConfig(key2, platform=key, supported=supported))
-                platforms.append(PlatformConfig(key, enabled=enabled, features=platform_features))
-        else:
-            platforms = None
-        if "toolchains" in loaded:
-            toolchains = loaded["toolchains"]
-        else:
-            toolchains = None
-        default_target = None
-        if "targets" in loaded:
-            targets = []
-            default_target = loaded["targets"].pop("default", None)
-            for key in loaded["targets"]:
-                target = loaded["targets"][key]
-                if "enabled" in target:
-                    enabled = target["enabled"]
-                else:
-                    enabled = True
-                target_features = []
-                if "features" in target:
-                    for key2 in target["features"]:
-                        supported = bool(target["features"][key2])
-                        target_features.append(TargetFeatureConfig(key2, target=key, supported=supported))
-                targets.append(TargetConfig(key, enabled=enabled, features=target_features))
-        else:
-            targets = None
+        def helper(data):
+            if data is None:
+                return None
+            supported = data.get("supported", [])
+            used = data.get("use", [])
+            combined = list(set(supported + used))
+            return {key: ComponentConfig(key in supported, key in used) for key in combined}
+
+        frameworks = helper(loaded.get("frameworks", None))
+        backends = helper(loaded.get("backends", None))
+        frontends = helper(loaded.get("frontends", None))
+        features = helper(loaded.get("features", None))
+        platforms = helper(loaded.get("platforms", None))
+        targets = helper(loaded.get("targets", None))
+        postprocesses = helper(loaded.get("postprocesses", None))
+        toolchains = helper(loaded.get("toolchains", None))
         if "vars" in loaded:
             variables = loaded["vars"]
         else:
@@ -224,13 +150,10 @@ def load_environment_from_file(filename, base):
             default_flags = loaded["flags"]
         else:
             default_flags = None
-        defaults = DefaultsConfigOld(
+        defaults = DefaultsConfig(
             log_level=log_level,
             log_to_file=log_to_file,
             log_rotate=log_rotate,
-            default_framework=default_framework,
-            default_backends=default_backends,
-            default_target=default_target,
             cleanup_auto=cleanup_auto,
             cleanup_keep=cleanup_keep,
         )
@@ -240,10 +163,13 @@ def load_environment_from_file(filename, base):
             paths=paths,
             repos=repos,
             frameworks=frameworks,
+            backends=backends,
             frontends=frontends,
             platforms=platforms,
             toolchains=toolchains,
             targets=targets,
+            features=features,
+            postprocesses=postprocesses,
             variables=variables,
             default_flags=default_flags,
         )

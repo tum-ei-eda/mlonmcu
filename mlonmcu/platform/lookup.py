@@ -23,7 +23,7 @@ from mlonmcu.config import resolve_required_config
 
 
 def get_platform_names(context):
-    return context.environment.lookup_platform_configs(names_only=True)
+    return context.environment.get_supported_platforms()
 
 
 def get_platforms_targets(context, config=None):

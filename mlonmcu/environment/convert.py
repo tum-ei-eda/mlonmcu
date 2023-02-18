@@ -24,8 +24,8 @@
 
 
 import argparse
-from mlonmcu.environment.environment import UserEnvironment
-from mlonmcu.environment.environment2 import UserEnvironment2
+from mlonmcu.environment.legacy.environment import UserEnvironment as UserEnvironmentOld
+from mlonmcu.environment.user_environment import UserEnvironment
 from mlonmcu.environment.config import ComponentConfig, DefaultsConfig
 
 # from mlonmcu.environment.loader import load_environment_from_file
@@ -66,12 +66,6 @@ def convert_v1_to_v2(env):
         f_.name: ComponentConfig(f_.supported, False) for f in env.frontends for f_ in f.features if f.enabled
     }
     other_features = {}
-    # print("framework_features", framework_features)
-    # print("backend_features", backend_features)
-    # print("target_features", target_features)
-    # print("frontend_features", frontend_features)
-    # print("other_features", other_features)
-    # print("platform_features", platform_features)
 
     def helper(name):
         return any(
@@ -97,10 +91,8 @@ def convert_v1_to_v2(env):
         .union(set(other_features.keys()))
     )
     features = {name: ComponentConfig(helper(name), False) for name in all_feature_names}
-    # print("features", features)
-    # print("?")
 
-    env2 = UserEnvironment2(
+    env2 = UserEnvironment(
         env.home,
         alias=env.alias,
         defaults=DefaultsConfig(
@@ -159,7 +151,7 @@ def main():
 
     file = args.input[0]
 
-    env = UserEnvironment.from_file(file)
+    env = UserEnvironmentOld.from_file(file)
 
     env2 = convert_v1_to_v2(env)
 

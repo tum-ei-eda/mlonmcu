@@ -36,9 +36,11 @@ def create_environment_dict(environment):
         "keep": environment.defaults.cleanup_keep,
     }
     data["paths"] = {
-        path: str(path_config.path)
-        if isinstance(path_config, PathConfig)
-        else [str(config.path) for config in path_config]
+        path: (
+            str(path_config.path)
+            if isinstance(path_config, PathConfig)
+            else [str(config.path) for config in path_config]
+        )
         for path, path_config in environment.paths.items()
     }  # TODO: allow relative paths
     data["repos"] = {

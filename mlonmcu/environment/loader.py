@@ -66,6 +66,7 @@ def load_environment_from_file(filename, base):
             # fallback
             logger.warning("Environment format v1 is deprecated. Please convert environment files to v2.")
             from .convert import convert_v1_to_v2
+
             return convert_v1_to_v2(load_legacy_environment_from_file(filename, UserEnvironmentOld))
         assert version == 2, "Unsupported version of environment file"
         if "home" in loaded:

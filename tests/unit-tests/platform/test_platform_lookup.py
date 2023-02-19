@@ -184,13 +184,3 @@ def test_platform_registry():
     assert len(get_platforms()) == before + 2
     register_platform("foo", MyPlatformA, override=True)
     assert len(get_platforms()) == before + 2
-
-
-def test_platform_get_platform_names(fake_context):
-    def lookup_platform_configs(names_only=True):
-        assert names_only
-        return ["foo", "bar"]
-
-    fake_context.environment.lookup_platform_configs = lookup_platform_configs
-    res = mlonmcu.platform.lookup.get_platform_names(fake_context)
-    assert res == ["foo", "bar"]

@@ -35,7 +35,7 @@ import mlonmcu.setup.utils as utils
 from mlonmcu.plugins import process_extensions
 from mlonmcu.context.read_write_filelock import ReadFileLock, WriteFileLock, RWLockTimeout
 
-from mlonmcu.environment.environment import Environment, UserEnvironment
+from mlonmcu.environment.user_environment import UserEnvironment
 
 from mlonmcu.environment.list import get_environments_map
 from mlonmcu.environment.config import get_environments_dir, get_plugins_dir
@@ -43,7 +43,7 @@ from mlonmcu.environment.config import get_environments_dir, get_plugins_dir
 logger = get_logger()
 
 
-def lookup_environment() -> Environment:
+def lookup_environment() -> "UserEnvironment":
     """Helper function to automatically find a suitable environment.
 
     This function is used if neither a name nor a path of the environment was specified by the user.
@@ -85,7 +85,7 @@ def lookup_environment() -> Environment:
     return None
 
 
-def get_environment_by_path(path: Union[str, Path]) -> Environment:
+def get_environment_by_path(path: Union[str, Path]) -> UserEnvironment:
     """Utility to find an environment file using a supplied path.
 
     Parameters
@@ -95,7 +95,7 @@ def get_environment_by_path(path: Union[str, Path]) -> Environment:
 
     Returns
     -------
-    Environment:
+    UserEnvironment:
         The environment (if the lookup was successful).
     """
     if isinstance(path, str):
@@ -108,7 +108,7 @@ def get_environment_by_path(path: Union[str, Path]) -> Environment:
     return None
 
 
-def get_environment_by_name(name: str) -> Environment:
+def get_environment_by_name(name: str) -> UserEnvironment:
     """Utility to find an environment file using a supplied name.
 
     Parameters
@@ -149,12 +149,12 @@ def get_ids(directory: Path) -> List[int]:
     return sorted(ids)  # TODO: sort by session datetime?
 
 
-def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
+def load_recent_sessions(env: UserEnvironment, count: int = None) -> List[Session]:
     """Get a list of recent sessions for the environment.
 
     Parameters
     ----------
-    env : Environment
+    env : UserEnvironment
         MLonMCU environment which should be used.
     count : int
         Maximum number of sessions to return. Collect all if None.
@@ -234,7 +234,7 @@ def setup_logging(environment):
 
     Attributes
     ----------
-    environment : Environment
+    environment : UserEnvironment
         The MLonMCU Environment where paths, repos, features,... are configured.
     """
     defaults = environment.defaults
@@ -255,7 +255,7 @@ class MlonMcuContext:
 
     Attributes
     ----------
-    environment : Environment
+    environment : UserEnvironment
         The MLonMCU Environment where paths, repos, features,... are configured.
     deps_lock : str ("read" or "write" default "write")
         Read means that the program does not write to the ./deps folder in the env folder.

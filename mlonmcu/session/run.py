@@ -598,9 +598,11 @@ class Run:
                     if isinstance(artifacts, dict):
                         new.update(
                             {
-                                key
-                                if name in ["", "default"]
-                                else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                                (
+                                    key
+                                    if name in ["", "default"]
+                                    else (f"{name}_{key}" if key not in ["", "default"] else name)
+                                ): value
                                 for key, value in artifacts.items()
                             }
                         )
@@ -632,9 +634,11 @@ class Run:
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
                     new = {
-                        key
-                        if name in ["", "default"]
-                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        (
+                            key
+                            if name in ["", "default"]
+                            else (f"{name}_{key}" if key not in ["", "default"] else name)
+                        ): value
                         for key, value in artifacts.items()
                     }
                 else:
@@ -650,9 +654,11 @@ class Run:
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
                     new = {
-                        key
-                        if name in ["", "default"]
-                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        (
+                            key
+                            if name in ["", "default"]
+                            else (f"{name}_{key}" if key not in ["", "default"] else name)
+                        ): value
                         for key, value in artifacts.items()
                     }
                 else:

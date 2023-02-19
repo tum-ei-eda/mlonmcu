@@ -34,7 +34,7 @@ Tasks = get_task_factory()
 
 
 def _validate_muriscvnn(context: MlonMcuContext, params=None):
-    if not context.environment.supports_feature("muriscvnn"):
+    if not context.environment.has_feature("muriscvnn"):
         return False
     user_vars = context.environment.vars
     if "muriscvnn.src_dir" not in user_vars:
@@ -46,13 +46,13 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
         target_arch = params.get("target_arch", "riscv")
         if target_arch == "riscv":
             if params.get("vext", False):
-                if not context.environment.supports_feature("vext"):
+                if not context.environment.has_feature("vext"):
                     return False
             if params.get("pext", False):
                 if toolchain == "llvm":
                     # Unsupported
                     return False
-                if not context.environment.supports_feature("pext"):
+                if not context.environment.has_feature("pext"):
                     return False
             if params.get("vext", False) and params.get("pext", False):
                 # Either pext or vext!

@@ -1,9 +1,10 @@
 import os
 import logging
 
-from mlonmcu.environment.environment import Environment
-from mlonmcu.environment.config import DefaultsConfig, PathConfig, RepoConfig
-from mlonmcu.environment.writer import create_environment_dict
+from mlonmcu.environment.legacy.environment import Environment
+from mlonmcu.environment.config import PathConfig, RepoConfig
+from mlonmcu.environment.legacy.config import DefaultsConfigOld as DefaultsConfig
+from mlonmcu.environment.legacy.writer import create_environment_dict
 
 
 class MyEnvironment(Environment):

@@ -1317,7 +1317,7 @@ class Benchmark(PlatformFeature, TargetFeature):
                 if self.total:
                     data.update(
                         {
-                            f"Total {key}": ((value * self.num_runs) if self.num_runs > 1 else value)
+                            f"Total {key}": (value * self.num_runs) if self.num_runs > 1 else value
                             for key, value in data_[-1].items()
                             if "cycle" in key.lower() or "time" in key.lower()
                         }

@@ -188,7 +188,7 @@ def clone_spike(
     context.cache["spike.src_dir"] = spikeSrcDir
 
 
-@Tasks.needs(["spike.src_dir"])
+@Tasks.needs(["spike.src_dir", "boost.install_dir"])
 @Tasks.provides(["spike.build_dir", "spike.exe"])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)

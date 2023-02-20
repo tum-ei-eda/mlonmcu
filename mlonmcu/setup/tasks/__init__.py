@@ -39,3 +39,4 @@ from .utvmcg import *  # noqa: F401, F403
 from .zephyr import *  # noqa: F401, F403
 from .pulp import *  # noqa: F401, F403
 from .boost import *  # noqa: F401, F403
+from .cmake import *  # noqa: F401, F403

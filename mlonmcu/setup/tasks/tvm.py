@@ -33,11 +33,14 @@ logger = get_logger()
 Tasks = get_task_factory()
 
 
+def requires_patch(context: MlonMcuContext):
+    return context.environment.has_feature("disable_legalize") or context.environment.has_feature("uma_backends")
+
 def _validate_tvm(context: MlonMcuContext, params=None):
     # user_vars = context.environment.vars
     patch = bool(params.get("patch", False))
     if patch:
-        if not context.environment.has_feature("disable_legalize"):
+        if not requires_patch(context):
             return False
     return context.environment.has_framework("tvm")
 
@@ -47,10 +50,10 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
     use_tlcpack = user_vars.get("tvm.use_tlcpack", False)
     patch = bool(params.get("patch", False))
     if patch:
-        if not context.environment.has_feature("disable_legalize"):
+        if not requires_patch(context):
             return False
     if use_tlcpack:
-        assert not context.environment.has_feature("disable_legalize")
+        assert not requires_patch(context)
         return False
 
     return context.environment.has_framework("tvm")
@@ -159,9 +162,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 
 
 def _validate_tvm_extensions(context: MlonMcuContext, params=None):
-    return _validate_tvm_build(context, params=params) and (
-        context.environment.has_feature("disable_legalize") or context.environment.has_feature("uma_backends")
-    )
+    return _validate_tvm_build(context, params=params) and requires_patch(context)
 
 
 @Tasks.provides(["tvm_extensions.src_dir", "tvm_extensions.wrapper"])

@@ -44,6 +44,7 @@ class Framework(ABC):
         features = get_matching_features(features, FeatureType.FRAMEWORK)
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
+            feature.used = True
             feature.add_framework_config(self.name, self.config)
         return features
 

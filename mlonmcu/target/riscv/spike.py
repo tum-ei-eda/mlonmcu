@@ -64,7 +64,7 @@ class SpikeTarget(RISCVTarget):
         "spikepk_extra_args": [],
         "end_to_end_cycles": False,
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["spike.exe", "spike.pk"]
+    REQUIRED = RISCVTarget.REQUIRED + ["spike.exe", "spike.pk", "spike.pk64"]
 
     def __init__(self, name="spike", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -76,6 +76,10 @@ class SpikeTarget(RISCVTarget):
     @property
     def spike_pk(self):
         return Path(self.config["spike.pk"])
+
+    @property
+    def spike_pk64(self):
+        return Path(self.config["spike.pk64"])
 
     @property
     def enable_vext(self):
@@ -176,7 +180,7 @@ class SpikeTarget(RISCVTarget):
         ret = execute(
             self.spike_exe.resolve(),
             *spike_args,
-            self.spike_pk.resolve(),
+            self.spike_pk.resolve() if self.xlen == 32 else self.spike_pk64.resolve(),
             *spikepk_args,
             program,
             *args,

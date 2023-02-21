@@ -180,6 +180,7 @@
                 <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FEATURES</span>
             <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Incompatible feature: </span><span class="si">{</span><span class="n">feature</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="c1"># Instead we might introduce self.compatible and set it to true at this line</span>
+            <span class="n">feature</span><span class="o">.</span><span class="n">used</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">feature</span><span class="o">.</span><span class="n">add_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
             <span class="n">feature</span><span class="o">.</span><span class="n">update_formats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_formats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_formats</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">features</span></div>

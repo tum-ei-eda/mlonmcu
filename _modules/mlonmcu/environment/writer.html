@@ -121,9 +121,11 @@
         <span class="s2">&quot;keep&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">cleanup_keep</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">path_config</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_config</span><span class="p">,</span> <span class="n">PathConfig</span><span class="p">)</span>
-        <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">path_config</span><span class="p">]</span>
+        <span class="n">path</span><span class="p">:</span> <span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">path_config</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_config</span><span class="p">,</span> <span class="n">PathConfig</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">path_config</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">path_config</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>  <span class="c1"># TODO: allow relative paths</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;repos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">repo</span><span class="p">:</span> <span class="nb">vars</span><span class="p">(</span><span class="n">repo_config</span><span class="p">)</span> <span class="k">for</span> <span class="n">repo</span><span class="p">,</span> <span class="n">repo_config</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -133,9 +135,12 @@
             <span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">framework</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
                 <span class="s2">&quot;backends&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span> <span class="ow">and</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-                    <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span>
+                        <span class="ow">and</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_backends</span><span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">),</span>
                     <span class="o">**</span><span class="p">{</span>
                         <span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
                             <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">backend</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>

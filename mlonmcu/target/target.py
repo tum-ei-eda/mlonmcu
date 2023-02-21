@@ -101,6 +101,7 @@ class Target:
         features = get_matching_features(features, FeatureType.TARGET)
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
+            feature.used = True
             feature.add_target_config(self.name, self.config)
             feature.add_target_callbacks(self.name, self.pre_callbacks, self.post_callbacks)
         return features

@@ -96,8 +96,8 @@ def clone_muriscvnn(
 @Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 # @Tasks.param("dbg", [False, True])
 @Tasks.param("dbg", [False])  # disable due to bug with vext gcc
-@Tasks.param("vext", [False, True])
-@Tasks.param("pext", [False, True])
+@Tasks.param("vext", [False])
+@Tasks.param("pext", [False])
 @Tasks.param("toolchain", ["gcc"])
 @Tasks.param("target_arch", ["x86", "riscv"])
 @Tasks.validate(_validate_muriscvnn)
@@ -145,6 +145,12 @@ def build_muriscvnn(
             muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
             muriscvnnArgs.append("-DUSE_PEXT=" + ("ON" if pext else "OFF"))
             muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
+            arch = "rv32imafdc"
+            if vext:
+                arch += "v"
+            if pext:
+                arch += "p"
+            muriscvnnArgs.append(f"-DRISCV_ARCH={arch}")
         elif target_arch == "x86":
             toolchain = params.get("toolchain", "gcc")
             muriscvnnArgs.append("-DTOOLCHAIN=x86")

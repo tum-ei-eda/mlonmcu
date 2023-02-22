@@ -26,7 +26,6 @@ from mlonmcu.setup import utils
 # TODO: offer pack/unpack/flatten methods for mlf
 # TODO: implement restore methods
 # TODO: decide if inheritance based scheme would fit better
-# TODO: add artifact flags and lookup utility to find best match
 
 
 class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?

@@ -176,16 +176,18 @@ def test_default(model_name, xlen, fpu, extensions, feature_names, user_context,
 @pytest.mark.parametrize("vlen", [64, 128, 2048])
 @pytest.mark.parametrize("elen", [32, 64])
 @pytest.mark.parametrize("spec", [1.0])
-@pytest.mark.parametrize("embedded", [False, True])
 # @pytest.mark.parametrize("fpu", ["none", "single", "double"])
 @pytest.mark.parametrize("fpu", ["none", "double"])
 @pytest.mark.parametrize("extensions", EXTENSIONS)
-@pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
-def test_vector(model_name, xlen, vlen, elen, spec, embedded, fpu, extensions, feature_names, user_context, models_dir):
-    if embedded:
-        pytest.skip("Embedded vector extension is currently not supported by default toolchain")
-    if (fpu == "double" and xlen == 32 and embedded) or (not embedded and fpu != "double"):
+# @pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
+@pytest.mark.parametrize("feature_names", [["vext"]])
+def test_embedded_vector(model_name, xlen, vlen, elen, spec, fpu, extensions, feature_names, user_context, models_dir):
+    if fpu == "double" and xlen == 32:
         pytest.skip("Unsupported combination")
+    if elen == 32:
+        pytest.skip("Unsupported combination")  # rvv compiler bug
+    if xlen == 32 and elen == 64:
+        pytest.skip("Unsupported combination")  # not included in multilib
     config = {
         "myriscv.xlen": xlen,
         "myriscv.extensions": extensions,
@@ -193,7 +195,39 @@ def test_vector(model_name, xlen, vlen, elen, spec, embedded, fpu, extensions, f
         "vext.vlen": vlen,
         "vext.elen": elen,
         "vext.spec": spec,
-        "vext.embedded": embedded,
+        "vext.embedded": True,
+    }
+    _, artifacts = _test_compile_platform(
+        "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.user_context
+@pytest.mark.parametrize("model_name", MODELS)
+@pytest.mark.parametrize("xlen", [32, 64])
+# @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
+@pytest.mark.parametrize("vlen", [64, 128, 2048])
+@pytest.mark.parametrize("spec", [1.0])
+# @pytest.mark.parametrize("fpu", ["none", "single", "double"])
+@pytest.mark.parametrize("fpu", ["none", "double"])
+@pytest.mark.parametrize("extensions", EXTENSIONS)
+@pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
+def test_vector(model_name, xlen, vlen, spec, fpu, extensions, feature_names, user_context, models_dir):
+    # if embedded:
+    #     pytest.skip("Embedded vector extension is currently not supported by default toolchain")
+    if fpu != "double":
+        pytest.skip("Unsupported combination")
+    if xlen == 32:
+        pytest.skip("Unsupported combination")  # not included in multilib
+    config = {
+        "myriscv.xlen": xlen,
+        "myriscv.extensions": extensions,
+        "myriscv.fpu": fpu,
+        "vext.vlen": vlen,
+        "vext.elen": 64,
+        "vext.spec": spec,
+        "vext.embedded": False,
     }
     _, artifacts = _test_compile_platform(
         "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config

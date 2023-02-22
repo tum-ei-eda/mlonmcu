@@ -517,9 +517,9 @@ class Run:
     @property
     def artifacts(self):
         sub = "default"
-        ret = list(
+        ret = sum(list(
             itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items()])
-        )  # TODO: fix default only
+        ), [])
         return ret
 
     def get_all_sub_artifacts(self, sub, stage=None):

@@ -130,7 +130,7 @@ class TaskCache:
             if len(flags) == 0:
                 section_name = "default"
             else:
-                section_name = ",".join(map(str, sorted(flags)))
+                section_name = ",".join(sorted(flags))
             if section_name in out:
                 out[section_name][name] = value
             else:

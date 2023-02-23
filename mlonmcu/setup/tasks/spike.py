@@ -37,6 +37,16 @@ Tasks = get_task_factory()
 def _validate_spike(context: MlonMcuContext, params=None):
     if not context.environment.has_target("spike"):
         return False
+    if params.get("vext", False):
+        if params.get("pext", False):
+            return False  # Can not use booth at a time
+        if not context.environment.supports_feature("vext"):
+            return False
+    if params.get("pext", False):
+        if params.get("vext", False):
+            return False  # Can not use booth at a time
+        if not context.environment.supports_feature("pext"):
+            return False
     user_vars = context.environment.vars
     if "spike.pk" not in user_vars:  # TODO: also check command line flags?
         assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
@@ -64,7 +74,7 @@ def clone_spike_pk(
 
 
 @Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
-@Tasks.provides(["spikepk.build_dir", "spikepk.build_dir64", "spike.pk", "spike.pk64"])
+@Tasks.provides(["spikepk.build_dir", "spike.pk"])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike_pk(
@@ -76,57 +86,49 @@ def build_spike_pk(
     user_vars = context.environment.vars
     if "spike.pk" in user_vars:  # TODO: also check command line flags?
         return False
-    # xlen = params.get("xlen", 32)
-    # assert xlen in [32, 64]
-    for xlen in [32, 64]:
-        flags = utils.makeFlags((True, xlen))
-        spikepkName = utils.makeDirName("spikepk", flags=flags)
-        spikepkSrcDir = context.cache["spikepk.src_dir"]
-        spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
-        spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
-        spikepkBin = spikepkInstallDir / "pk"
-        if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
-            utils.mkdirs(spikepkBuildDir)
-            gccName = context.cache["riscv_gcc.name"]
-            # assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
-            if "riscv_gcc.install_dir" in user_vars:
-                riscv_gcc = user_vars["riscv_gcc.install_dir"]
-            else:
-                riscv_gcc = context.cache["riscv_gcc.install_dir"]
-            # arch = "rv32imafdc"
-            arch = f"rv{xlen}imc"
-            abi = "ilp32" if xlen == 32 else "lp64"
-            spikepkArgs = []
-            spikepkArgs.append("--prefix=" + str(riscv_gcc))
-            spikepkArgs.append("--host=" + gccName)
-            spikepkArgs.append(f"--with-arch={arch}")
-            spikepkArgs.append(f"--with-abi={abi}")
-            env = os.environ.copy()
-            env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]
-            utils.exec_getout(
-                str(spikepkSrcDir / "configure"),
-                *spikepkArgs,
-                cwd=spikepkBuildDir,
-                env=env,
-                live=False,
-                print_output=False,
-            )
-            utils.make(cwd=spikepkBuildDir, threads=threads, live=verbose, env=env)
-            # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
-            utils.mkdirs(spikepkInstallDir)
-            utils.move(spikepkBuildDir / "pk", spikepkBin)
-        # context.cache["spikepk.build_dir", flags] = spikepkBuildDir
-        # context.cache["spike.pk", flags] = spikepkBin
-        if xlen == 64:
-            # context.cache["spikepk.build_dir64", flags] = spikepkBuildDir
-            # context.cache["spike.pk64", flags] = spikepkBin
-            context.cache["spikepk.build_dir64"] = spikepkBuildDir
-            context.cache["spike.pk64"] = spikepkBin
+    spikepkName = utils.makeDirName("spikepk")
+    spikepkSrcDir = context.cache["spikepk.src_dir"]
+    spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
+    spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
+    spikepkBin = spikepkInstallDir / "pk"
+    if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
+        # No need to build a vext and non-vext variant?
+        utils.mkdirs(spikepkBuildDir)
+        gccName = context.cache["riscv_gcc.name"]
+        # assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
+        vext = params.get("vext", False)
+        pext = params.get("pext", False)
+        assert not (pext and vext), "Currently only p or vector extension can be enabled at a time."
+        if vext and "riscv_gcc.install_dir_vext" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir_vext"]
+        elif pext and "riscv_gcc.install_dir_pext" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir_pext"]
+        elif "riscv_gcc.install_dir" in user_vars:
+            riscv_gcc = user_vars["riscv_gcc.install_dir"]
         else:
-            # context.cache["spikepk.build_dir", flags] = spikepkBuildDir
-            # context.cache["spike.pk", flags] = spikepkBin
-            context.cache["spikepk.build_dir"] = spikepkBuildDir
-            context.cache["spike.pk"] = spikepkBin
+            riscv_gcc = context.cache["riscv_gcc.install_dir"]
+        arch = "rv32imafdc"
+        spikepkArgs = []
+        spikepkArgs.append("--prefix=" + str(riscv_gcc))
+        spikepkArgs.append("--host=" + gccName)
+        spikepkArgs.append(f"--with-arch={arch}")
+        spikepkArgs.append("--with-abi=ilp32d")
+        env = os.environ.copy()
+        env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]
+        utils.exec_getout(
+            str(spikepkSrcDir / "configure"),
+            *spikepkArgs,
+            cwd=spikepkBuildDir,
+            env=env,
+            live=False,
+            print_output=False,
+        )
+        utils.make(cwd=spikepkBuildDir, threads=threads, live=verbose, env=env)
+        # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
+        utils.mkdirs(spikepkInstallDir)
+        utils.move(spikepkBuildDir / "pk", spikepkBin)
+    context.cache["spikepk.build_dir"] = spikepkBuildDir
+    context.cache["spike.pk"] = spikepkBin
 
 
 @Tasks.provides(["spike.src_dir"])
@@ -169,6 +171,7 @@ def build_spike(
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
         return False
     if rebuild or not (utils.is_populated(spikeBuildDir) and spikeExe.is_file()):
+        # No need to build a vext and non-vext variant?
         utils.mkdirs(spikeBuildDir)
         spikeArgs = []
         spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))

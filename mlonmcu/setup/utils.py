@@ -86,7 +86,7 @@ def makeDirName(base: str, *args, flags: list = None) -> str:
     names = [base] + makeFlags(*args)
     if flags:
         names = names + flags
-    return "_".join(map(str, names))
+    return "_".join(names)
 
 
 def exec(*args, **kwargs):

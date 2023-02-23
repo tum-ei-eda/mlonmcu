@@ -176,8 +176,8 @@ class GvsocPulpTarget(RISCVTarget):
             logger.warning("unexpected script output (instructions)")
             cpu_instructions = None
         else:
-            instructions = int(float(cpu_instructions.group(1)))
-        return cycles, instructions
+            cpu_instructions = int(float(cpu_instructions.group(1)))
+        return cycles, cpu_instructions
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""

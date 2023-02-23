@@ -149,7 +149,7 @@
         <span class="s2">&quot;spikepk_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;end_to_end_cycles&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk64&quot;</span><span class="p">]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -161,10 +161,6 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">spike_pk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spike.pk&quot;</span><span class="p">])</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">spike_pk64</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spike.pk64&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enable_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -265,7 +261,7 @@
         <span class="n">ret</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spike_exe</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
             <span class="o">*</span><span class="n">spike_args</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">spike_pk</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xlen</span> <span class="o">==</span> <span class="mi">32</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">spike_pk64</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spike_pk</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
             <span class="o">*</span><span class="n">spikepk_args</span><span class="p">,</span>
             <span class="n">program</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span>

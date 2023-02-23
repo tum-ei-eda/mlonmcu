@@ -94,6 +94,7 @@ class Setup:
             # assert (
             #     feature.name in self.FEATURES
             # ), f"Incompatible feature: {feature.name}"
+            feature.used = True
             feature.add_setup_config(self.config)
         return features
 

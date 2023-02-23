@@ -87,6 +87,7 @@ class Platform:
         for feature in features:
             # assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             if feature.name in self.FEATURES:
+                feature.used = True
                 feature.add_platform_config(self.name, self.config)
                 feature.add_platform_defs(self.name, self.definitions)
         return features

@@ -131,6 +131,7 @@ class Run:
         features = get_matching_features(features, FeatureType.RUN)
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
+            feature.used = True
             tmp_run_config = {f"run.{key}": value for key, value in self.run_config.items()}
             feature.add_run_config(tmp_run_config)
             self.run_config = filter_config(tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
@@ -598,9 +599,11 @@ class Run:
                     if isinstance(artifacts, dict):
                         new.update(
                             {
-                                key
-                                if name in ["", "default"]
-                                else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                                (
+                                    key
+                                    if name in ["", "default"]
+                                    else (f"{name}_{key}" if key not in ["", "default"] else name)
+                                ): value
                                 for key, value in artifacts.items()
                             }
                         )
@@ -632,9 +635,11 @@ class Run:
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
                     new = {
-                        key
-                        if name in ["", "default"]
-                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        (
+                            key
+                            if name in ["", "default"]
+                            else (f"{name}_{key}" if key not in ["", "default"] else name)
+                        ): value
                         for key, value in artifacts.items()
                     }
                 else:
@@ -650,9 +655,11 @@ class Run:
                 artifacts = self.target.artifacts
                 if isinstance(artifacts, dict):
                     new = {
-                        key
-                        if name in ["", "default"]
-                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        (
+                            key
+                            if name in ["", "default"]
+                            else (f"{name}_{key}" if key not in ["", "default"] else name)
+                        ): value
                         for key, value in artifacts.items()
                     }
                 else:
@@ -894,9 +901,9 @@ class Run:
             else ""
         )
 
-    def get_all_feature_names(self):
+    def get_all_feature_names(self, only_used=True):
         """Return list of feature names for this run."""
-        return [feature.name for feature in self.features]
+        return [feature.name for feature in self.features if feature.used or not only_used]
 
     def get_all_postprocess_names(self):
         """Return list of postprocess names for this run."""

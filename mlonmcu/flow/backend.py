@@ -64,6 +64,7 @@ class Backend(ABC):
         features = get_matching_features(features, FeatureType.BACKEND)
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
+            feature.used = True
             feature.add_backend_config(self.name, self.config)
         return features
 

@@ -76,7 +76,7 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.needs(["tflmc.src_dir", "tf.src_dir"])
 @Tasks.optional(["muriscvnn.lib", "muriscvnn.inc_dir", "cmsisnn.dir"])
 @Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
-@Tasks.param("muriscvnn", [False, True])
+@Tasks.param("muriscvnn", [False])
 @Tasks.param("cmsisnn", [False, True])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("arch", ["x86"])  # TODO: compile for arm/riscv in the future

@@ -95,6 +95,7 @@ class Frontend(ABC):
                 in self.FEATURES
             ), f"Incompatible feature: {feature.name}"
             # Instead we might introduce self.compatible and set it to true at this line
+            feature.used = True
             feature.add_frontend_config(self.name, self.config)
             feature.update_formats(self.name, self.input_formats, self.output_formats)
         return features

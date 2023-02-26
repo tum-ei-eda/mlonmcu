@@ -29,6 +29,7 @@ from mlonmcu.flow.backend import main
 from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .tvmc_utils import get_tvmrt_tvmc_args
+from .model_info import get_relay_model_info
 
 
 class TVMRTBackend(TVMBackend):
@@ -59,8 +60,8 @@ class TVMRTBackend(TVMBackend):
         value = self.config["debug_arena"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    def get_tvmc_compile_args(self, out):
-        return super().get_tvmc_compile_args(out) + get_tvmrt_tvmc_args()
+    def get_tvmc_compile_args(self, out, dump=None):
+        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args()
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None
@@ -77,6 +78,9 @@ class TVMRTBackend(TVMBackend):
         assert self.model is not None
         full = False  # Required due to bug in TVM
         dump = ["c", "relay"] if full else []
+        generate_wrapper = True
+        if generate_wrapper and not self.model_info and "relay" not in dump:
+            dump.append("relay")
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
             out = self.invoke_tvmc_compile(out_path, dump=dump)
@@ -95,7 +99,7 @@ class TVMRTBackend(TVMBackend):
                         archive=True,
                     )
                 )
-            if full:
+            if "c" in dump:
                 with open(str(out_path) + ".c", "r") as handle:
                     mod_src = handle.read()
                     artifacts.append(
@@ -106,6 +110,7 @@ class TVMRTBackend(TVMBackend):
                             optional=True,
                         )
                     )
+            if "relay" in dump:
                 with open(str(out_path) + ".relay", "r") as handle:
                     mod_txt = handle.read()
                     artifacts.append(
@@ -116,11 +121,12 @@ class TVMRTBackend(TVMBackend):
                             optional=True,
                         )
                     )
-            generate_wrapper = True
             if generate_wrapper:
                 workspace_size = self.arena_size
                 assert workspace_size >= 0
                 graph, params = self.get_graph_and_params_from_mlf(mlf_path)
+                if not self.model_info:
+                    self.model_info = get_relay_model_info(mod_txt)
                 wrapper_src = generate_tvmrt_wrapper(
                     graph, params, self.model_info, workspace_size, debug_arena=self.debug_arena
                 )

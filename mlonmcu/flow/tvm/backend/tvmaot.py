@@ -27,6 +27,7 @@ from mlonmcu.flow.backend import main
 from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
+from .model_info import get_relay_model_info
 from .tvmc_utils import get_tvmaot_tvmc_args
 
 
@@ -70,8 +71,8 @@ class TVMAOTBackend(TVMBackend):
     def alignment_bytes(self):
         return int(self.config["alignment_bytes"])
 
-    def get_tvmc_compile_args(self, out):
-        return super().get_tvmc_compile_args(out) + get_tvmaot_tvmc_args(self.alignment_bytes, self.unpacked_api)
+    def get_tvmc_compile_args(self, out, dump=None):
+        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmaot_tvmc_args(self.alignment_bytes, self.unpacked_api)
 
     def get_workspace_size_from_metadata(self, metadata):
         if "modules" in metadata:
@@ -85,6 +86,9 @@ class TVMAOTBackend(TVMBackend):
         assert self.model is not None
         full = False  # Required due to bug in TVM
         dump = ["c", "relay"] if full else []
+        generate_wrapper = True
+        if generate_wrapper and not self.model_info and "relay" not in dump:
+            dump.append("relay")
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
             out = self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
@@ -103,7 +107,7 @@ class TVMAOTBackend(TVMBackend):
                         archive=True,
                     )
                 )
-            if full:  # FIXME: broken due to error in TVM
+            if "c" in dump:
                 with open(str(out_path) + ".c", "r") as handle:
                     mod_src = handle.read()
                     artifacts.append(
@@ -114,6 +118,7 @@ class TVMAOTBackend(TVMBackend):
                             optional=True,
                         )
                     )
+            if "relay" in dump:
                 with open(str(out_path) + ".relay", "r") as handle:
                     mod_txt = handle.read()
                     artifacts.append(
@@ -124,13 +129,14 @@ class TVMAOTBackend(TVMBackend):
                             optional=True,
                         )
                     )
-            generate_wrapper = True
             if generate_wrapper:
                 if self.arena_size is not None:
                     assert self.arena_size >= 0
                     workspace_size = self.arena_size
                 else:
                     workspace_size = self.get_workspace_size_from_metadata(metadata)
+                if not self.model_info:
+                    self.model_info = get_relay_model_info(mod_txt)
                 wrapper_src = generate_tvmaot_wrapper(
                     self.model_info,
                     workspace_size,

@@ -21,7 +21,8 @@ import multiprocessing
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
-from .model_info import get_model_info, get_fallback_model_info, get_supported_formats
+from mlonmcu.logging import get_logger
+from .model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
     get_target_tvmc_args,
@@ -31,6 +32,8 @@ from .tvmc_utils import (
     get_input_shapes_tvmc_args,
     get_tuning_records_tvmc_args,
 )
+
+logger = get_logger()
 
 
 class TVMBackend(Backend):
@@ -271,15 +274,26 @@ class TVMBackend(Backend):
             return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd)
 
     def invoke_tvmc_compile(self, out, dump=None, cwd=None):
-        args = self.get_tvmc_compile_args(out)
+        args = self.get_tvmc_compile_args(out, dump=dump)
         return self.invoke_tvmc("compile", *args, cwd=cwd)
 
     def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
         self.model = model
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
-        if input_shapes and output_shapes and input_types and output_types:
-            self.model_format, self.model_info = get_fallback_model_info(model, input_shapes, output_shapes, input_types, output_types)
-        else:
-            self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
-        self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+        need_model_info = True
+        if input_shapes:
+            self.input_shapes = input_shapes
+            if output_shapes and input_types and output_types:
+                need_model_info = False
+                self.model_format, self.model_info = get_fallback_model_info(model, input_shapes, output_shapes, input_types, output_types, backend_name=self.name)
+        if need_model_info:
+            try:
+                self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
+            except Exception as e:
+                logger.warning("Fetching of Model Info failed (%s). Falling back to Relay-based info.", type(e).__name__)
+                self.model_format = get_model_format(model)
+                self.model_info = None
+
+            if self.model_info and not self.input_shapes:
+                self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

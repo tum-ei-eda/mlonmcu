@@ -64,6 +64,7 @@ class TVMLLVMBackend(TVMBackend):
         artifacts = []
         assert self.model is not None
 
+        full = False  # Required due to bug in TVM
         dump = ["ll", "relay"] if full else []
         generate_wrapper = self.fmt == "mlf"
         if generate_wrapper and not self.model_info and "relay" not in dump:
@@ -84,6 +85,28 @@ class TVMLLVMBackend(TVMBackend):
                         archive=True,
                     )
                 )
+            if "c" in dump:
+                with open(str(out_path) + ".c", "r") as handle:
+                    mod_src = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.c",
+                            content=mod_src,
+                            fmt=ArtifactFormat.SOURCE,
+                            optional=True,
+                        )
+                    )
+            if "relay" in dump:
+                with open(str(out_path) + ".relay", "r") as handle:
+                    mod_txt = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.relay",
+                            content=mod_txt,
+                            fmt=ArtifactFormat.TEXT,
+                            optional=True,
+                        )
+                    )
 
             stdout_artifact = Artifact(
                 "tvmc_compile_out.log", content=out, fmt=ArtifactFormat.TEXT

@@ -190,8 +190,23 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     """Postprocess which can be used to transform (explode) the 'Config' Column in a dataframe for easier filtering."""
 
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "limit": None,
+    }
+
     def __init__(self, features=None, config=None):
         super().__init__("config2cols", features=features, config=config)
+
+    @property
+    def limit(self):
+        value = self.config["limit"]
+        if value is None:
+            return None
+        if isinstance(value, str):
+            value = value.split(",")
+        assert isinstance(value, list)
+        return value
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -199,6 +214,14 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         if "Config" not in df.columns:
             return
         config_df = df["Config"].apply(pd.Series).add_prefix("config_")
+        keep = self.limit
+        if keep:
+            keep_cols = [f"config_{x}" for x in keep]
+            for col in config_df:
+                if col not in keep_cols:
+                    # if not col.startswith("config_"):
+                    #     continue
+                    config_df.drop(columns=[col], inplace=True)
         tmp_df = df.drop(columns=["Config"])
         new_df = pd.concat([tmp_df, config_df], axis=1)
         report.post_df = new_df

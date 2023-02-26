@@ -958,7 +958,7 @@ class Run:
                 ret = {
                     key: value
                     for key, value in ret.items()
-                    if not (isinstance(value, Path) or (isinstance(value, str) and Path(value).exists()))
+                    if not (isinstance(value, Path) or (isinstance(value, str) and len(str(value)) < 200 and Path(value).exists()))
                 }
             return ret
 

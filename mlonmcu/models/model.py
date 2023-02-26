@@ -102,7 +102,6 @@ def parse_shape_string(inputs_string):
 
 
 def parse_type_string(inputs_string):
-
     pattern = r"(?:\w+\/)?[:\w.]+\:\s*\-?\w+(?:\s*\-?\w+)*"
     input_mappings = re.findall(pattern, inputs_string)
     assert input_mappings

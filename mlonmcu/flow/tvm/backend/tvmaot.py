@@ -72,7 +72,9 @@ class TVMAOTBackend(TVMBackend):
         return int(self.config["alignment_bytes"])
 
     def get_tvmc_compile_args(self, out, dump=None):
-        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmaot_tvmc_args(self.alignment_bytes, self.unpacked_api)
+        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmaot_tvmc_args(
+            self.alignment_bytes, self.unpacked_api
+        )
 
     def get_workspace_size_from_metadata(self, metadata):
         if "modules" in metadata:

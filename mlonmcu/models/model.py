@@ -116,6 +116,7 @@ def parse_type_string(inputs_string):
 
     return type_dict
 
+
 class Model:
     DEFAULTS = {
         "metadata_path": "definition.yml",

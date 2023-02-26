@@ -125,7 +125,7 @@ class Frontend(ABC):
                 if name and shape:
                     input_shapes[name] = shape
                 if name and ty:
-                     input_types[name] = ty
+                    input_types[name] = ty
                 if self.use_inout_data:
                     if "example_input" in inp and "path" in inp["example_input"]:
                         in_data_dir = Path(inp["example_input"]["path"])
@@ -144,7 +144,7 @@ class Frontend(ABC):
                 if name and shape:
                     output_shapes[name] = shape
                 if name and ty:
-                     output_types[name] = ty
+                    output_types[name] = ty
                 if self.use_inout_data:
                     if "test_output_path" in outp:
                         out_data_dir = Path(outp["test_output_path"])

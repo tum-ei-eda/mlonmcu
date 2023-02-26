@@ -519,9 +519,7 @@ class Run:
     @property
     def artifacts(self):
         sub = "default"
-        ret = sum(list(
-            itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items()])
-        ), [])
+        ret = sum(list(itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items()])), [])
         return ret
 
     def get_all_sub_artifacts(self, sub, stage=None):
@@ -726,7 +724,13 @@ class Run:
             output_shapes = self.model.output_shapes
             input_types = self.model.input_types
             output_types = self.model.output_types
-            self.backend.load_model(model=model_artifact.path, input_shapes=input_shapes, output_shapes=output_shapes, input_types=input_types, output_types=output_types)
+            self.backend.load_model(
+                model=model_artifact.path,
+                input_shapes=input_shapes,
+                output_shapes=output_shapes,
+                input_types=input_types,
+                output_types=output_types,
+            )
             if self.has_stage(RunStage.TUNE):
                 self.export_stage(RunStage.TUNE, optional=self.export_optional)
                 if len(self.artifacts_per_stage[RunStage.TUNE][name]) > 0:  # TODO: inaccurate!
@@ -958,7 +962,10 @@ class Run:
                 ret = {
                     key: value
                     for key, value in ret.items()
-                    if not (isinstance(value, Path) or (isinstance(value, str) and len(str(value)) < 200 and Path(value).exists()))
+                    if not (
+                        isinstance(value, Path)
+                        or (isinstance(value, str) and len(str(value)) < 200 and Path(value).exists())
+                    )
                 }
             return ret
 

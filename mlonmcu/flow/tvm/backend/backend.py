@@ -286,12 +286,16 @@ class TVMBackend(Backend):
             self.input_shapes = input_shapes
             if output_shapes and input_types and output_types:
                 need_model_info = False
-                self.model_format, self.model_info = get_fallback_model_info(model, input_shapes, output_shapes, input_types, output_types, backend_name=self.name)
+                self.model_format, self.model_info = get_fallback_model_info(
+                    model, input_shapes, output_shapes, input_types, output_types, backend_name=self.name
+                )
         if need_model_info:
             try:
                 self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
             except Exception as e:
-                logger.warning("Fetching of Model Info failed (%s). Falling back to Relay-based info.", type(e).__name__)
+                logger.warning(
+                    "Fetching of Model Info failed (%s). Falling back to Relay-based info.", type(e).__name__
+                )
                 self.model_format = get_model_format(model)
                 self.model_info = None
 

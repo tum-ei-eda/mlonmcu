@@ -112,7 +112,9 @@ class TfLiteModelInfo(ModelInfo):
 
 
 def shape_from_str(shape_str):
-    return tuple([complex(*map(int, x.split("i", 1))) if "i" in x else int(x) for x in shape_str.replace(" ", "").split(",")])
+    return tuple(
+        [complex(*map(int, x.split("i", 1))) if "i" in x else int(x) for x in shape_str.replace(" ", "").split(",")]
+    )
 
 
 def parse_relay_main(line):
@@ -123,7 +125,9 @@ def parse_relay_main(line):
         line
     )
     for input_tensors_str in input_tensors_strs:
-        res = re.compile(r"%([a-zA-Z0-9_]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(input_tensors_str)
+        res = re.compile(r"%([a-zA-Z0-9_]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(
+            input_tensors_str
+        )
         assert res is not None
         groups = res.groups()
         assert len(groups) == 3
@@ -139,7 +143,9 @@ def parse_relay_main(line):
     output_tensors_str = re.compile(r"-> (.+) {").findall(line)
     # The following depends on InferType annocations
     if len(output_tensors_str) > 0:
-        output_tensor_strs = re.compile(r"Tensor\[\([\di]+(?:, [\di]+)*\), [a-zA-Z0-9_]+\]").findall(output_tensors_str[0])
+        output_tensor_strs = re.compile(r"Tensor\[\([\di]+(?:, [\di]+)*\), [a-zA-Z0-9_]+\]").findall(
+            output_tensors_str[0]
+        )
 
         if len(output_tensor_names_str) > 0:
             output_tensor_names = re.compile(r"\"([a-zA-Z0-9_]+)\"").findall(output_tensor_names_str[0])
@@ -329,11 +335,13 @@ def get_model_info(model, backend_name="unknown"):
 def get_fallback_model_info(model, input_shapes, output_shapes, input_types, output_types, backend_name="unknown"):
     ext = os.path.splitext(model)[1][1:]
     fmt = ModelFormats.from_extension(ext)
+
     def helper(shapes, types):
         return [TensorInfo(name, shape, types[name]) for name, shape in shapes.items()]
+
     info = ModelInfo(
-        in_tensors = helper(input_shapes, input_types),
-        out_tensors = helper(output_shapes, output_types),
+        in_tensors=helper(input_shapes, input_types),
+        out_tensors=helper(output_shapes, output_types),
     )
 
     if fmt == ModelFormats.TFLITE:

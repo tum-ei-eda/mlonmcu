@@ -128,6 +128,8 @@ def parse_relay_main(line):
         groups = res.groups()
         assert len(groups) == 3
         input_name, input_shape_str, input_type = groups
+        if "v_param" in input_name:
+            continue
         input_shape = shape_from_str(input_shape_str)
         input_tensor = TensorInfo(input_name, input_shape, input_type)
         input_tensors.append(input_tensor)

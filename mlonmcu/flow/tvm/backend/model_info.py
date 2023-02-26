@@ -350,5 +350,15 @@ def get_fallback_model_info(model, input_shapes, output_shapes, input_types, out
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
 
 
+def get_model_format(model):
+    ext = os.path.splitext(model)[1][1:]
+    fmt = ModelFormats.from_extension(ext)
+
+    if fmt:
+        return fmt.extension
+    else:
+        return ext
+
+
 def get_supported_formats():
     return [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB, ModelFormats.ONNX, ModelFormats.PADDLE]

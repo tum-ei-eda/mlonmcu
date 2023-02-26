@@ -85,6 +85,14 @@ class ModelInfo:
         self.in_tensors = in_tensors
         self.out_tensors = out_tensors
 
+    @property
+    def has_ins(self):
+        return len(self.in_tensors) > 0
+
+    @property
+    def has_outs(self):
+        return len(self.out_tensors) > 0
+
 
 class TfLiteModelInfo(ModelInfo):
     def __init__(self, model, fix_names=False):

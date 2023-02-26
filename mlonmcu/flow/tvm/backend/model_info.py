@@ -135,22 +135,28 @@ def parse_relay_main(line):
         input_tensors.append(input_tensor)
 
     output_tensor_names_str = re.compile(r"output_tensor_names=\[(\".*\")\]").findall(line)
-    output_tensor_names = re.compile(r"\"([a-zA-Z0-9_]+)\"").findall(output_tensor_names_str[0])
 
     output_tensors_str = re.compile(r"-> (.+) {").findall(line)
-    output_tensor_strs = re.compile(r"Tensor\[\(\d+(?:, \d+)+\), [a-zA-Z0-9_]+\]").findall(output_tensors_str[0])
+    # The following depends on InferType annocations
+    if len(output_tensors_str) > 0:
+        output_tensor_strs = re.compile(r"Tensor\[\([\di]+(?:, [\di]+)*\), [a-zA-Z0-9_]+\]").findall(output_tensors_str[0])
 
-    assert len(output_tensor_names) == len(output_tensor_strs)
+        if len(output_tensor_names_str) > 0:
+            output_tensor_names = re.compile(r"\"([a-zA-Z0-9_]+)\"").findall(output_tensor_names_str[0])
+        else:
+            output_tensor_names = [f"output{i}" for i in range(len(output_tensor_strs))]
 
-    for i, output_name in enumerate(output_tensor_names):
-        res = re.compile(r"Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").match(output_tensor_strs[i])
-        assert res is not None
-        groups = res.groups()
-        assert len(groups) == 2
-        output_shape_str, output_type = groups
-        output_shape = shape_from_str(output_shape_str)
-        output_tensor = TensorInfo(output_name, output_shape, output_type)
-        output_tensors.append(output_tensor)
+        assert len(output_tensor_names) == len(output_tensor_strs)
+
+        for i, output_name in enumerate(output_tensor_names):
+            res = re.compile(r"Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(output_tensor_strs[i])
+            assert res is not None
+            groups = res.groups()
+            assert len(groups) == 2
+            output_shape_str, output_type = groups
+            output_shape = shape_from_str(output_shape_str)
+            output_tensor = TensorInfo(output_name, output_shape, output_type)
+            output_tensors.append(output_tensor)
     return input_tensors, output_tensors
 
 

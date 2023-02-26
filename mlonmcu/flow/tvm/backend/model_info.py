@@ -44,7 +44,14 @@ class TensorInfo:
     def size(self):
         ret = self.type_size
         for dim in self.shape:
-            ret *= dim
+            if isinstance(dim, complex):
+                real = dim.real
+                imag = dim.imag
+                assert real == int(real)
+                assert imag == int(imag)
+                ret *= int(real) + int(imag)
+            else:
+                ret *= dim
         return ret
 
 
@@ -97,18 +104,18 @@ class TfLiteModelInfo(ModelInfo):
 
 
 def shape_from_str(shape_str):
-    return tuple(map(int, shape_str.replace(" ", "").split(",")))
+    return tuple([complex(*map(int, x.split("i", 1))) if "i" in x else int(x) for x in shape_str.replace(" ", "").split(",")])
 
 
 def parse_relay_main(line):
     input_tensors = []
     output_tensors = []
 
-    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(
+    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+\s?: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(
         line
     )
     for input_tensors_str in input_tensors_strs:
-        res = re.compile(r"%([a-zA-Z0-9]+): Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").match(input_tensors_str)
+        res = re.compile(r"%([a-zA-Z0-9_]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(input_tensors_str)
         assert res is not None
         groups = res.groups()
         assert len(groups) == 3

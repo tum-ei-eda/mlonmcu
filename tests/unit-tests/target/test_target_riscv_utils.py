@@ -90,19 +90,19 @@ def test_target_riscv_update_extensions():
 
     # embedded vext
     assert update_extensions(["g", "c"], vext=True, fpu=None, embedded=True, elen=32) == ["g", "c", "zve32x"]
-    assert update_extensions(["g", "c"], vext=True, fpu=None, embedded=True, elen=64) == ["g", "c", "zve32x", "zve64x"]
+    assert update_extensions(["g", "c"], vext=True, fpu=None, embedded=True, elen=64) == ["g", "c", "zve64x"]
     assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=32) == ["g", "c", "zve32f"]
     assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=32) == ["g", "c", "zve32f"]
     assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=64) == [
         "g",
         "c",
-        "zve32f",
+        # "zve32f",
         "zve64f",
     ]
     assert update_extensions(["g", "c"], vext=True, fpu="double", embedded=True, elen=64) == [
         "g",
         "c",
-        "zve32f",
+        # "zve32f",
         "zve64d",
     ]
 

@@ -24,7 +24,7 @@ import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
@@ -110,7 +110,8 @@ class EtissPulpinoTarget(RISCVTarget):
 
     @property
     def plugins(self):
-        return self.config["plugins"]
+        value = self.config["plugins"]
+        return str2list(value) if isinstance(value, str) else value
 
     @property
     def verbose(self):
@@ -270,9 +271,8 @@ class EtissPulpinoTarget(RISCVTarget):
         etiss_ini = os.path.join(cwd, "custom.ini")
         self.write_ini(etiss_ini)
         etiss_script_args.append("-i" + etiss_ini)
-        if len(self.plugins):
-            plugins_str = " ".join(self.plugins)  # TODO: find out separator
-            etiss_script_args.extend(["-p", plugins_str])
+        for plugin in self.plugins:
+            etiss_script_args.extend(["-p", plugin])
 
         if self.timeout_sec > 0:
             raise NotImplementedError

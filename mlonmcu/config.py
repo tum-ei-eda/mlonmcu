@@ -217,3 +217,10 @@ def str2bool(value, allow_none=False):
 def str2dict(value):
     assert isinstance(value, str)
     return dict(ast.literal_eval(value))
+
+
+def str2list(value):
+    assert isinstance(value, str)
+    if value.startswith("["):
+        return list(ast.literal_eval(value))
+    return value.split(",")

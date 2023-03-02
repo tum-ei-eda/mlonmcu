@@ -149,7 +149,7 @@ def clone_spike(
     context.cache["spike.src_dir"] = spikeSrcDir
 
 
-@Tasks.needs(["spike.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.needs(["spike.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "boost.install_dir"])
 @Tasks.provides(["spike.build_dir", "spike.exe"])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)

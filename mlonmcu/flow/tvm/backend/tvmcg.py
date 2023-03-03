@@ -22,6 +22,7 @@ import tempfile
 import json
 from pathlib import Path
 import tarfile
+from typing import Tuple
 
 from .backend import TVMBackend
 from .tvmrt import TVMRTBackend
@@ -53,8 +54,8 @@ class TVMCGBackend(TVMRTBackend):
             )
         return max_workspace
 
-    def generate_code(self):
-        super().generate_code()
+    def generate(self) -> Tuple[dict, dict]:
+        super().generate()
         artifacts = self.artifacts
         artifact = None
         for artifact in artifacts:

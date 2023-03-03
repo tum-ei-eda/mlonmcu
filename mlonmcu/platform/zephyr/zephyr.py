@@ -25,6 +25,7 @@ import shutil
 import tempfile
 from pathlib import Path
 import pkg_resources
+from typing import Tuple
 
 
 from mlonmcu.setup import utils
@@ -314,7 +315,7 @@ project(ProjectName)
         out += self.invoke_west(*westArgs, live=self.print_outputs)
         return out
 
-    def _generate_elf(self, src, target, model=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         artifacts = []
         out = self.compile(target, src=src)
         elf_name = "zephyr.elf"

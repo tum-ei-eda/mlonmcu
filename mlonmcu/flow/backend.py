@@ -21,6 +21,7 @@ import time
 import argparse
 from pathlib import Path
 from abc import ABC, abstractmethod
+from typing import Tuple, List
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.type import FeatureType
@@ -75,12 +76,12 @@ class Backend(ABC):
         pass
 
     @abstractmethod
-    def _generate_code(self):
+    def generate(self) -> Tuple[dict, dict]:
         return {}, {}
 
-    def generate_code(self):
+    def generate_artifacts(self) -> List[Artifact]:
         start_time = time.time()
-        artifacts, metrics = self._generate_code()
+        artifacts, metrics = self.generate()
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time
@@ -95,6 +96,7 @@ class Backend(ABC):
                 artifacts[name] = []
             artifacts[name].append(artifact)
         self.artifacts = artifacts
+        return artifacts
 
     @property
     def has_tuner(self):
@@ -104,8 +106,8 @@ class Backend(ABC):
         if not self.has_tuner:
             raise NotImplementedError("Backend does not support autotuning")
 
-    def export_code(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_code() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -242,7 +244,7 @@ def main(backend, args=None):
     backend_inst.load_model(model)
     if args.verbose:
         config["print_outputs"] = True
-    backend_inst.generate_code()
+    backend_inst.generate_artifacts()
     if args.print:
         print("Printing generated artifacts:")
         for artifact in backend_inst.artifacts:

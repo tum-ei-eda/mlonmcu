@@ -18,6 +18,7 @@
 #
 import sys
 import tempfile
+from typing import Tuple
 
 # import json
 import tarfile
@@ -72,7 +73,7 @@ class TVMRTBackend(TVMBackend):
 
         return graph, params
 
-    def _generate_code(self):
+    def generate(self) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
         full = False  # Required due to bug in TVM

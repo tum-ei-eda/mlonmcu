@@ -277,7 +277,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         out += self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
         return out
 
-    def _generate_elf(self, src, target, model=None):
+    def generate(self, src, target, model=None):
         artifacts = []
         out = self.compile(target, src=src)
         elf_name = self.project_name + ".elf"

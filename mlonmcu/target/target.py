@@ -22,7 +22,7 @@ import os
 import tempfile
 import time
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 
 from mlonmcu.config import filter_config
@@ -132,7 +132,7 @@ class Target:
 
         return metrics, out, []
 
-    def _generate_metrics(self, elf):
+    def generate(self, elf) -> Tuple[dict, dict]:
         artifacts = []
         metrics = []
         total = 1 + (self.repeat if self.repeat else 0)
@@ -162,9 +162,9 @@ class Target:
         artifacts_["default"].append(stdout_artifact)
         return artifacts_, metrics
 
-    def generate_metrics(self, elf):
+    def generate_artifacts(self, elf):
         start_time = time.time()
-        artifacts, metrics = self._generate_metrics(elf)
+        artifacts, metrics = self.generate(elf)
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time
@@ -179,9 +179,10 @@ class Target:
             artifacts[name].append(artifact)
 
         self.artifacts = artifacts
+        return artifacts
 
-    def export_metrics(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_metrics() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)

@@ -19,9 +19,12 @@
 import time
 import tempfile
 import multiprocessing
-from abc import ABC, abstractmethod
+
+# from abc import ABC
+from abc import abstractmethod
 from pathlib import Path
 from filelock import FileLock
+from typing import Tuple, List
 
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
@@ -117,8 +120,8 @@ class BuildPlatform(Platform):
     def supports_build(self):
         return True
 
-    def export_elf(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -144,8 +147,8 @@ class TunePlatform(Platform):
     def supports_tune(self):
         return True
 
-    def export_elf(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -227,12 +230,12 @@ class CompilePlatform(Platform):
         return metrics
 
     @abstractmethod
-    def _generate_elf(self, src, target, model=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         raise NotImplementedError
 
-    def generate_elf(self, src, target, model=None):
+    def generate_artifacts(self, src, target, model=None) -> List[Artifact]:
         start_time = time.time()
-        artifacts, metrics = self._generate_elf(src, target, model=None)
+        artifacts, metrics = self._generate_artifacts(src, target, model=None)
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time

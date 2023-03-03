@@ -18,6 +18,7 @@
 #
 """MLIF Platform"""
 import tempfile
+from typing import Tuple
 
 from pathlib import Path
 
@@ -281,7 +282,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         return out, artifacts
 
-    def _generate_elf(self, src, target, model=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?

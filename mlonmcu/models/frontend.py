@@ -22,6 +22,7 @@ import tempfile
 import multiprocessing
 from pathlib import Path
 from abc import ABC, abstractmethod
+from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import ModelFormats, Model
@@ -169,7 +170,7 @@ class Frontend(ABC):
             # cfg.update({"espidf.output_data_path": out_paths})
             # cfg.update({"zephyr.output_data_path": out_paths})
 
-    def _generate_models(self, model):
+    def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []
 
         count = len(model.paths)
@@ -190,9 +191,9 @@ class Frontend(ABC):
         # If we want to use the same instance of this Frontend in parallel, we need to get rid of self.artifacts...
         return {"default": artifacts}, {}
 
-    def generate_models(self, model):
+    def generate_artifacts(self, model) -> List[Artifact]:
         start_time = time.time()
-        artifacts, metrics = self._generate_models(model)
+        artifacts, metrics = self.generate(model)
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time
@@ -207,9 +208,10 @@ class Frontend(ABC):
                 artifacts[name] = []
             artifacts[name].append(artifact)
         self.artifacts = artifacts
+        return artifacts
 
-    def export_models(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_models() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -329,7 +331,7 @@ class TfLiteFrontend(SimpleFrontend):
 
         return artifacts
 
-    def _generate_models(self, model):
+    def generate(self, model) -> Tuple[dict, dict]:
         if self.split_layers:
             artifacts = {}
 
@@ -384,7 +386,7 @@ class TfLiteFrontend(SimpleFrontend):
 
             return artifacts, {}
         else:
-            return super()._generate_models(model)
+            return super().generate(model)
 
 
 class RelayFrontend(SimpleFrontend):

@@ -22,6 +22,7 @@ import re
 import tempfile
 import concurrent
 from pathlib import Path
+from typing import Tuple
 
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
@@ -375,7 +376,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         # TODO: support self.num_threads (e.g. patch esp-idf)
         return out
 
-    def generate_elf(self, src, target, model=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         # TODO: name missleading as we are not interested in the ELF
         src = Path(src) / "default.tar"  # TODO: lookup for *.tar file
         artifacts = []

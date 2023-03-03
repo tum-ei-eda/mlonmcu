@@ -20,6 +20,7 @@ import sys
 import tempfile
 import tarfile
 from pathlib import Path
+from typing import Tuple
 
 from .backend import TVMBackend
 from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
@@ -59,7 +60,7 @@ class TVMLLVMBackend(TVMBackend):
 
         return graph, params
 
-    def _generate_code(self, verbose=False):
+    def generate(self, verbose=False) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
 

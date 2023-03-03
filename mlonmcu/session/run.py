@@ -629,8 +629,7 @@ class Run:
             self.export_stage(RunStage.COMPILE, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.COMPILE]:
                 elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][name][0]
-                self.target.generate_metrics(elf_artifact.path)
-                artifacts = self.target.artifacts
+                artifacts = self.target.generate_artifacts(elf_artifact.path)
                 if isinstance(artifacts, dict):
                     new = {
                         (
@@ -649,8 +648,7 @@ class Run:
             self.export_stage(RunStage.BUILD, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.BUILD]:
                 shared_object_artifact = self.artifacts_per_stage[RunStage.BUILD][name][0]
-                self.target.generate_metrics(shared_object_artifact.path)
-                artifacts = self.target.artifacts
+                artifacts = self.target.generate_artifacts(shared_object_artifact.path)
                 if isinstance(artifacts, dict):
                     new = {
                         (
@@ -683,7 +681,7 @@ class Run:
             if name not in ["", "default"]:
                 codegen_dir = codegen_dir / "sub" / name
             # TODO!
-            artifacts = self.compile_platform.generate_elf(
+            artifacts = self.compile_platform.generate_artifacts(
                 codegen_dir, self.target
             )  # TODO: has to go into different dirs
             # artifacts = self.compile_platform.artifacts
@@ -731,8 +729,7 @@ class Run:
                     self.backend.tuning_records = tuning_artifact.path
 
             # TODO: allow raw data as well as filepath in backends
-            self.backend.generate_code()
-            artifacts = self.backend.artifacts
+            artifacts = self.backend.generate_artifacts()
             if isinstance(artifacts, dict):
                 new = {
                     key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
@@ -791,7 +788,7 @@ class Run:
         self.lock()
         # assert self.completed[RunStage.NOP]
 
-        self.frontend.generate_models(self.model)
+        artifacts = self.frontend.generate_artifacts(self.model)
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}
         self.frontend.process_metadata(self.model, cfg=cfg_new)
@@ -805,7 +802,6 @@ class Run:
                         if platform is not None and component == platform.name:
                             platform.config[name] = value
                 self.config[key] = value
-        artifacts = self.frontend.artifacts
         if isinstance(artifacts, dict):
             self.artifacts_per_stage[RunStage.LOAD] = artifacts
         else:

@@ -22,6 +22,7 @@ import re
 import tempfile
 import concurrent
 from pathlib import Path
+from typing import Tuple
 
 from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
@@ -375,7 +376,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         # TODO: support self.num_threads (e.g. patch esp-idf)
         return out
 
-    def generate_elf(self, src, target, model=None, data_file=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         # TODO: name missleading as we are not interested in the ELF
         src = Path(src) / "default.tar"  # TODO: lookup for *.tar file
         artifacts = []
@@ -385,7 +386,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             "microtvm_out.log", content=out, fmt=ArtifactFormat.TEXT  # TODO: split into one file per command
         )
         artifacts.append(stdout_artifact)
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
     def flash(self, elf, target, timeout=120):
         # Ignore elf, as we use self.project_dir instead
@@ -451,7 +452,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         ret.append(model)
         return ret
 
-    def tune_model(self, model_path, backend, target):
+    def _tune_model(self, model_path, backend, target):
         assert self.experimental_tvmc_micro_tune, "Microtvm tuning requires experimental_tvmc_micro_tune"
         enable = self.config["autotuning_enable"]
         results_file = self.config["autotuning_results_file"]
@@ -578,4 +579,4 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
 
-        return artifacts
+        return {"default": artifacts}, {}

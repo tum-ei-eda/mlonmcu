@@ -20,6 +20,8 @@ import sys
 import os
 import tempfile
 from pathlib import Path
+from typing import Tuple
+
 from .backend import TFLMBackend
 import mlonmcu.setup.utils as utils
 from mlonmcu.config import str2bool
@@ -89,7 +91,7 @@ size_t model_outputs();
 """
         return code
 
-    def generate_code(self):
+    def generate(self) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
         tflmc_exe = None
@@ -117,7 +119,7 @@ size_t model_outputs();
             stdout_artifact = Artifact("tflmc_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
 
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

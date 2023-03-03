@@ -17,10 +17,12 @@
 # limitations under the License.
 #
 import re
+import time
 import tempfile
 import multiprocessing
 from pathlib import Path
 from abc import ABC, abstractmethod
+from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import ModelFormats, Model
@@ -28,6 +30,7 @@ from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
+from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.logging import get_logger
 
@@ -167,7 +170,7 @@ class Frontend(ABC):
             # cfg.update({"espidf.output_data_path": out_paths})
             # cfg.update({"zephyr.output_data_path": out_paths})
 
-    def generate_models(self, model):
+    def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []
 
         count = len(model.paths)
@@ -186,10 +189,29 @@ class Frontend(ABC):
         assert len(artifacts) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
 
         # If we want to use the same instance of this Frontend in parallel, we need to get rid of self.artifacts...
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
-    def export_models(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_models() first"
+    def generate_artifacts(self, model) -> List[Artifact]:
+        start_time = time.time()
+        artifacts, metrics = self.generate(model)
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Load Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)
+            artifact = Artifact("load_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+        self.artifacts = artifacts
+        return artifacts
+
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -309,7 +331,7 @@ class TfLiteFrontend(SimpleFrontend):
 
         return artifacts
 
-    def generate_models(self, model):
+    def generate(self, model) -> Tuple[dict, dict]:
         if self.split_layers:
             artifacts = {}
 
@@ -362,9 +384,9 @@ class TfLiteFrontend(SimpleFrontend):
                     assert len(ret) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
                     artifacts[subrun] = ret
 
-            self.artifacts = artifacts
+            return artifacts, {}
         else:
-            super().generate_models(model)
+            return super().generate(model)
 
 
 class RelayFrontend(SimpleFrontend):

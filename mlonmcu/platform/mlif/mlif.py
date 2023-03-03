@@ -18,6 +18,7 @@
 #
 """MLIF Platform"""
 import tempfile
+from typing import Tuple
 
 from pathlib import Path
 
@@ -281,7 +282,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         return out, artifacts
 
-    def generate_elf(self, src, target, model=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
@@ -290,11 +291,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             artifact = Artifact("generic_mlif", raw=data, fmt=ArtifactFormat.RAW)
             artifacts.insert(0, artifact)  # First artifact should be the ELF
         metrics = self.get_metrics(elf_file)
-        content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
-        metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
-        artifacts.append(metrics_artifact)
         stdout_artifact = Artifact(
             "mlif_out.log", content=out, fmt=ArtifactFormat.TEXT
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
-        self.artifacts = {"default": artifacts}
+        return {"default": artifacts}, {"default": metrics}

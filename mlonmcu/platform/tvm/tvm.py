@@ -311,7 +311,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         ret.append(model)
         return ret
 
-    def tune_model(self, model_path, backend, target):
+    def _tune_model(self, model_path, backend, target):
         enable = self.config["autotuning_enable"]
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
@@ -426,4 +426,4 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
 
-        return artifacts
+        return {"default": artifacts}, {}

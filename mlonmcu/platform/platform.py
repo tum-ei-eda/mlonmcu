@@ -16,10 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import time
 import tempfile
 import multiprocessing
+
+# from abc import ABC
+from abc import abstractmethod
 from pathlib import Path
 from filelock import FileLock
+from typing import Tuple, List
 
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
@@ -28,6 +33,7 @@ from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.elf import get_results as get_static_mem_usage
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
+from mlonmcu.artifact import Artifact, ArtifactFormat
 
 logger = get_logger()
 
@@ -114,8 +120,8 @@ class BuildPlatform(Platform):
     def supports_build(self):
         return True
 
-    def export_elf(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -141,8 +147,8 @@ class TunePlatform(Platform):
     def supports_tune(self):
         return True
 
-    def export_elf(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -151,6 +157,28 @@ class TunePlatform(Platform):
         ), "The supplied path does not exists."  # Make sure it actually exists (we do not create it by default)
         for artifact in self.artifacts:
             artifact.export(path)
+
+    @abstractmethod
+    def _tune_model(self, model_path, backend, target):
+        raise NotImplementedError
+
+    def tune_model(self, model_path, backend, target):
+        start_time = time.time()
+        artifacts, metrics = self._tune_model(model_path, backend, target)
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Tune Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)  # TODO: store df instead?
+            artifact = Artifact("tune_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+        return artifacts
 
 
 class CompilePlatform(Platform):
@@ -201,11 +229,27 @@ class CompilePlatform(Platform):
         metrics.add("RAM zero-init data", ram_zdata)
         return metrics
 
-    def generate_elf(self, src, target, model=None, data_file=None):
+    @abstractmethod
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         raise NotImplementedError
 
-    def tune_model(self, path):
-        raise NotImplementedError
+    def generate_artifacts(self, src, target, model=None) -> List[Artifact]:
+        start_time = time.time()
+        artifacts, metrics = self._generate_artifacts(src, target, model=None)
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Compile Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)
+            artifact = Artifact("compile_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+        return artifacts
 
 
 class TargetPlatform(Platform):

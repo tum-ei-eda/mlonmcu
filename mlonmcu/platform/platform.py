@@ -235,7 +235,7 @@ class CompilePlatform(Platform):
 
     def generate_artifacts(self, src, target, model=None) -> List[Artifact]:
         start_time = time.time()
-        artifacts, metrics = self._generate_artifacts(src, target, model=None)
+        artifacts, metrics = self.generate(src, target, model=None)
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time

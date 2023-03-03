@@ -77,7 +77,9 @@ def handle_docker(args):
             + " try running this script using the `--docker` flag."
         )
     elif platform.system() in ["Darwin"]:
-        logger.warning("Support for MacOS is currently very limited. It is recommended to use the --docker flag for optimal compatibility.")
+        logger.warning(
+            "Support for MacOS is currently very limited. It is recommended to use the --docker flag for optimal compatibility."
+        )
 
 
 # def main(args):

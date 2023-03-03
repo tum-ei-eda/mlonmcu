@@ -107,6 +107,7 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">.backend</span> <span class="kn">import</span> <span class="n">TVMBackend</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">main</span>
@@ -166,7 +167,7 @@
             <span class="c1"># backwards compatibility</span>
             <span class="k">return</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">][</span><span class="s2">&quot;main&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;workspace_size_bytes&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="TVMAOTBackend.generate_code"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMAOTBackend.generate"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">full</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Required due to bug in TVM</span>
@@ -236,7 +237,7 @@
             <span class="p">)</span>  <span class="c1"># TODO: rename to tvmaot_out.log?</span>
             <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
         <span class="c1"># assert self.target</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

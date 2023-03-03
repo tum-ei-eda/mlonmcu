@@ -224,8 +224,8 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.platform.BuildPlatform.export_elf">
-<span class="sig-name descname"><span class="pre">export_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#BuildPlatform.export_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.BuildPlatform.export_elf" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.BuildPlatform.export_artifacts">
+<span class="sig-name descname"><span class="pre">export_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#BuildPlatform.export_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.BuildPlatform.export_artifacts" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -261,8 +261,13 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.generate_elf">
-<span class="sig-name descname"><span class="pre">generate_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.generate_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.generate_elf" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.generate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.generate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.generate_artifacts">
+<span class="sig-name descname"><span class="pre">generate_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.html#mlonmcu.artifact.Artifact" title="mlonmcu.artifact.Artifact"><span class="pre">mlonmcu.artifact.Artifact</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.generate_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.generate_artifacts" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -278,11 +283,6 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.supports_compile">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_compile</span></span><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.supports_compile" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.platform.CompilePlatform.tune_model">
-<span class="sig-name descname"><span class="pre">tune_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#CompilePlatform.tune_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.CompilePlatform.tune_model" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -437,13 +437,18 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.export_elf">
-<span class="sig-name descname"><span class="pre">export_elf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#TunePlatform.export_elf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.export_elf" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.export_artifacts">
+<span class="sig-name descname"><span class="pre">export_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#TunePlatform.export_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.export_artifacts" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.supports_tune">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_tune</span></span><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.supports_tune" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.platform.TunePlatform.tune_model">
+<span class="sig-name descname"><span class="pre">tune_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/platform.html#TunePlatform.tune_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.platform.TunePlatform.tune_model" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

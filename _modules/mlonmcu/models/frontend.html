@@ -102,10 +102,12 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.models.model</span> <span class="kn">import</span> <span class="n">ModelFormats</span><span class="p">,</span> <span class="n">Model</span>
@@ -113,6 +115,7 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span><span class="p">,</span> <span class="n">str2bool</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
@@ -252,7 +255,7 @@
             <span class="c1"># cfg.update({&quot;espidf.output_data_path&quot;: out_paths})</span>
             <span class="c1"># cfg.update({&quot;zephyr.output_data_path&quot;: out_paths})</span>
 
-<div class="viewcode-block" id="Frontend.generate_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.generate_models">[docs]</a>    <span class="k">def</span> <span class="nf">generate_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<div class="viewcode-block" id="Frontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span>
@@ -271,10 +274,29 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_outs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; frontend should not return more than </span><span class="si">{</span><span class="n">max_outs</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="c1"># If we want to use the same instance of this Frontend in parallel, we need to get rid of self.artifacts...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="Frontend.export_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.export_models">[docs]</a>    <span class="k">def</span> <span class="nf">export_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;No artifacts found, please run generate_models() first&quot;</span>
+<div class="viewcode-block" id="Frontend.generate_artifacts"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.generate_artifacts">[docs]</a>    <span class="k">def</span> <span class="nf">generate_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Artifact</span><span class="p">]:</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">artifacts</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="c1"># TODO: do something with out?</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">Metrics</span><span class="p">()}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">metrics_</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+                <span class="n">metrics_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Load Stage Time [s]&quot;</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">metrics_</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;load_metrics.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;metrics&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
+                <span class="n">artifacts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">artifacts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span>
+        <span class="k">return</span> <span class="n">artifacts</span></div>
+
+<div class="viewcode-block" id="Frontend.export_artifacts"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.export_artifacts">[docs]</a>    <span class="k">def</span> <span class="nf">export_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;No artifacts found, please run generate_artifacts() first&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -394,7 +416,7 @@
 
         <span class="k">return</span> <span class="n">artifacts</span></div>
 
-<div class="viewcode-block" id="TfLiteFrontend.generate_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.generate_models">[docs]</a>    <span class="k">def</span> <span class="nf">generate_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<div class="viewcode-block" id="TfLiteFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_layers</span><span class="p">:</span>
             <span class="n">artifacts</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -447,9 +469,9 @@
                     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_outs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; frontend should not return more than </span><span class="si">{</span><span class="n">max_outs</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="n">artifacts</span><span class="p">[</span><span class="n">subrun</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span>
+            <span class="k">return</span> <span class="n">artifacts</span><span class="p">,</span> <span class="p">{}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate_models</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div></div>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="RelayFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.RelayFrontend">[docs]</a><span class="k">class</span> <span class="nc">RelayFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>

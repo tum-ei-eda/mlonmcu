@@ -396,7 +396,7 @@
         <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="TvmPlatform.tune_model"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm.TvmPlatform.tune_model">[docs]</a>    <span class="k">def</span> <span class="nf">tune_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_tune_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="n">enable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_enable&quot;</span><span class="p">]</span>
         <span class="n">results_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_results_file&quot;</span><span class="p">]</span>
         <span class="n">append</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_append&quot;</span><span class="p">]</span>
@@ -511,7 +511,7 @@
             <span class="p">)</span>  <span class="c1"># TODO: rename to tvmaot_out.log?</span>
             <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">artifacts</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
 </pre></div>
 
            </div>

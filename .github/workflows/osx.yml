@@ -209,10 +209,10 @@ jobs:
         source .venv/bin/activate
         mlonmcu init home/ --non-interactive --template ${{ matrix.template }} --clone-models
     - name: Install environment-specific Python packages
-       run: |
-         source .venv/bin/activate
-         MLONMCU_HOME=$(pwd)/home/ mlonmcu setup -g
-         pip install -r home/requirements_addition.txt
+      run: |
+        source .venv/bin/activate
+        MLONMCU_HOME=$(pwd)/home/ mlonmcu setup -g
+        pip install -r home/requirements_addition.txt
     - name: Setup MLonMCU dependencies
       run: |
         source .venv/bin/activate

@@ -46,6 +46,10 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
     use_tlcpack = user_vars.get("tvm.use_tlcpack", False)
     patch = bool(params.get("patch", False))
+    cmsisnn = bool(params.get("cmsisnn", False))
+    if cmsisnn:
+        if not (context.environment.has_feature("cmsisnnbyoc") or context.environment.has_feature("muriscvnnbyoc")):
+            return False
     if patch:
         if not context.environment.has_feature("disable_legalize"):
             return False

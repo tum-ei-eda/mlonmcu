@@ -1128,7 +1128,11 @@
             <span class="k">return</span> <span class="n">subs</span>
 
         <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">):</span>
-            <span class="n">subs</span> <span class="o">=</span> <span class="n">metrics_helper</span><span class="p">(</span><span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">),</span> <span class="n">subs</span><span class="p">)</span>
+            <span class="n">subs_</span> <span class="o">=</span> <span class="n">metrics_helper</span><span class="p">(</span><span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">),</span> <span class="n">subs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">failing</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">subs</span> <span class="o">=</span> <span class="n">subs_</span>
 
         <span class="n">pres</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">mains</span> <span class="o">=</span> <span class="p">[]</span>

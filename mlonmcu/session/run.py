@@ -1043,7 +1043,11 @@ class Run:
             return subs
 
         for stage in range(RunStage.LOAD, RunStage.POSTPROCESS):
-            subs = metrics_helper(RunStage(stage), subs)
+            subs_ = metrics_helper(RunStage(stage), subs)
+            if len(subs_) < len(subs):
+                assert self.failing
+            else:
+                subs = subs_
 
         pres = []
         mains = []

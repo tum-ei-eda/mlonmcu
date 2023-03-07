@@ -112,7 +112,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
         utils.mkdirs(tvmBuildDir)
         cfgFileSrc = Path(tvmSrcDir) / "cmake" / "config.cmake"
         cfgFile = tvmBuildDir / "config.cmake"
-        llvmConfig = str(context.cache["llvm.install_dir"] / "bin" / "llvm-config")
+        llvmConfig = str(Path(context.cache["llvm.install_dir"]) / "bin" / "llvm-config")
         llvmConfigEscaped = str(llvmConfig).replace("/", "\\/")
         utils.copy(cfgFileSrc, cfgFile)
         utils.exec(

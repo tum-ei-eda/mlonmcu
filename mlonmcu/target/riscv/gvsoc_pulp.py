@@ -120,6 +120,7 @@ class GvsocPulpTarget(RISCVTarget):
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute an executable with given arguments"""
+        # create a new folder and copy the compiled program into it
         gvsimDir = program.parent / "gvsim"
         if not os.path.exists(gvsimDir):
             os.makedirs(gvsimDir)

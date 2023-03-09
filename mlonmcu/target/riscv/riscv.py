@@ -45,7 +45,8 @@ class RISCVTarget(Target):
         "attr": "",
     }
     REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"]
-    PUPL_GCC_TOOLCHAIN_REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]
+    PUPL_GCC_TOOLCHAIN_REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]  # TODO elegant handle customized toolchain
+    ARA_GCC_TOOLCHAIN_REQUIRED = ["ara_gcc.install_dir", "ara_gcc.name"]  # TODO elegant handle customized toolchain
     OPTIONAL = ["llvm.install_dir"]
 
     @property
@@ -63,6 +64,14 @@ class RISCVTarget(Target):
     @property
     def pulp_gcc_basename(self):
         return Path(self.config["pulp_gcc.name"])
+
+    @property
+    def ara_gcc_basename(self):
+        return Path(self.config["ara_gcc.name"])
+
+    @property
+    def ara_gcc_prefix(self):
+        return Path(self.config["ara_gcc.install_dir"])
 
     @property
     def gcc_variant(self):
@@ -157,12 +166,16 @@ class RISCVTarget(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        # TODO refactor the following using inheritance instead of branching
         if "riscv_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the riscv_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
         elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
+        elif "ara_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the ara_gcc toolchain
+            ret["RISCV_ELF_GCC_PREFIX"] = self.ara_gcc_prefix
+            ret["RISCV_ELF_GCC_BASENAME"] = self.ara_gcc_basename
         ret["RISCV_ARCH"] = self.arch
         ret["RISCV_ABI"] = self.abi
         ret["RISCV_ATTR"] = self.attr  # TODO: use for clang

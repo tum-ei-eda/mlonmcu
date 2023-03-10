@@ -17,15 +17,10 @@
 # limitations under the License.
 #
 import sys
-import tempfile
-import tarfile
 from pathlib import Path
-from typing import Tuple
 
 from .backend import TVMBackend
-from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.flow.backend import main
-from mlonmcu.artifact import Artifact, ArtifactFormat
 from .tvmc_utils import get_tvmrt_tvmc_args
 
 
@@ -46,8 +41,8 @@ class TVMLLVMBackend(TVMBackend):
     def __init__(self, runtime="crt", fmt="mlf", features=None, config=None):
         super().__init__(target="llvm", executor="graph", runtime=runtime, fmt=fmt, features=features, config=config)
 
-    def get_tvmc_compile_args(self, out):
-        return super().get_tvmc_compile_args(out) + get_tvmrt_tvmc_args(self.runtime)
+    def get_tvmc_compile_args(self, out, dump=None):
+        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(self.runtime)
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None
@@ -59,43 +54,6 @@ class TVMLLVMBackend(TVMBackend):
             params = handle.read()
 
         return graph, params
-
-    def generate(self, verbose=False) -> Tuple[dict, dict]:
-        artifacts = []
-        assert self.model is not None
-
-        dump = []
-        with tempfile.TemporaryDirectory() as temp_dir:
-            out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump)
-            tar_dir = Path(temp_dir) / self.prefix
-            tarfile.open(out_path).extractall(tar_dir)
-
-            with open(out_path, "rb") as handle:
-                mlf_data = handle.read()
-                artifacts.append(
-                    Artifact(
-                        f"{self.prefix}.tar",
-                        raw=mlf_data,
-                        fmt=ArtifactFormat.SHARED_OBJECT if self.fmt == "so" else ArtifactFormat.MLF,
-                        archive=True,
-                    )
-                )
-
-            stdout_artifact = Artifact(
-                "tvmc_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
-            )  # TODO: rename to tvmllvm_out.log?
-            generate_wrapper = self.fmt == "mlf"
-            if generate_wrapper:
-                workspace_size = 2**20
-                assert workspace_size >= 0
-                graph, params = self.get_graph_and_params_from_mlf(tar_dir)
-                wrapper_src = generate_tvmrt_wrapper(graph, params, self.model_info, workspace_size, debug_arena=False)
-                artifacts.append(Artifact("rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
-                header_src = generate_wrapper_header()
-                artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
-            artifacts.append(stdout_artifact)
-        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

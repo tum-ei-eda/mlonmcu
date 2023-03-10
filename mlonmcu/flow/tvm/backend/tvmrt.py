@@ -17,18 +17,15 @@
 # limitations under the License.
 #
 import sys
-import tempfile
 from typing import Tuple
 
 # import json
-import tarfile
-from pathlib import Path
 
 from .backend import TVMBackend
 from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.flow.backend import main
 from mlonmcu.config import str2bool
-from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from .tvmc_utils import get_tvmrt_tvmc_args
 
 
@@ -60,87 +57,30 @@ class TVMRTBackend(TVMBackend):
         value = self.config["debug_arena"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    def get_tvmc_compile_args(self, out):
-        return super().get_tvmc_compile_args(out) + get_tvmrt_tvmc_args()
-
-    def get_graph_and_params_from_mlf(self, path):
-        graph = None
-        with open(Path(path) / "executor-config" / "graph" / "default.graph", "r") as handle:
-            graph = handle.read()
-        params = None
-        with open(Path(path) / "parameters" / "default.params", "rb") as handle:
-            params = handle.read()
-
-        return graph, params
+    def get_tvmc_compile_args(self, out, dump=None):
+        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args()
 
     def generate(self) -> Tuple[dict, dict]:
-        artifacts = []
-        assert self.model is not None
-        full = False  # Required due to bug in TVM
-        dump = ["c", "relay"] if full else []
-        with tempfile.TemporaryDirectory() as temp_dir:
-            out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump)
-            mlf_path = Path(temp_dir) / "mlf"
-            tarfile.open(out_path).extractall(mlf_path)
-            # with open(mlf_path / "metadata.json") as handle:
-            #     metadata = json.load(handle)
-            # metadata_txt = json.dumps(metadata)
-            with open(out_path, "rb") as handle:
-                mlf_data = handle.read()
-                artifacts.append(
-                    Artifact(
-                        f"{self.prefix}.tar",
-                        raw=mlf_data,
-                        fmt=ArtifactFormat.MLF,
-                        archive=True,
-                    )
-                )
-            if full:
-                with open(str(out_path) + ".c", "r") as handle:
-                    mod_src = handle.read()
-                    artifacts.append(
-                        Artifact(
-                            f"{self.prefix}.c",
-                            content=mod_src,
-                            fmt=ArtifactFormat.SOURCE,
-                            optional=True,
-                        )
-                    )
-                with open(str(out_path) + ".relay", "r") as handle:
-                    mod_txt = handle.read()
-                    artifacts.append(
-                        Artifact(
-                            f"{self.prefix}.relay",
-                            content=mod_txt,
-                            fmt=ArtifactFormat.TEXT,
-                            optional=True,
-                        )
-                    )
-            generate_wrapper = True
-            if generate_wrapper:
-                workspace_size = self.arena_size
-                assert workspace_size >= 0
-                graph, params = self.get_graph_and_params_from_mlf(mlf_path)
-                wrapper_src = generate_tvmrt_wrapper(
-                    graph, params, self.model_info, workspace_size, debug_arena=self.debug_arena
-                )
-                artifacts.append(Artifact("rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
-                header_src = generate_wrapper_header()
-                artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
-            workspace_size_artifact = Artifact(
-                "tvmrt_workspace_size.txt", content=f"{workspace_size}", fmt=ArtifactFormat.TEXT
+        artifacts, metrics = super().generate()
+        assert len(artifacts) == 1 and "default" in artifacts
+        artifacts = artifacts["default"]
+        assert len(metrics) == 1 and "default" in metrics
+        metrics = metrics["default"]
+        if self.generate_wrapper:
+            workspace_size = self.arena_size
+            assert workspace_size >= 0
+            graph_artifact = lookup_artifacts(artifacts, f"{self.prefix}.graph")[0]
+            graph = graph_artifact.content
+            params_artifact = lookup_artifacts(artifacts, f"{self.prefix}.params")[0]
+            params = params_artifact.raw
+            wrapper_src = generate_tvmrt_wrapper(
+                graph, params, self.model_info, workspace_size, debug_arena=self.debug_arena
             )
-            artifacts.append(workspace_size_artifact)
-            stdout_artifact = Artifact(
-                "tvmc_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
-            )  # TODO: rename to tvmrt_out.log?
-            artifacts.append(stdout_artifact)
-
-        # prepare -> common?
-        # invoke_tvmc -> common?
-        # generate_wrapper()
-        return {"default": artifacts}, {}
+            artifacts.append(Artifact("rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
+            header_src = generate_wrapper_header()
+            artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
+        metrics.add("Workspace Size [B]", workspace_size, True)
+        return {"default": artifacts}, {"default": metrics}
 
 
 if __name__ == "__main__":

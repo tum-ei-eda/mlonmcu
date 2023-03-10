@@ -459,7 +459,7 @@ class GdbServer(TargetFeature):
         return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
-        assert target in ["host_x86", "etiss_pulpino", "ovpsim"]
+        assert target in ["host_x86", "etiss_pulpino", "etiss", "ovpsim"]
         return filter_none(
             {
                 f"{target}.gdbserver_enable": self.enabled,
@@ -480,8 +480,8 @@ class ETISSDebug(SetupFeature, TargetFeature):
         return {"etiss.install_dir": ["dbg"], "etissvp.script": ["dbg"]} if self.enabled else {}
 
     def get_target_config(self, target):
-        assert target in ["etiss_pulpino"]
-        return {"etiss_pulpino.debug_etiss": self.enabled}
+        assert target in ["etiss_pulpino", "etiss"]
+        return {f"{target}.debug_etiss": self.enabled}
 
 
 @register_feature("trace")
@@ -499,9 +499,9 @@ class Trace(TargetFeature):
         super().__init__("trace", features=features, config=config)
 
     def add_target_config(self, target, config):
-        assert target in ["etiss_pulpino", "ovpsim"]
-        if target == "etiss_pulpino":
-            config.update({"etiss_pulpino.trace_memory": self.enabled})
+        assert target in ["etiss_pulpino", "etiss", "ovpsim"]
+        if target in ["etiss_pulpino", "etiss"]:
+            config.update({f"{target}.trace_memory": self.enabled})
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace --tracemem SAX")
@@ -1010,7 +1010,7 @@ class LogInstructions(TargetFeature):
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "ovpsim", "gvsoc_pulp"]
+        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "gvsoc_pulp"]
         if not self.enabled:
             return
         if target == "spike":
@@ -1019,7 +1019,7 @@ class LogInstructions(TargetFeature):
             # if self.to_file:
             #     extra_args_new.append("--log=?")
             config.update({f"{target}.extra_args": extra_args_new})
-        elif target == "etiss_pulpino":
+        elif target in ["etiss_pulpino", "etiss"]:
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
@@ -1053,6 +1053,7 @@ class LogInstructions(TargetFeature):
         assert target in [
             "spike",
             "etiss_pulpino",
+            "etiss",
             "ovpsim",
             "gvsoc_pulp",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
@@ -1066,7 +1067,7 @@ class LogInstructions(TargetFeature):
                         # TODO: update stdout and remove log_instrs lines
                         instrs = []
                         for line in stdout.split("\n"):
-                            if target == "etiss_pulpino":
+                            if target in ["etiss_pulpino", "etiss"]:
                                 expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                             elif target == "spike":
                                 expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")

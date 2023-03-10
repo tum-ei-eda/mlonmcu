@@ -360,7 +360,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         assert len(log_artifact) == 1, "To use analyse_instructions process, please enable feature log_instrs."
         log_artifact = log_artifact[0]
         is_spike = "spike" in log_artifact.flags
-        is_etiss = "etiss_pulpino" in log_artifact.flags
+        is_etiss = "etiss_pulpino" in log_artifact.flags or "etiss" in log_artifact.flags
         is_ovpsim = "ovpsim" in log_artifact.flags
         is_riscv = is_spike or is_etiss or is_ovpsim
         if is_spike:

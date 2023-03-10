@@ -40,7 +40,7 @@ def _validate_etiss(context: MlonMcuContext, params={}):
         if dbg:
             if not context.environment.has_feature("etissdbg"):
                 return False
-    return context.environment.has_target("etiss_pulpino")
+    return context.environment.has_target("etiss_pulpino") or context.environment.has_target("etiss")
 
 
 @Tasks.provides(["etiss.src_dir"])

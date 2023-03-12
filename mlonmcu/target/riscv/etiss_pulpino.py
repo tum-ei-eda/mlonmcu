@@ -43,9 +43,6 @@ class EtissPulpinoTarget(EtissTarget):
     def __init__(self, name="etiss_pulpino", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
-    def etiss_src_dir(self):
-        return self.config["etiss.src_dir"]
-
     def get_ini_bool_config(self):
         ret = super().get_ini_bool_config()
         ret["arch.enable_semihosting"] = False

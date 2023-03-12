@@ -68,10 +68,11 @@ class EtissTarget(RISCVTarget):
         "max_block_size": None,
         "enable_xcorevmac": False,
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
+    REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script", "etiss.src_dir"]
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
+        # TODO: make optional or move to mlonmcu pkg
         self.metrics_script = Path(self.etiss_src_dir) / "src" / "bare_etiss_processor" / "get_metrics.py"
 
     @property

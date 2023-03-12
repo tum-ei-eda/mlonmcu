@@ -38,7 +38,7 @@ logger = get_logger()
 class EtissTarget(RISCVTarget):
     """Target using a simple RISC-V VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext"]
+    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext", "xcorev"]
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -66,6 +66,7 @@ class EtissTarget(RISCVTarget):
         "jit": None,
         "end_to_end_cycles": False,
         "max_block_size": None,
+        "enable_xcorevmac": False,
     }
     REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script"]
 
@@ -163,6 +164,11 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def enable_xcorevmac(self):
+        value = self.config["enable_xcorevmac"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def vlen(self):
         return int(self.config["vlen"])
 
@@ -191,6 +197,9 @@ class EtissTarget(RISCVTarget):
     @property
     def attr(self):
         attrs = super().attr.split(",")
+        if self.enable_xcorevmac:
+            if "xcorevmac" not in attrs:
+                attrs.append("+xcorevmac")
         if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
             attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)

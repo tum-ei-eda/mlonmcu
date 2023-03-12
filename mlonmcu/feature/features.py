@@ -1401,6 +1401,32 @@ class TvmProfile(PlatformFeature):
         }
 
 
+@register_feature("xcorev")
+class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "mac": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("xcorev", features=features, config=config)
+
+    @property
+    def mac(self):
+        value = self.config["mac"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def add_target_config(self, target, config):
+        assert target in ["etiss"], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+            # extensions = config.get(f"{target}.extensions", [])
+            # assert isinstance(extensions, list)
+            # if self.mac:
+            #     extensions.append("XCoreV")
+            # config[f"{target}.extensions"] = extensions
+            config[f"{target}.enable_xcorevmac"] = True
+
 @register_feature("xpulp")
 class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
     DEFAULTS = {

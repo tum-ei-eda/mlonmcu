@@ -60,6 +60,7 @@ class EtissPulpinoTarget(EtissTarget):
         ret["PULPINO_ROM_SIZE"] = self.rom_size
         ret["PULPINO_RAM_START"] = self.ram_start
         ret["PULPINO_RAM_SIZE"] = self.ram_size
+        return ret
 
 
 if __name__ == "__main__":

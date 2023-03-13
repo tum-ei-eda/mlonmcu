@@ -67,6 +67,11 @@ class AraTarget(RISCVTarget):
         return Path(self.config["ara.hardware_dir"]) / "build" / "verilator" / "Vara_tb_verilator"
 
     @property
+    def abi(self):
+        value = self.config["abi"]
+        return value
+
+    @property
     def nr_lanes(self):
         value = self.config["nr_lanes"]
         return value
@@ -74,11 +79,6 @@ class AraTarget(RISCVTarget):
     @property
     def vlen(self):
         value = self.config["vlen"]
-        return value
-
-    @property
-    def abi(self):
-        value = self.config["abi"]
         return value
 
     @property
@@ -154,6 +154,7 @@ class AraTarget(RISCVTarget):
         assert platform == "mlif"
         ret = super().get_platform_defs(platform)
         # ret["RISCV_ARCH"] = "rv32imcxpulpv3"
+        ret["XLEN"] = self.xlen
         ret["RISCV_ABI"] = self.abi
         ret["ARA_APPS_DIR"] = self.ara_apps_dir
         ret['MLONMCU_ARA_NR_LANES'] = self.nr_lanes

@@ -46,11 +46,16 @@ class AraTarget(RISCVTarget):
     }
 
     REQUIRED = RISCVTarget.ARA_GCC_TOOLCHAIN_REQUIRED + [
+        "ara.apps_dir",
         "ara.hardware_dir"
     ]
 
     def __init__(self, name="ara", features=None, config=None):
         super().__init__(name, features=features, config=config)
+
+    @property
+    def ara_apps_dir(self):
+        return Path(self.config["ara.apps_dir"])
 
     @property
     def ara_hardware_dir(self):
@@ -139,6 +144,7 @@ class AraTarget(RISCVTarget):
         ret = super().get_platform_defs(platform)
         # ret["RISCV_ARCH"] = "rv32imcxpulpv3"
         ret["RISCV_ABI"] = self.abi
+        ret["ARA_APPS_DIR"] = self.ara_apps_dir
         return ret
 
     def get_backend_config(self, backend):

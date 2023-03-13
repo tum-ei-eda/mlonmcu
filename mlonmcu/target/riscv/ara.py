@@ -32,7 +32,6 @@ import shutil
 
 logger = get_logger()
 
-
 class AraTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the GVSOC simulator"""
 
@@ -43,6 +42,8 @@ class AraTarget(RISCVTarget):
         "xlen": 64,
         "abi": "lp64d",
         "extensions": ["g", "c", "v"],  # TODO overwrite extensions elegantly
+        "nr_lanes": 4,
+        "vlen": 4096
     }
 
     REQUIRED = RISCVTarget.ARA_GCC_TOOLCHAIN_REQUIRED + [
@@ -64,6 +65,16 @@ class AraTarget(RISCVTarget):
     @property
     def Vara_tb_verilator(self):
         return Path(self.config["ara.hardware_dir"]) / "build" / "verilator" / "Vara_tb_verilator"
+
+    @property
+    def nr_lanes(self):
+        value = self.config["nr_lanes"]
+        return value
+
+    @property
+    def vlen(self):
+        value = self.config["vlen"]
+        return value
 
     @property
     def abi(self):
@@ -145,6 +156,8 @@ class AraTarget(RISCVTarget):
         # ret["RISCV_ARCH"] = "rv32imcxpulpv3"
         ret["RISCV_ABI"] = self.abi
         ret["ARA_APPS_DIR"] = self.ara_apps_dir
+        ret['MLONMCU_ARA_NR_LANES'] = self.nr_lanes
+        ret['MLONMCU_ARA_VLEN'] = self.vlen
         return ret
 
     def get_backend_config(self, backend):

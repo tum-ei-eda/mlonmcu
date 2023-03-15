@@ -837,23 +837,18 @@ class AutoTVM(PlatformFeature):
         )
 
 
-# @register_feature("autoschedule", depends=["autotune"])
-# class AutoScheduler(AutoTVM):
-#     def __init__(self, features=None, config=None):
-#         super().__init__("autoschedule", features=features, config=config)
-@register_feature("autoscheduler", depends=["autotune"])
-class AutoScheduler(PlatformFeature):
+@register_feature("autoschedule", depends=["autotune"])
+class AutoSchedule(PlatformFeature):
     """TODO"""
-    # TODO: autoscheduler
     # TODO: metascheduler
     # TODO: graphtuner
     # TODO: tuner base feature class
+    # python -m tvm.driver.tvmc tune /var/tmp/ga87puy/llvm-gen/mlonmcu/workspace/models/toycar/toycar.tflite --output tuning_results.log.txt --enable-autoschedule --cache-line-bytes 64 --num-cores 32 --vector-unit-bytes 64 --max-shared-memory-per-block 0 --max-local-memory-per-block 0 --max-threads-per-block 0 --max-vthread-extent 0 --warp-size 0
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "results_file": None,
-        "append": None,
-        "tuner": None,
+        "results_file": None,  # ?
+        "append": None,  # ?
         "trials": None,
         "early_stopping": None,
         "num_workers": None,
@@ -861,13 +856,13 @@ class AutoScheduler(PlatformFeature):
         "use_rpc": None,
         "timeout": None,
         "mode": None,
-        "visualize": None,
         "tasks": None,
-        # All None to use the defaults defined in the backend instead
+        "include_simple_tasks": None,
+        "log_estimated_latency": None,
     }
 
     def __init__(self, features=None, config=None):
-        super().__init__("autoscheduler", features=features, config=config)
+        super().__init__("autoschedule", features=features, config=config)
 
     @property
     def results_file(self):
@@ -906,10 +901,6 @@ class AutoScheduler(PlatformFeature):
         return self.config["timeout"] if "timeout" in self.config else None
 
     @property
-    def mode(self):
-        return self.config["mode"]
-
-    @property
     def visualize(self):
         return self.config["visualize"]
 
@@ -917,22 +908,29 @@ class AutoScheduler(PlatformFeature):
     def tasks(self):
         return self.config["tasks"]
 
+    @property
+    def include_simple_tasks(self):
+        return self.config["include_simple_tasks"]
+
+    @property
+    def log_estimated_latency(self):
+        return self.config["log_estimated_latency"]
+
     def get_platform_config(self, platform):
         assert platform in ["tvm", "microtvm"]
         # TODO: figure out a default path automatically
         return filter_none(
             {
-                f"{platform}.autotuning_enable": self.enabled,
+                f"{platform}.autoscheduler_enable": self.enabled,
+                f"{platform}.autoscheduler_include_simple_tasks": self.include_simple_tasks,
+                f"{platform}.autoscheduler_log_estimated_latency": self.log_estimated_latency,
                 f"{platform}.autotuning_results_file": self.results_file,
                 f"{platform}.autotuning_append": self.append,
-                f"{platform}.autotuning_tuner": self.tuner,
                 f"{platform}.autotuning_trials": self.trials,
                 f"{platform}.autotuning_early_stopping": self.early_stopping,
                 f"{platform}.autotuning_num_workers": self.num_workers,
                 f"{platform}.autotuning_max_parallel": self.max_parallel,
                 f"{platform}.autotuning_timeout": self.timeout,
-                f"{platform}.autotuning_mode": self.mode,
-                f"{platform}.autotuning_visualize": self.visualize,
                 f"{platform}.autotuning_tasks": self.tasks,
             }
         )

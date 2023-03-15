@@ -487,7 +487,7 @@ class Run:
         """Helper function to initialize and configure features by their names."""
         features = []
         for feature_name in feature_names:
-            available_features = get_available_features(feature_name=feature_name)
+            available_features = get_available_features(feature_name=feature_name, deps=True)
             for feature_cls in available_features:
                 features.append(self.init_component(feature_cls, context=context))
         self.add_features(features, append=append)

@@ -81,10 +81,17 @@ def get_available_feature_names(feature_type=None):
     return ret
 
 
-def get_available_features(feature_type=None, feature_name=None):
+def get_available_features(feature_type=None, feature_name=None, deps=False):
     """Utility for looking up features."""
     names = get_available_feature_names(feature_type=feature_type)
-    return [REGISTERED_FEATURES[name] for name in names if feature_name is None or name == feature_name]
+    names = [name for name in names if feature_name is None or name == feature_name]
+    ret = []
+    if deps:
+        for name in names:
+            names = list(set(names + FEATURE_DEPS[name]))
+    for name in names:
+        ret.append(REGISTERED_FEATURES[name])
+    return ret
 
 
 def get_matching_features(features, feature_type):

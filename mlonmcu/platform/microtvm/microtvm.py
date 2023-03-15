@@ -437,6 +437,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             *["--trials", str(trials)],
             *["--number", str(1)],  # TODO: variable
             *["--repeat", str(1)],  # TODO: variable
+            *["--min-repeat-ms", str(0)],  # TODO: variable?
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
         ]

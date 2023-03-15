@@ -729,6 +729,11 @@ class Autotuned(BackendFeature):
 @register_feature("autotune")
 class Autotune(PlatformFeature, RunFeature):
     """Use the TVM autotuner inside the backend to generate tuning logs."""
+    # TODO:  rename to autotvm!
+    # TODO: depend on RunFeature instead
+    # TODO: autoscheduler
+    # TODO: metascheduler
+    # TODO: graphtuner
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,

@@ -54,13 +54,17 @@ def filter_none(data):
 
 
 REGISTERED_FEATURES = {}
+FEATURE_DEPS = {}
 
 
-def register_feature(name):
+def register_feature(name, depends=None):
     """Decorator for adding a feature to the global registry."""
+    if depends is None:
+        depends = []
 
     def real_decorator(obj):
         REGISTERED_FEATURES[name] = obj
+        FEATURE_DEPS[name] = depends
 
     return real_decorator
 

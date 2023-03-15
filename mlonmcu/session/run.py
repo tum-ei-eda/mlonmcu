@@ -58,6 +58,19 @@ class RunStage(IntEnum):
     DONE = 7
 
 
+def add_any(new, base=None, append=True):
+    ret = []
+    if append:
+        if isinstance(base, list):
+            ret = base
+
+    if isinstance(new, list):
+        ret.extend(new)
+    else:
+        ret.append(new)
+    return ret
+
+
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
@@ -305,13 +318,13 @@ class Run:
         """Setter for the model instance."""
         self.model = model
 
-    def add_frontend(self, frontend):
+    def add_frontend(self, frontend, append=True):
         """Setter for the frontend instance."""
-        self.frontends = [frontend]
+        self.frontends = add_any(frontend, self.frontends, append=append)
 
-    def add_frontends(self, frontends):
+    def add_frontends(self, frontends, append=False):
         """Setter for the list of frontends."""
-        self.frontends = frontends
+        self.frontends = add_any(frontends, self.frontends, append=append)
 
     def add_backend(self, backend):
         """Setter for the backend instance."""
@@ -341,45 +354,40 @@ class Run:
         self.cache_hints = [self.target.get_arch()]
         # self.resolve_chache_refs()
 
-    def add_platform(self, platform):
+    def add_platform(self, platform, append=True):
         """Setter for the platform instance."""
-        self.platforms = [platform]
+        self.platforms = add_any(platform, self.platforms, append=append)
         if self.backend:
             self.backend.add_platform_defs(platform.name, platform.definitions)
         if self.framework:
             self.framework.add_platform_defs(platform.name, platform.definitions)
 
-    def add_platforms(self, platforms):
+    def add_platforms(self, platforms, append=False):
         """Setter for the list of platforms."""
-        self.platforms = platforms
+        self.platforms = add_any(platforms, self.platforms, append=append)
+        # TODO: check for duplicates?
         for platform in platforms:
             if self.backend:
                 self.backend.add_platform_defs(platform.name, platform.definitions)
             if self.framework:
                 self.framework.add_platform_defs(platform.name, platform.definitions)
 
-    def add_postprocess(self, postprocess, append=False):
+    def add_postprocess(self, postprocess, append=True):
         """Setter for a postprocess instance."""
-        if append:
-            self.postprocesses.append(postprocess)
-        else:
-            self.postprocesses = [postprocess]
+        self.postprocesses = add_any(postprocess, self.postprocesses, append=append)
 
     def add_postprocesses(self, postprocesses, append=False):
         """Setter for the list of postprocesses."""
-        if append:
-            self.postprocesses.extend(postprocesses)
-        else:
-            self.postprocesses = postprocesses
+        self.postprocesses = add_any(postprocesses, self.postprocesses, append=append)
 
-    def add_feature(self, feature):
+    def add_feature(self, feature, append=True):
         """Setter for a feature instance."""
-        self.features = [feature]
+        self.features = add_any(feature, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
-        self.features = features if not append else self.features + features
+        self.features = add_any(features, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
     def pick_model_frontend(self, model_hints, backend=None):

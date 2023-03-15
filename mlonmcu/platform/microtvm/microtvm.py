@@ -28,6 +28,7 @@ from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
@@ -568,10 +569,31 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                     content_best = handle.read()
             return content_best
 
+        metrics = Metrics()
+
+        def remove_empty(inp):
+            return [line for line in inp if len(line.strip()) > 0]
+
         content_best = _pick_best(backend, content, verbose=verbose)
+        total_trials = len(remove_empty(content.split("\n")))
+        metrics.add("Total Trials", total_trials)
+
+        def count_failed_trials(inp):
+            cnt = 0
+            for line in inp.split("\n"):
+                m = re.compile(r"\[1000000000\.0\]").match(line)
+                if m:
+                    cnt += 1
+            return cnt
+
+        failed_trials = count_failed_trials(content)
+        metrics.add("Failed Trials", failed_trials)
+
         if len(content_best) > 0:
             artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
             artifacts.append(artifact_)
+            num_tuned = len(remove_empty(content_best.split("\n")))
+            metrics.add("Tuned Tasks", num_tuned)
 
         if enable:
             stdout_artifact = Artifact(
@@ -579,4 +601,4 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
 
-        return {"default": artifacts}, {}
+        return {"default": artifacts}, {"default": metrics}

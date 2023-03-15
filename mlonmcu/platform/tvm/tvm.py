@@ -25,6 +25,7 @@ from pathlib import Path
 from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.target.metrics import Metrics
 from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from mlonmcu.config import str2bool
@@ -415,10 +416,19 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                     content_best = handle.read()
             return content_best
 
+        metrics = Metrics()
+
+        def remove_empty(inp):
+            return [line for line in inp if len(line.strip()) > 0]
+
         content_best = _pick_best(backend, content, verbose=verbose)
+        total_trials = len(remove_empty(content.split("\n")))
+        metrics.add("Total Trials", total_trials)
         if len(content_best) > 0:
             artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
             artifacts.append(artifact_)
+            num_tuned = len(remove_empty(content_best.split("\n")))
+            metrics.add("Tuned Tasks", num_tuned)
 
         if enable:
             stdout_artifact = Artifact(
@@ -426,4 +436,4 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
 
-        return {"default": artifacts}, {}
+        return {"default": artifacts}, {"default": metrics}

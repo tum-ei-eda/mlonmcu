@@ -127,21 +127,21 @@ def install_etiss(
     context.cache["etissvp.script", flags] = etissvpScript
 
 
-def _validate_microtvm_etissvp(context: MlonMcuContext, params=None):
-    return context.environment.has_target("microtvm_etissvp")
+def _validate_microtvm_etiss(context: MlonMcuContext, params=None):
+    return context.environment.has_target("microtvm_etiss")
 
 
-@Tasks.provides(["microtvm_etissvp.src_dir", "microtvm_etissvp.template"])
-@Tasks.validate(_validate_microtvm_etissvp)
-@Tasks.register(category=TaskType.FEATURE)
-def clone_microtvm_etissvp(
+@Tasks.provides(["microtvm_etiss.src_dir", "microtvm_etiss.template"])
+@Tasks.validate(_validate_microtvm_etiss)
+@Tasks.register(category=TaskType.TARGET)
+def clone_microtvm_etiss(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
-    """Clone the microtvm-etissvp-template repository."""
-    name = utils.makeDirName("microtvm_etissvp")
+    """Clone the microtvm-etiss-template repository."""
+    name = utils.makeDirName("microtvm_etiss")
     srcDir = context.environment.paths["deps"].path / "src" / name
     if rebuild or not utils.is_populated(srcDir):
-        repo = context.environment.repos["microtvm_etissvp"]
+        repo = context.environment.repos["microtvm_etiss"]
         utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
-    context.cache["microtvm_etissvp.src_dir"] = srcDir
-    context.cache["microtvm_etissvp.template"] = srcDir / "template_project"
+    context.cache["microtvm_etiss.src_dir"] = srcDir
+    context.cache["microtvm_etiss.template"] = srcDir / "template_project"

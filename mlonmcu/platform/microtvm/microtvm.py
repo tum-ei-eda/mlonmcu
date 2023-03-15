@@ -102,7 +102,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
 
     def __init__(self, features=None, config=None):
         super().__init__(
-            "microtvm",  # Actually: tvmllvm
+            "microtvm",
             features=features,
             config=config,
         )
@@ -423,7 +423,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         desired_layout = backend.config.get("desired_layout", None)
         ret = [
             *get_target_tvmc_args(
-                "c",
+                backend.target,
                 extra_target=backend.extra_target,
                 target_details=backend.get_target_details(),
             ),
@@ -439,8 +439,6 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             *["--repeat", str(1)],  # TODO: variable
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
-            # "--target-c-link-params",
-            # "1",
         ]
         if self.config["autotuning_visualize"]:
             assert (

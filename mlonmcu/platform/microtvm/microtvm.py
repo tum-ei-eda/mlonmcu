@@ -580,7 +580,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         def count_failed_trials(inp):
             cnt = 0
             for line in inp.split("\n"):
-                m = re.compile(r"\[1000000000\.0\]").match(line)
+                m = re.compile(r".*\[1000000000\.0\].*").match(line)
                 if m:
                     cnt += 1
             return cnt
@@ -593,6 +593,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
             artifacts.append(artifact_)
             num_tuned = len(remove_empty(content_best.split("\n")))
             metrics.add("Tuned Tasks", num_tuned)
+        else:
+            metrics.add("Tuned Tasks", 0)
 
         if enable:
             stdout_artifact = Artifact(

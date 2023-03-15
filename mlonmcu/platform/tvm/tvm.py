@@ -424,11 +424,24 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         content_best = _pick_best(backend, content, verbose=verbose)
         total_trials = len(remove_empty(content.split("\n")))
         metrics.add("Total Trials", total_trials)
+
+        def count_failed_trials(inp):
+            cnt = 0
+            for line in inp.split("\n"):
+                m = re.compile(r".*\[1000000000\.0\].*").match(line)
+                if m:
+                    cnt += 1
+            return cnt
+
+        failed_trials = count_failed_trials(content)
+        metrics.add("Failed Trials", failed_trials)
         if len(content_best) > 0:
             artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
             artifacts.append(artifact_)
             num_tuned = len(remove_empty(content_best.split("\n")))
             metrics.add("Tuned Tasks", num_tuned)
+        else:
+            metrics.add("Tuned Tasks", 0)
 
         if enable:
             stdout_artifact = Artifact(

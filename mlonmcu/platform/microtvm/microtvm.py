@@ -70,7 +70,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
     """TVM Platform class."""
 
     FEATURES = (
-        CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotune", "tvm_rpc", "tvm_profile"]
+        CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["autotvm", "tvm_rpc", "tvm_profile"]
     )  # TODO: validate?
 
     DEFAULTS = {

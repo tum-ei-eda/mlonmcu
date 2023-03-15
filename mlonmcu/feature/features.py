@@ -809,10 +809,6 @@ class AutoTVM(PlatformFeature):
         return self.config["timeout"] if "timeout" in self.config else None
 
     @property
-    def mode(self):
-        return self.config["mode"]
-
-    @property
     def visualize(self):
         return self.config["visualize"]
 
@@ -825,10 +821,10 @@ class AutoTVM(PlatformFeature):
         # TODO: figure out a default path automatically
         return filter_none(
             {
-                f"{platform}.autotuning_enable": self.enabled,
+                f"{platform}.autotvm_enable": self.enabled,
+                f"{platform}.autotvm_tuner": self.tuner,
                 f"{platform}.autotuning_results_file": self.results_file,
                 f"{platform}.autotuning_append": self.append,
-                f"{platform}.autotuning_tuner": self.tuner,
                 f"{platform}.autotuning_trials": self.trials,
                 f"{platform}.autotuning_early_stopping": self.early_stopping,
                 f"{platform}.autotuning_num_workers": self.num_workers,

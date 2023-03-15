@@ -36,7 +36,7 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_target_tvmc_args,
 )
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
-from mlonmcu.flow.tvm.backend.tuner import TVMTuner
+from mlonmcu.flow.tvm.backend.tuner import get_autotuning_defaults, get_autotvm_defaults
 
 from ..platform import TargetPlatform, BuildPlatform, TunePlatform
 from .tvm_target import create_tvm_platform_target
@@ -71,7 +71,8 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         "tvmc_custom_script": None,
         "experimental_tvmc_tune_tasks": False,
         "experimental_tvmc_tune_visualize": False,
-        **{("autotuning_" + key): value for key, value in TVMTuner.DEFAULTS.items()},
+        **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
+        **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -268,7 +269,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         tuner = self.config.get("autotuning_tuner", "ga")
         assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
         trials = self.config.get("autotuning_trials", 10)
-        mode = self.config.get("autotuning_mode", "autotvm")
         assert mode in ["autotvm", "auto_scheduler"]
         if not isinstance(trials, int):
             trials = int(trials)
@@ -313,7 +313,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         return ret
 
     def _tune_model(self, model_path, backend, target):
-        enable = self.config["autotuning_enable"]
+        autotvm_enable = self.config["autotvm_enable"]
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
         num_workers = int(self.config["autotuning_num_workers"])
@@ -323,7 +323,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             verbose = True
 
         content = ""
-        if enable:
+        if autotvm_enable:
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:
@@ -443,7 +443,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         else:
             metrics.add("Tuned Tasks", 0)
 
-        if enable:
+        if autotvm_enable:
             stdout_artifact = Artifact(
                 "tvmc_tune_out.log", content=out, fmt=ArtifactFormat.TEXT
             )  # TODO: rename to tvmaot_out.log?

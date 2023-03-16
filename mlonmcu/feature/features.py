@@ -743,34 +743,22 @@ class Autotune(RunFeature):
     def get_run_config(self):
         return {"run.tune_enabled": self.enabled}
 
-
-@register_feature("autotvm", depends=["autotune"])
-class AutoTVM(PlatformFeature):
-    """Use the TVM autotuner inside the backend to generate tuning logs."""
-    # TODO: autoscheduler
-    # TODO: metascheduler
-    # TODO: graphtuner
-    # TODO: tuner base feature class
-
+# not registered!
+class TVMTuneBase(PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "results_file": None,
         "append": None,
-        "tuner": None,
         "trials": None,
         "early_stopping": None,
         "num_workers": None,
         "max_parallel": None,
         "use_rpc": None,
         "timeout": None,
-        "mode": None,
         "visualize": None,
         "tasks": None,
         # All None to use the defaults defined in the backend instead
     }
-
-    def __init__(self, features=None, config=None):
-        super().__init__("autotvm", features=features, config=config)
 
     @property
     def results_file(self):
@@ -779,10 +767,6 @@ class AutoTVM(PlatformFeature):
     @property
     def append(self):
         return self.config["append"] if "append" in self.config else None
-
-    @property
-    def tuner(self):
-        return self.config["tuner"] if "tuner" in self.config else None
 
     @property
     def trials(self):
@@ -821,8 +805,6 @@ class AutoTVM(PlatformFeature):
         # TODO: figure out a default path automatically
         return filter_none(
             {
-                f"{platform}.autotvm_enable": self.enabled,
-                f"{platform}.autotvm_tuner": self.tuner,
                 f"{platform}.autotuning_results_file": self.results_file,
                 f"{platform}.autotuning_append": self.append,
                 f"{platform}.autotuning_trials": self.trials,
@@ -830,15 +812,46 @@ class AutoTVM(PlatformFeature):
                 f"{platform}.autotuning_num_workers": self.num_workers,
                 f"{platform}.autotuning_max_parallel": self.max_parallel,
                 f"{platform}.autotuning_timeout": self.timeout,
-                f"{platform}.autotuning_mode": self.mode,
                 f"{platform}.autotuning_visualize": self.visualize,
                 f"{platform}.autotuning_tasks": self.tasks,
             }
         )
 
 
+@register_feature("autotvm", depends=["autotune"])
+class AutoTVM(TVMTuneBase):
+    """Use the TVM autotuner inside the backend to generate tuning logs."""
+    # TODO: autoscheduler
+    # TODO: metascheduler
+    # TODO: graphtuner
+    # TODO: tuner base feature class
+
+    DEFAULTS = {
+        **TVMTunerBase.DEFAULTS,
+        "tuner": None,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("autotvm", features=features, config=config)
+
+    @property
+    def tuner(self):
+        return self.config["tuner"] if "tuner" in self.config else None
+
+    def get_platform_config(self, platform):
+        ret = super().get_platform_config(platform)
+        new = filter_none(
+            {
+                f"{platform}.autotvm_enable": self.enabled,
+                f"{platform}.autotvm_tuner": self.tuner,
+            }
+        )
+        ret.update(new)
+        return ret
+
+
 @register_feature("autoschedule", depends=["autotune"])
-class AutoSchedule(PlatformFeature):
+class AutoSchedule(TVMTunerBase):
     """TODO"""
     # TODO: metascheduler
     # TODO: graphtuner
@@ -846,67 +859,13 @@ class AutoSchedule(PlatformFeature):
     # python -m tvm.driver.tvmc tune /var/tmp/ga87puy/llvm-gen/mlonmcu/workspace/models/toycar/toycar.tflite --output tuning_results.log.txt --enable-autoschedule --cache-line-bytes 64 --num-cores 32 --vector-unit-bytes 64 --max-shared-memory-per-block 0 --max-local-memory-per-block 0 --max-threads-per-block 0 --max-vthread-extent 0 --warp-size 0
 
     DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "results_file": None,  # ?
-        "append": None,  # ?
-        "trials": None,
-        "early_stopping": None,
-        "num_workers": None,
-        "max_parallel": None,
-        "use_rpc": None,
-        "timeout": None,
-        "mode": None,
-        "tasks": None,
+        **TVMTunerBase.DEFAULTS,
         "include_simple_tasks": None,
         "log_estimated_latency": None,
     }
 
     def __init__(self, features=None, config=None):
         super().__init__("autoschedule", features=features, config=config)
-
-    @property
-    def results_file(self):
-        return self.config["results_file"] if "results_file" in self.config else None
-
-    @property
-    def append(self):
-        return self.config["append"] if "append" in self.config else None
-
-    @property
-    def tuner(self):
-        return self.config["tuner"] if "tuner" in self.config else None
-
-    @property
-    def trials(self):
-        return self.config["trials"] if "trials" in self.config else None
-
-    @property
-    def early_stopping(self):
-        return self.config["early_stopping"] if "early_stopping" in self.config else None
-
-    @property
-    def num_workers(self):
-        return self.config["num_workers"] if "num_workers" in self.config else None
-
-    @property
-    def max_parallel(self):
-        return self.config["max_parallel"] if "max_parallel" in self.config else None
-
-    @property
-    def use_rpc(self):
-        return self.config["use_rpc"] if "use_rpc" in self.config else None
-
-    @property
-    def timeout(self):
-        return self.config["timeout"] if "timeout" in self.config else None
-
-    @property
-    def visualize(self):
-        return self.config["visualize"]
-
-    @property
-    def tasks(self):
-        return self.config["tasks"]
 
     @property
     def include_simple_tasks(self):
@@ -917,23 +876,16 @@ class AutoSchedule(PlatformFeature):
         return self.config["log_estimated_latency"]
 
     def get_platform_config(self, platform):
-        assert platform in ["tvm", "microtvm"]
-        # TODO: figure out a default path automatically
-        return filter_none(
+        ret = super().get_platform_config(platform)
+        new = filter_none(
             {
                 f"{platform}.autoscheduler_enable": self.enabled,
                 f"{platform}.autoscheduler_include_simple_tasks": self.include_simple_tasks,
                 f"{platform}.autoscheduler_log_estimated_latency": self.log_estimated_latency,
-                f"{platform}.autotuning_results_file": self.results_file,
-                f"{platform}.autotuning_append": self.append,
-                f"{platform}.autotuning_trials": self.trials,
-                f"{platform}.autotuning_early_stopping": self.early_stopping,
-                f"{platform}.autotuning_num_workers": self.num_workers,
-                f"{platform}.autotuning_max_parallel": self.max_parallel,
-                f"{platform}.autotuning_timeout": self.timeout,
-                f"{platform}.autotuning_tasks": self.tasks,
             }
         )
+        ret.update(new)
+        return ret
 
 
 @register_feature("disable_legalize")

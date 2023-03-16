@@ -29,11 +29,19 @@ def get_autotuning_defaults():
         "use_rpc": False,
         "timeout": 100,
         "tasks": None,
+        "visualize": False,
     }
 
 def get_autotvm_defaults():
     return {
         "enable": False,
-        "tuner": "ga",  # Options: ga,gridsearch,random,xgb,xgb-knob,xgb-rank
-        "visualize": False,
+        "tuner": "ga",  # Options: ga,gridsearch,random,xgb,xgb_knob,xgb-rank
+    }
+
+
+def get_autoscheduler_defaults():
+    return {
+        "enable": False,
+        "include_simple_tasks": False,
+        "log_estimated_latency": True,
     }

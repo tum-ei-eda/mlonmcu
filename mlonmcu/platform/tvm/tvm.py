@@ -36,7 +36,7 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_target_tvmc_args,
 )
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
-from mlonmcu.flow.tvm.backend.tuner import get_autotuning_defaults, get_autotvm_defaults
+from mlonmcu.flow.tvm.backend.tuner import get_autotuning_defaults, get_autotvm_defaults, get_autoscheduler_defaults
 
 from ..platform import TargetPlatform, BuildPlatform, TunePlatform
 from .tvm_target import create_tvm_platform_target
@@ -73,6 +73,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         "experimental_tvmc_tune_visualize": False,
         **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
         **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
+        **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
     }
 
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
@@ -266,10 +267,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         return output
 
     def get_tune_args(self, model, backend, out):
-        tuner = self.config.get("autotuning_tuner", "ga")
-        assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
         trials = self.config.get("autotuning_trials", 10)
-        assert mode in ["autotvm", "auto_scheduler"]
         if not isinstance(trials, int):
             trials = int(trials)
         early_stopping = self.config.get("autotuning_early_stopping", None)
@@ -299,21 +297,27 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
         ]
-        if self.config["autotuning_visualize"]:
-            assert (
-                self.experimental_tvmc_tune_tasks
-            ), f"{self.name}.visualize_tuning requires experimental_autotvm_visualize"
-            ret.append("--visualize")
+        if autotvm_enable:
+            tuner = self.config.get("autotvm_tuner", "ga")
+            assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
+            rer.extend(["--tuner", tuner])
+            if self.config["autotuning_visualize"]:
+                assert (
+                    self.experimental_tvmc_tune_tasks
+                ), f"{self.name}.visualize_tuning requires experimental_autotvm_visualize"
+                ret.append("--visualize")
+        elif autoscheduler_enable:
+            ret.append("--enable-autoscheduler")
         if self.config["autotuning_tasks"]:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
             ret.extend(["--tasks", str(self.config["autotuning_tasks"])])
-        if mode == "auto_scheduler":
-            ret.append("--enable-autoscheduler")
         ret.append(model)
         return ret
 
     def _tune_model(self, model_path, backend, target):
         autotvm_enable = self.config["autotvm_enable"]
+        autoscheduler_enable = self.config["autoscheduler_enable"]
+        assert [autotvm_enable, autoscheduler_enable].count(True) == 1, "Can not use AutoTVM and AutoScheduler at the same time"
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
         num_workers = int(self.config["autotuning_num_workers"])
@@ -323,7 +327,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             verbose = True
 
         content = ""
-        if autotvm_enable:
+        if autotvm_enable:  # TODO: handle autoscheduler
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:
@@ -443,7 +447,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         else:
             metrics.add("Tuned Tasks", 0)
 
-        if autotvm_enable:
+        if autotvm_enable or autoscheduler_enable:
             stdout_artifact = Artifact(
                 "tvmc_tune_out.log", content=out, fmt=ArtifactFormat.TEXT
             )  # TODO: rename to tvmaot_out.log?

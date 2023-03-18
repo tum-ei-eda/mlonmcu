@@ -271,6 +271,7 @@ class AraTarget(RISCVTarget):
         metrics = Metrics()
         metrics.add("Cycles", cycles)
         metrics.add("Instructions", instructions)
+        metrics.add("CPI", cycles / instructions)
         return metrics, out, []
 
     def get_target_system(self):

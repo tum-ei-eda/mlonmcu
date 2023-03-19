@@ -26,6 +26,7 @@ from enum import IntEnum
 from collections import defaultdict
 
 from mlonmcu.logging import get_logger
+from mlonmcu.utils import filter_none
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
 from mlonmcu.config import str2bool
 from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform

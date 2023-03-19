@@ -22,7 +22,7 @@ import re
 import pandas as pd
 from typing import Union
 
-from mlonmcu.utils import is_power_of_two
+from mlonmcu.utils import is_power_of_two, filter_none
 from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .feature import (
@@ -44,13 +44,6 @@ SUPPORTED_TVM_BACKENDS = [
     "tvmcg",
     "tvmllvm",
 ]  # Workaround for cirvular import until we have a backend registry
-
-
-def filter_none(data):
-    """Helper function which drop dict items with a None value."""
-    assert isinstance(data, dict), "Dict only"
-    out = {key: value for key, value in data.items() if value is not None}
-    return out
 
 
 REGISTERED_FEATURES = {}

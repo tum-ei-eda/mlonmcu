@@ -20,6 +20,7 @@
 from mlonmcu.target.target import Target
 
 from mlonmcu.logging import get_logger
+from mlonmcu.utils import filter_none
 
 logger = get_logger()
 
@@ -41,10 +42,7 @@ class TemplateMicroTvmPlatformTarget(Target):
         def _bool_helper(x):
             return str(x).lower() if isinstance(x, bool) else x
 
-        def _filter_none(x):
-            return {key: value for key, value in x.items() if value is not None}
-
-        return _filter_none(
+        return filter_none(
             {
                 key: _bool_helper(getattr(self, key) if hasattr(self, key) else self.config.get(key, None))
                 for key in self.option_names

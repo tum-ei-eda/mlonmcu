@@ -51,7 +51,7 @@ class AraTarget(RISCVTarget):
         "ara.hardware_dir",  # for the rtls
         "ara.bender_path",  # for simulation
         "ara.verilator_install_dir",  # for simulation
-        "ara.tb_verilator_build_dir"  # actually just a tmp folder, recommanded to be under hardware/build
+        "ara.tb_verilator_build_dir"  # actually just a tmp folder, recommended to be under hardware/build
     ]
 
     def __init__(self, name="ara", features=None, config=None):

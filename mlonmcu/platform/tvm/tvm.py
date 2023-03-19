@@ -287,7 +287,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             *(["--desired-layout", desired_layout] if desired_layout is not None else []),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
             # TODO: missing: pass config, disabled_pass, etc.
-            *["--tuner", tuner],
             *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),
             *["--parallel", str(max_parallel)],
             *["--timeout", str(timeout * max_parallel)],
@@ -297,6 +296,8 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
         ]
+        autotvm_enable = self.config["autotvm_enable"]
+        autoscheduler_enable = self.config["autoscheduler_enable"]
         if autotvm_enable:
             tuner = self.config.get("autotvm_tuner", "ga")
             assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
@@ -308,6 +309,10 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                 ret.append("--visualize")
         elif autoscheduler_enable:
             ret.append("--enable-autoscheduler")
+            if self.config.get("autoscheduler_include_simple_tasks", False):
+                ret.append("--include-simple-tasks")
+            if self.config.get("autoscheduler_log_estimated_latency", False):
+                ret.append("--log-estimated-latency")
             hardware_details = target.get_hardware_details()
             if len(hardware_details) > 0:
                 for key, value in hardware_details.items():
@@ -331,7 +336,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             verbose = True
 
         content = ""
-        if autotvm_enable:  # TODO: handle autoscheduler
+        if autotvm_enable or autoscheduler_enable:
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:
@@ -388,13 +393,13 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                     out_file = Path(tmp_dir) / "tuning_results.log.txt"
                     with open(out_file, "w") as handle:
                         handle.write(content)
-                    tune_args = self.get_tune_args(model_path, backend, out_file)
+                    tune_args = self.get_tune_args(model_path, backend, target, out_file)
                     out = self.invoke_tvmc("tune", *tune_args)
                     with open(out_file, "r") as handle:
                         content = handle.read()
         else:
             if results_file is None:
-                return []
+                return {}, {}
             assert Path(results_file).is_file()
             with open(results_file, "r") as handle:
                 content = handle.read()

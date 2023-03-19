@@ -112,6 +112,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         if backend in SUPPORTED_TVM_BACKENDS:
             return {
                 "target_device": "riscv_cpu",
+                # "target_device": "pulp",
                 # "target_march": "TODO",
                 "target_model": model,
                 "target_mtriple": self.riscv_gcc_name,
@@ -121,5 +122,6 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "target_mattr": attrs,
                 # "target_mcpu": f"generic-rv{self.xlen}",
                 "target_mcpu": f"generic-rv32",
+                # "target_keys": "pulp",
             }
         return {}

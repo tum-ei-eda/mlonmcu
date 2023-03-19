@@ -823,7 +823,7 @@ class AutoTVM(TVMTuneBase):
     # TODO: tuner base feature class
 
     DEFAULTS = {
-        **TVMTunerBase.DEFAULTS,
+        **TVMTuneBase.DEFAULTS,
         "tuner": None,
     }
 
@@ -847,15 +847,14 @@ class AutoTVM(TVMTuneBase):
 
 
 @register_feature("autoschedule", depends=["autotune"])
-class AutoSchedule(TVMTunerBase):
+class AutoSchedule(TVMTuneBase):
     """TODO"""
     # TODO: metascheduler
     # TODO: graphtuner
     # TODO: tuner base feature class
-    # python -m tvm.driver.tvmc tune /var/tmp/ga87puy/llvm-gen/mlonmcu/workspace/models/toycar/toycar.tflite --output tuning_results.log.txt --enable-autoschedule --cache-line-bytes 64 --num-cores 32 --vector-unit-bytes 64 --max-shared-memory-per-block 0 --max-local-memory-per-block 0 --max-threads-per-block 0 --max-vthread-extent 0 --warp-size 0
 
     DEFAULTS = {
-        **TVMTunerBase.DEFAULTS,
+        **TVMTuneBase.DEFAULTS,
         "include_simple_tasks": None,
         "log_estimated_latency": None,
     }

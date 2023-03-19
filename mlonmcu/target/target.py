@@ -211,3 +211,16 @@ class Target:
 
     def get_backend_config(self, backend):
         return {}
+
+    def get_hardware_details(self):
+        return {
+            "num-cores": 1,  # TODO: overwrite for host_x86?
+            "cache-line-bytes": 64,  # TODO: disable?
+            "vector-unit-bytes": 64,  # TODO: disable?
+            # The following are GPU specific
+            "max-shared-memory-per-block": 0,
+            "max-local-memory-per-block": 0,
+            "max-threads-per-block": 0,
+            "max-vthread-extent": 0,
+            "warp-size": 0,
+        }

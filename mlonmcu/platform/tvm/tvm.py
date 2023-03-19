@@ -266,7 +266,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
 
         return output
 
-    def get_tune_args(self, model, backend, out):
+    def get_tune_args(self, model, backend, target, out):
         trials = self.config.get("autotuning_trials", 10)
         if not isinstance(trials, int):
             trials = int(trials)
@@ -308,6 +308,10 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                 ret.append("--visualize")
         elif autoscheduler_enable:
             ret.append("--enable-autoscheduler")
+            hardware_details = target.get_hardware_details()
+            if len(hardware_details) > 0:
+                for key, value in hardware_details.items():
+                    ret.extend([f"--{key}", str(value)])
         if self.config["autotuning_tasks"]:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
             ret.extend(["--tasks", str(self.config["autotuning_tasks"])])
@@ -341,7 +345,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                 def get_tune_tasks():
                     with tempfile.TemporaryDirectory() as tmp_dir:
                         out_file = Path(tmp_dir) / "tuning_results.log.txt"
-                        tune_args = self.get_tune_args(model_path, backend, out_file)
+                        tune_args = self.get_tune_args(model_path, backend, target, out_file)
                         out = self.invoke_tvmc("tune", *tune_args, "--task", "list")
                         lines = out.split("\n")
                         for i, line in enumerate(lines):
@@ -362,7 +366,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                                 out_file = Path(tmp_dir) / "tuning_results.log.txt"
                                 with open(out_file, "w") as handle:
                                     handle.write(prepend)
-                                tune_args = self.get_tune_args(model_path, backend, out_file)
+                                tune_args = self.get_tune_args(model_path, backend, target, out_file)
                                 out = self.invoke_tvmc("tune", *tune_args, "--task", str(idx))
                                 with open(out_file, "r") as handle:
                                     content = handle.read()

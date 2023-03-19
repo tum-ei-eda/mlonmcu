@@ -718,6 +718,7 @@ class Run:
         if self.target_to_backend:
             assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
             cfg = self.target.get_backend_config(self.backend.name)  # Do not expect a backend prefix here
+            cfg = filter_none(cfg)
             if len(cfg) > 0:
                 logger.debug("Updating backend config based on given target.")
                 self.backend.config.update(cfg)

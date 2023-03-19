@@ -507,6 +507,7 @@ class EtissTarget(RISCVTarget):
         ret = super().get_backend_config(backend)
         if backend in SUPPORTED_TVM_BACKENDS:
             ret.update({"target_model": "etissvp"})
+            # ret.update({"target_keys": "pulp"})
             if self.enable_pext or self.enable_vext:
                 ret.update(
                     {

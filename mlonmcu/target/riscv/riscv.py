@@ -181,5 +181,6 @@ class RISCVTarget(Target):
                 "target_mabi": self.abi,
                 "target_mattr": self.attr,
                 "target_mcpu": f"generic-rv{self.xlen}",
+                "target_keys": None,
             }
         return {}

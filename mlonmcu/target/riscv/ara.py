@@ -21,6 +21,7 @@
 import os
 import re
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
@@ -47,11 +48,8 @@ class AraTarget(RISCVTarget):
     }
 
     REQUIRED = RISCVTarget.ARA_GCC_TOOLCHAIN_REQUIRED + [
-        "ara.apps_dir",  # for the bsp package usded in compilation
-        "ara.hardware_dir",  # for the rtls
-        "ara.bender_path",  # for simulation
-        "ara.verilator_install_dir",  # for simulation
-        "ara.tb_verilator_build_dir"  # actually just a tmp folder, recommended to be under hardware/build
+        "ara.src_dir",  # for dsp
+        "verilator.install_dir",  # for simulation
     ]
 
     def __init__(self, name="ara", features=None, config=None):
@@ -59,31 +57,15 @@ class AraTarget(RISCVTarget):
 
     @property
     def ara_apps_dir(self):
-        return Path(self.config["ara.apps_dir"])
+        return Path(self.config["ara.src_dir"]) / "apps"
 
     @property
     def ara_hardware_dir(self):
-        return Path(self.config["ara.hardware_dir"])
+        return Path(self.config["ara.src_dir"]) / "hardware"
 
     @property
-    def ara_bender_path(self):
-        return Path(self.config["ara.bender_path"])
-
-    @property
-    def ara_verilator_install_dir(self):
-        return Path(self.config["ara.verilator_install_dir"])
-
-    @property
-    def ara_tb_verilator_build_dir(self):
-        return Path(self.config["ara.tb_verilator_build_dir"])
-
-    @property
-    def Vara_tb_verilator(self):
-        return Path(self.config["ara.tb_verilator_build_dir"]) / "Vara_tb_verilator"
-
-    @property
-    def ara_verilator_exe_path(self):
-        return Path(self.config["ara.verilator_install_dir"]) / "bin" / "verilator"
+    def verilator_install_dir(self):
+        return Path(self.config["verilator.install_dir"])
 
     @property
     def abi(self):
@@ -117,131 +99,44 @@ class AraTarget(RISCVTarget):
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute an executable with given arguments"""
 
-        # The following is transferred from https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L165-L167
-        # The purpose is to populate the /build/verilator folder
-        generate_config_args = []
-        generate_config_args.extend(["script", "verilator"])
-        generate_config_args.extend(["-t", "rtl", "-t", "ara_test", "-t", "cva6_test", "-t", "verilator"])
-        # The following is transferred from https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L105
-        # attention! the following NOT included https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L66-L75
-        generate_config_args.extend(["--define", f"NR_LANES={self.nr_lanes}"])
-        generate_config_args.extend(["--define", f"VLEN={self.vlen}"])
-        generate_config_args.extend(["--define", "RVV_ARIANE=1"])
-        env = os.environ.copy()
-        execute(
-            "rm",
-            "-rf",
-            f"{self.ara_tb_verilator_build_dir}",
-        )
-        execute(
-            "mkdir",
-            "-p",
-            f"{self.ara_tb_verilator_build_dir}",
-        )
-        generate_config_ret = execute(
-            str(self.ara_bender_path),
-            *generate_config_args,
-            env=env,
-            cwd=self.ara_hardware_dir,
-            *args,
-            **kwargs,
-        )
-        # generate_config_ret will be written to the config file
-        with open(self.ara_tb_verilator_build_dir / f"bender_script_{self.nr_lanes}nr_lanes_{self.vlen}vlen", "w") as f:
-            f.write(generate_config_ret)
+        # populate the ara verilator testbench directory
+        with TemporaryDirectory() as tb_ara_verilator_build_dir:
+            env = os.environ.copy()
+            env["ROOT_DIR"] = str(self.ara_hardware_dir)
+            env["veril_library"] = str(tb_ara_verilator_build_dir)
+            env["veril_path"] = str(self.verilator_install_dir / "bin")
+            env["nr_lanes"] = str(self.nr_lanes)
+            env["vlen"] = str(self.vlen)
+            env["bender_defs"] = f"--define NR_LANES={self.nr_lanes} --define VLEN={self.vlen} --define RVV_ARIANE=1"
+            compile_verilator_tb_ret = execute(
+                "make",
+                "verilate",
+                env=env,
+                cwd=self.ara_hardware_dir,
+                *args,
+                **kwargs,
+            )
 
-        # the following is transferred from https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L169-L203
-        verilate_the_design_args = []
-        verilate_the_design_args.extend(
-            ["-f", f"{self.ara_tb_verilator_build_dir}/bender_script_{self.nr_lanes}nr_lanes_{self.vlen}vlen"]
-        )
-        verilate_the_design_args.append(f"-GNrLanes={self.nr_lanes}")
-        verilate_the_design_args.append("-O3")
-        verilate_the_design_args.append("-Wno-BLKANDNBLK")
-        verilate_the_design_args.append("-Wno-CASEINCOMPLETE")
-        verilate_the_design_args.append("-Wno-CMPCONST")
-        verilate_the_design_args.append("-Wno-LATCH")
-        verilate_the_design_args.append("-Wno-LITENDIAN")
-        verilate_the_design_args.append("-Wno-UNOPTFLAT")
-        verilate_the_design_args.append("-Wno-UNPACKED")
-        verilate_the_design_args.append("-Wno-UNSIGNED")
-        verilate_the_design_args.append("-Wno-WIDTH")
-        verilate_the_design_args.append("-Wno-WIDTHCONCAT")
-        verilate_the_design_args.extend(["--hierarchical", f"{self.ara_hardware_dir}/tb/verilator/waiver.vlt"])
-        verilate_the_design_args.extend(["--Mdir", f"{self.ara_tb_verilator_build_dir}"])
-        verilate_the_design_args.append("-Itb/dpi")
-        verilate_the_design_args.extend(["--compiler", "clang"])
-        verilate_the_design_args.extend(["-CFLAGS", "-DTOPLEVEL_NAME=ara_tb_verilator"])
-        verilate_the_design_args.extend(["-CFLAGS", f"-DNR_LANES={self.nr_lanes}"])
-        verilate_the_design_args.extend(
-            ["-CFLAGS", f"-I{self.ara_hardware_dir}/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp"]
-        )
-        verilate_the_design_args.extend(
-            ["-CFLAGS", f"-I{self.ara_hardware_dir}/tb/verilator/lowrisc_dv_verilator_memutil_verilator/cpp"]
-        )
-        verilate_the_design_args.extend(
-            ["-CFLAGS", f"-I{self.ara_hardware_dir}/tb/verilator/lowrisc_dv_verilator_simutil_verilator/cpp"]
-        )
-        verilate_the_design_args.extend(["-LDFLAGS", "-lelf"])
-        verilate_the_design_args.append("--exe")
-        for cc_file in (self.ara_hardware_dir / "tb" / "verilator" / "lowrisc_dv_verilator_memutil_dpi" / "cpp").glob(
-            "*.cc"
-        ):
-            verilate_the_design_args.append(str(cc_file))
-        for cc_file in (
-            self.ara_hardware_dir / "tb" / "verilator" / "lowrisc_dv_verilator_memutil_verilator" / "cpp"
-        ).glob("*.cc"):
-            verilate_the_design_args.append(str(cc_file))
-        for cc_file in (
-            self.ara_hardware_dir / "tb" / "verilator" / "lowrisc_dv_verilator_simutil_verilator" / "cpp"
-        ).glob("*.cc"):
-            verilate_the_design_args.append(str(cc_file))
-        verilate_the_design_args.append(f"{self.ara_hardware_dir}/tb/verilator/ara_tb.cpp")
-        verilate_the_design_args.append("--cc")
-        verilate_the_design_args.extend(["--top-module", "ara_tb_verilator"])
-        env = os.environ.copy()
-        verilate_the_design_ret = execute(
-            self.ara_verilator_exe_path,
-            *verilate_the_design_args,
-            env=env,
-            cwd=self.ara_hardware_dir,
-            *args,
-            **kwargs,
-        )
+            # run simulation
+            # to add trace: https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L201
+            ara_verilator_args = ["-l", f"ram,{program}"]
+            if len(self.extra_args) > 0:
+                if isinstance(self.extra_args, str):
+                    extra_args = self.extra_args.split(" ")
+                else:
+                    extra_args = self.extra_args
+                ara_verilator_args.extend(extra_args)
 
-        env = os.environ.copy()
-        env["OBJCACHE"] = ""
-        verilate_the_design_compile_ret = execute(
-            "make",
-            "-j4",
-            "-f",
-            "Vara_tb_verilator.mk",
-            env=env,
-            cwd=self.ara_tb_verilator_build_dir,
-            *args,
-            **kwargs,
-        )
-
-        # run simulation
-        # to add trace: https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L201
-        ara_verilator_arg = ["-l", f"ram,{program}"]
-        if len(self.extra_args) > 0:
-            if isinstance(self.extra_args, str):
-                extra_args = self.extra_args.split(" ")
-            else:
-                extra_args = self.extra_args
-            ara_verilator_arg.extend(extra_args)
-
-        env = os.environ.copy()
-        simulation_ret = execute(
-            str(self.Vara_tb_verilator),
-            *ara_verilator_arg,
-            env=env,
-            cwd=cwd,
-            *args,
-            **kwargs,
-        )
-        return verilate_the_design_ret + verilate_the_design_compile_ret + simulation_ret
+            env = os.environ.copy()
+            simulation_ret = execute(
+                str(Path(tb_ara_verilator_build_dir) / "Vara_tb_verilator"),
+                *ara_verilator_args,
+                env=env,
+                cwd=cwd,
+                *args,
+                **kwargs,
+            )
+        return compile_verilator_tb_ret + simulation_ret
 
     def parse_stdout(self, out):
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)

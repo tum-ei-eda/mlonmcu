@@ -70,6 +70,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "input_data_path": None,
         "output_data_path": None,
         "mem_only": False,
+        "debug_symbols": False,
+        "verbose_makefile": False,
     }
 
     REQUIRED = ["mlif.src_dir"]
@@ -204,6 +206,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["mem_only"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def debug_symbols(self):
+        value = self.config["debug_symbols"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+    @property
+    def verbose_makefile(self):
+        value = self.config["verbose_makefile"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -221,6 +232,14 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             args.append(f"-DLLVM_DIR={self.llvm_dir}")
         if self.optimize:
             args.append(f"-DOPTIMIZE={self.optimize}")
+        if self.debug_symbols:
+            args.append(f"-DDEBUG_SYMBOLS=ON")
+        if self.verbose_makefile:
+            args.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")
+        if self.model_support_dir:
+            args.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
+        else:
+            pass
         return args
 
     def prepare(self):
@@ -239,11 +258,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 value = "ON" if value else "OFF"
             cmakeArgs.append(f"-D{key}={value}")
         cmakeArgs.extend(self.get_common_cmake_args())
-        cmakeArgs.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF")  # TODO for debug, should be removed
-        if self.model_support_dir:
-            cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
-        else:
-            pass
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():

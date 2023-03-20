@@ -210,6 +210,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def debug_symbols(self):
         value = self.config["debug_symbols"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     @property
     def verbose_makefile(self):
         value = self.config["verbose_makefile"]
@@ -233,7 +234,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.optimize:
             args.append(f"-DOPTIMIZE={self.optimize}")
         if self.debug_symbols:
-            args.append(f"-DDEBUG_SYMBOLS=ON")
+            args.append("-DDEBUG_SYMBOLS=ON")
         if self.verbose_makefile:
             args.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")
         if self.model_support_dir:

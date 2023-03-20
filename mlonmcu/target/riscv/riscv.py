@@ -46,7 +46,11 @@ class RISCVTarget(Target):
     }
     REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"]
     PUPL_GCC_TOOLCHAIN_REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]  # TODO elegant handle customized toolchain
-    ARA_GCC_TOOLCHAIN_REQUIRED = ["ara_gcc.install_dir", "ara_gcc.name"]  # TODO elegant handle customized toolchain
+    ARA_GCC_TOOLCHAIN_REQUIRED = [
+        "ara_gcc.install_dir",
+        "ara_gcc.name",
+        "riscv_gcc.variant",
+    ]  # TODO elegant handle customized toolchain
     OPTIONAL = ["llvm.install_dir"]
 
     @property

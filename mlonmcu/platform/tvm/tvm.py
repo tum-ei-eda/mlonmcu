@@ -301,7 +301,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         if autotvm_enable:
             tuner = self.config.get("autotvm_tuner", "ga")
             assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
-            rer.extend(["--tuner", tuner])
+            ret.extend(["--tuner", tuner])
             if self.config["autotuning_visualize"]:
                 assert (
                     self.experimental_tvmc_tune_tasks

@@ -18,6 +18,8 @@
 #
 """TVM Platform"""
 
+import re
+import time
 import tempfile
 import concurrent
 from pathlib import Path
@@ -335,78 +337,16 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         if self.print_outputs:
             verbose = True
 
-        content = ""
-        if autotvm_enable or autoscheduler_enable:
-            if append:
-                if results_file is not None:
-                    with open(results_file, "r") as handle:
-                        content = handle.read()
+        def remove_empty(inp):
+            return [line for line in inp if len(line.strip()) > 0]
 
-            if num_workers is not None:
-                assert isinstance(num_workers, int) and num_workers > 0
-                assert self.experimental_tvmc_tune_tasks, "num_workers requires experimental_tvmc_tune_tasks=1"
-                # TODO: fix
-                assert self.config["autotuning_tasks"] is None, "tune_tasks not supported together with num_workers > 1"
-
-                def get_tune_tasks():
-                    with tempfile.TemporaryDirectory() as tmp_dir:
-                        out_file = Path(tmp_dir) / "tuning_results.log.txt"
-                        tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                        out = self.invoke_tvmc("tune", *tune_args, "--task", "list")
-                        lines = out.split("\n")
-                        for i, line in enumerate(lines):
-                            if "Available Tasks for tuning" in line:
-                                lines = lines[i + 1 :]
-                                break
-                        tasks = [line.split(". ", 1)[1] for line in lines if len(line.strip()) > 0]
-                        return tasks
-
-                num_tasks = len(get_tune_tasks())
-                workers = []
-                with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
-                    for i in range(num_tasks):
-                        print(f"Created worker for task {i}")
-
-                        def do_work(idx, prepend):
-                            with tempfile.TemporaryDirectory() as tmp_dir:
-                                out_file = Path(tmp_dir) / "tuning_results.log.txt"
-                                with open(out_file, "w") as handle:
-                                    handle.write(prepend)
-                                tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                                out = self.invoke_tvmc("tune", *tune_args, "--task", str(idx))
-                                with open(out_file, "r") as handle:
-                                    content = handle.read()
-                            return (out, content)
-
-                        workers.append(executor.submit(do_work, i, content))
-                all_out = ""
-                all_content = ""
-                for i, w in enumerate(workers):
-                    print(f"Worker {i}: done")
-                    ret = w.result()
-                    out, content = ret
-                    all_out += out
-                    all_content += content
-                out = all_out
-                content = all_content
-            else:
-                with tempfile.TemporaryDirectory() as tmp_dir:
-                    out_file = Path(tmp_dir) / "tuning_results.log.txt"
-                    with open(out_file, "w") as handle:
-                        handle.write(content)
-                    tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                    out = self.invoke_tvmc("tune", *tune_args)
-                    with open(out_file, "r") as handle:
-                        content = handle.read()
-        else:
-            if results_file is None:
-                return {}, {}
-            assert Path(results_file).is_file()
-            with open(results_file, "r") as handle:
-                content = handle.read()
-
-        artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
-        artifacts.append(artifact)
+        def count_failed_trials(inp):
+            cnt = 0
+            for line in inp.split("\n"):
+                m = re.compile(r".*\[1000000000\.0\].*").match(line)
+                if m:
+                    cnt += 1
+            return cnt
 
         # pick best records
         def _pick_best(backend, records, verbose=False):
@@ -430,32 +370,136 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                     content_best = handle.read()
             return content_best
 
+        content = ""
+        total_size = None
+        if autotvm_enable or autoscheduler_enable:
+            if append:
+                if results_file is not None:
+                    with open(results_file, "r") as handle:
+                        content = handle.read()
+
+            sub_metrics = {}
+            if num_workers is not None:
+                assert isinstance(num_workers, int) and num_workers > 0
+                assert self.experimental_tvmc_tune_tasks, "num_workers requires experimental_tvmc_tune_tasks=1"
+                # TODO: fix
+                assert self.config["autotuning_tasks"] is None, "tune_tasks not supported together with num_workers > 1"
+
+                def get_tune_tasks():
+                    with tempfile.TemporaryDirectory() as tmp_dir:
+                        out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                        tune_args = self.get_tune_args(model_path, backend, target, out_file)
+                        out = self.invoke_tvmc("tune", *tune_args, "--task", "list")
+                        lines = out.split("\n")
+                        for i, line in enumerate(lines):
+                            if "Available Tasks for tuning" in line:
+                                lines = lines[i + 1 :]
+                                break
+                        # tasks = [line.split(". ", 1)[1] for line in lines if len(line.strip()) > 0]
+                        # Get config space sizes
+                        matches = re.compile(r"(\d+). Task.*\(len=(\d+)\)").findall(out)
+                        sizes = list(map(lambda x: (int(x[0]), int(x[1])), matches))
+                        return sizes
+
+                # num_tasks = len(get_tune_tasks())
+                tune_tasks = get_tune_tasks()
+                workers = []
+                with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
+                    # for i in range(num_tasks):
+                    for i, task_len in tune_tasks:
+                        if total_size is None:
+                            total_size = 0
+                        total_size += task_len
+                        print(f"Created worker for task {i}")
+
+                        def do_work(idx, prepend, task_len):
+                            t0 = time.time()
+                            with tempfile.TemporaryDirectory() as tmp_dir:
+                                out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                                with open(out_file, "w") as handle:
+                                    handle.write(prepend)
+                                # TODO: divide trials by number of tasks?
+                                tune_args = self.get_tune_args(model_path, backend, target, out_file)
+                                out = self.invoke_tvmc("tune", *tune_args, "--task", str(idx))
+                                with open(out_file, "r") as handle:
+                                    content = handle.read()
+                                content_best = _pick_best(backend, content, verbose=verbose)
+                                sub_trials = len(remove_empty(content.split("\n")))
+                                sub_failed_trials = count_failed_trials(content)
+                                t1 = time.time()
+                            return (out, content, task_len, sub_trials, sub_failed_trials, t1-t0)
+
+                        workers.append(executor.submit(do_work, i, content, task_len))
+                all_out = ""
+                all_content = ""
+                for i, w in enumerate(workers):
+                    print(f"Worker {i}: done")
+                    ret = w.result()
+                    out, content, size, tuned, failed, duration = ret
+                    all_out += out
+                    all_content += content
+                    metrics_ = Metrics()
+                    metrics_.add("Config Space Size", size, True)
+                    metrics_.add("Total Trials", tuned, True)
+                    metrics_.add("Failed Trials", failed, True)
+                    metrics_.add("Tune Duration [s]", duration, True)
+                    metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
+                    trials = self.config.get("autotuning_trials", 10)
+                    if not isinstance(trials, int):
+                        trials = int(trials)
+                    early_stopping = self.config.get("autotuning_early_stopping", None)
+                    if not isinstance(early_stopping, int):
+                        early_stopping = int(early_stopping)
+                    if early_stopping is None:
+                        early_stopping = max(trials, 10)  # Let's see if this default works out...
+                    if early_stopping < trials:
+                        early = tuned + failed < min(trials, size)
+                    else:
+                        early = False
+                    metrics_.add("Early Stopped", early, True)
+                    sub_metrics[f"task{i}"] = metrics_
+                out = all_out
+                content = all_content
+            else:
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                    with open(out_file, "w") as handle:
+                        handle.write(content)
+                    tune_args = self.get_tune_args(model_path, backend, target, out_file)
+                    out = self.invoke_tvmc("tune", *tune_args)
+                    with open(out_file, "r") as handle:
+                        content = handle.read()
+        else:
+            if results_file is None:
+                return {}, {}
+            assert Path(results_file).is_file()
+            with open(results_file, "r") as handle:
+                content = handle.read()
+
+        artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records"])
+        artifacts.append(artifact)
+
+
         metrics = Metrics()
 
-        def remove_empty(inp):
-            return [line for line in inp if len(line.strip()) > 0]
+
+        if total_size is not None:
+            metrics.add("Config Space Size", total_size, True)
 
         content_best = _pick_best(backend, content, verbose=verbose)
         total_trials = len(remove_empty(content.split("\n")))
-        metrics.add("Total Trials", total_trials)
+        metrics.add("Total Trials", total_trials, True)
 
-        def count_failed_trials(inp):
-            cnt = 0
-            for line in inp.split("\n"):
-                m = re.compile(r".*\[1000000000\.0\].*").match(line)
-                if m:
-                    cnt += 1
-            return cnt
 
         failed_trials = count_failed_trials(content)
-        metrics.add("Failed Trials", failed_trials)
+        metrics.add("Failed Trials", failed_trials, True)
         if len(content_best) > 0:
             artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
             artifacts.append(artifact_)
             num_tuned = len(remove_empty(content_best.split("\n")))
-            metrics.add("Tuned Tasks", num_tuned)
+            metrics.add("Tuned Tasks", num_tuned, True)
         else:
-            metrics.add("Tuned Tasks", 0)
+            metrics.add("Tuned Tasks", 0, True)
 
         if autotvm_enable or autoscheduler_enable:
             stdout_artifact = Artifact(
@@ -463,4 +507,4 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
 
-        return {"default": artifacts}, {"default": metrics}
+        return {"default": artifacts}, {"default": metrics, **sub_metrics}

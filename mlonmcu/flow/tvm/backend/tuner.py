@@ -24,7 +24,7 @@ def get_autotuning_defaults():
         "append": None,
         "trials": 10,  # TODO: increase to 100?
         "early_stopping": None,  # calculate default dynamically
-        "num_workers": 1,
+        "num_workers": None,
         "max_parallel": 1,
         "use_rpc": False,
         "timeout": 100,

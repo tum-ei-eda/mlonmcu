@@ -1337,7 +1337,7 @@ class Benchmark(PlatformFeature, TargetFeature):
 
             def benchmark_callback(stdout, metrics, artifacts):
                 if len(metrics) <= 1:
-                    return
+                    return stdout
                 metrics_ = metrics[1:]  # drop first run (warmup)
 
                 # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc.

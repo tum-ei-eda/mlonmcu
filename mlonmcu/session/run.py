@@ -723,21 +723,7 @@ class Run:
                 logger.debug("Updating backend config based on given target.")
                 self.backend.config.update(cfg)
 
-        self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
-        self.artifacts_per_stage[RunStage.BUILD] = {}
-        for name in self.artifacts_per_stage[RunStage.LOAD]:
-            model_artifact = self.artifacts_per_stage[RunStage.LOAD][name][0]
-            if not model_artifact.exported:
-                model_artifact.export(self.dir)
-            self.backend.load_model(model=model_artifact.path)
-            if self.has_stage(RunStage.TUNE):
-                self.export_stage(RunStage.TUNE, optional=self.export_optional)
-                if len(self.artifacts_per_stage[RunStage.TUNE][name]) > 0:  # TODO: inaccurate!
-                    tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][name][0]
-                    if not tuning_artifact.exported:
-                        tuning_artifact.export(self.dir)
-                    self.backend.tuning_records = tuning_artifact.path
-
+        def _build():
             # TODO: allow raw data as well as filepath in backends
             artifacts = self.backend.generate_artifacts()
             if isinstance(artifacts, dict):
@@ -749,6 +735,45 @@ class Run:
                 new = {name if name in ["", "default"] else f"{name}": artifacts}
             self.artifacts_per_stage[RunStage.BUILD].update(new)
             self.sub_parents.update({(RunStage.BUILD, key): (self.last_stage, name) for key in new.keys()})
+
+        self.artifacts_per_stage[RunStage.BUILD] = {}
+        if self.has_stage(RunStage.TUNE):
+            self.export_stage(RunStage.TUNE, optional=self.export_optional)
+            for name in self.artifacts_per_stage[RunStage.TUNE]:
+                tune_stage_artifacts = self.artifacts_per_stage[RunStage.TUNE][name]
+                tuning_artifact = lookup_artifacts(tune_stage_artifacts, fmt=ArtifactFormat.TEXT, flags=["records"], first_only=True)
+                if len(tuning_artifact) == 0:
+                    continue
+                tuning_artifact = tuning_artifact[0]
+                if not tuning_artifact.exported:
+                    tuning_artifact.export(self.dir)
+                self.backend.tuning_records = tuning_artifact.path
+                candidate = (RunStage.TUNE, name)
+                assert candidate in self.sub_parents
+                parent_stage, parent_name = self.sub_parents[candidate]
+                assert parent_stage == RunStage.LOAD
+                assert parent_name in self.artifacts_per_stage[RunStage.LOAD]
+                load_stage_artifacts = self.artifacts_per_stage[parent_stage][parent_name]
+                model_artifact = lookup_artifacts(load_stage_artifacts, flags=["model"], first_only=True)
+                assert len(model_artifact) > 0
+                model_artifact = model_artifact[0]
+                if not model_artifact.exported:
+                    model_artifact.export(self.dir)
+                self.backend.load_model(model=model_artifact.path)
+                _build()
+
+        else:
+            self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
+            for name in self.artifacts_per_stage[RunStage.LOAD]:
+                load_stage_artifacts = self.artifacts_per_stage[RunStage.LOAD][name]
+                model_artifact = lookup_artifacts(load_stage_artifacts, flags=["model"], first_only=True)
+                assert len(model_artifact) == 1
+                model_artifact = model_artifact[0]
+                if not model_artifact.exported:
+                    model_artifact.export(self.dir)
+                self.backend.load_model(model=model_artifact.path)
+                _build()
+
         self.sub_names.extend(self.artifacts_per_stage[RunStage.BUILD])
         self.sub_names = list(set(self.sub_names))
 
@@ -1024,11 +1049,12 @@ class Run:
             # if self.failing:
             #     return subs
             if stage in self.artifacts_per_stage:
+                prev_metrics_by_sub = metrics_by_sub.copy()
                 names = self.artifacts_per_stage[stage].keys()
                 subs = names
                 for name in self.artifacts_per_stage[stage]:
                     # metrics_by_sub[name] = Metrics()
-                    if len(self.artifacts_per_stage[stage][name]) > 1:
+                    if len(self.artifacts_per_stage[stage][name]) > 0:
                         filename = f"{stage.name.lower()}_metrics.csv"
                         metrics_artifact = lookup_artifacts(self.artifacts_per_stage[stage][name], name=filename)
                         if len(metrics_artifact) == 0:
@@ -1040,8 +1066,8 @@ class Run:
                         # Combine with existing metrics
                         parents = self.sub_parents[(stage, name)]
                         parent_stage, parent_name = parents
-                        if parent_name in metrics_by_sub:
-                            parent_metrics_data = metrics_by_sub[parent_name].get_data(
+                        if parent_name in prev_metrics_by_sub:
+                            parent_metrics_data = prev_metrics_by_sub[parent_name].get_data(
                                 include_optional=self.export_optional
                             )
                         else:
@@ -1055,7 +1081,8 @@ class Run:
         for stage in range(RunStage.LOAD, RunStage.POSTPROCESS):
             subs_ = metrics_helper(RunStage(stage), subs)
             if len(subs_) < len(subs):
-                assert self.failing
+                # assert self.failing
+                pass
             else:
                 subs = subs_
 

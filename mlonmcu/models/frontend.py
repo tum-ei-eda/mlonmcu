@@ -113,12 +113,23 @@ class Frontend(ABC):
         metadata = model.metadata
         in_paths = []
         out_paths = []
-        if self.use_inout_data:
-            if metadata is not None and "network_parameters" in metadata:
-                network = metadata["network_parameters"]
-                assert "input_nodes" in network
-                ins = network["input_nodes"]
-                for inp in ins:
+        input_shapes = {}
+        output_shapes = {}
+        input_types = {}
+        output_types = {}
+        if metadata is not None and "network_parameters" in metadata:
+            network = metadata["network_parameters"]
+            assert "input_nodes" in network
+            ins = network["input_nodes"]
+            for inp in ins:
+                name = inp.get("name", None)
+                shape = inp.get("shape", None)
+                ty = inp.get("type", None)
+                if name and shape:
+                    input_shapes[name] = shape
+                if name and ty:
+                    input_types[name] = ty
+                if self.use_inout_data:
                     if "example_input" in inp and "path" in inp["example_input"]:
                         in_data_dir = Path(inp["example_input"]["path"])
                         # TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)
@@ -127,9 +138,17 @@ class Frontend(ABC):
                             in_path.is_dir()
                         ), f"Input data directory defined in model metadata does not exist: {in_path}"
                         in_paths.append(in_path)
-                assert "output_nodes" in network
-                outs = network["output_nodes"]
-                for outp in outs:
+            assert "output_nodes" in network
+            outs = network["output_nodes"]
+            for outp in outs:
+                name = outp.get("name", None)
+                shape = outp.get("shape", None)
+                ty = outp.get("type", None)
+                if name and shape:
+                    output_shapes[name] = shape
+                if name and ty:
+                    output_types[name] = ty
+                if self.use_inout_data:
                     if "test_output_path" in outp:
                         out_data_dir = Path(outp["test_output_path"])
                         out_path = model_dir / out_data_dir
@@ -137,13 +156,13 @@ class Frontend(ABC):
                             in_path.is_dir()
                         ), f"Output data directory defined in model metadata does not exist: {out_path}"
                         out_paths.append(out_path)
-            else:
-                fallback_in_path = model_dir / "input"
-                if fallback_in_path.is_dir():
-                    in_paths.append(fallback_in_path)
-                fallback_out_path = model_dir / "output"
-                if fallback_out_path.is_dir():
-                    out_paths.append(fallback_out_path)
+        else:
+            fallback_in_path = model_dir / "input"
+            if fallback_in_path.is_dir():
+                in_paths.append(fallback_in_path)
+            fallback_out_path = model_dir / "output"
+            if fallback_out_path.is_dir():
+                out_paths.append(fallback_out_path)
 
         if metadata is not None and "backends" in metadata:
             assert cfg is not None
@@ -169,6 +188,14 @@ class Frontend(ABC):
             cfg.update({"mlif.output_data_path": out_paths})
             # cfg.update({"espidf.output_data_path": out_paths})
             # cfg.update({"zephyr.output_data_path": out_paths})
+        if len(input_shapes) > 0:
+            cfg.update({f"{model.name}.input_shapes": input_shapes})
+        if len(output_shapes) > 0:
+            cfg.update({f"{model.name}.output_shapes": output_shapes})
+        if len(input_types) > 0:
+            cfg.update({f"{model.name}.input_types": input_types})
+        if len(output_types) > 0:
+            cfg.update({f"{model.name}.output_types": output_types})
 
     def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []

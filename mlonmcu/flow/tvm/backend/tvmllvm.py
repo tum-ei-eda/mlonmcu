@@ -27,6 +27,7 @@ from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .tvmc_utils import get_tvmrt_tvmc_args
+from .model_info import get_relay_model_info
 
 
 # Warning: This is only ment to be used with the TvmPlatform!
@@ -46,8 +47,8 @@ class TVMLLVMBackend(TVMBackend):
     def __init__(self, runtime="crt", fmt="mlf", features=None, config=None):
         super().__init__(target="llvm", executor="graph", runtime=runtime, fmt=fmt, features=features, config=config)
 
-    def get_tvmc_compile_args(self, out):
-        return super().get_tvmc_compile_args(out) + get_tvmrt_tvmc_args(self.runtime)
+    def get_tvmc_compile_args(self, out, dump=None):
+        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(self.runtime)
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None
@@ -64,7 +65,11 @@ class TVMLLVMBackend(TVMBackend):
         artifacts = []
         assert self.model is not None
 
-        dump = []
+        full = False  # Required due to bug in TVM
+        dump = ["ll", "relay"] if full else []
+        generate_wrapper = self.fmt == "mlf"
+        if generate_wrapper and not self.model_info and "relay" not in dump:
+            dump.append("relay")
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
             out = self.invoke_tvmc_compile(out_path, dump=dump)
@@ -81,15 +86,38 @@ class TVMLLVMBackend(TVMBackend):
                         archive=True,
                     )
                 )
+            if "c" in dump:
+                with open(str(out_path) + ".c", "r") as handle:
+                    mod_src = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.c",
+                            content=mod_src,
+                            fmt=ArtifactFormat.SOURCE,
+                            optional=True,
+                        )
+                    )
+            if "relay" in dump:
+                with open(str(out_path) + ".relay", "r") as handle:
+                    mod_txt = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.relay",
+                            content=mod_txt,
+                            fmt=ArtifactFormat.TEXT,
+                            optional=True,
+                        )
+                    )
 
             stdout_artifact = Artifact(
                 "tvmc_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
             )  # TODO: rename to tvmllvm_out.log?
-            generate_wrapper = self.fmt == "mlf"
             if generate_wrapper:
                 workspace_size = 2**20
                 assert workspace_size >= 0
                 graph, params = self.get_graph_and_params_from_mlf(tar_dir)
+                if not self.model_info:
+                    self.model_info = get_relay_model_info(mod_txt)
                 wrapper_src = generate_tvmrt_wrapper(graph, params, self.model_info, workspace_size, debug_arena=False)
                 artifacts.append(Artifact("rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
                 header_src = generate_wrapper_header()

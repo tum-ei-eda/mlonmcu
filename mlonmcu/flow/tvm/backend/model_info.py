@@ -44,7 +44,14 @@ class TensorInfo:
     def size(self):
         ret = self.type_size
         for dim in self.shape:
-            ret *= dim
+            if isinstance(dim, complex):
+                real = dim.real
+                imag = dim.imag
+                assert real == int(real)
+                assert imag == int(imag)
+                ret *= int(real) + int(imag)
+            else:
+                ret *= dim
         return ret
 
 
@@ -78,6 +85,14 @@ class ModelInfo:
         self.in_tensors = in_tensors
         self.out_tensors = out_tensors
 
+    @property
+    def has_ins(self):
+        return len(self.in_tensors) > 0
+
+    @property
+    def has_outs(self):
+        return len(self.out_tensors) > 0
+
 
 class TfLiteModelInfo(ModelInfo):
     def __init__(self, model, fix_names=False):
@@ -97,43 +112,57 @@ class TfLiteModelInfo(ModelInfo):
 
 
 def shape_from_str(shape_str):
-    return tuple(map(int, shape_str.replace(" ", "").split(",")))
+    return tuple(
+        [complex(*map(int, x.split("i", 1))) if "i" in x else int(x) for x in shape_str.replace(" ", "").split(",")]
+    )
 
 
 def parse_relay_main(line):
     input_tensors = []
     output_tensors = []
 
-    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(
+    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+\s?: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(
         line
     )
     for input_tensors_str in input_tensors_strs:
-        res = re.compile(r"%([a-zA-Z0-9]+): Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").match(input_tensors_str)
+        res = re.compile(r"%([a-zA-Z0-9_]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(
+            input_tensors_str
+        )
         assert res is not None
         groups = res.groups()
         assert len(groups) == 3
         input_name, input_shape_str, input_type = groups
+        if "v_param" in input_name:
+            continue
         input_shape = shape_from_str(input_shape_str)
         input_tensor = TensorInfo(input_name, input_shape, input_type)
         input_tensors.append(input_tensor)
 
     output_tensor_names_str = re.compile(r"output_tensor_names=\[(\".*\")\]").findall(line)
-    output_tensor_names = re.compile(r"\"([a-zA-Z0-9_]+)\"").findall(output_tensor_names_str[0])
 
     output_tensors_str = re.compile(r"-> (.+) {").findall(line)
-    output_tensor_strs = re.compile(r"Tensor\[\(\d+(?:, \d+)+\), [a-zA-Z0-9_]+\]").findall(output_tensors_str[0])
+    # The following depends on InferType annocations
+    if len(output_tensors_str) > 0:
+        output_tensor_strs = re.compile(r"Tensor\[\([\di]+(?:, [\di]+)*\), [a-zA-Z0-9_]+\]").findall(
+            output_tensors_str[0]
+        )
 
-    assert len(output_tensor_names) == len(output_tensor_strs)
+        if len(output_tensor_names_str) > 0:
+            output_tensor_names = re.compile(r"\"([a-zA-Z0-9_]+)\"").findall(output_tensor_names_str[0])
+        else:
+            output_tensor_names = [f"output{i}" for i in range(len(output_tensor_strs))]
 
-    for i, output_name in enumerate(output_tensor_names):
-        res = re.compile(r"Tensor\[\((\d+(?:, \d+)+)\), ([a-zA-Z0-9_]+)\]").match(output_tensor_strs[i])
-        assert res is not None
-        groups = res.groups()
-        assert len(groups) == 2
-        output_shape_str, output_type = groups
-        output_shape = shape_from_str(output_shape_str)
-        output_tensor = TensorInfo(output_name, output_shape, output_type)
-        output_tensors.append(output_tensor)
+        assert len(output_tensor_names) == len(output_tensor_strs)
+
+        for i, output_name in enumerate(output_tensor_names):
+            res = re.compile(r"Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(output_tensor_strs[i])
+            assert res is not None
+            groups = res.groups()
+            assert len(groups) == 2
+            output_shape_str, output_type = groups
+            output_shape = shape_from_str(output_shape_str)
+            output_tensor = TensorInfo(output_name, output_shape, output_type)
+            output_tensors.append(output_tensor)
     return input_tensors, output_tensors
 
 
@@ -301,6 +330,42 @@ def get_model_info(model, backend_name="unknown"):
         return "pdmodel", get_pb_model_info(model)
     else:
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
+
+
+def get_fallback_model_info(model, input_shapes, output_shapes, input_types, output_types, backend_name="unknown"):
+    ext = os.path.splitext(model)[1][1:]
+    fmt = ModelFormats.from_extension(ext)
+
+    def helper(shapes, types):
+        return [TensorInfo(name, shape, types[name]) for name, shape in shapes.items()]
+
+    info = ModelInfo(
+        in_tensors=helper(input_shapes, input_types),
+        out_tensors=helper(output_shapes, output_types),
+    )
+
+    if fmt == ModelFormats.TFLITE:
+        return "tflite", info
+    elif fmt == ModelFormats.RELAY:
+        return "relay", info
+    elif fmt == ModelFormats.PB:
+        return "pb", info
+    elif fmt == ModelFormats.ONNX:
+        return "onnx", info
+    elif fmt == ModelFormats.PADDLE:
+        return "pdmodel", info
+    else:
+        raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
+
+
+def get_model_format(model):
+    ext = os.path.splitext(model)[1][1:]
+    fmt = ModelFormats.from_extension(ext)
+
+    if fmt:
+        return fmt.extension
+    else:
+        return ext
 
 
 def get_supported_formats():

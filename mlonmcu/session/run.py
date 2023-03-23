@@ -742,7 +742,9 @@ class Run:
             self.export_stage(RunStage.TUNE, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.TUNE]:
                 tune_stage_artifacts = self.artifacts_per_stage[RunStage.TUNE][name]
-                tuning_artifact = lookup_artifacts(tune_stage_artifacts, fmt=ArtifactFormat.TEXT, flags=["records"], first_only=True)
+                tuning_artifact = lookup_artifacts(
+                    tune_stage_artifacts, fmt=ArtifactFormat.TEXT, flags=["records"], first_only=True
+                )
                 if len(tuning_artifact) == 0:
                     continue
                 tuning_artifact = tuning_artifact[0]

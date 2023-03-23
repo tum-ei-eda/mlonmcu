@@ -210,6 +210,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def debug_symbols(self):
         value = self.config["debug_symbols"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     @property
     def verbose_makefile(self):
         value = self.config["verbose_makefile"]

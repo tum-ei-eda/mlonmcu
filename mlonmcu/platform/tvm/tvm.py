@@ -50,7 +50,13 @@ logger = get_logger()
 class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
     """TVM Platform class."""
 
-    FEATURES = TargetPlatform.FEATURES + ["benchmark", "tvm_rpc", "autotvm", "autoschedule", "tvm_profile"]  # TODO: validate?
+    FEATURES = TargetPlatform.FEATURES + [
+        "benchmark",
+        "tvm_rpc",
+        "autotvm",
+        "autoschedule",
+        "tvm_profile",
+    ]  # TODO: validate?
 
     DEFAULTS = {
         **TargetPlatform.DEFAULTS,
@@ -328,7 +334,9 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
     def _tune_model(self, model_path, backend, target):
         autotvm_enable = self.config["autotvm_enable"]
         autoscheduler_enable = self.config["autoscheduler_enable"]
-        assert [autotvm_enable, autoscheduler_enable].count(True) == 1, "Can not use AutoTVM and AutoScheduler at the same time"
+        assert [autotvm_enable, autoscheduler_enable].count(
+            True
+        ) == 1, "Can not use AutoTVM and AutoScheduler at the same time"
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
         num_workers = int(self.config["autotuning_num_workers"])
@@ -427,7 +435,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                                 sub_trials = len(remove_empty(content.split("\n")))
                                 sub_failed_trials = count_failed_trials(content)
                                 t1 = time.time()
-                            return (out, content, task_len, sub_trials, sub_failed_trials, t1-t0)
+                            return (out, content, task_len, sub_trials, sub_failed_trials, t1 - t0)
 
                         workers.append(executor.submit(do_work, i, content, task_len))
                 all_out = ""
@@ -479,9 +487,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records"])
         artifacts.append(artifact)
 
-
         metrics = Metrics()
-
 
         if total_size is not None:
             metrics.add("Config Space Size", total_size, True)
@@ -489,7 +495,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         content_best = _pick_best(backend, content, verbose=verbose)
         total_trials = len(remove_empty(content.split("\n")))
         metrics.add("Total Trials", total_trials, True)
-
 
         failed_trials = count_failed_trials(content)
         metrics.add("Failed Trials", failed_trials, True)

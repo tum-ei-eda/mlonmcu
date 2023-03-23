@@ -51,8 +51,8 @@ class TFLMICodegen:
     def make_op_registrations(self, ops, custom_ops, reporter=True):
         out = (
             "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver(error_reporter);\n"
-            if reporter else
-            "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver;\n"
+            if reporter
+            else "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver;\n"
         )
         for op in ops:
             out += (

@@ -318,6 +318,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
 
 VEXT_MIN_ALLOWED_VLEN = 64
 
+
 # @before_feature("muriscvnn")  # TODO: implement something like this
 @register_feature("vext")
 class Vext(SetupFeature, TargetFeature, PlatformFeature):
@@ -739,6 +740,7 @@ class Autotune(RunFeature):
     def get_run_config(self):
         return {"run.tune_enabled": self.enabled}
 
+
 # not registered!
 class TVMTuneBase(PlatformFeature):
     DEFAULTS = {
@@ -817,6 +819,7 @@ class TVMTuneBase(PlatformFeature):
 @register_feature("autotvm", depends=["autotune"])
 class AutoTVM(TVMTuneBase):
     """Use the TVM autotuner inside the backend to generate tuning logs."""
+
     # TODO: autoscheduler
     # TODO: metascheduler
     # TODO: graphtuner
@@ -849,6 +852,7 @@ class AutoTVM(TVMTuneBase):
 @register_feature("autoschedule", depends=["autotune"])
 class AutoSchedule(TVMTuneBase):
     """TODO"""
+
     # TODO: metascheduler
     # TODO: graphtuner
     # TODO: tuner base feature class
@@ -1468,7 +1472,6 @@ class TvmProfile(PlatformFeature):
 
 @register_feature("xcorev")
 class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
-
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "mac": True,
@@ -1491,6 +1494,7 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
             #     extensions.append("XCoreV")
             # config[f"{target}.extensions"] = extensions
             config[f"{target}.enable_xcorevmac"] = True
+
 
 @register_feature("xpulp")
 class Xpulp(TargetFeature, PlatformFeature, SetupFeature):

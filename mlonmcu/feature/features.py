@@ -22,7 +22,7 @@ import re
 import pandas as pd
 from typing import Union
 
-from mlonmcu.utils import is_power_of_two
+from mlonmcu.utils import is_power_of_two, filter_none
 from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .feature import (
@@ -46,21 +46,18 @@ SUPPORTED_TVM_BACKENDS = [
 ]  # Workaround for cirvular import until we have a backend registry
 
 
-def filter_none(data):
-    """Helper function which drop dict items with a None value."""
-    assert isinstance(data, dict), "Dict only"
-    out = {key: value for key, value in data.items() if value is not None}
-    return out
-
-
 REGISTERED_FEATURES = {}
+FEATURE_DEPS = {}
 
 
-def register_feature(name):
+def register_feature(name, depends=None):
     """Decorator for adding a feature to the global registry."""
+    if depends is None:
+        depends = []
 
     def real_decorator(obj):
         REGISTERED_FEATURES[name] = obj
+        FEATURE_DEPS[name] = depends
 
     return real_decorator
 
@@ -77,10 +74,17 @@ def get_available_feature_names(feature_type=None):
     return ret
 
 
-def get_available_features(feature_type=None, feature_name=None):
+def get_available_features(feature_type=None, feature_name=None, deps=False):
     """Utility for looking up features."""
     names = get_available_feature_names(feature_type=feature_type)
-    return [REGISTERED_FEATURES[name] for name in names if feature_name is None or name == feature_name]
+    names = [name for name in names if feature_name is None or name == feature_name]
+    ret = []
+    if deps:
+        for name in names:
+            names = list(set(names + FEATURE_DEPS[name]))
+    for name in names:
+        ret.append(REGISTERED_FEATURES[name])
+    return ret
 
 
 def get_matching_features(features, feature_type):
@@ -312,6 +316,8 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         return ret
 
 
+VEXT_MIN_ALLOWED_VLEN = 64
+
 # @before_feature("muriscvnn")  # TODO: implement something like this
 @register_feature("vext")
 class Vext(SetupFeature, TargetFeature, PlatformFeature):
@@ -350,6 +356,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
         assert is_power_of_two(self.vlen)
+        assert self.vlen >= VEXT_MIN_ALOWED_VLEN
         return filter_none(
             {
                 f"{target}.enable_vext": True,
@@ -459,7 +466,7 @@ class GdbServer(TargetFeature):
         return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
-        assert target in ["host_x86", "etiss_pulpino", "ovpsim"]
+        assert target in ["host_x86", "etiss_pulpino", "etiss", "ovpsim"]
         return filter_none(
             {
                 f"{target}.gdbserver_enable": self.enabled,
@@ -480,8 +487,8 @@ class ETISSDebug(SetupFeature, TargetFeature):
         return {"etiss.install_dir": ["dbg"], "etissvp.script": ["dbg"]} if self.enabled else {}
 
     def get_target_config(self, target):
-        assert target in ["etiss_pulpino"]
-        return {"etiss_pulpino.debug_etiss": self.enabled}
+        assert target in ["etiss_pulpino", "etiss"]
+        return {f"{target}.debug_etiss": self.enabled}
 
 
 @register_feature("trace")
@@ -499,9 +506,9 @@ class Trace(TargetFeature):
         super().__init__("trace", features=features, config=config)
 
     def add_target_config(self, target, config):
-        assert target in ["etiss_pulpino", "ovpsim"]
-        if target == "etiss_pulpino":
-            config.update({"etiss_pulpino.trace_memory": self.enabled})
+        assert target in ["etiss_pulpino", "etiss", "ovpsim"]
+        if target in ["etiss_pulpino", "etiss"]:
+            config.update({f"{target}.trace_memory": self.enabled})
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace --tracemem SAX")
@@ -723,28 +730,31 @@ class Autotuned(BackendFeature):
 
 
 @register_feature("autotune")
-class Autotune(PlatformFeature, RunFeature):
-    """Use the TVM autotuner inside the backend to generate tuning logs."""
+class Autotune(RunFeature):
+    """Generic autotuning feature for enabling the TUNE stage only."""
 
+    def __init__(self, features=None, config=None):
+        super().__init__("autotune", features=features, config=config)
+
+    def get_run_config(self):
+        return {"run.tune_enabled": self.enabled}
+
+# not registered!
+class TVMTuneBase(PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "results_file": None,
         "append": None,
-        "tuner": None,
         "trials": None,
         "early_stopping": None,
         "num_workers": None,
         "max_parallel": None,
         "use_rpc": None,
         "timeout": None,
-        "mode": None,
         "visualize": None,
         "tasks": None,
         # All None to use the defaults defined in the backend instead
     }
-
-    def __init__(self, features=None, config=None):
-        super().__init__("autotune", features=features, config=config)
 
     @property
     def results_file(self):
@@ -753,10 +763,6 @@ class Autotune(PlatformFeature, RunFeature):
     @property
     def append(self):
         return self.config["append"] if "append" in self.config else None
-
-    @property
-    def tuner(self):
-        return self.config["tuner"] if "tuner" in self.config else None
 
     @property
     def trials(self):
@@ -783,10 +789,6 @@ class Autotune(PlatformFeature, RunFeature):
         return self.config["timeout"] if "timeout" in self.config else None
 
     @property
-    def mode(self):
-        return self.config["mode"]
-
-    @property
     def visualize(self):
         return self.config["visualize"]
 
@@ -799,23 +801,86 @@ class Autotune(PlatformFeature, RunFeature):
         # TODO: figure out a default path automatically
         return filter_none(
             {
-                f"{platform}.autotuning_enable": self.enabled,
                 f"{platform}.autotuning_results_file": self.results_file,
                 f"{platform}.autotuning_append": self.append,
-                f"{platform}.autotuning_tuner": self.tuner,
                 f"{platform}.autotuning_trials": self.trials,
                 f"{platform}.autotuning_early_stopping": self.early_stopping,
                 f"{platform}.autotuning_num_workers": self.num_workers,
                 f"{platform}.autotuning_max_parallel": self.max_parallel,
                 f"{platform}.autotuning_timeout": self.timeout,
-                f"{platform}.autotuning_mode": self.mode,
                 f"{platform}.autotuning_visualize": self.visualize,
                 f"{platform}.autotuning_tasks": self.tasks,
             }
         )
 
-    def get_run_config(self):
-        return {"run.tune_enabled": self.enabled}
+
+@register_feature("autotvm", depends=["autotune"])
+class AutoTVM(TVMTuneBase):
+    """Use the TVM autotuner inside the backend to generate tuning logs."""
+    # TODO: autoscheduler
+    # TODO: metascheduler
+    # TODO: graphtuner
+    # TODO: tuner base feature class
+
+    DEFAULTS = {
+        **TVMTuneBase.DEFAULTS,
+        "tuner": None,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("autotvm", features=features, config=config)
+
+    @property
+    def tuner(self):
+        return self.config["tuner"] if "tuner" in self.config else None
+
+    def get_platform_config(self, platform):
+        ret = super().get_platform_config(platform)
+        new = filter_none(
+            {
+                f"{platform}.autotvm_enable": self.enabled,
+                f"{platform}.autotvm_tuner": self.tuner,
+            }
+        )
+        ret.update(new)
+        return ret
+
+
+@register_feature("autoschedule", depends=["autotune"])
+class AutoSchedule(TVMTuneBase):
+    """TODO"""
+    # TODO: metascheduler
+    # TODO: graphtuner
+    # TODO: tuner base feature class
+
+    DEFAULTS = {
+        **TVMTuneBase.DEFAULTS,
+        "include_simple_tasks": None,
+        "log_estimated_latency": None,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("autoschedule", features=features, config=config)
+
+    @property
+    def include_simple_tasks(self):
+        return self.config["include_simple_tasks"]
+
+    @property
+    def log_estimated_latency(self):
+        return self.config["log_estimated_latency"]
+
+    def get_platform_config(self, platform):
+        ret = super().get_platform_config(platform)
+        new = filter_none(
+            {
+                f"{platform}.autoscheduler_enable": self.enabled,
+                f"{platform}.autoscheduler_include_simple_tasks": self.include_simple_tasks,
+                f"{platform}.autoscheduler_log_estimated_latency": self.log_estimated_latency,
+            }
+        )
+        ret.update(new)
+        return ret
 
 
 @register_feature("disable_legalize")
@@ -1010,7 +1075,7 @@ class LogInstructions(TargetFeature):
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "ovpsim", "gvsoc_pulp"]
+        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "gvsoc_pulp"]
         if not self.enabled:
             return
         if target == "spike":
@@ -1019,7 +1084,7 @@ class LogInstructions(TargetFeature):
             # if self.to_file:
             #     extra_args_new.append("--log=?")
             config.update({f"{target}.extra_args": extra_args_new})
-        elif target == "etiss_pulpino":
+        elif target in ["etiss_pulpino", "etiss"]:
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
@@ -1053,6 +1118,7 @@ class LogInstructions(TargetFeature):
         assert target in [
             "spike",
             "etiss_pulpino",
+            "etiss",
             "ovpsim",
             "gvsoc_pulp",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
@@ -1066,7 +1132,7 @@ class LogInstructions(TargetFeature):
                         # TODO: update stdout and remove log_instrs lines
                         instrs = []
                         for line in stdout.split("\n"):
-                            if target == "etiss_pulpino":
+                            if target in ["etiss_pulpino", "etiss"]:
                                 expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                             elif target == "spike":
                                 expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
@@ -1271,7 +1337,7 @@ class Benchmark(PlatformFeature, TargetFeature):
 
             def benchmark_callback(stdout, metrics, artifacts):
                 if len(metrics) <= 1:
-                    return
+                    return stdout
                 metrics_ = metrics[1:]  # drop first run (warmup)
 
                 # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc.
@@ -1399,6 +1465,32 @@ class TvmProfile(PlatformFeature):
             f"{platform}.profile": self.enabled,
         }
 
+
+@register_feature("xcorev")
+class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "mac": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("xcorev", features=features, config=config)
+
+    @property
+    def mac(self):
+        value = self.config["mac"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def add_target_config(self, target, config):
+        assert target in ["etiss"], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+            # extensions = config.get(f"{target}.extensions", [])
+            # assert isinstance(extensions, list)
+            # if self.mac:
+            #     extensions.append("XCoreV")
+            # config[f"{target}.extensions"] = extensions
+            config[f"{target}.enable_xcorevmac"] = True
 
 @register_feature("xpulp")
 class Xpulp(TargetFeature, PlatformFeature, SetupFeature):

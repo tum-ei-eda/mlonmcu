@@ -62,8 +62,8 @@ repos:
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
-  microtvm_etissvp:
-    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
     ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
   zephyr:
     url: "https://github.com/zephyrproject-rtos/zephyr.git"
@@ -198,6 +198,15 @@ targets:
       log_instrs: true
       # vext: true
       # pext: true
+  etiss:
+    enabled: true
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+      # vext: true
+      # pext: true
   host_x86:
     enabled: true
     features:
@@ -233,7 +242,7 @@ targets:
     enabled: false
   microtvm_arduino:
     enabled: false
-  microtvm_etissvp:
+  microtvm_etiss:
     enabled: true
   microtvm_espidf:
     enabled: false

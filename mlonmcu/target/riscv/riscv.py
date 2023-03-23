@@ -122,6 +122,8 @@ class RISCVTarget(Target):
         if len(attrs) == 1 and len(attrs[0]) == 0:
             attrs = []
         for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):
+            if ext == "i":
+                continue
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))
         return ",".join(attrs)
@@ -181,5 +183,6 @@ class RISCVTarget(Target):
                 "target_mabi": self.abi,
                 "target_mattr": self.attr,
                 "target_mcpu": f"generic-rv{self.xlen}",
+                "target_keys": None,
             }
         return {}

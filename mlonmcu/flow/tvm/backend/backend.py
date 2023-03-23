@@ -53,6 +53,7 @@ class TVMBackend(Backend):
         "target_mtriple": None,
         "target_mabi": None,
         "target_mattr": None,
+        "target_keys": None,
         "extra_target": None,
         "extra_target_mcpu": None,
         "desired_layout": None,  # optional: NCHW or NHWC
@@ -138,6 +139,10 @@ class TVMBackend(Backend):
         return self.config["target_mattr"]
 
     @property
+    def target_keys(self):
+        return self.config["target_keys"]
+
+    @property
     def target_model(self):
         return self.config["target_model"]
 
@@ -217,6 +222,8 @@ class TVMBackend(Backend):
             ret["mabi"] = self.target_mabi
         if self.target_mattr:
             ret["mattr"] = self.target_mattr
+        if self.target_keys:
+            ret["keys"] = self.target_keys
         if self.target_model:
             ret["model"] = self.target_model
         return ret

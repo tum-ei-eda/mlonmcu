@@ -275,7 +275,7 @@ class SimpleFrontend(Frontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
         return artifacts
 
 
@@ -330,7 +330,7 @@ class TfLiteFrontend(SimpleFrontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
 
         if not self.visualize_enable:
             assert len(self.output_formats) == 1
@@ -457,7 +457,7 @@ class RelayFrontend(SimpleFrontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
 
         if not self.visualize_graph:
             assert len(self.output_formats) == 1
@@ -625,6 +625,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
             f"{name}.tflite",
             raw=tflite_data,
             fmt=ArtifactFormat.RAW,
+            flags=["model"],
             optional=self.use_packed,
         )
         packed_artifact = Artifact(

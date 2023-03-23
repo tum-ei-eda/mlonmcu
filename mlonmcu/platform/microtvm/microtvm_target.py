@@ -28,7 +28,7 @@ from .microtvm_zephyr_target import ZephyrMicroTvmPlatformTarget
 from .microtvm_arduino_target import ArduinoMicroTvmPlatformTarget
 from .microtvm_espidf_target import EspidfMicroTvmPlatformTarget
 from .microtvm_host_target import HostMicroTvmPlatformTarget
-from .microtvm_etissvp_target import EtissvpMicroTvmPlatformTarget
+from .microtvm_etiss_target import EtissMicroTvmPlatformTarget
 from .microtvm_spike_target import SpikeMicroTvmPlatformTarget
 
 logger = get_logger()
@@ -56,7 +56,7 @@ def get_microtvm_platform_targets():
 register_microtvm_platform_target("microtvm_zephyr", ZephyrMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_arduino", ArduinoMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_host", HostMicroTvmPlatformTarget)
-register_microtvm_platform_target("microtvm_etissvp", EtissvpMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_etiss", EtissMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_espidf", EspidfMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
 

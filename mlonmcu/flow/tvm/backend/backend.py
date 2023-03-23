@@ -16,6 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import tempfile
+import tarfile
+from pathlib import Path
+from typing import Tuple
 import multiprocessing
 
 from mlonmcu.flow.backend import Backend
@@ -23,6 +27,8 @@ from mlonmcu.setup import utils
 from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
 from .model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
+from mlonmcu.target.metrics import Metrics
+from mlonmcu.artifact import Artifact, ArtifactFormat
 from .python_utils import prepare_python_environment
 from .tvmc_utils import (
     get_target_tvmc_args,
@@ -65,6 +71,7 @@ class TVMBackend(Backend):
         # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py
         "tophub_url": None,
         "num_threads": multiprocessing.cpu_count(),
+        "dump": [],  # Supports: c, relay, tir, ll
     }
 
     REQUIRED = []
@@ -205,6 +212,23 @@ class TVMBackend(Backend):
         value = self.config["tvm.use_tlcpack"]
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def dump(self):
+        value = self.config["dump"]
+        if isinstance(value, str):
+            if "," in value:
+                value = value.split(",")
+            else:
+                value = [value]
+        for v in value:
+            assert v in ["relay", "c", "ll", "tir"]
+        assert isinstance(value, list)
+        return value
+
+    @property
+    def generate_wrapper(self):
+        return self.fmt == "mlf"
+
     def num_threads(self):
         return self.config["num_threads"]
 
@@ -308,3 +332,103 @@ class TVMBackend(Backend):
 
             if self.model_info and not self.input_shapes:
                 self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+
+    def get_graph_and_params_from_mlf(self, path):
+        graph = None
+        with open(Path(path) / "executor-config" / "graph" / "default.graph", "r") as handle:
+            graph = handle.read()
+        params = None
+        with open(Path(path) / "parameters" / "default.params", "rb") as handle:
+            params = handle.read()
+
+        return graph, params
+
+    def generate(self) -> Tuple[dict, dict]:
+        artifacts = []
+        assert self.model is not None
+        dump = self.dump
+        if generate_wrapper and not self.model_info and "relay" not in dump:
+            dump.append("relay")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            out_path = Path(temp_dir) / f"{self.prefix}.tar"
+            out = self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
+            mlf_path = Path(temp_dir) / "mlf"
+            tarfile.open(out_path).extractall(mlf_path)
+            with open(mlf_path / "metadata.json", "r") as handle:
+                metadata_txt = handle.read()
+            artifacts.append(
+                Artifact(
+                    f"{self.prefix}.json",
+                    content=metadata_txt,
+                    fmt=ArtifactFormat.TEXT,
+                )
+            )
+            with open(out_path, "rb") as handle:
+                mlf_data = handle.read()
+                artifacts.append(
+                    Artifact(
+                        f"{self.prefix}.tar",
+                        raw=mlf_data,
+                        fmt=ArtifactFormat.SHARED_OBJECT if self.fmt == "so" else ArtifactFormat.MLF,
+                        archive=True,
+                    )
+                )
+            if "c" in dump:
+                with open(str(out_path) + ".c", "r") as handle:
+                    mod_src = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.c",
+                            content=mod_src,
+                            fmt=ArtifactFormat.SOURCE,
+                            optional=True,
+                        )
+                    )
+            if "relay" in dump:
+                with open(str(out_path) + ".relay", "r") as handle:
+                    mod_txt = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.relay",
+                            content=mod_txt,
+                            fmt=ArtifactFormat.TEXT,
+                            optional=True,
+                        )
+                    )
+            if "ll" in dump:
+                with open(str(out_path) + ".ll", "r") as handle:
+                    mod_txt = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.ll",
+                            content=mod_txt,
+                            fmt=ArtifactFormat.SOURCE,
+                            optional=True,
+                        )
+                    )
+            if self.executor == "graph":
+                if self.fmt == "so":
+                    raise NotImplementedError
+                elif self.fmt == "mlf":
+                    graph, params = self.get_graph_and_params_from_mlf(mlf_path)
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.graph",
+                            content=graph,
+                            fmt=ArtifactFormat.SOURCE,
+                        )
+                    )
+                    artifacts.append(
+                        Artifact(
+                            f"{self.prefix}.params",
+                            raw=params,
+                            fmt=ArtifactFormat.RAW,
+                        )
+                    )
+                else:
+                    raise RuntimeError("Unsupported fmt")
+        stdout_artifact = Artifact(
+            "tvmc_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
+        )  # TODO: rename to tvmaot_out.log?
+        artifacts.append(stdout_artifact)
+        return {"default": artifacts}, {"default": Metrics()}

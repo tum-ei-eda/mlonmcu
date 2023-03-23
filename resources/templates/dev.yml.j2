@@ -44,9 +44,9 @@ repos:
   # tvm_extensions:
   #   url: "git@github.com:tum-ei-eda/tvm_extensions.git"
   #   ref: main
-  etiss:
-    url: "git@github.com:tum-ei-eda/etiss.git"
-    ref: 40c0b920cf4072adf189211ca44291534355dcfd
+  etiss:  # TODO: wait for merge
+    url: "https://github.com/wysiwyng/etiss.git"
+    ref: 2256d90f3f62170ee58de3f59d4edea89e2ac341
   muriscvnn:
     url: "git@github.com:tum-ei-eda/muriscv-nn.git"
     ref: b954fb01ca1c1134a765bf2f1da720ab23bada34
@@ -172,13 +172,13 @@ targets:
       etissdbg: true
       trace: true
       log_instrs: true
-  etiss_pulpino:
-    enabled: true
-    features:
-      gdbserver: true
-      etissdbg: true
-      trace: true
-      log_instrs: true
+  # etiss_pulpino:
+  #   enabled: true
+  #   features:
+  #     gdbserver: true
+  #     etissdbg: true
+  #     trace: true
+  #     log_instrs: true
   host_x86:
     enabled: true
     features:

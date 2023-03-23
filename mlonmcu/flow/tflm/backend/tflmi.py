@@ -48,15 +48,17 @@ class TFLMICodegen:
         out += "}  //namespace tflite\n"
         return out
 
-    def make_op_registrations(self, ops, custom_ops):
+    def make_op_registrations(self, ops, custom_ops, reporter=True):
         out = (
             "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver(error_reporter);\n"
+            if reporter else
+            "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver;\n"
         )
         for op in ops:
             out += (
                 "  if (resolver.Add"
                 + op
-                + '() != kTfLiteOk) {\n    error_reporter->Report("Add'
+                + '() != kTfLiteOk) {\n    error_reporter->Report("Add'  # TODO: replace with new logger
                 + op
                 + '() failed");\n    exit(1);\n  }\n'
             )
@@ -70,7 +72,7 @@ class TFLMICodegen:
                 + op_name
                 + '", tflite::'
                 + op_reg
-                + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'
+                + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'  # TODO: replace with new logger
                 + op_name
                 + '() failed");\n    exit(1);\n  }\n'
             )
@@ -110,6 +112,7 @@ size_t {prefix}_outputs();
         custom_ops=None,  # TODO: implement
         registrations=None,  # TODO: implement
         ops_resolver=None,  # TODO: implement
+        reporter=True,
     ):
         arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]
         ops = ops if ops else TFLMIBackend.DEFAULTS["ops"]
@@ -248,12 +251,22 @@ private:
 
 """
         )
-        wrapper_content += self.make_op_registrations(ops, custom_ops)
-        wrapper_content += """
+        wrapper_content += self.make_op_registrations(ops, custom_ops, reporter=reporter)
+        if reporter:
+            wrapper_content += """
 
   // Build an interpreter to run the model with.
   static tflite::MicroInterpreter static_interpreter(
       model, resolver, tensor_arena, kTensorArenaSize, error_reporter);
+"""
+        else:
+            wrapper_content += """
+
+  // Build an interpreter to run the model with.
+  static tflite::MicroInterpreter static_interpreter(
+      model, resolver, tensor_arena, kTensorArenaSize);
+"""
+        wrapper_content += """
   interpreter = &static_interpreter;
 
   // Allocate memory from the tensor_arena for the model's tensors.
@@ -321,6 +334,7 @@ class TFLMIBackend(TFLMBackend):
         "registrations": {},
         "ops_resolver": "mutable",
         "legacy": False,
+        "reporter": True,  # Has to be disabled for support with latest upstream
     }
 
     REQUIRED = TFLMBackend.REQUIRED + []
@@ -348,6 +362,11 @@ class TFLMIBackend(TFLMBackend):
     @property
     def arena_size(self):
         return int(self.config["arena_size"])
+
+    @property
+    def reporter(self):
+        value = self.config["reporter"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []

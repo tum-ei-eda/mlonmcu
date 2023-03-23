@@ -22,7 +22,6 @@ from pathlib import Path
 from .backend import TVMBackend
 from mlonmcu.flow.backend import main
 from .tvmc_utils import get_tvmrt_tvmc_args
-from .model_info import get_relay_model_info
 
 
 # Warning: This is only ment to be used with the TvmPlatform!

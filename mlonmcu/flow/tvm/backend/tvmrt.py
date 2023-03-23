@@ -61,16 +61,6 @@ class TVMRTBackend(TVMBackend):
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args()
 
-    def get_graph_and_params_from_mlf(self, path):
-        graph = None
-        with open(Path(path) / "executor-config" / "graph" / "default.graph", "r") as handle:
-            graph = handle.read()
-        params = None
-        with open(Path(path) / "parameters" / "default.params", "rb") as handle:
-            params = handle.read()
-
-        return graph, params
-
     def generate(self) -> Tuple[dict, dict]:
         artifacts, metrics = super().generate()
         assert len(artifacts) == 1 and "default" in artifacts
@@ -80,9 +70,13 @@ class TVMRTBackend(TVMBackend):
         if self.generate_wrapper:
             workspace_size = self.arena_size
             assert workspace_size >= 0
-            graph, params = self.get_graph_and_params_from_mlf(mlf_path)
+            graph_artifact = lookup_artifacts(artifacts, f"{self.prefix}.graph")[0]
+            graph = graph_artifact.content
+            params_artifact = lookup_artifacts(artifacts, f"{self.prefix}.params")[0]
+            params = params_artifact.raw
             if not self.model_info:
-                self.model_info = get_relay_model_info(mod_txt)
+                relay_artifact = lookup_artifacts(artifacts, f"{self.prefix}.relay")[0]
+                self.model_info = get_relay_model_info(relay_artifact.content)
             wrapper_src = generate_tvmrt_wrapper(
                 graph, params, self.model_info, workspace_size, debug_arena=self.debug_arena
             )

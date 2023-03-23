@@ -18,19 +18,10 @@
 #
 """MLonMCU ETISS/Pulpino Target definitions"""
 
-import os
-import re
-import csv
-from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool, str2list
-from mlonmcu.artifact import Artifact, ArtifactFormat
-from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.common import cli, execute
-from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.common import cli
 from .etiss import EtissTarget
-from .util import update_extensions
 
 logger = get_logger()
 

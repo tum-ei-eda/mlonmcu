@@ -358,7 +358,6 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
 
         # pick best records
         def _pick_best(backend, records, verbose=False):
-            content_best = ""
             with tempfile.TemporaryDirectory() as tmp_dir:
                 in_file = Path(tmp_dir) / "tuning_results.log.txt"
                 with open(in_file, "w") as handle:
@@ -431,7 +430,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                                 out = self.invoke_tvmc("tune", *tune_args, "--task", str(idx))
                                 with open(out_file, "r") as handle:
                                     content = handle.read()
-                                content_best = _pick_best(backend, content, verbose=verbose)
+                                # content_best = _pick_best(backend, content, verbose=verbose)
                                 sub_trials = len(remove_empty(content.split("\n")))
                                 sub_failed_trials = count_failed_trials(content)
                                 t1 = time.time()

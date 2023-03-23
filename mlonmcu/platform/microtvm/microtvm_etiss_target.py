@@ -18,6 +18,7 @@
 #
 from pathlib import Path
 
+from mlonmcu.config import str2bool
 from mlonmcu.target.target import Target
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 

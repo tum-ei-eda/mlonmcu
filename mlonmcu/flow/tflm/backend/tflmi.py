@@ -20,7 +20,7 @@ import sys
 from typing import Tuple
 
 from .backend import TFLMBackend
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -115,13 +115,6 @@ size_t {prefix}_outputs();
         reporter=True,
     ):
         arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]
-        ops = ops if ops else TFLMIBackend.DEFAULTS["ops"]
-        if not isinstance(ops, list):
-            assert isinstance(ops, str)
-            if "," in ops:
-                ops = ops.split(",")
-            else:
-                ops = [ops]
         if len(ops) > 0:
 
             def convert_op_name(op):
@@ -144,15 +137,10 @@ size_t {prefix}_outputs();
 
             op_names = list(map(convert_op_name, ops))
             ops = op_names
-        custom_ops = custom_ops if custom_ops else TFLMIBackend.DEFAULTS["custom_ops"]
         if len(custom_ops) > 0:
             raise NotImplementedError
-        registrations = (
-            registrations if registrations else TFLMIBackend.DEFAULTS["registrations"]
-        )  # TODO: Dict or list?
         if len(registrations) > 0:
             raise NotImplementedError
-        ops_resolver = ops_resolver if ops_resolver else TFLMIBackend.DEFAULTS["ops_resolver"]
         if ops_resolver != "mutable":
             raise NotImplementedError
 
@@ -166,10 +154,12 @@ size_t {prefix}_outputs();
         wrapper_content = """
 // This file is generated. Do not edit.
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/schema/schema_generated.h"
+"""
+        if reporter:
+            wrapper_content += """#include "tensorflow/lite/micro/micro_error_reporter.h"
 """
         if legacy:
             wrapper_content += """#include "tensorflow/lite/version.h"
@@ -364,6 +354,25 @@ class TFLMIBackend(TFLMBackend):
         return int(self.config["arena_size"])
 
     @property
+    def ops(self):
+        value = self.config["ops"]
+        return str2list(value) if isinstance(value, str) else value
+
+    @property
+    def custom_ops(self):
+        value = self.config["custom_ops"]
+        return str2list(value) if isinstance(value, str) else value
+
+    @property
+    def registrations(self):
+        value = self.config["registrations"]
+        return str2list(value) if isinstance(value, str) else value
+
+    @property
+    def ops_resolver(self):
+        return self.config["ops_resolver"]
+
+    @property
     def reporter(self):
         value = self.config["reporter"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -371,12 +380,18 @@ class TFLMIBackend(TFLMBackend):
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
-        config_map = {key.split(".")[-1]: value for key, value in self.config.items()}
         wrapper_code, header_code = self.codegen.generate_wrapper(
             self.model,
             prefix=self.prefix,
             header=True,
-            **config_map,
+            arena_size=self.arena_size,
+            debug_arena=self.debug_arena,
+            ops=self.ops,
+            custom_ops=self.custom_ops,
+            registrations=self.registrations,
+            ops_resolver=self.ops_resolver,
+            legacy=self.legacy,
+            reporter=self.reporter,
         )
         artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE))
         artifacts.append(

@@ -347,7 +347,7 @@ class TVMBackend(Backend):
         artifacts = []
         assert self.model is not None
         dump = self.dump
-        if generate_wrapper and not self.model_info and "relay" not in dump:
+        if self.generate_wrapper and not self.model_info and "relay" not in dump:
             dump.append("relay")
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"

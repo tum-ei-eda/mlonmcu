@@ -87,14 +87,17 @@ class TVMAOTBackend(TVMBackend):
         artifacts = artifacts["default"]
         assert len(metrics) == 1 and "default" in metrics
         metrics = metrics["default"]
-        if generate_wrapper:
+        if self.generate_wrapper:
             if self.arena_size is not None:
                 assert self.arena_size >= 0
                 workspace_size = self.arena_size
             else:
+                metadata_artifact = lookup_artifacts(artifacts, f"{self.prefix}.json")[0]
+                metadata = json.loads(metadata_artifact.content)
                 workspace_size = self.get_workspace_size_from_metadata(metadata)
             if not self.model_info:
-                self.model_info = get_relay_model_info(mod_txt)
+                relay_artifact = lookup_artifacts(artifacts, f"{self.prefix}.relay")[0]
+                self.model_info = get_relay_model_info(relay_artifact.content)
             wrapper_src = generate_tvmaot_wrapper(
                 self.model_info,
                 workspace_size,

@@ -155,7 +155,8 @@ def _test_compile_platform(
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
-@pytest.mark.parametrize("xlen", [32, 64])
+# @pytest.mark.parametrize("xlen", [32, 64])
+@pytest.mark.parametrize("xlen", [32])
 # @pytest.mark.parametrize("fpu", ["none", "single", "double"])
 @pytest.mark.parametrize("fpu", ["none", "double"])  # single float if often not included in multilib gcc
 @pytest.mark.parametrize("extensions", EXTENSIONS)

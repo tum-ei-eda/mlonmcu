@@ -34,7 +34,7 @@ MODEL_FRONTENDS = {
 TARGET_PLATFORMS = {
     "host_x86": "mlif",
     "corstone300": "mlif",
-    "etiss_pulpino": "mlif",
+    "etiss": "mlif",
     "spike": "mlif",
     "ovpsim": "mlif",
     "riscv_qemu": "mlif",
@@ -42,7 +42,7 @@ TARGET_PLATFORMS = {
     "microtvm_host": "microtvm",
     "microtvm_spike": "microtvm",
     "microtvm_espidf": "microtvm",
-    "microtvm_etissvp": "microtvm",
+    "microtvm_etiss": "microtvm",
     "microtvm_zephyr": "microtvm",
     "microtvm_arduino": "microtvm",
 }
@@ -56,9 +56,9 @@ ALL_BACKENDS = ["tflmi", "tflmc", "tvmaot", "tvmaotplus", "tvmrt", "tvmcg"]
 DEFAULT_COMPILE_PLATFORMS = ["mlif", "espidf"]
 ALL_COMPILE_PLATFORMS = ["mlif", "espidf", "zephyr"]
 
-# DEFAULT_MLIF_TARGETS = ["host_x86", "etiss_pulpino", "spike", "ovpsim", "corstone300"]
-DEFAULT_MLIF_TARGETS = ["host_x86", "etiss_pulpino", "spike", "corstone300"]
-ALL_MLIF_TARGETS = ["host_x86", "etiss_pulpino", "spike", "ovpsim", "corstone300", "riscv_qemu"]
+# DEFAULT_MLIF_TARGETS = ["host_x86", "etiss", "spike", "ovpsim", "corstone300"]
+DEFAULT_MLIF_TARGETS = ["host_x86", "etiss", "spike", "corstone300"]
+ALL_MLIF_TARGETS = ["host_x86", "etiss", "spike", "ovpsim", "corstone300", "riscv_qemu"]
 
 DEFAULT_ESPIDF_TARGETS = ["esp32", "esp32c3"]
 # ALL_ESPIDF_TARGETS = [] # TODO
@@ -68,8 +68,8 @@ VEXT_TARGETS = ["spike", "ovpsim", "riscv_qemu"]  # TODO: etiss
 # Spike PEXT support (0.92) is outdated compared to ovpsim (0.96)
 PEXT_TARGETS = ["ovpsim"]  # TODO: etiss, spike
 
-# RISCV_TARGETS = ["spike", "etiss_pulpino", "ovpsim"]
-RISCV_TARGETS = ["spike", "etiss_pulpino", "ovpsim", "riscv_qemu"]
+# RISCV_TARGETS = ["spike", "etiss", "ovpsim"]
+RISCV_TARGETS = ["spike", "etiss", "ovpsim", "riscv_qemu"]
 
 ARM_MVEI_TARGETS = ["corstone300"]
 ARM_DSP_TARGETS = ["corstone300"]
@@ -554,7 +554,7 @@ def test_feature_debug_arena(
     ["aww"],
 )  # TODO: add test model for this, also test with wrong data
 @pytest.mark.parametrize("backend_name", ["tflmi", "tvmaot"])
-@pytest.mark.parametrize("target_name", ["etiss_pulpino"])
+@pytest.mark.parametrize("target_name", ["etiss"])
 @pytest.mark.parametrize("feature_names", [["validate", "debug"]])  # currently validate does not imply debug
 @pytest.mark.parametrize("config", [{}])
 def test_feature_validate(user_context, model_name, backend_name, target_name, models_dir, feature_names, config):
@@ -974,11 +974,11 @@ def test_feature_arm_dsp(
 @pytest.mark.parametrize(
     "backend_name", ["tflmi"]  # -> add tvm if we have a test model for this
 )  # TODO: Single backend would be fine, but it has to be enabled
-@pytest.mark.parametrize("target_name", ["etiss_pulpino"])
+@pytest.mark.parametrize("target_name", ["etiss"])
 @pytest.mark.parametrize(
     "platform_name", ["mlif"]
 )  # If we would rename host_x86 to linux we could also use espidf here?
-@pytest.mark.parametrize("feature_names", [["etissdbg"]])  # This is not etiss_pulpino.verbose=1!!!
+@pytest.mark.parametrize("feature_names", [["etissdbg"]])  # This is not etiss.verbose=1!!!
 @pytest.mark.parametrize("config", [{}])
 def test_feature_etissdbg(
     user_context, frontend_name, model_name, backend_name, target_name, platform_name, models_dir, feature_names, config
@@ -1024,7 +1024,7 @@ def test_feature_etissdbg(
 @pytest.mark.parametrize(
     "backend_name", ["tflmi"]  # -> add tvm if we have a test model for this
 )  # TODO: Single backend would be fine, but it has to be enabled
-@pytest.mark.parametrize("target_name", ["etiss_pulpino"])
+@pytest.mark.parametrize("target_name", ["etiss"])
 @pytest.mark.parametrize(
     "platform_name", ["mlif"]
 )  # If we would rename host_x86 to linux we could also use espidf here?

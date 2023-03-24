@@ -105,8 +105,6 @@ class AraTarget(RISCVTarget):
         exts = super().extensions
         return update_extensions(
             exts,
-            pext=self.enable_pext,
-            pext_spec=self.pext_spec,
             vext=self.enable_vext,
             elen=self.elen,
             embedded=self.embedded_vext,

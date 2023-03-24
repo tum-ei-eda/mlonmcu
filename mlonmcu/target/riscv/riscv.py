@@ -65,14 +65,6 @@ class RISCVTarget(Target):
         return Path(self.config["pulp_gcc.name"])
 
     @property
-    def ara_gcc_basename(self):
-        return Path(self.config["ara_gcc.name"])
-
-    @property
-    def ara_gcc_prefix(self):
-        return Path(self.config["ara_gcc.install_dir"])
-
-    @property
     def gcc_variant(self):
         return self.config["riscv_gcc.variant"]
 

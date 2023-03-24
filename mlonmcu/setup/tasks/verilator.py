@@ -112,7 +112,7 @@ def build_verilator(
 def install_verilator(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
-    """Build the verilator simulator."""
+    """Install the verilator simulator."""
     if not params:
         params = {}
     flags = utils.makeFlags()

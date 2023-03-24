@@ -40,6 +40,7 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
         context.environment.has_target("etiss_pulpino")
         or context.environment.has_target("spike")
         or context.environment.has_target("ovpsim")
+        or context.environment.has_target("ara")
     ):
         return False
     if params:

@@ -51,8 +51,8 @@ class AraTarget(RISCVTarget):
         "elen": 64,
     }
 
-    REQUIRED = RISCVTarget.ARA_GCC_TOOLCHAIN_REQUIRED + [
-        "ara.src_dir",  # for dsp
+    REQUIRED = RISCVTarget.REQUIRED + [
+        "ara.src_dir",  # for the bsp package
         "verilator.install_dir",  # for simulation
     ]
 

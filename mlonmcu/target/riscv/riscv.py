@@ -46,11 +46,6 @@ class RISCVTarget(Target):
     }
     REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"]
     PUPL_GCC_TOOLCHAIN_REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]  # TODO elegant handle customized toolchain
-    ARA_GCC_TOOLCHAIN_REQUIRED = [
-        "ara_gcc.install_dir",
-        "ara_gcc.name",
-        "riscv_gcc.variant",
-    ]  # TODO elegant handle customized toolchain
     OPTIONAL = ["llvm.install_dir"]
 
     @property
@@ -177,9 +172,6 @@ class RISCVTarget(Target):
         elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        elif "ara_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the ara_gcc toolchain
-            ret["RISCV_ELF_GCC_PREFIX"] = self.ara_gcc_prefix
-            ret["RISCV_ELF_GCC_BASENAME"] = self.ara_gcc_basename
         ret["RISCV_ARCH"] = self.arch
         ret["RISCV_ABI"] = self.abi
         ret["RISCV_ATTR"] = self.attr  # TODO: use for clang

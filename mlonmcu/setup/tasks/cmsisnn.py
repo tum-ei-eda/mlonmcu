@@ -57,7 +57,7 @@ def clone_cmsisnn(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
     """CMSIS-NN repository."""
-    cmsisName = utils.makeDirName("cmsis")
+    cmsisName = utils.makeDirName("cmsisnn")
     cmsisnnSrcDir = Path(context.environment.paths["deps"].path) / "src" / cmsisName
     if rebuild or not utils.is_populated(cmsisnnSrcDir):
         cmsisnnRepo = context.environment.repos["cmsisnn"]

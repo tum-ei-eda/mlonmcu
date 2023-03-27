@@ -190,7 +190,7 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
         **FeatureBase.DEFAULTS,
     }
 
-    REQUIRED = ["cmsisnn.dir"]
+    REQUIRED = ["cmsisnn.dir", "cmsis.dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__("cmsisnn", features=features, config=config)
@@ -198,6 +198,10 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
     @property
     def cmsisnn_dir(self):
         return str(self.config["cmsisnn.dir"])
+
+    @property
+    def cmsis_dir(self):
+        return str(self.config["cmsis.dir"])
 
     def add_framework_config(self, framework, config):
         assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
@@ -213,6 +217,7 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             "CMSISNN": self.enabled,
+            "CMSIS_DIR": self.cmsis_dir,
             "CMSISNN_DIR": self.cmsisnn_dir,
         }
 

@@ -91,7 +91,7 @@ def get_matching_features(features, feature_type):
     return [feature for feature in features if feature_type in feature.types()]
 
 
-@register_feature("debug_arena")
+@register_feature("debug_arena", depends=["debug"])
 class DebugArena(BackendFeature):
     """Enable verbose printing of arena usage for debugging."""
 
@@ -108,7 +108,7 @@ class DebugArena(BackendFeature):
         return {f"{backend}.debug_arena": self.enabled}
 
 
-@register_feature("validate")
+@register_feature("validate", depends=["debug"])
 class Validate(FrontendFeature, PlatformFeature):
     """Enable validaton of inout and output tensors."""
 

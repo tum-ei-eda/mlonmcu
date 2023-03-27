@@ -498,8 +498,13 @@ class Run:
         features = []
         for feature_name in feature_names:
             available_features = get_available_features(feature_name=feature_name, deps=True)
-            for feature_cls in available_features:
-                features.append(self.init_component(feature_cls, context=context))
+            # check for already added features
+            temp = self.features + features if append else features
+            added_names = [f.name for f in temp]
+            for feature_name_, feature_cls_ in available_features.items():
+                if feature_name_ in added_names:
+                    continue
+                features.append(self.init_component(feature_cls_, context=context))
         self.add_features(features, append=append)
 
     def __repr__(self):

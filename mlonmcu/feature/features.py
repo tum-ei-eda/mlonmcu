@@ -78,12 +78,12 @@ def get_available_features(feature_type=None, feature_name=None, deps=False):
     """Utility for looking up features."""
     names = get_available_feature_names(feature_type=feature_type)
     names = [name for name in names if feature_name is None or name == feature_name]
-    ret = []
+    ret = {}
     if deps:
         for name in names:
             names = list(set(names + FEATURE_DEPS[name]))
     for name in names:
-        ret.append(REGISTERED_FEATURES[name])
+        ret[name] = REGISTERED_FEATURES[name]
     return ret
 
 

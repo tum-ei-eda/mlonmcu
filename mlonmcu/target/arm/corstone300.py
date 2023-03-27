@@ -52,7 +52,9 @@ class Corstone300Target(Target):
     }
     REQUIRED = [
         "corstone300.exe",
+        "cmsis.dir",
         "cmsisnn.dir",
+        "ethosu_platform.dir",
         "arm_gcc.install_dir",
     ]  # Actually cmsisnn.dir points to the root CMSIS_5 directory
 
@@ -96,8 +98,16 @@ class Corstone300Target(Target):
         return str(self.config["arm_gcc.install_dir"])
 
     @property
+    def cmsis_dir(self):
+        return Path(self.config["cmsis.dir"])
+
+    @property
     def cmsisnn_dir(self):
         return Path(self.config["cmsisnn.dir"])
+
+    @property
+    def ethosu_platform_dir(self):
+        return Path(self.config["ethosu_platform.dir"])
 
     @property
     def extra_args(self):
@@ -201,7 +211,9 @@ class Corstone300Target(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        ret["CMSIS_PATH"] = self.cmsisnn_dir
+        ret["CMSIS_DIR"] = self.cmsis_dir
+        ret["CMSISNN_DIR"] = self.cmsisnn_dir
+        ret["ETHOSU_PLATFORM_DIR"] = self.ethosu_platform_dir
         ret["ARM_COMPILER_PREFIX"] = self.gcc_prefix
         cpu, float_abi, fpu = resolve_cpu_features(
             self.model, enable_fp=self.enable_fpu, enable_dsp=self.enable_dsp, enable_mve=self.enable_mvei

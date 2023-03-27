@@ -82,3 +82,22 @@ def clone_cmsis(
         cmsisRepo = context.environment.repos["cmsis"]
         utils.clone(cmsisRepo.url, cmsisSrcDir, branch=cmsisRepo.ref, refresh=rebuild)
     context.cache["cmsis.dir"] = cmsisSrcDir
+
+
+def _validate_ethosu_platform(context: MlonMcuContext, params=None):
+    return context.environment.has_target("corstone300")
+
+
+@Tasks.provides(["ethosu_platform.dir"])
+@Tasks.validate(_validate_ethosu_platform)
+@Tasks.register(category=TaskType.MISC)
+def clone_ethosu_platform(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """EthosU platform repository."""
+    ethosuPlatformName = utils.makeDirName("ethosu_platform")
+    ethosuPlatformSrcDir = Path(context.environment.paths["deps"].path) / "src" / ethosuPlatformName
+    if rebuild or not utils.is_populated(ethosuPlatformSrcDir):
+        ethosuPlatformRepo = context.environment.repos["ethosu_platform"]
+        utils.clone(ethosuPlatformRepo.url, ethosuPlatformSrcDir, branch=ethosuPlatformRepo.ref, refresh=rebuild)
+    context.cache["ethosu_platform.dir"] = ethosuPlatformSrcDir

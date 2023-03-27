@@ -135,8 +135,8 @@ def add_common_options(parser: argparse.ArgumentParser, target):
 def init_target_features(names, config):
     features = []
     for name in names:
-        feature_classes = get_available_features(feature_type=FeatureType.TARGET, feature_name=name)
-        for feature_class in feature_classes:
+        avail_features = get_available_features(feature_type=FeatureType.TARGET, feature_name=name)
+        for feature_class in avail_features.values():
             features.append(feature_class(config=config))
     return features
 

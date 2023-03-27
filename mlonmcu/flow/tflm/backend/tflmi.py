@@ -55,27 +55,45 @@ class TFLMICodegen:
             else "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver;\n"
         )
         for op in ops:
-            out += (
-                "  if (resolver.Add"
-                + op
-                + '() != kTfLiteOk) {\n    error_reporter->Report("Add'  # TODO: replace with new logger
-                + op
-                + '() failed");\n    exit(1);\n  }\n'
-            )
+            if reporter:
+                out += (
+                    "  if (resolver.Add"
+                    + op
+                    + '() != kTfLiteOk) {\n    error_reporter->Report("Add'  # TODO: replace with new logger
+                    + op
+                    + '() failed");\n    exit(1);\n  }\n'
+                )
+            else:
+                # TODO
+                out += (
+                    "  if (resolver.Add"
+                    + op
+                    + '() != kTfLiteOk) {\n    exit(1);\n  }\n'
+                )
         for op in custom_ops:
             op_name = op
             op_reg = op
             if "|" in op:
                 op_name, op_reg = op.split("|")[:2]
-            out += (
-                '  if (resolver.AddCustom("'
-                + op_name
-                + '", tflite::'
-                + op_reg
-                + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'  # TODO: replace with new logger
-                + op_name
-                + '() failed");\n    exit(1);\n  }\n'
-            )
+            if reporter:
+                out += (
+                    '  if (resolver.AddCustom("'
+                    + op_name
+                    + '", tflite::'
+                    + op_reg
+                    + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'  # TODO: replace with new logger
+                    + op_name
+                    + '() failed");\n    exit(1);\n  }\n'
+                )
+            else:
+                # TODO
+                out += (
+                    '  if (resolver.AddCustom("'
+                    + op_name
+                    + '", tflite::'
+                    + op_reg
+                    + '()) != kTfLiteOk) {\n    exit(1);\n  }\n'
+                )
         return out
 
     def generate_header(self, prefix="model"):
@@ -189,7 +207,12 @@ size_t {prefix}_outputs();
         wrapper_content += """
 
 namespace {
+"""
+        if reporter:
+            wrapper_content += """
 tflite::ErrorReporter *error_reporter = nullptr;
+"""
+        wrapper_content += """
 const tflite::Model *model = nullptr;
 tflite::MicroInterpreter *interpreter = nullptr;
 
@@ -212,26 +235,33 @@ private:
 } // namespace
 
 // The name of this function is important for Arduino compatibility.
-"""
-            + f"void {prefix}_init() {{"
-            + """
+""" + f"void {prefix}_init() {{" + """
   // Set up logging. Google style is to avoid globals or statics because of
   // lifetime uncertainty, but since this has a trivial destructor it's okay.
   // NOLINTNEXTLINE(runtime-global-variables)
+""")
+        if reporter:
+            wrapper_content += """
 #ifdef _DEBUG
   static tflite::MicroErrorReporter micro_error_reporter;
 #else
   static DummyReporter micro_error_reporter;
 #endif
   error_reporter = &micro_error_reporter;
-
+"""
+        wrapper_content += """
   // Map the model into a usable data structure. This doesn't involve any
   // copying or parsing, it's a very lightweight operation.
   model = tflite::GetModel(g_model_data);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
+"""
+        if reporter:
+            wrapper_content += """
     error_reporter->Report("Model provided is schema version %d not equal "
                            "to supported version %d.",
                            model->version(), TFLITE_SCHEMA_VERSION);
+"""
+        wrapper_content += """
     exit(1);
   }
 
@@ -240,7 +270,7 @@ private:
   // static tflite::ops::micro::AllOpsResolver resolver;
 
 """
-        )
+
         wrapper_content += self.make_op_registrations(ops, custom_ops, reporter=reporter)
         if reporter:
             wrapper_content += """
@@ -262,7 +292,12 @@ private:
   // Allocate memory from the tensor_arena for the model's tensors.
   TfLiteStatus allocate_status = interpreter->AllocateTensors();
   if (allocate_status != kTfLiteOk) {
+"""
+        if reporter:
+            wrapper_content += """
     error_reporter->Report("AllocateTensors() failed");
+"""
+        wrapper_content += """
     exit(1);
   }
 }
@@ -297,14 +332,26 @@ void {prefix}_invoke() {{
   // Run inference, and report any error
   TfLiteStatus invoke_status = interpreter->Invoke();
   if (invoke_status != kTfLiteOk) {{
+"""
+        if reporter:
+            # TODO
+            wrapper_content += """
     error_reporter->Report("Invoke failed\\n");
+"""
+        wrapper_content += """
     exit(1);
-  }}
+  }
 #if DEBUG_ARENA_USAGE
   size_t used = interpreter->arena_used_bytes();
+"""
+        if reporter:
+            # TODO
+            wrapper_content += """
   error_reporter->Report("Arena Usage after model invocation: %d bytes\\n", used);
+"""
+        wrapper_content += """
 #endif  // DEBUG_ARENA_USAGE
-}}
+}
 """
         if header:
             return wrapper_content, header_content
@@ -326,7 +373,7 @@ class TFLMIBackend(TFLMBackend):
         "registrations": {},
         "ops_resolver": "mutable",
         "legacy": False,
-        "reporter": True,  # Has to be disabled for support with latest upstream
+        "reporter": False,  # Has to be disabled for support with latest upstream
     }
 
     REQUIRED = TFLMBackend.REQUIRED + []

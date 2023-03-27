@@ -280,7 +280,7 @@ class MlonMcuContext:
         elif deps_lock == "write":
             self.deps_lock = WriteFileLock(os.path.join(self.environment.home, ".deps_lock"))
         self.latest_session_link_lock = filelock.FileLock(
-            os.path.join(self.environment.home, ".latest_session_link_lock_lock")
+            os.path.join(self.environment.home, ".latest_session_link_lock")
         )
         self.sessions = load_recent_sessions(self.environment)
         if self.environment.defaults.cleanup_auto:

@@ -68,7 +68,7 @@ ADD . /mlonmcu
 WORKDIR /mlonmcu
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
-RUN ./scripts/update_version.py
+RUN ./scripts/update_version.sh
 RUN pip3 install .
 CMD mlonmcu
 

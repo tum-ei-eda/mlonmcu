@@ -36,7 +36,7 @@ class MyRISCVTarget(RISCVTarget):
         "elen": 32,
     }
 
-    def __init__(self, name="myriscv", features=None, config=None):
+    def __init__(self, name="myriscv2", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
     @property
@@ -101,7 +101,7 @@ class MyRISCVTarget(RISCVTarget):
         return ret
 
 
-register_target("myriscv", MyRISCVTarget)
+register_target("myriscv2", MyRISCVTarget)
 # TODO: pass by cls instead of name
 
 

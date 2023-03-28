@@ -232,7 +232,7 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
     }
 
-    REQUIRED = ["cmsisnn.dir"]
+    REQUIRED = ["cmsisnn.dir", "cmsis.dir"]
 
     def __init__(self, features=None, config=None):
         super().__init__("cmsisnnbyoc", features=features, config=config)
@@ -240,6 +240,10 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     @property
     def cmsisnn_dir(self):
         return str(self.config["cmsisnn.dir"])
+
+    @property
+    def cmsis_dir(self):
+        return str(self.config["cmsis.dir"])
 
     @property
     def mcpu(self):
@@ -261,6 +265,7 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             "CMSISNN": self.enabled,
+            "CMSIS_DIR": self.cmsis_dir,
             "CMSISNN_DIR": self.cmsisnn_dir,
         }
 

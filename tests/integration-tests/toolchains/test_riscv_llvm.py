@@ -156,14 +156,14 @@ def _test_compile_platform(
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
 @pytest.mark.parametrize("xlen", [32, 64])
-# @pytest.mark.parametrize("xlen", [32])
 # @pytest.mark.parametrize("fpu", ["none", "single", "double"])
-@pytest.mark.parametrize("fpu", ["none", "double"])  # single float if often not included in multilib gcc
+@pytest.mark.parametrize("fpu", ["none", "single", "double"])
 @pytest.mark.parametrize("extensions", EXTENSIONS)
 @pytest.mark.parametrize("feature_names", [[], ["muriscvnn"]])
 def test_default(model_name, xlen, fpu, extensions, feature_names, user_context, models_dir):
     # config = {"myriscv.xlen": xlen, "myriscv.extensions": extensions, "myriscv.fpu": fpu}
-    config = {"myriscv.xlen": xlen, "myriscv.extensions": extensions, "myriscv.fpu": fpu, "mlif.print_outputs": True}
+    # TODO: check if llvm available?
+    config = {"myriscv.xlen": xlen, "myriscv.extensions": extensions, "myriscv.fpu": fpu, "mlif.print_outputs": True, "mlif.toolchain": "llvm"}
     _, artifacts = _test_compile_platform(
         "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
     )
@@ -180,10 +180,10 @@ def test_default(model_name, xlen, fpu, extensions, feature_names, user_context,
 @pytest.mark.parametrize("fpu", ["none", "single"])
 @pytest.mark.parametrize("extensions", EXTENSIONS)
 @pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
-# @pytest.mark.parametrize("feature_names", [["vext"]])
 def test_embedded_vector_32bit(model_name, vlen, elen, spec, fpu, extensions, feature_names, user_context, models_dir):
     if elen == 32:
         pytest.skip(f"ELEN 32 not supported due to compiler bug")
+
     config = {
         "myriscv.xlen": 32,
         "myriscv.extensions": extensions,
@@ -192,6 +192,7 @@ def test_embedded_vector_32bit(model_name, vlen, elen, spec, fpu, extensions, fe
         "vext.elen": elen,
         "vext.spec": spec,
         "vext.embedded": True,
+        "mlif.toolchain": "llvm",
     }
     _, artifacts = _test_compile_platform(
         "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
@@ -208,7 +209,6 @@ def test_embedded_vector_32bit(model_name, vlen, elen, spec, fpu, extensions, fe
 @pytest.mark.parametrize("fpu", ["none", "single", "double"])
 @pytest.mark.parametrize("extensions", EXTENSIONS)
 @pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
-# @pytest.mark.parametrize("feature_names", [["vext"]])
 def test_embedded_vector_64bit(model_name, vlen, elen, spec, fpu, extensions, feature_names, user_context, models_dir):
     if elen == 32:
         pytest.skip(f"ELEN 32 not supported due to compiler bug")
@@ -223,6 +223,7 @@ def test_embedded_vector_64bit(model_name, vlen, elen, spec, fpu, extensions, fe
         "vext.elen": elen,
         "vext.spec": spec,
         "vext.embedded": True,
+        "mlif.toolchain": "llvm",
     }
     _, artifacts = _test_compile_platform(
         "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
@@ -247,6 +248,7 @@ def test_embedded_vector_64bit(model_name, vlen, elen, spec, fpu, extensions, fe
 #         "vext.elen": 64,
 #         "vext.spec": spec,
 #         "vext.embedded": False,
+#         "mlif.toolchain": "llvm",
 #     }
 #     _, artifacts = _test_compile_platform(
 #         "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
@@ -276,27 +278,3 @@ def test_vector_64bit(model_name, vlen, spec, fpu, extensions, feature_names, us
     _, artifacts = _test_compile_platform(
         "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
     )
-
-
-@pytest.mark.slow
-@pytest.mark.user_context
-@pytest.mark.parametrize("model_name", MODELS)
-@pytest.mark.parametrize("xlen", [32, 64])
-@pytest.mark.parametrize("spec", [0.96])
-# @pytest.mark.parametrize("fpu", ["none", "single", "double"])
-@pytest.mark.parametrize("fpu", ["none", "double"])  # single float if often not included in multilib gcc
-@pytest.mark.parametrize("extensions", EXTENSIONS)
-@pytest.mark.parametrize("feature_names", [["pext"], ["pext", "muriscvnn"]])
-def test_packed(model_name, xlen, spec, fpu, extensions, feature_names, user_context, models_dir):
-    config = {
-        "myriscv.xlen": xlen,
-        "myriscv.extensions": extensions,
-        "myriscv.fpu": fpu,
-        "pext.spec": spec,
-    }
-    _, artifacts = _test_compile_platform(
-        "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
-    )
-
-
-# def test_vector_packed():

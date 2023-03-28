@@ -79,9 +79,12 @@ class RISCVTarget(Target):
             exts = exts.split(",")
         if "g" not in exts:
             required = []
+            if self.fpu in ["single", "double"]:
+                required.append("zicsr")
             if self.fpu == "double":
                 required.append("d")
                 required.append("f")
+                required.append("zifencei")
             if self.fpu == "single":
                 required.append("f")
             for ext in required:

@@ -46,10 +46,11 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
     use_tlcpack = user_vars.get("tvm.use_tlcpack", False)
     patch = bool(params.get("patch", False))
-    cmsisnn = bool(params.get("cmsisnn", False))
-    if cmsisnn:
-        if not (context.environment.has_feature("cmsisnnbyoc") or context.environment.has_feature("muriscvnnbyoc")):
-            return False
+    # There is not good reason to build without cmsisnn
+    # cmsisnn = bool(params.get("cmsisnn", False))
+    # if cmsisnn:
+    #     if not (context.environment.has_feature("cmsisnnbyoc") or context.environment.has_feature("muriscvnnbyoc")):
+    #         return False
     if patch:
         if not context.environment.has_feature("disable_legalize"):
             return False
@@ -91,7 +92,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 @Tasks.needs(["tvm.src_dir", "llvm.install_dir"])
 @Tasks.provides(["tvm.build_dir", "tvm.lib"])
 @Tasks.param("dbg", False)
-@Tasks.param("cmsisnn", [False, True])
+@Tasks.param("cmsisnn", [True])  # There is no good reason to build without cmsisnn
 @Tasks.validate(_validate_tvm_build)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):

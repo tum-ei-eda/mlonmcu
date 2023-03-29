@@ -210,7 +210,7 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             return {
                 # "target_device": "riscv_cpu",
                 # "target_march": "TODO",
-                "target_model": "spike",
+                "target_model": f"spike-{self.arch}",
                 "target_mtriple": self.riscv_gcc_name,
                 # "target_mabi": "ilp32d",
                 # "target_mattr": self.mattr,

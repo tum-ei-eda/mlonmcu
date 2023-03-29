@@ -13,7 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarget, GvsocPulpTarget, EtissTarget, AraTarget
+from .riscv import (
+    EtissPulpinoTarget,
+    SpikeTarget,
+    OVPSimTarget,
+    RiscvQemuTarget,
+    GvsocPulpTarget,
+    EtissTarget,
+    AraTarget,
+)
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
 

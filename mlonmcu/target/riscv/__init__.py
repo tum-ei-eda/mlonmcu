@@ -6,4 +6,12 @@ from .riscv_qemu import RiscvQemuTarget
 from .gvsoc_pulp import GvsocPulpTarget
 from .ara import AraTarget
 
-__all__ = ["EtissPulpinoTarget", "EtissTarget", "SpikeTarget", "OVPSimTarget", "RiscvQemuTarget", "GvsocPulpTarget", "AraTarget"]
+__all__ = [
+    "EtissPulpinoTarget",
+    "EtissTarget",
+    "SpikeTarget",
+    "OVPSimTarget",
+    "RiscvQemuTarget",
+    "GvsocPulpTarget",
+    "AraTarget",
+]

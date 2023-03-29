@@ -56,6 +56,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update package version
+        run: |
+          ./scripts/update_version.sh
       - name: Lowercase repository url
         id: lowered
         uses: ASzc/change-string-case-action@v5

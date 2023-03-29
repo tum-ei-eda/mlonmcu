@@ -35,7 +35,11 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     DEFAULTS = {
         **TemplateMicroTvmPlatformTarget.DEFAULTS,
+        # "verbose": False,
+        # "quiet": True,
         "verbose": True,
+        "quiet": False,
+        "workspace_size_bytes": None,
         "arch": "rv32gc",
         "abi": None,
         "spike_extra_args": None,
@@ -54,23 +58,23 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "riscv_gcc.name",
         "riscv_gcc.install_dir",
         "riscv_gcc.variant",
-        "tvm.src_dir",
+        "microtvm_spike.src_dir",
     ]
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
-        self.template_path = self.tvm_src_dir / "apps" / "microtvm" / "spike"
+        self.template_path = self.microtvm_spike_src_dir / "template_project"
         # TODO: interate into TVM build config
         self.option_names = [
             "verbose",
-            "spike_exe",
-            "spike_pk",
-            "arch",
-            "abi",
-            "triple",
-            "spike_extra_args",
-            "pk_extra_args",
+            "quiet",
+            "workspace_size_bytes",
+            # TODO
         ]
+
+    @property
+    def microtvm_spike_src_dir(self):
+        return Path(self.config["microtvm_spike.src_dir"])
 
     @property
     def spike_exe(self):
@@ -193,38 +197,24 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         ret = super().get_project_options()
         ret.update(
             {
+                "gcc_prefix": self.riscv_gcc_install_dir,
+                "gcc_name": self.riscv_gcc_name,
                 "spike_exe": str(self.spike_exe),
                 "spike_pk": str(self.spike_pk),
-                "triple": str(self.riscv_gcc_install_dir / "bin" / self.riscv_gcc_name),
             }
         )
         return ret
 
-    def update_environment(self, env):
-        super().update_environment(env)
-        if "PATH" in env:
-            env["PATH"] = str(self.riscv_gcc_install_dir / "bin") + ":" + env["PATH"]
-        else:
-            env["PATH"] = str(self.riscv_gcc_install_dir / "bin")
-
     def get_backend_config(self, backend):
-        ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update(
-                {
-                    "target_device": "riscv_cpu",
-                    "target_march": self.arch,
-                    "target_model": f"spike-{self.arch}",
-                    "target_mtriple": self.riscv_gcc_name,
-                    "target_mabi": self.config.get("abi", None),
-                }
-            )
-            if self.enable_pext or self.enable_vext:
-                ret.update(
-                    {
-                        # Warning: passing kernel layouts does not work with upstream TVM
-                        # TODO: allow passing map?
-                        "desired_layout": "NHWC:HWOI",
-                    }
-                )
-        return ret
+            return {
+                # "target_device": "riscv_cpu",
+                # "target_march": "TODO",
+                "target_model": "spike",
+                "target_mtriple": self.riscv_gcc_name,
+                # "target_mabi": "ilp32d",
+                # "target_mattr": self.mattr,
+                # "target_mcpu": f"generic-rv{self.xlen}",
+                # "target_keys": "TODO",
+            }
+        return {}

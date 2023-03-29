@@ -188,3 +188,23 @@ def build_spike(
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
     context.cache["spike.exe"] = spikeExe
+
+
+def _validate_microtvm_spike(context: MlonMcuContext, params=None):
+    return context.environment.has_target("microtvm_spike")
+
+
+@Tasks.provides(["microtvm_spike.src_dir", "microtvm_spike.template"])
+@Tasks.validate(_validate_microtvm_spike)
+@Tasks.register(category=TaskType.TARGET)
+def clone_microtvm_spike(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the microtvm-spike-template repository."""
+    name = utils.makeDirName("microtvm_spike")
+    srcDir = context.environment.paths["deps"].path / "src" / name
+    if rebuild or not utils.is_populated(srcDir):
+        repo = context.environment.repos["microtvm_spike"]
+        utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
+    context.cache["microtvm_spike.src_dir"] = srcDir
+    context.cache["microtvm_spike.template"] = srcDir / "template_project"

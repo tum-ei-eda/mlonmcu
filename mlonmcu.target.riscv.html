@@ -113,6 +113,118 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
 </section>
+<section id="module-mlonmcu.target.riscv.ara">
+<span id="mlonmcu-target-riscv-ara-module"></span><h2>mlonmcu.target.riscv.ara module<a class="headerlink" href="#module-mlonmcu.target.riscv.ara" title="Permalink to this headline"></a></h2>
+<p>MLonMCU ARA Target definitions</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.ara.</span></span><span class="sig-name descname"><span class="pre">AraTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ara'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.target.riscv.riscv.RISCVTarget" title="mlonmcu.target.riscv.riscv.RISCVTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.target.riscv.riscv.RISCVTarget</span></code></a></p>
+<p>Target using a Pulpino-like VP running in the GVSOC simulator</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'elen':</span> <span class="pre">64,</span> <span class="pre">'embedded_vext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'a',</span> <span class="pre">'c'],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fpu':</span> <span class="pre">'double',</span> <span class="pre">'nr_lanes':</span> <span class="pre">4,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'vext_spec':</span> <span class="pre">1.0,</span> <span class="pre">'vlen':</span> <span class="pre">4096,</span> <span class="pre">'xlen':</span> <span class="pre">64}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark',</span> <span class="pre">'log_instrs',</span> <span class="pre">'vext']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['riscv_gcc.install_dir',</span> <span class="pre">'riscv_gcc.name',</span> <span class="pre">'riscv_gcc.variant',</span> <span class="pre">'ara.src_dir',</span> <span class="pre">'verilator.install_dir']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.ara_apps_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ara_apps_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.ara_apps_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.ara_hardware_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ara_hardware_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.ara_hardware_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.elen">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elen</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.elen" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.embedded_vext">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embedded_vext</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.embedded_vext" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.enable_vext">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enable_vext</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.enable_vext" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/mlonmcu/mlonmcu/docs'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.exec" title="Permalink to this definition"></a></dt>
+<dd><p>Use target to execute an executable with given arguments</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.extensions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.extensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.get_backend_config">
+<span class="sig-name descname"><span class="pre">get_backend_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.get_backend_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.get_backend_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.get_metrics">
+<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.get_metrics" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.get_platform_defs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.get_target_system">
+<span class="sig-name descname"><span class="pre">get_target_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.get_target_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.get_target_system" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.nr_lanes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nr_lanes</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.nr_lanes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.parse_stdout">
+<span class="sig-name descname"><span class="pre">parse_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.parse_stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.parse_stdout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.prepare_simulator">
+<span class="sig-name descname"><span class="pre">prepare_simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/mlonmcu/mlonmcu/docs'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.prepare_simulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.prepare_simulator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.verilator_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verilator_install_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.verilator_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.vext_spec">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vext_spec</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.vext_spec" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.ara.AraTarget.vlen">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vlen</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara.AraTarget.vlen" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-mlonmcu.target.riscv.etiss_pulpino">
 <span id="mlonmcu-target-riscv-etiss-pulpino-module"></span><h2>mlonmcu.target.riscv.etiss_pulpino module<a class="headerlink" href="#module-mlonmcu.target.riscv.etiss_pulpino" title="Permalink to this headline"></a></h2>
 <p>MLonMCU ETISS/Pulpino Target definitions</p>
@@ -936,6 +1048,114 @@
 </section>
 <section id="module-mlonmcu.target.riscv">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.target.riscv" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.</span></span><span class="sig-name descname"><span class="pre">AraTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ara'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.target.riscv.riscv.RISCVTarget" title="mlonmcu.target.riscv.riscv.RISCVTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.target.riscv.riscv.RISCVTarget</span></code></a></p>
+<p>Target using a Pulpino-like VP running in the GVSOC simulator</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'elen':</span> <span class="pre">64,</span> <span class="pre">'embedded_vext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'a',</span> <span class="pre">'c'],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fpu':</span> <span class="pre">'double',</span> <span class="pre">'nr_lanes':</span> <span class="pre">4,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'vext_spec':</span> <span class="pre">1.0,</span> <span class="pre">'vlen':</span> <span class="pre">4096,</span> <span class="pre">'xlen':</span> <span class="pre">64}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['benchmark',</span> <span class="pre">'log_instrs',</span> <span class="pre">'vext']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['riscv_gcc.install_dir',</span> <span class="pre">'riscv_gcc.name',</span> <span class="pre">'riscv_gcc.variant',</span> <span class="pre">'ara.src_dir',</span> <span class="pre">'verilator.install_dir']</span></em><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.ara_apps_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ara_apps_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.ara_apps_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.ara_hardware_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ara_hardware_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.ara_hardware_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.elen">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elen</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.elen" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.embedded_vext">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embedded_vext</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.embedded_vext" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.enable_vext">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enable_vext</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.enable_vext" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/mlonmcu/mlonmcu/docs'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.exec" title="Permalink to this definition"></a></dt>
+<dd><p>Use target to execute an executable with given arguments</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.extensions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.extensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.get_backend_config">
+<span class="sig-name descname"><span class="pre">get_backend_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.get_backend_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.get_backend_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.get_metrics">
+<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.get_metrics" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.get_platform_defs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.get_target_system">
+<span class="sig-name descname"><span class="pre">get_target_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.get_target_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.get_target_system" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.nr_lanes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nr_lanes</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.nr_lanes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.parse_stdout">
+<span class="sig-name descname"><span class="pre">parse_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.parse_stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.parse_stdout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.prepare_simulator">
+<span class="sig-name descname"><span class="pre">prepare_simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/mlonmcu/mlonmcu/docs'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/ara.html#AraTarget.prepare_simulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.prepare_simulator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.verilator_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verilator_install_dir</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.verilator_install_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.vext_spec">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vext_spec</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.vext_spec" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.AraTarget.vlen">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vlen</span></span><a class="headerlink" href="#mlonmcu.target.riscv.AraTarget.vlen" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.target.riscv.EtissPulpinoTarget">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.</span></span><span class="sig-name descname"><span class="pre">EtissPulpinoTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'etiss_pulpino'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/etiss_pulpino.html#EtissPulpinoTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.EtissPulpinoTarget" title="Permalink to this definition"></a></dt>

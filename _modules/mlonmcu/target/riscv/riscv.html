@@ -130,7 +130,7 @@
         <span class="s2">&quot;attr&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc.variant&quot;</span><span class="p">]</span>
-    <span class="n">PUPL_GCC_TOOLCHAIN_REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pulp_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;pulp_gcc.name&quot;</span><span class="p">]</span>
+    <span class="n">PUPL_GCC_TOOLCHAIN_REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pulp_gcc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;pulp_gcc.name&quot;</span><span class="p">]</span>  <span class="c1"># TODO elegant handle customized toolchain</span>
     <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -242,6 +242,7 @@
 
 <div class="viewcode-block" id="RISCVTarget.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="c1"># TODO refactor the following using inheritance instead of branching</span>
         <span class="k">if</span> <span class="s2">&quot;riscv_gcc.install_dir&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">:</span>  <span class="c1"># the target chooses to use the riscv_gcc toolchain</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_ELF_GCC_PREFIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_prefix</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_ELF_GCC_BASENAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_basename</span>

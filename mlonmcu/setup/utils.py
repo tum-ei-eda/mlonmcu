@@ -184,6 +184,7 @@ def clone(
     url: str,
     dest: Union[str, bytes, os.PathLike],
     branch: str = "",
+    submodules: list = [],
     recursive: bool = False,
     refresh: bool = False,
 ):
@@ -197,6 +198,8 @@ def clone(
         Destination directory path.
     branch : str
         Optional branch name or commit reference/tag.
+    submodules : list of strings
+        Only affects when recursive is true. Submodules to be updated. If empty, all submodules will be updated.
     recursive : bool
         If the clone should be done recursively.
     refesh : bool
@@ -217,7 +220,14 @@ def clone(
             repo = Repo.clone_from(url, dest, recursive=recursive, no_checkout=True)
             repo.git.checkout(branch)
             if recursive:
-                repo.git.submodule("update", "--init", "--recursive")
+                if submodules:
+                    for submodule in submodules:
+                        assert isinstance(
+                            submodule, str
+                        ), f"Submodules should be a list of str. {submodule} is not str."
+                    repo.git.submodule("update", "--init", "--recursive", "--", " ".join(submodules))
+                else:
+                    repo.git.submodule("update", "--init", "--recursive")
         else:
             Repo.clone_from(url, dest, recursive=recursive)
 

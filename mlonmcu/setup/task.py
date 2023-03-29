@@ -264,7 +264,7 @@ class TaskFactory:
         return real_decorator
 
     def validate(self, func):
-        """Decorator which registers validattion functions for a task."""
+        """Decorator which registers validation functions for a task."""
 
         def real_decorator(function):
             name = function.__name__

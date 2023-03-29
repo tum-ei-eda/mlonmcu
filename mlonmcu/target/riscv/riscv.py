@@ -45,7 +45,7 @@ class RISCVTarget(Target):
         "attr": "",
     }
     REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"]
-    PUPL_GCC_TOOLCHAIN_REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]
+    PUPL_GCC_TOOLCHAIN_REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]  # TODO elegant handle customized toolchain
     OPTIONAL = ["llvm.install_dir"]
 
     @property
@@ -162,6 +162,7 @@ class RISCVTarget(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        # TODO refactor the following using inheritance instead of branching
         if "riscv_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the riscv_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename

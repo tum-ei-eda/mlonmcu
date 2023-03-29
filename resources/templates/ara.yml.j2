@@ -58,12 +58,12 @@ repos:
     ref: ad1c3cad8f1240ef14a2c55381a78d792d76ec4d
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"  # This should be later changed to main branch in mlonmcu-sw
-    ref: 4b9a32659f7c5340e8de26a0b8c4135ca67d64ac
+    ref: 8d4e966c237bdf839005727fdb4d6d8fc6ecbe17
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
-  microtvm_etiss:
-    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
+  microtvm_etissvp:
+    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
     ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
   zephyr:
     url: "https://github.com/zephyrproject-rtos/zephyr.git"
@@ -74,6 +74,13 @@ repos:
   pulp_freertos:
     url: "https://github.com/pulp-platform/pulp-freertos.git"
     ref: aabd624fd9feef222f8dc2e0fa3b7dc487c42bf3
+  ara:
+    url: "https://github.com/PhilippvK/ara.git"
+    ref: 8b3909979f7c2da159879e71dcba45b63f40583f
+  verilator:
+    url: "https://github.com/verilator/verilator"
+    ref: 8f090176a68b66bbe0a6ce95294944bffda9fdf7
+
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -190,9 +197,13 @@ platforms:
       # validate: true
 # List of supported targets in the environment
 targets:
-  default: etiss_pulpino
-  etiss_pulpino:
+  default: ara
+  ara:
     enabled: true
+    features:
+      vext: true
+  etiss_pulpino:
+    enabled: false
     features:
       gdbserver: true
       etissdbg: true
@@ -201,11 +212,11 @@ targets:
       # vext: true
       # pext: true
   host_x86:
-    enabled: true
+    enabled: false
     features:
       gdbserver: true
   spike:
-    enabled: true
+    enabled: false
     features:
       vext: false
       pext: false
@@ -224,27 +235,27 @@ targets:
       arm_mvei: true
       arm_dsp: true
   riscv_qemu:
-    enabled: true
+    enabled: false
     features:
       vext: false
   microtvm_host:
-    enabled: true
+    enabled: false
   microtvm_spike:
-    enabled: true
+    enabled: false
   microtvm_zephyr:
     enabled: false
   microtvm_arduino:
     enabled: false
-  microtvm_etiss:
-    enabled: true
+  microtvm_etissvp:
+    enabled: false
   microtvm_espidf:
     enabled: false
   tvm_cpu:
-    enabled: true
+    enabled: false
   gvsoc_pulp:
-    enabled: true
+    enabled: false
   gvsoc_pulpissimo:
-    enabled: true
+    enabled: false
 postprocesses:
   use:
   # - detailed_cycles
@@ -260,8 +271,6 @@ vars:
   llvm.version: "14.0.0"
   runs_per_stage: true
   pulp_gcc.dl_url: "https://github.com/pulp-platform/pulp-riscv-gnu-toolchain/releases/download/v1.0.16/v1.0.16-pulp-riscv-gcc-ubuntu-18.tar.bz2"
-  # pulp_gcc.from_source: true
-  # pulp_freertos.experimental_install: true
 flags:
   tflmc.exe:
   - x86

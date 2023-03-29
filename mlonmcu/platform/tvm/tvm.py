@@ -387,6 +387,8 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
 
             sub_metrics = {}
             if num_workers is not None:
+                if isinstance(num_workers, str):
+                    num_workers = int(num_workers)
                 assert isinstance(num_workers, int) and num_workers > 0
                 assert self.experimental_tvmc_tune_tasks, "num_workers requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix

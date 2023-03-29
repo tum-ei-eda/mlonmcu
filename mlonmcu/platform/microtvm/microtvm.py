@@ -472,6 +472,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                         content = handle.read()
 
             if num_workers is not None:
+                if isinstance(num_workers, str):
+                    num_workers = int(num_workers)
                 assert isinstance(num_workers, int) and num_workers > 0
                 assert self.experimental_tvmc_tune_tasks, "num_workers>1 requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix

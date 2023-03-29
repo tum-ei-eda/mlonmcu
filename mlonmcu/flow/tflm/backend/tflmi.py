@@ -65,11 +65,7 @@ class TFLMICodegen:
                 )
             else:
                 # TODO
-                out += (
-                    "  if (resolver.Add"
-                    + op
-                    + '() != kTfLiteOk) {\n    exit(1);\n  }\n'
-                )
+                out += "  if (resolver.Add" + op + "() != kTfLiteOk) {\n    exit(1);\n  }\n"
         for op in custom_ops:
             op_name = op
             op_reg = op
@@ -92,7 +88,7 @@ class TFLMICodegen:
                     + op_name
                     + '", tflite::'
                     + op_reg
-                    + '()) != kTfLiteOk) {\n    exit(1);\n  }\n'
+                    + "()) != kTfLiteOk) {\n    exit(1);\n  }\n"
                 )
         return out
 
@@ -235,11 +231,14 @@ private:
 } // namespace
 
 // The name of this function is important for Arduino compatibility.
-""" + f"void {prefix}_init() {{" + """
+"""
+            + f"void {prefix}_init() {{"
+            + """
   // Set up logging. Google style is to avoid globals or statics because of
   // lifetime uncertainty, but since this has a trivial destructor it's okay.
   // NOLINTNEXTLINE(runtime-global-variables)
-""")
+"""
+        )
         if reporter:
             wrapper_content += """
 #ifdef _DEBUG

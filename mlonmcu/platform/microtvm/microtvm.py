@@ -458,7 +458,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
         autotvm_enable = self.config["autotvm_enable"]
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
-        num_workers = int(self.config["autotuning_num_workers"])
+        num_workers = self.config["autotuning_num_workers"]
         artifacts = []
         verbose = False
         if self.print_outputs:
@@ -471,7 +471,8 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                     with open(results_file, "r") as handle:
                         content = handle.read()
 
-            if num_workers > 1:
+            if num_workers is not None:
+                assert isinstance(num_workers, int) and num_workers > 0
                 assert self.experimental_tvmc_tune_tasks, "num_workers>1 requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix
                 assert self.config["autotuning_tasks"] is None, "tune_tasks not supported together with num_workers > 1"

@@ -339,7 +339,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
         ) == 1, "Can not use AutoTVM and AutoScheduler at the same time"
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
-        num_workers = int(self.config["autotuning_num_workers"])
+        num_workers = self.config["autotuning_num_workers"]
         artifacts = []
         verbose = False
         if self.print_outputs:

@@ -163,7 +163,13 @@ def _test_compile_platform(
 def test_default(model_name, xlen, fpu, extensions, feature_names, user_context, models_dir):
     # config = {"myriscv.xlen": xlen, "myriscv.extensions": extensions, "myriscv.fpu": fpu}
     # TODO: check if llvm available?
-    config = {"myriscv.xlen": xlen, "myriscv.extensions": extensions, "myriscv.fpu": fpu, "mlif.print_outputs": True, "mlif.toolchain": "llvm"}
+    config = {
+        "myriscv.xlen": xlen,
+        "myriscv.extensions": extensions,
+        "myriscv.fpu": fpu,
+        "mlif.print_outputs": True,
+        "mlif.toolchain": "llvm",
+    }
     _, artifacts = _test_compile_platform(
         "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
     )

@@ -66,7 +66,7 @@ def clone_cmsisnn(
 
 
 def _validate_cmsis(context: MlonMcuContext, params=None):
-    return context.environment.has_target("corstone300")
+    return _validate_cmsisnn(context, params=params) or context.environment.has_target("corstone300")
 
 
 @Tasks.provides(["cmsis.dir"])

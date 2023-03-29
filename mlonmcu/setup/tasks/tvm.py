@@ -99,7 +99,8 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     """Build the TVM framework."""
     if not params:
         params = {}
-    flags = utils.makeFlags((params["dbg"], "dbg"), (params["cmsisnn"], "cmsisnn"))
+    # flags = utils.makeFlags((params["dbg"], "dbg"), (params["cmsisnn"], "cmsisnn"))
+    flags = utils.makeFlags((params["dbg"], "dbg"))
     dbg = bool(params["dbg"])
     cmsisnn = bool(params["cmsisnn"])
     # FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!

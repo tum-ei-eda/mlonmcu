@@ -487,7 +487,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                             None,
                             self.get_template_args(target),
                             target,
-                            tune_args=tune_args + ["--task", "list"],
+                            tune_args=tune_args + ["--tasks", "list"],
                         )
                         lines = out.split("\n")
                         for i, line in enumerate(lines):
@@ -515,7 +515,7 @@ class MicroTvmPlatform(CompilePlatform, TargetPlatform, BuildPlatform, TunePlatf
                                     None,
                                     self.get_template_args(target),
                                     target,
-                                    tune_args=tune_args + ["--task", str(idx)],
+                                    tune_args=tune_args + ["--tasks", str(idx)],
                                     prefix=f"[worker-{idx}] ",
                                 )
                                 with open(out_file, "r") as handle:

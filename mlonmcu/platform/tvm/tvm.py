@@ -396,7 +396,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                     with tempfile.TemporaryDirectory() as tmp_dir:
                         out_file = Path(tmp_dir) / "tuning_results.log.txt"
                         tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                        out = self.invoke_tvmc("tune", *tune_args, "--task", "list")
+                        out = self.invoke_tvmc("tune", *tune_args, "--tasks", "list")
                         lines = out.split("\n")
                         for i, line in enumerate(lines):
                             if "Available Tasks for tuning" in line:
@@ -427,7 +427,7 @@ class TvmPlatform(BuildPlatform, TargetPlatform, TunePlatform):
                                     handle.write(prepend)
                                 # TODO: divide trials by number of tasks?
                                 tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                                out = self.invoke_tvmc("tune", *tune_args, "--task", str(idx))
+                                out = self.invoke_tvmc("tune", *tune_args, "--tasks", str(idx))
                                 with open(out_file, "r") as handle:
                                     content = handle.read()
                                 # content_best = _pick_best(backend, content, verbose=verbose)

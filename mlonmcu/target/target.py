@@ -26,6 +26,7 @@ from typing import List, Tuple
 
 
 from mlonmcu.config import filter_config
+from mlonmcu.utils import filter_none
 from mlonmcu.feature.feature import Feature
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
@@ -211,6 +212,14 @@ class Target:
 
     def get_backend_config(self, backend):
         return {}
+
+    def add_backend_config(self, backend, config):
+        new = filter_none(self.get_backend_config(backend))
+
+        # only allow overwriting non-none values
+        # to support accepting user-vars
+        new = {key: value for key, value in new.items() if config.get(key, None) is None}
+        config.update(new)
 
     def get_hardware_details(self):
         return {

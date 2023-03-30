@@ -26,7 +26,6 @@ from enum import IntEnum
 from collections import defaultdict
 
 from mlonmcu.logging import get_logger
-from mlonmcu.utils import filter_none
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
 from mlonmcu.config import str2bool
 from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
@@ -723,11 +722,7 @@ class Run:
 
         if self.target_to_backend:
             assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
-            cfg = self.target.get_backend_config(self.backend.name)  # Do not expect a backend prefix here
-            cfg = filter_none(cfg)
-            if len(cfg) > 0:
-                logger.debug("Updating backend config based on given target.")
-                self.backend.config.update(cfg)
+            self.target.add_backend_config(self.backend.name, self.backend.config)  # Do not expect a backend prefix
 
         def _build():
             # TODO: allow raw data as well as filepath in backends

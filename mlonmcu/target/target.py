@@ -210,11 +210,11 @@ class Target:
     def add_platform_defs(self, platform, defs):
         defs.update(self.get_platform_defs(platform))
 
-    def get_backend_config(self, backend):
+    def get_backend_config(self, backend, optimized=False):
         return {}
 
-    def add_backend_config(self, backend, config):
-        new = filter_none(self.get_backend_config(backend))
+    def add_backend_config(self, backend, config, optimized=False):
+        new = filter_none(self.get_backend_config(backend, optimized=optimized))
 
         # only allow overwriting non-none values
         # to support accepting user-vars

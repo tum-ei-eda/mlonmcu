@@ -215,8 +215,8 @@ class AraTarget(RISCVTarget):
         ret["CMAKE_VERBOSE_MAKEFILE"] = "BOOL=OFF"
         return ret
 
-    def get_backend_config(self, backend):
-        ret = super().get_backend_config(backend)
+    def get_backend_config(self, backend, optimized=False):
+        ret = super().get_backend_config(backend, optimized=optimized)
         if backend in SUPPORTED_TVM_BACKENDS:
             ret.update({"target_mabi": self.abi})
         return ret

@@ -720,9 +720,9 @@ class Run:
         self.lock()
         assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
 
-        if self.target_to_backend:
+        if self.target_to_backend or self.backend.needs_target:
             assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
-            self.target.add_backend_config(self.backend.name, self.backend.config)  # Do not expect a backend prefix
+            self.target.add_backend_config(self.backend.name, self.backend.config, self.target_to_backend)
 
         def _build():
             # TODO: allow raw data as well as filepath in backends

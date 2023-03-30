@@ -102,6 +102,10 @@ class Backend(ABC):
     def has_tuner(self):
         return self.tuner is not None
 
+    @property
+    def needs_target(self):
+        return False
+
     def set_tuning_records(self, filepath):
         if not self.has_tuner:
             raise NotImplementedError("Backend does not support autotuning")

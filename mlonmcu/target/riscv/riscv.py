@@ -177,16 +177,20 @@ class RISCVTarget(Target):
     def get_arch(self):
         return "riscv"
 
-    def get_backend_config(self, backend):
+    def get_backend_config(self, backend, optimized=False):
         if backend in SUPPORTED_TVM_BACKENDS:
-            return {
-                "target_device": "riscv_cpu",
+            ret = {
                 "target_march": self.arch,
-                "target_model": "unknown",
                 "target_mtriple": self.riscv_gcc_basename,  # TODO: riscv32-esp-elf for esp32c3!
                 "target_mabi": self.abi,
                 "target_mattr": self.attr,
                 "target_mcpu": f"generic-rv{self.xlen}",
-                "target_keys": None,
             }
+            if optimized:
+                ret.update({
+                    "target_device": "riscv_cpu",
+                    "target_model": "unknown",
+                    "target_keys": None,
+                })
+            return ret
         return {}

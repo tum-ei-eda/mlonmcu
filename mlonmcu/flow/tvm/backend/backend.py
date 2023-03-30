@@ -229,6 +229,10 @@ class TVMBackend(Backend):
     def generate_wrapper(self):
         return self.fmt == "mlf"
 
+    @property
+    def needs_target(self):
+        return self.target != "c"
+
     def num_threads(self):
         return self.config["num_threads"]
 

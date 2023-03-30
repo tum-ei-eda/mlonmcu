@@ -503,19 +503,20 @@ class EtissTarget(RISCVTarget):
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 
-    def get_backend_config(self, backend):
-        ret = super().get_backend_config(backend)
+    def get_backend_config(self, backend, optimized=False):
+        ret = super().get_backend_config(backend, optimized=optimized)
         if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update({"target_model": "etissvp"})
-            # ret.update({"target_keys": "pulp"})
-            if self.enable_pext or self.enable_vext:
-                ret.update(
-                    {
-                        # Warning: passing kernel layouts does not work with upstream TVM
-                        # TODO: allow passing map?
-                        "desired_layout": "NHWC:HWOI",
-                    }
-                )
+            if optimized:
+                ret.update({"target_model": "etissvp"})
+                # ret.update({"target_keys": "pulp"})
+                if self.enable_pext or self.enable_vext:
+                    ret.update(
+                        {
+                            # Warning: passing kernel layouts does not work with upstream TVM
+                            # TODO: allow passing map?
+                            "desired_layout": "NHWC:HWOI",
+                        }
+                    )
         return ret
 
 

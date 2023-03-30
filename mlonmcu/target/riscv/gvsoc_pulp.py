@@ -204,11 +204,12 @@ class GvsocPulpTarget(RISCVTarget):
         ret["RISCV_ABI"] = self.abi
         return ret
 
-    def get_backend_config(self, backend):
-        ret = super().get_backend_config(backend)
+    def get_backend_config(self, backend, optimized=False):
+        ret = super().get_backend_config(backend, optimized=optimized)
         if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update({"target_model": f"gvsoc_{self.model}"})
             ret.update({"target_mabi": self.abi})
+            if optimized:
+                ret.update({"target_model": f"gvsoc_{self.model}"})
         return ret
 
 

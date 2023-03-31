@@ -35,10 +35,8 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     DEFAULTS = {
         **TemplateMicroTvmPlatformTarget.DEFAULTS,
-        # "verbose": False,
-        # "quiet": True,
-        "verbose": True,
-        "quiet": False,
+        "verbose": False,
+        "quiet": True,
         "workspace_size_bytes": None,
         "arch": "rv32gc",
         "abi": None,

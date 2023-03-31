@@ -53,7 +53,7 @@ def download_tflite_vizualize(
     if "tflite_visualize.exe" in user_vars:  # TODO: also check command line flags?
         return False
     if rebuild or not utils.is_populated(tfLiteVizualizeInstallDir):
-        tfLiteVizualizeInstallDir.mkdir()
+        tfLiteVizualizeInstallDir.mkdir(exist_ok=True)
         url = "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/tools/visualize.py"
         utils.download(url, tfLiteVizualizeExe, progress=verbose)
     context.cache["tflite_visualize.exe"] = tfLiteVizualizeExe

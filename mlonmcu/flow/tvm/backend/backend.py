@@ -352,23 +352,24 @@ class TVMBackend(Backend):
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
             out = self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
-            mlf_path = Path(temp_dir) / "mlf"
-            tarfile.open(out_path).extractall(mlf_path)
-            with open(mlf_path / "metadata.json", "r") as handle:
-                metadata_txt = handle.read()
-            artifacts.append(
-                Artifact(
-                    f"{self.prefix}.json",
-                    content=metadata_txt,
-                    fmt=ArtifactFormat.TEXT,
+            if self.fmt == "mlf":
+                mlf_path = Path(temp_dir) / "mlf"
+                tarfile.open(out_path).extractall(mlf_path)
+                with open(mlf_path / "metadata.json", "r") as handle:
+                    metadata_txt = handle.read()
+                artifacts.append(
+                    Artifact(
+                        f"{self.prefix}.json",
+                        content=metadata_txt,
+                        fmt=ArtifactFormat.TEXT,
+                    )
                 )
-            )
             with open(out_path, "rb") as handle:
-                mlf_data = handle.read()
+                data = handle.read()
                 artifacts.append(
                     Artifact(
                         f"{self.prefix}.tar",
-                        raw=mlf_data,
+                        raw=data,
                         fmt=ArtifactFormat.SHARED_OBJECT if self.fmt == "so" else ArtifactFormat.MLF,
                         archive=True,
                     )
@@ -408,7 +409,8 @@ class TVMBackend(Backend):
                     )
             if self.executor == "graph":
                 if self.fmt == "so":
-                    raise NotImplementedError
+                    pass
+                    # raise NotImplementedError
                 elif self.fmt == "mlf":
                     graph, params = self.get_graph_and_params_from_mlf(mlf_path)
                     artifacts.append(

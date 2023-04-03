@@ -18,7 +18,12 @@
 ##
 name: Weekly build of development docker containers
 on:
-  workflow_dispatch: []
+  workflow_dispatch:
+    inputs:
+      foo:
+        description: "???"
+        required: false
+        default: "bar"
   schedule:
     - cron: "0 0 6 * *"
 

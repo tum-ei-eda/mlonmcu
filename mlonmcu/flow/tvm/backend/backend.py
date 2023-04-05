@@ -279,7 +279,7 @@ class TVMBackend(Backend):
             *get_input_shapes_tvmc_args(self.input_shapes),
             *get_tuning_records_tvmc_args(self.use_tuning_results, self.tuning_records),
             *(["--desired-layout", self.desired_layout] if self.desired_layout is not None else []),
-            *(["--dump-code", ",".join(dump)] if dump is not None else []),
+            *(["--dump-code", ",".join(dump)] if dump is not None and len(dump) > 0 else []),
             *self.tvmc_extra_args,
             *["--opt-level", str(self.opt_level)],
             *["--output", str(out)],

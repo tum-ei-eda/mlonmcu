@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Tuple
 
 from .backend import TVMBackend
+from mlonmcu.config import str2bool
 from mlonmcu.flow.backend import main
 from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts

@@ -116,14 +116,18 @@ def get_rpc_tvmc_args(enabled, key, hostname, port):
     )
 
 
-def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api):
-    return [
-        *["--runtime-crt-system-lib", str(0)],
-        *["--target-c-constants-byte-alignment", str(alignment_bytes)],
-        *["--target-c-workspace-byte-alignment", str(alignment_bytes)],
+def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api, runtime="crt", target="c"):
+    ret = [
+        *["--runtime-crt-system-lib", str(0 if target == "c" else 1)],
         *["--executor-aot-unpacked-api", str(int(unpacked_api))],
         *["--executor-aot-interface-api", "c" if unpacked_api else "packed"],
     ]
+    if target == "c":
+        ret += [
+            *["--target-c-constants-byte-alignment", str(alignment_bytes)],
+            *["--target-c-workspace-byte-alignment", str(alignment_bytes)],
+        ]
+    return ret
 
 
 def get_tvmrt_tvmc_args(runtime="crt"):

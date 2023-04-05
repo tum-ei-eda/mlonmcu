@@ -23,7 +23,6 @@ class TvmBasePlatform(Platform):
     REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
     def __init__(self, name, features=None, config=None):
-        print("START TvmBasePlatform::__init__")
         super().__init__(
             name,
             features=features,
@@ -32,10 +31,8 @@ class TvmBasePlatform(Platform):
         self.tempdir = None
         self.project_name = "app"
         self.project_dir = None
-        print("STOP TvmBasePlatform::__init__")
 
     def init_directory(self, path=None, context=None):
-        print("init_directory")
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
             logger.debug("Project directory already initialized")

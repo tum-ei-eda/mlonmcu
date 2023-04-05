@@ -128,7 +128,6 @@ class MicroTvmTunePlatform(TunePlatform, MicroTvmTargetPlatform):
         return self.get_tune_args_base(model, backend, target, out)
 
     def _tune_model_base(self, model_path, backend, target):
-        print("_tm self.config", self.config)
         autotvm_enable = self.config["autotvm_enable"]
         autoscheduler_enable = self.config["autoscheduler_enable"]
         assert [autotvm_enable, autoscheduler_enable].count(

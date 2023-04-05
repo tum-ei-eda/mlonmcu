@@ -161,4 +161,8 @@ def create_tvm_platform_target(name, platform, base=Target):
         def get_arch(self):
             return "unkwown"
 
+        def update_environment(self, env):
+            # TODO: implement in base class?
+            pass
+
     return TvmPlatformTarget

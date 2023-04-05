@@ -124,7 +124,6 @@ class TvmTunePlatform(TunePlatform, TvmRpcPlatform):
         return ret
 
     def _tune_model(self, model_path, backend, target):
-        print("_tm self.config", self.config)
         autotvm_enable = self.config["autotvm_enable"]
         autoscheduler_enable = self.config["autoscheduler_enable"]
         assert [autotvm_enable, autoscheduler_enable].count(

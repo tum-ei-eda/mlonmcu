@@ -112,7 +112,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     def invoke_tvmc_run(self, *args, target=None):
         assert target is not None, "Target required for tvmc run"
         combined_args = []
-        combined_args.extend(["--device", target.gevice])
+        combined_args.extend(["--device", target.device])
         return self.invoke_tvmc("run", *args)
 
     def run(self, elf, target, timeout=120):
@@ -120,7 +120,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
         # Here, elf is actually a directory
         # TODO: replace workaround with possibility to pass TAR directly
         tar_path = str(elf)
-        args = [tar_path] + self.get_tvmc_run_args(str(tar_path))
-        output = self.invoke_tvmc_run(args, target=target)
+        args = [tar_path] + self.get_tvmc_run_args()
+        output = self.invoke_tvmc_run(*args, target=target)
 
         return output

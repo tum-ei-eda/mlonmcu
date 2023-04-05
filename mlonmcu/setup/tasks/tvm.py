@@ -99,7 +99,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     """Build the TVM framework."""
     if not params:
         params = {}
-    # flags = utils.makeFlags((params["dbg"], "dbg"), (params["cmsisnn"], "cmsisnn"))
+    flags_ = utils.makeFlags((params["dbg"], "dbg"), (params["cmsisnn"], "cmsisnn"))
     flags = utils.makeFlags((params["dbg"], "dbg"))
     dbg = bool(params["dbg"])
     cmsisnn = bool(params["cmsisnn"])
@@ -154,7 +154,9 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
         utils.cmake(tvmSrcDir, cwd=tvmBuildDir, debug=dbg, use_ninja=ninja, live=verbose)
         utils.make(cwd=tvmBuildDir, threads=threads, use_ninja=ninja, live=verbose)
     context.cache["tvm.build_dir", flags] = tvmBuildDir
+    context.cache["tvm.build_dir", flags_] = tvmBuildDir
     context.cache["tvm.lib", flags] = tvmLib
+    context.cache["tvm.lib", flags_] = tvmLib
 
 
 def _validate_tvm_extensions(context: MlonMcuContext, params=None):

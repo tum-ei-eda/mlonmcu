@@ -106,7 +106,7 @@ class Platform:
 
 
 class BuildPlatform(Platform):
-    """Abstract backend platform class."""
+    """Abstract build platform class."""
 
     FEATURES = Platform.FEATURES + []
 
@@ -133,7 +133,7 @@ class BuildPlatform(Platform):
 
 
 class TunePlatform(Platform):
-    """Abstract backend platform class."""
+    """Abstract tune platform class."""
 
     FEATURES = Platform.FEATURES + []
 

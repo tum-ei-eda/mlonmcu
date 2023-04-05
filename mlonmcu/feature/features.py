@@ -1174,7 +1174,7 @@ class LogInstructions(TargetFeature):
         return None, None
 
 
-@register_feature("arm_mvei")
+@register_feature("arm_mvei", depends=["arm_dsp"])
 class ArmMvei(SetupFeature, TargetFeature, PlatformFeature):
     """Enable MVEI extension for supported ARM targets"""
 

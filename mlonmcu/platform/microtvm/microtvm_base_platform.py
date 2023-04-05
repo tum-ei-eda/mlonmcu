@@ -1,7 +1,8 @@
 import re
 import tempfile
 from pathlib import Path
-from ..platform import Platform
+# from ..platform import Platform
+from ..tvm.tvm_base_platform import TvmBasePlatform
 from mlonmcu.setup import utils
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.logging import get_logger
@@ -29,13 +30,14 @@ def get_project_option_args(stage, project_options):
 
 
 # TODO: abstarct
-class MicroTvmBasePlatform(Platform):
+class MicroTvmBasePlatform(TvmBasePlatform):
     """MicroTVM base platform class."""
 
-    FEATURES = [
+    FEATURES = TvmBasePlatform.FEATURES + [
     ]
 
     DEFAULTS = {
+        **TvmBasePlatform.DEFAULTS,
         "project_template": None,
         "project_options": {},
         "tvmc_custom_script": None,
@@ -44,7 +46,7 @@ class MicroTvmBasePlatform(Platform):
         "experimental_tvmc_print_time": False,
     }
 
-    REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
+    REQUIRED = TvmBasePlatform.REQUIRED + ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
 
     def __init__(self, name, features=None, config=None):
         super().__init__(

@@ -1,10 +1,9 @@
 from mlonmcu.config import str2bool
-from .microtvm_rpc_platform import MicroTvmRpcPlatform
+from ..tvm.tvm_target_platform import TvmTargetPlatform
 from .microtvm_base_platform import (
     filter_project_options,
     get_project_option_args,
 )  # TODO: move to utils
-from ..platform import TargetPlatform
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_bench_tvmc_args,
     get_data_tvmc_args,
@@ -15,72 +14,26 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
-class MicroTvmTargetPlatform(TargetPlatform, MicroTvmRpcPlatform):
+class MicroTvmTargetPlatform(TvmTargetPlatform):
     """MicroTVM target platform class."""
 
     FEATURES = (
-        TargetPlatform.FEATURES
-        + MicroTvmRpcPlatform.FEATURES
-        + [
-            "benchmark",
-            "tvm_profile",
-        ]
+        # TvmTargetPlatform.FEATURES +
+        []
+        # Warning: benchamrk and profile not supported!
     )
 
     DEFAULTS = {
-        **TargetPlatform.DEFAULTS,
-        **MicroTvmRpcPlatform.DEFAULTS,
-        "fill_mode": "random",
-        "ins_file": None,
-        "outs_file": None,
-        "print_top": False,
-        "profile": False,
-        "repeat": 1,
-        "number": 1,
-        "aggregate": "none",  # Allowed: avg, max, min, none, all
-        "total_time": False,
+        **TvmTargetPlatform.DEFAULTS,
+        "experimental_tvmc_print_time": False,
+        # Warning: contains configs not supported by microtvm
     }
 
-    REQUIRED = TargetPlatform.REQUIRED + MicroTvmRpcPlatform.REQUIRED + []
+    REQUIRED = TvmTargetPlatform.REQUIRED + []
 
     @property
-    def fill_mode(self):
-        return self.config["fill_mode"]
-
-    @property
-    def ins_file(self):
-        return self.config["ins_file"]
-
-    @property
-    def outs_file(self):
-        return self.config["outs_file"]
-
-    @property
-    def print_top(self):
-        return self.config["print_top"]
-
-    @property
-    def profile(self):
-        value = self.config["profile"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def repeat(self):
-        return self.config["repeat"]
-
-    @property
-    def number(self):
-        return self.config["number"]
-
-    @property
-    def aggregate(self):
-        value = self.config["aggregate"]
-        assert value in ["avg", "all", "max", "min", "none"]
-        return value
-
-    @property
-    def total_time(self):
-        value = self.config["total_time"]
+    def experimental_tvmc_print_time(self):
+        value = self.config["experimental_tvmc_print_time"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def invoke_tvmc_micro_flash(self, target=None, list_options=False):

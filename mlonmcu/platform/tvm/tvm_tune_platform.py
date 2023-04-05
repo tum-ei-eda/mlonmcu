@@ -4,7 +4,7 @@ import time
 import tempfile
 import concurrent
 from pathlib import Path
-from .tvm_rpc_platform import TvmRpcPlatform
+from .tvm_target_platform import TvmTargetPlatform
 from ..platform import TunePlatform
 
 from mlonmcu.flow.tvm.backend.tuner import get_autotuning_defaults, get_autotvm_defaults, get_autoscheduler_defaults
@@ -18,14 +18,14 @@ from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.setup import utils
 
 
-class TvmTunePlatform(TunePlatform, TvmRpcPlatform):
+class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     """TVM Tune platform class."""
 
-    FEATURES = TunePlatform.FEATURES + TvmRpcPlatform.FEATURES + ["autotvm", "autoschedule"]
+    FEATURES = TunePlatform.FEATURES + TvmTargetPlatform.FEATURES + ["autotvm", "autoschedule"]
 
     DEFAULTS = {
         **TunePlatform.DEFAULTS,
-        **TvmRpcPlatform.DEFAULTS,
+        **TvmTargetPlatform.DEFAULTS,
         "experimental_tvmc_tune_tasks": False,
         "experimental_tvmc_tune_visualize": False,
         "min_repeat_ms": 0,
@@ -34,7 +34,7 @@ class TvmTunePlatform(TunePlatform, TvmRpcPlatform):
         **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
     }
 
-    REQUIRED = TunePlatform.REQUIRED + TvmRpcPlatform.REQUIRED + []
+    REQUIRED = TunePlatform.REQUIRED + TvmTargetPlatform.REQUIRED + []
 
     @property
     def visualize_tuning(self):

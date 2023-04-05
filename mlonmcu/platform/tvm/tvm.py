@@ -24,7 +24,12 @@ from .tvm_build_platform import TvmBuildPlatform
 from .tvm_tune_platform import TvmTunePlatform
 
 
-class TvmPlatform(TvmBasePlatform, TvmBuildPlatform, TvmTargetPlatform, TvmTunePlatform):
+class TvmPlatform(
+    TvmBasePlatform,
+    TvmBuildPlatform,
+    # TvmTargetPlatform,  # implicitly via tune platform
+    TvmTunePlatform,
+):
     """TVM Platform class."""
 
     FEATURES = TvmBasePlatform.FEATURES + TvmBuildPlatform.FEATURES + TvmTargetPlatform.FEATURES + TvmTunePlatform.FEATURES + [

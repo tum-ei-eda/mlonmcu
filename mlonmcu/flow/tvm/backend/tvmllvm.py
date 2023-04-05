@@ -95,7 +95,7 @@ class TVMLLVMBackend(TVMBackend):
             artifacts.append(Artifact("rt_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
             header_src = generate_wrapper_header()
             artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
-        metrics.add("Workspace Size [B]", workspace_size, True)
+            metrics.add("Workspace Size [B]", workspace_size, True)
         return {"default": artifacts}, {"default": metrics}
 
 

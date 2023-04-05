@@ -240,11 +240,14 @@ platforms:
     features:
       benchmark: true
       tvm_rpc: true
-      autotune: true
+      autotvm: true
       tvm_profile: true
   microtvm:
     enabled: true
-    features: []
+    features:
+      autotvm: true
+      benchmark: true
+      tvm_profile: true
   # espidf:
   #   enabled: true
   #   features:

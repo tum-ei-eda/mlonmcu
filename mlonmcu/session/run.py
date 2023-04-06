@@ -79,7 +79,9 @@ class Run:
     DEFAULTS = {
         "export_optional": False,
         "tune_enabled": False,
-        "target_to_backend": False,
+        "target_to_backend": True,
+        "target_optimized_layouts": False,
+        "target_optimized_schedules": False,
         "stage_subdirs": False,
     }
 
@@ -160,6 +162,18 @@ class Run:
     def target_to_backend(self):
         """Get target_to_backend property."""
         value = self.run_config["target_to_backend"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def target_optimized_layouts(self):
+        """Get target_optimized_layouts property."""
+        value = self.run_config["target_optimized_layouts"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def target_optimized_schedules(self):
+        """Get target_optimized_schedules property."""
+        value = self.run_config["target_optimized_schedules"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -720,9 +734,10 @@ class Run:
         self.lock()
         assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
 
-        if self.target_to_backend or self.backend.needs_target:
+        if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules or self.target_to_backend:
+            assert self.target_to_backend, "Backend needs run.target_to_backend=1"
             assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
-            self.target.add_backend_config(self.backend.name, self.backend.config, self.target_to_backend)
+            self.target.add_backend_config(self.backend.name, self.backend.config, optimized_layouts=self.target_optimized_layouts, optimized_schedules=self.target_optimized_schedules)
 
         def _build():
             # TODO: allow raw data as well as filepath in backends

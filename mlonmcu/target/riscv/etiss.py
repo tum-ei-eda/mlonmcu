@@ -503,12 +503,10 @@ class EtissTarget(RISCVTarget):
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 
-    def get_backend_config(self, backend, optimized=False):
-        ret = super().get_backend_config(backend, optimized=optimized)
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = super().get_backend_config(backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules)
         if backend in SUPPORTED_TVM_BACKENDS:
-            if optimized:
-                ret.update({"target_model": "etissvp"})
-                # ret.update({"target_keys": "pulp"})
+            if optimized_layouts:
                 if self.enable_pext or self.enable_vext:
                     ret.update(
                         {

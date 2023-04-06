@@ -98,6 +98,7 @@ class SpikeTarget(RISCVTarget):
             vext=self.enable_vext,
             elen=self.elen,
             embedded=self.embedded_vext,
+            vlen=self.vlen,
             fpu=self.fpu,
             variant=self.gcc_variant,
         )
@@ -231,11 +232,10 @@ class SpikeTarget(RISCVTarget):
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 
-    def get_backend_config(self, backend, optimized=False):
-        ret = super().get_backend_config(backend, optimized=optimized)
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = super().get_backend_config(backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules)
         if backend in SUPPORTED_TVM_BACKENDS:
-            if optimized:
-                ret.update({"target_model": "spike-rv32"})
+            if optimized_layouts:
                 if self.enable_pext or self.enable_vext:
                     ret.update(
                         {

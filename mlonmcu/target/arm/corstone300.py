@@ -226,8 +226,11 @@ class Corstone300Target(Target):
     def get_arch(self):
         return "arm"  # TODO: use proper mapping (v6, v7, v8, v8.1...)
 
-    def get_backend_config(self, backend, optimized=False):
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}
+        cpu, _, _ = resolve_cpu_features(
+            self.model, enable_fp=self.enable_fpu, enable_dsp=self.enable_dsp, enable_mve=self.enable_mvei
+        )
         if backend in SUPPORTED_TVM_BACKENDS:
             ret = {
                 # "target_march": self.get_arch(),
@@ -235,15 +238,16 @@ class Corstone300Target(Target):
                 "target_mcpu": self.model,
                 # "target_mattr": "?",
                 # "target_mabi": self.abi,
+                "target_model": f"{self.name}-{cpu}",
             }
-            if optimized:
+            if optimized_schedules:
                 ret.update({
                     "target_device": "arm_cpu",
-                    "target_model": "unknown",
                 })
 
-                if self.enable_dsp:
-                    ret.update({"desired_layout": "NHWC:HWOI"})  # Not yet supported by upstream TVMC
+                if optimized_layouts:
+                    if self.enable_dsp:
+                        ret.update({"desired_layout": "NHWC:HWOI"})
         return ret
 
 

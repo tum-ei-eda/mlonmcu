@@ -177,7 +177,7 @@ class RISCVTarget(Target):
     def get_arch(self):
         return "riscv"
 
-    def get_backend_config(self, backend, optimized=False):
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         if backend in SUPPORTED_TVM_BACKENDS:
             ret = {
                 "target_march": self.arch,
@@ -185,11 +185,11 @@ class RISCVTarget(Target):
                 "target_mabi": self.abi,
                 "target_mattr": self.attr,
                 "target_mcpu": f"generic-rv{self.xlen}",
+                "target_model": f"{self.name}-{self.arch}",
             }
-            if optimized:
+            if optimized_schedules:
                 ret.update({
                     "target_device": "riscv_cpu",
-                    "target_model": "unknown",
                     "target_keys": None,
                 })
             return ret

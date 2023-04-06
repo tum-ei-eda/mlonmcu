@@ -1227,13 +1227,31 @@ class TargetOptimized(RunFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
+        "layouts": True,
+        "schedules": True,
     }
+
+    @property
+    def layouts(self):
+        value = self.config["layouts"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def schedules(self):
+        value = self.config["schedules"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def __init__(self, features=None, config=None):
         super().__init__("target_optimized", features=features, config=config)
 
     def get_run_config(self):
-        return {"run.target_to_backend": self.enabled}
+        if self.enable:
+            return {
+                "run.target_optimized_layouts": self.layouts,
+                "run.target_optimized_schedules": self.schedules,
+            }
+        else:
+            return {}
 
 
 # Needs: vext

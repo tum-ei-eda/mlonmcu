@@ -67,6 +67,7 @@ class EtissTarget(RISCVTarget):
         "end_to_end_cycles": False,
         "max_block_size": None,
         "enable_xcorevmac": False,
+        "enable_xcorevmem": False,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script", "etiss.src_dir"}
 
@@ -170,6 +171,11 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def enable_xcorevmem(self):
+        value = self.config["enable_xcorevmem"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def vlen(self):
         return int(self.config["vlen"])
 
@@ -187,6 +193,9 @@ class EtissTarget(RISCVTarget):
         if self.enable_xcorevmac:
             if "xcorevmac" not in attrs:
                 attrs.append("+xcorevmac")
+        if self.enable_xcorevmem:
+            if "xcorevmem" not in attrs:
+                attrs.append("+xcorevmem")
         if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
             attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)

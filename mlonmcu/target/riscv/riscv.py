@@ -192,9 +192,11 @@ class RISCVTarget(Target):
                 "target_model": f"{self.name}-{arch_clean}",
             }
             if optimized_schedules:
-                ret.update({
-                    "target_device": "riscv_cpu",
-                    "target_keys": None,
-                })
+                ret.update(
+                    {
+                        "target_device": "riscv_cpu",
+                        "target_keys": None,
+                    }
+                )
             return ret
         return {}

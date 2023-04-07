@@ -504,7 +504,9 @@ class EtissTarget(RISCVTarget):
         return ret
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
-        ret = super().get_backend_config(backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules)
+        ret = super().get_backend_config(
+            backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+        )
         if backend in SUPPORTED_TVM_BACKENDS:
             if optimized_layouts:
                 if self.enable_pext or self.enable_vext:

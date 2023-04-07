@@ -241,9 +241,11 @@ class Corstone300Target(Target):
                 "target_model": f"{self.name}-{cpu}",
             }
             if optimized_schedules:
-                ret.update({
-                    "target_device": "arm_cpu",
-                })
+                ret.update(
+                    {
+                        "target_device": "arm_cpu",
+                    }
+                )
 
                 if optimized_layouts:
                     if self.enable_dsp:

@@ -734,10 +734,20 @@ class Run:
         self.lock()
         assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
 
-        if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules or self.target_to_backend:
+        if (
+            self.backend.needs_target
+            or self.target_optimized_layouts
+            or self.target_optimized_schedules
+            or self.target_to_backend
+        ):
             assert self.target_to_backend, "Backend needs run.target_to_backend=1"
             assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
-            self.target.add_backend_config(self.backend.name, self.backend.config, optimized_layouts=self.target_optimized_layouts, optimized_schedules=self.target_optimized_schedules)
+            self.target.add_backend_config(
+                self.backend.name,
+                self.backend.config,
+                optimized_layouts=self.target_optimized_layouts,
+                optimized_schedules=self.target_optimized_schedules,
+            )
 
         def _build():
             # TODO: allow raw data as well as filepath in backends
@@ -815,12 +825,20 @@ class Run:
         self.lock()
         assert self.completed[RunStage.LOAD]
 
-        if self.target_to_backend:
+        if (
+            self.backend.needs_target
+            or self.target_optimized_layouts
+            or self.target_optimized_schedules
+            or self.target_to_backend
+        ):
+            assert self.target_to_backend, "Backend needs run.target_to_backend=1"
             assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
-            cfg = self.target.get_backend_config(self.backend.name)  # Do not expect a backend prefix here
-            if len(cfg) > 0:
-                logger.debug("Updating backend config based on given target.")
-                self.backend.config.update(cfg)
+            self.target.add_backend_config(
+                self.backend.name,
+                self.backend.config,
+                optimized_layouts=self.target_optimized_layouts,
+                optimized_schedules=self.target_optimized_schedules,
+            )
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)
         self.artifacts_per_stage[RunStage.TUNE] = {}

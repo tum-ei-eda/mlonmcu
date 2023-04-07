@@ -205,10 +205,13 @@ class GvsocPulpTarget(RISCVTarget):
         return ret
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
-        ret = super().get_backend_config(backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules)
+        ret = super().get_backend_config(
+            backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+        )
         if backend in SUPPORTED_TVM_BACKENDS:
             ret.update({"target_model": f"{self.model}-{self.arch}"})
         return ret
+
 
 if __name__ == "__main__":
     cli(target=GvsocPulpTarget)

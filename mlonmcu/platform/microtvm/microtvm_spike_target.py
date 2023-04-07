@@ -18,6 +18,7 @@
 #
 from pathlib import Path
 
+from mlonmcu.utils import filter_none
 from mlonmcu.target.target import Target
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.config import str2bool
@@ -225,23 +226,39 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         return ",".join(attrs)
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
             arch_replace = self.arch.replace("imafd", "g")
             arch_split = arch_replace.split("_")
             arch_remove = ["zicsr", "zifencei"]
             arch_clean = "-".join([a for a in arch_split if a not in arch_remove])
-            ret = {
-                "target_march": self.arch,
-                "target_mtriple": self.riscv_gcc_name,
-                "target_mabi": self.abi,
-                "target_mattr": self.attr,
-                "target_mcpu": f"generic-rv{self.xlen}",
-                "target_model": f"spike-{arch_clean}",
-            }
+            ret.update(
+                {
+                    "target_march": self.arch,
+                    "target_mtriple": self.riscv_gcc_name,
+                    "target_mabi": self.abi,
+                    "target_mattr": self.attr,
+                    "target_mcpu": f"generic-rv{self.xlen}",
+                    "target_model": f"spike-{arch_clean}",
+                }
+            )
             if optimized_schedules:
-                ret.update({
-                    "target_device": "riscv_cpu",
-                    "target_keys": None,
-                })
-            return ret
-        return {}
+                ret.update(
+                    {
+                        "target_device": "riscv_cpu",
+                        "target_keys": None,
+                    }
+                )
+        return ret
+
+    def add_backend_config(self, backend, config, optimized_layouts=False, optimized_schedules=False):
+        new = filter_none(
+            self.get_backend_config(
+                backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+            )
+        )
+
+        # only allow overwriting non-none values
+        # to support accepting user-vars
+        new = {key: value for key, value in new.items() if config.get(key, None) is None}
+        config.update(new)

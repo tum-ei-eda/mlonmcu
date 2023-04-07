@@ -179,13 +179,17 @@ class RISCVTarget(Target):
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         if backend in SUPPORTED_TVM_BACKENDS:
+            arch_replace = self.arch.replace("imafd", "g")
+            arch_split = arch_replace.split("_")
+            arch_remove = ["zicsr", "zifencei"]
+            arch_clean = "-".join([a for a in arch_split if a not in arch_remove])
             ret = {
                 "target_march": self.arch,
                 "target_mtriple": self.riscv_gcc_basename,  # TODO: riscv32-esp-elf for esp32c3!
                 "target_mabi": self.abi,
                 "target_mattr": self.attr,
                 "target_mcpu": f"generic-rv{self.xlen}",
-                "target_model": f"{self.name}-{self.arch}",
+                "target_model": f"{self.name}-{arch_clean}",
             }
             if optimized_schedules:
                 ret.update({

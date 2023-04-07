@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import itertools
+from collections import ChainMap
 
 
 def parse_var(s):
@@ -67,6 +69,17 @@ def extract_feature_names(args):
                 gen.append(x)
     else:
         gen = [[]]
+    if hasattr(args, "feature_gen2") and args.feature_gen2:
+        gen2 = []
+        for x in args.feature_gen2:
+            if "_" in x:
+                assert len(x) == 1
+                gen2.append([])
+            else:
+                gen2.append(x)
+    else:
+        gen2 = [[]]
+    gen = list(map(lambda x: sum(x, []), (itertools.product(gen, gen2))))
     return features, gen
 
 
@@ -87,6 +100,19 @@ def extract_config(args):
                 gen.append(c)
     else:
         gen = [{}]
+    if hasattr(args, "config_gen2") and args.config_gen2:
+        gen2 = []
+        for x in args.config_gen2:
+            if "_" in x:
+                assert len(x) == 1
+                gen2.append({})
+            else:
+                c = parse_vars(x)
+                gen2.append(c)
+    else:
+        gen2 = [{}]
+
+    gen = list(map(lambda x: dict(ChainMap(*x)), (itertools.product(gen, gen2))))
 
     return configs, gen
 

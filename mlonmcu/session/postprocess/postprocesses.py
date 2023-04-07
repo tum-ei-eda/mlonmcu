@@ -26,7 +26,7 @@ from pathlib import Path
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
-from mlonmcu.config import str2dict, str2bool
+from mlonmcu.config import str2dict, str2bool, str2list
 from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
@@ -190,8 +190,28 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     """Postprocess which can be used to transform (explode) the 'Features' Column
     in a dataframe for easier filtering."""
 
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "limit": [],
+        "drop": True,
+    }
+
     def __init__(self, features=None, config=None):
         super().__init__("features2cols", features=features, config=config)
+
+    @property
+    def limit(self):
+        """Get limit property."""
+        value = self.config["limit"]
+        if not isinstance(value, list):
+            return str2list(value)
+        return value
+
+    @property
+    def drop(self):
+        """Get drop property."""
+        value = self.config["drop"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_session(self, report):
         df = report.post_df
@@ -199,7 +219,7 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
             return
         to_concat = [
             df["Features"].apply(lambda x: pd.Series({"feature_" + feature_name: feature_name in x}))
-            for feature_name in list(set(df["Features"].sum()))
+            for feature_name in list(set(df["Features"].sum())) if feature_name in self.limit or len(self.limit) == 0
         ]
         if len(to_concat) == 0:
             return
@@ -207,7 +227,10 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
             to_concat,
             axis=1,
         )
-        tmp_df = df.drop(columns=["Features"])
+        if self.drop:
+            tmp_df = df.drop(columns=["Features"])
+        else:
+            tmp_df = df
         new_df = pd.concat([tmp_df, feature_df], axis=1)
         report.post_df = new_df
 
@@ -217,7 +240,8 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
-        "limit": None,
+        "limit": [],
+        "drop": True,
     }
 
     def __init__(self, features=None, config=None):
@@ -225,31 +249,52 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
     @property
     def limit(self):
+        """Get limit property."""
         value = self.config["limit"]
-        if value is None:
-            return None
-        if isinstance(value, str):
-            value = value.split(",")
-        assert isinstance(value, list)
+        if not isinstance(value, list):
+            return str2list(value)
         return value
+
+    @property
+    def drop(self):
+        """Get drop property."""
+        value = self.config["drop"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_session(self, report):
         """Called at the end of a session."""
         df = report.post_df
         if "Config" not in df.columns:
             return
-        config_df = df["Config"].apply(pd.Series).add_prefix("config_")
-        keep = self.limit
-        if keep:
-            keep_cols = [f"config_{x}" for x in keep]
-            for col in config_df:
-                if col not in keep_cols:
-                    # if not col.startswith("config_"):
-                    #     continue
-                    config_df.drop(columns=[col], inplace=True)
-        tmp_df = df.drop(columns=["Config"])
+        config_df = df["Config"].apply(lambda x: {key: value for key, value in x.items() if key in self.limit or len(self.limit) == 0}).apply(pd.Series).add_prefix("config_")
+        if self.drop:
+            tmp_df = df.drop(columns=["Config"])
+        else:
+            tmp_df = df
         new_df = pd.concat([tmp_df, config_df], axis=1)
         report.post_df = new_df
+
+
+class MyPostprocess(SessionPostprocess):
+    """TODO"""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("mypost", features=features, config=config)
+        self.config2cols = Config2ColumnsPostprocess(config={"config2cols.limit": ["tvmllvm.desired_layout", "xcorev.mem", "xcorev.mac"], "config2cols.drop": True})
+        self.rename_cols = RenameColumnsPostprocess(config={"rename_cols.mapping": {"config_tvmllvm.desired_layout": "Layout", "config_xcorev.mem": "XCoreVMem", "config_xcorev.mac": "XCoreVMac", "feature_autotuned": "Autotuned"}})
+        self.features2cols = Features2ColumnsPostprocess(config={"features2cols.limit": ["autotuned"], "features2cols.drop": True})
+        self.filter_cols = FilterColumnsPostprocess(config={"filter_cols.drop": ["Postprocesses", "Frontend", "Framework", "Platform", "Comment", "Session", "Run", "ROM read-only", "ROM code", "ROM misc", "RAM data", "RAM zero-init data"]})
+
+    def post_session(self, report):
+        """TODO"""
+        self.config2cols.post_session(report)
+        self.features2cols.post_session(report)
+        self.rename_cols.post_session(report)
+        self.filter_cols.post_session(report)
 
 
 class PassConfig2ColumnsPostprocess(SessionPostprocess):

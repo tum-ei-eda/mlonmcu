@@ -1245,7 +1245,7 @@ class TargetOptimized(RunFeature):
         super().__init__("target_optimized", features=features, config=config)
 
     def get_run_config(self):
-        if self.enable:
+        if self.enabled:
             return {
                 "run.target_optimized_layouts": self.layouts,
                 "run.target_optimized_schedules": self.schedules,

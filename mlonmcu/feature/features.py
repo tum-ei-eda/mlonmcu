@@ -1503,6 +1503,7 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "mac": True,
+        "mem": True,
     }
 
     def __init__(self, features=None, config=None):
@@ -1513,15 +1514,16 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         value = self.config["mac"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def mem(self):
+        value = self.config["mem"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def add_target_config(self, target, config):
-        assert target in ["etiss"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in ["etiss", "microtvm_etiss"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
-            # extensions = config.get(f"{target}.extensions", [])
-            # assert isinstance(extensions, list)
-            # if self.mac:
-            #     extensions.append("XCoreV")
-            # config[f"{target}.extensions"] = extensions
-            config[f"{target}.enable_xcorevmac"] = True
+            config[f"{target}.enable_xcorevmac"] = self.mac
+            config[f"{target}.enable_xcorevmem"] = self.mem
 
 
 @register_feature("xpulp")

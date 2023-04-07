@@ -214,7 +214,11 @@ class Target:
         return {}
 
     def add_backend_config(self, backend, config, optimized_layouts=False, optimized_schedules=False):
-        new = filter_none(self.get_backend_config(backend, optimized_layouts=optimized_layouts, optimized_schedules))
+        new = filter_none(
+            self.get_backend_config(
+                backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+            )
+        )
 
         # only allow overwriting non-none values
         # to support accepting user-vars

@@ -14,10 +14,14 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
 class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     """TVM target platform class."""
 
-    FEATURES = TargetPlatform.FEATURES + TvmRpcPlatform.FEATURES + [
-        "benchmark",
-        "tvm_profile",
-    ]
+    FEATURES = (
+        TargetPlatform.FEATURES
+        + TvmRpcPlatform.FEATURES
+        + [
+            "benchmark",
+            "tvm_profile",
+        ]
+    )
 
     DEFAULTS = {
         **TargetPlatform.DEFAULTS,

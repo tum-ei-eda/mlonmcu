@@ -1,6 +1,7 @@
 import re
 import tempfile
 from pathlib import Path
+
 # from ..platform import Platform
 from ..tvm.tvm_base_platform import TvmBasePlatform
 from mlonmcu.setup import utils
@@ -33,8 +34,7 @@ def get_project_option_args(stage, project_options):
 class MicroTvmBasePlatform(TvmBasePlatform):
     """MicroTVM base platform class."""
 
-    FEATURES = TvmBasePlatform.FEATURES + [
-    ]
+    FEATURES = TvmBasePlatform.FEATURES + []
 
     DEFAULTS = {
         **TvmBasePlatform.DEFAULTS,

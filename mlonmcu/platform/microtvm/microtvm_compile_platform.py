@@ -9,8 +9,7 @@ from ..platform import CompilePlatform
 class MicroTvmCompilePlatform(CompilePlatform):
     """MicroTVM compile platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + CompilePlatform.FEATURES + [
-    ]
+    FEATURES = CompilePlatform.FEATURES + CompilePlatform.FEATURES + []
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,

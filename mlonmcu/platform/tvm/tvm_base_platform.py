@@ -12,8 +12,7 @@ logger = get_logger()
 class TvmBasePlatform(Platform):
     """TVM base platform class."""
 
-    FEATURES = [
-    ]
+    FEATURES = []
 
     DEFAULTS = {
         "tvmc_custom_script": None,

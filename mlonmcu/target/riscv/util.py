@@ -86,7 +86,9 @@ def join_extensions(exts):
     return ret
 
 
-def update_extensions(exts, pext=None, pext_spec=None, vext=None, elen=None, embedded=None, vlen=None, fpu=None, variant=None):
+def update_extensions(
+    exts, pext=None, pext_spec=None, vext=None, elen=None, embedded=None, vlen=None, fpu=None, variant=None
+):
     ret = exts.copy()
     require = []
     if pext and "p" not in ret:

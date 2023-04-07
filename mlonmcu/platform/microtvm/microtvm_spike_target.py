@@ -21,7 +21,7 @@ from pathlib import Path
 from mlonmcu.target.target import Target
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.config import str2bool
-import mlonmcu.target.riscv.util as riscv_util
+from mlonmcu.target.riscv.util import sort_extensions_canonical, join_extensions
 
 from mlonmcu.logging import get_logger
 
@@ -38,8 +38,12 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "verbose": False,
         "quiet": True,
         "workspace_size_bytes": None,
-        "arch": "rv32gc",
+        "xlen": 32,
+        "extensions": ["i", "m", "a", "c"],
+        "fpu": "double",  # allowed: none, single, double
+        "arch": None,
         "abi": None,
+        "attr": "",
         "spike_extra_args": None,
         "pk_extra_args": None,
         "enable_vext": False,
@@ -110,60 +114,15 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     @property
     def fpu(self):
-        exts = self.extensions
-        if "g" in exts or "d" in exts:
-            return "double"
-        elif "f" in exts:
-            return "single"
-        return "none"
+        value = self.config["fpu"]
+        if value is None or not value:
+            value = "none"
+        assert value in ["none", "single", "double"]
+        return value
 
     @property
     def has_fpu(self):
         return self.fpu != "none"
-
-    @property
-    def xlen(self):
-        arch = self.config["arch"]
-        xlen = int(arch[2:4])
-        return xlen
-
-    @property
-    def extensions(self):
-        arch = self.config["arch"]
-        exts_str = arch[4:]
-
-        def _split_exts(x):
-            ret = []
-            splitted = x.split("_")
-            for c in splitted:
-                lowered = c.lower()
-                assert len(c) > 0
-                if len(c) == 1:
-                    ret.append(lowered)
-                else:
-                    for i, cc in enumerate(lowered):
-                        if cc in ["x", "z"]:
-                            ret.append(lowered[i:])
-                            break
-                        else:
-                            ret.append(cc)
-            return ret
-
-        exts = _split_exts(exts_str)
-        if "g" in exts or "d" in exts:
-            fpu = "double"
-        elif "f" in exts:
-            fpu = "single"
-        return riscv_util.update_extensions(
-            exts,
-            pext=self.enable_pext,
-            pext_spec=self.pext_spec,
-            vext=self.enable_vext,
-            elen=self.elen,
-            embedded=self.embedded_vext,
-            fpu=fpu,
-            variant=self.gcc_variant,
-        )
 
     @property
     def vlen(self):
@@ -186,11 +145,6 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     def pext_spec(self):
         return float(self.config["pext_spec"])
 
-    @property
-    def arch(self):
-        exts_str = riscv_util.join_extensions(riscv_util.sort_extensions_canonical(self.extensions, lower=True))
-        return f"rv{self.xlen}{exts_str}"
-
     def get_project_options(self):
         ret = super().get_project_options()
         ret.update(
@@ -199,20 +153,95 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "gcc_name": self.riscv_gcc_name,
                 "spike_exe": str(self.spike_exe),
                 "spike_pk": str(self.spike_pk),
+                "arch": self.arch,
+                "abi": self.abi,
+                "vlen": self.vlen,
+                "elen": self.elen,
             }
         )
         return ret
 
-    def get_backend_config(self, backend):
+    @property
+    def xlen(self):
+        return int(self.config["xlen"])
+
+    @property
+    def extensions(self):
+        exts = self.config.get("extensions", []).copy()
+        if not isinstance(exts, list):
+            exts = exts.split(",")
+        required = []
+        if "g" not in exts:
+            if self.fpu in ["single", "double"]:
+                required.append("zicsr")
+            if self.fpu == "double":
+                required.append("d")
+                required.append("f")
+                required.append("zifencei")
+            if self.fpu == "single":
+                required.append("f")
+        for ext in required:
+            if ext not in exts:
+                exts.append(ext)
+        return exts
+
+    @property
+    def arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def abi(self):
+        temp = self.config["abi"]
+        if temp:
+            return temp
+        else:
+            if self.xlen == 32:
+                temp = "ilp32"
+            elif self.xlen == 64:
+                temp = "lp64"
+            else:
+                raise RuntimeError(f"Invalid xlen: {self.xlen}")
+            if "d" in self.extensions or "g" in self.extensions:
+                temp += "d"
+            elif "f" in self.extensions:
+                temp += "f"
+            return temp
+
+    @property
+    def attr(self):
+        attrs = str(self.config["attr"]).split(",")
+        if len(attrs) == 1 and len(attrs[0]) == 0:
+            attrs = []
+        for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):
+            if ext == "i":
+                continue
+            attrs.append(f"+{ext}")
+        attrs = list(set(attrs))
+        return ",".join(attrs)
+
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         if backend in SUPPORTED_TVM_BACKENDS:
-            return {
-                # "target_device": "riscv_cpu",
-                # "target_march": "TODO",
-                "target_model": f"spike-{self.arch}",
+            arch_replace = self.arch.replace("imafd", "g")
+            arch_split = arch_replace.split("_")
+            arch_remove = ["zicsr", "zifencei"]
+            arch_clean = "-".join([a for a in arch_split if a not in arch_remove])
+            ret = {
+                "target_march": self.arch,
                 "target_mtriple": self.riscv_gcc_name,
-                # "target_mabi": "ilp32d",
-                # "target_mattr": self.mattr,
-                # "target_mcpu": f"generic-rv{self.xlen}",
-                # "target_keys": "TODO",
+                "target_mabi": self.abi,
+                "target_mattr": self.attr,
+                "target_mcpu": f"generic-rv{self.xlen}",
+                "target_model": f"spike-{arch_clean}",
             }
+            if optimized_schedules:
+                ret.update({
+                    "target_device": "riscv_cpu",
+                    "target_keys": None,
+                })
+            return ret
         return {}

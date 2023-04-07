@@ -20,6 +20,7 @@ from pathlib import Path
 
 from mlonmcu.config import str2bool
 from mlonmcu.target.target import Target
+from mlonmcu.target.riscv.util import sort_extensions_canonical, join_extensions
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 
 from mlonmcu.logging import get_logger
@@ -38,15 +39,15 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "verbose": False,
         "quiet": True,
         "workspace_size_bytes": None,
-        # "warning_as_error": True,
-        # "compile_definitions": "",
-        # "config_main_stack_size": -1,
-        # "riscv_path": "?",
-        # "etiss_path": "?",
-        # "etissvp_script": "?",
-        # "etissvp_script_args": "?",
-        # "transport": True,
+        "xlen": 32,
+        "extensions": ["i", "m", "a", "c"],  # TODO overwrite extensions elegantly
+        "fpu": "double",  # allowed: none, single, double
+        "arch": None,
+        "abi": None,
+        "attr": "",
+        "etiss_extra_args": None,
         "enable_xcorevmac": False,
+        "enable_xcorevmem": False,
     }
     REQUIRED = Target.REQUIRED + ["microtvm_etiss.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script"]
 
@@ -83,8 +84,17 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         return Path(self.config["etissvp.script"])
 
     @property
+    def etiss_extra_args(self):
+        return self.config["etiss_extra_args"]
+
+    @property
     def enable_xcorevmac(self):
         value = self.config["enable_xcorevmac"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevmem(self):
+        value = self.config["enable_xcorevmem"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_project_options(self):
@@ -94,35 +104,107 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "gcc_prefix": self.riscv_gcc_install_dir,
                 "gcc_name": self.riscv_gcc_name,
                 "etiss_script": self.etiss_script,
-                "etiss_args": "",
-                # arch
-                # abi
-                # ?
+                "etiss_args": self.etiss_extra_args,
+                "arch": self.arch,
+                "abi": self.abi,
             }
         )
         return ret
 
-    def get_backend_config(self, backend):
-        attrs = "+m,+a,+f,+d,+c".split(",")
-        model = "etiss"
-        if self.enable_xcorevmac:
-            if "+xcorevmac" not in attrs:
-                attrs.append("+xcorevmac")
-            model = "etiss-xcorevmac"
-        attrs = ",".join(attrs)
+    @property
+    def xlen(self):
+        return int(self.config["xlen"])
+
+    @property
+    def fpu(self):
+        value = self.config["fpu"]
+        if value is None or not value:
+            value = "none"
+        assert value in ["none", "single", "double"]
+        return value
+
+    @property
+    def extensions(self):
+        exts = self.config.get("extensions", []).copy()
+        if not isinstance(exts, list):
+            exts = exts.split(",")
+        required = []
+        if "g" not in exts:
+            if self.fpu in ["single", "double"]:
+                required.append("zicsr")
+            if self.fpu == "double":
+                required.append("d")
+                required.append("f")
+                required.append("zifencei")
+            if self.fpu == "single":
+                required.append("f")
+        if "xcorev" not in exts:
+            if self.enable_xcorevmac:
+                required.append("xcorevmac")
+            if self.enable_xcorevmem:
+                required.append("xcorevmem")
+        for ext in required:
+            if ext not in exts:
+                exts.append(ext)
+        return exts
+
+    @property
+    def arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def abi(self):
+        temp = self.config["abi"]
+        if temp:
+            return temp
+        else:
+            if self.xlen == 32:
+                temp = "ilp32"
+            elif self.xlen == 64:
+                temp = "lp64"
+            else:
+                raise RuntimeError(f"Invalid xlen: {self.xlen}")
+            if "d" in self.extensions or "g" in self.extensions:
+                temp += "d"
+            elif "f" in self.extensions:
+                temp += "f"
+            return temp
+
+    @property
+    def attr(self):
+        attrs = str(self.config["attr"]).split(",")
+        if len(attrs) == 1 and len(attrs[0]) == 0:
+            attrs = []
+        for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):
+            if ext == "i":
+                continue
+            attrs.append(f"+{ext}")
+        attrs = list(set(attrs))
+        return ",".join(attrs)
+
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         if backend in SUPPORTED_TVM_BACKENDS:
-            return {
-                "target_device": "riscv_cpu",
-                # "target_device": "pulp",
-                # "target_march": "TODO",
-                "target_model": model,
+            arch_replace = self.arch.replace("imafd", "g")
+            arch_split = arch_replace.split("_")
+            arch_remove = ["zicsr", "zifencei"]
+            arch_clean = "-".join([a for a in arch_split if a not in arch_remove])
+            ret = {
+                "target_march": self.arch,
                 "target_mtriple": self.riscv_gcc_name,
-                # "target_mabi": self.mabi,
-                "target_mabi": "ilp32d",
-                # "target_mattr": self.mattr,
-                "target_mattr": attrs,
-                # "target_mcpu": f"generic-rv{self.xlen}",
-                "target_mcpu": f"generic-rv32",
-                # "target_keys": "pulp",
+                "target_mabi": self.abi,
+                "target_mattr": self.attr,
+                "target_mcpu": f"generic-rv{self.xlen}",
+                "target_model": f"etiss-{arch_clean}",
             }
+            if optimized_schedules:
+                ret.update({
+                    "target_device": "riscv_cpu",
+                    "target_keys": None,
+                })
+            return ret
         return {}

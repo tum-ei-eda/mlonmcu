@@ -78,8 +78,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         value = self.config["min_repeat_ms"]
         return int(value)
 
-    def invoke_tvmc_tune(self, *args, target=None):
-        return self.invoke_tvmc("tune", *args, target=target)
+    def invoke_tvmc_tune(self, *args, target=None, **kwargs):
+        return self.invoke_tvmc("tune", *args, target=target, **kwargs)
 
     def get_tune_args(self, model, backend, target, out):
         trials = self.config.get("autotuning_trials", 10)
@@ -216,7 +216,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     with tempfile.TemporaryDirectory() as tmp_dir:
                         out_file = Path(tmp_dir) / "tuning_results.log.txt"
                         tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                        out = self.invoke_tvmc_tune(*tune_args, "--tasks", "list", target=target, cwd=tmp_dir)
+                        out = self.invoke_tvmc_tune(*tune_args, "--tasks", "list", target=target, cwd=tmp_dir, live=False)
                         lines = out.split("\n")
                         for i, line in enumerate(lines):
                             if "Available Tasks for tuning" in line:
@@ -313,7 +313,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     with open(out_file, "w") as handle:
                         handle.write(content)
                     tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                    out = self.invoke_tvmc_tune(*tune_args, target=target)
+                    out = self.invoke_tvmc_tune(*tune_args, target=target, cwd=tmp_dir)
                     with open(out_file, "r") as handle:
                         content = handle.read()
                     visualize_raw = None

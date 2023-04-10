@@ -92,7 +92,9 @@ class TvmBasePlatform(Platform):
     def tvm_configs_dir(self):
         return self.config["tvm.configs_dir"]
 
-    def invoke_tvmc(self, command, *args, target=None):
+    def invoke_tvmc(self, command, *args, target=None, live=None, **kwargs):
+        if live is None:
+            live = self.print_outputs
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
         if target:
             target.update_environment(env)
@@ -100,7 +102,7 @@ class TvmBasePlatform(Platform):
             pre = ["-m", "tvm.driver.tvmc"]
         else:
             pre = [self.tvmc_custom_script]
-        return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
+        return utils.python(*pre, command, *args, live=live, print_output=False, env=env, **kwargs)
 
     def close(self):
         if self.tempdir:

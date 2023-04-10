@@ -80,21 +80,21 @@ class MicroTvmBasePlatform(TvmBasePlatform):
     def collect_available_project_options(self, command, target=None):
         # TODO: define NotImplemented versions of the invoke_tvmc_micro_* mathods in here
         if "create" in command:
-            out = self.invoke_tvmc_micro_create("_", target=target, list_options=True)
+            out = self.invoke_tvmc_micro_create("_", target=target, list_options=True, live=False)
         elif command == "build":
-            out = self.invoke_tvmc_micro_build(target=target, list_options=True)
+            out = self.invoke_tvmc_micro_build(target=target, list_options=True, live=False)
         elif command == "flash":
-            out = self.invoke_tvmc_micro_flash(target=target, list_options=True)
+            out = self.invoke_tvmc_micro_flash(target=target, list_options=True, live=False)
         elif command == "tune":
             tune_args = ["--output", "-", "_"]
-            out = self.invoke_tvmc_micro_tune(*tune_args, target=target, list_options=True)
+            out = self.invoke_tvmc_micro_tune(*tune_args, target=target, list_options=True, live=False)
         elif command == "run":
-            out = self.invoke_tvmc_micro_run(target=target, list_options=True)
+            out = self.invoke_tvmc_micro_run(target=target, list_options=True, live=False)
         else:
             raise RuntimeError(f"Unexpected command: {command}")
         return parse_project_options_from_stdout(out)
 
-    def invoke_tvmc_micro(self, command, *args, target=None, list_options=False):
+    def invoke_tvmc_micro(self, command, *args, target=None, list_options=False, **kwargs):
         if list_options:
             project_option_args = ["--help"]
         else:
@@ -103,7 +103,7 @@ class MicroTvmBasePlatform(TvmBasePlatform):
                 target.get_project_options(),
             )
             project_option_args = get_project_option_args(command, options)
-        return self.invoke_tvmc("micro", command, *args, *project_option_args, target=target)
+        return self.invoke_tvmc("micro", command, *args, *project_option_args, target=target, **kwargs)
 
     def get_template_args(self, target):
         template = target.template
@@ -179,15 +179,17 @@ class MicroTvmBasePlatform(TvmBasePlatform):
     def tvm_configs_dir(self):
         return self.config["tvm.configs_dir"]
 
-    def invoke_tvmc(self, command, *args, target=None):
+    def invoke_tvmc(self, command, *args, target=None, live=None, **kwargs):
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, self.tvm_configs_dir)
+        if live is None:
+            live = self.print_outputs
         if target:
             target.update_environment(env)
         if self.tvmc_custom_script is None:
             pre = ["-m", "tvm.driver.tvmc"]
         else:
             pre = [self.tvmc_custom_script]
-        return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env)
+        return utils.python(*pre, command, *args, live=live, print_output=False, env=env, **kwargs)
 
     def close(self):
         if self.tempdir:

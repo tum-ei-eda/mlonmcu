@@ -39,15 +39,15 @@ class MicroTvmTunePlatform(TvmTunePlatform, MicroTvmTargetPlatform):
         value = self.config["experimental_tvmc_micro_tune"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    def invoke_tvmc_micro_tune(self, *args, target=None, list_options=False):
+    def invoke_tvmc_micro_tune(self, *args, target=None, list_options=False, **kwargs):
         all_args = []
         all_args.extend(args)
         template_args = self.get_template_args(target)
         all_args.extend(template_args)
-        return self.invoke_tvmc_micro("tune", *all_args, target=target, list_options=list_options)
+        return self.invoke_tvmc_micro("tune", *all_args, target=target, list_options=list_options, **kwargs)
 
-    def invoke_tvmc_tune(self, *args, target=None):
-        return self.invoke_tvmc_micro_tune(*args, target=target)
+    def invoke_tvmc_tune(self, *args, target=None, **kwargs):
+        return self.invoke_tvmc_micro_tune(*args, target=target, **kwargs)
 
     def _tune_model(self, model_path, backend, target):
         assert self.experimental_tvmc_micro_tune, "Microtvm tuning requires experimental_tvmc_micro_tune"

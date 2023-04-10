@@ -149,6 +149,12 @@ class Validate(FrontendFeature, PlatformFeature):
 class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
     """muRISCV-V NN wrappers for TFLite Micro"""
 
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "use_vext": "AUTO",
+        "use_pext": "AUTO",
+    }
+
     REQUIRED = ["muriscvnn.src_dir"]
 
     def __init__(self, features=None, config=None):
@@ -157,6 +163,24 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
     @property
     def muriscvnn_dir(self):
         return str(self.config["muriscvnn.src_dir"])
+
+    @property
+    def use_vext(self):
+        value = self.config["use_vext"]
+        if value == "AUTO" or value is None:
+            return value
+        if not isinstance(value, (bool, int)):
+            value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
+    def use_pext(self):
+        value = self.config["use_pext"]
+        if value == "AUTO" or value is None:
+            return value
+        if not isinstance(value, (bool, int)):
+            value = str2bool(value)
+        return "ON" if value else "OFF"
 
     def add_framework_config(self, framework, config):
         assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
@@ -173,6 +197,8 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
+            "MURISCVNN_VEXT": self.use_vext,
+            "MURISCVNN_PEXT": self.use_pext,
         }
 
     def get_required_cache_flags(self):

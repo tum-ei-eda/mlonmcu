@@ -216,7 +216,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     with tempfile.TemporaryDirectory() as tmp_dir:
                         out_file = Path(tmp_dir) / "tuning_results.log.txt"
                         tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                        out = self.invoke_tvmc_tune(*tune_args, "--tasks", "list", target=target)
+                        out = self.invoke_tvmc_tune(*tune_args, "--tasks", "list", target=target, cwd=tmp_dir)
                         lines = out.split("\n")
                         for i, line in enumerate(lines):
                             if "Available Tasks for tuning" in line:
@@ -237,7 +237,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         if total_size is None:
                             total_size = 0
                         total_size += task_len
-                        print(f"Created worker for task {i}")
+                        logger.debug(f"Created worker for task {i}")
 
                         def do_work(idx, prepend, task_len):
                             t0 = time.time()
@@ -247,16 +247,18 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                     handle.write(prepend)
                                 # TODO: divide trials by number of tasks?
                                 tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                                out = self.invoke_tvmc_tune(*tune_args, "--tasks", str(idx), target=target)
+                                out = self.invoke_tvmc_tune(*tune_args, "--tasks", str(idx), target=target, cwd=tmp_dir)
                                 with open(out_file, "r") as handle:
                                     content = handle.read()
                                 visualize_raw_task = None
                                 if self.config["autotuning_visualize"]:
                                     to_file = self.config["autotuning_visualize_file"]
                                     if not to_file or to_file is True:
-                                        to_file = "viz.png"
-                                    assert Path(to_file).is_file()
-                                    with open("viz.png", "rb") as handle:
+                                        to_file = Path(tmp_dir) / "viz.png"
+                                    else:
+                                        to_file = Path(to_file)
+                                    assert to_file.is_file()
+                                    with open(to_file, "rb") as handle:
                                         visualize_raw_task = handle.read()
                                 # content_best = _pick_best(backend, content, verbose=verbose)
                                 sub_trials = len(remove_empty(content.split("\n")))
@@ -268,12 +270,12 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 all_out = ""
                 all_content = ""
                 for i, w in enumerate(workers):
-                    print(f"Worker {i}: pending")
+                    logger.debug(f"Worker {i}: pending")
                     metrics_ = Metrics()
                     artifacts_ = []
                     try:
                         ret = w.result()
-                        print(f"Worker {i}: done")
+                        logger.debug(f"Worker {i}: done")
                         out, content, size, tuned, failed, duration, visualize_raw_task = ret
                         all_out += out
                         all_content += content
@@ -318,9 +320,11 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     if self.config["autotuning_visualize"]:
                         to_file = self.config["autotuning_visualize_file"]
                         if not to_file or to_file is True:
-                            to_file = "viz.png"
-                        assert Path(to_file).is_file()
-                        with open("viz.png", "rb") as handle:
+                            to_file = Path(tmp_dir) / "viz.png"
+                        else:
+                            to_file = Path(tmp_dir)
+                        assert to_file.is_file()
+                        with open(to_file, "rb") as handle:
                             visualize_raw = handle.read()
         else:
             if results_file is None:

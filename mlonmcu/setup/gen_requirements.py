@@ -122,7 +122,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         "microtvm",
         (
             "Requirements for using microtvm",
-            ["pyserial", "pyusb"],
+            ["matplotlib", "pyserial", "pyusb"],
         ),
     ),
     # Provide support for moiopt.
@@ -167,6 +167,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "synr",
                 "tornado",
                 "typing_extensions",
+                "matplotlib",
             ],
         ),
     ),

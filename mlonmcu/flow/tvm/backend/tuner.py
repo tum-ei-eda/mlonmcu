@@ -30,6 +30,8 @@ def get_autotuning_defaults():
         "timeout": 100,
         "tasks": None,
         "visualize": False,
+        "visualize_file": None,
+        "visualize_live": False,
     }
 
 

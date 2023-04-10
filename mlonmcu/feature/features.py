@@ -764,6 +764,8 @@ class TVMTuneBase(PlatformFeature):
         "use_rpc": None,
         "timeout": None,
         "visualize": None,
+        "visualize_file": None,
+        "visualize_live": None,
         "tasks": None,
         # All None to use the defaults defined in the backend instead
     }
@@ -805,6 +807,14 @@ class TVMTuneBase(PlatformFeature):
         return self.config["visualize"]
 
     @property
+    def visualize_file(self):
+        return self.config["visualize_file"]
+
+    @property
+    def visualize_live(self):
+        return self.config["visualize_live"]
+
+    @property
     def tasks(self):
         return self.config["tasks"]
 
@@ -821,6 +831,8 @@ class TVMTuneBase(PlatformFeature):
                 f"{platform}.autotuning_max_parallel": self.max_parallel,
                 f"{platform}.autotuning_timeout": self.timeout,
                 f"{platform}.autotuning_visualize": self.visualize,
+                f"{platform}.autotuning_visualize_file": self.visualize_file,
+                f"{platform}.autotuning_visualize_live": self.visualize_live,
                 f"{platform}.autotuning_tasks": self.tasks,
             }
         )

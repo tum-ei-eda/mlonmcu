@@ -35,6 +35,9 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.setup import utils
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
@@ -54,12 +57,6 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     }
 
     REQUIRED = TunePlatform.REQUIRED + TvmTargetPlatform.REQUIRED + []
-
-    @property
-    def visualize_tuning(self):
-        # Visualize the tuning progress via matplotlib
-        value = self.config["visualize_tuning"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def tune_tasks(self):
@@ -122,10 +119,18 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
             ret.extend(["--tuner", tuner])
             if self.config["autotuning_visualize"]:
+                to_file = self.config["autotuning_visualize_file"]
+                if not to_file:
+                    to_file = "viz.png"
+                live = self.config["autotuning_visualize_live"]
                 assert (
                     self.experimental_tvmc_tune_tasks
-                ), f"{self.name}.visualize_tuning requires experimental_autotvm_visualize"
-                ret.append("--visualize")
+                ), f"requires experimental_autotvm_visualize"
+                visualize_arg = to_file
+                if live:
+                    visualize_arg += ",live"
+                ret.extend(["--visualize", visualize_arg])
+
         elif autoscheduler_enable:
             ret.append("--enable-autoscheduler")
             if self.config.get("autoscheduler_include_simple_tasks", False):
@@ -190,6 +195,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
 
         content = ""
         total_size = None
+        visualize_raw = None
         if autotvm_enable or autoscheduler_enable:
             if append:
                 if results_file is not None:
@@ -197,6 +203,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         content = handle.read()
 
             sub_metrics = {}
+            sub_artifacts = {}
             if num_workers is not None:
                 if isinstance(num_workers, str):
                     num_workers = int(num_workers)
@@ -243,41 +250,59 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 out = self.invoke_tvmc_tune(*tune_args, "--tasks", str(idx), target=target)
                                 with open(out_file, "r") as handle:
                                     content = handle.read()
+                                visualize_raw_task = None
+                                if self.config["autotuning_visualize"]:
+                                    to_file = self.config["autotuning_visualize_file"]
+                                    if not to_file or to_file is True:
+                                        to_file = "viz.png"
+                                    assert Path(to_file).is_file()
+                                    with open("viz.png", "rb") as handle:
+                                        visualize_raw_task = handle.read()
                                 # content_best = _pick_best(backend, content, verbose=verbose)
                                 sub_trials = len(remove_empty(content.split("\n")))
                                 sub_failed_trials = count_failed_trials(content)
                                 t1 = time.time()
-                            return (out, content, task_len, sub_trials, sub_failed_trials, t1 - t0)
+                            return (out, content, task_len, sub_trials, sub_failed_trials, t1 - t0, visualize_raw_task)
 
                         workers.append(executor.submit(do_work, i, content, task_len))
                 all_out = ""
                 all_content = ""
                 for i, w in enumerate(workers):
-                    print(f"Worker {i}: done")
-                    ret = w.result()
-                    out, content, size, tuned, failed, duration = ret
-                    all_out += out
-                    all_content += content
+                    print(f"Worker {i}: pending")
                     metrics_ = Metrics()
-                    metrics_.add("Config Space Size", size, True)
-                    metrics_.add("Total Trials", tuned, True)
-                    metrics_.add("Failed Trials", failed, True)
-                    metrics_.add("Tune Duration [s]", duration, True)
-                    metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
-                    trials = self.config.get("autotuning_trials", 10)
-                    if not isinstance(trials, int):
-                        trials = int(trials)
-                    early_stopping = self.config.get("autotuning_early_stopping", None)
-                    if not isinstance(early_stopping, int):
-                        early_stopping = int(early_stopping)
-                    if early_stopping is None:
-                        early_stopping = max(trials, 10)  # Let's see if this default works out...
-                    if early_stopping < trials:
-                        early = tuned + failed < min(trials, size)
-                    else:
-                        early = False
-                    metrics_.add("Early Stopped", early, True)
+                    artifacts_ = []
+                    try:
+                        ret = w.result()
+                        print(f"Worker {i}: done")
+                        out, content, size, tuned, failed, duration, visualize_raw_task = ret
+                        all_out += out
+                        all_content += content
+                        metrics_.add("Config Space Size", size, True)
+                        metrics_.add("Total Trials", tuned, True)
+                        metrics_.add("Failed Trials", failed, True)
+                        metrics_.add("Tune Duration [s]", duration, True)
+                        metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
+                        trials = self.config.get("autotuning_trials", 10)
+                        if not isinstance(trials, int):
+                            trials = int(trials)
+                        early_stopping = self.config.get("autotuning_early_stopping", None)
+                        if not isinstance(early_stopping, int):
+                            early_stopping = int(early_stopping)
+                        if early_stopping is None:
+                            early_stopping = max(trials, 10)  # Let's see if this default works out...
+                        if early_stopping < trials:
+                            early = tuned + failed < min(trials, size)
+                        else:
+                            early = False
+                        metrics_.add("Early Stopped", early, True)
+                        if visualize_raw_task:
+                            visualize_artifact = Artifact(f"tuning_progress_task{i}.png", raw=visualize_raw_task, fmt=ArtifactFormat.RAW, flags=["visualize"])
+                            artifacts_.append(visualize_artifact)
+                    except AssertionError:
+                        logger.exception(f"Worker {i}: failed")
+                        metrics_.add("Failed Tuning", True)
                     sub_metrics[f"task{i}"] = metrics_
+                    sub_artifacts[f"task{i}"] = artifacts_
                 out = all_out
                 content = all_content
             else:
@@ -289,6 +314,14 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     out = self.invoke_tvmc_tune(*tune_args, target=target)
                     with open(out_file, "r") as handle:
                         content = handle.read()
+                    visualize_raw = None
+                    if self.config["autotuning_visualize"]:
+                        to_file = self.config["autotuning_visualize_file"]
+                        if not to_file or to_file is True:
+                            to_file = "viz.png"
+                        assert Path(to_file).is_file()
+                        with open("viz.png", "rb") as handle:
+                            visualize_raw = handle.read()
         else:
             if results_file is None:
                 return {}, {}
@@ -298,6 +331,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
 
         artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records"])
         artifacts.append(artifact)
+        if visualize_raw:
+            visualize_artifact = Artifact("tuning_progress.png", raw=visualize_raw, fmt=ArtifactFormat.RAW, flags=["visualize"])
+            artifacts.append(visualize_artifact)
 
         metrics = Metrics()
 
@@ -324,4 +360,4 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
 
-        return {"default": artifacts}, {"default": metrics, **sub_metrics}
+        return {"default": artifacts, **sub_artifacts}, {"default": metrics, **sub_metrics}

@@ -207,6 +207,15 @@ def clone(
     """
     mkdirs(dest)
 
+    def update_submodules():
+        if recursive:
+            if submodules:
+                for submodule in submodules:
+                    assert isinstance(submodule, str), f"Submodules should be a list of str. {submodule} is not str."
+                repo.git.submodule("update", "--init", "--recursive", "--", " ".join(submodules))
+            else:
+                repo.git.submodule("update", "--init", "--recursive")
+
     if is_populated(dest):
         if refresh:
             repo = Repo(dest)
@@ -215,19 +224,12 @@ def clone(
             repo.remotes.origin.fetch()
             repo.git.checkout(branch)
             repo.git.pull("origin", branch)  # This should also work for specific commits
+            update_submodules()
     else:
         if branch:
             repo = Repo.clone_from(url, dest, recursive=recursive, no_checkout=True)
             repo.git.checkout(branch)
-            if recursive:
-                if submodules:
-                    for submodule in submodules:
-                        assert isinstance(
-                            submodule, str
-                        ), f"Submodules should be a list of str. {submodule} is not str."
-                    repo.git.submodule("update", "--init", "--recursive", "--", " ".join(submodules))
-                else:
-                    repo.git.submodule("update", "--init", "--recursive")
+            update_submodules()
         else:
             Repo.clone_from(url, dest, recursive=recursive)
 

@@ -254,6 +254,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         definitions = self.definitions
         if self.mem_only:
             definitions["QUIET"] = True
+        definitions["SUBPROJECT_THREADS"] = self.num_threads
         for key, value in definitions.items():
             if isinstance(value, bool):
                 value = "ON" if value else "OFF"

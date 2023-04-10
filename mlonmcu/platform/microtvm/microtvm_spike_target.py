@@ -174,11 +174,12 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         required = []
         if "g" not in exts:
             if self.fpu in ["single", "double"]:
-                required.append("zicsr")
+                pass
+                # required.append("zicsr")
             if self.fpu == "double":
                 required.append("d")
                 required.append("f")
-                required.append("zifencei")
+                # required.append("zifencei")
             if self.fpu == "single":
                 required.append("f")
         for ext in required:

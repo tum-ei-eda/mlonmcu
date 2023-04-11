@@ -20,10 +20,14 @@ name: Weekly build of development docker containers
 on:
   workflow_dispatch:
     inputs:
-      foo:
-        description: "???"
-        required: false
-        default: "bar"
+      branch:
+        description: "Branch name"
+        required: true
+        default: "staging-newer"
+      template:
+        description: "Environment template"
+        required: true
+        default: "dev"
   schedule:
     - cron: "0 0 6 * *"
 
@@ -32,10 +36,14 @@ jobs:
     name: Build minimal image for CI
     runs-on: ubuntu-latest
     steps:
+      - name: "Set current date as env variable"
+        run: |
+          echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+        id: timestamp
       - name: Checkout
         uses: actions/checkout@v3
-        # with:
-        #   ref: develop
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -51,6 +59,24 @@ jobs:
         uses: ASzc/change-string-case-action@v1
         with:
           string: ${{ github.repository }}
+      - name: Gen string
+        id: branch_str
+        run: |
+          if [[ "${{ github.event.inputs.branch }}" == "main" ]]
+          then
+              echo "branch=" >> $GITHUB_OUTPUT
+          else
+              echo "branch=${{ github.event.inputs.branch }}-" >> $GITHUB_OUTPUT
+          fi
+      - name: Gen another string
+        id: template_str
+        run: |
+          if [[ "${{ github.event.inputs.template }}" == "default" ]]
+          then
+              echo "template=" >> $GITHUB_OUTPUT
+          else
+              echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
+          fi
       - name: Build and push (CMake)
         uses: docker/build-push-action@v2
         with:
@@ -61,8 +87,9 @@ jobs:
           target: cmake-install
           build-args: |
             ENABLE_CMAKE=true
-            MLONMCU_TEMPLATE=dev
-          cache-from: type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
           cache-to: type=inline
           tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
       - name: Build and push
@@ -75,12 +102,14 @@ jobs:
           target: mlonmcu-ci
           build-args: |
             ENABLE_CMAKE=true
-            MLONMCU_TEMPLATE=dev
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
-            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:latest
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
           cache-to: type=inline
-          tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:latest
+          tags: |
+            ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
+            ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
   base:
     name: Build base image for users
     runs-on: ubuntu-latest
@@ -135,12 +164,14 @@ jobs:
           target: mlonmcu
           build-args: |
             ENABLE_CMAKE=true
-            MLONMCU_TEMPLATE=dev
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
-            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:latest
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
           cache-to: type=inline
-          tags: tumeda/mlonmcu:latest
+          tags: |
+            tumeda/mlonmcu:${{ steps.branch_str.outputs.branch }}latest
+            tumeda/mlonmcu:${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
   bench:
     name: Build large image for benchmarking
     runs-on: ubuntu-latest
@@ -171,10 +202,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: "Set current date as env variable"
-        run: |
-          echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-        id: timestamp
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v2
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -185,12 +212,12 @@ jobs:
           target: mlonmcu-bench
           build-args: |
             ENABLE_CMAKE=true
-            MLONMCU_TEMPLATE=dev
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
-            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:latest
-            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}:latest
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
+            type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
           cache-to: type=inline
           tags: |
-            tumeda/mlonmcu-bench:dev-latest
-            tumeda/mlonmcu-bench:dev-${{ steps.timestamp.outputs.builddate }}
+            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
+            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}

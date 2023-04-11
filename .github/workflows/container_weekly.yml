@@ -40,20 +40,6 @@ jobs:
         run: |
           echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
         id: timestamp
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.inputs.branch }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Lowercase repository url
         id: lowered
         uses: ASzc/change-string-case-action@v1
@@ -77,6 +63,20 @@ jobs:
           else
               echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
           fi
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push (CMake)
         uses: docker/build-push-action@v2
         with:
@@ -115,6 +115,33 @@ jobs:
     runs-on: ubuntu-latest
     needs: minimal
     steps:
+      - name: "Set current date as env variable"
+        run: |
+          echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+        id: timestamp
+      - name: Lowercase repository url
+        id: lowered
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
+      - name: Gen string
+        id: branch_str
+        run: |
+          if [[ "${{ github.event.inputs.branch }}" == "main" ]]
+          then
+              echo "branch=" >> $GITHUB_OUTPUT
+          else
+              echo "branch=${{ github.event.inputs.branch }}-" >> $GITHUB_OUTPUT
+          fi
+      - name: Gen another string
+        id: template_str
+        run: |
+          if [[ "${{ github.event.inputs.template }}" == "default" ]]
+          then
+              echo "template=" >> $GITHUB_OUTPUT
+          else
+              echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
+          fi
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -129,11 +156,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Lowercase repository url
-        id: lowered
-        uses: ASzc/change-string-case-action@v1
-        with:
-          string: ${{ github.repository }}
       # - name: Build and push
       #   uses: docker/build-push-action@v2
       #   with:
@@ -177,6 +199,33 @@ jobs:
     runs-on: ubuntu-latest
     needs: base
     steps:
+      - name: "Set current date as env variable"
+        run: |
+          echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+        id: timestamp
+      - name: Lowercase repository url
+        id: lowered
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
+      - name: Gen string
+        id: branch_str
+        run: |
+          if [[ "${{ github.event.inputs.branch }}" == "main" ]]
+          then
+              echo "branch=" >> $GITHUB_OUTPUT
+          else
+              echo "branch=${{ github.event.inputs.branch }}-" >> $GITHUB_OUTPUT
+          fi
+      - name: Gen another string
+        id: template_str
+        run: |
+          if [[ "${{ github.event.inputs.template }}" == "default" ]]
+          then
+              echo "template=" >> $GITHUB_OUTPUT
+          else
+              echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
+          fi
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -191,11 +240,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Lowercase repository url
-        id: lowered
-        uses: ASzc/change-string-case-action@v1
-        with:
-          string: ${{ github.repository }}
       - name: Login to DockerHub
         uses: docker/login-action@v1
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}

@@ -38,7 +38,7 @@ jobs:
     steps:
       - name: Lowercase repository url
         id: lowered
-        uses: ASzc/change-string-case-action@v1
+        uses: ASzc/change-string-case-action@v5
         with:
           string: ${{ github.repository }}
       - name: Gen string
@@ -73,11 +73,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Lowercase repository url
-        id: lowered
-        uses: ASzc/change-string-case-action@v5
-        with:
-          string: ${{ github.repository }}
       - name: Login to DockerHub
         uses: docker/login-action@v2
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}

@@ -17,6 +17,14 @@
 # limitations under the License.
 #
 """MLonMCU RISC-V utilities"""
+import re
+
+
+def split_extensions(inp):
+    inp = inp[4:]
+    # special case for non std conform zve32x/zve64x
+    matches = re.compile(r"(?:zve(?:32|64)x)|(?:[^xz_])|(?:x[^xz_]+)|(?:z[^xz_]+)").findall(inp)
+    return matches
 
 
 def sort_extensions_canonical(extensions, lower=False, unpack=False):
@@ -38,6 +46,7 @@ def sort_extensions_canonical(extensions, lower=False, unpack=False):
         "T",
         "P",
         "V",
+        "Z",
         "X",
         "S",
         "SX",
@@ -87,17 +96,74 @@ def join_extensions(exts):
 
 
 def update_extensions(
-    exts, pext=None, pext_spec=None, vext=None, elen=None, embedded=None, vlen=None, fpu=None, variant=None
+    exts,
+    embedded=None,
+    compressed=None,
+    atomic=None,
+    multiply=None,
+    pext=None,
+    pext_spec=None,
+    vext=None,
+    elen=None,
+    embedded_vext=None,
+    vlen=None,
+    fpu=None,
+    minimal=True,
 ):
-    ret = exts.copy()
+    # ret = exts.copy()
     require = []
-    if pext and "p" not in ret:
+    ignore_exts = ["zifencei", "zicsr"]
+    for ext in exts:
+        if ext == "g":
+            fpu = "double"
+            atomic = True
+            multiply = True
+        elif embedded is None and ext == "e":
+            embedded = True
+        elif multiply is None and ext == "m":
+            multiply = True
+        elif atomic is None and ext == "a":
+            atomic = True
+        elif compressed is None and ext == "c":
+            compressed = True
+        elif fpu is None and ext == "f":
+            fpu = "single"
+        elif (fpu is None or fpu == "single") and ext == "d":
+            fpu = "double"
+        elif vext is None and ext == "v":
+            vext = True
+        elif pext is None and ext == "p":
+            pext = True
+        elif vlen is None and "zvl" in ext and "sseg" not in ext:
+            vlen_ = int(ext[3:-1])
+            if vlen is None or vlen_ > vlen:
+                vlen = vlen_
+        elif embedded_vext is None and "zve" in ext:
+            embedded_vext = True
+            elen_ = int(ext[3:-1])
+            if elen is None or elen_ > elen:
+                elen = elen_
+        elif ext in ignore_exts:
+            pass
+        else:
+            require.append(ext)
+    if embedded:
+        require.append("e")
+    else:
+        require.append("i")
+    if atomic:
+        require.append("a")
+    if multiply:
+        require.append("m")
+    if compressed:
+        require.append("c")
+    if fpu == "single":
+        require.append("f")
+    elif fpu == "double":
+        require.append("d")
+        require.append("f")
+    if pext:
         require.append("p")
-        if variant == "xuantie":
-            require.append("zpn")
-            require.append("zpsfoperand")
-            if pext_spec and pext_spec > 0.96:
-                require.append("zbpbo")
     if vext:
         if elen is None:
             elen = 32
@@ -122,9 +188,16 @@ def update_extensions(
             else:
                 assert fpu == "double"
                 require.append("v")
-        if vlen:
-            require.append(f"zvl{vlen}b")
+        # if vlen:
+        #     require.append(f"zvl{vlen}b")
 
+    if not minimal:
+        if fpu in ["single", "double"] and not minimal:
+            require.append("zicsr")
+        if atomic and multiply and fpu == "double":
+            require.append("zifencei")
+
+    ret = []
     for ext in require:
         if ext not in ret:
             ret.append(ext)
@@ -133,6 +206,10 @@ def update_extensions(
 
 def update_extensions_pulp(exts, xpulp_version):
     ret = exts.copy()
+    required = []
     if xpulp_version:
-        ret.append(f"xpulpv{xpulp_version}")
+        required.append(f"xpulpv{xpulp_version}")
+    for ext in required:
+        if ext not in ret:
+            ret.append(ext)
     return ret

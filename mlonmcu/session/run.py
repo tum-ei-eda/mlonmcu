@@ -1051,6 +1051,7 @@ class Run:
         if self.framework:
             ret.update(config_helper(self.framework))
         if self.target:
+            self.target.reconfigure()
             ret.update(config_helper(self.target))
         for platform in self.platforms:
             ret.update(config_helper(platform))

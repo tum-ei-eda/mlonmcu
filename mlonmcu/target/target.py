@@ -107,6 +107,9 @@ class Target:
             feature.add_target_callbacks(self.name, self.pre_callbacks, self.post_callbacks)
         return features
 
+    def reconfigure(self):
+        pass
+
     def exec(self, program: Path, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         raise NotImplementedError

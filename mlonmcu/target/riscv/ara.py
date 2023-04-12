@@ -38,7 +38,7 @@ logger = get_logger()
 class AraTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the GVSOC simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["log_instrs", "vext"]
+    FEATURES = RISCVTarget.FEATURES | {"log_instrs", "vext"}
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -51,10 +51,10 @@ class AraTarget(RISCVTarget):
         "elen": 64,
     }
 
-    REQUIRED = RISCVTarget.REQUIRED + [
+    REQUIRED = RISCVTarget.REQUIRED | {
         "ara.src_dir",  # for the bsp package
         "verilator.install_dir",  # for simulation
-    ]
+    }
 
     def __init__(self, name="ara", features=None, config=None):
         super().__init__(name, features=features, config=config)

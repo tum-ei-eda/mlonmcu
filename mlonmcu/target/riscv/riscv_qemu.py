@@ -36,7 +36,7 @@ logger = get_logger()
 class RiscvQemuTarget(RISCVTarget):
     """Target using a spike machine in the QEMU simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["vext"]
+    FEATURES = RISCVTarget.FEATURES | {"vext"}
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -46,7 +46,7 @@ class RiscvQemuTarget(RISCVTarget):
         "vext_spec": 1.0,
         "embedded_vext": False,
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["riscv32_qemu.exe"]  # TODO: 64 bit?
+    REQUIRED = RISCVTarget.REQUIRED | {"riscv32_qemu.exe"}  # TODO: 64 bit?
 
     def __init__(self, name="riscv_qemu", features=None, config=None):
         super().__init__(name, features=features, config=config)

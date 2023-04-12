@@ -62,7 +62,7 @@ class Session:
         )  # TODO: decide if named sessions should also get a timestamp?
         self.idx = idx
         self.config = config if config else {}
-        self.config = filter_config(self.config, "session", self.DEFAULTS, [], [])
+        self.config = filter_config(self.config, "session", self.DEFAULTS, set(), set())
         self.status = SessionStatus.CREATED
         self.opened_at = None
         self.closed_at = None

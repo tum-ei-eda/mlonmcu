@@ -26,12 +26,7 @@ logger = get_logger()
 
 
 class TemplateMicroTvmPlatformTarget(Target):
-    FEATURES = Target.FEATURES + []
-
-    DEFAULTS = {
-        **Target.DEFAULTS,
-    }
-    REQUIRED = Target.REQUIRED + ["tvm.build_dir"]
+    REQUIRED = Target.REQUIRED | {"tvm.build_dir"}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

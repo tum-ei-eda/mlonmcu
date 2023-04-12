@@ -155,7 +155,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         "use_pext": "AUTO",
     }
 
-    REQUIRED = ["muriscvnn.src_dir"]
+    REQUIRED = {"muriscvnn.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__("muriscvnn", features=features, config=config)
@@ -216,7 +216,7 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
         **FeatureBase.DEFAULTS,
     }
 
-    REQUIRED = ["cmsisnn.dir", "cmsis.dir"]
+    REQUIRED = {"cmsisnn.dir", "cmsis.dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__("cmsisnn", features=features, config=config)
@@ -262,7 +262,7 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
     }
 
-    REQUIRED = ["cmsisnn.dir", "cmsis.dir"]
+    REQUIRED = {"cmsisnn.dir", "cmsis.dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__("cmsisnnbyoc", features=features, config=config)
@@ -314,7 +314,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
     }
 
-    REQUIRED = ["muriscvnn.src_dir"]
+    REQUIRED = {"muriscvnn.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__("muriscvnnbyoc", features=features, config=config)
@@ -368,8 +368,6 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
         "spec": None,
         "embedded": None,
     }
-
-    REQUIRED = []
 
     def __init__(self, features=None, config=None):
         super().__init__("vext", features=features, config=config)
@@ -434,8 +432,6 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
         # use target-side settings by default
         "spec": None,
     }
-
-    REQUIRED = []
 
     def __init__(self, features=None, config=None):
         super().__init__("pext", features=features, config=config)
@@ -682,7 +678,7 @@ class Visualize(FrontendFeature):
         **FeatureBase.DEFAULTS,
     }
 
-    REQUIRED = ["tflite_visualize.exe"]
+    REQUIRED = {"tflite_visualize.exe"}
 
     def __init__(self, features=None, config=None):
         super().__init__("visualize", features=features, config=config)
@@ -939,7 +935,7 @@ class AutoSchedule(TVMTuneBase):
 class DisableLegalize(BackendFeature, SetupFeature):
     """Enable transformation to reduces sizes of intermediate buffers by skipping legalization passes."""
 
-    REQUIRED = ["tvm_extensions.wrapper"]
+    REQUIRED = {"tvm_extensions.wrapper"}
 
     def __init__(self, features=None, config=None):
         super().__init__("disable_legalize", features=features, config=config)
@@ -979,8 +975,6 @@ class Demo(PlatformFeature):
         "print_stats": False,
         "print_interval_ms": 5000,
     }
-
-    REQUIRED = []
 
     def __init__(self, features=None, config=None):
         super().__init__("demo", features=features, config=config)
@@ -1023,8 +1017,6 @@ class CacheSim(TargetFeature):
         "log_misses": False,
         "detailed": False,
     }
-
-    REQUIRED = []
 
     def __init__(self, features=None, config=None):
         super().__init__("cachesim", features=features, config=config)
@@ -1348,8 +1340,6 @@ class Benchmark(PlatformFeature, TargetFeature):
         "aggregate": "avg",  # Allowed: avg, max, min, none, all
     }
 
-    REQUIRED = []
-
     def __init__(self, features=None, config=None):
         super().__init__("benchmark", features=features, config=config)
 
@@ -1519,12 +1509,6 @@ class TvmRpc(PlatformFeature):
 class TvmProfile(PlatformFeature):
     """Profile code using TVM Platform."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-    }
-
-    REQUIRED = []
-
     def __init__(self, features=None, config=None):
         super().__init__("tvm_profile", features=features, config=config)
 
@@ -1588,7 +1572,7 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
         "noshufflepack": False,
     }
 
-    REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]
+    REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}
 
     def __init__(self, features=None, config=None):
         super().__init__("xpulp", features=features, config=config)
@@ -1717,11 +1701,7 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
 class SplitLayers(FrontendFeature):
     """Split TFLite models into subruns."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-    }
-
-    REQUIRED = ["tflite_pack.exe"]
+    REQUIRED = {"tflite_pack.exe"}
 
     def __init__(self, features=None, config=None):
         super().__init__("split_layers", features=features, config=config)

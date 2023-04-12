@@ -28,14 +28,6 @@ from ..platform import CompilePlatform
 class MicroTvmCompilePlatform(CompilePlatform):
     """MicroTVM compile platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + CompilePlatform.FEATURES + []
-
-    DEFAULTS = {
-        **CompilePlatform.DEFAULTS,
-    }
-
-    REQUIRED = CompilePlatform.REQUIRED + []
-
     def invoke_tvmc_micro_create(self, mlf_path, target=None, list_options=False, force=True):
         all_args = []
         if force:

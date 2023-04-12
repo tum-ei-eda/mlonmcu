@@ -24,9 +24,9 @@ from ...platform import Platform
 class TvmRpcPlatform(Platform):
     """TVM RPC platform class."""
 
-    FEATURES = Platform.FEATURES + [
+    FEATURES = Platform.FEATURES | {
         "tvm_rpc",
-    ]
+    }
 
     DEFAULTS = {
         **Platform.DEFAULTS,
@@ -35,8 +35,6 @@ class TvmRpcPlatform(Platform):
         "rpc_hostname": None,
         "rpc_port": None,
     }
-
-    REQUIRED = Platform.REQUIRED + []
 
     @property
     def use_rpc(self):

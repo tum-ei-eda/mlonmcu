@@ -54,7 +54,7 @@ def replace_unsupported(exts):
 class OVPSimTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = RISCVTarget.FEATURES + ["vext", "pext", "gdbserver", "log_instrs", "trace"]
+    FEATURES = RISCVTarget.FEATURES | {"vext", "pext", "gdbserver", "log_instrs", "trace"}
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -72,7 +72,7 @@ class OVPSimTarget(RISCVTarget):
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
+    REQUIRED = RISCVTarget.REQUIRED | {"ovpsim.exe"}
 
     def __init__(self, name="ovpsim", features=None, config=None):
         super().__init__(name, features=features, config=config)

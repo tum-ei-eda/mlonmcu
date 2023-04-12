@@ -37,10 +37,10 @@ logger = get_logger()
 class Backend(ABC):
     name = None
 
-    FEATURES = []
+    FEATURES = set()
     DEFAULTS = {}
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(
         self,

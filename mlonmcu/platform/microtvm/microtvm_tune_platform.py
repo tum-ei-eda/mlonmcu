@@ -25,14 +25,14 @@ from ..tvm.tvm_tune_platform import TvmTunePlatform
 class MicroTvmTunePlatform(TvmTunePlatform, MicroTvmTargetPlatform):
     """MicroTVM Tune platform class."""
 
-    FEATURES = TvmTunePlatform.FEATURES + MicroTvmTargetPlatform.FEATURES
+    FEATURES = TvmTunePlatform.FEATURES | MicroTvmTargetPlatform.FEATURES
 
     DEFAULTS = {
         **TvmTunePlatform.DEFAULTS,
         **MicroTvmTargetPlatform.DEFAULTS,
     }
 
-    REQUIRED = TvmTunePlatform.REQUIRED + MicroTvmTargetPlatform.REQUIRED + []
+    REQUIRED = TvmTunePlatform.REQUIRED | MicroTvmTargetPlatform.REQUIRED
 
     @property
     def experimental_tvmc_micro_tune(self):

@@ -31,14 +31,14 @@ logger = get_logger()
 class TvmBasePlatform(Platform):
     """TVM base platform class."""
 
-    FEATURES = []
+    FEATURES = set()
 
     DEFAULTS = {
         "tvmc_custom_script": None,
         "project_dir": None,
     }
 
-    REQUIRED = ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
+    REQUIRED = {"tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"}
 
     def __init__(self, name, features=None, config=None):
         super().__init__(

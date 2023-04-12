@@ -40,12 +40,9 @@ class MlifExitCode(IntEnum):
 
 def create_mlif_platform_target(name, platform, base=Target):
     class MlifPlatformTarget(base):
-        FEATURES = base.FEATURES + []
-
         DEFAULTS = {
             **base.DEFAULTS,
         }
-        REQUIRED = base.REQUIRED + []
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)

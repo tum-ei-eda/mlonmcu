@@ -43,7 +43,7 @@ logger = get_logger()
 class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     """TVM Tune platform class."""
 
-    FEATURES = TunePlatform.FEATURES + TvmTargetPlatform.FEATURES + ["autotvm", "autoschedule"]
+    FEATURES = TunePlatform.FEATURES | TvmTargetPlatform.FEATURES | {"autotvm", "autoschedule"}
 
     DEFAULTS = {
         **TunePlatform.DEFAULTS,
@@ -56,7 +56,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
     }
 
-    REQUIRED = TunePlatform.REQUIRED + TvmTargetPlatform.REQUIRED + []
+    REQUIRED = TunePlatform.REQUIRED | TvmTargetPlatform.REQUIRED
 
     @property
     def tune_tasks(self):
@@ -123,9 +123,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 if not to_file:
                     to_file = "viz.png"
                 live = self.config["autotuning_visualize_live"]
-                assert (
-                    self.experimental_tvmc_tune_tasks
-                ), f"requires experimental_autotvm_visualize"
+                assert self.experimental_tvmc_tune_tasks, f"requires experimental_autotvm_visualize"
                 visualize_arg = to_file
                 if live:
                     visualize_arg += ",live"
@@ -216,7 +214,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     with tempfile.TemporaryDirectory() as tmp_dir:
                         out_file = Path(tmp_dir) / "tuning_results.log.txt"
                         tune_args = self.get_tune_args(model_path, backend, target, out_file)
-                        out = self.invoke_tvmc_tune(*tune_args, "--tasks", "list", target=target, cwd=tmp_dir, live=False)
+                        out = self.invoke_tvmc_tune(
+                            *tune_args, "--tasks", "list", target=target, cwd=tmp_dir, live=False
+                        )
                         lines = out.split("\n")
                         for i, line in enumerate(lines):
                             if "Available Tasks for tuning" in line:
@@ -298,7 +298,12 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                             early = False
                         metrics_.add("Early Stopped", early, True)
                         if visualize_raw_task:
-                            visualize_artifact = Artifact(f"tuning_progress_task{i}.png", raw=visualize_raw_task, fmt=ArtifactFormat.RAW, flags=["visualize"])
+                            visualize_artifact = Artifact(
+                                f"tuning_progress_task{i}.png",
+                                raw=visualize_raw_task,
+                                fmt=ArtifactFormat.RAW,
+                                flags=["visualize"],
+                            )
                             artifacts_.append(visualize_artifact)
                     except AssertionError:
                         logger.exception(f"Worker {i}: failed")
@@ -336,7 +341,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records"])
         artifacts.append(artifact)
         if visualize_raw:
-            visualize_artifact = Artifact("tuning_progress.png", raw=visualize_raw, fmt=ArtifactFormat.RAW, flags=["visualize"])
+            visualize_artifact = Artifact(
+                "tuning_progress.png", raw=visualize_raw, fmt=ArtifactFormat.RAW, flags=["visualize"]
+            )
             artifacts.append(visualize_artifact)
 
         metrics = Metrics()

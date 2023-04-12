@@ -63,13 +63,10 @@ register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
 
 def create_microtvm_platform_target(name, platform, base=Target):
     class MicroTvmPlatformTarget(base):
-        FEATURES = base.FEATURES + []
-
         DEFAULTS = {
             **base.DEFAULTS,
             "timeout_sec": 0,  # disabled
         }
-        REQUIRED = base.REQUIRED + []
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)

@@ -58,14 +58,14 @@ class Target:
         Optinal map of environment variables
     """
 
-    FEATURES = ["benchmark"]
+    FEATURES = {"benchmark"}
     DEFAULTS = {
         "print_outputs": False,
         "repeat": None,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(
         self,

@@ -137,7 +137,7 @@ class Model:
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]
-        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, [], [])
+        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, set(), set())
         self.metadata = parse_metadata_from_path(self.metadata_path)
 
     @property

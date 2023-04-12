@@ -28,10 +28,10 @@ class Framework(ABC):
 
     name = None
 
-    FEATURES = []
+    FEATURES = set()
     DEFAULTS = {}
-    REQUIRED = ["tf.src_dir"]
-    OPTIONAL = []
+    REQUIRED = {"tf.src_dir"}
+    OPTIONAL = set()
 
     def __init__(self, features=None, config=None, backends={}):
         self.config = config if config else {}

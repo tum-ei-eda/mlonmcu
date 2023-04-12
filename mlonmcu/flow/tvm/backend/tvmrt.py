@@ -31,10 +31,7 @@ from .model_info import get_relay_model_info
 
 
 class TVMRTBackend(TVMBackend):
-    FEATURES = [
-        *TVMBackend.FEATURES,
-        "debug_arena",
-    ]
+    FEATURES = TVMBackend.FEATURES | {"debug_arena"}
 
     DEFAULTS = {
         **TVMBackend.DEFAULTS,

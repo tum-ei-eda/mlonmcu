@@ -62,8 +62,6 @@ def get_espidf_platform_targets():
 
 
 class Esp32C3Target(Target):
-    FEATURES = Target.FEATURES + []
-
     DEFAULTS = {
         **Target.DEFAULTS,
         "xlen": 32,
@@ -74,8 +72,6 @@ class Esp32C3Target(Target):
         "attr": "",
         "count": Esp32C3PerfCount.CYCLE,
     }
-    REQUIRED = Target.REQUIRED + []
-    OPTIONAL = Target.OPTIONAL + []
 
     @property
     def xlen(self):
@@ -200,7 +196,6 @@ class Esp32C3Target(Target):
 
 def create_espidf_platform_target(name, platform, base=Target):
     class EspIdfPlatformTarget(base):
-        FEATURES = base.FEATURES + []
 
         DEFAULTS = {
             **base.DEFAULTS,
@@ -208,7 +203,6 @@ def create_espidf_platform_target(name, platform, base=Target):
             "port": None,
             "baud": None,
         }
-        REQUIRED = base.REQUIRED + []
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)

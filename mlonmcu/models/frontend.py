@@ -39,14 +39,14 @@ logger = get_logger()
 
 
 class Frontend(ABC):
-    FEATURES = ["validate"]
+    FEATURES = {"validate"}
 
     DEFAULTS = {
         "use_inout_data": False,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, name, input_formats=None, output_formats=None, features=None, config=None):
         self.name = name
@@ -283,7 +283,7 @@ class SimpleFrontend(Frontend):
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES + ["visualize", "split_layers"]
+    FEATURES = Frontend.FEATURES | {"visualize", "split_layers"}
 
     DEFAULTS = {
         **Frontend.DEFAULTS,
@@ -293,7 +293,7 @@ class TfLiteFrontend(SimpleFrontend):
         "pack_script": None,
     }
 
-    REQUIRED = Frontend.REQUIRED + []
+    REQUIRED = Frontend.REQUIRED
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -417,11 +417,11 @@ class TfLiteFrontend(SimpleFrontend):
 
 
 class RelayFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES + ["relayviz"]
+    FEATURES = Frontend.FEATURES | {"relayviz"}
 
     DEFAULTS = {**Frontend.DEFAULTS, "visualize_graph": False, "relayviz_plotter": "term"}
 
-    REQUIRED = Frontend.REQUIRED + ["tvm.build_dir", "tvm.pythonpath"]
+    REQUIRED = Frontend.REQUIRED | {"tvm.build_dir", "tvm.pythonpath"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -528,7 +528,7 @@ class RelayFrontend(SimpleFrontend):
 
 
 class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do constructor?
-    FEATURES = Frontend.FEATURES + ["packing", "packed"]
+    FEATURES = Frontend.FEATURES | {"packing", "packed"}
 
     DEFAULTS = {
         **Frontend.DEFAULTS,
@@ -539,7 +539,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
         "check": False,  # Unimplemented
     }
 
-    REQUIRED = ["packer.exe"]  # TODO move to feature?
+    REQUIRED = {"packer.exe"}  # TODO move to feature?
 
     def __init__(self, features=None, config=None):
         super().__init__(name="packed", features=features, config=config)
@@ -642,14 +642,6 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
 
 
 class ONNXFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES
-
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-    }
-
-    REQUIRED = Frontend.REQUIRED + []
-
     def __init__(self, features=None, config=None):
         super().__init__(
             "onnx",
@@ -660,14 +652,6 @@ class ONNXFrontend(SimpleFrontend):
 
 
 class PBFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES
-
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-    }
-
-    REQUIRED = Frontend.REQUIRED + []
-
     def __init__(self, features=None, config=None):
         super().__init__(
             "pb",
@@ -678,14 +662,6 @@ class PBFrontend(SimpleFrontend):
 
 
 class PaddleFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES
-
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-    }
-
-    REQUIRED = Frontend.REQUIRED + []
-
     def __init__(self, features=None, config=None):
         super().__init__(
             "paddle",

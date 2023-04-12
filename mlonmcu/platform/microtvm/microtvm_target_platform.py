@@ -38,7 +38,7 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
 
     FEATURES = (
         # TvmTargetPlatform.FEATURES +
-        []
+        set()
         # Warning: benchamrk and profile not supported!
     )
 
@@ -47,8 +47,6 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
         "experimental_tvmc_print_time": False,
         # Warning: contains configs not supported by microtvm
     }
-
-    REQUIRED = TvmTargetPlatform.REQUIRED + []
 
     @property
     def experimental_tvmc_print_time(self):

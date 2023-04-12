@@ -43,10 +43,10 @@ class MicroTvmPlatform(
 
     FEATURES = (
         MicroTvmBasePlatform.FEATURES
-        + MicroTvmCompilePlatform.FEATURES
-        + MicroTvmTargetPlatform.FEATURES
-        + MicroTvmBuildPlatform.FEATURES
-        + MicroTvmTunePlatform.FEATURES
+        | MicroTvmCompilePlatform.FEATURES
+        | MicroTvmTargetPlatform.FEATURES
+        | MicroTvmBuildPlatform.FEATURES
+        | MicroTvmTunePlatform.FEATURES
     )  # TODO: validate?
 
     DEFAULTS = {
@@ -59,10 +59,10 @@ class MicroTvmPlatform(
 
     REQUIRED = (
         MicroTvmBasePlatform.REQUIRED
-        + MicroTvmCompilePlatform.REQUIRED
-        + MicroTvmTargetPlatform.REQUIRED
-        + MicroTvmBuildPlatform.REQUIRED
-        + MicroTvmTunePlatform.REQUIRED
+        | MicroTvmCompilePlatform.REQUIRED
+        | MicroTvmTargetPlatform.REQUIRED
+        | MicroTvmBuildPlatform.REQUIRED
+        | MicroTvmTunePlatform.REQUIRED
     )  # TODO: validate?
 
     def __init__(self, features=None, config=None):

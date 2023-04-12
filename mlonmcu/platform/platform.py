@@ -41,14 +41,14 @@ logger = get_logger()
 class Platform:
     """Abstract platform class."""
 
-    FEATURES = []
+    FEATURES = set()
 
     DEFAULTS = {
         "print_outputs": False,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, name, features=None, config=None):
         self.name = name
@@ -108,14 +108,6 @@ class Platform:
 class BuildPlatform(Platform):
     """Abstract build platform class."""
 
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
-
     @property
     def supports_build(self):
         return True
@@ -134,14 +126,6 @@ class BuildPlatform(Platform):
 
 class TunePlatform(Platform):
     """Abstract tune platform class."""
-
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
 
     @property
     def supports_tune(self):
@@ -184,7 +168,7 @@ class TunePlatform(Platform):
 class CompilePlatform(Platform):
     """Abstract compile platform class."""
 
-    FEATURES = Platform.FEATURES + ["debug"]
+    FEATURES = Platform.FEATURES | {"debug"}
 
     DEFAULTS = {
         **Platform.DEFAULTS,
@@ -192,8 +176,6 @@ class CompilePlatform(Platform):
         "build_dir": None,
         "num_threads": multiprocessing.cpu_count(),
     }
-
-    REQUIRED = []
 
     @property
     def supports_compile(self):
@@ -254,14 +236,6 @@ class CompilePlatform(Platform):
 
 class TargetPlatform(Platform):
     """Abstract target platform class."""
-
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
 
     def create_target(self, name):
         raise NotImplementedError

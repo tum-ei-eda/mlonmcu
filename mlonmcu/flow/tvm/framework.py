@@ -44,7 +44,7 @@ class TVMFramework(Framework):
 
     name = "tvm"
 
-    FEATURES = ["cmsisnnbyoc", "muriscvnnbyoc"]
+    FEATURES = {"cmsisnnbyoc", "muriscvnnbyoc"}
 
     DEFAULTS = {
         "extra_incs": [],
@@ -52,7 +52,7 @@ class TVMFramework(Framework):
         "crt_config_dir": get_crt_config_dir(),
     }
 
-    REQUIRED = ["tvm.src_dir"]
+    REQUIRED = {"tvm.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)

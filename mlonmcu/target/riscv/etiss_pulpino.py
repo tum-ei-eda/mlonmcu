@@ -29,7 +29,7 @@ logger = get_logger()
 class EtissPulpinoTarget(EtissTarget):
     """Target using a Pulpino-like VP running in the ETISS simulator"""
 
-    REQUIRED = EtissTarget.REQUIRED + ["etiss.src_dir"]
+    REQUIRED = EtissTarget.REQUIRED | {"etiss.src_dir"}
 
     def __init__(self, name="etiss_pulpino", features=None, config=None):
         super().__init__(name, features=features, config=config)

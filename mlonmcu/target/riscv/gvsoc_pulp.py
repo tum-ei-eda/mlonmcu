@@ -36,7 +36,7 @@ logger = get_logger()
 class GvsocPulpTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the GVSOC simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["log_instrs", "xpulp"]
+    FEATURES = RISCVTarget.FEATURES | {"log_instrs", "xpulp"}
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -47,12 +47,12 @@ class GvsocPulpTarget(RISCVTarget):
         "model": "pulp",
     }
 
-    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [
+    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED | {
         "gvsoc.exe",
         "pulp_freertos.support_dir",
         "pulp_freertos.config_dir",
         "pulp_freertos.install_dir",
-    ]
+    }
 
     def __init__(self, name="gvsoc_pulp", features=None, config=None):
         super().__init__(name, features=features, config=config)

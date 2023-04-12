@@ -36,7 +36,7 @@ logger = get_logger()
 class Corstone300Target(Target):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["ethosu", "arm_mvei", "arm_dsp"]
+    FEATURES = {"ethosu", "arm_mvei", "arm_dsp"}
 
     DEFAULTS = {
         **Target.DEFAULTS,
@@ -50,13 +50,13 @@ class Corstone300Target(Target):
         "ethosu_num_macs": 256,
         "extra_args": "",
     }
-    REQUIRED = [
+    REQUIRED = {
         "corstone300.exe",
         "cmsis.dir",
         "cmsisnn.dir",
         "ethosu_platform.dir",
         "arm_gcc.install_dir",
-    ]  # Actually cmsisnn.dir points to the root CMSIS_5 directory
+    }  # Actually cmsisnn.dir points to the root CMSIS_5 directory
 
     def __init__(self, name="corstone300", features=None, config=None):
         super().__init__(name, features=features, config=config)

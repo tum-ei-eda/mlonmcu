@@ -33,13 +33,10 @@ def name2device(name):
 
 def create_tvm_platform_target(name, platform, base=Target):
     class TvmPlatformTarget(base):
-        FEATURES = base.FEATURES + []
-
         DEFAULTS = {
             **base.DEFAULTS,
             "timeout_sec": 0,  # disabled
         }
-        REQUIRED = base.REQUIRED + []
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)

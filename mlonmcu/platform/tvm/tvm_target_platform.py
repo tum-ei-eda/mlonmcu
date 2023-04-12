@@ -35,11 +35,11 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
 
     FEATURES = (
         TargetPlatform.FEATURES
-        + TvmRpcPlatform.FEATURES
-        + [
+        | TvmRpcPlatform.FEATURES
+        | {
             "benchmark",
             "tvm_profile",
-        ]
+        }
     )
 
     DEFAULTS = {
@@ -56,7 +56,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
         "total_time": False,
     }
 
-    REQUIRED = TargetPlatform.REQUIRED + TvmRpcPlatform.REQUIRED + []
+    REQUIRED = TargetPlatform.REQUIRED | TvmRpcPlatform.REQUIRED
 
     @property
     def fill_mode(self):

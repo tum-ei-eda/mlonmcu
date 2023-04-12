@@ -41,8 +41,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     FEATURES = (
         CompilePlatform.FEATURES
-        + TargetPlatform.FEATURES
-        + [
+        | TargetPlatform.FEATURES
+        | {
             "validate",
             "muriscvnn",
             "cmsisnn",
@@ -55,7 +55,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "auto_vectorize",
             "benchmark",
             "xpulp",
-        ]  # TODO: allow Feature-Features with automatic resolution of initialization order
+        }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
     DEFAULTS = {
@@ -74,8 +74,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "verbose_makefile": False,
     }
 
-    REQUIRED = ["mlif.src_dir"]
-    OPTIONAL = ["llvm.install_dir"]
+    REQUIRED = {"mlif.src_dir"}
+    OPTIONAL = {"llvm.install_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(

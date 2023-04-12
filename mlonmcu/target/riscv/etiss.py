@@ -38,7 +38,7 @@ logger = get_logger()
 class EtissTarget(RISCVTarget):
     """Target using a simple RISC-V VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext", "xcorev"]
+    FEATURES = RISCVTarget.FEATURES | {"gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext", "xcorev"}
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -68,7 +68,7 @@ class EtissTarget(RISCVTarget):
         "max_block_size": None,
         "enable_xcorevmac": False,
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["etiss.src_dir", "etiss.install_dir", "etissvp.script", "etiss.src_dir"]
+    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script", "etiss.src_dir"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)

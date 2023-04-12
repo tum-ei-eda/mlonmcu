@@ -32,7 +32,7 @@ logger = get_logger()
 
 
 class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    FEATURES = Target.FEATURES + ["xcorev"]
+    FEATURES = Target.FEATURES | {"xcorev"}
 
     DEFAULTS = {
         **Target.DEFAULTS,
@@ -50,7 +50,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
     }
-    REQUIRED = Target.REQUIRED + ["microtvm_etiss.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script"]
+    REQUIRED = Target.REQUIRED | {"microtvm_etiss.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script"}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

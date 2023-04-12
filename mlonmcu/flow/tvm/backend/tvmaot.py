@@ -30,12 +30,12 @@ from .tvmc_utils import get_tvmaot_tvmc_args
 
 
 class TVMAOTBackend(TVMBackend):
-    FEATURES = [
+    FEATURES = {
         *TVMBackend.FEATURES,
         "debug_arena",
         "unpacked_api",
         "usmp",
-    ]
+    }
 
     DEFAULTS = {
         **TVMBackend.DEFAULTS,

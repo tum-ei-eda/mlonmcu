@@ -53,8 +53,6 @@ def get_project_option_args(stage, project_options):
 class MicroTvmBasePlatform(TvmBasePlatform):
     """MicroTVM base platform class."""
 
-    FEATURES = TvmBasePlatform.FEATURES + []
-
     DEFAULTS = {
         **TvmBasePlatform.DEFAULTS,
         "project_template": None,
@@ -65,7 +63,7 @@ class MicroTvmBasePlatform(TvmBasePlatform):
         "experimental_tvmc_print_time": False,
     }
 
-    REQUIRED = TvmBasePlatform.REQUIRED + ["tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"]
+    REQUIRED = TvmBasePlatform.REQUIRED | {"tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"}
 
     def __init__(self, name, features=None, config=None):
         super().__init__(

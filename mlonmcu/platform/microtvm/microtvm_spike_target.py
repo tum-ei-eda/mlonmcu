@@ -32,7 +32,7 @@ logger = get_logger()
 
 
 class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    FEATURES = TemplateMicroTvmPlatformTarget.FEATURES + ["vext", "pext"]
+    FEATURES = TemplateMicroTvmPlatformTarget.FEATURES | {"vext", "pext"}
 
     DEFAULTS = {
         **TemplateMicroTvmPlatformTarget.DEFAULTS,
@@ -55,14 +55,14 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "vlen": 0,  # vectorization=off
         "elen": 32,
     }
-    REQUIRED = Target.REQUIRED + [
+    REQUIRED = Target.REQUIRED | {
         "spike.exe",
         "spike.pk",
         "riscv_gcc.name",
         "riscv_gcc.install_dir",
         "riscv_gcc.variant",
         "microtvm_spike.src_dir",
-    ]
+    }
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

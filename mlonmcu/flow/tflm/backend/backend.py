@@ -28,7 +28,7 @@ class TFLMBackend(Backend):
 
     DEFAULTS = {}
 
-    REQUIRED = []
+    REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(framework="tflm", config=config, features=features)

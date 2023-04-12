@@ -33,11 +33,7 @@ class TvmPlatform(
     """TVM Platform class."""
 
     FEATURES = (
-        TvmBasePlatform.FEATURES
-        + TvmBuildPlatform.FEATURES
-        + TvmTargetPlatform.FEATURES
-        + TvmTunePlatform.FEATURES
-        + []
+        TvmBasePlatform.FEATURES | TvmBuildPlatform.FEATURES | TvmTargetPlatform.FEATURES | TvmTunePlatform.FEATURES
     )  # TODO: validate?
 
     DEFAULTS = {
@@ -48,11 +44,7 @@ class TvmPlatform(
     }
 
     REQUIRED = (
-        TvmBasePlatform.REQUIRED
-        + TvmBuildPlatform.REQUIRED
-        + TvmTargetPlatform.REQUIRED
-        + TvmTunePlatform.REQUIRED
-        + []
+        TvmBasePlatform.REQUIRED | TvmBuildPlatform.REQUIRED | TvmTargetPlatform.REQUIRED | TvmTunePlatform.REQUIRED
     )
 
     def __init__(self, features=None, config=None):

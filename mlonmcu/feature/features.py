@@ -362,8 +362,8 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "vlen": 64,  # TODO; define reasonable default? (Or put defaults in target and overwrite of not None)
-        "elen": 32,
+        "vlen": 128,  # 64 does not work with every toolchain
+        "elen": 64,  # some toolchains may generate auto-vectorized programs with elen 64
         # use target-side settings by default
         "spec": None,
         "embedded": None,

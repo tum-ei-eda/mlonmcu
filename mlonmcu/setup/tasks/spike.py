@@ -176,7 +176,7 @@ def build_spike(
         spikeArgs = []
         spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
         utils.exec_getout(
-            str(spikeSrcDir / "configure"),
+            str(Path(spikeSrcDir) / "configure"),
             *spikeArgs,
             cwd=spikeBuildDir,
             live=False,

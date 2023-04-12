@@ -28,43 +28,55 @@ from mlonmcu.config import str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
-from .riscv import RISCVTarget
-from .util import update_extensions
+from .riscv_pext_target import RVPTarget
+from .riscv_vext_target import RVVTarget
+from .util import update_extensions, sort_extensions_canonical, join_extensions
 
 logger = get_logger()
 
-MAX_P_SPEC = 0.92
+
+def filter_unsupported_extensions(exts):
+    REPLACEMENTS = {
+        r"zve\d\d[xfd]": "v",
+        r"zvl\d+b": None,
+        r"zpsfoperand": "p",
+        r"zpn": "p",
+        r"zbpo": "p",
+        # r"p": ["p", "b"],
+        r"p": ["p", "zba", "zbb", "zbc", "zbs"],
+    }
+    ret = []
+    for ext in exts:
+        ignore = False
+        for key, value in REPLACEMENTS.items():
+            m = re.compile(key).match(ext)
+            if m:
+                if value:
+                    if isinstance(value, list):
+                        assert len(value) > 0
+                        ret.extend(value)
+                    else:
+                        ret.append(value)
+                ignore = True
+        if not ignore:
+            ret.append(ext)
+    ret = list(set(ret))
+
+    return ret
 
 
-def filter_unsupported(arch):
-    return (
-        arch.replace("_zve32x", "v")
-        .replace("_zve32f", "v")
-        .replace("_zpsfoperand", "")
-        .replace("_zpn", "")
-        .replace("_zbpbo", "")
-        # .replace("p", "pb")
-    )
-
-
-class SpikeTarget(RISCVTarget):
+class SpikeTarget(RVPTarget, RVVTarget):
     """Target using the riscv-isa-sim (Spike) RISC-V simulator."""
 
-    FEATURES = RISCVTarget.FEATURES + ["vext", "pext", "cachesim", "log_instrs"]
+    FEATURES = RVPTarget.FEATURES | RVVTarget.FEATURES | {"cachesim", "log_instrs"}
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": False,
-        "enable_pext": False,
-        "pext_spec": 0.92,  # ?
-        "vlen": 0,  # vectorization=off
-        "elen": 32,
+        **RVPTarget.DEFAULTS,
+        **RVVTarget.DEFAULTS,
         "spikepk_extra_args": [],
         "end_to_end_cycles": False,
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["spike.exe", "spike.pk"]
+    REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | {"spike.exe", "spike.pk"}
 
     def __init__(self, name="spike", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -78,47 +90,6 @@ class SpikeTarget(RISCVTarget):
         return Path(self.config["spike.pk"])
 
     @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def enable_pext(self):
-        value = self.config["enable_pext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def extensions(self):
-        exts = super().extensions
-        assert self.pext_spec <= MAX_P_SPEC, f"P-Extension spec {self.pext_spec} not supported by {self.name} target"
-        return update_extensions(
-            exts,
-            pext=self.enable_pext,
-            pext_spec=self.pext_spec,
-            vext=self.enable_vext,
-            elen=self.elen,
-            embedded=self.embedded_vext,
-            vlen=self.vlen,
-            fpu=self.fpu,
-            variant=self.gcc_variant,
-        )
-
-    @property
-    def attr(self):
-        attrs = super().attr.split(",")
-        if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
-            attrs.append(f"+zvl{self.vlen}b")
-        return ",".join(attrs)
-
-    @property
-    def vlen(self):
-        return int(self.config["vlen"])
-
-    @property
-    def elen(self):
-        return int(self.config["elen"])
-
-    @property
     def spikepk_extra_args(self):
         return self.config["spikepk_extra_args"]
 
@@ -128,25 +99,25 @@ class SpikeTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
-    def vext_spec(self):
-        return float(self.config["vext_spec"])
+    def extensions(self):
+        # exts = RVPTarget.extensions(self) + RVVTarget.extensions(self)
+        exts = super().extensions
+        return update_extensions(
+            exts,
+        )
 
     @property
-    def embedded_vext(self):
-        value = self.config["embedded_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def pext_spec(self):
-        return float(self.config["pext_spec"])
+    def isa(self):
+        exts = filter_unsupported_extensions(self.extensions)
+        exts_str = join_extensions(sort_extensions_canonical(exts, lower=True))
+        return f"rv{self.xlen}{exts_str}"
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         spike_args = []
         spikepk_args = []
 
-        arch_after = filter_unsupported(self.arch)
-        spike_args.append(f"--isa={arch_after}")
+        spike_args.append(f"--isa={self.isa}")
 
         if len(self.extra_args) > 0:
             if isinstance(self.extra_args, str):
@@ -220,16 +191,9 @@ class SpikeTarget(RISCVTarget):
         return metrics, out, []
 
     def get_platform_defs(self, platform):
-        ret = super().get_platform_defs(platform)
-        if self.enable_pext:
-            major, minor = str(self.pext_spec).split(".")[:2]
-            ret["RISCV_RVP_MAJOR"] = major
-            ret["RISCV_RVP_MINOR"] = minor
-        if self.enable_vext:
-            major, minor = str(self.vext_spec).split(".")[:2]
-            ret["RISCV_RVV_MAJOR"] = major
-            ret["RISCV_RVV_MINOR"] = minor
-            ret["RISCV_RVV_VLEN"] = self.vlen
+        ret = {}
+        ret.update(RVPTarget.get_platform_defs(self, platform))
+        ret.update(RVVTarget.get_platform_defs(self, platform))
         return ret
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

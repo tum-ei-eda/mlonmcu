@@ -72,26 +72,40 @@ def check_allowed(target, name):
 
 
 def gen_target_details_args(target, target_details):
+    def helper(value):
+        if isinstance(value, bool):
+            # value = "true" if value else "false"
+            value = str(int(value))
+        return value
     return sum(
-        [[f"--target-{target}-{key}", value] for key, value in target_details.items() if check_allowed(target, key)], []
+        [[f"--target-{target}-{key}", helper(value)] for key, value in target_details.items() if check_allowed(target, key)], []
     )
 
 
-def get_target_tvmc_args(target="c", extra_target=None, target_details={}, extra_target_details=None):
-    if extra_target:
-        if isinstance(extra_target, str):
-            if "," in extra_target:
-                extra_target = extra_target.split(",")
-            else:
-                extra_target = [extra_target]
-        # TODO: support multiple ones, currently only single one...
-        assert len(extra_target) == 1
+def gen_extra_target_details_args(extra_target_details):
+    ret = []
+    for extra_target, target_details in extra_target_details.items():
+        if target_details:
+            ret.append(gen_target_details_args(extra_target, target_details))
+    return sum(ret, [])
+
+
+def get_target_tvmc_args(target="c", extra_targets=[], target_details={}, extra_target_details={}):
+    if extra_targets:
+        assert isinstance(extra_targets, list)
+    else:
+        extra_targets = []
+    if extra_target_details:
+        assert isinstance(extra_target_details, dict)
+    else:
+        extra_target_details = {}
+
     return [
         "--target",
-        ",".join((extra_target if extra_target else []) + [target]),
+        ",".join(extra_targets + [target]),
         # TODO: provide a feature which sets these automatically depending on the chosen target
         *gen_target_details_args(target, target_details),
-        *(gen_target_details_args(extra_target[0], extra_target_details) if extra_target is not None else []),
+        *(gen_extra_target_details_args(extra_target_details)),
     ]
 
 

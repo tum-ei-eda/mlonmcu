@@ -96,8 +96,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         ret = [
             *get_target_tvmc_args(
                 backend.target,
-                extra_target=backend.extra_target,
+                extra_targets=backend.extra_targets,
                 target_details=backend.get_target_details(),
+                extra_target_details=backend.extra_target_details,
             ),
             *(["--desired-layout", desired_layout] if desired_layout is not None else []),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),

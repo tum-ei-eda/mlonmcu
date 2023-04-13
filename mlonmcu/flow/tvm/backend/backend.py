@@ -24,7 +24,7 @@ import multiprocessing
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
 from .model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
 from mlonmcu.target.metrics import Metrics
@@ -60,8 +60,8 @@ class TVMBackend(Backend):
         "target_mabi": None,
         "target_mattr": None,
         "target_keys": None,
-        "extra_target": None,
-        "extra_target_mcpu": None,
+        "extra_targets": None,  # list
+        "extra_target_details": None,  # dict
         "desired_layout": None,  # optional: NCHW or NHWC
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
@@ -154,12 +154,12 @@ class TVMBackend(Backend):
         return self.config["target_model"]
 
     @property
-    def extra_target(self):
-        return self.config["extra_target"]
+    def extra_targets(self):
+        return str2list(self.config["extra_targets"], allow_none=True)
 
     @property
-    def extra_target_mcpu(self):
-        return self.config["extra_target_mcpu"]
+    def extra_target_details(self):
+        return str2dict(self.config["extra_target_details"], allow_none=True)
 
     @property
     def desired_layout(self):
@@ -256,12 +256,6 @@ class TVMBackend(Backend):
             ret["model"] = self.target_model
         return ret
 
-    def get_extra_target_details(self):
-        ret = {}
-        if self.extra_target_mcpu:
-            ret["mcpu"] = self.extra_target_mcpu
-        return ret
-
     def get_tvmc_compile_args(self, out, dump=None):
         assert self.executor is not None
         assert self.executor in ["aot", "graph"], "Unsupported TVM executor"
@@ -269,9 +263,9 @@ class TVMBackend(Backend):
             self.model,
             *get_target_tvmc_args(
                 self.target,
-                extra_target=self.extra_target,
+                extra_targets=self.extra_targets,
                 target_details=self.get_target_details(),
-                extra_target_details=self.get_extra_target_details(),
+                extra_target_details=self.extra_target_details,
             ),
             *get_runtime_executor_tvmc_args(self.runtime, self.executor),
             *get_pass_config_tvmc_args(self.pass_config),

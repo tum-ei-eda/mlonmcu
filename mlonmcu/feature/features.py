@@ -23,7 +23,7 @@ import pandas as pd
 from typing import Union
 
 from mlonmcu.utils import is_power_of_two, filter_none
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .feature import (
     BackendFeature,
@@ -260,6 +260,8 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
+        "mattr": None,  # for +nodsp, +nomve
+        "debug_last_error": False,
     }
 
     REQUIRED = {"cmsisnn.dir", "cmsis.dir"}
@@ -279,17 +281,38 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     def mcpu(self):
         return self.config["mcpu"]
 
+    @property
+    def mattr(self):
+        return self.config["mattr"]
+
+    @property
+    def debug_last_error(self):
+        return str2bool(self.config["debug_last_error"])
+
     def add_backend_config(self, backend, config):
         assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
-        extras = config.get(f"{backend}.extra_target", [])
+        extras = config.get(f"{backend}.extra_targets", [])
+        if extras is None:
+            extras = []
         if "cmsis-nn" not in extras:
             if isinstance(extras, str):
-                extras = [extras]
+                extras = str2list(extras)
             extras.append("cmsis-nn")
-        config[f"{backend}.extra_target"] = extras
+        config[f"{backend}.extra_targets"] = extras
+        # Ideally cmsisnnbyoc would have a mvei/dsp feature which could be used to set this automatically
+        extra_target_details = config.get(f"{backend}.extra_target_details", {})
+        if extra_target_details is None:
+            extra_target_details = {}
+        cmsisnn_target_details = extra_target_details.get("cmsis-nn", {})
         if self.mcpu:
-            # Ideally cmsisnnbyoc would have a mvei/dsp feature which could be used to set this automatically
-            config[f"{backend}.extra_target_mcpu"] = self.mcpu
+            cmsisnn_target_details["mcpu"] = self.mcpu
+        if self.mattr:
+            cmsisnn_target_details["mattr"] = self.mattr
+        if self.debug_last_error is not None:
+            cmsisnn_target_details["debug_last_error"] = self.debug_last_error
+        extra_target_details["cmsis-nn"] = cmsisnn_target_details
+
+        config[f"{backend}.extra_target_details"] = extra_target_details
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
@@ -312,6 +335,10 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
+        "mattr": None,  # for +nodsp, +nomve
+        "debug_last_error": False,
+        "use_vext": "AUTO",
+        "use_pext": "AUTO",
     }
 
     REQUIRED = {"muriscvnn.src_dir"}
@@ -327,23 +354,66 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     def mcpu(self):
         return self.config["mcpu"]
 
+    @property
+    def mattr(self):
+        return self.config["mattr"]
+
+    @property
+    def debug_last_error(self):
+        return str2bool(self.config["debug_last_error"])
+
+    @property
+    def use_vext(self):
+        value = self.config["use_vext"]
+        if value == "AUTO" or value is None:
+            return value
+        if not isinstance(value, (bool, int)):
+            value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
+    def use_pext(self):
+        value = self.config["use_pext"]
+        if value == "AUTO" or value is None:
+            return value
+        if not isinstance(value, (bool, int)):
+            value = str2bool(value)
+        return "ON" if value else "OFF"
+
     def add_backend_config(self, backend, config):
         assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
-        extras = config.get(f"{backend}.extra_target", [])
+        extras = config.get(f"{backend}.extra_targets", [])
+        if extras is None:
+            extras = []
         if "cmsis-nn" not in extras:
             if isinstance(extras, str):
-                extras = [extras]
+                extras = str2list(extras)
             extras.append("cmsis-nn")
-        config[f"{backend}.extra_target"] = extras
+        config[f"{backend}.extra_targets"] = extras
+        # Ideally cmsisnnbyoc would have a mvei/dsp feature which could be used to set this automatically
+        extra_target_details = config.get(f"{backend}.extra_target_details", {})
+        if extra_target_details is None:
+            extra_target_details = {}
+        cmsisnn_target_details = extra_target_details.get("cmsis-nn", {})
         if self.mcpu:
-            # Ideally muriscvnnbyoc would have a vext/pext feature which could be used to set this automatically
-            config[f"{backend}.extra_target_mcpu"] = self.mcpu
+            cmsisnn_target_details["mcpu"] = self.mcpu
+        if self.mattr:
+            cmsisnn_target_details["mattr"] = self.mattr
+        if self.debug_last_error is not None:
+            cmsisnn_target_details["debug_last_error"] = self.debug_last_error
+        extra_target_details["cmsis-nn"] = cmsisnn_target_details
+
+        config[f"{backend}.extra_target_details"] = extra_target_details
+        print("config", config)
+        input("c")
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
+            "MURISCVNN_VEXT": self.use_vext,
+            "MURISCVNN_PEXT": self.use_pext,
         }
 
     def get_required_cache_flags(self):

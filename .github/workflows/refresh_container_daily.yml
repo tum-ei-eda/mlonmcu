@@ -100,7 +100,7 @@ jobs:
       matrix:
         config:
           - {branch: staging-newer, template: dev}
-        - {}
+          - {branch: main, template: default}
     steps:
       - name: Lowercase repository url
         id: lowered

@@ -404,8 +404,6 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         extra_target_details["cmsis-nn"] = cmsisnn_target_details
 
         config[f"{backend}.extra_target_details"] = extra_target_details
-        print("config", config)
-        input("c")
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"

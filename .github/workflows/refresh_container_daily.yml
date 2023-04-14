@@ -97,6 +97,7 @@ jobs:
     if: (github.event_name == 'schedule')
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         config:
           - {branch: staging-newer, template: dev}

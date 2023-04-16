@@ -182,20 +182,6 @@ class EtissTarget(RISCVTarget):
         return self.config["jit"]
 
     @property
-    def extensions(self):
-        exts = super().extensions
-        return update_extensions(
-            exts,
-            pext=self.enable_pext,
-            pext_spec=self.pext_spec,
-            vext=self.enable_vext,
-            elen=self.elen,
-            embedded=self.embedded_vext,
-            fpu=self.fpu,
-            variant=self.gcc_variant,
-        )
-
-    @property
     def attr(self):
         attrs = super().attr.split(",")
         if self.enable_xcorevmac:

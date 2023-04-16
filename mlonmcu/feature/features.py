@@ -480,7 +480,10 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
-        return {"RISCV_VEXT": self.enabled}
+        return {
+            "RISCV_VEXT": self.enabled,
+            "RISCV_VLEN": self.vlen,
+        }
 
     def get_required_cache_flags(self):
         return {

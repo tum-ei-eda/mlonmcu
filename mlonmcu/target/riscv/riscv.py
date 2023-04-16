@@ -52,7 +52,7 @@ class RISCVTarget(Target):
     }
     REQUIRED = {"riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"}
     PUPL_GCC_TOOLCHAIN_REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}  # TODO elegant handle customized toolchain
-    OPTIONAL = ["llvm.install_dir"]
+    OPTIONAL = {"llvm.install_dir"}
 
     def reconfigure(self):
         # super().reconfigure()

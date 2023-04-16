@@ -331,7 +331,7 @@ class Run:
     def add_model(self, model):
         """Setter for the model instance."""
         self.model = model
-        self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, [], [])
+        self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())
 
     def add_frontend(self, frontend, append=True):
         """Setter for the frontend instance."""

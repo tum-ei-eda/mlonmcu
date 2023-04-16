@@ -198,11 +198,14 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         df = report.post_df
         if "Features" not in df.columns:
             return
+        to_concat = [
+            df["Features"].apply(lambda x: pd.Series({"feature_" + feature_name: feature_name in x}))
+            for feature_name in list(set(df["Features"].sum()))
+        ]
+        if len(to_concat) == 0:
+            return
         feature_df = pd.concat(
-            [
-                df["Features"].apply(lambda x: pd.Series({"feature_" + feature_name: feature_name in x}))
-                for feature_name in list(set(df["Features"].sum()))
-            ],
+            to_concat,
             axis=1,
         )
         tmp_df = df.drop(columns=["Features"])

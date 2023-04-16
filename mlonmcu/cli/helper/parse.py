@@ -59,27 +59,30 @@ def extract_feature_names(args):
         features = args.feature
     else:
         features = []
-    if hasattr(args, "feature_gen") and args.feature_gen:
+
+    def helper(args, name):
         gen = []
-        for x in args.feature_gen:
-            if "_" in x:
-                assert len(x) == 1
-                gen.append([])
-            else:
-                gen.append(x)
-    else:
-        gen = [[]]
-    if hasattr(args, "feature_gen2") and args.feature_gen2:
-        gen2 = []
-        for x in args.feature_gen2:
-            if "_" in x:
-                assert len(x) == 1
-                gen2.append([])
-            else:
-                gen2.append(x)
-    else:
-        gen2 = [[]]
-    gen = list(map(lambda x: sum(x, []), (itertools.product(gen, gen2))))
+        if hasattr(args, name):
+            feature_gen = getattr(args, name)
+            if not feature_gen:
+                gen = [[]]
+                return gen
+            for x in feature_gen:
+                if "_" in x:
+                    assert len(x) == 1
+                    gen.append([])
+                else:
+                    gen.append(x)
+        else:
+            gen = [[]]
+        return gen
+
+    gen = helper(args, "feature_gen")
+    gen2 = helper(args, "feature_gen2")
+    gen3 = helper(args, "feature_gen3")
+
+    gen = list(map(lambda x: sum(x, []), (itertools.product(gen, gen2, gen3))))
+
     return features, gen
 
 
@@ -89,30 +92,30 @@ def extract_config(args):
         configs = parse_vars(configs)
     else:
         configs = {}
-    if hasattr(args, "config_gen") and args.config_gen:
-        gen = []
-        for x in args.config_gen:
-            if "_" in x:
-                assert len(x) == 1
-                gen.append({})
-            else:
-                c = parse_vars(x)
-                gen.append(c)
-    else:
-        gen = [{}]
-    if hasattr(args, "config_gen2") and args.config_gen2:
-        gen2 = []
-        for x in args.config_gen2:
-            if "_" in x:
-                assert len(x) == 1
-                gen2.append({})
-            else:
-                c = parse_vars(x)
-                gen2.append(c)
-    else:
-        gen2 = [{}]
 
-    gen = list(map(lambda x: dict(ChainMap(*x)), (itertools.product(gen, gen2))))
+    def helper(args, name):
+        gen = []
+        if hasattr(args, name):
+            config_gen = getattr(args, name)
+            if not config_gen:
+                gen = [{}]
+                return gen
+            for x in config_gen:
+                if "_" in x:
+                    assert len(x) == 1
+                    gen.append({})
+                else:
+                    c = parse_vars(x)
+                    gen.append(c)
+        else:
+            gen = [{}]
+        return gen
+
+    gen = helper(args, "config_gen")
+    gen2 = helper(args, "config_gen2")
+    gen3 = helper(args, "config_gen3")
+
+    gen = list(map(lambda x: dict(ChainMap(*x)), (itertools.product(gen, gen2, gen3))))
 
     return configs, gen
 

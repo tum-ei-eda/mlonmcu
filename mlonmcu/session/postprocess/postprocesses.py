@@ -166,7 +166,6 @@ class RenameColumnsPostprocess(SessionPostprocess):
     def post_session(self, report):
         """Called at the end of a session."""
         values = self.mapping.values()
-        print(report.post_df)
         if len(values) != len(set(values)) and not self.merge:
             logger.warning("rename_cols: non unique mapping found. use merge=True to avoid overwriting values.")
 

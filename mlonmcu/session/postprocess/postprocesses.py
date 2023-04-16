@@ -139,12 +139,13 @@ class FilterColumnsPostprocess(SessionPostprocess):
         )
 
 
-class RenameColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
+class RenameColumnsPostprocess(SessionPostprocess):
     """Postprocess which can rename columns based on a provided mapping."""
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
         "mapping": {},
+        "merge": True,
     }
 
     def __init__(self, features=None, config=None):
@@ -157,11 +158,33 @@ class RenameColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
             return str2dict(value)
         return value
 
+    @property
+    def merge(self):
+        value = self.config["merge"]
+        return str2bool(value)
+
     def post_session(self, report):
         """Called at the end of a session."""
+        values = self.mapping.values()
+        print(report.post_df)
+        if len(values) != len(set(values)) and not self.merge:
+            logger.warning("rename_cols: non unique mapping found. use merge=True to avoid overwriting values.")
+
+        def merge(df):
+            if len(set(df.columns)) == len(df.columns):
+                return df
+            a = df.loc[:, ~df.columns.duplicated(keep="first")]
+            b = df.loc[:, df.columns.duplicated(keep="first")]
+            return a.combine_first(merge(b))
+
         report.pre_df = report.pre_df.rename(columns=self.mapping)
         report.main_df = report.main_df.rename(columns=self.mapping)
         report.post_df = report.post_df.rename(columns=self.mapping)
+
+        if self.merge:
+            report.pre_df = merge(report.pre_df)
+            report.main_df = merge(report.main_df)
+            report.post_df = merge(report.post_df)
 
 
 class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?

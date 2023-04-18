@@ -69,7 +69,7 @@ def clone_spike_pk(
         return False
     if rebuild or not utils.is_populated(spikepkSrcDir):
         spikepkRepo = context.environment.repos["spikepk"]
-        utils.clone(spikepkRepo.url, spikepkSrcDir, branch=spikepkRepo.ref)
+        utils.clone(spikepkRepo.url, spikepkSrcDir, branch=spikepkRepo.ref, refresh=rebuild)
     context.cache["spikepk.src_dir"] = spikepkSrcDir
 
 
@@ -145,7 +145,7 @@ def clone_spike(
         return False
     if rebuild or not utils.is_populated(spikeSrcDir):
         spikeRepo = context.environment.repos["spike"]
-        utils.clone(spikeRepo.url, spikeSrcDir, branch=spikeRepo.ref)
+        utils.clone(spikeRepo.url, spikeSrcDir, branch=spikeRepo.ref, refresh=rebuild)
     context.cache["spike.src_dir"] = spikeSrcDir
 
 

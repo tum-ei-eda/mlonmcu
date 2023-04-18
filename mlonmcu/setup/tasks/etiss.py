@@ -59,7 +59,7 @@ def clone_etiss(
         etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
     if rebuild or not utils.is_populated(etissSrcDir):
         etissRepo = context.environment.repos["etiss"]
-        utils.clone(etissRepo.url, etissSrcDir, branch=etissRepo.ref)
+        utils.clone(etissRepo.url, etissSrcDir, branch=etissRepo.ref, refresh=rebuild)
     context.cache["etiss.src_dir"] = etissSrcDir
 
 

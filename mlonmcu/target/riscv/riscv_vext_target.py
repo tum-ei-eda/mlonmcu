@@ -98,3 +98,14 @@ class RVVTarget(RISCVTarget):
             ret["RISCV_RVV_MINOR"] = minor
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
+
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = super().get_backend_config(
+            backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+        )
+        model = ret["target_model"]
+        if self.enable_vext:
+            if "zvl" not in model:
+                model = f"{model}-zvl{self.vlen}b"
+        ret["target_model"] = model
+        return ret

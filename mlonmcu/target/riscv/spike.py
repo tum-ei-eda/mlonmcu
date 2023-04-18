@@ -43,7 +43,7 @@ def filter_unsupported_extensions(exts):
         r"zpn": "p",
         r"zbpo": "p",
         # r"p": ["p", "b"],
-        r"p": ["p", "zba", "zbb", "zbc", "zbs"],
+        # r"p": ["p", "zba", "zbb", "zbc", "zbs"],
     }
     ret = []
     for ext in exts:

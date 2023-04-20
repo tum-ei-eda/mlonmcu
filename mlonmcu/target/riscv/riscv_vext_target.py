@@ -20,6 +20,7 @@
 
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .riscv import RISCVTarget
 from .util import update_extensions
 
@@ -103,9 +104,10 @@ class RVVTarget(RISCVTarget):
         ret = super().get_backend_config(
             backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
         )
-        model = ret["target_model"]
-        if self.enable_vext:
-            if "zvl" not in model:
-                model = f"{model}-zvl{self.vlen}b"
-        ret["target_model"] = model
+        if backend in SUPPORTED_TVM_BACKENDS:
+            model = ret["target_model"]
+            if self.enable_vext:
+                if "zvl" not in model:
+                    model = f"{model}-zvl{self.vlen}b"
+            ret["target_model"] = model
         return ret

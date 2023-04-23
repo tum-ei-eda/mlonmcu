@@ -138,10 +138,12 @@ class RISCVTarget(Target):
         exts = self.config.get("extensions", []).copy()
         if isinstance(exts, str):
             exts = str2list(exts)
-        assert isinstance(exts, list)
+        assert isinstance(exts, (list, set))
+        exts = set(exts)
+
         if arch is not None:
             assert isinstance(arch, str)
-            exts = split_extensions(arch) + exts
+            exts = split_extensions(arch) | exts
         return update_extensions(
             exts,
             fpu=self.fpu,

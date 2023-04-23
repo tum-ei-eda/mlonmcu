@@ -24,7 +24,7 @@ def split_extensions(inp):
     inp = inp[4:]
     # special case for non std conform zve32x/zve64x
     matches = re.compile(r"(?:zve(?:32|64)x)|(?:[^xz_])|(?:x[^xz_]+)|(?:z[^xz_]+)").findall(inp)
-    return matches
+    return set(matches)
 
 
 def sort_extensions_canonical(extensions, lower=False, unpack=False):
@@ -111,7 +111,7 @@ def update_extensions(
     minimal=True,
 ):
     # ret = exts.copy()
-    require = []
+    require = set()
     ignore_exts = ["zifencei", "zicsr"]
     for ext in exts:
         if ext == "g":
@@ -146,61 +146,61 @@ def update_extensions(
         elif ext in ignore_exts:
             pass
         else:
-            require.append(ext)
+            require.add(ext)
     if embedded:
-        require.append("e")
+        require.add("e")
     else:
-        require.append("i")
+        require.add("i")
     if atomic:
-        require.append("a")
+        require.add("a")
     if multiply:
-        require.append("m")
+        require.add("m")
     if compressed:
-        require.append("c")
+        require.add("c")
     if fpu == "single":
-        require.append("f")
+        require.add("f")
     elif fpu == "double":
-        require.append("d")
-        require.append("f")
+        require.add("d")
+        require.add("f")
     if pext:
-        require.append("p")
+        require.add("p")
     if vext:
         if elen is None:
             elen = 32
         assert elen in [32, 64], f"Unsupported ELEN: {elen}"
         if elen == 32:  # Required to tell the compiler that EEW=64 is not allowed...
-            if embedded:
+            if embedded_vext:
                 if fpu in ["double", "single"]:
-                    require.append("zve32f")
+                    require.add("zve32f")
                 else:
-                    require.append("zve32x")
+                    require.add("zve32x")
             else:
                 assert fpu == "double"
-                require.append("v")
+                require.add("v")
         elif elen == 64:
-            if embedded:
+            if embedded_vext:
                 if fpu == "double":
-                    require.append("zve64d")
+                    require.add("zve64d")
                 elif fpu == "single":
-                    require.append("zve64f")
+                    require.add("zve64f")
                 else:
-                    require.append("zve64x")
+                    require.add("zve64x")
             else:
                 assert fpu == "double"
-                require.append("v")
+                require.add("v")
         # if vlen:
-        #     require.append(f"zvl{vlen}b")
+        #     require.add(f"zvl{vlen}b")
 
     if not minimal:
         if fpu in ["single", "double"] and not minimal:
-            require.append("zicsr")
+            require.add("zicsr")
         if atomic and multiply and fpu == "double":
-            require.append("zifencei")
+            require.add("zifencei")
 
-    ret = []
+    ret = set()
     for ext in require:
         if ext not in ret:
-            ret.append(ext)
+            ret.add(ext)
     return ret
 
 
@@ -212,4 +212,4 @@ def update_extensions_pulp(exts, xpulp_version):
     for ext in required:
         if ext not in ret:
             ret.append(ext)
-    return ret
+    return set(ret)

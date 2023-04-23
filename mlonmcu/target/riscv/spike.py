@@ -36,6 +36,7 @@ logger = get_logger()
 
 
 def filter_unsupported_extensions(exts):
+    assert isinstance(exts, set)
     REPLACEMENTS = {
         r"zve\d\d[xfd]": "v",
         r"zvl\d+b": None,
@@ -45,7 +46,7 @@ def filter_unsupported_extensions(exts):
         # r"p": ["p", "b"],
         # r"p": ["p", "zba", "zbb", "zbc", "zbs"],
     }
-    ret = []
+    ret = set()
     for ext in exts:
         ignore = False
         for key, value in REPLACEMENTS.items():
@@ -60,7 +61,7 @@ def filter_unsupported_extensions(exts):
                 ignore = True
         if not ignore:
             ret.append(ext)
-    ret = list(set(ret))
+    ret = set(ret)
 
     return ret
 

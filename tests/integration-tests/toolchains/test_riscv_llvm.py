@@ -23,7 +23,7 @@ EXTENSIONS = [["i", "m", "a", "c"]]
 class MyRISCVTarget(RISCVTarget):
     """Base RISC-V target with vector+packed support as we do not run simulations, just compile."""
 
-    FEATURES = RISCVTarget.FEATURES + ["vext", "pext"]
+    FEATURES = RISCVTarget.FEATURES | {"vext", "pext"}
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,

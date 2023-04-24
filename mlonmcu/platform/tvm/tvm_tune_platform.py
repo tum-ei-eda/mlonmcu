@@ -289,10 +289,10 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         if not isinstance(trials, int):
                             trials = int(trials)
                         early_stopping = self.config.get("autotuning_early_stopping", None)
-                        if not isinstance(early_stopping, int):
-                            early_stopping = int(early_stopping)
                         if early_stopping is None:
                             early_stopping = max(trials, 10)  # Let's see if this default works out...
+                        if not isinstance(early_stopping, int):
+                            early_stopping = int(early_stopping)
                         if early_stopping < trials:
                             early = tuned + failed < min(trials, size)
                         else:

@@ -38,7 +38,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         **Target.DEFAULTS,
         # "project_type": "?",
         "verbose": False,
-        "quiet": True,
+        "quiet": False,
         "workspace_size_bytes": None,
         "xlen": 32,
         "extensions": ["i", "m", "a", "c"],  # TODO overwrite extensions elegantly
@@ -46,7 +46,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "arch": None,
         "abi": None,
         "attr": "",
-        "etiss_extra_args": None,
+        "etiss_extra_args": "",
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
     }
@@ -106,7 +106,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "gcc_name": self.riscv_gcc_name,
                 "etiss_script": self.etiss_script,
                 "etiss_args": self.etiss_extra_args,
-                "arch": self.arch,
+                "arch": self.gcc_arch,
                 "abi": self.abi,
             }
         )
@@ -150,12 +150,23 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         return exts
 
     @property
-    def arch(self):
+    def llvm_arch(self):
         temp = self.config["arch"]  # TODO: allow underscores and versions
         if temp:
             return temp
         else:
-            exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))
+            filtered_exts = [ext for ext in self.extensions if ext not in ["zifencei", "zicsr"]]
+            exts_str = join_extensions(sort_extensions_canonical(filtered_exts, lower=True))
+            return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def gcc_arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            filtered_exts = [ext for ext in self.extensions if "xcorev" not in ext]
+            exts_str = join_extensions(sort_extensions_canonical(filtered_exts, lower=True))
             return f"rv{self.xlen}{exts_str}"
 
     @property
@@ -191,13 +202,10 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
-            arch_replace = self.arch.replace("imafd", "g")
-            arch_split = arch_replace.split("_")
-            arch_remove = ["zicsr", "zifencei"]
-            arch_clean = "-".join([a for a in arch_split if a not in arch_remove])
+            arch_clean = self.llvm_arch.replace("imafd", "g").replace("_", "-")
             ret.update(
                 {
-                    "target_march": self.arch,
+                    "target_march": self.llvm_arch,
                     "target_mtriple": self.riscv_gcc_name,
                     "target_mabi": self.abi,
                     "target_mattr": self.attr,

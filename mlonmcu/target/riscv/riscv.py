@@ -161,11 +161,20 @@ class RISCVTarget(Target):
 
     @property
     def gcc_extensions(self):
-        return self.extensions
+        return [ext for ext in self.extensions if ext not in ["xcorev", "xcorevmac", "xcorevmem"]]
 
     @property
     def llvm_extensions(self):
-        return self.extensions
+        return [ext for ext in self.extensions if ext not in ["zifencei", "zicsr"]]
+
+    @property
+    def arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
 
     @property
     def llvm_arch(self):
@@ -173,8 +182,7 @@ class RISCVTarget(Target):
         if temp:
             return temp
         else:
-            filtered_exts = [ext for ext in self.extensions if ext not in ["zifencei", "zicsr"]]
-            exts_str = join_extensions(sort_extensions_canonical(filtered_exts, lower=True))
+            exts_str = join_extensions(sort_extensions_canonical(self.llvm_extensions, lower=True))
             return f"rv{self.xlen}{exts_str}"
 
     @property
@@ -183,8 +191,7 @@ class RISCVTarget(Target):
         if temp:
             return temp
         else:
-            filtered_exts = [ext for ext in self.extensions if "xcorev" not in ext]
-            exts_str = join_extensions(sort_extensions_canonical(filtered_exts, lower=True))
+            exts_str = join_extensions(sort_extensions_canonical(self.gcc_extensions, lower=True))
             return f"rv{self.xlen}{exts_str}"
 
     @property

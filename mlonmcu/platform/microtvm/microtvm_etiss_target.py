@@ -193,7 +193,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         if len(attrs) == 1 and len(attrs[0]) == 0:
             attrs = []
         for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):
-            if ext == "i":
+            if ext in ["i", "zicsr", "zifencei"]:
                 continue
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))

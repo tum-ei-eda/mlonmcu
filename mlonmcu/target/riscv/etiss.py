@@ -30,7 +30,6 @@ from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
-from .util import update_extensions
 
 logger = get_logger()
 
@@ -186,6 +185,20 @@ class EtissTarget(RISCVTarget):
     @property
     def jit(self):
         return self.config["jit"]
+
+    @property
+    def extensions(self):
+        exts = super().extensions
+        required = set()
+        if "xcorev" not in exts:
+            if self.enable_xcorevmac:
+                required.add("xcorevmac")
+            if self.enable_xcorevmem:
+                required.add("xcorevmem")
+        for ext in required:
+            if ext not in exts:
+                exts.add(ext)
+        return exts
 
     @property
     def attr(self):

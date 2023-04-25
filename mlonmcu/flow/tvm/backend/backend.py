@@ -38,6 +38,7 @@ from .tvmc_utils import (
     get_runtime_executor_tvmc_args,
     get_input_shapes_tvmc_args,
     get_tuning_records_tvmc_args,
+    get_desired_layout_args,
 )
 
 logger = get_logger()
@@ -63,7 +64,9 @@ class TVMBackend(Backend):
         "target_keys": None,
         "extra_targets": None,  # list
         "extra_target_details": None,  # dict
-        "desired_layout": None,  # optional: NCHW or NHWC
+        "desired_layout": None,  # optional: NCHW, NHWC, NHWC:HWOI, ...
+        "desired_layout_ops": None,  # optional: conv2d, max_pool2d,...
+        "desired_layout_map": None,  # optional, conv2d=NCHW, ...
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
         "use_tuning_results": False,
@@ -172,7 +175,15 @@ class TVMBackend(Backend):
 
     @property
     def desired_layout(self):
-        return self.config["desired_layout"]
+        return str2list(self.config["desired_layout"], allow_none=True)
+
+    @property
+    def desired_layout_ops(self):
+        return str2list(self.config["desired_layout_ops"], allow_none=True)
+
+    @property
+    def desired_layout_map(self):
+        return str2dict(self.config["desired_layout_map"], allow_none=True)
 
     @property
     def opt_level(self):
@@ -281,7 +292,7 @@ class TVMBackend(Backend):
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
             *get_tuning_records_tvmc_args(self.use_tuning_results, self.tuning_records),
-            *(["--desired-layout", self.desired_layout] if self.desired_layout is not None else []),
+            *get_desired_layout_args(self.desired_layout, self.desired_layout_ops, self.desired_layout_map),
             *(["--dump-code", ",".join(dump)] if dump is not None and len(dump) > 0 else []),
             *self.tvmc_extra_args,
             *["--opt-level", str(self.opt_level)],

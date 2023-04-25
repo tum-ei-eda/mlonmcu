@@ -188,3 +188,29 @@ def get_bench_tvmc_args(print_time=False, profile=False, end_to_end=False, repea
         ret.extend(["--number", str(number)])
 
     return ret
+
+
+def get_desired_layout_args(layouts, ops, mapping):
+    if mapping:
+        assert layouts is None, "desired_layout not allowed when using desired_layouts_map"
+        assert ops is None, "desired_layout_ops not allowed when using desired_layouts_map"
+        layouts = mapping.values()
+        ops = mapping.keys()
+
+    if layouts is None:
+        layouts = []
+
+    if ops is None:
+        ops = []
+
+    if layouts and ops:
+        assert len(layouts) == len(ops) or len(layouts) == 1
+
+    ret = []
+    if layouts:
+        ret.extend(["--desired-layout", *layouts])
+
+    if ops:
+        ret.extend(["--desired-layout-ops", *ops])
+
+    return ret

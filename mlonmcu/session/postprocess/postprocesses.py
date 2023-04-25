@@ -508,6 +508,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         **SessionPostprocess.DEFAULTS,
         "to_compare": None,
         "group_by": None,
+        "baseline": 0,
         "percent": False,
         "invert": False,
         "substract": False,
@@ -527,6 +528,12 @@ class CompareRowsPostprocess(SessionPostprocess):
         """Get group_by property."""
         value = self.config["group_by"]
         return str2list(value, allow_none=True)
+
+    @property
+    def baseline(self):
+        """Get baseline property."""
+        value = self.config["baseline"]
+        return int(value)
 
     @property
     def percent(self):
@@ -567,7 +574,8 @@ class CompareRowsPostprocess(SessionPostprocess):
         for col in to_compare:
 
             def f(df):
-                ret = df / df.iloc[0]
+                assert self.baseline < len(df), "Index of group baseline out of bounds"
+                ret = df / df.iloc[self.baseline]
                 if self.substract:
                     ret = ret - 1
                 if self.invert:

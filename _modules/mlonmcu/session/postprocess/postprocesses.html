@@ -593,6 +593,7 @@
         <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;to_compare&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;group_by&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;percent&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;invert&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;substract&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -612,6 +613,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get group_by property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;group_by&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">baseline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get baseline property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;baseline&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">percent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -652,7 +659,8 @@
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">to_compare</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-                <span class="n">ret</span> <span class="o">=</span> <span class="n">df</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="s2">&quot;Index of group baseline out of bounds&quot;</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">df</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline</span><span class="p">]</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">substract</span><span class="p">:</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span> <span class="o">-</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">invert</span><span class="p">:</span>

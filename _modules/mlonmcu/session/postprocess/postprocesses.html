@@ -595,7 +595,7 @@
         <span class="s2">&quot;group_by&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;percent&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;invert&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;substarct&quot;</span><span class="p">:</span> <span class="kc">False</span>
+        <span class="s2">&quot;substarct&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -664,6 +664,7 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">percent</span><span class="p">:</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span> <span class="o">*</span> <span class="mf">100.0</span>
                 <span class="k">return</span> <span class="n">ret</span>
+
             <span class="n">filtered_col</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
             <span class="n">first</span> <span class="o">=</span> <span class="n">filtered_col</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
             <span class="n">first_col</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>

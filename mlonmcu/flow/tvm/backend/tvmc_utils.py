@@ -77,8 +77,14 @@ def gen_target_details_args(target, target_details):
             # value = "true" if value else "false"
             value = str(int(value))
         return value
+
     return sum(
-        [[f"--target-{target}-{key}", helper(value)] for key, value in target_details.items() if check_allowed(target, key)], []
+        [
+            [f"--target-{target}-{key}", helper(value)]
+            for key, value in target_details.items()
+            if check_allowed(target, key)
+        ],
+        [],
     )
 
 

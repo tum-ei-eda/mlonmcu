@@ -26,7 +26,7 @@ from pathlib import Path
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
-from mlonmcu.config import str2dict, str2bool
+from mlonmcu.config import str2dict, str2bool, str2list
 from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
@@ -519,18 +519,14 @@ class CompareRowsPostprocess(SessionPostprocess):
     @property
     def to_compare(self):
         """Get to_compare property."""
-        cfg = self.config["to_compare"]
-        if isinstance(cfg, str):
-            return _parse_cfg(cfg)
-        return cfg
+        value = self.config["to_compare"]
+        return str2list(value, allow_none=True)
 
     @property
     def group_by(self):
         """Get group_by property."""
-        cfg = self.config["group_by"]
-        if isinstance(cfg, str):
-            return _parse_cfg(cfg)
-        return cfg
+        value = self.config["group_by"]
+        return str2list(value, allow_none=True)
 
     @property
     def percent(self):

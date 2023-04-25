@@ -41,11 +41,16 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget, RVPTarget, RVV
         "quiet": True,
         "workspace_size_bytes": None,
     }
-    REQUIRED = TemplateMicroTvmPlatformTarget.REQUIRED | RVPTarget.REQUIRED | RVVTarget. REQUIRED | {
-        "spike.exe",
-        "spike.pk",
-        "microtvm_spike.src_dir",
-    }
+    REQUIRED = (
+        TemplateMicroTvmPlatformTarget.REQUIRED
+        | RVPTarget.REQUIRED
+        | RVVTarget.REQUIRED
+        | {
+            "spike.exe",
+            "spike.pk",
+            "microtvm_spike.src_dir",
+        }
+    )
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

@@ -883,7 +883,9 @@ class Run:
                     # Do not overwrite user-provided shapes and types
                     if self.model.config[name] is None:
                         # self.model.config[name] = value
-                        self.model.config = filter_config({key: value}, self.model.name, self.model.config, set(), set())
+                        self.model.config = filter_config(
+                            {key: value}, self.model.name, self.model.config, set(), set()
+                        )
                 else:
                     for platform in self.platforms:
                         if platform is not None and component == platform.name:

@@ -196,7 +196,6 @@ class Esp32C3Target(Target):
 
 def create_espidf_platform_target(name, platform, base=Target):
     class EspIdfPlatformTarget(base):
-
         DEFAULTS = {
             **base.DEFAULTS,
             "timeout_sec": 0,  # disabled

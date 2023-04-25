@@ -50,7 +50,6 @@ register_microtvm_platform_backend("tvmllvm", TVMLLVMBackend)
 
 def create_microtvm_platform_backend(name, platform, base=TVMBackend):
     class MicroTvmPlatformBackend(base):
-
         def __init__(self, features=None, config=None):
             super().__init__(runtime="crt", fmt="mlf", features=features, config=config)
             self.platform = platform

@@ -499,3 +499,91 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 )
                 ret_artifacts.append(artifact)
         return ret_artifacts
+
+
+class CompareRowsPostprocess(SessionPostprocess):
+    """TODO"""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "to_compare": None,
+        "group_by": None,
+        "percent": False,
+        "invert": False,
+        "substarct": False
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("compare_rows", features=features, config=config)
+
+    @property
+    def to_compare(self):
+        """Get to_compare property."""
+        cfg = self.config["to_compare"]
+        if isinstance(cfg, str):
+            return _parse_cfg(cfg)
+        return cfg
+
+    @property
+    def group_by(self):
+        """Get group_by property."""
+        cfg = self.config["group_by"]
+        if isinstance(cfg, str):
+            return _parse_cfg(cfg)
+        return cfg
+
+    @property
+    def percent(self):
+        """Get percent property."""
+        value = self.config["percent"]
+        return str2bool(value)
+
+    @property
+    def invert(self):
+        """Get invert property."""
+        value = self.config["invert"]
+        return str2bool(value)
+
+    @property
+    def substract(self):
+        """Get substract property."""
+        value = self.config["substract"]
+        return str2bool(value)
+
+    def post_session(self, report):
+        """Called at the end of a session."""
+        pre_df = report.pre_df
+        main_df = report.main_df  # metrics
+        post_df = report.post_df
+        group_by = self.group_by
+        if group_by is None:
+            group_by = [x for x in pre_df.columns if x != "Run"]
+        assert isinstance(group_by, list)
+        assert all(col in list(pre_df.columns) + list(post_df.columns) for col in group_by)
+        to_compare = self.to_compare
+        if to_compare is None:
+            to_compare = list(main_df.columns)
+        assert isinstance(to_compare, list)
+        assert all(col in main_df.columns for col in to_compare)
+        full_df = pd.concat([pre_df, main_df, post_df], axis=1)
+        grouped = full_df.groupby(group_by, axis=0, group_keys=False)
+        new_df = pd.DataFrame()
+        for col in to_compare:
+
+            def f(df):
+                ret = df / df.iloc[0]
+                if self.substract:
+                    ret = ret - 1
+                if self.invert:
+                    ret = 1 / ret
+                if self.percent:
+                    ret = ret * 100.0
+                return ret
+            filtered_col = grouped[col]
+            first = filtered_col.apply(f).reset_index()
+            first_col = first[col]
+            new = first_col
+            new_name = f"{col} (rel.)"
+            new_df[new_name] = new
+        main_df = pd.concat([main_df, new_df], axis=1)
+        report.main_df = main_df

@@ -510,7 +510,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         "group_by": None,
         "percent": False,
         "invert": False,
-        "substarct": False
+        "substarct": False,
     }
 
     def __init__(self, features=None, config=None):
@@ -579,6 +579,7 @@ class CompareRowsPostprocess(SessionPostprocess):
                 if self.percent:
                     ret = ret * 100.0
                 return ret
+
             filtered_col = grouped[col]
             first = filtered_col.apply(f).reset_index()
             first_col = first[col]

@@ -510,7 +510,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         "group_by": None,
         "percent": False,
         "invert": False,
-        "substarct": False,
+        "substract": False,
     }
 
     def __init__(self, features=None, config=None):

@@ -79,7 +79,7 @@ class RVVTarget(RISCVTarget):
             exts,
             vext=self.enable_vext,
             elen=self.elen,
-            embedded=self.embedded_vext,
+            embedded_vext=self.embedded_vext,
             vlen=self.vlen,
             fpu=self.fpu,
         )

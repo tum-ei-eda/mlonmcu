@@ -28,6 +28,7 @@ from .postprocesses import (
     Bytes2kBPostprocess,
     Artifact2ColumnPostprocess,
     AnalyseInstructionsPostprocess,
+    CompareRowsPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -40,4 +41,5 @@ SUPPORTED_POSTPROCESSES = {
     "bytes2kb": Bytes2kBPostprocess,
     "artifact2cols": Artifact2ColumnPostprocess,
     "analyse_instructions": AnalyseInstructionsPostprocess,
+    "compare_rows": CompareRowsPostprocess,
 }

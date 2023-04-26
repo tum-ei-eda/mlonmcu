@@ -55,12 +55,12 @@ def filter_unsupported_extensions(exts):
                 if value:
                     if isinstance(value, list):
                         assert len(value) > 0
-                        ret.extend(value)
+                        ret |= set(value)
                     else:
-                        ret.append(value)
+                        ret.add(value)
                 ignore = True
         if not ignore:
-            ret.append(ext)
+            ret.add(ext)
     ret = set(ret)
 
     return ret

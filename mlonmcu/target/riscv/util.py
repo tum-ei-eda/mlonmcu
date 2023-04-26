@@ -139,6 +139,7 @@ def update_extensions(
             if vlen is None or vlen_ > vlen:
                 vlen = vlen_
         elif embedded_vext is None and "zve" in ext:
+            vext = True
             embedded_vext = True
             elen_ = int(ext[3:-1])
             if elen is None or elen_ > elen:

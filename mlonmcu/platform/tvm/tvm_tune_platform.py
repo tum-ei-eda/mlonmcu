@@ -149,6 +149,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     def _tune_model(self, model_path, backend, target):
         autotvm_enable = self.config["autotvm_enable"]
         autoscheduler_enable = self.config["autoscheduler_enable"]
+        if not autotvm_enable and not autoscheduler_enable:
+            # Tuning not enabled! (Might happen if abstract autotune feature is used!)
+            return {}, {}
         assert [autotvm_enable, autoscheduler_enable].count(
             True
         ) == 1, "Can not use AutoTVM and AutoScheduler at the same time"

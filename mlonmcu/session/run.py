@@ -79,7 +79,6 @@ class Run:
     DEFAULTS = {
         "export_optional": False,
         "tune_enabled": False,
-        "target_to_backend": True,
         "target_optimized_layouts": False,
         "target_optimized_schedules": False,
         "stage_subdirs": False,
@@ -156,12 +155,6 @@ class Run:
     def tune_enabled(self):
         """Get tune_enabled property."""
         value = self.run_config["tune_enabled"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def target_to_backend(self):
-        """Get target_to_backend property."""
-        value = self.run_config["target_to_backend"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -734,14 +727,8 @@ class Run:
         self.lock()
         assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
 
-        if (
-            self.backend.needs_target
-            or self.target_optimized_layouts
-            or self.target_optimized_schedules
-            or self.target_to_backend
-        ):
-            assert self.target_to_backend, "Backend needs run.target_to_backend=1"
-            assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
+        if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
+            assert self.target is not None, "Backend needs target"
             self.target.add_backend_config(
                 self.backend.name,
                 self.backend.config,
@@ -825,14 +812,8 @@ class Run:
         self.lock()
         assert self.completed[RunStage.LOAD]
 
-        if (
-            self.backend.needs_target
-            or self.target_optimized_layouts
-            or self.target_optimized_schedules
-            or self.target_to_backend
-        ):
-            assert self.target_to_backend, "Backend needs run.target_to_backend=1"
-            assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
+        if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
+            assert self.target is not None, "Backend needs target"
             self.target.add_backend_config(
                 self.backend.name,
                 self.backend.config,

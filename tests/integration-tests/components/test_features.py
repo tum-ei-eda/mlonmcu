@@ -339,9 +339,9 @@ def test_feature_disable_legalize(
     "backend_name", ["tvmllvm"]  # other tvm backends?
 )  # TODO: Single backend would be fine, but it has to be enabled
 @pytest.mark.parametrize("target_name", ["tvm_cpu"])
-@pytest.mark.parametrize("feature_names", [["autotune"]])
+@pytest.mark.parametrize("feature_names", [["autotvm"]])
 @pytest.mark.parametrize("config", [{}])
-def test_feature_autotune(
+def test_feature_autotvm(
     user_context, frontend_name, model_name, backend_name, target_name, models_dir, feature_names, config
 ):
     platform_name = "tvm"
@@ -383,7 +383,7 @@ def test_feature_autotune(
     "backend_name", ["tvmllvm"]  # other tvm backends?
 )  # TODO: Single backend would be fine, but it has to be enabled
 @pytest.mark.parametrize("target_name", ["tvm_cpu"])
-@pytest.mark.parametrize("feature_names", [["autotune", "autotuned"]])  # TODO: provide tuning records instead
+@pytest.mark.parametrize("feature_names", [["autotvm", "autotuned"]])  # TODO: provide tuning records instead
 @pytest.mark.parametrize("config", [{"tvmaot.print_outputs": True}])
 def test_feature_autotuned(
     user_context, frontend_name, model_name, backend_name, target_name, models_dir, feature_names, config, tmp_path

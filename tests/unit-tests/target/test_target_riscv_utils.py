@@ -92,7 +92,14 @@ def test_target_riscv_update_extensions():
     base = {"i", "m", "a", "c"}
     assert update_extensions(base, vext=True, fpu=None, embedded_vext=True, elen=32) == {"i", "m", "a", "c", "zve32x"}
     assert update_extensions(base, vext=True, fpu=None, embedded_vext=True, elen=64) == {"i", "m", "a", "c", "zve64x"}
-    assert update_extensions(base, vext=True, fpu="single", embedded_vext=True, elen=32) == {"i", "m", "a", "f", "c", "zve32f"}
+    assert update_extensions(base, vext=True, fpu="single", embedded_vext=True, elen=32) == {
+        "i",
+        "m",
+        "a",
+        "f",
+        "c",
+        "zve32f",
+    }
     assert update_extensions(base, vext=True, fpu="single", embedded_vext=True, elen=64) == {
         "i",
         "m",

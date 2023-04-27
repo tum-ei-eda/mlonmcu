@@ -109,7 +109,6 @@ class AraTarget(RISCVTarget):
             elen=self.elen,
             embedded=self.embedded_vext,
             fpu=self.fpu,
-            variant=self.gcc_variant,
         )
 
     def prepare_simulator(self, program, *args, cwd=os.getcwd(), **kwargs):

@@ -1,11 +1,11 @@
 """Test used RISC-V GCC Toolchains"""
 import pytest
 
-from mlonmcu.config import str2bool
 from mlonmcu.environment.config import PathConfig
 from mlonmcu.session.run import RunStage
 from mlonmcu.target.riscv.riscv import RISCVTarget
-from mlonmcu.target.riscv.util import update_extensions
+from mlonmcu.target.riscv.riscv_vext_target import RVVTarget
+from mlonmcu.target.riscv.riscv_pext_target import RVPTarget
 from mlonmcu.target import register_target
 
 # Using muRISCV-NN feature to get a relatively good coverage
@@ -14,95 +14,59 @@ from mlonmcu.target import register_target
 
 # MODELS = ["tinymlperf"]
 MODELS = ["resnet"]
-# EXTENSIONS = (
-#     [["i", "m", "a", "c"], ["i", "c"], ["i", "m", "c"], ["i", "m"], ["i", "m", "a"], ["i", "a", "c"], ["i", "a"]],
-# )
-EXTENSIONS = [["i", "m", "a", "c"]]
+
+
+def _get_target_config(target, xlen, fpu, embedded, compressed, atomic, multiply):
+    return {
+        f"{target}.xlen": xlen,
+        f"{target}.embedded": embedded,
+        f"{target}.compressed": compressed,
+        f"{target}.atomic": atomic,
+        f"{target}.multiply": multiply,
+        f"{target}.fpu": fpu,
+    }
+
+
+def _get_platform_config():
+    return {
+        "mlif.print_outputs": True,
+        "mlif.toolchain": "gcc",
+    }
+
+
+def _get_feature_vext_config(vlen, elen, spec, embedded):
+    return {
+        "vext.vlen": vlen,
+        "vext.elen": elen,
+        "vext.spec": spec,
+        "vext.embedded": embedded,
+    }
 
 
 class MyRISCVTarget(RISCVTarget):
-    """Base RISC-V target with vector+packed support as we do not run simulations, just compile."""
+    """Base RISC-V target with support as we do not run simulations, just compile."""
 
-    FEATURES = RISCVTarget.FEATURES | {"vext", "pext"}
-
-    DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": True,
-        "enable_pext": False,
-        "pext_spec": 0.96,
-        "vlen": 0,  # vectorization=off
-        "elen": 32,
-    }
-
-    def __init__(self, name="myriscv", features=None, config=None):
+    def __init__(self, name="myriscv_default_gcc", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
-    @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    @property
-    def enable_pext(self):
-        value = self.config["enable_pext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+class MyRVVTarget(RVVTarget):
+    """RISC-V target with vector (rvv) support as we do not run simulations, just compile."""
 
-    @property
-    def extensions(self):
-        exts = super().extensions
-        return update_extensions(
-            exts,
-            pext=self.enable_pext,
-            pext_spec=self.pext_spec,
-            vext=self.enable_vext,
-            elen=self.elen,
-            embedded=self.embedded_vext,
-            fpu=self.fpu,
-            variant=self.gcc_variant,
-        )
-
-    @property
-    def vlen(self):
-        return int(self.config["vlen"])
-
-    @property
-    def elen(self):
-        return int(self.config["elen"])
-
-    @property
-    def vext_spec(self):
-        return self.config["vext_spec"]
-
-    @property
-    def embedded_vext(self):
-        # No str2bool here as this is only used for tests
-        return bool(self.config["embedded_vext"])
-
-    @property
-    def pext_spec(self):
-        return self.config["pext_spec"]
-
-    def exec(self, program, *args, cwd=None, **kwargs):
-        raise NotImplementedError
-
-    def get_platform_defs(self, platform):
-        ret = super().get_platform_defs(platform)
-        if self.enable_pext:
-            major, minor = str(float(self.pext_spec)).split(".")[:2]
-            ret["RISCV_RVP_MAJOR"] = major
-            ret["RISCV_RVP_MINOR"] = minor
-        if self.enable_vext:
-            major, minor = str(float(self.vext_spec)).split(".")[:2]
-            ret["RISCV_RVV_MAJOR"] = major
-            ret["RISCV_RVV_MINOR"] = minor
-            ret["RISCV_RVV_VLEN"] = self.vlen
-        return ret
+    def __init__(self, name="myriscv_vector_gcc", features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
 
-register_target("myriscv", MyRISCVTarget)
-# TODO: pass by cls instead of name
+class MyRVPTarget(RVPTarget):
+    """RISC-V target with packed (rvp) support as we do not run simulations, just compile."""
+
+    def __init__(self, name="myriscv_packed_gcc", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
+register_target("myriscv_default_gcc", MyRISCVTarget)
+register_target("myriscv_vector_gcc", MyRVVTarget)
+register_target("myriscv_packed_gcc", MyRVPTarget)
 
 
 # TODO: share code with test_slow.py
@@ -155,147 +119,177 @@ def _test_compile_platform(
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
+@pytest.mark.parametrize("target", ["myriscv_default_gcc"])
 @pytest.mark.parametrize("xlen", [32, 64])
 # @pytest.mark.parametrize("xlen", [32])
 # @pytest.mark.parametrize("fpu", ["none", "single", "double"])
 @pytest.mark.parametrize("fpu", ["none", "double"])  # single float if often not included in multilib gcc
-@pytest.mark.parametrize("extensions", EXTENSIONS)
+@pytest.mark.parametrize("embedded,compressed,atomic,multiply", [(False, True, True, True)])
 @pytest.mark.parametrize("feature_names", [[], ["muriscvnn"]])
-def test_default(model_name, xlen, fpu, extensions, feature_names, user_context, models_dir):
-    # config = {"myriscv.xlen": xlen, "myriscv.extensions": extensions, "myriscv.fpu": fpu}
-    config = {"myriscv.xlen": xlen, "myriscv.extensions": extensions, "myriscv.fpu": fpu, "mlif.print_outputs": True}
+def test_default(
+    model_name, target, xlen, fpu, embedded, compressed, atomic, multiply, feature_names, user_context, models_dir
+):
+    config = {
+        **_get_target_config(target, xlen, fpu, embedded, compressed, atomic, multiply),
+        **_get_platform_config(),
+    }
+
     _, artifacts = _test_compile_platform(
-        "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
+        "mlif", "tflmi", target, user_context, model_name, models_dir, feature_names, config
     )
 
 
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
+@pytest.mark.parametrize("target", ["myriscv_default_gcc"])
 # @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
 @pytest.mark.parametrize("vlen", [64, 128, 2048])
 @pytest.mark.parametrize("elen", [32])
 @pytest.mark.parametrize("spec", [1.0])
 # @pytest.mark.parametrize("fpu", ["none", "single", "double"])
 @pytest.mark.parametrize("fpu", ["none", "single"])
-@pytest.mark.parametrize("extensions", EXTENSIONS)
+@pytest.mark.parametrize("embedded,compressed,atomic,multiply", [(False, True, True, True)])
 @pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
 # @pytest.mark.parametrize("feature_names", [["vext"]])
-def test_embedded_vector_32bit(model_name, vlen, elen, spec, fpu, extensions, feature_names, user_context, models_dir):
+def test_embedded_vector_32bit(
+    model_name,
+    target,
+    vlen,
+    elen,
+    spec,
+    fpu,
+    embedded,
+    compressed,
+    atomic,
+    multiply,
+    feature_names,
+    user_context,
+    models_dir,
+):
     if elen == 32:
         pytest.skip(f"ELEN 32 not supported due to compiler bug")
+
     config = {
-        "myriscv.xlen": 32,
-        "myriscv.extensions": extensions,
-        "myriscv.fpu": fpu,
-        "vext.vlen": vlen,
-        "vext.elen": elen,
-        "vext.spec": spec,
-        "vext.embedded": True,
+        **_get_target_config(target, 32, fpu, embedded, compressed, atomic, multiply),
+        **_get_feature_vext_config(vlen, elen, spec, True),
+        **_get_platform_config(),
     }
+
     _, artifacts = _test_compile_platform(
-        "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
+        "mlif", "tflmi", target, user_context, model_name, models_dir, feature_names, config
     )
 
 
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
+@pytest.mark.parametrize("target", ["myriscv_default_gcc"])
 # @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
 @pytest.mark.parametrize("vlen", [64, 128, 2048])
 @pytest.mark.parametrize("elen", [32, 64])
 @pytest.mark.parametrize("spec", [1.0])
 @pytest.mark.parametrize("fpu", ["none", "single", "double"])
-@pytest.mark.parametrize("extensions", EXTENSIONS)
+@pytest.mark.parametrize("embedded,compressed,atomic,multiply", [(False, True, True, True)])
 @pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
 # @pytest.mark.parametrize("feature_names", [["vext"]])
-def test_embedded_vector_64bit(model_name, vlen, elen, spec, fpu, extensions, feature_names, user_context, models_dir):
+def test_embedded_vector_64bit(
+    model_name,
+    target,
+    vlen,
+    elen,
+    spec,
+    fpu,
+    embedded,
+    compressed,
+    atomic,
+    multiply,
+    feature_names,
+    user_context,
+    models_dir,
+):
     if elen == 32:
         pytest.skip(f"ELEN 32 not supported due to compiler bug")
     if fpu == "single":
         pytest.skip(f"Single precision float not supported due to compiler bug")
 
     config = {
-        "myriscv.xlen": 64,
-        "myriscv.extensions": extensions,
-        "myriscv.fpu": fpu,
-        "vext.vlen": vlen,
-        "vext.elen": elen,
-        "vext.spec": spec,
-        "vext.embedded": True,
+        **_get_target_config(target, 64, fpu, embedded, compressed, atomic, multiply),
+        **_get_feature_vext_config(vlen, elen, spec, True),
+        **_get_platform_config(),
     }
+
     _, artifacts = _test_compile_platform(
-        "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
+        "mlif", "tflmi", target, user_context, model_name, models_dir, feature_names, config
     )
 
 
 # @pytest.mark.slow
 # @pytest.mark.user_context
 # @pytest.mark.parametrize("model_name", MODELS)
+# @pytest.mark.parametrize("target", ["myriscv_default_gcc"])
 # # @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
 # @pytest.mark.parametrize("vlen", [64, 128, 2048])
 # @pytest.mark.parametrize("spec", [1.0])
 # # @pytest.mark.parametrize("fpu", ["none", "single", "double"])
-# @pytest.mark.parametrize("extensions", EXTENSIONS)
+# @pytest.mark.parametrize("embedded,compressed,atomic,multiply", [(False, True, True, True)])
 # @pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
-# def test_vector_32bit(model_name, vlen, spec, extensions, feature_names, user_context, models_dir):
+# def test_vector_32bit(
+#     model_name, target, vlen, spec, fpu, embedded, compressed, atomic, multiply, feature_names, user_context, models_dir
+# ):
 #     config = {
-#         "myriscv.xlen": 32,
-#         "myriscv.extensions": extensions,
-#         "myriscv.fpu": "double",
-#         "vext.vlen": vlen,
-#         "vext.elen": 64,
-#         "vext.spec": spec,
-#         "vext.embedded": False,
+#         **_get_target_config(target, 32, fpu, embedded, compressed, atomic, multiply),
+#         **_get_feature_vext_config(vlen, 64, spec, False),
+#         **_get_platform_config(),
 #     }
 #     _, artifacts = _test_compile_platform(
-#         "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
+#         "mlif", "tflmi", target, user_context, model_name, models_dir, feature_names, config
 #     )
 
 
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
+@pytest.mark.parametrize("target", ["myriscv_default_gcc"])
 # @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
 @pytest.mark.parametrize("vlen", [64, 128, 2048])
 @pytest.mark.parametrize("spec", [1.0])
 # @pytest.mark.parametrize("fpu", ["none", "single", "double"])
 @pytest.mark.parametrize("fpu", ["double"])
-@pytest.mark.parametrize("extensions", EXTENSIONS)
+@pytest.mark.parametrize("embedded,compressed,atomic,multiply", [(False, True, True, True)])
 @pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
-def test_vector_64bit(model_name, vlen, spec, fpu, extensions, feature_names, user_context, models_dir):
+def test_vector_64bit(
+    model_name, target, vlen, spec, fpu, embedded, compressed, atomic, multiply, feature_names, user_context, models_dir
+):
     config = {
-        "myriscv.xlen": 64,
-        "myriscv.extensions": extensions,
-        "myriscv.fpu": fpu,
-        "vext.vlen": vlen,
-        "vext.elen": 64,
-        "vext.spec": spec,
-        "vext.embedded": False,
+        **_get_target_config(target, 64, fpu, embedded, compressed, atomic, multiply),
+        **_get_feature_vext_config(vlen, 64, spec, False),
+        **_get_platform_config(),
     }
     _, artifacts = _test_compile_platform(
-        "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
+        "mlif", "tflmi", target, user_context, model_name, models_dir, feature_names, config
     )
 
 
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
+@pytest.mark.parametrize("target", ["myriscv_default_gcc"])
 @pytest.mark.parametrize("xlen", [32, 64])
 @pytest.mark.parametrize("spec", [0.96])
 # @pytest.mark.parametrize("fpu", ["none", "single", "double"])
 @pytest.mark.parametrize("fpu", ["none", "double"])  # single float if often not included in multilib gcc
-@pytest.mark.parametrize("extensions", EXTENSIONS)
+@pytest.mark.parametrize("embedded,compressed,atomic,multiply", [(False, True, True, True)])
 @pytest.mark.parametrize("feature_names", [["pext"], ["pext", "muriscvnn"]])
-def test_packed(model_name, xlen, spec, fpu, extensions, feature_names, user_context, models_dir):
+def test_packed(
+    model_name, target, fpu, embedded, compressed, atomic, multiply, feature_names, user_context, models_dir
+):
     config = {
-        "myriscv.xlen": xlen,
-        "myriscv.extensions": extensions,
-        "myriscv.fpu": fpu,
-        "pext.spec": spec,
+        **_get_target_config(target, 64, fpu, embedded, compressed, atomic, multiply),
+        **_get_platform_config(),
     }
     _, artifacts = _test_compile_platform(
-        "mlif", "tflmi", "myriscv", user_context, model_name, models_dir, feature_names, config
+        "mlif", "tflmi", target, user_context, model_name, models_dir, feature_names, config
     )
 
 

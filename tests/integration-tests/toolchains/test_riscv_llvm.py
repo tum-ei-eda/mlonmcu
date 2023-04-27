@@ -16,7 +16,14 @@ from mlonmcu.target import register_target
 MODELS = ["resnet"]
 
 
-def get_target_config(target, xlen, fpu, embedded, compressed, atomic, multiply):
+def _check_multilib(context, gcc):
+    environment = context.environment
+    user_vars = environment.vars
+    # TODO: properly lookup in dependency cache?
+    return user_vars.get(f"{gcc}.multilib", False)
+
+
+def _get_target_config(target, xlen, fpu, embedded, compressed, atomic, multiply):
     return {
         f"{target}.xlen": xlen,
         f"{target}.embedded": embedded,
@@ -27,14 +34,14 @@ def get_target_config(target, xlen, fpu, embedded, compressed, atomic, multiply)
     }
 
 
-def get_platform_config():
+def _get_platform_config():
     return {
         "mlif.print_outputs": True,
         "mlif.toolchain": "llvm",
     }
 
 
-def get_feature_vext_config(vlen, elen, spec, embedded):
+def _get_feature_vext_config(vlen, elen, spec, embedded):
     return {
         "vext.vlen": vlen,
         "vext.elen": elen,
@@ -130,9 +137,19 @@ def _test_compile_platform(
 def test_default(
     model_name, target, xlen, fpu, embedded, compressed, atomic, multiply, feature_names, user_context, models_dir
 ):
+    has_multilib = _check_multilib(user_context, "riscv_gcc")
+    if xlen == 64 and not has_multilib:
+        pytest.skip(f"XLEN=64 needs multilib gcc")
+    if (not compressed or not atomic or not multiply) and not has_multilib:
+        pytest.skip(f"Non-multilib gcc only supports requires: c+m+a")
+    if embedded and not has_multilib:
+        pytest.skip(f"Embedded extension not supported by non-multilib gcc")
+    if fpu in ["none", "single"] and not has_multilib:
+        pytest.skip(f"Non-multilib gcc only supports double extension")
+
     config = {
-        **get_target_config(target, xlen, fpu, embedded, compressed, atomic, multiply),
-        **get_platform_config(),
+        **_get_target_config(target, xlen, fpu, embedded, compressed, atomic, multiply),
+        **_get_platform_config(),
     }
 
     _, artifacts = _test_compile_platform(
@@ -143,7 +160,7 @@ def test_default(
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
-@pytest.mark.parametrize("target", ["myriscv_default_llvm"])
+@pytest.mark.parametrize("target", ["myriscv_vector_llvm"])
 # @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
 @pytest.mark.parametrize("vlen", [64, 128, 2048])
 @pytest.mark.parametrize("elen", [32])
@@ -167,13 +184,18 @@ def test_embedded_vector_32bit(
     user_context,
     models_dir,
 ):
-    # if elen == 32:
-    #     pytest.skip(f"ELEN 32 not supported due to compiler bug")
+    has_multilib = _check_multilib(user_context, "riscv_gcc_vext")
+    if (not compressed or not atomic or not multiply) and not has_multilib:
+        pytest.skip(f"Non-multilib gcc only supports requires: c+m+a")
+    if embedded and not has_multilib:
+        pytest.skip(f"Embedded extension not supported by non-multilib gcc")
+    if fpu in ["none", "single"] and not has_multilib:
+        pytest.skip(f"Non-multilib gcc only supports double extension")
 
     config = {
-        **get_target_config(target, 32, fpu, embedded, compressed, atomic, multiply),
-        **get_feature_vext_config(vlen, elen, spec, True),
-        **get_platform_config(),
+        **_get_target_config(target, 32, fpu, embedded, compressed, atomic, multiply),
+        **_get_feature_vext_config(vlen, elen, spec, True),
+        **_get_platform_config(),
     }
 
     _, artifacts = _test_compile_platform(
@@ -187,7 +209,7 @@ def test_embedded_vector_32bit(
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
-@pytest.mark.parametrize("target", ["myriscv_default_llvm"])
+@pytest.mark.parametrize("target", ["myriscv_vector_llvm"])
 # @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
 @pytest.mark.parametrize("vlen", [64, 128, 2048])
 @pytest.mark.parametrize("elen", [32, 64])
@@ -210,15 +232,21 @@ def test_embedded_vector_64bit(
     user_context,
     models_dir,
 ):
+    has_multilib = _check_multilib(user_context, "riscv_gcc_vext")
+    if (not compressed or not atomic or not multiply) and not has_multilib:
+        pytest.skip(f"Non-multilib gcc only supports requires: c+m+a")
+    if embedded and not has_multilib:
+        pytest.skip(f"Embedded extension not supported by non-multilib gcc")
+
     if elen == 32:
         pytest.skip(f"ELEN 32 not supported due to compiler bug")
     if fpu == "single":
         pytest.skip(f"Single precision float not supported due to compiler bug")
 
     config = {
-        **get_target_config(target, 64, fpu, embedded, compressed, atomic, multiply),
-        **get_feature_vext_config(vlen, elen, spec, True),
-        **get_platform_config(),
+        **_get_target_config(target, 64, fpu, embedded, compressed, atomic, multiply),
+        **_get_feature_vext_config(vlen, elen, spec, True),
+        **_get_platform_config(),
     }
     _, artifacts = _test_compile_platform(
         "mlif", "tflmi", target, user_context, model_name, models_dir, feature_names, config
@@ -228,7 +256,7 @@ def test_embedded_vector_64bit(
 # @pytest.mark.slow
 # @pytest.mark.user_context
 # @pytest.mark.parametrize("model_name", MODELS)
-# @pytest.mark.parametrize("target", ["myriscv_default_llvm"])
+# @pytest.mark.parametrize("target", ["myriscv_vector_llvm"])
 # # @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
 # @pytest.mark.parametrize("vlen", [64, 128, 2048])
 # @pytest.mark.parametrize("spec", [1.0])
@@ -249,7 +277,7 @@ def test_embedded_vector_64bit(
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
-@pytest.mark.parametrize("target", ["myriscv_default_llvm"])
+@pytest.mark.parametrize("target", ["myriscv_vector_llvm"])
 # @pytest.mark.parametrize("vlen", [64, 128, 256, 512, 1024, 2048])
 @pytest.mark.parametrize("vlen", [64, 128, 2048])
 @pytest.mark.parametrize("spec", [1.0])
@@ -260,10 +288,16 @@ def test_embedded_vector_64bit(
 def test_vector_64bit(
     model_name, target, vlen, spec, fpu, embedded, compressed, atomic, multiply, feature_names, user_context, models_dir
 ):
+    has_multilib = _check_multilib(user_context, "riscv_gcc_vext")
+    if (not compressed or not atomic or not multiply) and not has_multilib:
+        pytest.skip(f"Non-multilib gcc only supports requires: c+m+a")
+    if embedded and not has_multilib:
+        pytest.skip(f"Embedded extension not supported by non-multilib gcc")
+
     config = {
-        **get_target_config(target, 64, fpu, embedded, compressed, atomic, multiply),
-        **get_feature_vext_config(vlen, 64, spec, False),
-        **get_platform_config(),
+        **_get_target_config(target, 64, fpu, embedded, compressed, atomic, multiply),
+        **_get_feature_vext_config(vlen, 64, spec, False),
+        **_get_platform_config(),
     }
     _, artifacts = _test_compile_platform(
         "mlif", "tflmi", target, user_context, model_name, models_dir, feature_names, config

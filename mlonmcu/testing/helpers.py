@@ -89,10 +89,11 @@ def _test_frontend(frontend_name, user_context, model_name, models_dir, feature_
         pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
     _check_features(user_context, feature_names)
     session, run = _init_run(user_context, models_dir, user_config)
-    run.add_features_by_name(feature_names, context=user_context)
-    run.add_frontend_by_name(frontend_name, context=user_context)
-    run.add_model_by_name(model_name, context=user_context)
-    assert session.process_runs(until=RunStage.LOAD, context=user_context)
+    with session:
+        run.add_features_by_name(feature_names, context=user_context)
+        run.add_frontend_by_name(frontend_name, context=user_context)
+        run.add_model_by_name(model_name, context=user_context)
+        assert session.process_runs(until=RunStage.LOAD, context=user_context)
     report = session.get_reports()
     df, artifacts = report.df, run.artifacts
 
@@ -107,6 +108,31 @@ def _test_frontend(frontend_name, user_context, model_name, models_dir, feature_
     # TODO: test model data.c (after refactor)
     # artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
     # data_artifact = Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
+
+
+def _test_backend(backend_name, user_context, model_name, models_dir, feature_names, config):
+    user_config = user_context.environment.vars.copy()
+    user_config.update(config)
+    frontend_name = MODEL_FRONTENDS[model_name]
+    if not user_context.environment.has_frontend(frontend_name):
+        pytest.skip(f"Frontend '{frontend_name}' is not enabled.")
+    if not user_context.environment.has_backend(backend_name):
+        pytest.skip(f"Backend '{backend_name}' is not enabled.")
+    _check_features(user_context, feature_names)
+    session, run = _init_run(user_context, models_dir, user_config)
+    with session:
+        run.add_features_by_name(feature_names, context=user_context)
+        run.add_frontend_by_name(frontend_name, context=user_context)
+        run.add_model_by_name(model_name, context=user_context)
+        run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
+        assert session.process_runs(until=RunStage.BUILD, context=user_context)
+    report = session.get_reports()
+    df, artifacts = report.df, run.artifacts
+
+    assert len(df) == 1
+    assert df["Model"][0] == model_name
+    assert df["Backend"][0] == backend_name
+    return df, artifacts
 
 
 def _test_compile_platform(
@@ -127,13 +153,14 @@ def _test_compile_platform(
         pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: remove check?
     _check_features(user_context, feature_names)
     session, run = _init_run(user_context, models_dir, user_config)
-    run.add_features_by_name(feature_names, context=user_context)
-    run.add_frontend_by_name(frontend_name, context=user_context)
-    run.add_model_by_name(model_name, context=user_context)
-    run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
-    run.add_platform_by_name(platform_name, context=user_context)
-    run.add_target_by_name(target_name, context=user_context)
-    assert session.process_runs(until=RunStage.COMPILE, context=user_context)
+    with session:
+        run.add_features_by_name(feature_names, context=user_context)
+        run.add_frontend_by_name(frontend_name, context=user_context)
+        run.add_model_by_name(model_name, context=user_context)
+        run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
+        run.add_platform_by_name(platform_name, context=user_context)
+        run.add_target_by_name(target_name, context=user_context)
+        assert session.process_runs(until=RunStage.COMPILE, context=user_context)
     report = session.get_reports()
     df, artifacts = report.df, run.artifacts
 
@@ -162,13 +189,14 @@ def _test_run_platform(
         pytest.skip(f"Target '{target_name}' is not enabled.")  # TODO: remove check?
     _check_features(user_context, feature_names)
     session, run = _init_run(user_context, models_dir, user_config)
-    run.add_features_by_name(feature_names, context=user_context)
-    run.add_frontend_by_name(frontend_name, context=user_context)
-    run.add_model_by_name(model_name, context=user_context)
-    run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
-    run.add_platform_by_name(platform_name, context=user_context)
-    run.add_target_by_name(target_name, context=user_context)
-    assert session.process_runs(until=RunStage.RUN, context=user_context)
+    with session:
+        run.add_features_by_name(feature_names, context=user_context)
+        run.add_frontend_by_name(frontend_name, context=user_context)
+        run.add_model_by_name(model_name, context=user_context)
+        run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
+        run.add_platform_by_name(platform_name, context=user_context)
+        run.add_target_by_name(target_name, context=user_context)
+        assert session.process_runs(until=RunStage.RUN, context=user_context)
     report = session.get_reports()
     df, artifacts = report.df, run.artifacts
 

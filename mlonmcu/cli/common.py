@@ -247,15 +247,16 @@ def kickoff_runs(args, until, context):
         print_report = bool(config["print_report"])
     elif "print_report" in context.environment.vars:
         print_report = bool(context.environment.vars["print_report"])
-    success = session.process_runs(
-        until=until,
-        per_stage=per_stage,
-        print_report=print_report,
-        num_workers=args.parallel,
-        progress=args.progress,
-        context=context,
-        export=True,
-    )
+    with session:
+        success = session.process_runs(
+            until=until,
+            per_stage=per_stage,
+            print_report=print_report,
+            num_workers=args.parallel,
+            progress=args.progress,
+            context=context,
+            export=True,
+        )
     if not success:
         logger.error("At least one error occured!")
         sys.exit(1)

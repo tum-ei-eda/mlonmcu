@@ -282,13 +282,20 @@ class MlonMcuContext:
         self.latest_session_link_lock = filelock.FileLock(
             os.path.join(self.environment.home, ".latest_session_link_lock")
         )
-        self.sessions = load_recent_sessions(self.environment)
-        if self.environment.defaults.cleanup_auto:
-            logger.debug("Cleaning up old sessions automaticaly")
-            self.cleanup_sessions(keep=self.environment.defaults.cleanup_keep, interactive=False)
-            self.sessions = load_recent_sessions(self.environment)
-        self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
-        logger.debug(f"Restored {len(self.sessions)} recent sessions")
+        # Reusing lock for latest session link here...
+        try:
+            lock = self.latest_session_link_lock.acquire(timeout=10)
+        except filelock.Timeout as err:
+            raise RuntimeError("Lock on current context could not be aquired.") from err
+        else:
+            with lock:
+                self.sessions = load_recent_sessions(self.environment)
+                if self.environment.defaults.cleanup_auto:
+                    logger.debug("Cleaning up old sessions automaticaly")
+                    self.cleanup_sessions(keep=self.environment.defaults.cleanup_keep, interactive=False)
+                    self.sessions = load_recent_sessions(self.environment)
+                self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
+                logger.debug(f"Restored {len(self.sessions)} recent sessions")
         self.cache = TaskCache()
 
     def create_session(self, label="", config=None):
@@ -424,6 +431,10 @@ class MlonMcuContext:
                     session_dir = sessions_dir / str(session.idx)
                     if not session_dir.is_dir():
                         # Skip / Dir does not exist
+                        continue
+                    session_lock = session_dir / ".lock"
+                    if session_lock.is_file():
+                        # Skip / Session locked (unclean or in progress)
                         continue
                     shutil.rmtree(session_dir)
                 self.sessions = to_keep

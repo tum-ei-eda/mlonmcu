@@ -123,7 +123,7 @@ class Run:
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
-        self.init_directory()
+        # self.init_directory()
         self.target = target
         self.cache_hints = []
         self.config = config if config else {}
@@ -301,13 +301,24 @@ class Run:
                 # The stage_subdirs setting is ignored here because platforms can be multi-stage!
                 platform.init_directory(path=Path(self.dir) / platform.name)
 
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            if k == "session":
+                setattr(result, k, v)
+            else:
+                setattr(result, k, copy.deepcopy(v, memo))
+        return result
+
     def copy(self):
         """Create a new run based on this instance."""
         new = copy.deepcopy(self)
         if self.session:
             new_idx = self.session.request_run_idx()
             new.idx = new_idx
-            self.init_directory()
+            # self.init_directory()
         return new
 
     def init_component(self, component_cls, context=None):

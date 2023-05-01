@@ -15,6 +15,10 @@ DEFAULT_PADDLE_MODELS = ["paddle_resnet50"]
 MODEL_FRONTENDS = {
     "sine_model": "tflite",
     "aww": "tflite",
+    "vww": "tflite",
+    "resnet": "tflite",
+    "toycar": "tflite",
+    "tinymlperf": "tflite",
     "onnx_mnist": "onnx",
     "test_cnn": "relay",
     "mobilenet_v1_1.0_224_frozen": "pb",  # or tflite

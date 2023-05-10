@@ -426,7 +426,7 @@ VEXT_MIN_ALLOWED_VLEN = 64
 
 # @before_feature("muriscvnn")  # TODO: implement something like this
 @register_feature("vext")
-class Vext(SetupFeature, TargetFeature, PlatformFeature):
+class Vext(SetupFeature, TargetFeature, ToolchainFeature):
     """Enable vector extension for supported RISC-V targets"""
 
     DEFAULTS = {
@@ -479,24 +479,28 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     #     else:
     #         config["mlif.toolchain"] = "llvm"
 
-    def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
-        return {
-            "RISCV_VEXT": self.enabled,
-            "RISCV_VLEN": self.vlen,
-        }
+    def get_toolchain_config(self, toolchain):
+        return filter_none(
+            {
+                f"{toolchain}.enable_vext": True,
+                f"{toolchain}.vlen": self.vlen,
+                f"{toolchain}.elen": self.elen,
+                f"{toolchain}.vext_spec": self.spec,
+                f"{toolchain}.embedded_vext": self.embedded,
+            }
+        )
 
     def get_required_cache_flags(self):
         return {
             "muriscvnn.lib": ["vext"],
             "tflmc.exe": ["vext"],
-            "riscv_gcc.install_dir": ["vext"],
-            "riscv_gcc.name": ["vext"],
+            # "riscv_gcc.install_dir": ["vext"],
+            # "riscv_gcc.name": ["vext"],
         }
 
 
 @register_feature("pext")
-class Pext(SetupFeature, TargetFeature, PlatformFeature):
+class Pext(SetupFeature, TargetFeature, ToolchainFeature):
     """Enable packed SIMD extension for supported RISC-V targets"""
 
     DEFAULTS = {
@@ -515,22 +519,26 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
     def get_target_config(self, target):
         return filter_none(
             {
-                f"{target}.enable_pext": True,  # Handle via arch characters in the future
+                f"{target}.enable_pext": True,
                 f"{target}.pext_spec": self.spec,
             }
         )
 
-    def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
-        return {"RISCV_PEXT": self.enabled}
+    def get_toolchain_config(self, toolchain):
+        return filter_none(
+            {
+                f"{toolchain}.enable_pext": True,
+                f"{toolchain}.pext_spec": self.spec,
+            }
+        )
 
     def get_required_cache_flags(self):
         # These will be merged automatically with existing ones
         return {
             "muriscvnn.lib": ["pext"],
             "tflmc.exe": ["pext"],
-            "riscv_gcc.install_dir": ["pext"],
-            "riscv_gcc.name": ["pext"],
+            # "riscv_gcc.install_dir": ["pext"],
+            # "riscv_gcc.name": ["pext"],
         }
 
 
@@ -1277,7 +1285,7 @@ class LogInstructions(TargetFeature):
 
 
 @register_feature("arm_mvei", depends=["arm_dsp"])
-class ArmMvei(SetupFeature, TargetFeature, PlatformFeature):
+class ArmMvei(SetupFeature, TargetFeature, ToolchainFeature):
     """Enable MVEI extension for supported ARM targets"""
 
     def __init__(self, features=None, config=None):
@@ -1289,18 +1297,20 @@ class ArmMvei(SetupFeature, TargetFeature, PlatformFeature):
             f"{target}.enable_mvei": True,  # TODO: remove if not required (only enforce m33/m55)
         }
 
+    def get_toolchain_config(self, toolchain):
+        return {
+            f"{toolchain}.enable_mvei": True,
+        }
+
     def get_required_cache_flags(self):
         return {
             "cmsisnn.lib": ["mvei"],
             "tflmc.exe": ["mvei"],
         }
 
-    def get_platform_defs(self, platform):
-        return {"ARM_MVEI": self.enabled}
-
 
 @register_feature("arm_dsp")
-class ArmDsp(SetupFeature, TargetFeature, PlatformFeature):
+class ArmDsp(SetupFeature, TargetFeature, ToolchainFeature):
     """Enable DSP extension for supported ARM targets"""
 
     def __init__(self, features=None, config=None):
@@ -1312,15 +1322,17 @@ class ArmDsp(SetupFeature, TargetFeature, PlatformFeature):
             f"{target}.enable_dsp": True,  # TODO: remove if not required (only enforce m33/m55)
         }
 
+    def get_toolchain_config(self, toolchain):
+        return {
+            f"{toolchain}.enable_dsp": True,
+        }
+
     def get_required_cache_flags(self):
         # These will be merged automatically with existing ones
         return {
             "cmsisnn.lib": ["dsp"],
             "tflmc.exe": ["dsp"],
         }
-
-    def get_platform_defs(self, platform):
-        return {"ARM_DSP": self.enabled}
 
 
 @register_feature("target_optimized")
@@ -1361,7 +1373,7 @@ class TargetOptimized(RunFeature):
 # Warning: Auto-vectorization is turned on by default quite low optimization levels
 # Therfore this feature is mainly for debugging the auto-vectorization procedure
 @register_feature("auto_vectorize")
-class AutoVectorize(PlatformFeature):
+class AutoVectorize(ToolchainFeature):
     """Enable auto_vectorization for supported MLIF platform targets."""
 
     DEFAULTS = {
@@ -1389,13 +1401,15 @@ class AutoVectorize(PlatformFeature):
         value = self.config["slp"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    def get_platform_defs(self, platform):
-        return {
-            "RISCV_AUTO_VECTORIZE": self.enabled,
-            "RISCV_AUTO_VECTORIZE_VERBOSE": self.verbose,
-            "RISCV_AUTO_VECTORIZE_LOOP": self.loop and self.enabled,
-            "RISCV_AUTO_VECTORIZE_SLP": self.slp and self.enabled,
-        }
+    def get_toolchain_config(self, toolchain):
+        return filter_none(
+            {
+                f"{toolchain}.enable_auto_vectorize": self.senabled,
+                f"{toolchain}.auto_vectorize_verbose": self.verbose,
+                f"{toolchain}.auto_vectorize_loop": self.loop,
+                f"{toolchain}.auto_vectorize_slp": self.slp,
+            }
+        )
 
 
 @register_feature("benchmark")
@@ -1593,7 +1607,7 @@ class TvmProfile(PlatformFeature):
 
 
 @register_feature("xcorev")
-class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
+class XCoreV(TargetFeature, ToolchainFeature, SetupFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "mac": True,
@@ -1619,9 +1633,14 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
             config[f"{target}.enable_xcorevmac"] = self.mac
             config[f"{target}.enable_xcorevmem"] = self.mem
 
+    def add_toolchain_config(self, toolchain, config):
+        if self.enabled:
+            config[f"{toolchain}.enable_xcorevmac"] = self.mac
+            config[f"{toolchain}.enable_xcorevmem"] = self.mem
+
 
 @register_feature("xpulp")
-class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
+class Xpulp(TargetFeature, ToolchainFeature, SetupFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "xpulp_version": 2,
@@ -1701,72 +1720,17 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
         assert value in [None, 2, 3], f"xpulp_version must be None, 2 or 3, but get {value}"
         return value
 
-    def get_platform_defs(self, platform):
-        # The following create EXTRA_FLAGS (type is str) for gcc
-        # example
-        # {"nopostmod": True, "novect": True, ...} ==> EXTRA_FLAGS = "-mnopostmod -mnovect ..."
-        EXTRA_FLAGS = ""
-        for key in self.getter_functions:
-            if isinstance(self.getter_functions[key](self, key), bool):
-                if self.getter_functions[key](self, key):
-                    EXTRA_FLAGS += f" -m{key}"
-                continue
-            if isinstance(self.getter_functions[key](self, key), int):
-                EXTRA_FLAGS += f" -m{key}={self.getter_functions[key](self, key)}"
-                continue
-        EXTRA_FLAGS = "'" + EXTRA_FLAGS.strip() + "'"
-        return {
-            # EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
-            "EXTRA_CMAKE_C_FLAGS": EXTRA_FLAGS,
-            # EXTRA_CMAKE_CXX_FLAGS will be directly append to CMAKE_CXX_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
-            "EXTRA_CMAKE_CXX_FLAGS": EXTRA_FLAGS,
-        }
-
-    def add_platform_defs(self, platform, defs):
-        addition_defs = self.get_platform_defs(platform)
-        self.merge_dicts(defs, addition_defs)
-
-    @staticmethod
-    def merge_dicts(dict1, dict2):
-        """
-        This function tries to merge dict1 and dict2 into dict1
-        :param dict1: A dictionary
-        :param dict2: A dictionary to be added
-        :return: Void
-        Example 1:
-        dict1 = {"a": 1, "b": "hello", "c": [1, 2, 3]}
-        dict2 = {"f": 3, "b": "world", "c": [4, 5, 6]}
-        merge_dicts(dict1, dict2)
-        print(dict1)
-        ==>
-        {"a": 1, "b": "hello world", "c": [1, 2, 3, 4, 5, 6], "f":3}
-        Note: Here "hello" and "world" are merged as two string join.
-        Here [1,2,3] and [4,5,6] are merged as list addition
-        Example 2:
-        dict1 = {"a": 1}
-        dict2 = {"a": 3}
-        merge_dicts(dict1, dict2)
-        ==>
-        RuntimeError: The method to merge a: 1 and a: 3 is not defined
-        """
-        for key in dict2.keys():
-            if key in dict1.keys():
-                dict1_value = dict1[key]
-                dict2_value = dict2[key]
-                if isinstance(dict1_value, (str, list)) and type(dict1_value) == type(dict2_value):
-                    if isinstance(dict1_value, str):
-                        dict1[key] = dict1_value + " " + dict2_value
-                    else:
-                        dict1[key] = dict1_value + dict2_value
-                else:
-                    raise RuntimeError(
-                        f"The method to merge {key}: {dict1_value} and {key}: {dict2_value} is not defined"
-                    )
-            else:
-                dict1[key] = dict2[key]
-
     def get_target_config(self, target):
         return filter_none({f"{target}.xpulp_version": self.xpulp_version})
+
+    def get_toolchain_config(self, toolchain):
+        ret = {
+            "{toolchain}.xpulp_version": self.xpulp_version,
+        }
+        for key in self.getter_functions:
+            key_ = f"{toolchain}.xpulp_{key}"
+            ret[key_] = self.getter_functions[key](self, key)
+        return filter_none(ret)
 
 
 @register_feature("split_layers")

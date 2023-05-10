@@ -25,13 +25,23 @@ from mlonmcu.cli.build import (
 )
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import RunStage
+from mlonmcu.toolchain import SUPPORTED_TOOLCHAINS
 from mlonmcu.platform.lookup import get_platforms_targets
 from .helper.parse import extract_target_names, extract_platform_names, extract_config_and_feature_names
 
 
 def add_compile_options(parser):
     add_build_options(parser)
-    # compile_parser = parser.add_argument_group("compile options")
+    compile_parser = parser.add_argument_group("compile options")
+    compile_parser.add_argument(
+        "--toolchain",
+        type=str,
+        metavar="TOOLCHAIN",
+        choices=SUPPORTED_TOOLCHAINS.keys(),
+        default=None,
+        nargs=1,
+        help="Explicitly choose the toolchains to use (choices: %(choices)s)",
+    )
 
 
 def get_parser(subparsers):

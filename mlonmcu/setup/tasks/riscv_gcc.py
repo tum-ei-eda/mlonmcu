@@ -58,31 +58,31 @@ def check_multilibs(riscvInstallDir, gccName, live=False, vext=False, pext=False
 
 
 def _validate_riscv_gcc(context: MlonMcuContext, params=None):
-    if not _validate_gcc(context, params=params):
-        return False
     if not (
-        context.environment.has_target("etiss_pulpino")
-        or context.environment.has_target("etiss")
-        or context.environment.has_target("spike")
-        or context.environment.has_target("ovpsim")
-        or context.environment.has_target("ara")
+        context.environment.has_toolchain("riscv_gcc")
     ):
         return False
-    if params:
-        vext = params.get("vext", False)
-        pext = params.get("pext", False)
-        user_vars = context.environment.vars
-        combined = user_vars.get("riscv_gcc.combined", False)
-        if vext and pext:
-            return combined
-        elif vext:
-            if not context.environment.has_feature("vext"):
-                return False
-        elif pext:
-            if not context.environment.has_feature("pext"):
-                return False
     return True
 
+
+def _validate_riscv_gcc_vext(context: MlonMcuContext, params=None):
+    if not (
+        context.environment.has_toolchain("riscv_gcc_vext")
+    ):
+        return False
+    # if not context.environment.has_feature("vext"):
+    #     return False
+    return True
+
+
+def _validate_riscv_gcc_pext(context: MlonMcuContext, params=None):
+    if not (
+        context.environment.has_toolchain("riscv_gcc_pext")
+    ):
+        return False
+    # if not context.environment.has_feature("pext"):
+    #     return False
+    return True
 
 @Tasks.provides(
     [
@@ -94,8 +94,6 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
         "riscv_gcc.multilibs",
     ]
 )
-@Tasks.param("vext", [False, True])
-@Tasks.param("pext", [False, True])
 @Tasks.validate(_validate_riscv_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)
 def install_riscv_gcc(
@@ -105,11 +103,7 @@ def install_riscv_gcc(
     if not params:
         params = {}
     user_vars = context.environment.vars
-    vext = params["vext"]
-    pext = params["pext"]
-    combined = user_vars.get("riscv_gcc.combined", False)
-    variant = user_vars.get("riscv_gcc.variant", "unknown")
-    flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
+    flags = utils.makeFlags((params["vext"], "vext")
     # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
     if combined:
         riscvName = utils.makeDirName("riscv_gcc", flags=[])

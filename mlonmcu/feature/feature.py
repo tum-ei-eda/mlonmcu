@@ -187,6 +187,21 @@ class PlatformFeature(FeatureBase):
         defs.update(self.get_platform_defs(platform))
 
 
+class ToolchainFeature(FeatureBase):
+    """Toolchain related feature"""
+
+    feature_type = FeatureType.TOOLCHAIN
+
+    def __init__(self, name, features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+    def get_toolchain_config(self, toolchain):
+        return {}
+
+    def add_toolchain_config(self, toolchain, config):
+        config.update(self.get_toolchain_config(toolchain))
+
+
 class SetupFeature(FeatureBase):  # TODO: alternative: CacheFeature
     """Setup/Cache related feature"""
 

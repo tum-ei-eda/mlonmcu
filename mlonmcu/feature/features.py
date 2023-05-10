@@ -29,6 +29,7 @@ from .feature import (
     BackendFeature,
     FrameworkFeature,
     PlatformFeature,
+    ToolchainFeature,
     FrontendFeature,
     TargetFeature,
     SetupFeature,

@@ -31,3 +31,4 @@ class FeatureType(Enum):
     # COMPILE = 6
     PLATFORM = 6
     RUN = 7
+    TOOLCHAIN = 8

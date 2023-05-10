@@ -36,6 +36,7 @@ from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features, get_available_features
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.toolchain import SUPPORTED_TOOLCHAINS
 from mlonmcu.platform import get_platforms
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
 
@@ -99,6 +100,7 @@ class Run:
         model=None,
         framework=None,
         frontends=None,
+        toolchains=None,
         backend=None,
         target=None,
         platforms=None,  # TODO: rename
@@ -112,6 +114,7 @@ class Run:
         self.idx = idx
         self.model = model  # Model name, not object?
         self.frontends = frontends if frontends is not None else []
+        self.toolchains = toolchains if toolchains is not None else []
         self.framework = framework  # ???
         self.backend = backend
         self.platforms = platforms if platforms is not None else []
@@ -352,6 +355,25 @@ class Run:
         """Setter for the list of frontends."""
         self.frontends = add_any(frontends, self.frontends, append=append)
 
+    def add_toolchain(self, toolchain, append=True):
+        """Setter for the toolchain instance."""
+        assert self.platforms is not None, "Add at least a platform before adding a toolchain"
+        assert self.target is None, "Toolchains habe to be added before targets"
+        self.toolchains = add_any(toolchain, self.toolchains, append=append)
+        for platform in self.platforms:
+            if platform.name in toolchain.supported_platforms:
+                toolchain.add_platform_defs(platform.name, platform.definitions)
+
+    def add_toolchains(self, toolchains, append=False):
+        """Setter for the list of toolchains."""
+        assert self.platforms is not None, "Add at least a platform before adding a toolchain"
+        assert self.target is None, "Toolchains habe to be added before targets"
+        self.toolchains = add_any(toolchains, self.toolchains, append=append)
+        for toolchain in toolchains:
+            for platform in self.platforms:
+                if platform.name in toolchain.supported_platforms:
+                    toolchain.add_platform_defs(platform.name, platform.definitions)
+
     def add_backend(self, backend):
         """Setter for the backend instance."""
         self.backend = backend
@@ -374,6 +396,9 @@ class Run:
     def add_target(self, target):
         """Setter for the target instance."""
         self.target = target
+        toolchain = self.pick_target_toolchain(self.target.arch, platforms=self.platforms)
+        if toolchain:
+            self.toolchains = [toolchain]
         assert self.platforms is not None, "Add at least a platform before adding a target."
         for platform in self.platforms:
             self.target.add_platform_defs(platform.name, platform.definitions)
@@ -432,6 +457,21 @@ class Run:
                 return model_hint
         return None
 
+    def pick_target_toolchain(self, target_arch, platforms=None):
+        # assert len(target_arch) > 0
+        # needs_toolchain = ?
+        # if platforms is None:
+        #     pass
+        # for platform in platforms:
+        #     if platform.name == "mlif":
+        #         pass
+        self.toolchains = [
+            toolchain for toolchain in self.toolchains if target_arch in toolchain.supported_archs
+        ]
+        if len(self.frontends) > 0:
+            return self.toolchains[0]
+        return None
+
     def add_model_by_name(self, model_name, context=None):
         """Helper function to initialize and configure a model by its name."""
         assert context is not None, "Please supply a context"
@@ -459,6 +499,24 @@ class Run:
                 continue
         assert len(frontends) > 0, "No compatible frontend was found"
         self.add_frontends(frontends)
+
+    def add_toolchain_by_name(self, toolchain_name, context=None):
+        """Helper function to initialize and configure a toolchain by its name."""
+        self.add_toolchains_by_name([toolchain_name], context=context)
+
+    def add_toolchains_by_name(self, toolchain_names, context=None):
+        """Helper function to initialize and configure toolchains by their names."""
+        toolchains = []
+        for name in toolchain_names:
+            try:
+                assert context is not None and context.environment.has_toolchain(
+                    name
+                ), f"The enable '{name}' is not enabled for this environment"
+                toolchains.append(self.init_component(SUPPORTED_TOOLCHAINS[name], context=context))
+            except Exception:
+                continue
+        assert len(toolchains) > 0, "No compatible frontend was found"
+        self.add_toolchains(toolchains)
 
     def add_backend_by_name(self, backend_name, context=None):
         """Helper function to initialize and configure a backend by its name."""

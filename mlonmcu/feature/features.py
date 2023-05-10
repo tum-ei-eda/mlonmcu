@@ -1663,8 +1663,6 @@ class Xpulp(TargetFeature, ToolchainFeature, SetupFeature):
         "noshufflepack": False,
     }
 
-    REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}
-
     def __init__(self, features=None, config=None):
         super().__init__("xpulp", features=features, config=config)
 

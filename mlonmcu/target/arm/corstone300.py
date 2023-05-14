@@ -55,7 +55,6 @@ class Corstone300Target(Target):
         "cmsis.dir",
         "cmsisnn.dir",
         "ethosu_platform.dir",
-        "arm_gcc.install_dir",
     }  # Actually cmsisnn.dir points to the root CMSIS_5 directory
 
     def __init__(self, name="corstone300", features=None, config=None):
@@ -92,10 +91,6 @@ class Corstone300Target(Target):
     @property
     def fvp_exe(self):
         return Path(self.config["corstone300.exe"])
-
-    @property
-    def gcc_prefix(self):
-        return str(self.config["arm_gcc.install_dir"])
 
     @property
     def cmsis_dir(self):
@@ -223,7 +218,8 @@ class Corstone300Target(Target):
         ret["ARM_FPU"] = fpu
         return ret
 
-    def get_arch(self):
+    @property
+    def architecture(self):
         return "arm"  # TODO: use proper mapping (v6, v7, v8, v8.1...)
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

@@ -18,7 +18,7 @@ from .riscv import (
     SpikeTarget,
     OVPSimTarget,
     RiscvQemuTarget,
-    GvsocPulpTarget,
+    # GvsocPulpTarget,
     EtissTarget,
     AraTarget,
 )
@@ -47,5 +47,5 @@ register_target("corstone300", Corstone300Target)
 register_target("spike", SpikeTarget)
 register_target("ovpsim", OVPSimTarget)
 register_target("riscv_qemu", RiscvQemuTarget)
-register_target("gvsoc_pulp", GvsocPulpTarget)
+# register_target("gvsoc_pulp", GvsocPulpTarget)
 register_target("ara", AraTarget)

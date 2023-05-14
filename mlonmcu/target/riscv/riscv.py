@@ -32,8 +32,6 @@ logger = get_logger()
 class RISCVTarget(Target):
     """Common base class for RISCV-like targets. Please do not use this as a target itself!"""
 
-    FEATURES = Target.FEATURES
-
     DEFAULTS = {
         **Target.DEFAULTS,
         # Default: rv32gc
@@ -50,9 +48,6 @@ class RISCVTarget(Target):
         "abi": None,  # Please use above properties if possible
         "attr": "",  # Please avoid using this directly
     }
-    REQUIRED = {"riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"}
-    PUPL_GCC_TOOLCHAIN_REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}  # TODO elegant handle customized toolchain
-    OPTIONAL = {"llvm.install_dir"}
 
     def reconfigure(self):
         # super().reconfigure()
@@ -62,26 +57,6 @@ class RISCVTarget(Target):
                 "final_abi": self.abi,
             }
         )
-
-    @property
-    def riscv_gcc_prefix(self):
-        return Path(self.config["riscv_gcc.install_dir"])
-
-    @property
-    def riscv_gcc_basename(self):
-        return Path(self.config["riscv_gcc.name"])
-
-    @property
-    def pulp_gcc_prefix(self):
-        return Path(self.config["pulp_gcc.install_dir"])
-
-    @property
-    def pulp_gcc_basename(self):
-        return Path(self.config["pulp_gcc.name"])
-
-    @property
-    def gcc_variant(self):
-        return self.config["riscv_gcc.variant"]
 
     @property
     def xlen(self):
@@ -158,14 +133,6 @@ class RISCVTarget(Target):
             embedded_vext=False,
             vlen=None,
         )
-
-    @property
-    def gcc_extensions(self):
-        return self.extensions
-
-    @property
-    def llvm_extensions(self):
-        return self.extensions
 
     @property
     def arch(self):
@@ -255,20 +222,6 @@ class RISCVTarget(Target):
     def get_target_system(self):
         return "generic_riscv"  # TODO: rename to generic-rv32 for compatibility with LLVM
 
-    def get_platform_defs(self, platform):
-        ret = super().get_platform_defs(platform)
-        # TODO refactor the following using inheritance instead of branching
-        if "riscv_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the riscv_gcc toolchain
-            ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
-            ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
-        elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
-            ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
-            ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = self.arch
-        ret["RISCV_ABI"] = self.abi
-        ret["RISCV_ATTR"] = self.attr  # TODO: use for clang
-        return ret
-
     def get_arch(self):
         return "riscv"
 
@@ -279,11 +232,6 @@ class RISCVTarget(Target):
             arch_remove = ["zicsr", "zifencei"]
             arch_clean = "-".join([a for a in arch_split if a not in arch_remove])
             ret = {
-                "target_march": self.arch,
-                "target_mtriple": self.riscv_gcc_basename,  # TODO: riscv32-esp-elf for esp32c3!
-                "target_mabi": self.abi,
-                "target_mattr": self.attr,
-                "target_mcpu": f"generic-rv{self.xlen}",
                 "target_model": f"{self.name}-{arch_clean}",
             }
             if optimized_schedules:

@@ -465,9 +465,7 @@ class Run:
         # for platform in platforms:
         #     if platform.name == "mlif":
         #         pass
-        self.toolchains = [
-            toolchain for toolchain in self.toolchains if target_arch in toolchain.supported_archs
-        ]
+        self.toolchains = [toolchain for toolchain in self.toolchains if target_arch in toolchain.supported_archs]
         if len(self.frontends) > 0:
             return self.toolchains[0]
         return None

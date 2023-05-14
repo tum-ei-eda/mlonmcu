@@ -225,3 +225,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         # to support accepting user-vars
         new = {key: value for key, value in new.items() if config.get(key, None) is None}
         config.update(new)
+
+    @property
+    def architecture(self):
+        return "riscv"

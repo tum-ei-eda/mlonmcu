@@ -117,3 +117,7 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget, RVPTarget, RVV
                         }
                     )
         return ret
+
+    @property
+    def architecture(self):
+        return "riscv"

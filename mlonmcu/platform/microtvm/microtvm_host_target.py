@@ -42,3 +42,7 @@ class HostMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     @property
     def tvm_build_dir(self):
         return Path(self.config["tvm.build_dir"])
+
+    @property
+    def architecture(self):
+        return "x86"

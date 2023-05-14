@@ -156,7 +156,9 @@ class Esp32C3Target(Target):
     def get_target_system(self):
         return "esp32c3"
 
-    def get_arch(self):
+    @property
+    def architecture(self):
+        # TODO: fix
         return "riscv"
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
@@ -266,7 +268,8 @@ def create_espidf_platform_target(name, platform, base=Target):
 
             return metrics, out, []
 
-        def get_arch(self):
+        @property
+        def architecture(self):
             return "unkwown"
 
     return EspIdfPlatformTarget

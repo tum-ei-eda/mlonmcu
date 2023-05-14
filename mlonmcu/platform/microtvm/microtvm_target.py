@@ -180,7 +180,8 @@ def create_microtvm_platform_target(name, platform, base=Target):
 
             return metrics, out, []
 
-        def get_arch(self):
+        @property
+        def architecture(self):
             return "unkwown"
 
     return MicroTvmPlatformTarget

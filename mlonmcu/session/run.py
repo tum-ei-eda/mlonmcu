@@ -80,7 +80,9 @@ class Run:
     DEFAULTS = {
         "export_optional": False,
         "tune_enabled": False,
+        "target_to_toolchain": True,
         "target_to_backend": True,
+        "toolchain_to_backend": True,
         "target_optimized_layouts": False,
         "target_optimized_schedules": False,
         "stage_subdirs": False,
@@ -168,6 +170,18 @@ class Run:
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def target_to_toolchain(self):
+        """Get target_to_toolchain property."""
+        value = self.run_config["target_to_toolchain"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def toolchain_to_backend(self):
+        """Get target_to_toolchain property."""
+        value = self.run_config["toolchain_to_backend"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def target_optimized_layouts(self):
         """Get target_optimized_layouts property."""
         value = self.run_config["target_optimized_layouts"]
@@ -197,6 +211,11 @@ class Run:
             hasattr(self.backend, "platform") and isinstance(self.backend.platform, BuildPlatform)
         ):
             return self.backend.platform
+        if self.target is not None:
+            if hasattr(self.target, "platform") and isinstance(self.target.platform, BuildPlatform):
+                return self.target.platform
+            else:
+                return None
         for platform in self.platforms:
             if isinstance(platform, BuildPlatform):
                 return platform
@@ -358,7 +377,7 @@ class Run:
     def add_toolchain(self, toolchain, append=True):
         """Setter for the toolchain instance."""
         assert self.platforms is not None, "Add at least a platform before adding a toolchain"
-        assert self.target is None, "Toolchains habe to be added before targets"
+        assert self.target is None, "Toolchains have to be added before targets"
         self.toolchains = add_any(toolchain, self.toolchains, append=append)
         for platform in self.platforms:
             if platform.name in toolchain.supported_platforms:
@@ -367,7 +386,7 @@ class Run:
     def add_toolchains(self, toolchains, append=False):
         """Setter for the list of toolchains."""
         assert self.platforms is not None, "Add at least a platform before adding a toolchain"
-        assert self.target is None, "Toolchains habe to be added before targets"
+        assert self.target is None, "Toolchains have to be added before targets"
         self.toolchains = add_any(toolchains, self.toolchains, append=append)
         for toolchain in toolchains:
             for platform in self.platforms:
@@ -396,13 +415,13 @@ class Run:
     def add_target(self, target):
         """Setter for the target instance."""
         self.target = target
-        toolchain = self.pick_target_toolchain(self.target.arch, platforms=self.platforms)
+        toolchain = self.pick_target_toolchain(self.target.architecture)
         if toolchain:
             self.toolchains = [toolchain]
         assert self.platforms is not None, "Add at least a platform before adding a target."
         for platform in self.platforms:
             self.target.add_platform_defs(platform.name, platform.definitions)
-        self.cache_hints = [self.target.get_arch()]
+        # self.cache_hints = [self.target.get_arch()]
         # self.resolve_chache_refs()
 
     def add_platform(self, platform, append=True):
@@ -457,16 +476,11 @@ class Run:
                 return model_hint
         return None
 
-    def pick_target_toolchain(self, target_arch, platforms=None):
-        # assert len(target_arch) > 0
-        # needs_toolchain = ?
-        # if platforms is None:
-        #     pass
-        # for platform in platforms:
-        #     if platform.name == "mlif":
-        #         pass
-        self.toolchains = [toolchain for toolchain in self.toolchains if target_arch in toolchain.supported_archs]
-        if len(self.frontends) > 0:
+    def pick_target_toolchain(self, target_arch):
+        self.toolchains = [
+            toolchain for toolchain in self.toolchains if target_arch in toolchain.supported_architectures
+        ]
+        if len(self.toolchains) > 0:
             return self.toolchains[0]
         return None
 
@@ -504,16 +518,24 @@ class Run:
 
     def add_toolchains_by_name(self, toolchain_names, context=None):
         """Helper function to initialize and configure toolchains by their names."""
+        assert len(toolchain_names) > 0
         toolchains = []
+        fail_reasons = {}
         for name in toolchain_names:
             try:
                 assert context is not None and context.environment.has_toolchain(
                     name
-                ), f"The enable '{name}' is not enabled for this environment"
+                ), f"The toolchain '{name}' is not enabled for this environment"
                 toolchains.append(self.init_component(SUPPORTED_TOOLCHAINS[name], context=context))
-            except Exception:
+            except Exception as ex:
+                # traceback.print_exc(ex)
+                fail_reasons[name] = str(ex)
+                # print("FAIL2")
                 continue
-        assert len(toolchains) > 0, "No compatible frontend was found"
+        if len(toolchains) == 0:
+            fail_reasons_str = "\n".join([f"- {key}: {value}" for key, value in fail_reasons.items()])
+            logger.error("No compatible toolchain was found, Fail reasons:\n%s", fail_reasons_str)
+            raise RuntimeError
         self.add_toolchains(toolchains)
 
     def add_backend_by_name(self, backend_name, context=None):
@@ -547,11 +569,21 @@ class Run:
     def add_platforms_by_name(self, platform_names, context=None):
         """Helper function to initialize and configure platforms by their names."""
         platforms = []
+        fail_reasons = {}
         for name in platform_names:
-            assert context is not None and context.environment.has_platform(
-                name
-            ), f"The platform '{name}' is not enabled for this environment"
-            platforms.append(self.init_component(get_platforms()[name], context=context))
+            try:
+                assert context is not None and context.environment.has_platform(
+                    name
+                ), f"The platform '{name}' is not enabled for this environment"
+                platforms.append(self.init_component(get_platforms()[name], context=context))
+            except Exception as ex:
+                # traceback.print_exc(ex)
+                fail_reasons[name] = str(ex)
+                continue
+        if len(platforms) == 0:
+            fail_reasons_str = "\n".join([f"- {key}: {value}" for key, value in fail_reasons.items()])
+            logger.error("No compatible platform was found, Fail reasons:\n%s", fail_reasons_str)
+            raise RuntimeError
         self.add_platforms(platforms)
 
     def add_postprocess_by_name(self, postprocess_name, append=True, context=None):
@@ -593,6 +625,8 @@ class Run:
             probs.append(str(self.model))
         if len(self.platforms) > 0:
             probs.append(str(self.platforms[0] if len(self.platforms) == 1 else self.platforms))
+        if len(self.toolchains) > 0:
+            probs.append(str(self.toolchains[0] if len(self.toolchains) == 1 else self.toolchains))
         if len(self.frontends) > 0:
             probs.append(str(self.frontends[0] if len(self.frontends) == 1 else self.frontends))
         if self.backend:
@@ -795,17 +829,27 @@ class Run:
         self.completed[RunStage.COMPILE] = True
         self.unlock()
 
-    def build(self):
-        """Process the run using the choosen backend."""
-        logger.debug("%s Processing stage BUILD", self.prefix)
-        self.lock()
-        assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
-
+    def prepare(self):
         target_to_backend = self.target_to_backend and (self.target is not None)
+        # target_to_toolchain = self.target_to_toolchain and (self.target is not None)
+        target_to_toolchain = self.target_to_toolchain or (self.target is not None)
+        toolchain_to_backend = self.toolchain_to_backend and len(self.toolchains) > 0
+
         if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
             assert self.target is not None, "Backend needs target"
+            assert len(self.toolchains) > 0, "Backend needs toolchain"
+            target_to_toolchain = True
             target_to_backend = True
+            toolchain_to_backend = True
 
+        if target_to_toolchain:
+            self.target.add_toolchain_config(
+                self.toolchains[0].name,
+                self.toolchains[0].config,
+            )
+            for platform in self.platforms:
+                if platform.name in self.toolchains[0].supported_platforms:
+                    self.toolchains[0].add_platform_defs(platform.name, platform.definitions)
         if target_to_backend:
             self.target.add_backend_config(
                 self.backend.name,
@@ -813,6 +857,19 @@ class Run:
                 optimized_layouts=self.target_optimized_layouts,
                 optimized_schedules=self.target_optimized_schedules,
             )
+        if toolchain_to_backend:
+            self.toolchains[0].add_backend_config(
+                self.backend.name,
+                self.backend.config,
+            )
+
+    def build(self):
+        """Process the run using the choosen backend."""
+        logger.debug("%s Processing stage BUILD", self.prefix)
+        self.lock()
+        assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
+
+        self.prepare()  # TODO: move to own stage
 
         def _build():
             # TODO: allow raw data as well as filepath in backends
@@ -890,18 +947,7 @@ class Run:
         self.lock()
         assert self.completed[RunStage.LOAD]
 
-        target_to_backend = self.target_to_backend and (self.target is not None)
-        if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
-            assert self.target is not None, "Backend needs target"
-            target_to_backend = True
-
-        if target_to_backend:
-            self.target.add_backend_config(
-                self.backend.name,
-                self.backend.config,
-                optimized_layouts=self.target_optimized_layouts,
-                optimized_schedules=self.target_optimized_schedules,
-            )
+        self.prepare()  # TODO: move to own stage
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)
         self.artifacts_per_stage[RunStage.TUNE] = {}
@@ -1150,6 +1196,8 @@ class Run:
             pre["Backend"] = self.backend.name
         if len(self.platforms) > 0:
             pre["Platform"] = self.get_platform_name()
+        if len(self.toolchains) > 0:
+            pre["Toolchain"] = self.toolchains[0].name
         if self.target:
             pre["Target"] = self.target.name
         post = {}

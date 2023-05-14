@@ -241,3 +241,21 @@ class Target:
             "max-vthread-extent": 0,
             "warp-size": 0,
         }
+
+    def get_toolchain_config(self, toolchain):
+        return {}
+
+    def add_toolchain_config(self, toolchain, config):
+        print("add_toolchain_config", toolchain, config)
+        new = filter_none(
+            self.get_toolchain_config(
+                toolchain
+            )
+        )
+        print("new", new)
+
+        # only allow overwriting non-none values
+        # to support accepting user-vars
+        new = {key: value for key, value in new.items() if config.get(key, None) is None}
+        print("new2", new)
+        config.update(new)

@@ -472,21 +472,21 @@ class EtissTarget(RISCVTarget):
         return self.name
 
     def get_platform_defs(self, platform):
-        assert platform == "mlif"
         ret = super().get_platform_defs(platform)
-        ret["MEM_ROM_ORIGIN"] = self.rom_start
-        ret["MEM_ROM_LENGTH"] = self.rom_size
-        ret["MEM_RAM_ORIGIN"] = self.ram_start
-        ret["MEM_RAM_LENGTH"] = self.ram_size
-        if self.enable_pext:
-            major, minor = str(self.pext_spec).split(".")[:2]
-            ret["RISCV_RVP_MAJOR"] = major
-            ret["RISCV_RVP_MINOR"] = minor
-        if self.enable_vext:
-            major, minor = str(self.vext_spec).split(".")[:2]
-            ret["RISCV_RVV_MAJOR"] = major
-            ret["RISCV_RVV_MINOR"] = minor
-            ret["RISCV_RVV_VLEN"] = self.vlen
+        if platform == "mlif":
+            ret["MEM_ROM_ORIGIN"] = self.rom_start
+            ret["MEM_ROM_LENGTH"] = self.rom_size
+            ret["MEM_RAM_ORIGIN"] = self.ram_start
+            ret["MEM_RAM_LENGTH"] = self.ram_size
+            if self.enable_pext:
+                major, minor = str(self.pext_spec).split(".")[:2]
+                ret["RISCV_RVP_MAJOR"] = major
+                ret["RISCV_RVP_MINOR"] = minor
+            if self.enable_vext:
+                major, minor = str(self.vext_spec).split(".")[:2]
+                ret["RISCV_RVV_MAJOR"] = major
+                ret["RISCV_RVV_MINOR"] = minor
+                ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

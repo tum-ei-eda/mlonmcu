@@ -48,13 +48,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "cmsisnn",
             "muriscvnnbyoc",
             "cmsisnnbyoc",
-            "vext",
-            "pext",
-            "arm_mvei",
-            "arm_dsp",
-            "auto_vectorize",
             "benchmark",
-            "xpulp",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -64,7 +58,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "ignore_data": True,
         "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
-        "toolchain": "gcc",
         "prebuild_lib_path": None,
         "optimize": None,  # values: 0,1,2,3,s
         "input_data_path": None,
@@ -75,7 +68,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = {"mlif.src_dir"}
-    OPTIONAL = {"llvm.install_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -160,10 +152,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return Path(self.config["mlif.src_dir"])
 
     @property
-    def llvm_dir(self):
-        return self.config["llvm.install_dir"]
-
-    @property
     def ignore_data(self):
         value = self.config["ignore_data"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -176,10 +164,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def validate_outputs(self):
         return not self.ignore_data
-
-    @property
-    def toolchain(self):
-        return str(self.config["toolchain"])
 
     @property
     def model_support_dir(self):
@@ -226,11 +210,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     def get_common_cmake_args(self):
         args = []
-        args.append(f"-DTOOLCHAIN={self.toolchain}")
-        if self.toolchain == "llvm" and self.llvm_dir is None:
-            raise RuntimeError("Missing config variable: llvm.install_dir")
-        else:
-            args.append(f"-DLLVM_DIR={self.llvm_dir}")
         if self.optimize:
             args.append(f"-DOPTIMIZE={self.optimize}")
         if self.debug_symbols:

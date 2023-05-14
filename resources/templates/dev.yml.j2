@@ -229,8 +229,30 @@ targets:
   #   enabled: true
 # Some targets/platforms support multiple toolchains
 toolchains:
-  gcc: true
-  llvm: true
+  riscv_gcc:
+    enabled: true
+  riscv_gcc_pext:
+    enabled: true
+  riscv_gcc_vext:
+    enabled: true
+  xuantie_riscv_gcc:
+    enabled: false
+  pulp_riscv_gcc:
+    enabled: false
+  pulp_llvm:
+    enabled: false
+  corev_riscv_gcc:
+    enabled: false
+  corev_llvm:
+    enabled: false
+  arm_gcc:
+    enabled: false
+  arm_llvm:
+    enabled: false
+  default:
+    enabled: true
+  none:
+    enabled: true
 platforms:
   mlif:
     enabled: true

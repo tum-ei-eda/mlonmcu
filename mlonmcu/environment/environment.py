@@ -30,6 +30,8 @@ from .config import (
     TargetFeatureConfig,
     PlatformConfig,
     PlatformFeatureConfig,
+    ToolchainConfig,
+    ToolchainFeatureConfig,
     FrontendConfig,
     FrontendFeatureConfig,
 )
@@ -263,6 +265,17 @@ class Environment:
 
         return []
 
+    def lookup_toolchain_configs(self, toolchain=None, names_only=False):
+        enabled_toolchains = _filter_enabled(self.toolchains)
+
+        if toolchain is None:
+            return _extract_names(enabled_toolchains) if names_only else enabled_toolchains
+        for toolchain_config in enabled_toolchains:
+            if toolchain_config.name == toolchain:
+                return [toolchain_config.name if names_only else toolchain_config]
+
+        return []
+
     def lookup_target_configs(self, target=None, names_only=False):
         enabled_targets = _filter_enabled(self.targets)
 
@@ -291,7 +304,8 @@ class Environment:
         return len(configs) > 0
 
     def has_toolchain(self, name):
-        return self.toolchains.get(name, False)
+        configs = self.lookup_toolchain_configs(toolchain=name)
+        return len(configs) > 0
 
     def has_target(self, name):
         configs = self.lookup_target_configs(target=name)
@@ -434,7 +448,10 @@ class DefaultEnvironment(Environment):
                 features=[PlatformFeatureConfig("debug", platform="mlif", supported=True)],
             )
         ]
-        self.toolchains = {}
+        self.toolchains = [
+            ToolchainConfig("none", enabled=True, features=[]),
+            ToolchainConfig("default", enabled=True, features=[]),
+        ]
         self.targets = [
             TargetConfig(
                 "etiss_pulpino",

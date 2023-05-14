@@ -32,6 +32,8 @@ from .config import (
     TargetFeatureConfig,
     PlatformConfig,
     PlatformFeatureConfig,
+    ToolchainConfig,
+    ToolchainFeatureConfig,
     FrontendConfig,
     FrontendFeatureConfig,
 )
@@ -195,7 +197,19 @@ def load_environment_from_file(filename, base):
         else:
             platforms = None
         if "toolchains" in loaded:
-            toolchains = loaded["toolchains"]
+            toolchains = []
+            for key in loaded["toolchains"]:
+                toolchain = loaded["toolchains"][key]
+                if "enabled" in toolchain:
+                    enabled = toolchain["enabled"]
+                else:
+                    enabled = True
+                toolchain_features = []
+                if "features" in toolchain:
+                    for key2 in toolchain["features"]:
+                        supported = bool(toolchain["features"][key2])
+                        toolchain_features.append(ToolchainFeatureConfig(key2, toolchain=key, supported=supported))
+                toolchains.append(ToolchainConfig(key, enabled=enabled, features=toolchain_features))
         else:
             toolchains = None
         default_target = None

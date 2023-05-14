@@ -173,6 +173,12 @@ class PlatformFeatureConfig(FeatureConfig):
         self.platform = platform
 
 
+class ToolchainFeatureConfig(FeatureConfig):
+    def __init__(self, name, toolchain, supported=True):
+        super().__init__(name=name, kind=FeatureKind.TARGET, supported=supported)
+        self.toolchain = toolchain
+
+
 class TargetFeatureConfig(FeatureConfig):
     def __init__(self, name, target, supported=True):
         super().__init__(name=name, kind=FeatureKind.TARGET, supported=supported)
@@ -201,6 +207,13 @@ class FrontendConfig(BaseConfig):
 
 
 class PlatformConfig(BaseConfig):
+    def __init__(self, name, enabled=True, features={}):
+        self.name = name
+        self.enabled = enabled
+        self.features = features
+
+
+class ToolchainConfig(BaseConfig):
     def __init__(self, name, enabled=True, features={}):
         self.name = name
         self.enabled = enabled

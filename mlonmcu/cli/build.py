@@ -28,6 +28,7 @@ from .helper.parse import (
     extract_backend_names,
     extract_target_names,
     extract_platform_names,
+    extract_toolchain_names,
     extract_config_and_feature_names,
 )
 
@@ -64,48 +65,58 @@ def _handle(args, context, require_target=False):
     backends = extract_backend_names(args, context=context)
     targets = extract_target_names(args, context=context if require_target else None)
     platforms = extract_platform_names(args, context=context)
+    print("ppn", platforms)
+    gen_toolchains = extract_toolchain_names(args, context=context)
 
     new_config, _, _, _ = extract_config_and_feature_names(args, context=context)
-    platform_backends = get_platforms_backends(context, config=new_config)  # This will be slow?
-    platform_targets = get_platforms_targets(context, config=new_config)  # This will be slow?
+    # platform_backends = get_platforms_backends(context, config=new_config)  # This will be slow?
+    # platform_targets = get_platforms_targets(context, config=new_config)  # This will be slow?
 
     assert len(context.sessions) > 0
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
-        for target_name in targets:
-            for backend_name in backends:
-                new_run = run.copy()
-                if backend_name is not None:
-                    platform_name = None
-                    for platform in platforms:
-                        candidates = platform_backends[platform]
-                        if backend_name in candidates:
-                            try:
-                                platform_name = platform
-                                new_run.add_platform_by_name(platform_name, context=context)
-                                break
-                            except AssertionError:  # TODO: replace with incompatble error
-                                platform_name = None
-                                continue
-                    # assert (
-                    #     platform_name is not None
-                    # ), f"Unable to find a suitable platform for the backend '{target_name}'"
-                    # assert platform_name is not None
+        for toolchains in gen_toolchains:
+            for target_name in targets:
+                for backend_name in backends:
+                    new_run = run.copy()
+                    new_run.add_platforms_by_name(platforms, context=context)
+                    # if backend_name is not None:
+                    #     pass
+                    #     # platform_name = None
+                    #     # for platform in platforms:
+                    #     #     candidates = platform_backends[platform]
+                    #     #     if backend_name in candidates:
+                    #     #         try:
+                    #     #             platform_name = platform
+                    #     #             new_run.add_platform_by_name(platform_name, context=context)
+                    #     #             break
+                    #     #         except AssertionError:  # TODO: replace with incompatble error
+                    #     #             platform_name = None
+                    #     #             continue
+                    #     # # assert (
+                    #     # #     platform_name is not None
+                    #     # # ), f"Unable to find a suitable platform for the backend '{target_name}'"
+                    #     # # assert platform_name is not None
 
-                if target_name is not None:
-                    platform_name = None
-                    for platform in platforms:
-                        candidates = platform_targets[platform]
-                        if target_name in candidates:
-                            platform_name = platform
-                    assert (
-                        platform_name is not None
-                    ), f"Unable to find a suitable platform for the target '{target_name}'"
-                    new_run.add_platform_by_name(platform_name, context=context)
-                    new_run.add_target_by_name(target_name, context=context)
-                new_run.add_backend_by_name(backend_name, context=context)
-                new_runs.append(new_run)
+                    print("toolchains", toolchains)
+
+                    new_run.add_toolchains_by_name(toolchains, context=context)
+
+                    if target_name is not None:
+                        pass
+                        # platform_name = None
+                        # for platform in platforms:
+                        #     candidates = platform_targets[platform]
+                        #     if target_name in candidates:
+                        #         platform_name = platform
+                        # assert (
+                        #     platform_name is not None
+                        # ), f"Unable to find a suitable platform for the target '{target_name}'"
+                        # new_run.add_platform_by_name(platform_name, context=context)
+                        new_run.add_target_by_name(target_name, context=context)
+                    new_run.add_backend_by_name(backend_name, context=context)
+                    new_runs.append(new_run)
 
     session.runs = new_runs
 

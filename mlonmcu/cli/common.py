@@ -22,6 +22,7 @@ import multiprocessing
 import logging
 
 from mlonmcu.platform import get_platforms
+from mlonmcu.toolchain import SUPPORTED_TOOLCHAINS
 from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
@@ -59,6 +60,16 @@ def add_flow_options(parser):
         "--list-targets",
         action="store_true",
         help="List the supported targets in the environment",
+    )
+    flow_parser.add_argument(
+        "--toolchain",
+        type=str,
+        metavar="TOOLCHAIN",
+        choices=SUPPORTED_TOOLCHAINS.keys(),
+        default=None,
+        action="append",
+        nargs="+",
+        help="Explicitly choose the toolchains to use (choices: %(choices)s)",
     )
     flow_parser.add_argument(
         # "-p",

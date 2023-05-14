@@ -186,3 +186,15 @@ def extract_platform_names(args, context=None):
             return [None]
         platforms = context.environment.lookup_platform_configs(names_only=True)
     return platforms
+
+
+def extract_toolchain_names(args, context=None):
+    print("extract_toolchain_names", args.toolchain)
+    input("p")
+    if isinstance(args.toolchain, list) and len(args.toolchain) > 0:
+        assert isinstance(args.toolchain[0], list) and len(args.toolchain[0]) > 0
+        toolchains = args.toolchain
+    else:
+        assert context is not None, "Need context to resolve default toolchains"
+        toolchains = [context.environment.lookup_toolchain_configs(names_only=True)]
+    return toolchains

@@ -47,7 +47,7 @@ class GvsocPulpTarget(RISCVTarget):
         "model": "pulp",
     }
 
-    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED | {
+    REQUIRED = RISCVTarget.PULP_GCC_TOOLCHAIN_REQUIRED | {
         "gvsoc.exe",
         "pulp_freertos.support_dir",
         "pulp_freertos.config_dir",

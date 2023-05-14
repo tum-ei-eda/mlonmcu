@@ -248,6 +248,15 @@ class Corstone300Target(Target):
                         ret.update({"desired_layout": "NHWC:HWOI"})
         return ret
 
+    def get_toolchain_config(self, toolchain):
+        # TODO: is toolchain in RISCV toolchains
+        return {
+            "cpu": self.cpu,
+            "float_abi": self.float_abi,
+            "fpu": self.fpu,
+            "attr": self.attr,
+        }
+
 
 if __name__ == "__main__":
     cli(target=Corstone300Target)

@@ -244,3 +244,11 @@ class RISCVTarget(Target):
                 )
             return ret
         return {}
+
+    def get_toolchain_config(self, toolchain):
+        # TODO: is toolchain in RISCV toolchains
+        return {
+            "arch": self.arch,
+            "abi": self.abi,
+            "attr": self.attr,
+        }

@@ -204,14 +204,15 @@ class Target:
     def get_target_system(self):
         return self.name
 
-    def get_arch(self):
-        raise NotImplementedError
-
     def get_platform_defs(self, platform):
         return {}
 
     def add_platform_defs(self, platform, defs):
         defs.update(self.get_platform_defs(platform))
+
+    @property
+    def architecture(self):
+        raise NotImplementedError
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         return {}

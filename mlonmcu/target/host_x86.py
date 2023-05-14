@@ -76,7 +76,8 @@ class HostX86Target(Target):
 
         return execute(program, *args, **kwargs)
 
-    def get_arch(self):
+    @property
+    def architecture(self):
         return "x86"
 
 

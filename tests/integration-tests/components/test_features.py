@@ -44,9 +44,7 @@ def test_feature_muriscvnn(user_context, model_name, backend_name, target_name, 
     "feature_names", [["cmsisnn"], ["cmsisnn", "debug"]]
 )  # currently validate does not imply debug
 @pytest.mark.parametrize("config", [{}])
-def test_feature_cmsisnn(
-    user_context, model_name, backend_name, target_name, models_dir, feature_names, config
-):
+def test_feature_cmsisnn(user_context, model_name, backend_name, target_name, models_dir, feature_names, config):
     df, artifacts = _test_run_platform(
         None, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
@@ -68,9 +66,7 @@ def test_feature_cmsisnn(
     "feature_names", [["muriscvnnbyoc"], ["muriscvnnbyoc", "debug"]]
 )  # currently validate does not imply debug
 @pytest.mark.parametrize("config", [{}])
-def test_feature_muriscvnnbyoc(
-    user_context, model_name, backend_name, target_name, models_dir, feature_names, config
-):
+def test_feature_muriscvnnbyoc(user_context, model_name, backend_name, target_name, models_dir, feature_names, config):
     df, artifacts = _test_run_platform(
         None, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
@@ -92,9 +88,7 @@ def test_feature_muriscvnnbyoc(
     "feature_names", [["cmsisnnbyoc"], ["cmsisnnbyoc", "debug"]]
 )  # currently validate does not imply debug
 @pytest.mark.parametrize("config", [{}])
-def test_feature_cmsisnnbyoc(
-    user_context, model_name, backend_name, target_name, models_dir, feature_names, config
-):
+def test_feature_cmsisnnbyoc(user_context, model_name, backend_name, target_name, models_dir, feature_names, config):
     df, artifacts = _test_run_platform(
         None, backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
@@ -113,9 +107,7 @@ def test_feature_cmsisnnbyoc(
 )  # TODO: Single backend would be fine, but it has to be enabled
 @pytest.mark.parametrize("feature_names", [["unpacked_api"]])
 @pytest.mark.parametrize("config", [{}])
-def test_feature_unpacked_api(
-    user_context, model_name, backend_name, models_dir, feature_names, config
-):
+def test_feature_unpacked_api(user_context, model_name, backend_name, models_dir, feature_names, config):
     df, artifacts = _test_backend(backend_name, user_context, model_name, models_dir, feature_names, config)
     assert "unpacked_api" in df["Features"][0]
     # TODO: check generated code -> do not run at all (would need to check for metrics changes)
@@ -134,9 +126,7 @@ def test_feature_unpacked_api(
     "config",
     [{"usmp.algorithm": "greedy_by_size"}, {"usmp.algorithm": "greedy_by_conflicts"}, {"usmp.algorithm": "hill_climb"}],
 )
-def test_feature_usmp(
-    user_context, model_name, backend_name, models_dir, feature_names, config
-):
+def test_feature_usmp(user_context, model_name, backend_name, models_dir, feature_names, config):
     df, artifacts = _test_backend(backend_name, user_context, model_name, models_dir, feature_names, config)
     assert "usmp" in df["Features"][0]
     # TODO: run twice and compare generted code or look for specific code
@@ -152,9 +142,7 @@ def test_feature_usmp(
 )  # TODO: Single backend would be fine, but it has to be enabled
 @pytest.mark.parametrize("feature_names", [["disable_legalize"]])
 @pytest.mark.parametrize("config", [{}])
-def test_feature_disable_legalize(
-    user_context, model_name, backend_name, models_dir, feature_names, config
-):
+def test_feature_disable_legalize(user_context, model_name, backend_name, models_dir, feature_names, config):
     df, artifacts = _test_backend(backend_name, user_context, model_name, models_dir, feature_names, config)
     assert "disable_legalize" in df["Features"][0]
     # TODO: run twice and compare codegen results

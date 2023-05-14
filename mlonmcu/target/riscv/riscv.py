@@ -222,7 +222,8 @@ class RISCVTarget(Target):
     def get_target_system(self):
         return "generic_riscv"  # TODO: rename to generic-rv32 for compatibility with LLVM
 
-    def get_arch(self):
+    @property
+    def architecture(self):
         return "riscv"
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

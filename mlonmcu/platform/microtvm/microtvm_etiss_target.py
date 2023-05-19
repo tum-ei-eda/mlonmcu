@@ -49,6 +49,10 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "etiss_extra_args": "",
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
+        "enable_xcorevbranch_immediate": False,
+        "enable_xcorevalu": False,
+        "enable_xcorevsimd": False,
+        "enable_xcorevhwlp": False,
     }
     REQUIRED = Target.REQUIRED | {"microtvm_etiss.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script"}
 
@@ -98,6 +102,26 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         value = self.config["enable_xcorevmem"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def enable_xcorevbranch_immediate(self):
+        value = self.config["enable_xcorevbranch_immediate"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevalu(self):
+        value = self.config["enable_xcorevalu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevsimd(self):
+        value = self.config["enable_xcorevsimd"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevhwlp(self):
+        value = self.config["enable_xcorevhwlp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_project_options(self):
         ret = super().get_project_options()
         ret.update(
@@ -144,6 +168,14 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 required.append("xcorevmac")
             if self.enable_xcorevmem:
                 required.append("xcorevmem")
+            if self.enable_xcorevmem:
+                required.append("xcorevbranch_immeditae")
+            if self.enable_xcorevmem:
+                required.append("xcorevalu")
+            if self.enable_xcorevmem:
+                required.append("xcorevsimd")
+            if self.enable_xcorevmem:
+                required.append("xcorevhwlp")
         for ext in required:
             if ext not in exts:
                 exts.append(ext)

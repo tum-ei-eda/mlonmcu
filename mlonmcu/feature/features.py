@@ -1597,6 +1597,10 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         **FeatureBase.DEFAULTS,
         "mac": True,
         "mem": True,
+        "branch_immediate": True,
+        "alu": True,
+        "simd": True,
+        "hwlp": True,
     }
 
     def __init__(self, features=None, config=None):
@@ -1612,11 +1616,35 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         value = self.config["mem"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def branch_immediate(self):
+        value = self.config["branch_immediate"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def alu(self):
+        value = self.config["alu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def simd(self):
+        value = self.config["simd"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def hwlp(self):
+        value = self.config["hwlp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def add_target_config(self, target, config):
         assert target in ["etiss", "microtvm_etiss"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             config[f"{target}.enable_xcorevmac"] = self.mac
             config[f"{target}.enable_xcorevmem"] = self.mem
+            config[f"{target}.enable_xcorevbranch_immediate"] = self.branch_immediate
+            config[f"{target}.enable_xcorevalu"] = self.alu
+            config[f"{target}.enable_xcorevsimd"] = self.simd
+            config[f"{target}.enable_xcorevhwlp"] = self.hwlp
 
 
 @register_feature("xpulp")

@@ -67,6 +67,10 @@ class EtissTarget(RISCVTarget):
         "max_block_size": None,
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
+        "enable_xcorevbranch_immediate": False,
+        "enable_xcorevalu": False,
+        "enable_xcorevsimd": False,
+        "enable_xcorevhwlp": False,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script", "etiss.src_dir"}
 
@@ -175,6 +179,26 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def enable_xcorevbranch_immediate(self):
+        value = self.config["enable_xcorevbranch_immediate"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevalu(self):
+        value = self.config["alu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevsimd(self):
+        value = self.config["enable_xcorevsimd"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevhwlp(self):
+        value = self.config["enable_xcorevhwlp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def vlen(self):
         return int(self.config["vlen"])
 
@@ -195,6 +219,14 @@ class EtissTarget(RISCVTarget):
                 required.add("xcorevmac")
             if self.enable_xcorevmem:
                 required.add("xcorevmem")
+            if self.enable_xcorevbranch_immediate:
+                required.add("xcorevbranch_immediate")
+            if self.enable_xcorevalu:
+                required.add("xcorevalu")
+            if self.enable_xcorevsimd:
+                required.add("xcorevsimd")
+            if self.enable_xcorevhwlp:
+                required.add("xcorevhwlp")
         for ext in required:
             if ext not in exts:
                 exts.add(ext)
@@ -209,6 +241,14 @@ class EtissTarget(RISCVTarget):
         if self.enable_xcorevmem:
             if "xcorevmem" not in attrs:
                 attrs.append("+xcorevmem")
+            if "xcorevbranch_immediate" not in attrs:
+                attrs.append("+xcorevbranch_immediate")
+            if "xcorevalu" not in attrs:
+                attrs.append("+xcorevalu")
+            if "xcorevsimd" not in attrs:
+                attrs.append("+xcorevsimd")
+            if "xcorevhwlp" not in attrs:
+                attrs.append("+xcorevhwlp")
         if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
             attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)

@@ -250,14 +250,19 @@ class EtissTarget(RISCVTarget):
         if self.enable_xcorevmem:
             if "xcorevmem" not in attrs:
                 attrs.append("+xcvmem")
+        if self.enable_xcorevbi:
             if "xcorevbi" not in attrs:
                 attrs.append("+xcvbi")
+        if self.enable_xcorevalu:
             if "xcorevalu" not in attrs:
                 attrs.append("+xcvalu")
+        if self.enable_xcorevbitmanip:
             if "xcorevbitmanip" not in attrs:
                 attrs.append("+xcvbitmanip")
+        if self.enable_xcorevsimd:
             if "xcorevsimd" not in attrs:
                 attrs.append("+xcvsimd")
+        if self.enable_xcorevhwlp:
             if "xcorevhwlp" not in attrs:
                 attrs.append("+xcvhwlp")
         if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:

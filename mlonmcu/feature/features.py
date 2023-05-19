@@ -1597,8 +1597,9 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         **FeatureBase.DEFAULTS,
         "mac": True,
         "mem": True,
-        "branch_immediate": True,
+        "bi": True,
         "alu": True,
+        "bitmanip": True,
         "simd": True,
         "hwlp": True,
     }
@@ -1617,13 +1618,18 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
-    def branch_immediate(self):
-        value = self.config["branch_immediate"]
+    def bi(self):
+        value = self.config["bi"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def alu(self):
         value = self.config["alu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def bitmanip(self):
+        value = self.config["bitmanip"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -1641,8 +1647,9 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         if self.enabled:
             config[f"{target}.enable_xcorevmac"] = self.mac
             config[f"{target}.enable_xcorevmem"] = self.mem
-            config[f"{target}.enable_xcorevbranch_immediate"] = self.branch_immediate
+            config[f"{target}.enable_xcorevbi"] = self.bi
             config[f"{target}.enable_xcorevalu"] = self.alu
+            config[f"{target}.enable_xcorevbitmanip"] = self.bitmanip
             config[f"{target}.enable_xcorevsimd"] = self.simd
             config[f"{target}.enable_xcorevhwlp"] = self.hwlp
 

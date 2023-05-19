@@ -67,8 +67,9 @@ class EtissTarget(RISCVTarget):
         "max_block_size": None,
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
-        "enable_xcorevbranch_immediate": False,
+        "enable_xcorevbi": False,
         "enable_xcorevalu": False,
+        "enable_xcorevbitmanip": False,
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
     }
@@ -179,13 +180,18 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
-    def enable_xcorevbranch_immediate(self):
-        value = self.config["enable_xcorevbranch_immediate"]
+    def enable_xcorevbi(self):
+        value = self.config["enable_xcorevbi"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_xcorevalu(self):
-        value = self.config["alu"]
+        value = self.config["enable_xcorevalu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevbitmanip(self):
+        value = self.config["enable_xcorevbitmanip"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -215,18 +221,21 @@ class EtissTarget(RISCVTarget):
         exts = super().extensions
         required = set()
         if "xcorev" not in exts:
-            if self.enable_xcorevmac:
-                required.add("xcorevmac")
-            if self.enable_xcorevmem:
-                required.add("xcorevmem")
-            if self.enable_xcorevbranch_immediate:
-                required.add("xcorevbranch_immediate")
-            if self.enable_xcorevalu:
-                required.add("xcorevalu")
-            if self.enable_xcorevsimd:
-                required.add("xcorevsimd")
-            if self.enable_xcorevhwlp:
-                required.add("xcorevhwlp")
+            pass
+            # if self.enable_xcorevmac:
+            #     required.add("xcvmac")
+            # if self.enable_xcorevmem:
+            #     required.add("xcvmem")
+            # if self.enable_xcorevbi:
+            #     required.add("xcvbi")
+            # if self.enable_xcorevalu:
+            #     required.add("xcvalu")
+            # if self.enable_xcorevbitmanip:
+            #     required.add("xcvbitmanip")
+            # if self.enable_xcorevsimd:
+            #     required.add("xcvsimd")
+            # if self.enable_xcorevhwlp:
+            #     required.add("xcvhwlp")
         for ext in required:
             if ext not in exts:
                 exts.add(ext)
@@ -237,18 +246,20 @@ class EtissTarget(RISCVTarget):
         attrs = super().attr.split(",")
         if self.enable_xcorevmac:
             if "xcorevmac" not in attrs:
-                attrs.append("+xcorevmac")
+                attrs.append("+xcvmac")
         if self.enable_xcorevmem:
             if "xcorevmem" not in attrs:
-                attrs.append("+xcorevmem")
-            if "xcorevbranch_immediate" not in attrs:
-                attrs.append("+xcorevbranch_immediate")
+                attrs.append("+xcvmem")
+            if "xcorevbi" not in attrs:
+                attrs.append("+xcvbi")
             if "xcorevalu" not in attrs:
-                attrs.append("+xcorevalu")
+                attrs.append("+xcvalu")
+            if "xcorevbitmanip" not in attrs:
+                attrs.append("+xcvbitmanip")
             if "xcorevsimd" not in attrs:
-                attrs.append("+xcorevsimd")
+                attrs.append("+xcvsimd")
             if "xcorevhwlp" not in attrs:
-                attrs.append("+xcorevhwlp")
+                attrs.append("+xcvhwlp")
         if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
             attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)

@@ -49,8 +49,9 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "etiss_extra_args": "",
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
-        "enable_xcorevbranch_immediate": False,
+        "enable_xcorevbi": False,
         "enable_xcorevalu": False,
+        "enable_xcorevbitmanip": False,
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
     }
@@ -103,13 +104,18 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
-    def enable_xcorevbranch_immediate(self):
-        value = self.config["enable_xcorevbranch_immediate"]
+    def enable_xcorevbi(self):
+        value = self.config["enable_xcorevbi"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_xcorevalu(self):
         value = self.config["enable_xcorevalu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevbitmanip(self):
+        value = self.config["enable_xcorevbitmanip"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -168,13 +174,13 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 required.append("xcorevmac")
             if self.enable_xcorevmem:
                 required.append("xcorevmem")
-            if self.enable_xcorevmem:
-                required.append("xcorevbranch_immeditae")
-            if self.enable_xcorevmem:
+            if self.enable_xcorevbi:
+                required.append("xcorevbi")
+            if self.enable_xcorevalu:
                 required.append("xcorevalu")
-            if self.enable_xcorevmem:
+            if self.enable_xcorevsimd:
                 required.append("xcorevsimd")
-            if self.enable_xcorevmem:
+            if self.enable_xcorevhwlp:
                 required.append("xcorevhwlp")
         for ext in required:
             if ext not in exts:

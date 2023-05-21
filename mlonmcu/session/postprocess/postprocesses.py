@@ -284,8 +284,8 @@ class MyPostprocess(SessionPostprocess):
 
     def __init__(self, features=None, config=None):
         super().__init__("mypost", features=features, config=config)
-        self.config2cols = Config2ColumnsPostprocess(config={"config2cols.limit": ["tvmllvm.desired_layout", "xcorev.mem", "xcorev.mac"], "config2cols.drop": True})
-        self.rename_cols = RenameColumnsPostprocess(config={"rename_cols.mapping": {"config_tvmllvm.desired_layout": "Layout", "config_xcorev.mem": "XCoreVMem", "config_xcorev.mac": "XCoreVMac", "feature_autotuned": "Autotuned"}})
+        self.config2cols = Config2ColumnsPostprocess(config={"config2cols.limit": ["tvmllvm.desired_layout", "xcorev.mem", "xcorev.mac", "xcorev.bi", "xcorev.alu", "xcorev.bitmanip", "xcorev.simd", "xcorev.hwlp"], "config2cols.drop": True})
+        self.rename_cols = RenameColumnsPostprocess(config={"rename_cols.mapping": {"config_tvmllvm.desired_layout": "Layout", "config_xcorev.mem": "XCoreVMem", "config_xcorev.mac": "XCoreVMac", "config_xcorev.bi": "XCoreVBi", "config_xcorev.alu": "XCoreVAlu", "config_xcorev.bitmanip": "XCoreVBitmanip", "config_xcorev.simd": "XCoreVSimd", "config_xcorev.hwlp": "XCoreVHwlp", "feature_autotuned": "Autotuned"}})
         self.features2cols = Features2ColumnsPostprocess(config={"features2cols.limit": ["autotuned"], "features2cols.drop": True})
         self.filter_cols = FilterColumnsPostprocess(config={"filter_cols.drop": ["Postprocesses", "Frontend", "Framework", "Platform", "Comment", "Session", "Run", "ROM read-only", "ROM code", "ROM misc", "RAM data", "RAM zero-init data"]})
 

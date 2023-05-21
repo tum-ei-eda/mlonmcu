@@ -221,21 +221,20 @@ class EtissTarget(RISCVTarget):
         exts = super().extensions
         required = set()
         if "xcorev" not in exts:
-            pass
-            # if self.enable_xcorevmac:
-            #     required.add("xcvmac")
-            # if self.enable_xcorevmem:
-            #     required.add("xcvmem")
-            # if self.enable_xcorevbi:
-            #     required.add("xcvbi")
-            # if self.enable_xcorevalu:
-            #     required.add("xcvalu")
-            # if self.enable_xcorevbitmanip:
-            #     required.add("xcvbitmanip")
-            # if self.enable_xcorevsimd:
-            #     required.add("xcvsimd")
-            # if self.enable_xcorevhwlp:
-            #     required.add("xcvhwlp")
+            if self.enable_xcorevmac:
+                required.add("xcvmac")
+            if self.enable_xcorevmem:
+                required.add("xcvmem")
+            if self.enable_xcorevbi:
+                required.add("xcvbi")
+            if self.enable_xcorevalu:
+                required.add("xcvalu")
+            if self.enable_xcorevbitmanip:
+                required.add("xcvbitmanip")
+            if self.enable_xcorevsimd:
+                required.add("xcvsimd")
+            if self.enable_xcorevhwlp:
+                required.add("xcvhwlp")
         for ext in required:
             if ext not in exts:
                 exts.add(ext)

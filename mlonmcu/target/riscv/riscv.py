@@ -282,7 +282,8 @@ class RISCVTarget(Target):
         elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = self.gcc_arch
+        # ret["RISCV_ARCH"] = self.gcc_arch
+        ret["RISCV_ARCH"] = self.llvm_arch
         ret["RISCV_ABI"] = self.abi
         ret["RISCV_ATTR"] = self.attr  # TODO: use for clang
         return ret

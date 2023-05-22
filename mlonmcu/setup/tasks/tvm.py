@@ -45,7 +45,10 @@ def _validate_tvm(context: MlonMcuContext, params=None):
 def _validate_tvm_build(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
     use_tlcpack = user_vars.get("tvm.use_tlcpack", False)
+    debug_build = user_vars.get("tvm.debug_build", False)
+    release_build = user_vars.get("tvm.release_build", True)
     patch = bool(params.get("patch", False))
+    dbg = bool(params.get("dbg", False))
     # There is not good reason to build without cmsisnn
     # cmsisnn = bool(params.get("cmsisnn", False))
     # if cmsisnn:
@@ -57,6 +60,14 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
     if use_tlcpack:
         assert not context.environment.has_feature("disable_legalize")
         return False
+    if dbg:
+        assert not use_tlcpack
+        if not debug_build:
+            return False
+    else:
+        if not release_build:
+            return False
+
 
     return context.environment.has_framework("tvm")
 
@@ -86,12 +97,12 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 
     context.cache["tvm.src_dir", flags] = tvmSrcDir
     context.cache["tvm.configs_dir", flags] = tvmSrcDir / "configs"
-    context.cache["tvm.pythonpath", flags] = tvmPythonPath
+    context.cache["vm.pythonpath", flags] = tvmPythonPath
 
 
 @Tasks.needs(["tvm.src_dir", "llvm.install_dir"])
 @Tasks.provides(["tvm.build_dir", "tvm.lib"])
-@Tasks.param("dbg", False)
+@Tasks.param("dbg", [False, True])
 @Tasks.param("cmsisnn", [True])  # There is no good reason to build without cmsisnn
 @Tasks.validate(_validate_tvm_build)
 @Tasks.register(category=TaskType.FRAMEWORK)

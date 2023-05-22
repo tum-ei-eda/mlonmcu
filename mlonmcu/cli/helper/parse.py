@@ -69,7 +69,7 @@ def extract_feature_names(args):
                 return gen
             for x in feature_gen:
                 if "_" in x:
-                    assert len(x) == 1
+                    assert len(set(x)) == 1
                     gen.append([])
                 else:
                     gen.append(x)
@@ -102,7 +102,7 @@ def extract_config(args):
                 return gen
             for x in config_gen:
                 if "_" in x:
-                    assert len(x) == 1
+                    assert len(set(x)) == 1
                     gen.append({})
                 else:
                     c = parse_vars(x)

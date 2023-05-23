@@ -72,7 +72,11 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
     return context.environment.has_framework("tvm")
 
 
-@Tasks.provides(["tvm.src_dir", "tvm.configs_dir"])
+def _validate_tvm_install(context: MlonMcuContext, params=None):
+    return False
+
+
+@Tasks.provides(["tvm.src_dir", "tvm.configs_dir", "tvm.pythonpath"])
 @Tasks.optional(["tvm_extensions.src_dir"])
 @Tasks.validate(_validate_tvm)
 @Tasks.param("patch", [False, True])  # This is just a temporary workaround until the patch is hopefully upstreamed
@@ -97,7 +101,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 
     context.cache["tvm.src_dir", flags] = tvmSrcDir
     context.cache["tvm.configs_dir", flags] = tvmSrcDir / "configs"
-    context.cache["vm.pythonpath", flags] = tvmPythonPath
+    context.cache["tvm.pythonpath", flags] = tvmPythonPath
 
 
 @Tasks.needs(["tvm.src_dir", "llvm.install_dir"])
@@ -183,7 +187,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
 @Tasks.needs(["tvm.build_dir"])
 @Tasks.provides(["tvm.install_dir"])
 @Tasks.param("dbg", [False, True])
-@Tasks.validate(_validate_tvm_build)
+@Tasks.validate(_validate_tvm_install)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def install_tvm(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

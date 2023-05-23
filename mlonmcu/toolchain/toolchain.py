@@ -562,6 +562,8 @@ class ARMGCCToolchain(GCCToolchain):
         "float_abi": None,
         "fpu": None,
         "attr": None,
+        "enable_mvei": None,
+        "enable_dsp": None,
     }
 
     REQUIRED = {"arm_gcc.install_dir"}
@@ -607,6 +609,10 @@ class ARMGCCToolchain(GCCToolchain):
         ret["ARM_CPU"] = self.cpu
         ret["ARM_FLOAT_ABI"] = self.float_abi
         ret["ARM_FPU"] = self.fpu
+        if self.enable_mvei:
+            ret["ARM_MVEI"] = self.enable_mvei
+        if self.enable_dsp:
+            ret["ARM_DSP"] = self.enable_dsp
         return ret
 
     def get_backend_config(self, backend):

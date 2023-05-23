@@ -49,7 +49,7 @@ def clone_ara(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     user_vars = context.environment.vars
     flags = utils.makeFlags()
     araName = utils.makeDirName("ara", flags=flags)
-    araSrcDir = context.environment.paths["deps"].path / "src" / araName
+    araSrcDir = context.environment.deps_src_path / araName
     if "ara.src_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
         araSrcDir = user_vars["ara.src_dir"]

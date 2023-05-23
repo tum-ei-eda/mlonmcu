@@ -44,7 +44,7 @@ def install_corstone300(
 ):
     """Download and install corstone300 FVP from ARM."""
     fvpName = utils.makeDirName("corstone300")
-    fvpInstallDir = context.environment.paths["deps"].path / "install" / fvpName
+    fvpInstallDir = context.environment.deps_install_path / fvpName
     fvpSubDir = fvpInstallDir / "fvp"
     fvpExe = fvpSubDir / "models" / "Linux64_GCC-6.4" / "FVP_Corstone_SSE-300_Ethos-U55"
     user_vars = context.environment.vars

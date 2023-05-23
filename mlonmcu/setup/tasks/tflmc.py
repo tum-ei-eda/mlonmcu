@@ -50,7 +50,7 @@ def clone_tflite_micro_compiler(
 ):
     """Clone the preinterpreter repository."""
     tflmcName = utils.makeDirName("tflmc")
-    tflmcSrcDir = context.environment.paths["deps"].path / "src" / tflmcName
+    tflmcSrcDir = context.environment.deps_src_path / tflmcName
     if rebuild or not utils.is_populated(tflmcSrcDir):
         tflmcRepo = context.environment.repos["tflite_micro_compiler"]
         utils.clone(tflmcRepo.url, tflmcSrcDir, branch=tflmcRepo.ref, refresh=rebuild)
@@ -93,8 +93,8 @@ def build_tflite_micro_compiler(
     flags = utils.makeFlags((True, arch), (muriscvnn, "muriscvnn"), (cmsisnn, "cmsisnn"), (dbg, "dbg"))
     # flags_ = utils.makeFlags((dbg, "dbg"))
     tflmcName = utils.makeDirName("tflmc", flags=flags)
-    tflmcBuildDir = context.environment.paths["deps"].path / "build" / tflmcName
-    tflmcInstallDir = context.environment.paths["deps"].path / "install" / tflmcName
+    tflmcBuildDir = context.environment.deps_build_path / tflmcName
+    tflmcInstallDir = context.environment.deps_install_path / tflmcName
     tflmcExe = tflmcInstallDir / "compiler"
     tfSrcDir = context.cache["tf.src_dir"]
     tflmcSrcDir = context.cache["tflmc.src_dir"]

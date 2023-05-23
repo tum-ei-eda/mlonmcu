@@ -82,7 +82,7 @@ def clone_muriscvnn(
         muriscvnnIncludeDir = Path(muriscvnnSrcDir) / "Include"
         rebuild = False
     else:
-        muriscvnnSrcDir = context.environment.paths["deps"].path / "src" / muriscvnnName
+        muriscvnnSrcDir = context.environment.deps_src_path / muriscvnnName
         muriscvnnIncludeDir = muriscvnnSrcDir / "Include"
     if rebuild or not utils.is_populated(muriscvnnSrcDir):
         muriscvnnRepo = context.environment.repos["muriscvnn"]

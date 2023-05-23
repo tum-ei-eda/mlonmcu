@@ -85,7 +85,7 @@ def _install_riscv_gcc(context, name, default_dl_url=None, default_version=None,
     user_vars = context.environment.vars
     flags = []
     riscvName = utils.makeDirName(name, flags=flags)
-    riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
+    riscvInstallDir = context.environment.deps_install_path / riscvName
     if f"{name}.install_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
         riscvInstallDir = user_vars[f"{name}.install_dir"]

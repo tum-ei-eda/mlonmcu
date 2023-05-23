@@ -45,7 +45,7 @@ def clone_tensorflow(
 ):
     """Clone the TF/TFLM repository."""
     tfName = utils.makeDirName("tf")
-    tfSrcDir = context.environment.paths["deps"].path / "src" / tfName
+    tfSrcDir = context.environment.deps_src_path / tfName
     if rebuild or not utils.is_populated(tfSrcDir):
         tfRepo = context.environment.repos["tensorflow"]
         utils.clone(tfRepo.url, tfSrcDir, branch=tfRepo.ref, refresh=rebuild)
@@ -104,7 +104,7 @@ def clone_tflite_pack(
 ):
     """Clone the tflite packing utilities."""
     name = utils.makeDirName("tflite_pack")
-    srcDir = context.environment.paths["deps"].path / "src" / name
+    srcDir = context.environment.deps_src_path / name
     if rebuild or not utils.is_populated(srcDir):
         repo = context.environment.repos["tflite_pack"]
         utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
@@ -122,7 +122,7 @@ def install_tflite_pack(
     """Install the tflite packing utilities."""
     name = utils.makeDirName("tflite_pack")
     srcDir = context.cache["tflite_pack.src_dir"]
-    installDir = context.environment.paths["deps"].path / "install" / name
+    installDir = context.environment.deps_install_path / name
     if rebuild or not utils.is_populated(installDir):
         installScript = srcDir / "install.sh"
         utils.exec_getout(installScript, installDir, live=verbose, print_output=False)

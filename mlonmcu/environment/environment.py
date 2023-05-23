@@ -82,6 +82,22 @@ class Environment:
         """Home directory of mlonmcu environment."""
         return self._home
 
+    @property
+    def deps_path(self):
+        return self.paths["deps"]
+
+    @property
+    def deps_src_path(self):
+        return self.depths_path / "src"
+
+    @property
+    def deps_build_path(self):
+        return self.depths_path / "build"
+
+    @property
+    def deps_install_path(self):
+        return self.depths_path / "install"
+
     @classmethod
     def from_file(cls, filename):
         return load_environment_from_file(filename, base=cls)

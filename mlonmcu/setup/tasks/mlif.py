@@ -42,7 +42,7 @@ def _validate_mlif(context: MlonMcuContext, params=None):
 def clone_mlif(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Clone the MLonMCU SW repository."""
     mlifName = utils.makeDirName("mlif")
-    mlifSrcDir = context.environment.paths["deps"].path / "src" / mlifName
+    mlifSrcDir = context.environment.deps_src_path / mlifName
     if rebuild or not utils.is_populated(mlifSrcDir):
         mlifRepo = context.environment.repos["mlif"]
         utils.clone(mlifRepo.url, mlifSrcDir, branch=mlifRepo.ref, refresh=rebuild)

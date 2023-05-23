@@ -56,7 +56,7 @@ def clone_etiss(
         etissSrcDir = Path(user_vars["etiss.src_dir"])
         rebuild = False
     else:
-        etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
+        etissSrcDir = context.environment.deps_src_path / etissName
     if rebuild or not utils.is_populated(etissSrcDir):
         etissRepo = context.environment.repos["etiss"]
         utils.clone(etissRepo.url, etissSrcDir, branch=etissRepo.ref, refresh=rebuild)
@@ -77,8 +77,8 @@ def build_etiss(
         params = {}
     flags = utils.makeFlags((params["dbg"], "dbg"))
     etissName = utils.makeDirName("etiss", flags=flags)
-    etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
-    etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
+    etissBuildDir = context.environment.deps_build_path / etissName
+    etissInstallDir = context.environment.deps_install_path / etissName
     # llvmInstallDir = context.cache["llvm.install_dir"]
     user_vars = context.environment.vars
     if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
@@ -139,7 +139,7 @@ def clone_microtvm_etiss(
 ):
     """Clone the microtvm-etiss-template repository."""
     name = utils.makeDirName("microtvm_etiss")
-    srcDir = context.environment.paths["deps"].path / "src" / name
+    srcDir = context.environment.deps_src_path / name
     if rebuild or not utils.is_populated(srcDir):
         repo = context.environment.repos["microtvm_etiss"]
         utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)

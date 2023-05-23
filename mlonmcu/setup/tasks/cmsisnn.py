@@ -58,7 +58,7 @@ def clone_cmsisnn(
 ):
     """CMSIS-NN repository."""
     cmsisName = utils.makeDirName("cmsisnn")
-    cmsisnnSrcDir = Path(context.environment.paths["deps"].path) / "src" / cmsisName
+    cmsisnnSrcDir = Path(context.environment.deps_src_path / cmsisName
     if rebuild or not utils.is_populated(cmsisnnSrcDir):
         cmsisnnRepo = context.environment.repos["cmsisnn"]
         utils.clone(cmsisnnRepo.url, cmsisnnSrcDir, branch=cmsisnnRepo.ref, refresh=rebuild)
@@ -77,7 +77,7 @@ def clone_cmsis(
 ):
     """CMSIS repository."""
     cmsisName = utils.makeDirName("cmsis")
-    cmsisSrcDir = Path(context.environment.paths["deps"].path) / "src" / cmsisName
+    cmsisSrcDir = Path(context.environment.deps_src_path / cmsisName
     if rebuild or not utils.is_populated(cmsisSrcDir):
         cmsisRepo = context.environment.repos["cmsis"]
         utils.clone(cmsisRepo.url, cmsisSrcDir, branch=cmsisRepo.ref, refresh=rebuild)
@@ -96,7 +96,7 @@ def clone_ethosu_platform(
 ):
     """EthosU platform repository."""
     ethosuPlatformName = utils.makeDirName("ethosu_platform")
-    ethosuPlatformSrcDir = Path(context.environment.paths["deps"].path) / "src" / ethosuPlatformName
+    ethosuPlatformSrcDir = Path(context.environment.deps_src_path / ethosuPlatformName
     if rebuild or not utils.is_populated(ethosuPlatformSrcDir):
         ethosuPlatformRepo = context.environment.repos["ethosu_platform"]
         utils.clone(ethosuPlatformRepo.url, ethosuPlatformSrcDir, branch=ethosuPlatformRepo.ref, refresh=rebuild)

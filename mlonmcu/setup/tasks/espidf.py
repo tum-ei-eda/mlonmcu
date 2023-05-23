@@ -46,7 +46,7 @@ def clone_espidf(
 ):
     """Clone the ESP-IDF repository."""
     espidfName = utils.makeDirName("espidf")
-    espidfSrcDir = context.environment.paths["deps"].path / "src" / espidfName
+    espidfSrcDir = context.environment.deps_src_path / espidfName
     user_vars = context.environment.vars
     if "espidf.src_dir" in user_vars:  # TODO: also check command line flags?
         return False

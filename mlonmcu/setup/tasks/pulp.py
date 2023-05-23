@@ -59,15 +59,15 @@ def install_pulp_gcc(
     from_source = user_vars.get("pulp_gcc.from_source", False)
     flags = utils.makeFlags()
     pulpGccName = utils.makeDirName("pulp_gcc", flags=flags)
-    pulpGccInstallDir = context.environment.paths["deps"].path / "install" / pulpGccName
+    pulpGccInstallDir = context.environment.deps_install_path / pulpGccName
     if "pulp_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
         pulpGccInstallDir = user_vars["pulp_gcc.install_dir"]
     else:
         if rebuild or not utils.is_populated(pulpGccInstallDir):
             if from_source:
-                pulpGccSrcDir = context.environment.paths["deps"].path / "src" / pulpGccName
-                pulpGccBuildDir = context.environment.paths["deps"].path / "build" / pulpGccName
+                pulpGccSrcDir = context.environment.deps_src_path / pulpGccName
+                pulpGccBuildDir = context.environment.deps_build_path / pulpGccName
                 utils.mkdirs(pulpGccBuildDir)
                 if rebuild or not utils.is_populated(pulpGccSrcDir):
                     pulpGccRepo = context.environment.repos["pulp_gcc"]
@@ -115,7 +115,7 @@ def clone_pulp_freertos(
 ):
     """Clone the pulp-freertos repository."""
     pulpRtosName = utils.makeDirName("pulp_freertos")
-    pulpRtosSrcDir = context.environment.paths["deps"].path / "src" / pulpRtosName
+    pulpRtosSrcDir = context.environment.deps_src_path / pulpRtosName
     pulpRtosSupportDir = pulpRtosSrcDir / "support"
     pulpConfigsDir = pulpRtosSupportDir / "pulp-configs" / "configs"
     if (
@@ -156,7 +156,7 @@ def install_gvsoc(
     gvsocExe = pulpRtosSupportDir / "egvsoc.sh"
     pulpConfigDir = context.cache["pulp_freertos.config_dir"]
     if experimental_install:
-        pulpRtosInstallDir = context.environment.paths["deps"].path / "install" / pulpRtosName
+        pulpRtosInstallDir = context.environment.deps_install_path / pulpRtosName
     else:
         pulpRtosInstallDir = pulpRtosSupportDir / "install"
     pulpPythonPath = pulpRtosInstallDir / "python"

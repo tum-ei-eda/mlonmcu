@@ -49,7 +49,7 @@ def install_zephyr(
 ):
     """Download and install support for the Zephyr Platform."""
     zephyrName = utils.makeDirName("zephyr")
-    zephyrInstallDir = context.environment.paths["deps"].path / "install" / zephyrName
+    zephyrInstallDir = context.environment.deps_install_path / zephyrName
     zephyrInstallDir.mkdir(exist_ok=True)
     zephyrSdkDir = zephyrInstallDir / "sdk"
     zephyrVenvDir = zephyrInstallDir / "venv"

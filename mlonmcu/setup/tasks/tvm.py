@@ -74,7 +74,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     patch = params["patch"]
     flags = utils.makeFlags((patch, "patch"))
     tvmName = utils.makeDirName("tvm", flags=flags)
-    tvmSrcDir = context.environment.paths["deps"].path / "src" / tvmName
+    tvmSrcDir = context.environment.deps_src_path / tvmName
     tvmPythonPath = tvmSrcDir / "python"
     if rebuild or not utils.is_populated(tvmSrcDir):
         tvmRepo = context.environment.repos["tvm"]
@@ -107,7 +107,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     # This should help: TVM_LIBRARY_PATH -> tvm.build_dir
     tvmName = utils.makeDirName("tvm", flags=flags)
     tvmSrcDir = context.cache["tvm.src_dir", ()]  # params["patch"] does not affect the build
-    tvmBuildDir = context.environment.paths["deps"].path / "build" / tvmName
+    tvmBuildDir = context.environment.deps_build_path / tvmName
     tvmLib = tvmBuildDir / "libtvm.so"
     user_vars = context.environment.vars
     if rebuild or not utils.is_populated(tvmBuildDir) or not tvmLib.is_file():
@@ -171,7 +171,7 @@ def clone_tvm_extensions(
 ):
     """Clone the TVM extensions repository."""
     extName = utils.makeDirName("tvm_extensions")
-    extSrcDir = context.environment.paths["deps"].path / "src" / extName
+    extSrcDir = context.environment.deps_src_path / extName
     extWrapper = extSrcDir / "tvmc_wrapper.py"
     if rebuild or not utils.is_populated(extSrcDir):
         extRepo = context.environment.repos["tvm_extensions"]

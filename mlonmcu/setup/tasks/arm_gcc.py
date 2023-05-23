@@ -44,7 +44,7 @@ def install_arm_gcc(
 ):
     """Download and install GNU compiler toolchain from ARM."""
     armName = utils.makeDirName("arm_gcc")
-    armInstallDir = context.environment.paths["deps"].path / "install" / armName
+    armInstallDir = context.environment.deps_install_path / armName
     user_vars = context.environment.vars
     if "arm_gcc.install_dir" in user_vars:  # TODO: also check command line flags?
         # armInstallDir = user_vars["riscv_gcc.install_dir"]

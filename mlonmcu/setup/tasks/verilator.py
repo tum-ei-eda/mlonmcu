@@ -52,7 +52,7 @@ def clone_verilator(
     user_vars = context.environment.vars
     flags = utils.makeFlags()
     verilatorName = utils.makeDirName("verilator", flags=flags)
-    verilatorSrcDir = context.environment.paths["deps"].path / "src" / verilatorName
+    verilatorSrcDir = context.environment.deps_src_path / verilatorName
     if "ara.src_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
         verilatorSrcDir = user_vars["verilator.src_dir"]
@@ -75,9 +75,9 @@ def build_verilator(
         params = {}
     flags = utils.makeFlags()
     verilatorName = utils.makeDirName("verilator", flags=flags)
-    verilatorSrcDir = context.environment.paths["deps"].path / "src" / verilatorName
-    verilatorBuildDir = context.environment.paths["deps"].path / "build" / verilatorName
-    verilatorInstallDir = context.environment.paths["deps"].path / "install" / verilatorName
+    verilatorSrcDir = context.environment.deps_src_path / verilatorName
+    verilatorBuildDir = context.environment.deps_build_path / verilatorName
+    verilatorInstallDir = context.environment.deps_install_path / verilatorName
     utils.mkdirs(verilatorBuildDir)
     user_vars = context.environment.vars
     if "verilator.build_dir" in user_vars:  # TODO: also check command line flags?
@@ -117,8 +117,8 @@ def install_verilator(
         params = {}
     flags = utils.makeFlags()
     verilatorName = utils.makeDirName("verilator", flags=flags)
-    verilatorBuildDir = context.environment.paths["deps"].path / "build" / verilatorName
-    verilatorInstallDir = context.environment.paths["deps"].path / "install" / verilatorName
+    verilatorBuildDir = context.environment.deps_build_path / verilatorName
+    verilatorInstallDir = context.environment.deps_install_path / verilatorName
     utils.mkdirs(verilatorBuildDir)
     user_vars = context.environment.vars
     if "verilator.install_dir" in user_vars:  # TODO: also check command line flags?

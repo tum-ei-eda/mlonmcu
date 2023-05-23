@@ -47,7 +47,7 @@ def download_tflite_vizualize(
     # into the tensorflow python package. Therefore just download this single file form GitHub
 
     tfLiteVizualizeName = utils.makeDirName("tflite_visualize")
-    tfLiteVizualizeInstallDir = context.environment.paths["deps"].path / "install" / tfLiteVizualizeName
+    tfLiteVizualizeInstallDir = context.environment.deps_install_path / tfLiteVizualizeName
     tfLiteVizualizeExe = tfLiteVizualizeInstallDir / "visualize.py"
     user_vars = context.environment.vars
     if "tflite_visualize.exe" in user_vars:  # TODO: also check command line flags?

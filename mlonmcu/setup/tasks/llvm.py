@@ -49,7 +49,7 @@ def install_llvm(
 ):
     """Download and install LLVM."""
     llvmName = utils.makeDirName("llvm")
-    llvmInstallDir = context.environment.paths["deps"].path / "install" / llvmName
+    llvmInstallDir = context.environment.deps_install_path / llvmName
     user_vars = context.environment.vars
     if "llvm.install_dir" in user_vars:  # TODO: also check command line flags?
         # TODO: WARNING

@@ -48,7 +48,7 @@ def clone_utvm_staticrt_codegen(
 ):
     """Clone the uTVM code generator."""
     utvmcgName = utils.makeDirName("utvmcg")
-    utvmcgSrcDir = context.environment.paths["deps"].path / "src" / utvmcgName
+    utvmcgSrcDir = context.environment.deps_src_path / utvmcgName
     if rebuild or not utils.is_populated(utvmcgSrcDir):
         utvmcgRepo = context.environment.repos["utvm_staticrt_codegen"]
         utils.clone(utvmcgRepo.url, utvmcgSrcDir, branch=utvmcgRepo.ref, refresh=rebuild)
@@ -69,8 +69,8 @@ def build_utvm_staticrt_codegen(
     flags = utils.makeFlags((params["dbg"], "dbg"))
     utvmcgName = utils.makeDirName("utvmcg", flags=flags)
     utvmcgSrcDir = context.cache["utvmcg.src_dir"]
-    utvmcgBuildDir = context.environment.paths["deps"].path / "build" / utvmcgName
-    utvmcgInstallDir = context.environment.paths["deps"].path / "install" / utvmcgName
+    utvmcgBuildDir = context.environment.deps_build_path / utvmcgName
+    utvmcgInstallDir = context.environment.deps_install_path / utvmcgName
     utvmcgExe = utvmcgInstallDir / "compiler"
     if rebuild or not utils.is_populated(utvmcgSrcDir) or not utvmcgExe.is_file():
         utvmcgArgs = []

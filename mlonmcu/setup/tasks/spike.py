@@ -63,7 +63,7 @@ def clone_spike_pk(
 ):
     """Clone the spike proxt kernel."""
     spikepkName = utils.makeDirName("spikepk")
-    spikepkSrcDir = context.environment.paths["deps"].path / "src" / spikepkName
+    spikepkSrcDir = context.environment.deps_src_path / spikepkName
     user_vars = context.environment.vars
     if "spike.pk" in user_vars:  # TODO: also check command line flags?
         return False
@@ -88,8 +88,8 @@ def build_spike_pk(
         return False
     spikepkName = utils.makeDirName("spikepk")
     spikepkSrcDir = context.cache["spikepk.src_dir"]
-    spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
-    spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
+    spikepkBuildDir = context.environment.deps_build_path / spikepkName
+    spikepkInstallDir = context.environment.deps_install_path / spikepkName
     spikepkBin = spikepkInstallDir / "pk"
     if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
         # No need to build a vext and non-vext variant?
@@ -139,7 +139,7 @@ def clone_spike(
 ):
     """Clone the spike simulator."""
     spikeName = utils.makeDirName("spike")
-    spikeSrcDir = context.environment.paths["deps"].path / "src" / spikeName
+    spikeSrcDir = context.environment.deps_src_path / spikeName
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
         return False
@@ -164,8 +164,8 @@ def build_spike(
         return False
     spikeName = utils.makeDirName("spike")
     spikeSrcDir = context.cache["spike.src_dir"]
-    spikeBuildDir = context.environment.paths["deps"].path / "build" / spikeName
-    spikeInstallDir = context.environment.paths["deps"].path / "install" / spikeName
+    spikeBuildDir = context.environment.deps_build_path / spikeName
+    spikeInstallDir = context.environment.deps_install_path / spikeName
     spikeExe = spikeInstallDir / "spike"
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
@@ -202,7 +202,7 @@ def clone_microtvm_spike(
 ):
     """Clone the microtvm-spike-template repository."""
     name = utils.makeDirName("microtvm_spike")
-    srcDir = context.environment.paths["deps"].path / "src" / name
+    srcDir = context.environment.deps_src_path / name
     if rebuild or not utils.is_populated(srcDir):
         repo = context.environment.repos["microtvm_spike"]
         utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)

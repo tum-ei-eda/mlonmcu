@@ -404,6 +404,13 @@ class RVPGCCToolchain(RISCVGCCToolchain):
             config=config,
         )
 
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            if self.enable_pext:
+                ret["RISCV_PEXT"] = self.enable_pext
+        return ret
+
 
 class XuantieRISCVGCCToolchain(RISCVGCCToolchain):
     """TODO"""

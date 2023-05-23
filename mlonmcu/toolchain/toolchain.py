@@ -380,6 +380,15 @@ class RVVGCCToolchain(RISCVGCCToolchain):
             config=config,
         )
 
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            if self.enable_vext:
+                ret["RISCV_VEXT"] = self.enable_vext
+            if self.vlen:
+                ret["RISCV_VLEN"] = self.vlen
+        return ret
+
 
 class RVPGCCToolchain(RISCVGCCToolchain):
     """TODO"""

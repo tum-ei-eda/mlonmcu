@@ -443,10 +443,68 @@ class PulpRISCVGCCToolchain(RISCVGCCToolchain):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        # TODO refactor the following using inheritance instead of branching
-        ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
-        ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
+
+        # The following create EXTRA_FLAGS (type is str) for gcc
+        # example
+        # {"nopostmod": True, "novect": True, ...} ==> EXTRA_FLAGS = "-mnopostmod -mnovect ..."
+        EXTRA_FLAGS = ""
+        for key in self.getter_functions:
+            if isinstance(self.getter_functions[key](self, key), bool):
+                if self.getter_functions[key](self, key):
+                    EXTRA_FLAGS += f" -m{key}"
+                continue
+            if isinstance(self.getter_functions[key](self, key), int):
+                EXTRA_FLAGS += f" -m{key}={self.getter_functions[key](self, key)}"
+                continue
+        EXTRA_FLAGS = "'" + EXTRA_FLAGS.strip() + "'"
+        # EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
+        ret["EXTRA_CMAKE_C_FLAGS"] = EXTRA_FLAGS
+        # EXTRA_CMAKE_CXX_FLAGS will be directly append to CMAKE_CXX_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
+        ret["EXTRA_CMAKE_CXX_FLAGS"] = EXTRA_FLAGS
         return ret
+
+    def add_platform_defs(self, platform, defs):
+        addition_defs = self.get_platform_defs(platform)
+        self.merge_dicts(defs, addition_defs)
+
+    @staticmethod
+    def merge_dicts(dict1, dict2):
+        """
+        This function tries to merge dict1 and dict2 into dict1
+        :param dict1: A dictionary
+        :param dict2: A dictionary to be added
+        :return: Void
+        Example 1:
+        dict1 = {"a": 1, "b": "hello", "c": [1, 2, 3]}
+        dict2 = {"f": 3, "b": "world", "c": [4, 5, 6]}
+        merge_dicts(dict1, dict2)
+        print(dict1)
+        ==>
+        {"a": 1, "b": "hello world", "c": [1, 2, 3, 4, 5, 6], "f":3}
+        Note: Here "hello" and "world" are merged as two string join.
+        Here [1,2,3] and [4,5,6] are merged as list addition
+        Example 2:
+        dict1 = {"a": 1}
+        dict2 = {"a": 3}
+        merge_dicts(dict1, dict2)
+        ==>
+        RuntimeError: The method to merge a: 1 and a: 3 is not defined
+        """
+        for key in dict2.keys():
+            if key in dict1.keys():
+                dict1_value = dict1[key]
+                dict2_value = dict2[key]
+                if isinstance(dict1_value, (str, list)) and type(dict1_value) == type(dict2_value):
+                    if isinstance(dict1_value, str):
+                        dict1[key] = dict1_value + " " + dict2_value
+                    else:
+                        dict1[key] = dict1_value + dict2_value
+                else:
+                    raise RuntimeError(
+                        f"The method to merge {key}: {dict1_value} and {key}: {dict2_value} is not defined"
+                    )
+            else:
+                dict1[key] = dict2[key]
 
 
 class PulpLLVMToolchain(RISCVLLVMToolchain):

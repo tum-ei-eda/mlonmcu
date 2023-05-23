@@ -172,7 +172,7 @@ class GCCToolchain(MlifToolchain):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         # TODO refactor the following using inheritance instead of branching
-        ret["TOOLCHAIN"] = "llvm"
+        ret["TOOLCHAIN"] = "gcc"
         return ret
 
 

@@ -128,9 +128,9 @@ def _install_riscv_gcc(context, name, default_dl_url=None, default_version=None,
     else:
         gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
         gccName = None
-        for name in gccNames:
-            if (Path(riscvInstallDir) / name).is_dir():
-                gccName = name
+        for name_ in gccNames:
+            if (Path(riscvInstallDir) / name_).is_dir():
+                gccName = name_
                 break
     assert gccName is not None, "Toolchain name could not be determined automatically"
     # multilib_, default_multilib_, multilibs_ = check_multilibs(

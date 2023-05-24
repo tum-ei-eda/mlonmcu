@@ -41,6 +41,13 @@ def _validate_tvm(context: MlonMcuContext, params=None):
             return False
     return context.environment.has_framework("tvm")
 
+def _validate_tvm_clone(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    tvm_src_dir = user_vars.get("tvm.src_dir", None)
+    if tvm_src_dir:
+        return False
+    return _validate_tvm(context, params=params)
+
 
 def _validate_tvm_build(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
@@ -67,6 +74,9 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
     else:
         if not release_build:
             return False
+    tvm_install_dir = user_vars.get("tvm.install_dir", None)
+    if tvm_install_dir:
+        return False
 
 
     return context.environment.has_framework("tvm")
@@ -78,9 +88,8 @@ def _validate_tvm_install(context: MlonMcuContext, params=None):
 
 @Tasks.provides(["tvm.src_dir", "tvm.configs_dir", "tvm.pythonpath"])
 @Tasks.optional(["tvm_extensions.src_dir"])
-@Tasks.validate(_validate_tvm)
 @Tasks.param("patch", [False, True])  # This is just a temporary workaround until the patch is hopefully upstreamed
-@Tasks.validate(_validate_tvm)
+@Tasks.validate(_validate_tvm_clone)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Clone the TVM repository."""
@@ -121,7 +130,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     # FIXME: Try to use TVM dir outside of src dir to allow multiple versions/dbg etc!
     # This should help: TVM_LIBRARY_PATH -> tvm.build_dir
     tvmName = utils.makeDirName("tvm", flags=flags)
-    tvmSrcDir = context.cache["tvm.src_dir", ()]  # params["patch"] does not affect the build
+    tvmSrcDir = context.lookup("tvm.src_dir", ())  # params["patch"] does not affect the build
     tvmBuildDir = context.environment.paths["deps"].path / "build" / tvmName
     tvmInstallDir = context.environment.paths["deps"].path / "install" / tvmName
     tvmLib = tvmBuildDir / "libtvm.so"

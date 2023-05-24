@@ -510,7 +510,7 @@ class MlonMcuContext:
                         src, base, dirs_exist_ok=True, symlinks=True
                     )  # Warning: dirs_exist_ok=True requires python 3.8+
                     if report_path.is_file():
-                        shutil.copyfile(report_path, base)
+                        shutil.copyfile(report_path, base / "report.csv")
                 else:
                     base = base / "runs"
                     for rid in run_ids:

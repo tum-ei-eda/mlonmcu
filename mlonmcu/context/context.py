@@ -462,6 +462,12 @@ class MlonMcuContext:
         sessions_runs = self.get_sessions_runs_idx()
         print_sessions(sessions_runs, with_runs=runs, with_labels=labels)
 
+    def lookup(self, key, flags=None):
+        user_vars = self.environment.vars
+        if key in user_vars:
+            return user_vars[key]
+        return self.cache[key, flags]
+
     def export(self, dest, session_ids=None, run_ids=None, interactive=True):
         dest = Path(dest)
         if (dest.is_file() and dest.exists()) or (dest.is_dir() and utils.is_populated(dest)):

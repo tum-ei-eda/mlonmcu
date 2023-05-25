@@ -20,7 +20,7 @@ ARG ENABLE_CMAKE="false"
 
 FROM debian:bullseye AS cmake-install
 ARG CMAKE_REPO="https://github.com/Kitware/CMake"
-ARG CMAKE_VERSION="3.15.5"
+ARG CMAKE_VERSION="3.20.0"
 ARG CMAKE_TARGET="Linux-x86_64"
 ARG ENABLE_CMAKE
 

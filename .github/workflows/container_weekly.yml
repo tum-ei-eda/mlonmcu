@@ -46,24 +46,25 @@ jobs:
         uses: ASzc/change-string-case-action@v5
         with:
           string: ${{ github.repository }}
-      - name: CFG (Manual)
-        if: (github.event_name != 'schedule')
+      - name: CFG
         id: cfg
         run: |
-          echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
-          echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
-      - name: CFG (Schedule, Default)
-        if: (github.event.schedule == '0 0 * * 6')
-        id: cfg
-        run: |
-          echo "branch=main" >> $GITHUB_OUTPUT
-          echo "template=default" >> $GITHUB_OUTPUT
-      - name: CFG (Schedule, Dev)
-        if: (github.event.schedule == '0 12 * * 6')
-        id: cfg
-        run: |
-          echo "branch=staging-newer" >> $GITHUB_OUTPUT
-          echo "template=dev" >> $GITHUB_OUTPUT
+          if [[ "${{github.event_name}}" != "schedule" ]]
+          then
+              echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+              echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 0 * * 6" ]]
+          then
+              echo "branch=main" >> $GITHUB_OUTPUT
+              echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=dev" >> $GITHUB_OUTPUT
+          else
+              echo "Invalid!"
+              exit 1
+          fi
       - name: Gen string
         id: branch_str
         run: |
@@ -143,24 +144,25 @@ jobs:
         uses: ASzc/change-string-case-action@v5
         with:
           string: ${{ github.repository }}
-      - name: CFG (Manual)
-        if: (github.event_name != 'schedule')
+      - name: CFG
         id: cfg
         run: |
-          echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
-          echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
-      - name: CFG (Schedule, Default)
-        if: (github.event.schedule == '0 0 * * 6')
-        id: cfg
-        run: |
-          echo "branch=main" >> $GITHUB_OUTPUT
-          echo "template=default" >> $GITHUB_OUTPUT
-      - name: CFG (Schedule, Dev)
-        if: (github.event.schedule == '0 12 * * 6')
-        id: cfg
-        run: |
-          echo "branch=staging-newer" >> $GITHUB_OUTPUT
-          echo "template=dev" >> $GITHUB_OUTPUT
+          if [[ "${{github.event_name}}" != "schedule" ]]
+          then
+              echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+              echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 0 * * 6" ]]
+          then
+              echo "branch=main" >> $GITHUB_OUTPUT
+              echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=dev" >> $GITHUB_OUTPUT
+          else
+              echo "Invalid!"
+              exit 1
+          fi
       - name: Gen string
         id: branch_str
         run: |
@@ -232,24 +234,25 @@ jobs:
         uses: ASzc/change-string-case-action@v5
         with:
           string: ${{ github.repository }}
-      - name: CFG (Manual)
-        if: (github.event_name != 'schedule')
+      - name: CFG
         id: cfg
         run: |
-          echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
-          echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
-      - name: CFG (Schedule, Default)
-        if: (github.event.schedule == '0 0 * * 6')
-        id: cfg
-        run: |
-          echo "branch=main" >> $GITHUB_OUTPUT
-          echo "template=default" >> $GITHUB_OUTPUT
-      - name: CFG (Schedule, Dev)
-        if: (github.event.schedule == '0 12 * * 6')
-        id: cfg
-        run: |
-          echo "branch=staging-newer" >> $GITHUB_OUTPUT
-          echo "template=dev" >> $GITHUB_OUTPUT
+          if [[ "${{github.event_name}}" != "schedule" ]]
+          then
+              echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+              echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 0 * * 6" ]]
+          then
+              echo "branch=main" >> $GITHUB_OUTPUT
+              echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=dev" >> $GITHUB_OUTPUT
+          else
+              echo "Invalid!"
+              exit 1
+          fi
       - name: Gen string
         id: branch_str
         run: |

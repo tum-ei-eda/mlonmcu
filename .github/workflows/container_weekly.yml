@@ -177,7 +177,7 @@ jobs:
           then
               echo "template=" >> $GITHUB_OUTPUT
           else
-              echo "template=${{ steps.cfg.outputs..template }}-" >> $GITHUB_OUTPUT
+              echo "template=${{ steps.cfg.outputs.template }}-" >> $GITHUB_OUTPUT
           fi
       - name: Checkout
         uses: actions/checkout@v3

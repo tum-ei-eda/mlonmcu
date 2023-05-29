@@ -31,11 +31,11 @@ from mlonmcu.config import str2bool
 from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
-from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features, get_available_features
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.models.model import Model, Program
 from mlonmcu.platform import get_platforms
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
 
@@ -332,20 +332,34 @@ class Run:
         """Setter for the model instance."""
         self.model = model
         self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())
+        for platform in self.platforms:
+            self.model.add_platform_defs(platform, platform.definitions)
+        # TODO: update after load stage
+        # for platform in self.platforms:
+        #     self.add_platform_defs(platform.name, platform.definitions)
 
     def add_frontend(self, frontend, append=True):
         """Setter for the frontend instance."""
         self.frontends = add_any(frontend, self.frontends, append=append)
+        for frontend in self.frontends:
+            for platform in self.platforms:
+                frontend.add_platform_defs(platform.name, platform.definitions)
 
     def add_frontends(self, frontends, append=False):
         """Setter for the list of frontends."""
         self.frontends = add_any(frontends, self.frontends, append=append)
+        for frontend in self.frontends:
+            for platform in self.platforms:
+                frontend.add_platform_defs(platform.name, platform.definitions)
 
     def add_backend(self, backend):
         """Setter for the backend instance."""
         self.backend = backend
         # assert len(self.platforms) > 0, "Add at least a platform before adding a backend."
         if self.model is not None:
+            if not isinstance(self.model, Model):
+                self.backend = None
+                return
             assert self.backend.supports_model(self.model), (
                 "The added backend does not support the chosen model. "
                 "Add the backend before adding a model to find a suitable frontend."
@@ -372,6 +386,10 @@ class Run:
     def add_platform(self, platform, append=True):
         """Setter for the platform instance."""
         self.platforms = add_any(platform, self.platforms, append=append)
+        for frontend in self.frontends:
+            self.frontend.add_platform_defs(platform.name, platform.definitions)
+        if self.model:
+            self.model.add_platform_defs(platform.name, platform.definitions)
         if self.backend:
             self.backend.add_platform_defs(platform.name, platform.definitions)
         if self.framework:
@@ -382,6 +400,10 @@ class Run:
         self.platforms = add_any(platforms, self.platforms, append=append)
         # TODO: check for duplicates?
         for platform in platforms:
+            for frontend in self.frontends:
+                self.frontend.add_platform_defs(platform.name, platform.definitions)
+            if self.model:
+                self.model.add_platform_defs(platform.name, platform.definitions)
             if self.backend:
                 self.backend.add_platform_defs(platform.name, platform.definitions)
             if self.framework:
@@ -405,31 +427,25 @@ class Run:
         self.features = add_any(features, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
-    def pick_model_frontend(self, model_hints, backend=None):
-        assert len(model_hints) > 0
-        if backend is None:
-            self.frontends = [
-                frontend for frontend in self.frontends if model_hints[0].formats[0] in frontend.input_formats
-            ]
-            assert len(self.frontends) > 0
-            return model_hints[0]
-        for model_hint in model_hints:
-            if backend.supports_model(model_hint):
-                self.frontends = [
-                    frontend for frontend in self.frontends if model_hint.formats[0] in frontend.input_formats
-                ]
-                return model_hint
-        return None
-
     def add_model_by_name(self, model_name, context=None):
         """Helper function to initialize and configure a model by its name."""
         assert context is not None, "Please supply a context"
         assert len(self.frontends) > 0, "Add a frontend to the run before adding a model"
-        model_hints = lookup_models([model_name], frontends=self.frontends, context=context)
-        assert len(model_hints) > 0, f"Model with name '{model_name}' not found"
-        model_hint = self.pick_model_frontend(model_hints, backend=self.backend)
-        assert model_hint is not None, "Unable to pick a suitable model"
-        self.add_model(model_hint)
+        for frontend in self.frontends:
+            try:
+                model_hints = frontend.lookup_models([model_name], context=context)
+                # model_hints = lookup_models([model_name], frontends=self.frontends, context=context)
+                for model_hint in model_hints:
+                    if self.backend is None or isinstance(model_hint, Program) or (self.backend is not None and self.backend.supports_model(model_hint)):
+                        self.frontends = [frontend]
+                        assert model_hint is not None, "Unable to pick a suitable model"
+                        self.add_model(model_hint)
+                        return
+            except Exception as ex:
+                # TODO: handle
+                logger.exception(ex)
+                pass
+        assert False, f"Model with name '{model_name}' not found"
 
     def add_frontend_by_name(self, frontend_name, context=None):
         """Helper function to initialize and configure a frontend by its name."""
@@ -458,6 +474,8 @@ class Run:
             self.add_backend(self.init_component(self.build_platform.create_backend(backend_name), context=context))
         else:
             self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
+        if self.backend is None:
+            return
         framework_name = self.backend.framework  # TODO: does this work?
         assert context.environment.has_framework(
             framework_name
@@ -700,19 +718,37 @@ class Run:
         """Compile the target software for the run."""
         logger.debug("%s Processing stage COMPILE", self.prefix)
         self.lock()
-        assert self.completed[RunStage.BUILD]
+        if isinstance(self.model, Model):
+            assert self.completed[RunStage.BUILD]
 
-        self.export_stage(RunStage.BUILD, optional=self.export_optional)
-        self.artifacts_per_stage[RunStage.COMPILE] = {}
-        for name in self.artifacts_per_stage[RunStage.BUILD]:
+            self.export_stage(RunStage.BUILD, optional=self.export_optional)
+            self.artifacts_per_stage[RunStage.COMPILE] = {}
+            for name in self.artifacts_per_stage[RunStage.BUILD]:
+                codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
+                if name not in ["", "default"]:
+                    codegen_dir = codegen_dir / "sub" / name
+                # TODO!
+                artifacts = self.compile_platform.generate_artifacts(
+                    codegen_dir, self.target
+                )  # TODO: has to go into different dirs
+                # artifacts = self.compile_platform.artifacts
+                if isinstance(artifacts, dict):
+                    new = {
+                        key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        for key, value in artifacts.items()
+                    }
+                else:
+                    new = {name if name in ["", "default"] else f"{name}": artifacts}
+                self.artifacts_per_stage[RunStage.COMPILE].update(new)
+                self.sub_parents.update({(RunStage.COMPILE, key): (self.last_stage, name) for key in new.keys()})
+        else:
+            assert self.completed[RunStage.LOAD]
+            self.artifacts_per_stage[RunStage.COMPILE] = {}
             codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
-            if name not in ["", "default"]:
-                codegen_dir = codegen_dir / "sub" / name
-            # TODO!
+            name = "default"
             artifacts = self.compile_platform.generate_artifacts(
                 codegen_dir, self.target
-            )  # TODO: has to go into different dirs
-            # artifacts = self.compile_platform.artifacts
+            )
             if isinstance(artifacts, dict):
                 new = {
                     key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
@@ -870,25 +906,27 @@ class Run:
         self.lock()
         # assert self.completed[RunStage.NOP]
 
+        print("load", self.model)
         artifacts = self.frontend.generate_artifacts(self.model)
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}
-        self.frontend.process_metadata(self.model, cfg=cfg_new)
-        if len(cfg_new) > 0:
-            for key, value in cfg_new.items():
-                component, name = key.split(".")[:2]
-                if self.backend is not None and component == self.backend.name:
-                    self.backend.config[name] = value
-                elif component == self.model.name:
-                    # Do not overwrite user-provided shapes and types
-                    if self.model.config[name] is None:
-                        # self.model.config[name] = value
-                        self.model.config = filter_config({key: value}, self.model.name, self.model.config, set(), set())
-                else:
-                    for platform in self.platforms:
-                        if platform is not None and component == platform.name:
-                            platform.config[name] = value
-                self.config[key] = value
+        if isinstance(self.model, Model):
+            self.frontend.process_metadata(self.model, cfg=cfg_new)
+            if len(cfg_new) > 0:
+                for key, value in cfg_new.items():
+                    component, name = key.split(".")[:2]
+                    if self.backend is not None and component == self.backend.name:
+                        self.backend.config[name] = value
+                    elif component == self.model.name:
+                        # Do not overwrite user-provided shapes and types
+                        if self.model.config[name] is None:
+                            # self.model.config[name] = value
+                            self.model.config = filter_config({key: value}, self.model.name, self.model.config, set(), set())
+                    else:
+                        for platform in self.platforms:
+                            if platform is not None and component == platform.name:
+                                platform.config[name] = value
+                    self.config[key] = value
         if isinstance(artifacts, dict):
             self.artifacts_per_stage[RunStage.LOAD] = artifacts
         else:

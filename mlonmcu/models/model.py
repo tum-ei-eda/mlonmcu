@@ -116,8 +116,26 @@ def parse_type_string(inputs_string):
     return type_dict
 
 
-class Model:
+class Workload:
+
+    DEFAULTS = {}
+
+    def __init__(self, name, config=None, alt=None):
+        self.name = name
+        self.alt = alt
+        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, set(), set())
+
+    def get_platform_defs(self, platform):
+        return {}
+
+    def add_platform_defs(self, platform, defs):
+        defs.update(self.get_platform_defs(platform))
+
+
+class Model(Workload):
+
     DEFAULTS = {
+        **Workload.DEFAULTS,
         "metadata_path": "definition.yml",
         "input_shapes": None,
         "output_shapes": None,
@@ -129,15 +147,13 @@ class Model:
     }
 
     def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
-        self.name = name
+        super().__init__(name, config=config, alt=alt)
         self.paths = paths
         if not isinstance(self.paths, list):
             self.paths = [self.path]
-        self.alt = alt
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]
-        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, set(), set())
         self.metadata = parse_metadata_from_path(self.metadata_path)
 
     @property
@@ -202,3 +218,7 @@ class Model:
         if self.alt:
             return f"Model({self.name},alt={self.alt})"
         return f"Model({self.name})"
+
+
+class Program(Workload):
+    pass

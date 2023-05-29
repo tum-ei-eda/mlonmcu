@@ -222,3 +222,29 @@ class Model(Workload):
 
 class Program(Workload):
     pass
+
+
+class ExampleProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EXAMPLE_BENCHMARK"] = self.name
+        return ret
+
+class EmbenchProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EMBENCH_BENCHMARK"] = self.name
+        return ret
+
+
+class TaclebenchProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TACLEBENCH_BENCHMARK"] = self.name
+        return ret

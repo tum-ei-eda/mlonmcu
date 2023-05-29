@@ -258,6 +258,12 @@ class Frontend(ABC):
         else:
             raise NotImplementedError
 
+    def get_platform_defs(self, platform):
+        return {}
+
+    def add_platform_defs(self, platform, defs):
+        defs.update(self.get_platform_defs(platform))
+
 
 class SimpleFrontend(Frontend):
     """An abstract frontend with equivalent input and output formats."""

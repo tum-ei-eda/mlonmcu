@@ -25,7 +25,8 @@ from abc import ABC, abstractmethod
 from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.models.model import ModelFormats, Model
+from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram
+from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -669,3 +670,207 @@ class PaddleFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
+
+class ExampleFrontend(SimpleFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "example",
+            ModelFormats.NAME,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return ["hello_world", "foobar"]
+
+    def lookup_models(self, names, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("example/", "")
+            if name in self.supported_names:
+                hint = ExampleProgram(
+                    name,
+                    alt=f"example/{name}",
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TEMPLATE"] = "example"
+        return ret
+
+
+class EmbenchFrontend(SimpleFrontend):
+
+    REQUIRED = {"embench.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench",
+            ModelFormats.NAME,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            "md5sum",
+            "nettle-sha256",
+            "nettle-aes",
+            "ud",
+            "matmult-int",
+            "aha-mont64",
+            "huffbench",
+            "cubic",
+            "nbody",
+            "sglib-combined",
+            "crc32",
+            "wikisort",
+            "slre",
+            "qrduino",
+            "minver",
+            "picojpeg",
+            "tarfind",
+            "st",
+            "nsichneu",
+            "statemate",
+            "primecount",
+      ]
+
+    def lookup_models(self, names, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("embench/", "")
+            if name in self.supported_names:
+                hint = EmbenchProgram(
+                    name,
+                    alt=f"embench/{name}",
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TEMPLATE"] = "embench"
+            ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
+        return ret
+
+
+class TaclebenchFrontend(SimpleFrontend):
+
+    REQUIRED = {"taclebench.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "taclebench",
+            ModelFormats.NAME,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            "test/test3",
+            "test/cover",
+            "test/duff",
+            "app/powerwindow",
+            "app/lift",
+            "kernel/deg2rad",
+            "kernel/matrix1",
+            "kernel/binarysearch",
+            "kernel/pm",
+            "kernel/sha",
+            "kernel/filterbank",
+            "kernel/md5",
+            "kernel/fir2dim",
+            "kernel/fft",
+            "kernel/minver",
+            "kernel/lms",
+            "kernel/bitcount",
+            "kernel/st",
+            "kernel/bsort",
+            "kernel/bitonic",
+            "kernel/iir",
+            "kernel/prime",
+            "kernel/jfdctint",
+            "kernel/recursion",
+            "kernel/complex_updates",
+            "kernel/cosf",
+            "kernel/insertsort",
+            "kernel/fac",
+            "kernel/rad2deg",
+            "kernel/isqrt",
+            "kernel/cubic",
+            "kernel/ludcmp",
+            "kernel/quicksort",
+            "kernel/countnegative",
+            "sequential/epic",
+            "sequential/huff_dec",
+            "sequential/fmref",
+            "sequential/h264_dec",
+            "sequential/dijkstra",
+            "sequential/adpcm_dec",
+            "sequential/adpcm_enc",
+            "sequential/gsm_dec",
+            "sequential/rijndael_dec",
+            "sequential/g723_enc",
+            "sequential/huff_enc",
+            "sequential/statemate",
+            "sequential/susan",
+            "sequential/gsm_enc",
+            "sequential/ndes",
+            "sequential/audiobeam",
+            "sequential/rijndael_enc",
+            "sequential/cjpeg_transupp",
+            "sequential/ammunition",
+            "sequential/mpeg2",
+            "sequential/anagram",
+            "sequential/cjpeg_wrbmp",
+            "sequential/petrinet",
+        ]
+
+    def lookup_models(self, names, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("taclebench/", "")
+            if name in self.supported_names:
+                hint = TaclebenchProgram(
+                    name,
+                    alt=f"taclebench/{name}",
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TEMPLATE"] = "taclebench"
+            ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
+        return ret

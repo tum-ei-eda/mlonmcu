@@ -88,6 +88,10 @@ class Frontend(ABC):
             ret = ret and supported
         return ret
 
+    def lookup_models(self, names, context=None):
+        print(f"{self.name}.lookup_models", names)
+        return lookup_models(names, frontends=[self], context=context)
+
     def process_features(self, features):
         if features is None:
             return []

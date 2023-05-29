@@ -85,7 +85,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         self.tempdir = None
         self.build_dir = None
-        self.goal = "generic_mlif"
+        self.goal = "generic_mlonmcu"
 
     def gen_data_artifact(self):
         in_paths = self.input_data_path
@@ -300,11 +300,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         out, artifacts = self.compile(target, src=src, model=model)
-        elf_file = self.build_dir / "bin" / "generic_mlif"
+        elf_file = self.build_dir / "bin" / "generic_mlonmcu"
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
             data = handle.read()
-            artifact = Artifact("generic_mlif", raw=data, fmt=ArtifactFormat.RAW)
+            artifact = Artifact("generic_mlonmcu", raw=data, fmt=ArtifactFormat.RAW)
             artifacts.insert(0, artifact)  # First artifact should be the ELF
         metrics = self.get_metrics(elf_file)
         stdout_artifact = Artifact(

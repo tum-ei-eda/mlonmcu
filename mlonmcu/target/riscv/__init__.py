@@ -5,6 +5,7 @@ from .ovpsim import OVPSimTarget
 from .riscv_qemu import RiscvQemuTarget
 from .gvsoc_pulp import GvsocPulpTarget
 from .ara import AraTarget
+from .cv32e40p import CV32E40PTarget
 
 __all__ = [
     "EtissPulpinoTarget",
@@ -14,4 +15,5 @@ __all__ = [
     "RiscvQemuTarget",
     "GvsocPulpTarget",
     "AraTarget",
+    "CV32E40PTarget",
 ]

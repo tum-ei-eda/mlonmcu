@@ -21,6 +21,7 @@ from .riscv import (
     GvsocPulpTarget,
     EtissTarget,
     AraTarget,
+    CV32E40PTarget,
 )
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
@@ -49,3 +50,4 @@ register_target("ovpsim", OVPSimTarget)
 register_target("riscv_qemu", RiscvQemuTarget)
 register_target("gvsoc_pulp", GvsocPulpTarget)
 register_target("ara", AraTarget)
+register_target("cv32e40p", CV32E40PTarget)

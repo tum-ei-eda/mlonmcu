@@ -906,7 +906,6 @@ class Run:
         self.lock()
         # assert self.completed[RunStage.NOP]
 
-        print("load", self.model)
         artifacts = self.frontend.generate_artifacts(self.model)
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}

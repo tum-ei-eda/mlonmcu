@@ -89,7 +89,6 @@ class Frontend(ABC):
         return ret
 
     def lookup_models(self, names, context=None):
-        print(f"{self.name}.lookup_models", names)
         return lookup_models(names, frontends=[self], context=context)
 
     def process_features(self, features):
@@ -759,6 +758,10 @@ class EmbenchFrontend(SimpleFrontend):
             "primecount",
       ]
 
+    # @property
+    # def skip_backend(self):
+    #     return True
+
     def lookup_models(self, names, context=None):
         ret = []
         for name in names:
@@ -859,6 +862,10 @@ class TaclebenchFrontend(SimpleFrontend):
             "sequential/cjpeg_wrbmp",
             "sequential/petrinet",
         ]
+
+    # @property
+    # def skip_backend(self):
+    #     return True
 
     def lookup_models(self, names, context=None):
         ret = []

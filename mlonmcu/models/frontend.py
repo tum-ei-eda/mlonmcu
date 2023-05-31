@@ -735,6 +735,7 @@ class EmbenchFrontend(SimpleFrontend):
     def supported_names(self):
         # TODO: automatic lookup
         return [
+            "edn",
             "md5sum",
             "nettle-sha256",
             "nettle-aes",

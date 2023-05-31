@@ -24,6 +24,7 @@ import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
@@ -399,7 +400,16 @@ class EtissTarget(RISCVTarget):
             etiss_script_args.extend(["-p", plugin])
 
         if self.timeout_sec > 0:
-            raise NotImplementedError
+            ret = exec_timeout(
+                self.timeout_sec,
+                execute,
+                Path(self.etiss_script).resolve(),
+                program,
+                *etiss_script_args,
+                *args,
+                cwd=cwd,
+                **kwargs,
+            )
         else:
             ret = execute(
                 Path(self.etiss_script).resolve(),

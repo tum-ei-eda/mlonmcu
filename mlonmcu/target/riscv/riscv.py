@@ -247,7 +247,7 @@ class RISCVTarget(Target):
 
     @property
     def timeout_sec(self):
-        return int(self.config["timeout_sec"])
+        return float(self.config["timeout_sec"])
 
     @property
     def fpu(self):

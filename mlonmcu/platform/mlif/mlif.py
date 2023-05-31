@@ -301,11 +301,18 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlonmcu"
+        hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
+
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
             data = handle.read()
             artifact = Artifact("generic_mlonmcu", raw=data, fmt=ArtifactFormat.RAW)
             artifacts.insert(0, artifact)  # First artifact should be the ELF
+        if hex_file.is_file():
+            with open(hex_file, "rb") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.hex", raw=data, fmt=ArtifactFormat.RAW)
+                artifacts.insert(1, artifact)
         metrics = self.get_metrics(elf_file)
         stdout_artifact = Artifact(
             "mlif_out.log", content=out, fmt=ArtifactFormat.TEXT

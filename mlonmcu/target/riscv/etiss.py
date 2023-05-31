@@ -65,6 +65,7 @@ class EtissTarget(RISCVTarget):
         "elen": 32,
         "jit": None,
         "end_to_end_cycles": False,
+        "allow_error": False,
         "max_block_size": None,
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
@@ -275,6 +276,11 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def allow_error(self):
+        value = self.config["allow_error"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def vext_spec(self):
         return float(self.config["vext_spec"])
 
@@ -429,13 +435,19 @@ class EtissTarget(RISCVTarget):
                 exit_code = handle_exit(exit_code)
             if exit_code != 0:
                 logger.error("Execution failed - " + out)
-                raise RuntimeError(f"unexpected exit code: {exit_code}")
+                if self.allow_error:
+                    logger.error(f"unexpected exit code: {exit_code}")
+                else:
+                    raise RuntimeError(f"unexpected exit code: {exit_code}")
         else:
             exit_code = 0
         error_match = re.search(r"ETISS: Error: (.*)", out)
         if error_match:
             error_msg = error_match.group(1)
-            raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
+            if self.allow_error:
+                logger.error(f"An ETISS Error occured during simulation: {error_msg}")
+            else:
+                raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
 
         if self.end_to_end_cycles:
             cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)

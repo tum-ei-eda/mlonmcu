@@ -220,13 +220,15 @@ class CV32E40PTarget(RISCVTarget):
             )
         host_time1 = time.time()
         total_cycles, total_instructions = self.parse_stdout(out, handle_exit=handle_exit)
-        mips = (total_instructions / (host_time1 - host_time0)) / 1e6
 
         metrics = Metrics()
         metrics.add("Cycles", total_cycles)
         metrics.add("Instructions", total_instructions)
-        metrics.add("CPI", total_cycles/total_instructions)
-        metrics.add("MIPS", mips, optional=True)
+        if total_instructions is not None:
+            if total_cycles is not None:
+                metrics.add("CPI", total_cycles/total_instructions)
+            mips = (total_instructions / (host_time1 - host_time0)) / 1e6
+            metrics.add("MIPS", mips, optional=True)
 
         return metrics, out, []
 

@@ -135,6 +135,7 @@ class Run:
         self.sub_parents = {}
         self.result = None
         self.failing = False  # -> RunStatus
+        self.reason = None
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
         self.locked = False
         self.report = None
@@ -990,6 +991,7 @@ class Run:
                     func()
                 except Exception as e:
                     self.failing = True
+                    self.reason = e
                     if self.locked:
                         self.unlock()
                     logger.exception(e)
@@ -1039,6 +1041,9 @@ class Run:
         used = list(set([self.tune_platform, self.build_platform, self.compile_platform, self.target_platform]))
         ret = [platform.name for platform in used if platform is not None]
         return ret[0] if len(ret) == 1 else ret
+
+    def get_reason_text(self):
+        return str(type(self.reason).__name__) if self.reason else None
 
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
         """Return dict with component-specific and global configuration for this run."""
@@ -1132,6 +1137,9 @@ class Run:
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         if self.failing:
             post["Failing"] = True
+            reason_text = self.get_reason_text()
+            if reason_text:
+                post["Reason"] = reason_text
 
         self.export_stage(RunStage.RUN, optional=self.export_optional)
 

@@ -50,6 +50,8 @@ class CV32E40PTarget(RISCVTarget):
         "enable_xcorevbitmanip": False,
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
+        "fpu": "none",  # FIXED
+        "atomic": False,  # FIXED
     }
     REQUIRED = RISCVTarget.REQUIRED | {"cv32e40p.verilator_executable"}
 
@@ -177,6 +179,16 @@ class CV32E40PTarget(RISCVTarget):
         return ret
 
     def parse_stdout(self, out, handle_exit=None):
+        exit_match = re.search(r".* EXIT FAILURE: .*", out)
+        if exit_match:
+            exit_code = -1  # any none-zero value
+            if handle_exit is not None:
+                exit_code = handle_exit(exit_code)
+            if exit_code != 0:
+                logger.error("Execution failed - " + out)
+                raise RuntimeError(f"unexpected exit code: {exit_code}")
+        else:
+            exit_code = 0
         cpu_cycles = re.search(r"Total Cycles: (.*)", out)
         if not cpu_cycles:
             logger.warning("unexpected script output (cycles)")

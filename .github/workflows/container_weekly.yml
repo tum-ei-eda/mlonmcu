@@ -184,7 +184,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          submodules: recursive
           ref: ${{ steps.cfg.outputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -275,7 +274,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          submodules: recursive
           ref: ${{ steps.cfg.outputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2

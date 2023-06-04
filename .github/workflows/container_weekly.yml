@@ -201,6 +201,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Check disk 1
+        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v4
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -220,6 +222,8 @@ jobs:
           tags: |
             tumeda/mlonmcu:${{ steps.branch_str.outputs.branch }}latest
             tumeda/mlonmcu:${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
+      - name: Check disk 2
+        run: df -h
   bench:
     name: Build large image for benchmarking
     runs-on: ubuntu-latest
@@ -291,6 +295,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Check disk 1
+        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v4
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -310,3 +316,5 @@ jobs:
           tags: |
             tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
             tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
+      - name: Check disk 2
+        run: df -h

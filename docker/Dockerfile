@@ -33,9 +33,9 @@ RUN mkdir -p /opt/tools/cmake  \
 RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     then apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends wget ca-certificates ; \
-    && apt-get clean; \
-    && rm -rf /var/cache/apt/archives/; \
+    && apt-get -y install --no-install-recommends wget ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/cache/apt/archives/ \
     && rm -rf /var/cache/apt/lists; \
     fi
 

@@ -72,9 +72,9 @@ FROM mlonmcu-ci AS mlonmcu
 
 ADD . /mlonmcu
 WORKDIR /mlonmcu
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
-RUN pip3 install .
+RUN pip3 install --upgrade pip --no-cache-dir
+RUN pip3 install -r requirements.txt --no-cache-dir
+RUN pip3 install . --no-cache-dir
 CMD mlonmcu
 
 ARG MLONMCU_TEMPLATE=default
@@ -87,7 +87,7 @@ ENV MLONMCU_HOME=/environment
 
 RUN mlonmcu setup -g
 
-RUN pip3 install -r /environment/requirements_addition.txt
+RUN pip3 install -r /environment/requirements_addition.txt --no-cache-dir
 
 RUN df -h
 

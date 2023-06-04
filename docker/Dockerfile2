@@ -6,9 +6,9 @@ ARG MLONMCU_TEMPLATE
 ADD . /mlonmcu
 WORKDIR /mlonmcu
 RUN df -h
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
-RUN pip3 install .
+RUN pip3 install --upgrade pip --no-cache-dir
+RUN pip3 install -r requirements.txt --no-cache-dir
+RUN pip3 install . --no-cache-dir
 RUN df -h
 
 WORKDIR /environment
@@ -19,7 +19,7 @@ ENV MLONMCU_HOME=/environment
 
 RUN mlonmcu setup -g
 
-RUN pip3 install -r /environment/requirements_addition.txt
+RUN pip3 install -r /environment/requirements_addition.txt --no-cache-dir
 RUN df -h
 
 RUN mlonmcu setup -v --rebuild

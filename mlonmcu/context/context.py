@@ -311,6 +311,7 @@ class MlonMcuContext:
                 logger.debug("Creating a new session with idx %s", idx)
                 temp_directory = self.environment.paths["temp"].path
                 sessions_directory = temp_directory / "sessions"
+                sessions_directory.mkdir(exist_ok=True)
                 session_dir = sessions_directory / str(idx)
                 session = Session(idx=idx, label=label, dir=session_dir, config=config)
                 self.sessions.append(session)

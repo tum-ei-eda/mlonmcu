@@ -40,12 +40,19 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget, RVPTarget, RVV
         "verbose": False,
         "quiet": True,
         "workspace_size_bytes": None,
+        "toolchain": "gcc",
     }
-    REQUIRED = TemplateMicroTvmPlatformTarget.REQUIRED | RVPTarget.REQUIRED | RVVTarget. REQUIRED | {
-        "spike.exe",
-        "spike.pk",
-        "microtvm_spike.src_dir",
-    }
+    REQUIRED = (
+        TemplateMicroTvmPlatformTarget.REQUIRED
+        | RVPTarget.REQUIRED
+        | RVVTarget.REQUIRED
+        | {
+            "llvm.install_dir",
+            "spike.exe",
+            "spike.pk",
+            "microtvm_spike.src_dir",
+        }
+    )
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -70,12 +77,24 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget, RVPTarget, RVV
     def spike_pk(self):
         return Path(self.config["spike.pk"])
 
+    @property
+    def llvm_prefix(self):
+        return Path(self.config["llvm.install_dir"])
+
+    @property
+    def toolchain(self):
+        value = self.config["toolchain"]
+        assert value in ["gcc", "llvm"]
+        return value
+
     def get_project_options(self):
         ret = super().get_project_options()
         ret.update(
             {
                 "gcc_prefix": self.riscv_gcc_prefix,
                 "gcc_name": self.riscv_gcc_basename,
+                "llvm_dir": self.llvm_prefix,
+                "toolchain": self.toolchain,
                 "spike_exe": str(self.spike_exe),
                 "spike_pk": str(self.spike_pk),
                 "arch": self.arch,

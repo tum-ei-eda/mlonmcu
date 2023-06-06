@@ -40,6 +40,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "verbose": False,
         "quiet": True,
         "workspace_size_bytes": None,
+        "toolchain": "gcc",
         "xlen": 32,
         "extensions": ["i", "m", "a", "c"],  # TODO overwrite extensions elegantly
         "fpu": "double",  # allowed: none, single, double
@@ -50,7 +51,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
     }
-    REQUIRED = Target.REQUIRED | {"microtvm_etiss.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script"}
+    REQUIRED = Target.REQUIRED | {"microtvm_etiss.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script", "llvm.install_dir"}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -104,6 +105,8 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             {
                 "gcc_prefix": self.riscv_gcc_install_dir,
                 "gcc_name": self.riscv_gcc_name,
+                "llvm_dir": self.llvm_prefix,
+                "toolchain": self.toolchain,
                 "etiss_script": self.etiss_script,
                 "etiss_args": self.etiss_extra_args,
                 "arch": self.arch,
@@ -187,6 +190,16 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))
         return ",".join(attrs)
+
+    @property
+    def llvm_prefix(self):
+        return Path(self.config["llvm.install_dir"])
+
+    @property
+    def toolchain(self):
+        value = self.config["toolchain"]
+        assert value in ["gcc", "llvm"]
+        return value
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}

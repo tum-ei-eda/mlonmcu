@@ -114,7 +114,7 @@ class TVMBackend(Backend):
 
     @property
     def pass_config(self):
-        base = {"tir.disable_vectorize": True}
+        base = {"tir.disable_vectorize": self.target == "c"}
         extra = self.config["extra_pass_config"]
         if isinstance(extra, str):
             import ast

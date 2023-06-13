@@ -102,7 +102,6 @@ class OVPSimTarget(RISCVTarget):
             embedded=self.embedded_vext,
             vlen=self.vlen,
             fpu=self.fpu,
-            variant=self.gcc_variant,
         )
 
     @property

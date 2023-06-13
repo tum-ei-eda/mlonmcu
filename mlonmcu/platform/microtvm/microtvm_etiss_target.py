@@ -171,17 +171,17 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 required.append("f")
         if "xcorev" not in exts:
             if self.enable_xcorevmac:
-                required.append("xcorevmac")
+                required.append("xcvmac")
             if self.enable_xcorevmem:
-                required.append("xcorevmem")
+                required.append("xcvmem")
             if self.enable_xcorevbi:
-                required.append("xcorevbi")
+                required.append("xcvbi")
             if self.enable_xcorevalu:
-                required.append("xcorevalu")
+                required.append("xcvalu")
             if self.enable_xcorevsimd:
-                required.append("xcorevsimd")
+                required.append("xcvsimd")
             if self.enable_xcorevhwlp:
-                required.append("xcorevhwlp")
+                required.append("xcvhwlp")
         for ext in required:
             if ext not in exts:
                 exts.append(ext)
@@ -203,7 +203,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         if temp:
             return temp
         else:
-            filtered_exts = [ext for ext in self.extensions if "xcorev" not in ext]
+            filtered_exts = [ext for ext in self.extensions if "xcv" not in ext]
             exts_str = join_extensions(sort_extensions_canonical(filtered_exts, lower=True))
             return f"rv{self.xlen}{exts_str}"
 

@@ -24,6 +24,7 @@ from pathlib import Path
 
 from mlonmcu.config import str2bool
 from mlonmcu.setup import utils  # TODO: Move one level up?
+from mlonmcu.timeout import exec_timeout
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target import get_targets
@@ -299,7 +300,17 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return out, artifacts
 
     def generate(self, src, target, model=None) -> Tuple[dict, dict]:
-        out, artifacts = self.compile(target, src=src, model=model)
+        self.timeout_sec = 90
+        if self.timeout_sec > 0:
+            out, artifacts = exec_timeout(
+                self.timeout_sec,
+                self.compile,
+                target,
+                src=src,
+                model=model,
+            )
+        else:
+            out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlonmcu"
         hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
 

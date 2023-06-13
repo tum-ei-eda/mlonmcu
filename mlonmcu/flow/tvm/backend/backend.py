@@ -24,6 +24,7 @@ import multiprocessing
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
+from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
 from .model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
@@ -304,7 +305,18 @@ class TVMBackend(Backend):
 
     def invoke_tvmc_compile(self, out, dump=None, cwd=None):
         args = self.get_tvmc_compile_args(out, dump=dump)
-        return self.invoke_tvmc("compile", *args, cwd=cwd)
+        self.timeout_sec = 90
+        if self.timeout_sec > 0:
+            ret = exec_timeout(
+                self.timeout_sec,
+                self.invoke_tvmc,
+                "compile",
+                *args,
+               cwd=cwd,
+            )
+        else:
+            ret = self.invoke_tvmc("compile", *args, cwd=cwd)
+        return ret
 
     def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
         self.model = model

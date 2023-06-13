@@ -1190,7 +1190,7 @@ class LogInstructions(TargetFeature):
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "gvsoc_pulp"]
+        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
         if not self.enabled:
             return
         if target == "spike":
@@ -1203,7 +1203,7 @@ class LogInstructions(TargetFeature):
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
-        elif target == "ovpsim":
+        elif target in ["ovpsim", "corev_ovpsim"]:
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace")
             # if self.to_file:
@@ -1235,6 +1235,7 @@ class LogInstructions(TargetFeature):
             "etiss_pulpino",
             "etiss",
             "ovpsim",
+            "corev_ovpsim",
             "gvsoc_pulp",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
@@ -1251,7 +1252,7 @@ class LogInstructions(TargetFeature):
                                 expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                             elif target == "spike":
                                 expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
-                            elif target == "ovpsim":
+                            elif target in ["ovpsim", "corev_ovpsim"]:
                                 expr = re.compile(
                                     r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
                                 )
@@ -1643,7 +1644,7 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def add_target_config(self, target, config):
-        assert target in ["etiss", "microtvm_etiss"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in ["etiss", "microtvm_etiss", "corev_ovpsim"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             config[f"{target}.enable_xcorevmac"] = self.mac
             config[f"{target}.enable_xcorevmem"] = self.mem

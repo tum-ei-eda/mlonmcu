@@ -1,0 +1,304 @@
+#
+# Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
+#
+# This file is part of MLonMCU.
+# See https://github.com/tum-ei-eda/mlonmcu.git for further info.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""MLonMCU OVPSimCOREV Target definitions"""
+
+import os
+import re
+from pathlib import Path
+
+from mlonmcu.logging import get_logger
+from mlonmcu.config import str2bool
+from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.target.common import cli, execute
+from mlonmcu.target.metrics import Metrics
+from .riscv import RISCVTarget, sort_extensions_canonical
+from .util import update_extensions
+
+logger = get_logger()
+
+
+MAX_P_SPEC = 0.96
+
+
+def replace_unsupported(exts):
+    ret = []
+    for ext in exts:
+        if "ZVE" in ext or "ZVL" in ext:
+            ret.append("V")
+        if "zpn" in ext.lower() or "zpsfoperand" in ext.lower():
+            pass
+        elif ext == "P":
+            ret.append(ext)
+            ret.append("B")
+        else:
+            ret.append(ext)
+    return ret
+
+
+class COREVOVPSimTarget(RISCVTarget):
+    """TODO"""
+
+    FEATURES = RISCVTarget.FEATURES | {"xcorev", "gdbserver", "log_instrs", "trace"}
+
+    DEFAULTS = {
+        **RISCVTarget.DEFAULTS,
+        "variant": None,
+        "processor": None,
+        "fpu": "none",
+        "atomic": False,
+        "end_to_end_cycles": True,
+        "gdbserver_enable": False,
+        "gdbserver_attach": False,
+        "gdbserver_port": 2222,
+        "enable_xcorevmac": False,
+        "enable_xcorevmem": False,
+        "enable_xcorevbi": False,
+        "enable_xcorevalu": False,
+        "enable_xcorevbitmanip": False,
+        "enable_xcorevsimd": False,
+        "enable_xcorevhwlp": False,
+    }
+    REQUIRED = RISCVTarget.REQUIRED | {"corev_ovpsim.exe"}
+
+    def __init__(self, name="corev_ovpsim", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+    @property
+    def ovpsim_exe(self):
+        return Path(self.config["corev_ovpsim.exe"])
+
+    @property
+    def variant(self):
+        temp = self.config["variant"]
+        if temp:
+            return temp
+        else:
+            return f"CV32E40P"
+
+    @property
+    def processor(self):
+        temp = self.config["processor"]
+        if temp:
+            return temp
+        else:
+            return f"CVE4P"
+
+    @property
+    def enable_xcorevmac(self):
+        value = self.config["enable_xcorevmac"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevmem(self):
+        value = self.config["enable_xcorevmem"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevbi(self):
+        value = self.config["enable_xcorevbi"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevalu(self):
+        value = self.config["enable_xcorevalu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevbitmanip(self):
+        value = self.config["enable_xcorevbitmanip"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevsimd(self):
+        value = self.config["enable_xcorevsimd"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevhwlp(self):
+        value = self.config["enable_xcorevhwlp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+
+    @property
+    def extensions(self):
+        exts = super().extensions
+        required = set()
+        if "xcorev" not in exts:
+            if self.enable_xcorevmac:
+                required.add("xcvmac")
+            if self.enable_xcorevmem:
+                required.add("xcvmem")
+            if self.enable_xcorevbi:
+                required.add("xcvbi")
+            if self.enable_xcorevalu:
+                required.add("xcvalu")
+            if self.enable_xcorevbitmanip:
+                required.add("xcvbitmanip")
+            if self.enable_xcorevsimd:
+                required.add("xcvsimd")
+            if self.enable_xcorevhwlp:
+                required.add("xcvhwlp")
+        for ext in required:
+            if ext not in exts:
+                exts.add(ext)
+        return exts
+
+    @property
+    def attr(self):
+        attrs = super().attr.split(",")
+        if self.enable_xcorevmac:
+            if "xcorevmac" not in attrs:
+                attrs.append("+xcvmac")
+        if self.enable_xcorevmem:
+            if "xcorevmem" not in attrs:
+                attrs.append("+xcvmem")
+        if self.enable_xcorevbi:
+            if "xcorevbi" not in attrs:
+                attrs.append("+xcvbi")
+        if self.enable_xcorevalu:
+            if "xcorevalu" not in attrs:
+                attrs.append("+xcvalu")
+        if self.enable_xcorevbitmanip:
+            if "xcorevbitmanip" not in attrs:
+                attrs.append("+xcvbitmanip")
+        if self.enable_xcorevsimd:
+            if "xcorevsimd" not in attrs:
+                attrs.append("+xcvsimd")
+        if self.enable_xcorevhwlp:
+            if "xcorevhwlp" not in attrs:
+                attrs.append("+xcvhwlp")
+        return ",".join(attrs)
+
+    @property
+    def end_to_end_cycles(self):
+        value = self.config["end_to_end_cycles"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def gdbserver_enable(self):
+        value = self.config["gdbserver_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def gdbserver_attach(self):
+        value = self.config["gdbserver_attach"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def gdbserver_port(self):
+        return int(self.config["gdbserver_port"])
+
+    def get_default_ovpsim_args(self):
+        extensions_before = sort_extensions_canonical(self.extensions, lower=False, unpack=True)
+        extensions_after = replace_unsupported(extensions_before)
+        extensions_str = "".join(sort_extensions_canonical(extensions_after))
+        args = [
+            "--variant",
+            self.variant,
+            "--processorname",
+            self.processor,
+            "--override",
+            f"riscvOVPsim/cpu/add_Extensions={extensions_str}",
+            "--override",
+            "riscvOVPsim/cpu/unaligned=T",
+            "--override",
+            "riscvOVPsim/cpu/pk/reportExitErrors=T",
+        ]
+        if self.gdbserver_enable:
+            # args.append("--trace")
+            args.extend(["--port", str(self.gdbserver_port)])
+            if self.gdbserver_attach:
+                args.append("--gdbconsole")
+        return args
+
+    def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
+        """Use target to execute a executable with given arguments"""
+        ovpsim_args = []
+
+        ovpsim_args.extend(["--program", str(program)])
+        ovpsim_args.extend(self.get_default_ovpsim_args())
+
+        if len(self.extra_args) > 0:
+            if isinstance(self.extra_args, str):
+                extra_args = self.extra_args.split(" ")
+            else:
+                extra_args = self.extra_args
+            ovpsim_args.extend(extra_args)  # I rename args to extra_args because otherwise it overwrites *args
+
+        if self.timeout_sec > 0:
+            raise NotImplementedError
+
+        ret = execute(
+            self.ovpsim_exe.resolve(),
+            *ovpsim_args,
+            *args,  # Does this work?
+            cwd=cwd,
+            **kwargs,
+        )
+        return ret
+
+    def parse_stdout(self, out):
+        # cpi = 1
+        if self.end_to_end_cycles:
+            cpu_cycles = re.search(r".*  Simulated instructions:(.*)", out)
+        else:
+            cpu_cycles = re.search(r".* Total Cycles: (.*)", out)
+        if not cpu_cycles:
+            raise RuntimeError("unexpected script output (cycles)")
+            cycles = None
+        else:
+            cycles = int(cpu_cycles.group(1).replace(",", ""))
+        mips = None  # TODO: parse mips?
+        mips_match = re.search(r".*  Simulated MIPS:(.*)", out)
+        if mips_match:
+            mips_str = float(mips_match.group(1))
+            if "run too short for meaningful result" not in mips:
+                mips = float(mips_str)
+        return cycles, mips
+
+    def get_metrics(self, elf, directory, *args, handle_exit=None):
+        out = ""
+        if self.print_outputs:
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+        else:
+            out += self.exec(
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+            )
+        cycles, mips = self.parse_stdout(out)
+
+        metrics = Metrics()
+        metrics.add("Cycles", cycles)
+        if mips:
+            metrics.add("MIPS", mips, optional=True)
+
+        return metrics, out, []
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        return ret
+
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = super().get_backend_config(
+            backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+        )
+        return ret
+
+
+if __name__ == "__main__":
+    cli(target=COREVOVPSimTarget)

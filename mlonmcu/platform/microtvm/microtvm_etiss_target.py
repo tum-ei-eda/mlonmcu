@@ -46,6 +46,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "arch": None,
         "abi": None,
         "attr": "",
+        "cpu_arch": None,
         "etiss_extra_args": "",
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
@@ -130,6 +131,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     def get_project_options(self):
         ret = super().get_project_options()
+        # TODO: allow generating etiss ini config instead!
         ret.update(
             {
                 "gcc_prefix": self.riscv_gcc_install_dir,
@@ -138,6 +140,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "etiss_args": self.etiss_extra_args,
                 "arch": self.gcc_arch,
                 "abi": self.abi,
+                "cpu_arch": self.cpu_arch
             }
         )
         return ret
@@ -236,6 +239,12 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))
         return ",".join(attrs)
+
+    @property
+    def cpu_arch(self):
+        default_cpu_arch = f"RV{self.xlen}IMACFD"
+        if self.config.get("cpu_arch", default_cpu_arch):
+            return self.config["cpu_arch"]
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}

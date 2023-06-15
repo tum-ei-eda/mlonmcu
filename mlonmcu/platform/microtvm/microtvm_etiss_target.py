@@ -163,9 +163,10 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         if not isinstance(exts, list):
             exts = exts.split(",")
         required = []
+        required.append("zicsr")
         if "g" not in exts:
-            if self.fpu in ["single", "double"]:
-                required.append("zicsr")
+            # if self.fpu in ["single", "double"]:
+            #     required.append("zicsr")
             if self.fpu == "double":
                 required.append("d")
                 required.append("f")

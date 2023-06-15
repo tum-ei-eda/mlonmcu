@@ -1254,7 +1254,7 @@ class LogInstructions(TargetFeature):
                                 expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
                             elif target in ["ovpsim", "corev_ovpsim"]:
                                 expr = re.compile(
-                                    r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
+                                    r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+[\w\.]+\s+.*"
                                 )
                             match = expr.match(line)
                             if match is not None:

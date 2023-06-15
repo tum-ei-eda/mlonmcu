@@ -18,6 +18,8 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
+import os
+import stat
 import multiprocessing
 
 from mlonmcu.setup.task import TaskType
@@ -66,5 +68,8 @@ def install_corev_ovpsim(
                 ovpFileExtension = "zip"
             ovpArchive = ovpFileName + "." + ovpFileExtension
             utils.download_and_extract(ovpUrl, ovpArchive, ovpInstallDir, progress=verbose)
+            st = os.stat(ovpExe)
+            # make executable
+            os.chmod(ovpExe, st.st_mode | stat.S_IEXEC)
     context.cache["corev_ovpsim.install_dir"] = ovpInstallDir
     context.cache["corev_ovpsim.exe"] = ovpExe

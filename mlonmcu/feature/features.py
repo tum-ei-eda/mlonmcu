@@ -1644,7 +1644,7 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def add_target_config(self, target, config):
-        assert target in ["etiss", "microtvm_etiss", "corev_ovpsim"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in ["etiss", "microtvm_etiss", "corev_ovpsim", "cv32e40p"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             config[f"{target}.enable_xcorevmac"] = self.mac
             config[f"{target}.enable_xcorevmem"] = self.mem

@@ -243,9 +243,10 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     @property
     def cpu_arch(self):
-        default_cpu_arch = f"RV{self.xlen}IMACFD"
-        if self.config.get("cpu_arch", default_cpu_arch):
-            return self.config["cpu_arch"]
+        tmp = self.config.get("cpu_arch", None)
+        if tmp is None:
+            tmp = f"RV{self.xlen}IMACFD"
+        return tmp
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}

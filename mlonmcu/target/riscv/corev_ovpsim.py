@@ -219,6 +219,8 @@ class COREVOVPSimTarget(RISCVTarget):
             "riscvOVPsim/cpu/unaligned=T",
             "--override",
             "riscvOVPsim/cpu/pk/reportExitErrors=T",
+            "--finishonopcode",
+            "0",
         ]
         if self.gdbserver_enable:
             # args.append("--trace")

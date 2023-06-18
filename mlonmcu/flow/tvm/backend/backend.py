@@ -73,6 +73,7 @@ class TVMBackend(Backend):
         "tophub_url": None,
         "num_threads": multiprocessing.cpu_count(),
         "dump": [],  # Supports: c, relay, tir, ll
+        "disable_vectorize": "auto",
     }
 
     REQUIRED = set()
@@ -111,8 +112,15 @@ class TVMBackend(Backend):
         self._tuning_records = filepath
 
     @property
+    def disable_vectorize(self):
+        temp = self.config["disable_vectorize"]
+        if temp is None or (isinstance(temp,  str) and temp in ["auto", "AUTO"]):
+            return self.target == "c"
+        return str2bool(temp)
+
+    @property
     def pass_config(self):
-        base = {"tir.disable_vectorize": self.target == "c"}
+        base = {"tir.disable_vectorize": self.disable_vectorize}
         extra = self.config["extra_pass_config"]
         if isinstance(extra, str):
             import ast

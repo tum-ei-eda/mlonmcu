@@ -244,15 +244,22 @@ class COREVOVPSimTarget(RISCVTarget):
             ovpsim_args.extend(extra_args)  # I rename args to extra_args because otherwise it overwrites *args
 
         if self.timeout_sec > 0:
-            raise NotImplementedError
-
-        ret = execute(
-            self.ovpsim_exe.resolve(),
-            *ovpsim_args,
-            *args,  # Does this work?
-            cwd=cwd,
-            **kwargs,
-        )
+            ret = exec_timeout(
+                self.timeout_sec,
+                self.ovpsim_exe.resolve(),
+                *ovpsim_args,
+                *args,
+                cwd=cwd,
+                **kwargs,
+            )
+        else:
+            ret = execute(
+                self.ovpsim_exe.resolve(),
+                *ovpsim_args,
+                *args,  # Does this work?
+                cwd=cwd,
+                **kwargs,
+            )
         return ret
 
     def parse_stdout(self, out):

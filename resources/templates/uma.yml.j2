@@ -1,0 +1,123 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+# Here default clone_urls
+repos:
+  tvm:
+    url: "https://github.com/tum-ei-eda/tvm.git"
+    ref: patch_uma_tvmc
+  etiss:
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: 4d2d26fb1fdb17e1da3a397c35d6f8877bf3ceab
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: 4b9a32659f7c5340e8de26a0b8c4135ca67d64ac
+# Here all supported frameworks with their specific features are defined
+# Optionally disable unwanted or incomatible backends or features here
+# The configured defaults are used if no backend was specified in the command line options
+frameworks:
+  default: tvm
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+        features:
+          disable_legalize: false
+          autotuned: true
+      tvmaot:
+        enabled: true
+        features:
+          unpacked_api: true
+          usmp: true
+          autotuned: true
+          uma_backends: true
+      tvmaotplus:
+        enabled: true
+        features:
+          uma_backends: true
+      tvmllvm:
+        enabled: true
+        features:
+          autotuned: true
+    features:
+      cmsisnnbyoc: false
+      muriscvnnbyoc: false
+# Some frontends are experimental and therefore disabled here
+# Features like packing are only available in certain environments
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+  relay:
+    enabled: true
+    features:
+      relayviz: true
+  onnx:
+    enabled: true
+  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+      benchmark: true
+# List of supported targets in the environment
+targets:
+  default: etiss_pulpino
+  etiss_pulpino:
+    enabled: true
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+      # vext: true
+      # pext: true
+  host_x86:
+    enabled: true
+    features:
+      gdbserver: true
+postprocesses:
+  use: []
+vars:
+  allow_extensions: false
+  # tvm.make_tool: "ninja"
+  llvm.version: "14.0.0"
+  runs_per_stage: true
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
+flags: []

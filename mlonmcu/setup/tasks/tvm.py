@@ -34,7 +34,7 @@ Tasks = get_task_factory()
 
 
 def requires_patch(context: MlonMcuContext):
-    return context.environment.has_feature("disable_legalize") or context.environment.has_feature("uma_backends")
+    return context.environment.has_feature("disable_legalize")
 
 def _validate_tvm(context: MlonMcuContext, params=None):
     # user_vars = context.environment.vars

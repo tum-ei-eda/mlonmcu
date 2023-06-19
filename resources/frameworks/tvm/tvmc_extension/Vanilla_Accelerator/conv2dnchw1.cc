@@ -1,0 +1,80 @@
+/*
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+*/
+
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+
+// TODO(mjklaiber): leverage pragma import_c in the future
+#ifdef __cplusplus
+extern "C"
+#endif
+
+    /*!
+     * \brief Conv2D function for mock-accelerator examples. Limited to same-padded Conv2D with
+     * stride (1,1) and datatype float. \param ifmap Pointer to input feature map data of size
+     * iw*ih*ic*sizeof(float). \param weights Pointer to weight data of size
+     * kh*kw*ic**oc*sizeof(float). \param result Pointer to output feature map data of size
+     * iw*ih*oc*sizeof(float). \param oc Number of channels of output feature map. \param iw Width
+     * of input feature map, ifmap. \param ih Height of input feature map, ifmap. \param ic Number
+     * of channels of input feature map. \param kh Height of convolution kernels. \param kw Width of
+     * convolution kernels.
+     *
+     * \return error code
+     *
+     */
+
+uint32_t swap_endian(int a) 
+{
+  uint32_t b = (uint32_t) a;
+  uint32_t b0 = b & 0x000000ff;
+  uint32_t b1 = (b & 0x0000ff00) >> 8;
+  uint32_t b2 = (b & 0x00ff0000) >> 16;
+  uint32_t b3 = (b & 0xff000000) >> 24;
+  uint32_t o;
+  o = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
+  return o;
+}
+
+int vanilla_accelerator_conv2dnchw(float* ifmap, float* weights, float* result, int oc, int iw, int ih, int ic,
+                        int kh, int kw) {
+
+  
+  //printf("start writing...\n");
+  *(uint32_t**)0x70000000 = (uint32_t*)ifmap;
+  *(uint32_t**)0x70000004 = (uint32_t*)weights;
+  *(uint32_t**)0x70000008 = (uint32_t*)result;
+  
+
+  *(uint32_t*)0x7000000c = oc;
+  *(uint32_t*)0x70000010 = iw;
+  *(uint32_t*)0x70000014 = ih;
+  *(uint32_t*)0x70000018 = ic;
+  *(uint32_t*)0x7000001c = kh;
+  *(uint32_t*)0x70000020 = kw;
+
+
+  //issue start signal
+  //printf("issue start ...\n");
+  *(uint32_t*)0x70000024 = 0x00000001;
+  
+  
+
+  return 0;
+}

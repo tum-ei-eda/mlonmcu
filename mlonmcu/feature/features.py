@@ -21,6 +21,7 @@
 import re
 import pandas as pd
 from typing import Union
+from pathlib import Path
 
 from mlonmcu.utils import is_power_of_two, filter_none
 from mlonmcu.config import str2bool, str2list
@@ -609,6 +610,7 @@ class Trace(TargetFeature):
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
 
+    # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
         assert target in ["etiss_pulpino", "etiss", "ovpsim"]
         if target in ["etiss_pulpino", "etiss"]:
@@ -616,8 +618,12 @@ class Trace(TargetFeature):
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace --tracemem SAX")
-            # if self.to_file:
-            #    extra_args_new.append("--tracefile")
+            if self.to_file:
+                # assert directory is not None
+                directory = Path(".")  # Need to use relative path because target.dir not available here
+                trace_file = directory / f"trace.txt"
+                extra_args_new.append("--tracefile")
+                extra_args_new.append(trace_file)
             config.update({f"{target}.extra_args": extra_args_new})
 
 
@@ -1129,6 +1135,7 @@ class CacheSim(TargetFeature):
         value = self.config["detailed"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
         assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
@@ -1150,7 +1157,7 @@ class CacheSim(TargetFeature):
         assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
-            def cachesim_callback(stdout, metrics, artifacts):
+            def cachesim_callback(stdout, metrics, artifacts, directory=None):
                 """Callback which parses the targets output and updates the generated metrics and artifacts."""
                 expr = (
                     r"(D|I|L2)\$ ((?:Bytes (?:Read|Written))|(?:Read|Write) "
@@ -1189,6 +1196,7 @@ class LogInstructions(TargetFeature):
         value = self.config["to_file"]
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
+    # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
         assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
         if not self.enabled:
@@ -1196,8 +1204,11 @@ class LogInstructions(TargetFeature):
         if target == "spike":
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("-l")
-            # if self.to_file:
-            #     extra_args_new.append("--log=?")
+            if self.to_file:
+                # assert directory is not None
+                directory = Path(".")  # Need to use relative path because target.dir not available here
+                log_file = directory / "instrs.txt"
+                extra_args_new.append(f"--log={log_file}")
             config.update({f"{target}.extra_args": extra_args_new})
         elif target in ["etiss_pulpino", "etiss"]:
             plugins_new = config.get("plugins", [])
@@ -1206,25 +1217,20 @@ class LogInstructions(TargetFeature):
         elif target in ["ovpsim", "corev_ovpsim"]:
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace")
-            # if self.to_file:
-            #    extra_args_new.append("--tracefile")
+            if self.to_file:
+                # assert directory is not None
+                directory = Path(".")  # Need to use relative path because target.dir not available here
+                log_file = directory / "instrs.txt"
+                extra_args_new.append("--tracefile")
+                extra_args_new.append(log_file)
             config.update({f"{target}.extra_args": extra_args_new})
         elif target == "gvsoc_pulp":
             extra_args_new = config.get("extra_args", [])
             if self.to_file:
-                extra_args_new.append(f"--trace=insn:{target}_instrs.log")
-                """
-                TODO: The above code will generate a instruction log.
-                But it will not be recorded by Artifact (which should be done in get_target_callbacks).
-                The code to let it be recorded by Artifact is currently not added because of the following reasons:
-                1. This feature is rarely used.
-                2. GVSOC can directly write the instruction log into a file which should be much faster than
-                read/write from the output. This makes GVSOC special and difficult to be adapted in the current
-                code.
-                3. This difficulty reflected in that the methods add_target_config and get_target_callbacks should
-                have a consensus about where in the system file system the instruction log is written to and can be
-                read from. This is not feasible in current code and the realization requires a workaround.
-                """
+                # assert directory is not None
+                directory = Path(".")  # Need to use relative path because target.dir not available here
+                log_file = directory / "instrs.txt"
+                extra_args_new.append(f"--trace=insn:{log_file}")
             else:
                 extra_args_new.append("--trace=insn")
             config.update({f"{target}.extra_args": extra_args_new})
@@ -1241,36 +1247,36 @@ class LogInstructions(TargetFeature):
         if self.enabled:
             if not target == "gvsoc_pulp":
 
-                def log_instrs_callback(stdout, metrics, artifacts):
+                def log_instrs_callback(stdout, metrics, artifacts, directory=None):
                     """Callback which parses the targets output and updates the generated metrics and artifacts."""
                     new_lines = []
                     if self.to_file:
-                        # TODO: update stdout and remove log_instrs lines
-                        instrs = []
-                        for line in stdout.split("\n"):
-                            if target in ["etiss_pulpino", "etiss"]:
-                                expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
-                            elif target == "spike":
-                                expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
-                            elif target in ["ovpsim", "corev_ovpsim"]:
-                                expr = re.compile(
-                                    r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+[\w\.]+\s+.*"
-                                )
-                            match = expr.match(line)
-                            if match is not None:
-                                instrs.append(line)
-                            else:
-                                new_lines.append(line)
+                        if target in ["etiss_pulpino", "etiss"]:
+                            # TODO: update stdout and remove log_instrs lines
+                            instrs = []
+                            for line in stdout.split("\n"):
+                                if target in ["etiss_pulpino", "etiss"]:
+                                    expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
+                                match = expr.match(line)
+                                if match is not None:
+                                    instrs.append(line)
+                                else:
+                                    new_lines.append(line)
+                            content = "\n".join(instrs),
+                            return "\n".join(new_lines)
+                        else:
+                            assert target in ["spike", "ovpsim", "corev_ovpsim"]
+                            log_file = Path(directory) / "instrs.txt"
+                            with open(log_file, "r") as f:
+                                content = f.read()
                         instrs_artifact = Artifact(
                             f"{target}_instrs.log",
-                            content="\n".join(instrs),
+                            content=content,
                             fmt=ArtifactFormat.TEXT,
                             flags=(self.name, target),
                         )
                         artifacts.append(instrs_artifact)
-                        return "\n".join(new_lines)
-                    else:
-                        return stdout
+                    return stdout
 
                 return None, log_instrs_callback
         return None, None
@@ -1467,7 +1473,7 @@ class Benchmark(PlatformFeature, TargetFeature):
     def get_target_callbacks(self, target):
         if self.enabled:
 
-            def benchmark_callback(stdout, metrics, artifacts):
+            def benchmark_callback(stdout, metrics, artifacts, directory=None):
                 if len(metrics) <= 1:
                     return stdout
                 metrics_ = metrics[1:]  # drop first run (warmup)
@@ -1643,6 +1649,7 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         value = self.config["hwlp"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
         assert target in ["etiss", "microtvm_etiss", "corev_ovpsim", "cv32e40p"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:

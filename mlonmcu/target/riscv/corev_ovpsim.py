@@ -262,14 +262,23 @@ class COREVOVPSimTarget(RISCVTarget):
             )
         return ret
 
-    def parse_stdout(self, out):
-        # cpi = 1
+    def parse_exit(self, out):
+        print("parse_exit", out)
+        exit_code = None
+        exit_match = re.search(r"Error \(RISCV/PK_EXIT\) Non-zero exit code: (.*)", out)
+        print("exit_match", exit_match)
+        if exit_match:
+            exit_code = int(exit_match.group(1))
+        return exit_code
+
+    def parse_stdout(self, out, exit_code=0):
         if self.end_to_end_cycles:
             cpu_cycles = re.search(r".*  Simulated instructions:(.*)", out)
         else:
             cpu_cycles = re.search(r".* Total Cycles: (.*)", out)
         if not cpu_cycles:
-            raise RuntimeError("unexpected script output (cycles)")
+            if exit_code == 0:
+                raise RuntimeError("unexpected script output (cycles)")
             cycles = None
         else:
             cycles = int(cpu_cycles.group(1).replace(",", ""))
@@ -283,13 +292,27 @@ class COREVOVPSimTarget(RISCVTarget):
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
+
+        def _handle_exit(code, out=None):
+
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
+
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out += self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
-        cycles, mips = self.parse_stdout(out)
+        # TODO: get exit code
+        exit_code = 0
+        cycles, mips = self.parse_stdout(out, exit_code=exit_code)
 
         metrics = Metrics()
         metrics.add("Cycles", cycles)

@@ -123,6 +123,7 @@ class Run:
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
+        self.directories= {}
         self.init_directory()
         self.target = target
         self.cache_hints = []
@@ -300,8 +301,17 @@ class Run:
             # A solution would be to split up the framework runtime libs from the mlif...
             for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
                 # The stage_subdirs setting is ignored here because platforms can be multi-stage!
-                platform.init_directory(path=Path(self.dir) / platform.name)
+                if platform in self.directories:
+                    continue
+                platform_dir = Path(self.dir) / platform.name
+                if platform.init_directory(path=platform_dir):
+                    self.directories[platform.name] = platform_dir
+            # if target not in self.directories:
+            #     target_dir = Path(self.dir) /target.name
+            #     if target.init_directory(path=target_dir)
+            #         self.directories[target.name] = target_dir
 
+            # TODO: other components
     def copy(self):
         """Create a new run based on this instance."""
         new = copy.deepcopy(self)

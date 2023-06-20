@@ -143,15 +143,22 @@ class Target:
         # We only save the stdout and artifacts of the last execution
         # Callect metrics from all runs to aggregate them in a callback with high priority
         artifacts_ = []
-        for n in range(total):
-            with tempfile.TemporaryDirectory() as temp_dir:
+        # if self.dir is None:
+        #    self.dir = Path(
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for n in range(total):
                 args = []
                 for callback in self.pre_callbacks:
-                    callback(temp_dir, args)
-                metrics_, out, artifacts_ = self.get_metrics(elf, *args, temp_dir)
-            metrics.append(metrics_)
-        for callback in self.post_callbacks:
-            out = callback(out, metrics, artifacts_)
+                    callback(temp_dir, args, directory=temp_dir)
+                if n == total - 1:
+                    temp_dir_ = temp_dir
+                else:
+                    temp_dir_ = temp_dir / str(n)
+                    temp_dir_.mkdir()
+                metrics_, out, artifacts_ = self.get_metrics(elf, *args, temp_dir_)
+                metrics.append(metrics_)
+            for callback in self.post_callbacks:
+                out = callback(out, metrics, artifacts_, directory=temp_dir)
         artifacts.extend(artifacts_)
         if len(metrics) > 1:
             raise RuntimeError("Collected target metrics for multiple runs. Please aggregate them in a callback!")

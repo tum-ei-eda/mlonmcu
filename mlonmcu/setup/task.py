@@ -200,6 +200,19 @@ class TaskFactory:
         """Decorator for optional task requirements."""
         return self.needs(keys, force=False)
 
+    def removes(self, keys):
+        """Decorator for cleanuo tasks."""
+        # TODO: implementation
+        def real_decorator(function):
+            @wraps(function)
+            def wrapper(*args, **kwargs):
+                retval = function(*args, **kwargs)
+                return retval
+
+            return wrapper
+
+        return real_decorator
+
     # def optional(self, keys):
     #     def real_decorator(function):
     #         name = function.__name__

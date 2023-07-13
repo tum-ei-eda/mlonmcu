@@ -44,6 +44,7 @@ def create_environment_dict(environment):
         for path, path_config in environment.paths.items()
     }  # TODO: allow relative paths
     data["repos"] = {repo: vars(repo_config) for repo, repo_config in environment.repos.items()}
+    # TODO: test with options!
     data["frameworks"] = {
         "default": environment.defaults.default_framework if environment.defaults.default_framework else None,
         **{

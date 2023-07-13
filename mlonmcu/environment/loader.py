@@ -111,12 +111,12 @@ def load_environment_from_file(filename, base):
             repos = {}
             for key in loaded["repos"]:
                 repo = loaded["repos"][key]
-                if "url" not in repo:
+                url = repo.get("url", None)
+                if url is None:
                     raise RuntimeError("Missing field 'url' in YAML file")
-                if "ref" in repo:
-                    repos[key] = RepoConfig(repo["url"], ref=repo["ref"])
-                else:
-                    repos[key] = RepoConfig(repo["url"])
+                ref = repo.get("ref", None)
+                options = repo.get("options", None)
+                repos[key] = RepoConfig(url, ref=ref, options=options)
         else:
             repos = None
         default_framework = None

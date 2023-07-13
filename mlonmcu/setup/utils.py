@@ -34,6 +34,7 @@ from git import Repo
 from tqdm import tqdm
 
 from mlonmcu import logging
+from mlonmcu.environment.config import RepoConfig
 
 logger = logging.get_logger()
 
@@ -232,6 +233,10 @@ def clone(
             update_submodules()
         else:
             Repo.clone_from(url, dest, recursive=recursive)
+
+
+def clone_wrapper(cfg: RepoConfig, dest: Union[str, bytes, os.PathLike], refresh: bool = False):
+    clone(cfg.url, dest, branch=cfg.ref, submodules=cfg.submodules, recursive=cfg.recursive, refresh=refresh)
 
 
 def apply(

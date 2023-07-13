@@ -59,7 +59,7 @@ def clone_etiss(
         etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
     if rebuild or not utils.is_populated(etissSrcDir):
         etissRepo = context.environment.repos["etiss"]
-        utils.clone(etissRepo.url, etissSrcDir, branch=etissRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(etissRepo, etissSrcDir, refresh=rebuild)
     context.cache["etiss.src_dir"] = etissSrcDir
 
 
@@ -142,6 +142,6 @@ def clone_microtvm_etiss(
     srcDir = context.environment.paths["deps"].path / "src" / name
     if rebuild or not utils.is_populated(srcDir):
         repo = context.environment.repos["microtvm_etiss"]
-        utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
+        utils.clone_wrapper(repo, srcDir, refresh=rebuild)
     context.cache["microtvm_etiss.src_dir"] = srcDir
     context.cache["microtvm_etiss.template"] = srcDir / "template_project"

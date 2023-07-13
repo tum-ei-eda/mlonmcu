@@ -69,7 +69,7 @@ def clone_spike_pk(
         return False
     if rebuild or not utils.is_populated(spikepkSrcDir):
         spikepkRepo = context.environment.repos["spikepk"]
-        utils.clone(spikepkRepo.url, spikepkSrcDir, branch=spikepkRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(spikepkRepo, spikepkSrcDir, refresh=rebuild)
     context.cache["spikepk.src_dir"] = spikepkSrcDir
 
 
@@ -145,7 +145,7 @@ def clone_spike(
         return False
     if rebuild or not utils.is_populated(spikeSrcDir):
         spikeRepo = context.environment.repos["spike"]
-        utils.clone(spikeRepo.url, spikeSrcDir, branch=spikeRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(spikeRepo, spikeSrcDir, refresh=rebuild)
     context.cache["spike.src_dir"] = spikeSrcDir
 
 
@@ -205,6 +205,6 @@ def clone_microtvm_spike(
     srcDir = context.environment.paths["deps"].path / "src" / name
     if rebuild or not utils.is_populated(srcDir):
         repo = context.environment.repos["microtvm_spike"]
-        utils.clone(repo.url, srcDir, branch=repo.ref, refresh=rebuild)
+        utils.clone_wrapper(repo, srcDir, refresh=rebuild)
     context.cache["microtvm_spike.src_dir"] = srcDir
     context.cache["microtvm_spike.template"] = srcDir / "template_project"

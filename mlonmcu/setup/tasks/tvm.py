@@ -78,7 +78,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     tvmPythonPath = tvmSrcDir / "python"
     if rebuild or not utils.is_populated(tvmSrcDir):
         tvmRepo = context.environment.repos["tvm"]
-        utils.clone(tvmRepo.url, tvmSrcDir, branch=tvmRepo.ref, recursive=True, refresh=rebuild)
+        utils.clone_wrapper(tvmRepo, tvmSrcDir, refresh=rebuild)
         if patch:
             extSrcDir = context.cache["tvm_extensions.src_dir"]
             patchFile = extSrcDir / "tvmc_diff.patch"
@@ -175,6 +175,6 @@ def clone_tvm_extensions(
     extWrapper = extSrcDir / "tvmc_wrapper.py"
     if rebuild or not utils.is_populated(extSrcDir):
         extRepo = context.environment.repos["tvm_extensions"]
-        utils.clone(extRepo.url, extSrcDir, branch=extRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(extRepo, extSrcDir, refresh=rebuild)
     context.cache["tvm_extensions.src_dir"] = extSrcDir
     context.cache["tvm_extensions.wrapper"] = extWrapper

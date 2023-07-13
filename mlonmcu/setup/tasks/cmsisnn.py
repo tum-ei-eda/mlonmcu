@@ -61,7 +61,7 @@ def clone_cmsisnn(
     cmsisnnSrcDir = Path(context.environment.paths["deps"].path) / "src" / cmsisName
     if rebuild or not utils.is_populated(cmsisnnSrcDir):
         cmsisnnRepo = context.environment.repos["cmsisnn"]
-        utils.clone(cmsisnnRepo.url, cmsisnnSrcDir, branch=cmsisnnRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(cmsisnnRepo, cmsisnnSrcDir, refresh=rebuild)
     context.cache["cmsisnn.dir"] = cmsisnnSrcDir
 
 
@@ -80,7 +80,7 @@ def clone_cmsis(
     cmsisSrcDir = Path(context.environment.paths["deps"].path) / "src" / cmsisName
     if rebuild or not utils.is_populated(cmsisSrcDir):
         cmsisRepo = context.environment.repos["cmsis"]
-        utils.clone(cmsisRepo.url, cmsisSrcDir, branch=cmsisRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(cmsisRepo, cmsisSrcDir, refresh=rebuild)
     context.cache["cmsis.dir"] = cmsisSrcDir
 
 
@@ -99,5 +99,5 @@ def clone_ethosu_platform(
     ethosuPlatformSrcDir = Path(context.environment.paths["deps"].path) / "src" / ethosuPlatformName
     if rebuild or not utils.is_populated(ethosuPlatformSrcDir):
         ethosuPlatformRepo = context.environment.repos["ethosu_platform"]
-        utils.clone(ethosuPlatformRepo.url, ethosuPlatformSrcDir, branch=ethosuPlatformRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(ethosuPlatformRepo, ethosuPlatformSrcDir, refresh=rebuild)
     context.cache["ethosu_platform.dir"] = ethosuPlatformSrcDir

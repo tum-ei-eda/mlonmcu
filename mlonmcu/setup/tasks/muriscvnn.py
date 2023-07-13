@@ -86,7 +86,7 @@ def clone_muriscvnn(
         muriscvnnIncludeDir = muriscvnnSrcDir / "Include"
     if rebuild or not utils.is_populated(muriscvnnSrcDir):
         muriscvnnRepo = context.environment.repos["muriscvnn"]
-        utils.clone(muriscvnnRepo.url, muriscvnnSrcDir, branch=muriscvnnRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(muriscvnnRepo, muriscvnnSrcDir, refresh=rebuild)
     context.cache["muriscvnn.src_dir"] = muriscvnnSrcDir
     context.cache["muriscvnn.inc_dir"] = muriscvnnIncludeDir
 

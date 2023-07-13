@@ -59,7 +59,7 @@ def clone_verilator(
     else:
         if rebuild or not utils.is_populated(verilatorSrcDir):
             verilatorRepo = context.environment.repos["verilator"]
-            utils.clone(verilatorRepo.url, verilatorSrcDir, branch=verilatorRepo.ref, refresh=rebuild)
+            utils.clone_wrapper(verilatorRepo, verilatorSrcDir, refresh=rebuild)
     context.cache["verilator.src_dir", flags] = verilatorSrcDir
 
 

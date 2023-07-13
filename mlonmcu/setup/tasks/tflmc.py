@@ -53,7 +53,7 @@ def clone_tflite_micro_compiler(
     tflmcSrcDir = context.environment.paths["deps"].path / "src" / tflmcName
     if rebuild or not utils.is_populated(tflmcSrcDir):
         tflmcRepo = context.environment.repos["tflite_micro_compiler"]
-        utils.clone(tflmcRepo.url, tflmcSrcDir, branch=tflmcRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(tflmcRepo, tflmcSrcDir, refresh=rebuild)
     context.cache["tflmc.src_dir"] = tflmcSrcDir
 
 

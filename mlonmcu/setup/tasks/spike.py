@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import shutil
 import multiprocessing
 from pathlib import Path
 
@@ -53,6 +54,14 @@ def _validate_spike(context: MlonMcuContext, params=None):
     if "spike.exe" not in user_vars:  # TODO: also check command line flags?
         assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
     return True
+
+
+def _validate_spike_clean(context: MlonMcuContext, params={}):
+    if not _validate_spike(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    keep_build_dir = user_vars.get("spike.keep_build_dir", True)
+    return not keep_build_dir
 
 
 @Tasks.provides(["spikepk.src_dir"])
@@ -188,6 +197,19 @@ def build_spike(
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
     context.cache["spike.exe"] = spikeExe
+
+
+@Tasks.needs(["spike.exe", "spike.build_dir"])  # TODO: make sure spike.exe has beeen copies before
+@Tasks.removes(["spike.build_dir"])  # TODO: implement
+@Tasks.validate(_validate_spike_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_spike(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Cleanup Spike build dir."""
+    spikeBuildDir = context.cache["spike.build_dir"]
+    shutil.rmtree(spikeBuildDir)
+    del context.cache["spike.build_dir"]
 
 
 def _validate_microtvm_spike(context: MlonMcuContext, params=None):

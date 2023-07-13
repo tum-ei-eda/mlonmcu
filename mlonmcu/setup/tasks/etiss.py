@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import shutil
 import multiprocessing
 from pathlib import Path
 
@@ -41,6 +42,14 @@ def _validate_etiss(context: MlonMcuContext, params={}):
             if not context.environment.has_feature("etissdbg"):
                 return False
     return context.environment.has_target("etiss_pulpino") or context.environment.has_target("etiss")
+
+
+def _validate_etiss_clean(context: MlonMcuContext, params={}):
+    if not _validate_etiss(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    keep_build_dir = user_vars.get("etiss.keep_build_dir", True)
+    return not keep_build_dir
 
 
 @Tasks.provides(["etiss.src_dir"])
@@ -125,6 +134,27 @@ def install_etiss(
     context.cache["etiss.install_dir", flags] = etissInstallDir
     context.cache["etissvp.exe", flags] = etissvpExe
     context.cache["etissvp.script", flags] = etissvpScript
+
+
+@Tasks.needs(["etiss.install_dir", "etiss.build_dir"])  # TODO: make sure install has finished
+@Tasks.removes(["etiss.build_dir"])  # TODO: implement
+@Tasks.param("dbg", [False, True])
+@Tasks.validate(_validate_etiss_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_etiss(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Cleanup ETISS build dir."""
+    if not params:
+        params = {}
+    user_vars = context.environment.vars
+    if "etiss.install_dir" in user_vars and "etissvp.exe" in user_vars and "etissvp.script" in user_vars:
+        return False
+    flags = utils.makeFlags((params["dbg"], "dbg"))
+    # etissName = utils.makeDirName("etiss", flags=flags)
+    etissBuildDir = context.cache["etiss.build_dir", flags]
+    shutil.rmtree(etissBuildDir)
+    del context.cache["etiss.build_dir", flags]
 
 
 def _validate_microtvm_etiss(context: MlonMcuContext, params=None):

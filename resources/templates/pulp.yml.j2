@@ -35,6 +35,8 @@ repos:
   tvm:
     url: "https://github.com/apache/tvm.git"
     ref: de6d8067754d746d88262c530b5241b5577b9aae
+    options:
+      recursive: true
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
@@ -62,6 +64,8 @@ repos:
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
+    options:
+      recursive: true
   microtvm_etiss:
     url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
     ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
@@ -71,9 +75,13 @@ repos:
   pulp_gcc:
     url: "https://github.com/pulp-platform/riscv-gnu-toolchain.git"
     ref: 11ba51efe1c4692d60357083b9c20c28bfb66a23
+    options:
+      recursive: true
   pulp_freertos:
     url: "https://github.com/pulp-platform/pulp-freertos.git"
     ref: aabd624fd9feef222f8dc2e0fa3b7dc487c42bf3
+    options:
+      recursive: true
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options

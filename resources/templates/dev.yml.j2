@@ -32,12 +32,20 @@ repos:
   tensorflow:  # TODO: rename to tflite-micro?
     url: "https://github.com/tensorflow/tflite-micro.git"
     ref: 75f52901ebf5f1d6fbcef7e65e5e99e31ac63e44
+    options:
+      single_branch: true
   # tflite_micro_compiler:
   #   url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
   #   ref: patches
   tvm:
     url: "https://github.com/PhilippvK/tvm.git"  # TODO: change to upstream after pr merged
     ref: 3e29e1908dfa5afb06107e2954fd7cc3c0be9f10
+    options:
+      recursive: true
+      submodules:
+        - 3rdparty/dlpack
+        - 3rdparty/dmlc-core
+        - 3rdparty/libbacktrace
   # utvm_staticrt_codegen:
   #   url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
   #   ref: master
@@ -59,6 +67,10 @@ repos:
   cmsis:
     url: "https://github.com/ARM-software/CMSIS_5.git"
     ref: 51263182d16c92649a48144ba56c0945f9fce60e
+    options:
+      single_branch: true
+      # Shallow clone could save 200MB clone size, but not really possible with commit
+      # shallow: true
   cmsisnn:
     url: "https://github.com/PhilippvK/CMSIS-NN.git"
     ref: 35ce20560794ddc9e6d87006cad7a3bc665f8319  # v4.0.0 + portability patch
@@ -71,6 +83,8 @@ repos:
   # espidf:
   #   url: "https://github.com/espressif/esp-idf.git"
   #   ref: release/v4.4
+  #   options:
+  #     recursive: true
   # zephyr:
   #   url: "https://github.com/zephyrproject-rtos/zephyr.git"
   #   ref: v3.2.0

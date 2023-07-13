@@ -53,7 +53,7 @@ def clone_verilator(
     flags = utils.makeFlags()
     verilatorName = utils.makeDirName("verilator", flags=flags)
     verilatorSrcDir = context.environment.paths["deps"].path / "src" / verilatorName
-    if "ara.src_dir" in user_vars:  # TODO: also check command line flags?
+    if "verilator.src_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
         verilatorSrcDir = user_vars["verilator.src_dir"]
     else:

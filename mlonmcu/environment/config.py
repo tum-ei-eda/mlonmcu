@@ -126,9 +126,32 @@ class PathConfig(BaseConfig):
 
 
 class RepoConfig(BaseConfig):
-    def __init__(self, url, ref=None):
+    def __init__(self, url, ref=None, options=None):
         self.url = url
+        if ref is not None:
+            assert isinstance(ref, str)
         self.ref = ref
+        self.options = options if options is not None else {}
+        assert isinstance(self.options, dict)
+
+    @property
+    def single_branch(self):
+       value = self.options.get("single_branch", False)
+       assert isinstance(value, bool)
+       return value
+
+    @property
+    def recursive(self):
+       value = self.options.get("recursive", True)
+       assert isinstance(value, bool)
+       return value
+
+    @property
+    def submodules(self):
+       value = self.options.get("submodules", None)
+       if value is not None:
+           assert isinstance(value, list)
+       return value
 
 
 class BackendConfig(BaseConfig):

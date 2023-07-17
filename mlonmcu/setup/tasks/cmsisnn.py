@@ -58,7 +58,7 @@ def clone_cmsisnn(
 ):
     """CMSIS-NN repository."""
     cmsisName = utils.makeDirName("cmsisnn")
-    cmsisnnSrcDir = Path(context.environment.deps_src_path / cmsisName
+    cmsisnnSrcDir = Path(context.environment.deps_src_path) / cmsisName
     if rebuild or not utils.is_populated(cmsisnnSrcDir):
         cmsisnnRepo = context.environment.repos["cmsisnn"]
         utils.clone(cmsisnnRepo.url, cmsisnnSrcDir, branch=cmsisnnRepo.ref, refresh=rebuild)
@@ -77,7 +77,7 @@ def clone_cmsis(
 ):
     """CMSIS repository."""
     cmsisName = utils.makeDirName("cmsis")
-    cmsisSrcDir = Path(context.environment.deps_src_path / cmsisName
+    cmsisSrcDir = Path(context.environment.deps_src_path) / cmsisName
     if rebuild or not utils.is_populated(cmsisSrcDir):
         cmsisRepo = context.environment.repos["cmsis"]
         utils.clone(cmsisRepo.url, cmsisSrcDir, branch=cmsisRepo.ref, refresh=rebuild)

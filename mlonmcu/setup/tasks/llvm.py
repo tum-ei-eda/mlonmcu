@@ -61,11 +61,6 @@ def install_llvm(
             fullUrlSplit = url.split("/")
             llvmUrl = "/".join(fullUrlSplit[:-1])
             llvmFileName, llvmFileExtension = fullUrlSplit[-1].split(".", 1)
-            llvmFileExtension = ""
-            for ext in candidate_exts:
-                if ext in llvmFileName:
-                    llvmFileName, llvmFileExtension = llvmFileName.split(ext)
-                    break
             return llvmUrl, llvmFileName, llvmFileExtension
 
         if f"llvm.dl_url" in user_vars:

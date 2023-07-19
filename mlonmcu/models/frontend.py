@@ -685,7 +685,7 @@ class ExampleFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "example",
-            ModelFormats.NAME,
+            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -726,7 +726,7 @@ class EmbenchFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "embench",
-            ModelFormats.NAME,
+            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -796,7 +796,7 @@ class TaclebenchFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "taclebench",
-            ModelFormats.NAME,
+            ModelFormats.NONE,
             features=features,
             config=config,
         )

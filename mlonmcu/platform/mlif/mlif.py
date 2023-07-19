@@ -300,7 +300,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return out, artifacts
 
     def generate(self, src, target, model=None) -> Tuple[dict, dict]:
-        self.timeout_sec = 90
+
+        if self.validate_outputs:
+            # some strange bug?
+            self.timeout_sec = 0
+        else:
+            self.timeout_sec = 90
+        self.timeout_sec = 0
         if self.timeout_sec > 0:
             out, artifacts = exec_timeout(
                 self.timeout_sec,

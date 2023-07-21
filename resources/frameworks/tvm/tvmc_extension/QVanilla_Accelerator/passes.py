@@ -42,7 +42,8 @@ class QVanillaAcceleratorConv2dPass:
         _loops = dict()
         _handles = []
         _entry_node = None
-        stores = []
+        zp = []
+        block_idx = 0
         print("one")
         def _has_block(name: str, func: tvm.tir.PrimFunc) -> bool:
             """
@@ -74,8 +75,8 @@ class QVanillaAcceleratorConv2dPass:
                     offset_order = ["co", "w", "h", "ci", "kh", "kw"]
                     offsets = [_loops[i].extent.value for i in offset_order]
 
-                    offsets.append(stores[0])
-                    offsets.append(stores[3])
+                    offsets.append(zp[0])
+                    offsets.append(zp[1])
                     print(offsets)
 
                     args = buffers + offsets
@@ -88,8 +89,8 @@ class QVanillaAcceleratorConv2dPass:
                 elif isinstance(op, tvm.tir.SeqStmt):
                     # Remove that pad block of TOPI's conv2DNCHW by only returning the 2nd statement
                     print("else if")
-                    print(op.seq[5])
-                    return op.seq[5]   # the line that I've changed to replace the compute_2 block
+                    print(op.seq[block_idx])
+                    return op.seq[block_idx]   # the line that I've changed to replace the compute_2 block
                 
                 return op
 
@@ -100,15 +101,25 @@ class QVanillaAcceleratorConv2dPass:
 
                 #find the zp values
 
-                # stores = []
+                s1 = []
+                s2 = []
 
                 def _visit(s):
                     if isinstance(s, tvm.tir.BufferStore):
-                        stores.append(s.value)
+                        # stores.append(s.value)
+                        s1.append(s.buffer.data)
+                        s2.append(s.value)
+
 
                 tvm.tir.stmt_functor.post_order_visit(func.body, _visit)
                 
-                print(stores[0], stores[3])
+                for i in range(len(s1)):
+                    
+                    if s1[i].name == "compile_engine_const":
+                        
+                        zp.append(s2[i])
+                block_idx = len(s1) - 3      
+                print(zp)
               
                 ###
                 
@@ -184,7 +195,7 @@ class ConvertLayout:
     print("relay pass")
     def transform_module(self, mod, ctx):
         print("before convert layout")
-        print(mod)
+        # print(mod)
         # My pass functionality...
         desired_layouts = {'qnn.conv2d': ['NCHW', 'default']}
         # Convert the layout to NCHW
@@ -195,7 +206,7 @@ class ConvertLayout:
             mod = seq(mod)
         
         print("after convert layout")
-        print(mod)
+        # print(mod)
         return mod
 
 @tvm.ir.transform.module_pass(opt_level=0)

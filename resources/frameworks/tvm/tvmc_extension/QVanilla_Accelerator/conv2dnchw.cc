@@ -1,99 +1,82 @@
+/*
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+*/
+
 #include <stdlib.h>
 #include <stdint.h>
-#include <math.h>
-#include <stdbool.h>
-
 #include <stdio.h>
 
+// TODO(mjklaiber): leverage pragma import_c in the future
 #ifdef __cplusplus
 extern "C"
 #endif
-//, int32_t* bias_data
-//, int32_t i_zp, int32_t k_zp
+
+    /*!
+     * \brief Conv2D function for mock-accelerator examples. Limited to same-padded Conv2D with
+     * stride (1,1) and datatype float. \param ifmap Pointer to input feature map data of size
+     * iw*ih*ic*sizeof(float). \param weights Pointer to weight data of size
+     * kh*kw*ic**oc*sizeof(float). \param result Pointer to output feature map data of size
+     * iw*ih*oc*sizeof(float). \param oc Number of channels of output feature map. \param iw Width
+     * of input feature map, ifmap. \param ih Height of input feature map, ifmap. \param ic Number
+     * of channels of input feature map. \param kh Height of convolution kernels. \param kw Width of
+     * convolution kernels.
+     *
+     * \return error code
+     *
+     */
+
+// uint32_t swap_endian(int a) 
+// {
+//   uint32_t b = (uint32_t) a;
+//   uint32_t b0 = b & 0x000000ff;
+//   uint32_t b1 = (b & 0x0000ff00) >> 8;
+//   uint32_t b2 = (b & 0x00ff0000) >> 16;
+//   uint32_t b3 = (b & 0xff000000) >> 24;
+//   uint32_t o;
+//   o = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
+//   return o;
+// }
 
 int q_vanilla_accelerator_conv2dnchw(int8_t* q_vanilla_accelerator_0_i0, int8_t* q_vanilla_accelerator_0_i1, int32_t* bias_data, int32_t* compute,
                                       int32_t oc, int32_t iw, int32_t ih, int32_t ic, int32_t kh, int32_t kw, int32_t i_zp, int32_t k_zp) {
 
 
-  int kw_low = kw / 2;
-  int kh_low = kh / 2;
-  int kw_high = iw + kw / 2;
-  int kh_high = ih + kh / 2;
-
-  int padded_iw = iw + 2 * kw_low;
-  int padded_ih = ih + 2 * kh_low;
-
-  int32_t* data_pad_let = (int32_t*)malloc(
-      (((ic * padded_iw * padded_ih) + (padded_ih * padded_iw)) + padded_iw) * sizeof(int32_t));
-
-  int32_t* compute_let = (int32_t*)malloc((oc * ic * kh * kw) * sizeof(int32_t));
-
-
-  printf("hi from c lib %d\n", oc);
-
-  // for (int32_t i1 = 0; i1 < ic; ++i1) {
-  //   for (int32_t i2 = 0; i2 < ih; ++i2) {
-  //     for (int32_t i3 = 0; i3 < iw; ++i3) {
-  //       int32_t cse_var_1 = (((i1 * ih * iw) + (i2 * iw)) + i3);
-  //       ((int32_t*)compute_let)[cse_var_1] = (((int32_t)q_vanilla_accelerator_0_i0[cse_var_1]) - 128);
-  //     }
-  //   }
-  // }
-  for (int32_t i1_1 = 0; i1_1 < ic; ++i1_1) {
-    for (int32_t i2_1 = 0; i2_1 < padded_ih; ++i2_1) {
-      for (int32_t i3_1 = 0; i3_1 < padded_iw; ++i3_1) {
-        data_pad_let[(((i1_1 * padded_iw * padded_ih) + (i2_1 * padded_iw)) + i3_1)] = (((((kh_low <= i2_1) && (i2_1 < kh_high)) && (kw_low <= i3_1)) && (i3_1 < kw_high)) 
-        ? ((int32_t)q_vanilla_accelerator_0_i0[((((i1_1 * iw * ih) + (i2_1 * iw)) + i3_1) - kh_high)] - (i_zp)) 
-        : 0);
-        // if ((i1_1 == 0) && (i2_1 == 1)) {
-        //   int32_t index1 = (((i1_1 * padded_iw * padded_ih) + (i2_1 * padded_iw)) + i3_1);
-        //   int32_t index2 = ((((i1_1 * iw * ih) + (i2_1 * iw)) + i3_1) - kh_high);
-        //   printf("i3_1 = %ld, index1 = %ld, index2 = %ld, value1 = %ld, value2 = %ld\n", i3_1, index1, index2, 
-        //           (q_vanilla_accelerator_0_i0)[index2], data_pad_let[index1]);
-        // }
-      }
-    }
-  }
   
-  printf("input = %ld\n", q_vanilla_accelerator_0_i0[0]);
+  //printf("start writing...\n");
+  *(int32_t**)0x70000000 = (int32_t*)q_vanilla_accelerator_0_i0;
+  *(int32_t**)0x70000004 = (int32_t*)q_vanilla_accelerator_0_i1;
+  *(int32_t**)0x70000008 = (int32_t*)bias_data;
+  *(int32_t**)0x7000000c = (int32_t*)compute;
 
-  printf("data_pad_let= %ld\n", data_pad_let[17]);
+  *(int32_t*)0x70000010 = oc;
+  *(int32_t*)0x70000014 = iw;
+  *(int32_t*)0x70000018 = ih;
+  *(int32_t*)0x7000001c = ic;
+  *(int32_t*)0x70000020 = kh;
+  *(int32_t*)0x70000024 = kw;
+  *(int32_t*)0x70000028 = i_zp;
+  *(int32_t*)0x7000002c = k_zp;
 
-  // ((int32_t*)compile_engine_const_let_1)[0] = 0;
+  //issue start signal
+  //printf("issue start ...\n");
+  *(int32_t*)0x70000030 = 0x00000001;
+  
+  
 
-  for (int32_t i0 = 0; i0 < oc; ++i0) {
-    for (int32_t i1_2 = 0; i1_2 < ic; ++i1_2) {
-      for (int32_t i2_2 = 0; i2_2 < kh; ++i2_2) {
-        for (int32_t i3_2 = 0; i3_2 < kw; ++i3_2) {
-          int32_t cse_var_2 = ((((i0 * ic * kh * kw) + (i1_2 * kw * kh)) + (i2_2 * kw)) + i3_2);
-          compute_let[cse_var_2] = (((int32_t)q_vanilla_accelerator_0_i1[cse_var_2]) - k_zp);
-        }
-      }
-    }
-  }
-
-
-  for (int32_t oc_ = 0; oc_ < oc; ++oc_) {
-    for (int32_t oh = 0; oh < ih; ++oh) {
-      for (int32_t ow = 0; ow < iw; ++ow) {
-        int32_t cse_var_3 = (((oc_ * ih * iw) + (oh * iw)) + ow);
-        for (int32_t ic_ = 0; ic_ < ic; ++ic_) {
-          for (int32_t kh_ = 0; kh_ < kh; ++kh_) {
-            for (int32_t kw_ = 0; kw_ < kh; ++kw_) {
-              // int32_t cse_var_3 = (((oc_ * ih * iw) + (oh * iw)) + ow);
-              if (((ic_ == 0) && (kh_ == 0)) && (kw_ == 0)) {
-                compute[cse_var_3] = 0;
-              }
-              compute[cse_var_3] = (compute[cse_var_3] + ((data_pad_let)[(((((ic_ * padded_iw * padded_ih) + (oh * padded_iw)) + (kh_ * padded_iw)) + ow) + kw_)] * (compute_let)[((((oc_ * ic * kh * kw) + (ic_ * kh * kw)) + (kh_ * kw)) + kw_)]));
-            }
-          }
-        }
-        compute[cse_var_3] = compute[cse_var_3] + bias_data[oc_]; //bias_add
-      }
-    }
-  }
-  printf("output value = %ld\n", compute[0]);
-  free(data_pad_let);
   return 0;
 }
-

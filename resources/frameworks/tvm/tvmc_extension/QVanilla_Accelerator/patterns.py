@@ -31,7 +31,7 @@ def qnn_conv2d_pattern():
     
     pattern = is_op("qnn.conv2d")(wildcard(), wildcard(), is_constant(), is_constant(), is_constant(), is_constant(),)
     
-
+    pattern = pattern.has_attr({"strides": [1, 1], "groups": 1})
     # qnn_conv2d = qnn_conv2d.has_attr({"strides": [1, 1], "groups": 1})
 
     # pattern = is_op("add")(qnn_conv2d, wildcard())

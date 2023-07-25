@@ -454,7 +454,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         log_artifact = log_artifact[0]
         is_spike = "spike" in log_artifact.flags
         is_etiss = "etiss_pulpino" in log_artifact.flags or "etiss" in log_artifact.flags
-        is_ovpsim = "ovpsim" in log_artifact.flags
+        is_ovpsim = "ovpsim" in log_artifact.flags or "corev_ovpsim" in log_artifact.flags
         is_riscv = is_spike or is_etiss or is_ovpsim
         if is_spike:
             content = log_artifact.content

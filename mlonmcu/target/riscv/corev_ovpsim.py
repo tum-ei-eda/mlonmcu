@@ -62,7 +62,7 @@ class COREVOVPSimTarget(RISCVTarget):
         "processor": None,
         "fpu": "none",
         "atomic": False,
-        "end_to_end_cycles": True,
+        "end_to_end_cycles": False,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
@@ -221,6 +221,8 @@ class COREVOVPSimTarget(RISCVTarget):
             "riscvOVPsim/cpu/pk/reportExitErrors=T",
             "--finishonopcode",
             "0",
+            "--override",
+            "riscvOVPsim/cpu/extension_CVE4P/mcountinhibit_reset=0",
         ]
         if self.gdbserver_enable:
             # args.append("--trace")

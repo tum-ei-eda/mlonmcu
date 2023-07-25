@@ -592,3 +592,214 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 )
                 ret_artifacts.append(artifact)
         return ret_artifacts
+
+
+class AnalyseDumpPostprocess(RunPostprocess):
+    """Counting static instructions."""
+
+    DEFAULTS = {**RunPostprocess.DEFAULTS}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_dump", features=features, config=config)
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        ret_artifacts = []
+        dump_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu.dump", fmt=ArtifactFormat.TEXT, first_only=True)
+        assert len(dump_artifact) == 1, "To use analyse_dump postprocess, please set mlif.enable_asmdump=1"
+        dump_artifact = dump_artifact[0]
+        is_llvm = "llvm" in dump_artifact.flags
+        assert is_llvm, "Non-llvm objdump currently unsupported"
+        content = dump_artifact.content
+        lines = content.split("\n")
+        counts = {}
+        total = 0
+        for line in lines:
+            splitted = line.split("\t")
+            if len(splitted) != 3:
+                continue
+            insn = splitted[1]
+            args = splitted[2]
+            if "!" in args:
+                insn += "!"
+            if insn in counts:
+                counts[insn] += 1
+            else:
+                counts[insn] = 1
+            total += 1
+        counts_csv = "Instruction,Count,Probability\n"
+        for insn, count in sorted(counts.items(), key=lambda item: item[1]):
+            counts_csv += f"{insn},{count},{count/total:.4f}\n"
+        artifact = Artifact(
+            f"dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT
+        )
+        ret_artifacts.append(artifact)
+        return ret_artifacts
+
+
+class AnalyseCoreVCountsPostprocess(RunPostprocess):
+    """Counting static instructions."""
+
+    DEFAULTS = {**RunPostprocess.DEFAULTS}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_corev_counts", features=features, config=config)
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        ret_artifacts = []
+        count_artifact = lookup_artifacts(artifacts, name="dump_counts.csv", fmt=ArtifactFormat.TEXT, first_only=True)
+        assert len(count_artifact) == 1, "To use analyse_corev_counts postprocess, analyse_dump needs to run first."
+        count_artifact = count_artifact[0]
+        content = count_artifact.content
+
+        lines = content.split("\n")
+
+        XCVMAC_INSNS = {
+            "cv.mac",
+            "cv.msu",
+            "cv.muluN",
+            "cv.mulhhuN",
+            "cv.mulsN",
+            "cv.mulhhsN",
+            "cv.muluRN",
+            "cv.mulhhuRN",
+            "cv.mulsRN",
+            "cv.mulhhsRN",
+            "cv.macuN",
+            "cv.machhuN",
+            "cv.macsN",
+            "cv.machhsN",
+            "cv.macuRN",
+            "cv.machhuRN",
+            "cv.macsRN",
+            "cv.machhsRN",
+        }
+        XCVMEM_INSNS = {
+            "cv.lb!",
+            "cv.lbu!",
+            "cv.lh!",
+            "cv.lhu!",
+            "cv.lw!",
+            "cv.lb!",
+            "cv.lbu!",
+            "cv.lh!",
+            "cv.lhu!",
+            "cv.lw!",
+            "cv.lb",
+            "cv.lbu",
+            "cv.lh",
+            "cv.lhu",
+            "cv.lw",
+            "cv.sb!",
+            "cv.sh!",
+            "cv.sw!",
+            "cv.sb!",
+            "cv.sh!",
+            "cv.sw!",
+            "cv.sb",
+            "cv.sh",
+            "cv.sw",
+        }
+        XCVBI_INSNS = {
+
+        }
+        XCVALU_INSNS = {
+
+        }
+        XCVBITMANIP_INSNS = {
+
+        }
+        XCVSIMD_INSNS = {
+
+        }
+        XCVHWLP_INSNS = {
+
+        }
+
+
+        cv_ext_totals = {
+            "XCVMac": len(XCVMAC_INSNS),
+            "XCVMem": len(XCVMEM_INSNS),
+            "XCVBi": len(XCVBI_INSNS),
+            "XCVAlu": len(XCVALU_INSNS),
+            "XCVBitmanip": len(XCVBITMANIP_INSNS),
+            "XCVSimd": len(XCVSIMD_INSNS),
+            "XCVHwlp": len(XCVHWLP_INSNS),
+        }
+        cv_ext_counts = {
+            "XCVMac": 0,
+            "XCVMem": 0,
+            "XCVBi": 0,
+            "XCVAlu": 0,
+            "XCVBitmanip": 0,
+            "XCVSimd": 0,
+            "XCVHwlp": 0,
+        }
+        cv_ext_unique_counts = {
+            "XCVMac": 0,
+            "XCVMem": 0,
+            "XCVBi": 0,
+            "XCVAlu": 0,
+            "XCVBitmanip": 0,
+            "XCVSimd": 0,
+            "XCVHwlp": 0,
+        }
+        total_counts = 0
+        cv_counts_csv = "Instruction,Count,Probability\n"
+        for line in lines[1:]:
+            if "cv." not in line:
+                continue
+            cv_counts_csv += f"{line}\n"
+            splitted = line.split(",")
+            assert len(splitted) == 3
+            insn = splitted[0]
+            count = int(splitted[1])
+            total_counts += count
+            if insn in XCVMAC_INSNS:
+                cv_ext_counts["XCVMac"] += count
+                cv_ext_unique_counts["XCVMac"] += 1
+            elif insn in XCVMEM_INSNS:
+                cv_ext_counts["XCVMem"] += count
+                cv_ext_unique_counts["XCVMem"] += 1
+            elif insn in XCVBI_INSNS:
+                cv_ext_counts["XCVBi"] += count
+                cv_ext_unique_counts["XCVBi"] += 1
+            elif insn in XCVALU_INSNS:
+                cv_ext_counts["XCVAlu"] += count
+                cv_ext_unique_counts["XCVAlu"] += 1
+            elif insn in XCVBITMANIP_INSNS:
+                cv_ext_counts["XCVBitmanip"] += count
+                cv_ext_unique_counts["XCVBitmanip"] += 1
+            elif insn in XCVSIMD_INSNS:
+                cv_ext_counts["XCVSimd"] += count
+                cv_ext_unique_counts["XCVSimd"] += 1
+            elif insn in XCVHWLP_INSNS:
+                cv_ext_counts["XCVHwlp"] += count
+                cv_ext_unique_counts["XCVHwlp"] += 1
+        cv_ext_counts_csv = "Set,Count,Probability\n"
+        for ext, count in sorted(cv_ext_counts.items(), key=lambda item: item[1]):
+            cv_ext_counts_csv += f"{ext},{count},{count/total_counts}\n"
+        cv_ext_unique_counts_csv = "Set,Used,Utilization\n"
+        for ext, used in sorted(cv_ext_unique_counts.items(), key=lambda item: item[1]):
+            if used == 0:
+                continue
+            cv_ext_unique_counts_csv += f"{ext},{used},{used/cv_ext_totals[ext]:.4f}\n"
+        used = sum(cv_ext_unique_counts.values())
+        totals = sum(cv_ext_totals.values())
+        cv_ext_unique_counts_csv += f"XCVTotal,{used},{used/totals:.4f}\n"
+
+        cv_counts_artifact = Artifact(
+            f"cv_counts.csv", content=cv_counts_csv, fmt=ArtifactFormat.TEXT
+        )
+        cv_ext_counts_artifact = Artifact(
+            f"cv_ext_counts.csv", content=cv_ext_counts_csv, fmt=ArtifactFormat.TEXT
+        )
+        cv_ext_unique_counts_artifact = Artifact(
+            f"cv_ext_unique_counts.csv", content=cv_ext_unique_counts_csv, fmt=ArtifactFormat.TEXT
+        )
+
+        ret_artifacts.append(cv_counts_artifact)
+        ret_artifacts.append(cv_ext_counts_artifact)
+        ret_artifacts.append(cv_ext_unique_counts_artifact)
+        return ret_artifacts

@@ -29,6 +29,8 @@ from .postprocesses import (
     Bytes2kBPostprocess,
     Artifact2ColumnPostprocess,
     AnalyseInstructionsPostprocess,
+    AnalyseDumpPostprocess,
+    AnalyseCoreVCountsPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -42,4 +44,6 @@ SUPPORTED_POSTPROCESSES = {
     "bytes2kb": Bytes2kBPostprocess,
     "artifact2cols": Artifact2ColumnPostprocess,
     "analyse_instructions": AnalyseInstructionsPostprocess,
+    "analyse_dump": AnalyseDumpPostprocess,
+    "analyse_corev_counts": AnalyseCoreVCountsPostprocess,
 }

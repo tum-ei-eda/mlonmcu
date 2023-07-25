@@ -1016,6 +1016,27 @@ class AutoSchedule(TVMTuneBase):
         return ret
 
 
+@register_feature("metascheduler", depends=["autotune"])
+class MetaScheduler(TVMTuneBase):
+    """TODO"""
+
+    DEFAULTS = {
+        **TVMTuneBase.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("metascheduler", features=features, config=config)
+
+    def get_platform_config(self, platform):
+        ret = super().get_platform_config(platform)
+        new = filter_none(
+            {
+                f"{platform}.metascheduler_enable": self.enabled,
+            }
+        )
+        ret.update(new)
+        return ret
+
 @register_feature("disable_legalize")
 class DisableLegalize(BackendFeature, SetupFeature):
     """Enable transformation to reduces sizes of intermediate buffers by skipping legalization passes."""

@@ -99,20 +99,31 @@ class TVMBackend(Backend):
         self.artifacts = (
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
-        self._tuning_records = None
+        self._tuning_records = {}
 
-    @property
-    def tuning_records(self):
-        if self._tuning_records:
-            return self._tuning_records
-        elif "autotuning_results_file" in self.config and self.config["autotuning_results_file"]:
-            return self.config["autotuning_results_file"]
-        else:
-            return None
+    # On the long term, we might support multiple TUNE stages in a single run (i.e. to allow autotvm+graphtuner to be separated)
+    # Hence
+    # @property
+    # def tuning_records(self):
+    #     if self._tuning_records:
+    #         return self._tuning_records
+    #     return self.config.get("autotuning_results_file", None):
 
-    @tuning_records.setter
-    def tuning_records(self, filepath):
-        self._tuning_records = filepath
+    # @tuning_records.setter
+    # def tuning_records(self, filepath):
+    #     self._tuning_records = filepath
+
+    def set_tuning_records(self, records, tuner_name=None):
+        if tuner_name is None:
+            tuner_name = self.config["autotuning_mode"]
+            assert tuner_name is not None
+        self._tuning_records[tuner_name] = records
+
+    def get_tuning_records(self, tuner_name=None):
+        if tuner_name is None:
+            tuner_name = self.config["autotuning_mode"]
+            assert tuner_name is not None
+        self._tuning_records[tuner_name] = records
 
     @property
     def disable_vectorize(self):
@@ -291,7 +302,7 @@ class TVMBackend(Backend):
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
-            *get_tuning_records_tvmc_args(self.use_tuning_results, self.tuning_records),
+            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records()),
             *get_desired_layout_args(self.desired_layout, self.desired_layout_ops, self.desired_layout_map),
             *(["--dump-code", ",".join(dump)] if dump is not None and len(dump) > 0 else []),
             *self.tvmc_extra_args,

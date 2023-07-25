@@ -823,7 +823,7 @@ class Run:
                 tuning_artifact = tuning_artifact[0]
                 if not tuning_artifact.exported:
                     tuning_artifact.export(self.dir)
-                self.backend.tuning_records = tuning_artifact.path
+                self.backend.set_tuning_records(tuning_artifact.path)
                 candidate = (RunStage.TUNE, name)
                 assert candidate in self.sub_parents
                 parent_stage, parent_name = self.sub_parents[candidate]

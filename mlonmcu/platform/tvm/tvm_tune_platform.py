@@ -26,7 +26,7 @@ from pathlib import Path
 from .tvm_target_platform import TvmTargetPlatform
 from ..platform import TunePlatform
 
-from mlonmcu.flow.tvm.backend.tuner import get_autotuning_defaults, get_autotvm_defaults, get_autoscheduler_defaults
+from mlonmcu.flow.tvm.backend.tuner import get_autotuning_defaults, get_autotvm_defaults, get_autoscheduler_defaults, get_metascheduler_defaults
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_rpc_tvmc_args,
     get_target_tvmc_args,
@@ -54,6 +54,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
         **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
         **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
+        **{("metascheduler_" + key): value for key, value in get_metascheduler_defaults().items()},
     }
 
     REQUIRED = TunePlatform.REQUIRED | TvmTargetPlatform.REQUIRED

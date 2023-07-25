@@ -818,6 +818,7 @@ class Autotuned(BackendFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
+        "mode": "autotvm",  # further options: autoscheduler, metascheduler
         "results_file": None,
     }
 
@@ -826,7 +827,13 @@ class Autotuned(BackendFeature):
 
     @property
     def results_file(self):
-        return self.config["results_file"] if "results_file" in self.config else None
+        return self.config.get("results_file", None)
+
+    @property
+    def mode(self):
+        value = self.config["mode"]
+        assert value in ["autotvm", "autoscheduler", "metascheduler"]
+        return value
 
     def get_backend_config(self, backend):
         assert backend in SUPPORTED_TVM_BACKENDS
@@ -835,6 +842,7 @@ class Autotuned(BackendFeature):
             {
                 f"{backend}.use_tuning_results": self.enabled,
                 f"{backend}.autotuning_results_file": self.results_file,
+                f"{backend}.autotuning_mode": self.mode,
             }
         )
 

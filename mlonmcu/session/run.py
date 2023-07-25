@@ -644,10 +644,11 @@ class Run:
         self.export_stage(last_stage, optional=self.export_optional)
         for name in self.artifacts_per_stage[last_stage]:
             merged = {"default": []}
+            before = self.get_all_sub_artifacts(name)
             for postprocess in self.postprocesses:
                 if isinstance(postprocess, RunPostprocess):
-                    before = self.get_all_sub_artifacts(name)
                     artifacts = postprocess.post_run(temp_report, before)
+                    before.extend(artifacts)
                     if artifacts is None:
                         artifacts = []
                     new = {}

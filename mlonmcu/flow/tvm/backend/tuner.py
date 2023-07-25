@@ -49,3 +49,8 @@ def get_autoscheduler_defaults():
         "include_simple_tasks": False,
         "log_estimated_latency": True,
     }
+
+def get_metascheduler_defaults():
+    return {
+        "enable": False,
+    }

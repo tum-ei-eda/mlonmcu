@@ -20,6 +20,7 @@
 
 def get_autotuning_defaults():
     return {
+        "mode": None,
         "results_file": None,
         "append": None,
         "trials": 10,  # TODO: increase to 100?

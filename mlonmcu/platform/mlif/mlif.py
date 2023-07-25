@@ -318,7 +318,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         else:
             out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlonmcu"
-        hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
+        hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"  # TODO: move to dumps
+        asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
+        srcdump_file = self.build_dir / "dumps" / "generic_mlonmcu.srcdump"  # TODO: optional
 
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
@@ -330,6 +332,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 data = handle.read()
                 artifact = Artifact("generic_mlonmcu.hex", raw=data, fmt=ArtifactFormat.RAW)
                 artifacts.insert(1, artifact)
+        if asmdump_file.is_file():
+            with open(asmdump_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.dump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,))
+                artifacts.append(artifact)
+        if srcdump_file.is_file():
+            with open(srcdump_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.srcdump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,))
+                artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)
         stdout_artifact = Artifact(
             "mlif_out.log", content=out, fmt=ArtifactFormat.TEXT

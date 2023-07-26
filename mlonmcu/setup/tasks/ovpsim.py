@@ -63,7 +63,8 @@ def install_corev_ovpsim(
                 ovpUrl, ovpFileName, ovpFileExtension = _helper(user_vars["corev_ovpsim.dl_url"])
             else:
                 ovpUrl = "https://github.com/openhwgroup/riscv-ovpsim-corev/archive/refs/heads/"
-                ovpVersion = user_vars.get("corev_ovpsim.version", "v20230425")
+                # ovpVersion = user_vars.get("corev_ovpsim.version", "v20230425")
+                ovpVersion = user_vars.get("corev_ovpsim.version", "v20230724")
                 ovpFileName = str(ovpVersion)
                 ovpFileExtension = "zip"
             ovpArchive = ovpFileName + "." + ovpFileExtension

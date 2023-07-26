@@ -27,6 +27,7 @@ from mlonmcu.config import str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.bench import add_bench_metrics
 from .riscv import RISCVTarget, sort_extensions_canonical
 from .util import update_extensions
 
@@ -273,34 +274,20 @@ class COREVOVPSimTarget(RISCVTarget):
             exit_code = int(exit_match.group(1))
         return exit_code
 
-    def parse_stdout(self, out, exit_code=0):
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0)
         if self.end_to_end_cycles:
-            cpu_cycles = re.search(r".*  Simulated instructions:(.*)", out)
-        else:
-            cpu_cycles = re.search(r".*Total Cycles: (.*)", out)
-        if not cpu_cycles:
-            if exit_code == 0:
-                raise RuntimeError("unexpected script output (cycles)")
-            total_cycles = None
-        else:
-            total_cycles = int(cpu_cycles.group(1).replace(",", ""))
-        setup_cycles = re.search(r".*Setup Cycles: (.*)", out)
-        if not setup_cycles:
-            setup_cycles = None
-        else:
-            setup_cycles = int(setup_cycles.group(1).replace(",", ""))
-        run_cycles = re.search(r".*Run Cycles: (.*)", out)
-        if not run_cycles:
-            run_cycles = None
-        else:
-            run_cycles = int(run_cycles.group(1).replace(",", ""))
+            sim_insns = re.search(r".*  Simulated instructions:(.*)", out)
+            sim_insns_metric = Metric(sim_insns, True)
+            metrics.append(sim_insns_metric)
         mips = None  # TODO: parse mips?
         mips_match = re.search(r".*  Simulated MIPS:(.*)", out)
         if mips_match:
             mips_str = float(mips_match.group(1))
             if "run too short for meaningful result" not in mips:
                 mips = float(mips_str)
-        return total_cycles, setup_cycles, run_cycles, mips
+        if mips:
+            metrics.add("MIPS", mips, optional=True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -324,14 +311,8 @@ class COREVOVPSimTarget(RISCVTarget):
             )
         # TODO: get exit code
         exit_code = 0
-        total_cycles, setup_cycles, run_cycles, mips = self.parse_stdout(out, exit_code=exit_code)
-
         metrics = Metrics()
-        metrics.add("Cycles", total_cycles)
-        metrics.add("Setup Cycles", setup_cycles)
-        metrics.add("Run Cycles", run_cycles)
-        if mips:
-            metrics.add("MIPS", mips, optional=True)
+        self.parse_stdout(out, metrics, exit_code=exit_code)
 
         return metrics, out, []
 

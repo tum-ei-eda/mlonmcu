@@ -31,6 +31,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.bench import add_bench_metrics
 from .riscv import RISCVTarget
 
 logger = get_logger()
@@ -178,57 +179,50 @@ class CV32E40PTarget(RISCVTarget):
             )
         return ret
 
-    def parse_stdout(self, out, handle_exit=None):
+    def parse_exit(self, out):
         exit_match = re.search(r".* EXIT FAILURE: .*", out)
         if exit_match:
             exit_code = -1  # any none-zero value
-            if handle_exit is not None:
-                exit_code = handle_exit(exit_code)
-            if exit_code != 0:
-                logger.error("Execution failed - " + out)
-                raise RuntimeError(f"unexpected exit code: {exit_code}")
         else:
             exit_code = 0
-        cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-        if not cpu_cycles:
-            logger.warning("unexpected script output (cycles)")
-            cycles = None
-        else:
-            cycles = int(float(cpu_cycles.group(1)))
+        return exit_code
 
-        cpu_instructions = re.search(r"Total Instructions: (.*)", out)
-        if not cpu_instructions:
-            logger.warning("unexpected script output (instructions)")
-            cpu_instructions = None
-        else:
-            cpu_instructions = int(float(cpu_instructions.group(1)))
-        return cycles, cpu_instructions
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
+
+        def _handle_exit(code, out=None):
+            assert out is not None
+            temp = self.parse_exit(out)
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
 
         metrics_file = os.path.join(directory, "metrics.csv")
         if os.path.exists(metrics_file):
             os.remove(metrics_file)
 
-        host_time0 = time.time()
+        # TODO: re-enable sim MIPS
+        # host_time0 = time.time()
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out += self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
-        host_time1 = time.time()
-        total_cycles, total_instructions = self.parse_stdout(out, handle_exit=handle_exit)
-
+        # host_time1 = time.time()
+        exit_code = 0
         metrics = Metrics()
-        metrics.add("Cycles", total_cycles)
-        metrics.add("Instructions", total_instructions)
-        if total_instructions is not None:
-            if total_cycles is not None:
-                metrics.add("CPI", total_cycles/total_instructions)
-            mips = (total_instructions / (host_time1 - host_time0)) / 1e6
-            metrics.add("MIPS", mips, optional=True)
+        self.parse_stdout(out, metrics, exit_code=exit_code)
+        # if total_instructions is not None:
+        #     if total_cycles is not None:
+        #         metrics.add("CPI", total_cycles/total_instructions)
+        #     mips = (total_instructions / (host_time1 - host_time0)) / 1e6
+        #     metrics.add("MIPS", mips, optional=True)
 
         return metrics, out, []
 

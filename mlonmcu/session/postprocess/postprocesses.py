@@ -779,6 +779,8 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
                 cv_ext_unique_counts["XCVHwlp"] += 1
         cv_ext_counts_csv = "Set,Count,Probability\n"
         for ext, count in sorted(cv_ext_counts.items(), key=lambda item: item[1]):
+            if count == 0:
+                continue
             cv_ext_counts_csv += f"{ext},{count},{count/total_counts}\n"
         cv_ext_unique_counts_csv = "Set,Used,Utilization\n"
         for ext, used in sorted(cv_ext_unique_counts.items(), key=lambda item: item[1]):

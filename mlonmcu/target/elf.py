@@ -99,6 +99,8 @@ def parseElf(inFile):
         ".l1cluster_g",
         ".heap_l2_shared",
         ".Pulp_Chip.Info",
+        # cv32e40p
+        ".debugger_stack",
     ]
     ignorePrefixes = [
         ".gcc_except",

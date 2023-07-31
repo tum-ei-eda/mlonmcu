@@ -452,7 +452,6 @@ class Run:
                         self.frontends = [frontend]
                         assert model_hint is not None, "Unable to pick a suitable model"
                         model = model_hint
-                        return
             except Exception as ex:
                 # TODO: collect errors
                 continue

@@ -442,6 +442,7 @@ class Run:
         """Helper function to initialize and configure a model by its name."""
         assert context is not None, "Please supply a context"
         assert len(self.frontends) > 0, "Add a frontend to the run before adding a model"
+        model = None
         for frontend in self.frontends:
             try:
                 model_hints = frontend.lookup_models([model_name], context=context)
@@ -450,13 +451,13 @@ class Run:
                     if self.backend is None or isinstance(model_hint, Program) or (self.backend is not None and self.backend.supports_model(model_hint)):
                         self.frontends = [frontend]
                         assert model_hint is not None, "Unable to pick a suitable model"
-                        self.add_model(model_hint)
+                        model = model_hint
                         return
             except Exception as ex:
-                # TODO: handle
-                logger.exception(ex)
-                pass
-        assert False, f"Model with name '{model_name}' not found"
+                # TODO: collect errors
+                continue
+        assert model is not None, f"Model with name '{model_name}' not found"
+        self.add_model(model)
 
     def add_frontend_by_name(self, frontend_name, context=None):
         """Helper function to initialize and configure a frontend by its name."""

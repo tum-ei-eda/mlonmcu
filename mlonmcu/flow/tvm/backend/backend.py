@@ -115,15 +115,17 @@ class TVMBackend(Backend):
 
     def set_tuning_records(self, records, tuner_name=None):
         if tuner_name is None:
-            tuner_name = self.config["autotuning_mode"]
+            # tuner_name = self.config["autotuning_mode"]
+            tuner_name = "autotvm"
             assert tuner_name is not None
         self._tuning_records[tuner_name] = records
 
     def get_tuning_records(self, tuner_name=None):
         if tuner_name is None:
-            tuner_name = self.config["autotuning_mode"]
+            # tuner_name = self.config["autotuning_mode"]
+            tuner_name = "autotvm"
             assert tuner_name is not None
-        self._tuning_records[tuner_name] = records
+        return self._tuning_records.get(tuner_name, None)
 
     @property
     def disable_vectorize(self):

@@ -25,11 +25,11 @@ from tvm import relay
 class VanillaAcceleratorConv2dPass:
     _EXTERNAL_FUNCTION_NAME = "vanilla_accelerator_conv2dnchw"
     _TVM_BLOCK_MATCH_NAME = "conv2d_nchw"
-    print("tir pass")
+  
     def transform_function(
         self, func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
     ) -> tvm.tir.PrimFunc:
-        print("func1 passes")
+        
         return self._vanilla_accelerator_conv2d_pass(func, mod, ctx)
 
     @classmethod
@@ -49,14 +49,14 @@ class VanillaAcceleratorConv2dPass:
 
             _found_blocks = []
             tvm.tir.stmt_functor.post_order_visit(func.body, _hb)
-            print("func has block")
+          
             return name in _found_blocks
 
         def _detect_and_replace_conv2d(
             func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
         ) -> tvm.tir.PrimFunc:
             def _replace_conv2d(op):
-                print("func replace_conv2d")
+              
                 if op == _entry_node:
                     irb = tvm.tir.ir_builder.create()
                     # Collection of buffer address
@@ -99,11 +99,11 @@ class VanillaAcceleratorConv2dPass:
                 x = tvm.tir.stmt_functor.ir_transform(
                     func.body, None, _replace_conv2d, ["tir.For", "tir.SeqStmt"]
                 )
-                print("if has block")
+             
                 return func.with_body(x)
             else:
                 return func
-        print("func2 passes")    
+            
         r = _detect_and_replace_conv2d(func, mod, ctx)
         return r
 
@@ -121,7 +121,7 @@ def tir_call(ib: tvm.tir.ir_builder, extern: bool, name: str, *args):
     """
 
     def buf_from_array(ib, arr, dtype):
-        print("func4 passes")
+       
         # Allocate enough memory to store the whole array
         var = ib.allocate("int32", (len(arr),), scope="global")
         for i, v in enumerate(arr):
@@ -146,7 +146,7 @@ def tir_call(ib: tvm.tir.ir_builder, extern: bool, name: str, *args):
 
 @tvm.ir.transform.module_pass(opt_level=0)
 class ConvertLayout:
-    print("relay pass")
+  
     def transform_module(self, mod, ctx):
         print("relay pass function")
         # My pass functionality...
@@ -157,6 +157,5 @@ class ConvertLayout:
                                     relay.transform.ConvertLayout(desired_layouts)])
         with tvm.transform.PassContext(opt_level=3):
             mod = seq(mod)
-        print("samira")
-        # print(mod)
+       
         return mod

@@ -33,8 +33,7 @@ class QVanillaAcceleratorConv2dPass:
     def transform_function(
         self, func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
     ) -> tvm.tir.PrimFunc:
-        print("tir pass transform function")
-        print(func)
+       
         return self._q_vanilla_accelerator_conv2d_pass(func, mod, ctx)
 
     @classmethod
@@ -44,7 +43,7 @@ class QVanillaAcceleratorConv2dPass:
         _entry_node = None
         zp = []
         block_idx = 0
-        print("one")
+        
         def _has_block(name: str, func: tvm.tir.PrimFunc) -> bool:
             """
             Determine of a tir.block with `name` exists in `func`
@@ -56,14 +55,14 @@ class QVanillaAcceleratorConv2dPass:
 
             _found_blocks = []
             tvm.tir.stmt_functor.post_order_visit(func.body, _hb)
-            print("_has_block")
+       
             return name in _found_blocks
 
         def _detect_and_replace_conv2d(
             func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
         ) -> tvm.tir.PrimFunc:
             def _replace_conv2d(op):
-                print("_replace_conv2d")
+                
                 if op == _entry_node:
                     print("if op == _entry_node")
                     irb = tvm.tir.ir_builder.create()
@@ -77,19 +76,17 @@ class QVanillaAcceleratorConv2dPass:
 
                     offsets.append(zp[0])
                     offsets.append(zp[1])
-                    print(offsets)
+                  
 
                     args = buffers + offsets
                     
                     irb.emit(tir_call(irb, True, cls._EXTERNAL_FUNCTION_NAME, *args))
                     irb_result = irb.get()
-                    print("irb_result")
-                    print(irb_result)
+                   
                     return irb_result
                 elif isinstance(op, tvm.tir.SeqStmt):
                     # Remove that pad block of TOPI's conv2DNCHW by only returning the 2nd statement
-                    print("else if")
-                    print(op.seq[block_idx])
+                  
                     return op.seq[block_idx]   # the line that I've changed to replace the compute_2 block
                 
                 return op
@@ -97,7 +94,7 @@ class QVanillaAcceleratorConv2dPass:
             sch = tir.Schedule(func)
 
             if _has_block(cls._TVM_BLOCK_MATCH_NAME, func):
-                print("here in _has_block")
+              
 
                 #find the zp values
 
@@ -119,7 +116,7 @@ class QVanillaAcceleratorConv2dPass:
                         
                         zp.append(s2[i])
                 block_idx = len(s1) - 3      
-                print(zp)
+          
               
                 ###
                 
@@ -137,16 +134,14 @@ class QVanillaAcceleratorConv2dPass:
                     kw=rv_loops[6],
                 )
                 _entry_node = sch.get(rv_loops[1])
-                print("_entry_node:")
-                print(_entry_node)
+                
                 _loops = {k: sch.get(v) for k, v in loops.items()}
                 _handles = func.buffer_map.items()
 
                 x = tvm.tir.stmt_functor.ir_transform(
                     func.body, None, _replace_conv2d, ["tir.For", "tir.SeqStmt"]
                 )
-                print("if _has_block")
-                print(func.with_body(x))
+                
                 return func.with_body(x)
             else:
                 # print(func)
@@ -192,10 +187,9 @@ def tir_call(ib: tvm.tir.ir_builder, extern: bool, name: str, *args):
 
 @tvm.ir.transform.module_pass(opt_level=0)
 class ConvertLayout:
-    print("relay pass")
+   
     def transform_module(self, mod, ctx):
-        print("before convert layout")
-        # print(mod)
+       
         # My pass functionality...
         desired_layouts = {'qnn.conv2d': ['NCHW', 'default']}
         # Convert the layout to NCHW
@@ -205,16 +199,14 @@ class ConvertLayout:
         with tvm.transform.PassContext(opt_level=3):
             mod = seq(mod)
         
-        print("after convert layout")
-        # print(mod)
+       
         return mod
 
 @tvm.ir.transform.module_pass(opt_level=0)
 class Canonicalize:
     print("Canonicalize")
     def transform_module(self, mod, ctx):
-        print("Canonicalize_transform")
-        print(mod)
+      
         # My pass functionality...
         
         # Convert the layout to NCHW
@@ -223,92 +215,7 @@ class Canonicalize:
                                     relay.qnn.transform.CanonicalizeOps()])
         with tvm.transform.PassContext(opt_level=3):
             mod = seq(mod)
-        
-        print(mod)
+
         return mod
         
         
-@tvm.tir.transform.prim_func_pass(opt_level=2)
-class QVanillaAcceleratorDensePass:
-    _EXTERNAL_FUNCTION_NAME = "q_vanilla_accelerator_dense"
-    _TVM_BLOCK_MATCH_NAME = "T_matmul_NT"
-    print("dense tir pass")
-    def transform_function(
-        self, func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
-    ) -> tvm.tir.PrimFunc:
-        
-        print("dense tir pass transform function")
-        # print(func)
-        return self._q_vanilla_accelerator_dense_pass(func, mod, ctx)
-
-    @classmethod
-    def _q_vanilla_accelerator_dense_pass(cls, func, mod, ctx):
-        _loops = dict()
-        _handles = []
-        _entry_node = None
-        print("dense one")
-        def _has_block(name: str, func: tvm.tir.PrimFunc) -> bool:
-            """
-            Determine of a tir.block with `name` exists in `func`
-            """
-
-            def _hb(op):
-                if isinstance(op, tvm.tir.Block):
-                    _found_blocks.append(op.name_hint)
-
-            _found_blocks = []
-            tvm.tir.stmt_functor.post_order_visit(func.body, _hb)
-            print("dense _has_block")
-            return name in _found_blocks
-
-        def _detect_and_replace_dense(
-            func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
-        ) -> tvm.tir.PrimFunc:
-            def _replace_dense(op):
-                if op == _entry_node:
-                    irb = tvm.tir.ir_builder.create()
-                    # Collection of buffer address
-                    buffers = [b[1].data for b in _handles]
-                    # extraction of loop offsets
-                    for k, v in _loops.items():
-                        assert v.min.value == 0
-                    # offset_order = ["co", "w", "h", "ci", "kh", "kw"]
-                    # offsets = [_loops[i].extent.value for i in offset_order]
-                    # args = buffers + offsets
-                    args = buffers
-                    irb.emit(tir_call(irb, True, cls._EXTERNAL_FUNCTION_NAME, *args))
-                    irb_result = irb.get()
-                    return irb_result
-                elif isinstance(op, tvm.tir.SeqStmt):
-                    print("not-changed")
-                    # Remove that pad block of TOPI's conv2DNCHW by only returning the 2nd statement
-                    return op.seq[1]
-                print("_replace_conv2d")
-                return op
-
-            sch = tir.Schedule(func)
-
-            if _has_block(cls._TVM_BLOCK_MATCH_NAME, func):
-                print("dense if _has_block")
-                dense_block = sch.get_block(cls._TVM_BLOCK_MATCH_NAME)
-                rv_loops = sch.get_loops(dense_block)
-                print(len(rv_loops))
-                assert len(rv_loops) == 3
-                loops = dict(
-                    n=rv_loops[0],
-                    co=rv_loops[1],
-                    h=rv_loops[2],
-                )
-                _entry_node = sch.get(rv_loops[1])
-                _loops = {k: sch.get(v) for k, v in loops.items()}
-                _handles = func.buffer_map.items()
-
-                x = tvm.tir.stmt_functor.ir_transform(
-                    func.body, None, _replace_dense, ["tir.For", "tir.SeqStmt"]
-                )
-                return func.with_body(x)
-            else:
-                return func
-
-        r = _detect_and_replace_dense(func, mod, ctx)
-        return r

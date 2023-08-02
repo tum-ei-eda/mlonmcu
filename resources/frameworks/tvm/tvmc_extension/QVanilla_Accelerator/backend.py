@@ -35,8 +35,6 @@ class QVanillaAcceleratorBackend(UMABackend):
         self._register_target_attr("dimension")
 
         # Relay Pattern registration
-        # self._register_pattern("qnn_conv2d", qnn_conv2d_pattern())
-        # self._register_pattern("conv2d", conv2d_pattern())
         self._register_pattern("qnn_conv2d_add", qnn_conv2d_add_pattern())
 
         # self._register_pattern("dense", dense_pattern())

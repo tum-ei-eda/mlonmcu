@@ -118,6 +118,15 @@ def add_flow_options(parser):
         help="Generator statement for features. (level 3)",
     )
     flow_parser.add_argument(
+        "--feature-gen4",
+        dest="feature_gen4",
+        type=str,
+        metavar="FEATURES",
+        nargs="+",
+        action="append",
+        help="Generator statement for features. (level 4)",
+    )
+    flow_parser.add_argument(
         "-c",
         "--config",
         metavar="KEY=VALUE",
@@ -155,6 +164,14 @@ def add_flow_options(parser):
         nargs="+",
         action="append",
         help="Generator statement for configs. (level 3)",
+    )
+    flow_parser.add_argument(
+        "--config-gen4",
+        dest="config_gen4",
+        metavar="KEY=VALUE",
+        nargs="+",
+        action="append",
+        help="Generator statement for configs. (level 4)",
     )
     flow_parser.add_argument(
         "--parallel",

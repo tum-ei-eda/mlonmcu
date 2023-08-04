@@ -217,7 +217,8 @@ class TVMBackend(Backend):
 
     @property
     def disabled_passes(self):
-        return self.config["disabled_passes"]
+        value = self.config["disabled_passes"]
+        return str2list(value) if isinstance(value, str) else value
 
     @property
     def tvm_pythonpath(self):

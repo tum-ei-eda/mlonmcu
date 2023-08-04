@@ -25,7 +25,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram
+from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram, PolybenchProgram, CoremarkProgram
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
@@ -891,4 +891,125 @@ class TaclebenchFrontend(SimpleFrontend):
         if platform == "mlif":
             ret["TEMPLATE"] = "taclebench"
             ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
+        return ret
+
+
+class PolybenchFrontend(SimpleFrontend):
+
+    REQUIRED = {"polybench.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "polybench",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            "linear-algebra/solvers/gramschmidt",
+            "linear-algebra/solvers/ludcmp",
+            "linear-algebra/solvers/trisolv",
+            "linear-algebra/solvers/durbin",
+            "linear-algebra/solvers/lu",
+            "linear-algebra/solvers/cholesky",
+            "linear-algebra/kernels/atax",
+            "linear-algebra/kernels/3mm",
+            "linear-algebra/kernels/mvt",
+            "linear-algebra/kernels/2mm",
+            "linear-algebra/kernels/bicg",
+            "linear-algebra/kernels/doitgen",
+            "linear-algebra/blas/trmm",
+            "linear-algebra/blas/gemver",
+            "linear-algebra/blas/syrk",
+            "linear-algebra/blas/gesummv",
+            "linear-algebra/blas/syr2k",
+            "linear-algebra/blas/symm",
+            "linear-algebra/blas/gemm",
+            "stencils/fdtd-2d",
+            "stencils/seidel-2d",
+            "stencils/adi",
+            "stencils/jacobi-1d",
+            "stencils/jacobi-2d",
+            "stencils/heat-3d",
+            "datamining/covariance",
+            "datamining/correlation",
+            "medley/deriche",
+            "medley/nussinov",
+            "medley/floyd-warshall",
+        ]
+
+    # @property
+    # def skip_backend(self):
+    #     return True
+
+    def lookup_models(self, names, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("polybench/", "")
+            if name in self.supported_names:
+                hint = PolybenchProgram(
+                    name,
+                    alt=f"polybench/{name}",
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TEMPLATE"] = "polybench"
+            ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
+        return ret
+
+
+class CoremarkFrontend(SimpleFrontend):
+
+    REQUIRED = set()
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "coremark",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "coremark",
+      ]
+
+    def lookup_models(self, names, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("coremark/", "")
+            if name in self.supported_names:
+                hint = CoremarkProgram(
+                    name,
+                    alt=f"coremark/{name}",
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TEMPLATE"] = "coremark"
         return ret

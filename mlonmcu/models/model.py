@@ -248,3 +248,21 @@ class TaclebenchProgram(Program):
         if platform == "mlif":
             ret["TACLEBENCH_BENCHMARK"] = self.name
         return ret
+
+
+class PolybenchProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["POLYBENCH_BENCHMARK"] = self.name
+        return ret
+
+
+class CoremarkProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["COREMARK_ITERATIONS"] = 10
+        return ret

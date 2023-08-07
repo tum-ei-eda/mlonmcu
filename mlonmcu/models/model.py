@@ -260,6 +260,15 @@ class PolybenchProgram(Program):
         return ret
 
 
+class MibenchProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["MIBENCH_BENCHMARK"] = self.name
+        return ret
+
+
 class MathisProgram(Program):
 
     DEFAULTS = {

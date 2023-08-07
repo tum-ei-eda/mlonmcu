@@ -25,7 +25,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram, PolybenchProgram, CoremarkProgram, DhrystoneProgram, MathisProgram
+from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram, PolybenchProgram, CoremarkProgram, DhrystoneProgram, MathisProgram, MibenchProgram
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
@@ -1106,4 +1106,63 @@ class MathisFrontend(SimpleFrontend):
         ret = {}
         if platform == "mlif":
             ret["TEMPLATE"] = "mathis"
+        return ret
+
+
+class MibenchFrontend(SimpleFrontend):
+
+    REQUIRED = {"mibench.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "mibench",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            "telecomm/FFT",
+            "telecomm/CRC32",
+            "automotive/susan",
+            "automotive/basicmath",
+            "automotive/bitcount",
+            "automotive/qsort",
+            "security/sha",
+            "security/rijndael",
+            "network/dijkstra",
+            "office/stringsearch",
+        ]
+
+    # @property
+    # def skip_backend(self):
+    #     return True
+
+    def lookup_models(self, names, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("mibench/", "")
+            if name in self.supported_names:
+                hint = MibenchProgram(
+                    name,
+                    alt=f"mibench/{name}",
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TEMPLATE"] = "mibench"
+            ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
+
         return ret

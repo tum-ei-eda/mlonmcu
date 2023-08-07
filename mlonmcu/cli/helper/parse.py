@@ -19,6 +19,7 @@
 import itertools
 from collections import ChainMap
 
+NUM_GEN_ARGS = 9
 
 def parse_var(s):
     """
@@ -77,12 +78,13 @@ def extract_feature_names(args):
             gen = [[]]
         return gen
 
-    gen = helper(args, "feature_gen")
-    gen2 = helper(args, "feature_gen2")
-    gen3 = helper(args, "feature_gen3")
-    gen4 = helper(args, "feature_gen4")
+    gens = []
+    for i in range(NUM_GEN_ARGS):
+        suffix = str(i + 1) if i > 0 else ""
+        gen = helper(args, "feature_gen" + suffix)
+        gens.append(gen)
 
-    gen = list(map(lambda x: sum(x, []), (itertools.product(gen, gen2, gen3, gen4))))
+    gen = list(map(lambda x: sum(x, []), (itertools.product(*gens))))
 
     return features, gen
 
@@ -112,12 +114,13 @@ def extract_config(args):
             gen = [{}]
         return gen
 
-    gen = helper(args, "config_gen")
-    gen2 = helper(args, "config_gen2")
-    gen3 = helper(args, "config_gen3")
-    gen4 = helper(args, "config_gen4")
+    gens = []
+    for i in range(NUM_GEN_ARGS):
+        suffix = str(i + 1) if i > 0 else ""
+        gen = helper(args, "config_gen" + suffix)
+        gens.append(gen)
 
-    gen = list(map(lambda x: dict(ChainMap(*x)), (itertools.product(gen, gen2, gen3, gen4))))
+    gen = list(map(lambda x: dict(ChainMap(*x)), (itertools.product(*gens))))
 
     return configs, gen
 

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import re
+from math import sqrt
 from enum import Enum
 from pathlib import Path
 from collections import namedtuple
@@ -259,10 +260,71 @@ class PolybenchProgram(Program):
         return ret
 
 
+class MathisProgram(Program):
+
+    DEFAULTS = {
+        "size": 1024,
+        # "size": 65536,
+    }
+
+    @property
+    def size(self):
+        value = self.config["size"]
+        if isinstance(value, str):
+            value = str(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    def get_nargs(self, name):
+        return {
+            "to_upper": 2,
+            "add8": 4,
+            "add16": 4,
+            "dot8": 3,
+            "dot16": 3,
+            "saxpy8": 5,
+            "saxpy16": 5,
+            "matmul8": 4,
+            "matmul16": 4,
+        }[name]
+
+    def get_elem_size(self, name):
+        return {
+            "to_upper": 8,
+            "add8": 8,
+            "add16": 16,
+            "dot8": 8,
+            "dot16": 16,
+            "saxpy8": 8,
+            "saxpy16": 16,
+            "matmul8": 8,
+            "matmul16": 16,
+        }[name]
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["MATHIS_TEST"] = self.name
+            ret["MATHIS_NARGS"] = self.get_nargs(self.name)
+            ret["MATHIS_ELEM_SIZE"] = self.get_elem_size(self.name)
+            ret["MATHIS_SIZE"] = int(sqrt(self.size)) if "matmul" in self.name else self.size
+        return ret
+
+
 class CoremarkProgram(Program):
 
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["COREMARK_ITERATIONS"] = 10
+        return ret
+
+
+class DhrystoneProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["DHRYSTONE_ITERATIONS"] = 10000
         return ret

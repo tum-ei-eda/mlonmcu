@@ -25,7 +25,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram, PolybenchProgram, CoremarkProgram
+from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram, PolybenchProgram, CoremarkProgram, DhrystoneProgram, MathisProgram
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
@@ -1012,4 +1012,98 @@ class CoremarkFrontend(SimpleFrontend):
         ret = {}
         if platform == "mlif":
             ret["TEMPLATE"] = "coremark"
+        return ret
+
+
+class DhrystoneFrontend(SimpleFrontend):
+
+    REQUIRED = set()
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "dhrystone",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "dhrystone",
+        ]
+
+    def lookup_models(self, names, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("dhrystone/", "")
+            if name in self.supported_names:
+                hint = DhrystoneProgram(
+                    name,
+                    alt=f"dhrystone/{name}",
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TEMPLATE"] = "dhrystone"
+        return ret
+
+
+class MathisFrontend(SimpleFrontend):
+
+    REQUIRED = set()
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "mathis",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "to_upper",
+            "add8",
+            "add16",
+            "dot8",
+            "dot16",
+            "saxpy8",
+            "saxpy16",
+            "matmul8",
+            "matmul16",
+        ]
+
+    def lookup_models(self, names, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("mathis/", "")
+            if name in self.supported_names:
+                hint = MathisProgram(
+                    name,
+                    alt=f"mathis/{name}",
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TEMPLATE"] = "mathis"
         return ret

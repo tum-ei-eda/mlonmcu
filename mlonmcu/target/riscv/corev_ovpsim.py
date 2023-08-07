@@ -266,10 +266,8 @@ class COREVOVPSimTarget(RISCVTarget):
         return ret
 
     def parse_exit(self, out):
-        print("parse_exit", out)
         exit_code = None
         exit_match = re.search(r"Error \(RISCV/PK_EXIT\) Non-zero exit code: (.*)", out)
-        print("exit_match", exit_match)
         if exit_match:
             exit_code = int(exit_match.group(1))
         return exit_code

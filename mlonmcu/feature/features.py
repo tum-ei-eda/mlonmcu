@@ -1404,6 +1404,8 @@ class AutoVectorize(PlatformFeature):
         "verbose": False,
         "loop": True,
         "slp": True,
+        "force_vector_width": None,  # llvm only
+        "force_vector_interleave": None,  # llvm only
     }
 
     def __init__(self, features=None, config=None):
@@ -1412,7 +1414,13 @@ class AutoVectorize(PlatformFeature):
     @property
     def verbose(self):
         value = self.config["verbose"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        # return str2bool(value) if not isinstance(value, (bool, int)) else value
+        if value is None or not value:
+            return "OFF"
+        assert isinstance(value, str)
+        value = value.lower()
+        assert value in ["loop", "slp", "none"]
+        return value
 
     @property
     def loop(self):
@@ -1424,12 +1432,40 @@ class AutoVectorize(PlatformFeature):
         value = self.config["slp"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def force_vector_width(self):
+        value = self.config["force_vector_width"]
+        # bool not allowed!
+        if value is None:
+            return "OFF"
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        if value <= 1:
+            return "OFF"
+        return value
+
+    @property
+    def force_vector_interleave(self):
+        value = self.config["force_vector_interleave"]
+        # bool not allowed!
+        if value is None:
+            return "OFF"
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        if value <= 1:
+            return "OFF"
+        return value
+
     def get_platform_defs(self, platform):
         return {
             "RISCV_AUTO_VECTORIZE": self.enabled,
             "RISCV_AUTO_VECTORIZE_VERBOSE": self.verbose,
             "RISCV_AUTO_VECTORIZE_LOOP": self.loop and self.enabled,
             "RISCV_AUTO_VECTORIZE_SLP": self.slp and self.enabled,
+            "RISCV_AUTO_VECTORIZE_FORCE_VECTOR_WIDTH": self.force_vector_width,
+            "RISCV_AUTO_VECTORIZE_FORCE_VECTOR_INTERLEAVE": self.force_vector_interleave,
         }
 
 

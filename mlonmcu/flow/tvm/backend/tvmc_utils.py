@@ -74,7 +74,7 @@ def check_allowed(target, name):
 
 def gen_target_details_args(target, target_details):
     def helper(value):
-        if isinstance(value, bool):
+        if isinstance(value, (bool, int)):
             # value = "true" if value else "false"
             value = str(int(value))
         return value

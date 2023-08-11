@@ -28,7 +28,7 @@ from ..platform import CompilePlatform
 class MicroTvmCompilePlatform(CompilePlatform):
     """MicroTVM compile platform class."""
 
-    def invoke_tvmc_micro_create(self, mlf_path, target=None, list_options=False, force=True):
+    def invoke_tvmc_micro_create(self, mlf_path, target=None, list_options=False, force=True, **kwargs):
         all_args = []
         if force:
             all_args.append("--force")
@@ -36,16 +36,16 @@ class MicroTvmCompilePlatform(CompilePlatform):
         all_args.append(mlf_path)
         template_args = self.get_template_args(target)
         all_args.extend(template_args)
-        return self.invoke_tvmc_micro("create", *all_args, target=target, list_options=list_options)
+        return self.invoke_tvmc_micro("create", *all_args, target=target, list_options=list_options, **kwargs)
 
-    def invoke_tvmc_micro_build(self, target=None, list_options=False, force=False):
+    def invoke_tvmc_micro_build(self, target=None, list_options=False, force=False, **kwargs):
         all_args = []
         if force:
             all_args.append("--force")
         all_args.append(self.project_dir)
         template_args = self.get_template_args(target)
         all_args.extend(template_args)
-        return self.invoke_tvmc_micro("build", *all_args, target=target, list_options=list_options)
+        return self.invoke_tvmc_micro("build", *all_args, target=target, list_options=list_options, **kwargs)
 
     def prepare(self, mlf, target):
         out = self.invoke_tvmc_micro_create(mlf, target=target)

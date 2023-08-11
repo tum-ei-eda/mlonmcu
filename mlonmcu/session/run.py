@@ -610,7 +610,7 @@ class Run:
                         if name not in ["", "default"]:
                             dest = dest / "sub" / name
                         dest.mkdir(parents=True, exist_ok=True)
-                        extract = artifact.fmt == ArtifactFormat.MLF
+                        extract = artifact.fmt in [ArtifactFormat.MLF, ArtifactFormat.ARCHIVE]
                         # extract = artifact.fmt == ArtifactFormat.MLF
                         # and not isinstance(self.platform, MicroTvmPlatform)
                         artifact.export(dest)

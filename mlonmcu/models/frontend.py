@@ -1082,6 +1082,14 @@ class MathisFrontend(SimpleFrontend):
             "saxpy16",
             "matmul8",
             "matmul16",
+            "transposed_matmul8",
+            "transposed_matmul16",
+            "matmul8_",
+            "matmul16_",
+            "transposed_matmul8_",
+            "transposed_matmul16_",
+            "matmulT8",
+            "matmulT16",
         ]
 
     def lookup_models(self, names, context=None):

@@ -296,6 +296,14 @@ class MathisProgram(Program):
             "saxpy16": 5,
             "matmul8": 4,
             "matmul16": 4,
+            "transposed_matmul8": 4,
+            "transposed_matmul16": 4,
+            "matmul8_": 4,
+            "matmul16_": 4,
+            "transposed_matmul8_": 4,
+            "transposed_matmul16_": 4,
+            "matmulT8": 4,
+            "matmulT16": 4,
         }[name]
 
     def get_elem_size(self, name):
@@ -309,6 +317,14 @@ class MathisProgram(Program):
             "saxpy16": 16,
             "matmul8": 8,
             "matmul16": 16,
+            "transposed_matmul8": 8,
+            "transposed_matmul16": 16,
+            "matmul8_": 8,
+            "matmul16_": 16,
+            "transposed_matmul8_": 8,
+            "transposed_matmul16_": 16,
+            "matmulT8": 8,
+            "matmulT16": 16,
         }[name]
 
     def get_platform_defs(self, platform):

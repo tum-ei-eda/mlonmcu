@@ -604,6 +604,9 @@ class AnalyseDumpPostprocess(RunPostprocess):
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
+        platform = report.pre_df["Platform"]
+        if (platform != "mlif").any():
+            return []
         ret_artifacts = []
         dump_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu.dump", fmt=ArtifactFormat.TEXT, first_only=True)
         assert len(dump_artifact) == 1, "To use analyse_dump postprocess, please set mlif.enable_asmdump=1"

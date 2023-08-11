@@ -62,6 +62,7 @@ class TVMBackend(Backend):
         "target_mabi": None,
         "target_mattr": None,
         "target_keys": None,
+        "target_num_cores": None,
         "extra_targets": None,  # list
         "extra_target_details": None,  # dict
         "desired_layout": None,  # optional: NCHW, NHWC, NHWC:HWOI, ...
@@ -189,6 +190,27 @@ class TVMBackend(Backend):
         return self.config["target_model"]
 
     @property
+    def target_num_cores(self):
+        return self.config["target_num_cores"]
+
+    # TODO:
+    # "target_device": ?,
+    # "target_libs": ?,
+    # "target_tag": ?,
+    # "target_march": ?,
+    # "target_keys": ?,
+    # "target_opt_level": ?,
+    # "target_cl_opt": ?,
+    # "target_mfloat_abi": ?,
+    # "target_fast_math_ninf": ?,
+    # "target_fast_math_contract": ?,
+    # "target_fast_math_nnan": ?,
+    # "target_fast_math": ?,
+    # "target_fast_math_nsz": ?,
+    # "target_fast_math_reassoc": ?,
+    # "target_fast_math_arcp": ?,
+
+    @property
     def extra_targets(self):
         return str2list(self.config["extra_targets"], allow_none=True)
 
@@ -298,6 +320,8 @@ class TVMBackend(Backend):
             ret["keys"] = self.target_keys
         if self.target_model:
             ret["model"] = self.target_model
+        if self.target_num_cores:
+            ret["num-cores"] = self.target_num_cores
         return ret
 
     def get_tvmc_compile_args(self, out, dump=None):

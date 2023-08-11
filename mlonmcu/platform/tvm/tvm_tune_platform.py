@@ -32,6 +32,7 @@ from mlonmcu.flow.tvm.backend.tuner import get_autotuning_defaults, get_autotvm_
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_rpc_tvmc_args,
     get_target_tvmc_args,
+    get_disabled_pass_tvmc_args,
 )
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.target.metrics import Metrics
@@ -105,7 +106,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             ),
             *(["--desired-layout", desired_layout] if desired_layout is not None else []),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
-            # TODO: missing: pass config, disabled_pass, etc.
+            *get_disabled_pass_tvmc_args(backend.disabled_passes),
+            # TODO: missing: pass config etc.
             *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),
             *["--parallel", str(max_parallel)],
             *["--timeout", str(timeout * max_parallel)],

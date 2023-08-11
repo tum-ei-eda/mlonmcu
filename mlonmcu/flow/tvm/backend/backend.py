@@ -78,6 +78,7 @@ class TVMBackend(Backend):
         "num_threads": multiprocessing.cpu_count(),
         "dump": [],  # Supports: c, relay, tir, ll
         "disable_vectorize": "auto",
+        "custom_unroll": False,  # Experimental, RISC-V only
         "autotuned_mode": None,
         "autotuned_results_file": None,
     }
@@ -279,6 +280,11 @@ class TVMBackend(Backend):
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     @property
+    def custom_unroll(self):
+        value = self.config["custom_unroll"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+
+    @property
     def dump(self):
         value = self.config["dump"]
         if isinstance(value, str):
@@ -315,7 +321,10 @@ class TVMBackend(Backend):
         if self.target_mabi:
             ret["mabi"] = self.target_mabi
         if self.target_mattr:
-            ret["mattr"] = self.target_mattr
+            temp = self.target_mattr
+            if self.custom_unroll:
+                temp += ",+no-default-unroll"
+            ret["mattr"] = temp
         if self.target_keys:
             ret["keys"] = self.target_keys
         if self.target_model:

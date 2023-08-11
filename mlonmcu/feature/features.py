@@ -1404,6 +1404,7 @@ class AutoVectorize(PlatformFeature):
         "slp": True,
         "force_vector_width": None,  # llvm only
         "force_vector_interleave": None,  # llvm only
+        "custom_unroll": False,  # TODO: this is not related to vectorization -> move to llvm toolchain!
     }
 
     def __init__(self, features=None, config=None):
@@ -1456,6 +1457,11 @@ class AutoVectorize(PlatformFeature):
             return "OFF"
         return value
 
+    @property
+    def custom_unroll(self):
+        value = self.config["custom_unroll"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_platform_defs(self, platform):
         return {
             "RISCV_AUTO_VECTORIZE": self.enabled,
@@ -1464,6 +1470,7 @@ class AutoVectorize(PlatformFeature):
             "RISCV_AUTO_VECTORIZE_SLP": self.slp and self.enabled,
             "RISCV_AUTO_VECTORIZE_FORCE_VECTOR_WIDTH": self.force_vector_width,
             "RISCV_AUTO_VECTORIZE_FORCE_VECTOR_INTERLEAVE": self.force_vector_interleave,
+            "RISCV_AUTO_VECTORIZE_CUSTOM_UNROLL": self.custom_unroll,
         }
 
 

@@ -30,6 +30,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.bench import add_bench_metrics
 from .riscv import RISCVTarget
 
 logger = get_logger()
@@ -427,20 +428,14 @@ class EtissTarget(RISCVTarget):
             )
         return ret
 
-    def parse_stdout(self, out, handle_exit=None):
+    def parse_exit(self, out):
+        exit_code = None
         exit_match = re.search(r"exit called with code: (.*)", out)
         if exit_match:
             exit_code = int(exit_match.group(1))
-            if handle_exit is not None:
-                exit_code = handle_exit(exit_code)
-            if exit_code != 0:
-                logger.error("Execution failed - " + out)
-                if self.allow_error:
-                    logger.error(f"unexpected exit code: {exit_code}")
-                else:
-                    raise RuntimeError(f"unexpected exit code: {exit_code}")
-        else:
-            exit_code = 0
+        return exit_code
+
+    def parse_stdout(self, out, metrics, exit_code=0):
         error_match = re.search(r"ETISS: Error: (.*)", out)
         if error_match:
             error_msg = error_match.group(1)
@@ -448,26 +443,19 @@ class EtissTarget(RISCVTarget):
                 logger.error(f"An ETISS Error occured during simulation: {error_msg}")
             else:
                 raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
-
+        add_bench_metrics(out, metrics, exit_code != 0)
         if self.end_to_end_cycles:
-            cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)
-        else:
-            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-        if not cpu_cycles:
-            if exit_code == 0:
-                logger.warning("unexpected script output (cycles)")
-            cycles = None
-        else:
-            cycles = int(float(cpu_cycles.group(1)))
+            sim_insns = re.search(r"CPU Cycles \(estimated\): (.*)", out)
+            sim_insns = int(float(sim_insns.group(1)))
+            sim_insns_metric = Metric(sim_insns, True)
+            metrics.append(sim_insns_metric)
+        mips = None  # TODO: parse mips?
         mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
-        if not mips_match:
-            if exit_code == 0:
-                raise logger.warning("unexpected script output (mips)")
-            mips = None
-        else:
-            mips = float(mips_match.group(1))
-
-        return cycles, mips
+        if mips_match:
+            mips_str = mips_match.group(1)
+            mips = float(mips_str)
+        if mips:
+            metrics.add("MIPS", mips, optional=True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -482,13 +470,27 @@ class EtissTarget(RISCVTarget):
         if os.path.exists(metrics_file):
             os.remove(metrics_file)
 
+        def _handle_exit(code, out=None):
+
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
+
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out += self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
-        total_cycles, mips = self.parse_stdout(out, handle_exit=handle_exit)
+        # TODO: get exit code
+        exit_code = 0
+        metrics = Metrics()
+        self.parse_stdout(out, metrics, exit_code=exit_code)
 
         get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")
@@ -507,10 +509,6 @@ class EtissTarget(RISCVTarget):
                 cwd=directory,
                 print_func=lambda *args, **kwargs: None,
             )
-
-        metrics = Metrics()
-        metrics.add("Cycles", total_cycles)
-        metrics.add("MIPS", mips, optional=True)
 
         metrics_file = os.path.join(directory, "metrics.csv")
         with open(metrics_file, "r") as handle:

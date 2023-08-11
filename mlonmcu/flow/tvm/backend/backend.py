@@ -372,7 +372,8 @@ class TVMBackend(Backend):
 
     def invoke_tvmc_compile(self, out, dump=None, cwd=None):
         args = self.get_tvmc_compile_args(out, dump=dump)
-        self.timeout_sec = 90
+        # self.timeout_sec = 90
+        self.timeout_sec = 0
         if self.timeout_sec > 0:
             ret = exec_timeout(
                 self.timeout_sec,

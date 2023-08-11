@@ -274,6 +274,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                     "target_mattr": self.attr,
                     "target_mcpu": f"generic-rv{self.xlen}",
                     "target_model": f"etiss-{arch_clean}",
+                    "target_num_cores": 1,  # TODO: also add for other microtvm platform targets
                 }
             )
             if optimized_schedules:

@@ -819,11 +819,17 @@ class Run:
                     tune_stage_artifacts, fmt=ArtifactFormat.TEXT, flags=["records"], first_only=True
                 )
                 if len(tuning_artifact) == 0:
-                    continue
+                    # fallback for metascheduler
+                    tuning_artifact = lookup_artifacts(
+                        tune_stage_artifacts, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"], first_only=True
+                    )
+                    if len(tuning_artifact) == 0:
+                        continue
                 tuning_artifact = tuning_artifact[0]
                 if not tuning_artifact.exported:
                     tuning_artifact.export(self.dir)
-                self.backend.set_tuning_records(tuning_artifact.path)
+                tuner_name = tuning_artifact.flags[-1] # TODO: improve
+                self.backend.set_tuning_records(tuning_artifact.path, tuner_name=tuner_name)
                 candidate = (RunStage.TUNE, name)
                 assert candidate in self.sub_parents
                 parent_stage, parent_name = self.sub_parents[candidate]

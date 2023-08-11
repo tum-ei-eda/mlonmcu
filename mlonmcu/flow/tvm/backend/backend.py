@@ -77,6 +77,8 @@ class TVMBackend(Backend):
         "num_threads": multiprocessing.cpu_count(),
         "dump": [],  # Supports: c, relay, tir, ll
         "disable_vectorize": "auto",
+        "autotuned_mode": None,
+        "autotuned_results_file": None,
     }
 
     REQUIRED = set()
@@ -100,6 +102,12 @@ class TVMBackend(Backend):
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         self._tuning_records = {}
+        results_file = self.config.get("autotuned_results_file", None)
+        tuner_name = self.config.get("autotuned_mode", None)
+        if results_file is not None:
+            assert tuner_name is not None
+            self._tuning_records[tuner_name] = results_file
+
 
     # On the long term, we might support multiple TUNE stages in a single run (i.e. to allow autotvm+graphtuner to be separated)
     # Hence
@@ -115,16 +123,18 @@ class TVMBackend(Backend):
 
     def set_tuning_records(self, records, tuner_name=None):
         if tuner_name is None:
-            # tuner_name = self.config["autotuning_mode"]
-            tuner_name = "autotvm"
+            tuner_name = self.config["autotuned_mode"]
+            # tuner_name = "autotvm"
             assert tuner_name is not None
         self._tuning_records[tuner_name] = records
 
     def get_tuning_records(self, tuner_name=None):
         if tuner_name is None:
-            # tuner_name = self.config["autotuning_mode"]
-            tuner_name = "autotvm"
-            assert tuner_name is not None
+            tuner_name = self.config["autotuned_mode"]
+            # tuner_name = "autotvm"
+            if tuner_name is None:
+                if len(self._tuning_records) > 0:
+                    tuner_name = list(self._tuning_records.keys())[0]
         return self._tuning_records.get(tuner_name, None)
 
     @property

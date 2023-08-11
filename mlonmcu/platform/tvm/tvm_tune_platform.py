@@ -18,9 +18,11 @@
 #
 """TVM Tune Platform"""
 import re
+import os
 from mlonmcu.config import str2bool
 import time
 import tempfile
+import tarfile
 import concurrent
 from pathlib import Path
 from .tvm_target_platform import TvmTargetPlatform
@@ -43,7 +45,7 @@ logger = get_logger()
 class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     """TVM Tune platform class."""
 
-    FEATURES = TunePlatform.FEATURES | TvmTargetPlatform.FEATURES | {"autotvm", "autoschedule"}
+    FEATURES = TunePlatform.FEATURES | TvmTargetPlatform.FEATURES | {"autotvm", "autoscheduler", "metascheduler"}
 
     DEFAULTS = {
         **TunePlatform.DEFAULTS,
@@ -116,6 +118,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         ]
         autotvm_enable = self.config["autotvm_enable"]
         autoscheduler_enable = self.config["autoscheduler_enable"]
+        metascheduler_enable = self.config["metascheduler_enable"]
         if autotvm_enable:
             tuner = self.config.get("autotvm_tuner", "ga")
             assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
@@ -141,7 +144,10 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             if len(hardware_details) > 0:
                 for key, value in hardware_details.items():
                     ret.extend([f"--{key}", str(value)])
+        elif metascheduler_enable:
+            ret.append("--enable-metascheduler")
         if self.config["autotuning_tasks"]:
+            assert not metascheduler_enable, "autotuning_tasks not supported by MetaScheduler"
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
             ret.extend(["--tasks", str(self.config["autotuning_tasks"])])
         ret.append(model)
@@ -150,9 +156,10 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     def _tune_model(self, model_path, backend, target):
         autotvm_enable = self.config["autotvm_enable"]
         autoscheduler_enable = self.config["autoscheduler_enable"]
-        assert [autotvm_enable, autoscheduler_enable].count(
+        metascheduler_enable = self.config["metascheduler_enable"]
+        assert [autotvm_enable, autoscheduler_enable, metascheduler_enable].count(
             True
-        ) == 1, "Can not use AutoTVM and AutoScheduler at the same time"
+        ) == 1, "Can not use AutoTVM and AutoScheduler/MetaScheduler at the same time"
         results_file = self.config["autotuning_results_file"]
         append = self.config["autotuning_append"]
         num_workers = self.config["autotuning_num_workers"]
@@ -196,7 +203,27 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         content = ""
         total_size = None
         visualize_raw = None
-        if autotvm_enable or autoscheduler_enable:
+        if metascheduler_enable:
+            assert not append, "append not supported by MetaScheduler"
+            assert num_workers is None or int(num_workers) == 0, "num_workers > 0 not supported by MetaScheduler"
+            assert not self.config["autotuning_visualize"], "autotuning_visualize not supported by MetaScheduler"
+
+            sub_metrics = {}
+            sub_artifacts = {}
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                # out_file = Path(tmp_dir) / "tuning_results.log.txt"
+                tmp_dir = Path(tmp_dir)
+                work_dir = tmp_dir / "work_dir"
+                tune_args = self.get_tune_args(model_path, backend, target, work_dir)
+                out = self.invoke_tvmc_tune(*tune_args, target=target, cwd=tmp_dir)
+                with tarfile.open(tmp_dir / "work_dir.tar", "w") as tar:
+                    for file in os.listdir(work_dir):
+                        tar.add(work_dir / file, arcname=os.path.join("work_dir", file))
+                raw = None
+                with open(tmp_dir / "work_dir.tar", "rb") as tar:
+                    raw = tar.read()
+                artifact = Artifact("work_dir.tar", raw=raw, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"])
+        elif autotvm_enable or autoscheduler_enable:
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:
@@ -207,10 +234,11 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             if num_workers is not None:
                 if isinstance(num_workers, str):
                     num_workers = int(num_workers)
-                assert isinstance(num_workers, int) and num_workers > 0
+                assert isinstance(num_workers, int) and num_workers >= 0
+            if num_workers > 0:
                 assert self.experimental_tvmc_tune_tasks, "num_workers requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix
-                assert self.config["autotuning_tasks"] is None, "tune_tasks not supported together with num_workers > 1"
+                assert self.config["autotuning_tasks"] is None, "tune_tasks not supported together with num_workers > 0"
 
                 def get_tune_tasks():
                     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -340,34 +368,40 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             with open(results_file, "r") as handle:
                 content = handle.read()
 
-        artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records"])
-        artifacts.append(artifact)
-        if visualize_raw:
-            visualize_artifact = Artifact(
-                "tuning_progress.png", raw=visualize_raw, fmt=ArtifactFormat.RAW, flags=["visualize"]
-            )
-            artifacts.append(visualize_artifact)
+        if metascheduler_enable:
+            artifacts.append(artifact)
+            # TODO: get num trials etc.
+            metrics = Metrics()
+        elif autotvm_enable or autoscheduler_enable:
+            flag = "autotvm" if auto_scheduler_enable else "autoscheduler"
+            artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records", flag])
+            artifacts.append(artifact)
+            if visualize_raw:
+                visualize_artifact = Artifact(
+                    "tuning_progress.png", raw=visualize_raw, fmt=ArtifactFormat.RAW, flags=["visualize"]
+                )
+                artifacts.append(visualize_artifact)
 
-        metrics = Metrics()
+            metrics = Metrics()
 
-        if total_size is not None:
-            metrics.add("Config Space Size", total_size, True)
+            if total_size is not None:
+                metrics.add("Config Space Size", total_size, True)
 
-        content_best = _pick_best(backend, content, verbose=verbose)
-        total_trials = len(remove_empty(content.split("\n")))
-        metrics.add("Total Trials", total_trials, True)
+            content_best = _pick_best(backend, content, verbose=verbose)
+            total_trials = len(remove_empty(content.split("\n")))
+            metrics.add("Total Trials", total_trials, True)
 
-        failed_trials = count_failed_trials(content)
-        metrics.add("Failed Trials", failed_trials, True)
-        if len(content_best) > 0:
-            artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
-            artifacts.append(artifact_)
-            num_tuned = len(remove_empty(content_best.split("\n")))
-            metrics.add("Tuned Tasks", num_tuned, True)
-        else:
-            metrics.add("Tuned Tasks", 0, True)
+            failed_trials = count_failed_trials(content)
+            metrics.add("Failed Trials", failed_trials, True)
+            if len(content_best) > 0:
+                artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
+                artifacts.append(artifact_)
+                num_tuned = len(remove_empty(content_best.split("\n")))
+                metrics.add("Tuned Tasks", num_tuned, True)
+            else:
+                metrics.add("Tuned Tasks", 0, True)
 
-        if autotvm_enable or autoscheduler_enable:
+        if autotvm_enable or autoscheduler_enable or metascheduler_enable:
             stdout_artifact = Artifact(
                 "tvmc_tune_out.log", content=out, fmt=ArtifactFormat.TEXT
             )  # TODO: rename to tvmaot_out.log?

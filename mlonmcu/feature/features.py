@@ -841,8 +841,8 @@ class Autotuned(BackendFeature):
         return filter_none(
             {
                 f"{backend}.use_tuning_results": self.enabled,
-                f"{backend}.autotuning_results_file": self.results_file,
-                f"{backend}.autotuning_mode": self.mode,
+                f"{backend}.autotuned_results_file": self.results_file,
+                f"{backend}.autotuned_mode": self.mode,
             }
         )
 
@@ -949,8 +949,6 @@ class TVMTuneBase(PlatformFeature):
 class AutoTVM(TVMTuneBase):
     """Use the TVM autotuner inside the backend to generate tuning logs."""
 
-    # TODO: autoscheduler
-    # TODO: metascheduler
     # TODO: graphtuner
     # TODO: tuner base feature class
 
@@ -978,8 +976,8 @@ class AutoTVM(TVMTuneBase):
         return ret
 
 
-@register_feature("autoschedule", depends=["autotune"])
-class AutoSchedule(TVMTuneBase):
+@register_feature("autoscheduler", depends=["autotune"])
+class AutoScheduler(TVMTuneBase):
     """TODO"""
 
     # TODO: metascheduler

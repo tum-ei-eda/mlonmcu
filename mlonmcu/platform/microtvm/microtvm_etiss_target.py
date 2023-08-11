@@ -141,7 +141,8 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "toolchain": self.toolchain,
                 "etiss_script": self.etiss_script,
                 "etiss_args": self.etiss_extra_args,
-                "arch": self.gcc_arch,
+                # "arch": self.gcc_arch,
+                "arch": self.llvm_arch,
                 "abi": self.abi,
                 "cpu_arch": self.cpu_arch
             }

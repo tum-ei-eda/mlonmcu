@@ -95,15 +95,16 @@ def _install_riscv_gcc(context, name, default_dl_url=None, default_version=None,
     else:
 
         def _helper(url):
-            candidate_exts = [".zip", ".tar"]  # .tar.xz an .tar.gz also supported
             fullUrlSplit = url.split("/")
             riscvUrl = "/".join(fullUrlSplit[:-1])
             riscvFileName, riscvFileExtension = fullUrlSplit[-1].split(".", 1)
-            riscvFileExtension = ""
-            for ext in candidate_exts:
-                if ext in riscvFileName:
-                    riscvFileName, riscvFileExtension = riscvFileName.split(ext)
-                    break
+            # riscvFileExtension = ""
+            # candidate_exts = [".zip", ".tar"]  # .tar.xz an .tar.gz also supported
+            # for ext in candidate_exts:
+            #     if ext in riscvFileName:
+            #         riscvFileName, riscvFileExtension = riscvFileName.split(ext)
+            #         break
+            # assert riscvFileExtension != ""
             return riscvUrl, riscvFileName, riscvFileExtension
 
         if f"{name}.dl_url" in user_vars:

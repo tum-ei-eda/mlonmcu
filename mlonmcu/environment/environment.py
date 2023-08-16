@@ -84,19 +84,19 @@ class Environment:
 
     @property
     def deps_path(self):
-        return self.paths["deps"]
+        return self.paths["deps"].path
 
     @property
     def deps_src_path(self):
-        return self.depths_path / "src"
+        return self.deps_path / "src"
 
     @property
     def deps_build_path(self):
-        return self.depths_path / "build"
+        return self.deps_path / "build"
 
     @property
     def deps_install_path(self):
-        return self.depths_path / "install"
+        return self.deps_path / "install"
 
     @classmethod
     def from_file(cls, filename):

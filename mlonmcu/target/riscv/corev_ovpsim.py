@@ -276,6 +276,7 @@ class COREVOVPSimTarget(RISCVTarget):
         add_bench_metrics(out, metrics, exit_code != 0)
         if self.end_to_end_cycles:
             sim_insns = re.search(r".*  Simulated instructions:(.*)", out)
+            sim_insns = int(float(sim_insns.group(1)))
             sim_insns_metric = Metric(sim_insns, True)
             metrics.append(sim_insns_metric)
         mips = None  # TODO: parse mips?

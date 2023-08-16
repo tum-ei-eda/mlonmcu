@@ -96,7 +96,7 @@ def clone_ethosu_platform(
 ):
     """EthosU platform repository."""
     ethosuPlatformName = utils.makeDirName("ethosu_platform")
-    ethosuPlatformSrcDir = Path(context.environment.deps_src_path / ethosuPlatformName
+    ethosuPlatformSrcDir = Path(context.environment.deps_src_path) / ethosuPlatformName
     if rebuild or not utils.is_populated(ethosuPlatformSrcDir):
         ethosuPlatformRepo = context.environment.repos["ethosu_platform"]
         utils.clone(ethosuPlatformRepo.url, ethosuPlatformSrcDir, branch=ethosuPlatformRepo.ref, refresh=rebuild)

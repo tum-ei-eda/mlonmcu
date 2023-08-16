@@ -865,6 +865,7 @@ class TVMTuneBase(PlatformFeature):
         "results_file": None,
         "append": None,
         "trials": None,
+        "trials_single": None,
         "early_stopping": None,
         "num_workers": None,
         "max_parallel": None,
@@ -888,6 +889,10 @@ class TVMTuneBase(PlatformFeature):
     @property
     def trials(self):
         return self.config["trials"] if "trials" in self.config else None
+
+    @property
+    def trials_single(self):
+        return self.config["trials_single"] if "trials_single" in self.config else None
 
     @property
     def early_stopping(self):
@@ -933,6 +938,7 @@ class TVMTuneBase(PlatformFeature):
                 f"{platform}.autotuning_results_file": self.results_file,
                 f"{platform}.autotuning_append": self.append,
                 f"{platform}.autotuning_trials": self.trials,
+                f"{platform}.autotuning_trials_single": self.trials_single,
                 f"{platform}.autotuning_early_stopping": self.early_stopping,
                 f"{platform}.autotuning_num_workers": self.num_workers,
                 f"{platform}.autotuning_max_parallel": self.max_parallel,

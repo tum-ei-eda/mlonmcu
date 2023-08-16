@@ -205,6 +205,14 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         content = ""
         total_size = None
         visualize_raw = None
+        trials_global = self.config.get("autotuning_trials", 10)
+        trials_single = self.config.get("autotuning_trials_single", None)
+        if not isinstance(trials_global, int):
+            trials_global = int(trials_global)
+        if trials_single is not None and not isinstance(trials_single, int):
+            trials_single = int(trials_single)
+        if trials_single == 0:  # 0: auto, None: do not limit per task
+            trials_single = max(1, trials_global // len(tune_tasks))
         if metascheduler_enable:
             assert not append, "append not supported by MetaScheduler"
             assert num_workers is None or int(num_workers) == 0, "num_workers > 0 not supported by MetaScheduler"
@@ -316,16 +324,13 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         metrics_.add("Failed Trials", failed, True)
                         metrics_.add("Tune Duration [s]", duration, True)
                         metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
-                        trials = self.config.get("autotuning_trials", 10)
-                        if not isinstance(trials, int):
-                            trials = int(trials)
                         early_stopping = self.config.get("autotuning_early_stopping", None)
                         if early_stopping is None:
                             early_stopping = max(trials, 10)  # Let's see if this default works out...
                         if not isinstance(early_stopping, int):
                             early_stopping = int(early_stopping)
-                        if early_stopping < trials:
-                            early = tuned + failed < min(trials, size)
+                        if early_stopping < trials_single:
+                            early = tuned + failed < min(trials_single, size)
                         else:
                             early = False
                         metrics_.add("Early Stopped", early, True)

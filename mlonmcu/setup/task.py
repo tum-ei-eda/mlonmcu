@@ -297,7 +297,7 @@ class TaskFactory:
 
                 def process(name_, params=None, rebuild=False):
                     if not params:
-                        params = []
+                        params = {}
                     rebuild = rebuild
                     if name in self.dependencies:
                         for dep in self.dependencies[name]:
@@ -349,6 +349,7 @@ class TaskFactory:
                     if pbar:
                         pbar.update(1)
                 else:
+                    retval = False
                     for comb in combs:  # TODO process in parallel?
                         extended_name = name + str(comb)
                         if pbar:
@@ -356,17 +357,25 @@ class TaskFactory:
                         else:
                             logger.info("Processing task: %s", extended_name)
                         time.sleep(0.1)
-                        start = time.time()
-                        retval = process(extended_name, params=comb, rebuild=rebuild)
-                        end = time.time()
-                        diff = end - start
-                        minutes = int(diff // 60)
-                        seconds = int(diff % 60)
-                        duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
-                        if not pbar:
-                            logger.debug("-> Done (%s)", duration_str)
-                            # TODO: move this to helper func
+                        # if name in self.validates:
+                        #     check = self.validates[name](args[0], params=comb)
+                        check = True
+                        if check:
+                            start = time.time()
+                            retval_ = process(extended_name, params=comb, rebuild=rebuild)
+                            end = time.time()
+                            diff = end - start
+                            minutes = int(diff // 60)
+                            seconds = int(diff % 60)
+                            duration_str = f"{seconds}s" if minutes == 0 else f"{minutes}m{seconds}s"
+                            if not pbar:
+                                logger.debug("-> Done (%s)", duration_str)
+                                # TODO: move this to helper func
                         else:
+                            logger.debug("-> Skipped")
+                            retval_ = False
+                        retval = retval or retval_
+                        if pbar:
                             pbar.update(1)
                 if pbar:
                     pbar.close()

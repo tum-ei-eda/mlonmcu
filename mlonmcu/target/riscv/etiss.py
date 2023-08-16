@@ -406,7 +406,8 @@ class EtissTarget(RISCVTarget):
         for plugin in self.plugins:
             etiss_script_args.extend(["-p", plugin])
 
-        if self.timeout_sec > 0:
+        # if self.timeout_sec > 0:
+        if False:
             ret = exec_timeout(
                 self.timeout_sec,
                 execute,

@@ -49,6 +49,7 @@ class RISCVTarget(Target):
         "arch": None,  # Please use above properties if possible
         "abi": None,  # Please use above properties if possible
         "attr": "",  # Please avoid using this directly
+        "cpu": None,
     }
     REQUIRED = {"riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"}
     PUPL_GCC_TOOLCHAIN_REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}  # TODO elegant handle customized toolchain
@@ -177,6 +178,14 @@ class RISCVTarget(Target):
             return f"rv{self.xlen}{exts_str}"
 
     @property
+    def cpu(self):
+        temp = self.config["cpu"]
+        if temp:
+            return temp
+        else:
+            return f"generic-rv{self.xlen}"
+
+    @property
     def llvm_arch(self):
         temp = self.config["arch"]  # TODO: allow underscores and versions
         if temp:
@@ -285,7 +294,9 @@ class RISCVTarget(Target):
         # ret["RISCV_ARCH"] = self.gcc_arch
         ret["RISCV_ARCH"] = self.llvm_arch
         ret["RISCV_ABI"] = self.abi
-        ret["RISCV_ATTR"] = self.attr  # TODO: use for clang
+        ret["RISCV_MCPU"] = self.cpu
+        # llvm/clang only!
+        ret["RISCV_ATTR"] = self.attr
         return ret
 
     def get_arch(self):
@@ -301,7 +312,7 @@ class RISCVTarget(Target):
                     "target_mtriple": self.riscv_gcc_basename,
                     "target_mabi": self.abi,
                     "target_mattr": self.attr,
-                    "target_mcpu": f"generic-rv{self.xlen}",
+                    "target_mcpu": self.cpu,
                     "target_model": f"etiss-{arch_clean}",
                 }
             )

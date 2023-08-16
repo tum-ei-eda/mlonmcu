@@ -40,7 +40,7 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
     if "muriscvnn.src_dir" not in user_vars:
         assert "muriscvnn" in context.environment.repos, "Undefined repository: 'muriscvnn'"
     if params:
-        toolchain = params.get("toolchain", "gcc")
+        toolchain = params.get("toolchain", "riscv_gcc")
         if not context.environment.has_toolchain(toolchain):
             return False
         target_arch = params.get("target_arch", "riscv")
@@ -91,15 +91,16 @@ def clone_muriscvnn(
     context.cache["muriscvnn.inc_dir"] = muriscvnnIncludeDir
 
 
-@Tasks.needs(["muriscvnn.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
-# @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
-@Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 # @Tasks.param("dbg", [False, True])
+# @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
+@Tasks.needs(["muriscvnn.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 @Tasks.param("dbg", [False])  # disable due to bug with vext gcc
 @Tasks.param("vext", [False])
 @Tasks.param("pext", [False])
-@Tasks.param("toolchain", ["gcc"])
-@Tasks.param("target_arch", ["x86", "riscv"])
+@Tasks.param("toolchain", ["riscv_gcc", "llvm"])
+# @Tasks.param("target_arch", ["x86", "riscv"])
+@Tasks.param("target_arch", ["riscv"])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
 def build_muriscvnn(
@@ -139,7 +140,8 @@ def build_muriscvnn(
             else:
                 riscv_gcc = context.cache["riscv_gcc.install_dir", flags_]
             muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
-            muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
+            tc = "GCC" if "riscv_gcc" in toolchain else ("LLVM" if "llvm" in toolchain else "X86")
+            muriscvnnArgs.append("-DTOOLCHAIN=" + tc)
             vext = params.get("vext", False)
             pext = params.get("pext", False)
             muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))

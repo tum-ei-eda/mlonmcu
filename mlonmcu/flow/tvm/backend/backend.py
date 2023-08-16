@@ -81,6 +81,7 @@ class TVMBackend(Backend):
         "custom_unroll": False,  # Experimental, RISC-V only
         "autotuned_mode": None,
         "autotuned_results_file": None,
+        "relay_debug": None, # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
     }
 
     REQUIRED = set()
@@ -305,8 +306,13 @@ class TVMBackend(Backend):
     def needs_target(self):
         return self.target == "llvm"  # not c
 
+    @property
     def num_threads(self):
         return self.config["num_threads"]
+
+    @property
+    def relay_debug(self):
+        return self.config["relay_debug"]
 
     def get_target_details(self):
         ret = {}
@@ -366,6 +372,7 @@ class TVMBackend(Backend):
             None if self.use_tlcpack else self.tvm_configs_dir,
             tophub_url=self.tophub_url,
             num_threads=self.num_threads,
+            debug_cfg=self.relay_debug,
         )
         if self.use_tlcpack:
             pre = ["tvmc"]

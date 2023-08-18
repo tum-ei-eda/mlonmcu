@@ -314,6 +314,22 @@ class RISCVTarget(Target):
                     "target_mattr": self.attr,
                     "target_mcpu": self.cpu,
                     "target_model": f"etiss-{arch_clean}",
+                    "target_num_cores": 1,  # TODO: also add for non-riscv targets
+                    # "target_device": ?,
+                    # "target_libs": ?,
+                    # "target_tag": ?,
+                    # "target_march": ?,
+                    # "target_keys": ?,
+                    # "target_opt_level": ?,
+                    # "target_cl_opt": ?,
+                    # "target_mfloat_abi": ?,
+                    # "target_fast_math_ninf": ?,
+                    # "target_fast_math_contract": ?,
+                    # "target_fast_math_nnan": ?,
+                    # "target_fast_math": ?,
+                    # "target_fast_math_nsz": ?,
+                    # "target_fast_math_reassoc": ?,
+                    # "target_fast_math_arcp": ?,
                 }
             )
             if optimized_schedules:

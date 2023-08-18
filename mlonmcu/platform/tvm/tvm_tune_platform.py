@@ -85,11 +85,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     def invoke_tvmc_tune(self, *args, target=None, **kwargs):
         return self.invoke_tvmc("tune", *args, target=target, **kwargs)
 
-    def get_tune_args(self, model, backend, target, out, trials):
-        early_stopping = self.config.get("autotuning_early_stopping", None)
-        if early_stopping is None:
-            early_stopping = max(trials, 10)  # Let's see if this default works out...
-        early_stopping = int(early_stopping)
+    def get_tune_args(self, model, backend, target, out, trials, early_stopping):
         max_parallel = int(self.config.get("autotuning_max_parallel", 1))
         timeout = int(self.config.get("autotuning_timeout", 1000))
         results_file = self.config.get("autotuning_results_file", None)
@@ -121,8 +117,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         ret.append(model)
         return ret
 
-    def get_autotvm_tune_args(self, model, backend, target, out, trials_global):
-        ret = self.get_tune_args(model, backend, target, out, trials_global)
+    def get_autotvm_tune_args(self, model, backend, target, out, trials_global, early_stopping):
+        ret = self.get_tune_args(model, backend, target, out, trials_global, early_stopping)
 
         tuner = self.config.get("autotvm_tuner", "ga")
         assert tuner in ["ga", "gridsearch", "random", "xgb", "xgb_knob", "xgb-rank"]
@@ -139,8 +135,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             ret.extend(["--visualize", visualize_arg])
         return ret
 
-    def get_autoscheduler_tune_args(self, model, backend, target, out, trials_global):
-        ret = self.get_tune_args(model, backend, target, out, trials_global)
+    def get_autoscheduler_tune_args(self, model, backend, target, out, trials_global, early_stopping):
+        ret = self.get_tune_args(model, backend, target, out, trials_global, early_stopping)
         ret.append("--enable-autoscheduler")
         if self.config.get("autoscheduler_include_simple_tasks", False):
             ret.append("--include-simple-tasks")
@@ -152,8 +148,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 ret.extend([f"--{key}", str(value)])
         return ret
 
-    def get_metascheduler_tune_args(self, model, backend, target, out, trials_global, trials_single):
-        ret = self.get_tune_args(model, backend, target, out, trials_global)
+    def get_metascheduler_tune_args(self, model, backend, target, out, trials_global, trials_single, early_stopping):
+        ret = self.get_tune_args(model, backend, target, out, trials_global, early_stopping)
         ret.append("--enable-metascheduler")
         if trials_single:
             ret.extend(["--trials-per-task", str(trials_single)])
@@ -209,14 +205,24 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         content = ""
         total_size = None
         visualize_raw = None
+        if num_workers is not None:
+            if isinstance(num_workers, str):
+                num_workers = int(num_workers)
+            assert isinstance(num_workers, int) and num_workers >= 0
         trials_global = self.config.get("autotuning_trials", 10)
         trials_single = self.config.get("autotuning_trials_single", None)
         if not isinstance(trials_global, int):
             trials_global = int(trials_global)
         if trials_single is not None and not isinstance(trials_single, int):
             trials_single = int(trials_single)
-        if trials_single == 0:  # 0: auto, None: do not limit per task
-            trials_single = max(1, trials_global // len(tune_tasks))
+        trials = trials_single if trials_single is not None else trials_global
+        assert isinstance(trials, int)
+        early_stopping = self.config.get("autotuning_early_stopping", None)
+        if early_stopping is None:
+            early_stopping = max(trials, 10)  # Let's see if this default works out...
+        if not isinstance(early_stopping, int):
+            early_stopping = int(early_stopping)
+        assert isinstance(early_stopping, int)
         if metascheduler_enable:
             assert not append, "append not supported by MetaScheduler"
             assert num_workers is None or int(num_workers) == 0, "num_workers > 0 not supported by MetaScheduler"
@@ -228,8 +234,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 # out_file = Path(tmp_dir) / "tuning_results.log.txt"
                 tmp_dir = Path(tmp_dir)
                 work_dir = tmp_dir / "work_dir"
-                tune_args = self.get_tune_args(model_path, backend, target, work_dir, trials_global)
-                tune_args = self.get_metascheduler_tune_args(model_path, backend, target, out_file, trials_global, trials_single)
+                tune_args = self.get_metascheduler_tune_args(model_path, backend, target, work_dir, trials_global, trials_single, 0)
                 out = self.invoke_tvmc_tune(*tune_args, target=target, cwd=tmp_dir)
                 with tarfile.open(tmp_dir / "work_dir.tar", "w") as tar:
                     for file in os.listdir(work_dir):
@@ -246,10 +251,6 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
 
             sub_metrics = {}
             sub_artifacts = {}
-            if num_workers is not None:
-                if isinstance(num_workers, str):
-                    num_workers = int(num_workers)
-                assert isinstance(num_workers, int) and num_workers >= 0
             if num_workers > 0:
                 assert self.experimental_tvmc_tune_tasks, "num_workers requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix
@@ -259,9 +260,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     with tempfile.TemporaryDirectory() as tmp_dir:
                         out_file = Path(tmp_dir) / "tuning_results.log.txt"
                         if autotvm_enable:
-                            tune_args = self.get_autotvm_tune_args(model_path, backend, target, out_file, trials_single)
+                            tune_args = self.get_autotvm_tune_args(model_path, backend, target, out_file, 1, 0)
                         elif autoscheduler_enable:
-                            tune_args = self.get_autoscheduler_tune_args(model_path, backend, target, out_file, trials_single)
+                            tune_args = self.get_autoscheduler_tune_args(model_path, backend, target, out_file, 1, 0)
                         else:
                             assert False
                         out = self.invoke_tvmc_tune(
@@ -290,15 +291,19 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         logger.debug(f"Created worker for task {i}")
 
                         def do_work(idx, prepend, task_len):
+                            nonlocal trials_single, trials_global, early_stopping
                             t0 = time.time()
                             with tempfile.TemporaryDirectory() as tmp_dir:
                                 out_file = Path(tmp_dir) / "tuning_results.log.txt"
                                 with open(out_file, "w") as handle:
                                     handle.write(prepend)
+                                if trials_single == 0 or (trials_single is None):  # 0: auto, None: do not limit per task
+                                    trials_single = max(1, trials_global // len(tune_tasks))
+                                    early_stopping = max(trials_single, 10)  # Let's see if this default works out...
                                 if autotvm_enable:
-                                    tune_args = self.get_autotvm_tune_args(model_path, backend, target, out_file, trials_single)
+                                    tune_args = self.get_autotvm_tune_args(model_path, backend, target, out_file, trials_single, early_stopping)
                                 elif autoscheduler_enable:
-                                    tune_args = self.get_autoscheduler_tune_args(model_path, backend, target, out_file, trials_single)
+                                    tune_args = self.get_autoscheduler_tune_args(model_path, backend, target, out_file, trials_single, early_stopping)
                                 else:
                                     assert False
                                 out = self.invoke_tvmc_tune(*tune_args, "--tasks", str(idx), target=target, cwd=tmp_dir)
@@ -338,11 +343,6 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         metrics_.add("Failed Trials", failed, True)
                         metrics_.add("Tune Duration [s]", duration, True)
                         metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
-                        early_stopping = self.config.get("autotuning_early_stopping", None)
-                        if early_stopping is None:
-                            early_stopping = max(trials, 10)  # Let's see if this default works out...
-                        if not isinstance(early_stopping, int):
-                            early_stopping = int(early_stopping)
                         if early_stopping < trials_single:
                             early = tuned + failed < min(trials_single, size)
                         else:
@@ -369,9 +369,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     with open(out_file, "w") as handle:
                         handle.write(content)
                     if autotvm_enable:
-                        tune_args = self.get_autotvm_tune_args(model_path, backend, target, out_file, trials_global)
+                        tune_args = self.get_autotvm_tune_args(model_path, backend, target, out_file, trials_global, early_stopping)
                     elif autoscheduler_enable:
-                        tune_args = self.get_autoscheduler_tune_args(model_path, backend, target, out_file, trials_global)  # TODO: expose per_task trials
+                        tune_args = self.get_autoscheduler_tune_args(model_path, backend, target, out_file, trials_global, early_stopping)  # TODO: expose per_task trials
                     else:
                         assert False
                     out = self.invoke_tvmc_tune(*tune_args, target=target, cwd=tmp_dir)

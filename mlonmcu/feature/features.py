@@ -1908,3 +1908,83 @@ class SplitLayers(FrontendFeature):
                 f"{frontend}.pack_script": self.tflite_pack_exe,
             }
         )
+
+# @register_feature("hpmcounter")
+class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
+    """Use RISC-V Performance Counters"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "num_counters": 32,
+        "supported_counters": 1,  # To check if number of enabled counters exceeds counters implemented in hw
+        "enabled_counters": [],
+        "counter_names": [],
+    }
+
+    # def __init__(self, features=None, config=None):
+    #     super().__init__("hpmcounter", features=features, config=config)
+
+    @property
+    def enabled_counters(self):
+        temp = self.config["num_counters"]
+        return int(temp)
+
+    @property
+    def supported_counters(self):
+        temp = self.config["supported_counters"]
+        return int(temp)
+
+    @property
+    def enabled_counters(self):
+        temp = self.config["enabled_counters"]
+        if isinstance(temp, int):
+            temp = [temp]
+        elif isinstance(temp, str):
+            temp = str2list(temp)
+        assert isinstance(temp, list)
+        temp = list(map( int, temp))
+        return temp
+
+    @property
+    def counter_names(self):
+        temp = self.config["counter_names"]
+        if not isinstance(temp, list):
+            temp = str2list(temp)
+        return temp
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert self.supported_counters >= len(self.enabled_counters)
+        assert max(self.enabled_counter) < self.supported_counters
+        return {
+            "HPM_COUNTERS": self.num_counters,
+            **({f"USE_HPM{i}": i in self.enabled_counters for i in range(self.num_counters)}),
+        }
+
+    def get_target_callbacks(self, target):
+
+        if self.enabled:
+            def hpm_callback(stdout, metrics, artifacts, directory=None):
+                """Callback for extracting HPM metrics from stdout"""
+                print("stdout", stdout)
+                # TODO: add metrics
+                # TODO: remove HPM lines from stdout
+                return stdout
+
+            return None, hpm_callback
+        return None, None
+
+@register_feature("cv32_hpmcounter")
+class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
+    """Use RISC-V Performance Counters"""
+
+    DEFAULTS = {
+        **HpmCounter.DEFAULTS,
+        "num_counters": 12,
+        "supported_counters": 32,  # TODO
+        "enabled_counters": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        "counter_names": ["Cycles", "Instructions", "LD Stalls", "JMP Stalls", "IMiss", "LD", "ST", "Jump", "Branch", "Branch Taken", "Compressed", "Pipe Stall"]
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("cv32_hpmcounter", features=features, config=config)

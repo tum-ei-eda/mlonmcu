@@ -186,6 +186,8 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 required.append("xcvbi")
             if self.enable_xcorevalu:
                 required.append("xcvalu")
+            if self.enable_xcorevbitmanip:
+                required.append("xcvbitmanip")
             if self.enable_xcorevsimd:
                 required.append("xcvsimd")
             if self.enable_xcorevhwlp:

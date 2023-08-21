@@ -33,7 +33,7 @@ Tasks = get_task_factory()
 
 
 def _validate_llvm(context: MlonMcuContext, params=None):
-    if context.environment.has_toolchain("llvm"):
+    if context.environment.has_toolchain("llvm") or context.environment.has_toolchain("riscv_llvm"):
         return True
     if context.environment.has_framework("tvm"):
         user_vars = context.environment.vars
@@ -57,15 +57,15 @@ def install_llvm(
     else:
         # TODO: share helper with riscv.py
         def _helper(url):
-            candidate_exts = [".zip", ".tar"]  # .tar.xz an .tar.gz also supported
             fullUrlSplit = url.split("/")
             llvmUrl = "/".join(fullUrlSplit[:-1])
             llvmFileName, llvmFileExtension = fullUrlSplit[-1].split(".", 1)
-            llvmFileExtension = ""
-            for ext in candidate_exts:
-                if ext in llvmFileName:
-                    llvmFileName, llvmFileExtension = llvmFileName.split(ext)
-                    break
+            # candidate_exts = [".zip", ".tar"]  # .tar.xz an .tar.gz also supported
+            # llvmFileExtension = ""
+            # for ext in candidate_exts:
+            #     if ext in llvmFileName:
+            #         llvmFileName, llvmFileExtension = llvmFileName.split(ext)
+            #         break
             return llvmUrl, llvmFileName, llvmFileExtension
 
         if f"llvm.dl_url" in user_vars:

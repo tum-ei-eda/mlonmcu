@@ -188,7 +188,7 @@ class CompilePlatform(Platform):
 
     @property
     def num_threads(self):
-        return int(self.config["num_threads"])
+        return max(1, int(self.config["num_threads"]))
 
     def get_metrics(self, elf):
         static_mem = get_static_mem_usage(elf)

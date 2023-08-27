@@ -184,6 +184,7 @@ def build_spike(
         utils.mkdirs(spikeBuildDir)
         spikeArgs = []
         spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
+        spikeArgs.append("--enable-misaligned")
         utils.exec_getout(
             str(Path(spikeSrcDir) / "configure"),
             *spikeArgs,

@@ -18,6 +18,7 @@
 #
 """Definition of a MLonMCU Run which represents a set of benchmarks in a session."""
 import os
+import time
 import shutil
 import tempfile
 import multiprocessing
@@ -165,6 +166,14 @@ class Session:
         workers = []
         pbar = None  # Outer progress bar
         pbar2 = None  # Inner progress bar
+        # use_wandb = False
+        use_wandb = True
+        wandb_ = None
+        runs_pending = 0
+        runs_running = 0
+        runs_done = 0
+        runs_failing = 0
+        stage_times = []
         num_runs = len(self.runs)
         num_failures = 0
         stage_failures = {}
@@ -179,19 +188,133 @@ class Session:
                 bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
                 leave=None,
             )
+        def _init_wandb():
+            import wandb
+
+            # start a new wandb run to track this script
+            wandb_run_global = wandb.init(
+                # set the wandb project where this run will be logged
+                project="mlonmcu",
+                group=f"session_{self.idx}",
+                # name="?",
+                job_type="global",
+                # tags=[],
+                # notes=""
+                config={
+                    "foo": "bar",
+                },
+                reinit=True,
+            )
+            # wandb.log({"acc": acc, "loss": loss})
+            return wandb_run_global
+        def _init_wandb_run(run):
+            import wandb
+
+            # start a new wandb run to track this script
+            wandb_run_local = wandb.init(
+                # set the wandb project where this run will be logged
+                project="mlonmcu",
+                group=f"session_{self.idx}",
+                name=f"run_{run.idx}",
+                job_type="local",
+                # tags=[],
+                # notes=""
+                config={
+                    "foo2": "bar2",
+                },
+                reinit=True,
+            )
+            # wandb.log({"acc": acc, "loss": loss})
+            return wandb_run_local
+
 
         def _update_progress(pbar, count=1):
             """Helper function to update the progress bar for the session."""
             pbar.update(count)
+
+        def _reset_wandb(wandb_, stage, pending=0):
+            nonlocal runs_pending, runs_running, runs_done, runs_failing, stage_times
+            runs_pending = pending
+            runs_done = 0
+            runs_running = 0
+            runs_failing = 0
+            stage_times = []
+            wandb_.log(
+                {
+                    "session.runs.stage": stage,
+                    "session.runs.pending": runs_pending,
+                    "session.runs.running": runs_running,
+                    "session.runs.failing": runs_failing,
+                    "session.runs.done": runs_done,
+                    "session.runs.stage_time.min": 0,
+                    "session.runs.stage_time.max": 0,
+                    "session.runs.stage_time.mean": 0,
+                }
+            )
+
+        def _update_wandb_pending(wandb_, count=1):
+            nonlocal runs_pending
+            runs_pending += count
+            wandb_.log(
+                {
+                    "session.runs.pending": runs_pending,
+                }
+            )
+
+
+        def _update_wandb_running(wandb_, count=1, t=0):
+            nonlocal runs_running
+            runs_running += count
+            wandb_.log(
+                {
+                    "session.runs.pending": runs_pending,
+                }
+            )
+
+        def _update_wandb_done(wandb_, count=1, t=0):
+            nonlocal runs_pending, runs_running, runs_done, stage_times
+            runs_pending -= count
+            runs_running -= count
+            runs_done += count
+            stage_times.append(t)
+            wandb_.log(
+                {
+                    "session.runs.pending": runs_pending,
+                    "session.runs.running": runs_running,
+                    "session.runs.done": runs_done,
+                    "session.runs.stage_time.min": min(stage_times),
+                    "session.runs.stage_time.max": max(stage_times),
+                    "session.runs.stage_time.mean": sum(stage_times) / len(stage_times),
+                }
+            )
+
+        def _update_wandb_failing(wandb_, count=1):
+            nonlocal runs_failing
+            runs_failing += count
+            wandb_.log(
+                {
+                    "session.runs.failing": runs_failing,
+                }
+            )
 
         def _close_progress(pbar):
             """Helper function to close the session progressbar, if available."""
             if pbar:
                 pbar.close()
 
-        def _process(pbar, run, until, skip):
+        def _close_wandb(wandb_):
+            """Helper function to close the session progressbar, if available."""
+            wandb_.finish()
+
+        def _process(pbar, wandb_, run, until, skip):
             """Helper function to invoke the run."""
+            if use_wandb:
+                _update_wandb_running(wandb_)
+            t0 = time.time()
             run.process(until=until, skip=skip, export=export)
+            t1 = time.time()
+            if use_wandb:
+                _update_wandb_done(wandb_, t=t1-t0)
             if progress:
                 _update_progress(pbar)
 
@@ -209,6 +332,8 @@ class Session:
                 run = self.runs[run_index]
                 if run.failing:
                     num_failures += 1
+                    if use_wandb:
+                        _update_wandb_failing(wandb_)
                     failed_stage = RunStage(run.next_stage).name
                     if failed_stage in stage_failures:
                         stage_failures[failed_stage].append(run_index)
@@ -234,7 +359,11 @@ class Session:
             if per_stage:
                 if progress:
                     pbar2 = _init_progress(len(used_stages), msg="Processing stages")
+                if use_wandb:
+                    wandb_ = _init_wandb()
                 for stage in used_stages:
+                    if use_wandb:
+                        _reset_wandb(wandb_, stage)
                     run_stage = RunStage(stage).name
                     if progress:
                         pbar = _init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
@@ -260,7 +389,9 @@ class Session:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             worker_run_idx.append(i)
-                            workers.append(executor.submit(_process, pbar, run, until=stage, skip=skipped_stages))
+                            workers.append(executor.submit(_process, pbar, wandb_, run, until=stage, skip=skipped_stages))
+                            if use_wandb:
+                                _update_wandb_pending(wandb_)
                     _join_workers(workers)
                     workers = []
                     worker_run_idx = []
@@ -333,6 +464,14 @@ class Session:
                     artifact.export(self.dir)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"
         report.export(report_file)
+        if use_wandb:
+            wandb_.save(str(report_file))
+            _close_wandb(wandb_)
+            for run in self.runs:
+                wandb2_ = _init_wandb_run(run)
+                if run.report is not None:
+                    wandb2_.log(run.report.df.to_dict())
+                _close_wandb(wandb2_)
         results_dir = context.environment.paths["results"].path
         results_file = results_dir / f"{self.label}.{self.report_fmt}"
         report.export(results_file)

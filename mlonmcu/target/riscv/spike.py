@@ -161,14 +161,24 @@ class SpikeTarget(RVPTarget, RVVTarget):
         if self.end_to_end_cycles:
             cpu_cycles = re.search(r"(\d*) cycles", out)
         else:
-            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+            cpu_cycles = re.search(r".*Total Cycles: (.*)", out)
         if not cpu_cycles:
             logger.warning("unexpected script output (cycles)")
-            cycles = None
+            total_cycles = None
         else:
-            cycles = int(float(cpu_cycles.group(1)))
+            total_cycles = int(float(cpu_cycles.group(1)))
         # mips = None  # TODO: parse mips?
-        return cycles
+        setup_cycles = re.search(r".*Setup Cycles: (.*)", out)
+        if not setup_cycles:
+            setup_cycles = None
+        else:
+            setup_cycles = int(setup_cycles.group(1).replace(",", ""))
+        run_cycles = re.search(r".*Run Cycles: (.*)", out)
+        if not run_cycles:
+            run_cycles = None
+        else:
+            run_cycles = int(run_cycles.group(1).replace(",", ""))
+        return total_cycles, setup_cycles, run_cycles
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -183,11 +193,14 @@ class SpikeTarget(RVPTarget, RVVTarget):
         end_time = time.time()
         diff = end_time - start_time
         # size instead of readelf?
-        cycles = self.parse_stdout(out)
+        total_cycles, setup_cycles, run_cycles = self.parse_stdout(out)
 
         metrics = Metrics()
-        metrics.add("Cycles", cycles)
-        metrics.add("MIPS", (cycles / diff) / 1e6)
+        metrics.add("Cycles", total_cycles)
+        metrics.add("Setup Cycles", setup_cycles)
+        metrics.add("Run Cycles", run_cycles)
+        if total_cycles is not None:
+            metrics.add("Total MIPS", (total_cycles / diff) / 1e6)
 
         return metrics, out, []
 

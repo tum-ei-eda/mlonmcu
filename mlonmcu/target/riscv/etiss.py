@@ -353,13 +353,23 @@ class EtissTarget(RISCVTarget):
         if self.end_to_end_cycles:
             cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)
         else:
-            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
+            cpu_cycles = re.search(r".*Total Cycles: (.*)", out)
         if not cpu_cycles:
             if exit_code == 0:
                 logger.warning("unexpected script output (cycles)")
-            cycles = None
+            total_cycles = None
         else:
-            cycles = int(float(cpu_cycles.group(1)))
+            total_cycles = int(float(cpu_cycles.group(1)))
+        setup_cycles = re.search(r".*Setup Cycles: (.*)", out)
+        if not setup_cycles:
+            setup_cycles = None
+        else:
+            setup_cycles = int(setup_cycles.group(1).replace(",", ""))
+        run_cycles = re.search(r".*Run Cycles: (.*)", out)
+        if not run_cycles:
+            run_cycles = None
+        else:
+            run_cycles = int(run_cycles.group(1).replace(",", ""))
         mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
         if not mips_match:
             if exit_code == 0:
@@ -368,7 +378,7 @@ class EtissTarget(RISCVTarget):
         else:
             mips = float(mips_match.group(1))
 
-        return cycles, mips
+        return total_cycles, setup_cycles, run_cycles, mips
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -389,7 +399,7 @@ class EtissTarget(RISCVTarget):
             out += self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
-        total_cycles, mips = self.parse_stdout(out, handle_exit=handle_exit)
+        total_cycles, setup_cycles, run_cycles, mips = self.parse_stdout(out, handle_exit=handle_exit)
 
         get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")
@@ -411,6 +421,8 @@ class EtissTarget(RISCVTarget):
 
         metrics = Metrics()
         metrics.add("Cycles", total_cycles)
+        metrics.add("Setup Cycles", setup_cycles)
+        metrics.add("Run Cycles", run_cycles)
         metrics.add("MIPS", mips, optional=True)
 
         metrics_file = os.path.join(directory, "metrics.csv")

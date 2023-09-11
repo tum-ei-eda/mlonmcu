@@ -244,6 +244,7 @@ class TVMBackend(Backend):
     def needs_target(self):
         return self.target == "llvm"  # not c
 
+    @property
     def num_threads(self):
         return self.config["num_threads"]
 

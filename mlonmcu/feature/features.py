@@ -108,7 +108,8 @@ class DebugArena(BackendFeature):
         return {f"{backend}.debug_arena": self.enabled}
 
 
-@register_feature("validate", depends=["debug"])
+# @register_feature("validate", depends=["debug"])
+@register_feature("validate")
 class Validate(FrontendFeature, PlatformFeature):
     """Enable validaton of inout and output tensors."""
 

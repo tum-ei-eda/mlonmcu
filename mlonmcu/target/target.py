@@ -83,6 +83,13 @@ class Target:
         self.inspect_program_args = ["--all"]
         self.env = os.environ
         self.artifacts = []
+        self.dir = None
+
+    # def init_directory(self, path=None, context=None):
+    #     # return False
+    #     assert path is not None
+    #         self.dir = Path(path)
+    #     self.dir.mkdir(exist_ok=True)
 
     @property
     def print_outputs(self):

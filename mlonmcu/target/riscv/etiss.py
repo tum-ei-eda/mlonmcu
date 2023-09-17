@@ -223,6 +223,7 @@ class EtissTarget(RISCVTarget):
     def extensions(self):
         exts = super().extensions
         required = set()
+        # required.add("zicsr")
         if "xcorev" not in exts:
             if self.enable_xcorevmac:
                 required.add("xcvmac")
@@ -246,6 +247,9 @@ class EtissTarget(RISCVTarget):
     @property
     def attr(self):
         attrs = super().attr.split(",")
+        # attrs.append("+unaligned-scalar-mem")
+        # attrs = [x for x in attrs if x != "+c"]
+        # attrs.append("-c")
         if self.enable_xcorevmac:
             if "xcorevmac" not in attrs:
                 attrs.append("+xcvmac")

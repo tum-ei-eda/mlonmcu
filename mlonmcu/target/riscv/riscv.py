@@ -318,6 +318,7 @@ class RISCVTarget(Target):
                     "target_mattr": self.attr,
                     "target_mcpu": self.cpu,
                     "target_model": f"etiss-{arch_clean}",
+                    # "target_model": f"{self.name}-{arch_clean}",
                     "target_num_cores": 1,  # TODO: also add for non-riscv targets
                     # "target_device": ?,
                     # "target_libs": ?,
@@ -334,6 +335,7 @@ class RISCVTarget(Target):
                     # "target_fast_math_nsz": ?,
                     # "target_fast_math_reassoc": ?,
                     # "target_fast_math_arcp": ?,
+                    # "target_model": "host",
                 }
             )
             if optimized_schedules:

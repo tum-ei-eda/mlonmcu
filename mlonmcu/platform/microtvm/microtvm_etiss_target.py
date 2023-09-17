@@ -108,7 +108,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "llvm_dir": self.llvm_prefix,
                 "toolchain": self.toolchain,
                 "etiss_script": self.etiss_script,
-                "etiss_args": self.etiss_extra_args,
+                "etiss_args": self.etiss_extra_args if self.etiss_extra_args else "",
                 "arch": self.arch,
                 "abi": self.abi,
             }

@@ -1,0 +1,234 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+# Here default clone_urls
+repos:
+  tensorflow:
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: f868a900f1f788fd0a55b5655b47fc352f9a0239
+  tflite_micro_compiler:
+    url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
+    ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
+  tvm:
+    url: "https://github.com/apache/tvm.git"
+    ref: 76b9ce9b1f7d2b7e64b4b9c9d456a02b8a010473
+  utvm_staticrt_codegen:
+    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
+    ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
+  tvm_extensions:
+    url: "https://github.com/tum-ei-eda/tvm_extensions.git"
+    ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
+  muriscvnn:
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: 04bda19e1d2a829d35394c630878d578eac27b0b
+  etiss:
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: 78716e7f8e9ee0be0b15d41815d75b35fa2ecaa5
+  spike:
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
+    ref: caf5a420ef7414031368739e16d60f3f418aa6ac
+  spikepk:
+    url: "https://github.com/riscv-software-src/riscv-pk.git"
+    ref: 2efabd3e6604b8a9e8f70baf52f57696680c7855
+  cmsis:
+    url: "https://github.com/PhilippvK/CMSIS_5.git"
+    ref: 21c549c7fdd4f92fb5a16e98212fb9b4df2ab672
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: 3f8e66b956fe1cf0d85a18d39d684816e92e2751
+  espidf:
+    url: "https://github.com/espressif/esp-idf.git"
+    ref: release/v4.4
+  microtvm_etissvp:
+    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
+    ref: 41e591ea5479484154598fa74e3d7097ded3da86
+# Here all supported frameworks with their specific features are defined
+# Optionally disable unwanted or incomatible backends or features here
+# The configured defaults are used if no backend was specified in the command line options
+frameworks:
+  default: tflm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      tflmc:
+        enabled: false
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: false
+      cmsisnn: false
+  tvm:
+    enabled: false
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotune: true
+          autotuned: true
+      tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: false
+          disable_legalize: false
+          autotune: true
+          autotuned: true
+      tvmllvm:
+        enabled: false
+        features:
+          # unpacked_api: true
+          disable_legalize: true
+          autotune: true
+          autotuned: true
+      tvmcg:
+        enabled: false
+        features:
+          debug_arena: true
+          disable_legalize: true
+          autotune: true
+          autotuned: true
+    features:
+      cmsisnnbyoc: false
+      muriscvnnbyoc: false
+# Some frontends are eperimental and therefore disabled here
+# Features like packing are only available in certain environments
+#
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+      visualize: false
+  relay:
+    enabled: false
+    features:
+      relayviz: false
+  packed:
+    enabled: false
+    features:
+      packing: true
+      packed: true
+  onnx:
+    enabled: false
+  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+  espidf:
+    enabled: false
+    features:
+      debug: true
+  zephyr:
+    enabled: false
+    features:
+      debug: true
+  tvm:
+    enabled: false
+    features: []
+      # rpc: true
+      # validate: true
+  microtvm:
+    enabled: false
+    features: []
+      # validate: true
+# List of supported targets in the environment
+targets:
+  default: host_x86
+  etiss_pulpino:
+    enabled: false
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+      # vext: true
+      # pext: true
+  host_x86:
+    enabled: true
+    features:
+      gdbserver: true
+  spike:
+    enabled: false
+    features:
+      vext: false
+      pext: false
+      cachesim: true
+      log_instrs: true
+  ovpsim:
+    enabled: false
+    features:
+      vext: false
+      # pext: false
+  corstone300:
+    enabled: false
+    features:
+      ethosu: false
+      arm_mvei: false
+      arm_dsp: false
+  microtvm_etissvp:
+    enabled: true
+  microtvm_espidf:
+    enabled: false
+postprocesses:
+  use:
+  # - detailed_cycles
+  # - average_cycles
+  # - filter_cols
+  # - features2cols
+  # - config2cols
+  # - bytes2kb
+  # - visualize
+# This is where further options such as specific versions of dependencies can be set in the furture
+vars:
+  allow_extensions: false
+  # tvm.make_tool: "ninja"
+  llvm.version: "11.1.0"
+  llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
+  runs_per_stage: true
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
+  # riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv32gcv_new.tar.gz"
+  # riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiNvP4mzVQ8uDvgT9Yf2bqNk/rv32gcp.tar.xz"
+flags:
+  tflmc.exe:
+  - x86

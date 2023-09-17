@@ -297,6 +297,10 @@ class RISCVTarget(Target):
         ret["RISCV_MCPU"] = self.cpu
         # llvm/clang only!
         ret["RISCV_ATTR"] = self.attr
+        def feature_helper(attrs):
+            # TODO
+            return ""
+        ret["RISCV_FEATURES"] = feature_helper(self.attr)
         return ret
 
     def get_arch(self):

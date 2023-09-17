@@ -623,8 +623,21 @@ class AnalyseDumpPostprocess(RunPostprocess):
                 continue
             insn = splitted[1]
             args = splitted[2]
-            if "!" in args:
-                insn += "!"
+            if "cv." in insn:
+                if "(" in args and ")" in args:
+                    m = re.compile(r"(.*)\((.*)\)").match(args)
+                    if m:
+                        g = m.groups()
+                        assert len(g) == 2
+                        offset, base = g
+                        fmt = "ri"
+                        try:
+                            offset = int(offset)
+                        except ValueError:
+                            fmt = "rr"
+                        insn += f"_{fmt}"
+                        if "!" in base:
+                            insn += "_inc"
             if insn in counts:
                 counts[insn] += 1
             else:
@@ -661,66 +674,165 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
         XCVMAC_INSNS = {
             "cv.mac",
             "cv.msu",
-            "cv.muluN",
-            "cv.mulhhuN",
-            "cv.mulsN",
-            "cv.mulhhsN",
-            "cv.muluRN",
-            "cv.mulhhuRN",
-            "cv.mulsRN",
-            "cv.mulhhsRN",
-            "cv.macuN",
-            "cv.machhuN",
-            "cv.macsN",
-            "cv.machhsN",
-            "cv.macuRN",
-            "cv.machhuRN",
-            "cv.macsRN",
-            "cv.machhsRN",
+            "cv.mulun",
+            "cv.mulhhun",
+            "cv.mulsn",
+            "cv.mulhhsn",
+            "cv.mulurn",
+            "cv.mulhhurn",
+            "cv.mulsrn",
+            "cv.mulhhsrn",
+            "cv.macun",
+            "cv.machhun",
+            "cv.macsn",
+            "cv.machhsn",
+            "cv.macurn",
+            "cv.machhurn",
+            "cv.macsrn",
+            "cv.machhsrn",
         }
         XCVMEM_INSNS = {
-            "cv.lb!",
-            "cv.lbu!",
-            "cv.lh!",
-            "cv.lhu!",
-            "cv.lw!",
-            "cv.lb!",
-            "cv.lbu!",
-            "cv.lh!",
-            "cv.lhu!",
-            "cv.lw!",
-            "cv.lb",
-            "cv.lbu",
-            "cv.lh",
-            "cv.lhu",
-            "cv.lw",
-            "cv.sb!",
-            "cv.sh!",
-            "cv.sw!",
-            "cv.sb!",
-            "cv.sh!",
-            "cv.sw!",
-            "cv.sb",
-            "cv.sh",
-            "cv.sw",
+            "cv.lb_ri_inc",
+            "cv.lbu_ri_inc",
+            "cv.lh_ri_inc",
+            "cv.lhu_ri_inc",
+            "cv.lw_ri_inc",
+            "cv.lb_ri_inc",
+            "cv.lbu_ri_inc",
+            "cv.lh_ri_inc",
+            "cv.lhu_ri_inc",
+            "cv.lw_ri_inc",
+            "cv.lb_rr_inc",
+            "cv.lbu_rr_inc",
+            "cv.lh_rr_inc",
+            "cv.lhu_rr_inc",
+            "cv.lw_rr_inc",
+            "cv.lb_rr_inc",
+            "cv.lbu_rr_inc",
+            "cv.lh_rr_inc",
+            "cv.lhu_rr_inc",
+            "cv.lw_rr_inc",
+            "cv.lb_rr",
+            "cv.lbu_rr",
+            "cv.lh_rr",
+            "cv.lhu_rr",
+            "cv.lw_rr",
+            "cv.sb_ri_inc",
+            "cv.sh_ri_inc",
+            "cv.sw_ri_inc",
+            "cv.sb_ri_inc",
+            "cv.sh_ri_inc",
+            "cv.sw_ri_inc",
+            "cv.sb_rr_inc",
+            "cv.sh_rr_inc",
+            "cv.sw_rr_inc",
+            "cv.sb_rr_inc",
+            "cv.sh_rr_inc",
+            "cv.sw_rr_inc",
+            "cv.sb_rr",
+            "cv.sh_rr",
+            "cv.sw_rr",
         }
         XCVBI_INSNS = {
-
+            "cv.bneimm",
+            "cv.beqimm",
         }
         XCVALU_INSNS = {
+            "cv.slet",
+            "cv.min",
+            "cv.addnr",
+            "cv.addunr",
+            "cv.addn",
+            "cv.maxu",
+            "cv.subun",
+            "cv.extbz",
+            "cv.addun",
+            "cv.clip",
+            "cv.clipu",
+            "cv.subn",
+            "cv.max",
+            "cv.extbs",
+            "cv.abs",
+            "cv.addurn",
+            "cv.exths",
+            "cv.exthz",
+            "cv.minu",
+            "cv.sletu",
+            "cv.suburn",
+            "cv.addrn",
+            "cv.clipur",
+            "cv.subrn",
 
         }
         XCVBITMANIP_INSNS = {
-
+            "cv.ror",
+            "cv.clb",
         }
         XCVSIMD_INSNS = {
-
+            "cv.add.h",
+            "cv.add.sc.b",
+            "cv.add.sc.h",
+            "cv.add.sci.h",
+            "cv.and.b",
+            "cv.and.h",
+            "cv.and.sc.h",
+            "cv.and.sci.h",
+            "cv.cmpeq.sc.h",
+            "cv.cmpge.sci.h",
+            "cv.cmpgtu.h",
+            "cv.cmplt.sci.h",
+            "cv.cmpltu.sci.b",
+            "cv.cmpne.sc.h",
+            "cv.cmpne.sci.b",
+            "cv.extract.b",
+            "cv.extract.h",
+            "cv.extractu.b",
+            "cv.extractu.h",
+            "cv.insert.h",
+            "cv.max.h",
+            "cv.max.sci.h",
+            "cv.maxu.h",
+            "cv.or.b",
+            "cv.or.h",
+            "cv.pack",
+            "cv.packhi.b",
+            "cv.packlo.b",
+            "cv.shuffle2.b",
+            "cv.shuffle2.h",
+            "cv.shufflei0.sci.b",
+            "cv.sll.sci.h",
+            "cv.sra.h",
+            "cv.sra.sci.h",
+            "cv.srl.h",
+            "cv.srl.sci.h",
+            "cv.sub.b",
+            "cv.sub.h",
+            "cv.xor.b",
+            "cv.xor.sci.b",
+            "cv.add.sci.b",
+            "cv.cmpeq.b",
+            "cv.cmpgtu.sc.h",
+            "cv.cmpleu.sc.h",
+            "cv.sdotup.h",
+            "cv.sdotup.b",
+            "cv.shuffle.sci.h",
+            "cv.xor.sc.b",
+            "cv.xor.sc.h",
+            "cv.sdotsp.h",
+            "cv.cmpeq.sci.b",
+            "cv.and.sci.b",
+            "cv.dotsp.h",
+            "cv.dotsp.b",
+            "cv.sdotsp.b",
+            "cv.add.b",
+            "cv.dotup.sci.b",
         }
         XCVHWLP_INSNS = {
 
         }
 
 
+        unknowns = []
         cv_ext_totals = {
             "XCVMac": len(XCVMAC_INSNS),
             "XCVMem": len(XCVMEM_INSNS),
@@ -728,7 +840,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             "XCVAlu": len(XCVALU_INSNS),
             "XCVBitmanip": len(XCVBITMANIP_INSNS),
             "XCVSimd": len(XCVSIMD_INSNS),
-            "XCVHwlp": len(XCVHWLP_INSNS),
+            "Unknown": 0,
         }
         cv_ext_counts = {
             "XCVMac": 0,
@@ -738,6 +850,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             "XCVBitmanip": 0,
             "XCVSimd": 0,
             "XCVHwlp": 0,
+            "Unknown": 0,
         }
         cv_ext_unique_counts = {
             "XCVMac": 0,
@@ -747,9 +860,11 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             "XCVBitmanip": 0,
             "XCVSimd": 0,
             "XCVHwlp": 0,
+            "Unknown": 0,
         }
         total_counts = 0
         cv_counts_csv = "Instruction,Count,Probability\n"
+        cv_counts = {}
         for line in lines[1:]:
             if "cv." not in line:
                 continue
@@ -758,6 +873,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             assert len(splitted) == 3
             insn = splitted[0]
             count = int(splitted[1])
+            cv_counts[insn] = count
             total_counts += count
             if insn in XCVMAC_INSNS:
                 cv_ext_counts["XCVMac"] += count
@@ -780,6 +896,12 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             elif insn in XCVHWLP_INSNS:
                 cv_ext_counts["XCVHwlp"] += count
                 cv_ext_unique_counts["XCVHwlp"] += 1
+            else:
+                cv_ext_counts["Unknown"] += count
+                cv_ext_unique_counts["Unknown"] += 1
+                if insn not in unknowns:
+                    unknowns.append(insn)
+        cv_ext_totals["Unknown"] = len(unknowns)
         cv_ext_counts_csv = "Set,Count,Probability\n"
         for ext, count in sorted(cv_ext_counts.items(), key=lambda item: item[1]):
             if count == 0:
@@ -789,10 +911,12 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
         for ext, used in sorted(cv_ext_unique_counts.items(), key=lambda item: item[1]):
             if used == 0:
                 continue
-            cv_ext_unique_counts_csv += f"{ext},{used},{used/cv_ext_totals[ext]:.4f}\n"
+            rel = used / cv_ext_totals[ext]
+            cv_ext_unique_counts_csv += f"{ext},{used},{rel:.4f}\n"
         used = sum(cv_ext_unique_counts.values())
         totals = sum(cv_ext_totals.values())
-        cv_ext_unique_counts_csv += f"XCVTotal,{used},{used/totals:.4f}\n"
+        rel = used / totals
+        cv_ext_unique_counts_csv += f"XCVTotal,{used},{rel:.4f}\n"
 
         cv_counts_artifact = Artifact(
             f"cv_counts.csv", content=cv_counts_csv, fmt=ArtifactFormat.TEXT
@@ -803,8 +927,18 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
         cv_ext_unique_counts_artifact = Artifact(
             f"cv_ext_unique_counts.csv", content=cv_ext_unique_counts_csv, fmt=ArtifactFormat.TEXT
         )
+        if len(unknowns) > 0:
+            logger.warning("Unknown instructions found: %s", unknowns)
+            cv_ext_unknowns_artifact = Artifact(
+                f"cv_ext_unknowns.csv", content="\n".join(unknowns), fmt=ArtifactFormat.TEXT
+            )
+            ret_artifacts.append(cv_ext_unknowns_artifact)
+            # TODO: logging
 
         ret_artifacts.append(cv_counts_artifact)
         ret_artifacts.append(cv_ext_counts_artifact)
         ret_artifacts.append(cv_ext_unique_counts_artifact)
+        main_df = report.main_df.copy()
+        main_df["XCVCounts"] = str(cv_counts)
+        report.main_df = main_df
         return ret_artifacts

@@ -675,6 +675,7 @@ class Run:
 
         self.completed[RunStage.POSTPROCESS] = True
         self.unlock()
+        self.export_stage(RunStage.POSTPROCESS, optional=self.export_optional)
 
     def run(self):
         """Run the 'run' using the defined target."""

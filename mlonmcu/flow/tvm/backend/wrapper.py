@@ -41,11 +41,11 @@ def generate_wrapper_header():
 
 #include <stddef.h>
 
-void TVMWrap_Init();
+int TVMWrap_Init();
 void *TVMWrap_GetInputPtr(int index);
 size_t TVMWrap_GetInputSize(int index);
 size_t TVMWrap_GetNumInputs();
-void TVMWrap_Run();
+int TVMWrap_Run();
 void *TVMWrap_GetOutputPtr(int index);
 size_t TVMWrap_GetOutputSize(int index);
 size_t TVMWrap_GetNumOutputs();
@@ -256,7 +256,7 @@ tvm_crt_error_t TVMPlatformTimerStop(double* elapsed_time_seconds)
 
 void *g_handle = NULL;
 
-void TVMWrap_Init()
+int TVMWrap_Init()
 {
     int64_t device_type = kDLCPU;
     int64_t device_id = 0;
@@ -287,6 +287,7 @@ void TVMWrap_Init()
 
     //return graph_executor;
     g_handle = graph_executor;
+    return 0;  // TODO
 }
 
 void *TVMWrap_GetInputPtr(int index)
@@ -321,13 +322,14 @@ size_t TVMWrap_GetNumInputs()
     return ${numInputs};
 }
 
-void TVMWrap_Run()
+int TVMWrap_Run()
 {
     TVMGraphExecutor* graph_executor = (TVMGraphExecutor*)g_handle;
     TVMGraphExecutor_Run(graph_executor);
 #if DEBUG_ARENA_USAGE
     DBGPRINTF("\\nGraph executor arena max usage after model invocation: %lu bytes\\n", max_arena_usage);
 #endif  // DEBUG_ARENA_USAGE
+    return 0;  // TODO
 }
 
 void *TVMWrap_GetOutputPtr(int index)
@@ -536,12 +538,13 @@ TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int ove
     return 0;
 }
 
-void TVMWrap_Init()
+int TVMWrap_Init()
 {
 """
     if workspace_size > 0:
         mainCode += "    StackMemoryManager_Init(&app_workspace, g_aot_memory, WORKSPACE_SIZE);"
     mainCode += """
+    return 0;  // TODO
 }
 
 void *TVMWrap_GetInputPtr(int index)
@@ -561,7 +564,7 @@ size_t TVMWrap_GetNumInputs()
     return ${numInputs};
 }
 
-void TVMWrap_Run()
+int TVMWrap_Run()
 {"""
     if api == "c":
         mainCode += """
@@ -609,6 +612,7 @@ void TVMWrap_Run()
 #endif  // DEBUG_ARENA_USAGE
 """
     mainCode += """
+    return 0;  // TODO
 }
 
 void *TVMWrap_GetOutputPtr(int index)

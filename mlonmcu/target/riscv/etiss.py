@@ -335,7 +335,8 @@ class EtissTarget(RISCVTarget):
         return ret
 
     def parse_stdout(self, out, handle_exit=None):
-        exit_match = re.search(r"exit called with code: (.*)", out)
+        # exit_match = re.search(r"exit called with code: (.*)", out)
+        exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
         if exit_match:
             exit_code = int(exit_match.group(1))
             if handle_exit is not None:

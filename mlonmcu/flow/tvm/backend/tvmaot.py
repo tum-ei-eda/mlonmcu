@@ -42,7 +42,7 @@ class TVMAOTBackend(TVMBackend):
         "debug_arena": False,
         "arena_size": None,  # Determined automatically
         "unpacked_api": False,
-        "alignment_bytes": 4,
+        "alignment_bytes": 16,
     }
 
     name = "tvmaot"

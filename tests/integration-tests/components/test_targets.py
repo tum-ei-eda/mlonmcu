@@ -25,7 +25,7 @@ def test_target_mlif(user_context, model_name, backend_name, target_name, models
         "mlif", backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="generic_mlif")) == 1
+    assert len(lookup_artifacts(artifacts, name="generic_mlonmcu")) == 1
     assert len(lookup_artifacts(artifacts, name="mlif_out.log")) == 1
     # TODO: check artifacts
 
@@ -44,7 +44,7 @@ def test_platform_espidf(user_context, model_name, backend_name, target_name, mo
         "espidf", backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="generic_mlif")) == 1
+    assert len(lookup_artifacts(artifacts, name="generic_mlonmcu")) == 1
     assert len(lookup_artifacts(artifacts, name="espidf_out.log")) == 1
     # TODO: check artifacts
 
@@ -73,7 +73,7 @@ def test_target_espidf(user_context, model_name, backend_name, target_name, mode
         "espidf", backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="generic_mlif")) == 1
+    assert len(lookup_artifacts(artifacts, name="generic_mlonmcu")) == 1
     assert len(lookup_artifacts(artifacts, name="espidf_out.log")) == 1
 
 

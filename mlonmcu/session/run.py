@@ -853,7 +853,6 @@ class Run:
                 model_artifact = model_artifact[0]
                 if not model_artifact.exported:
                     model_artifact.export(self.dir)
-                self.backend.load_model(model=model_artifact.path)
                 input_shapes = self.model.input_shapes
                 output_shapes = self.model.output_shapes
                 input_types = self.model.input_types

@@ -398,7 +398,10 @@ class TfLiteFrontend(SimpleFrontend):
                     results = []
                     num_layers = get_num_layers(file)
                     assert num_layers > 0
+                    keep = None
                     for i in range(num_layers):
+                        if keep and i not in keep:
+                            continue
                         out_name = f"layer{i}"
                         out_file = Path(dest) / out_name
                         tflite_pack_args = [path, "-k", str(i), "--out", out_file]

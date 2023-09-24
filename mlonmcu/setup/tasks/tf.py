@@ -121,7 +121,7 @@ def install_tflite_pack(
 ):
     """Install the tflite packing utilities."""
     name = utils.makeDirName("tflite_pack")
-    srcDir = context.cache["tflite_pack.src_dir"]
+    srcDir = Path(context.cache["tflite_pack.src_dir"])
     installDir = context.environment.paths["deps"].path / "install" / name
     if rebuild or not utils.is_populated(installDir):
         installScript = srcDir / "install.sh"

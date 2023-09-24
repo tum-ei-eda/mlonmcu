@@ -435,7 +435,10 @@ class EtissTarget(RISCVTarget):
 
     def parse_exit(self, out):
         exit_code = None
-        exit_match = re.search(r"exit called with code: (.*)", out)
+        exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
+        if not exit_match:
+            # legacy
+            exit_match = re.search(r"exit called with code: (.*)", out)
         if exit_match:
             exit_code = int(exit_match.group(1))
         return exit_code
@@ -460,8 +463,6 @@ class EtissTarget(RISCVTarget):
             mips = float(mips_str)
         if mips:
             metrics.add("MIPS", mips, optional=True)
-
-        return ?
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""

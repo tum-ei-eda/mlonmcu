@@ -31,8 +31,8 @@ from .microtvm_template_target import TemplateMicroTvmPlatformTarget
 logger = get_logger()
 
 
-class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    FEATURES = Target.FEATURES | {"xcorev"}
+class MlonmcuMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
+    FEATURES = Target.FEATURES | {"xcorev"}  # TODO: for now just etiss, future: any?
 
     DEFAULTS = {
         **Target.DEFAULTS,
@@ -42,7 +42,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "workspace_size_bytes": None,
         "toolchain": "gcc",
         "xlen": 32,
-        "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
+        "extensions": ["i", "m", "a", "c"],  # TODO overwrite extensions elegantly
         "fpu": "double",  # allowed: none, single, double
         "arch": None,
         "abi": None,
@@ -57,7 +57,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
     }
-    REQUIRED = Target.REQUIRED | {"microtvm_etiss.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script", "llvm.install_dir"}
+    REQUIRED = Target.REQUIRED | {"mlif.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script", "llvm.install_dir"}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -140,11 +140,8 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "llvm_dir": self.llvm_prefix,
                 "toolchain": self.toolchain,
                 "etiss_script": self.etiss_script,
-                "etiss_args": self.etiss_extra_args if self.etiss_extra_args else "",
-                # TODO: tc handling
-                # "arch": self.arch,
-                # "arch": self.gcc_arch,
-                "arch": self.llvm_arch,
+                "etiss_args": self.etiss_extra_args,
+                "arch": self.gcc_arch,
                 "abi": self.abi,
                 "cpu_arch": self.cpu_arch
             }
@@ -188,8 +185,6 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 required.append("xcvbi")
             if self.enable_xcorevalu:
                 required.append("xcvalu")
-            if self.enable_xcorevbitmanip:
-                required.append("xcvbitmanip")
             if self.enable_xcorevsimd:
                 required.append("xcvsimd")
             if self.enable_xcorevhwlp:
@@ -253,7 +248,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     def cpu_arch(self):
         tmp = self.config.get("cpu_arch", None)
         if tmp is None:
-            tmp = f"RV{self.xlen}IMACFD"  # TODO: improve
+            tmp = f"RV{self.xlen}IMACFD"
         return tmp
 
     @property
@@ -278,7 +273,6 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                     "target_mattr": self.attr,
                     "target_mcpu": f"generic-rv{self.xlen}",
                     "target_model": f"etiss-{arch_clean}",
-                    "target_num_cores": 1,  # TODO: also add for other microtvm platform targets
                 }
             )
             if optimized_schedules:

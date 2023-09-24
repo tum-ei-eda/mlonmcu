@@ -24,13 +24,14 @@ import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.bench import add_bench_metrics
 from .riscv import RISCVTarget
-from .util import update_extensions
 
 logger = get_logger()
 
@@ -65,8 +66,15 @@ class EtissTarget(RISCVTarget):
         "elen": 32,
         "jit": None,
         "end_to_end_cycles": False,
+        "allow_error": False,
         "max_block_size": None,
         "enable_xcorevmac": False,
+        "enable_xcorevmem": False,
+        "enable_xcorevbi": False,
+        "enable_xcorevalu": False,
+        "enable_xcorevbitmanip": False,
+        "enable_xcorevsimd": False,
+        "enable_xcorevhwlp": False,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script", "etiss.src_dir"}
 
@@ -170,6 +178,36 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def enable_xcorevmem(self):
+        value = self.config["enable_xcorevmem"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevbi(self):
+        value = self.config["enable_xcorevbi"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevalu(self):
+        value = self.config["enable_xcorevalu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevbitmanip(self):
+        value = self.config["enable_xcorevbitmanip"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevsimd(self):
+        value = self.config["enable_xcorevsimd"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_xcorevhwlp(self):
+        value = self.config["enable_xcorevhwlp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def vlen(self):
         return int(self.config["vlen"])
 
@@ -182,11 +220,57 @@ class EtissTarget(RISCVTarget):
         return self.config["jit"]
 
     @property
+    def extensions(self):
+        exts = super().extensions
+        required = set()
+        # required.add("zicsr")
+        if "xcorev" not in exts:
+            if self.enable_xcorevmac:
+                required.add("xcvmac")
+            if self.enable_xcorevmem:
+                required.add("xcvmem")
+            if self.enable_xcorevbi:
+                required.add("xcvbi")
+            if self.enable_xcorevalu:
+                required.add("xcvalu")
+            if self.enable_xcorevbitmanip:
+                required.add("xcvbitmanip")
+            if self.enable_xcorevsimd:
+                required.add("xcvsimd")
+            if self.enable_xcorevhwlp:
+                required.add("xcvhwlp")
+        for ext in required:
+            if ext not in exts:
+                exts.add(ext)
+        return exts
+
+    @property
     def attr(self):
         attrs = super().attr.split(",")
+        # attrs.append("+unaligned-scalar-mem")
+        # attrs = [x for x in attrs if x != "+c"]
+        # attrs.append("-c")
         if self.enable_xcorevmac:
             if "xcorevmac" not in attrs:
-                attrs.append("+xcorevmac")
+                attrs.append("+xcvmac")
+        if self.enable_xcorevmem:
+            if "xcorevmem" not in attrs:
+                attrs.append("+xcvmem")
+        if self.enable_xcorevbi:
+            if "xcorevbi" not in attrs:
+                attrs.append("+xcvbi")
+        if self.enable_xcorevalu:
+            if "xcorevalu" not in attrs:
+                attrs.append("+xcvalu")
+        if self.enable_xcorevbitmanip:
+            if "xcorevbitmanip" not in attrs:
+                attrs.append("+xcvbitmanip")
+        if self.enable_xcorevsimd:
+            if "xcorevsimd" not in attrs:
+                attrs.append("+xcvsimd")
+        if self.enable_xcorevhwlp:
+            if "xcorevhwlp" not in attrs:
+                attrs.append("+xcvhwlp")
         if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
             attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)
@@ -194,6 +278,11 @@ class EtissTarget(RISCVTarget):
     @property
     def end_to_end_cycles(self):
         value = self.config["end_to_end_cycles"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def allow_error(self):
+        value = self.config["allow_error"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -321,8 +410,18 @@ class EtissTarget(RISCVTarget):
         for plugin in self.plugins:
             etiss_script_args.extend(["-p", plugin])
 
-        if self.timeout_sec > 0:
-            raise NotImplementedError
+        # if self.timeout_sec > 0:
+        if False:
+            ret = exec_timeout(
+                self.timeout_sec,
+                execute,
+                Path(self.etiss_script).resolve(),
+                program,
+                *etiss_script_args,
+                *args,
+                cwd=cwd,
+                **kwargs,
+            )
         else:
             ret = execute(
                 Path(self.etiss_script).resolve(),
@@ -334,51 +433,35 @@ class EtissTarget(RISCVTarget):
             )
         return ret
 
-    def parse_stdout(self, out, handle_exit=None):
+    def parse_exit(self, out):
+        exit_code = None
         exit_match = re.search(r"exit called with code: (.*)", out)
         if exit_match:
             exit_code = int(exit_match.group(1))
-            if handle_exit is not None:
-                exit_code = handle_exit(exit_code)
-            if exit_code != 0:
-                logger.error("Execution failed - " + out)
-                raise RuntimeError(f"unexpected exit code: {exit_code}")
-        else:
-            exit_code = 0
+        return exit_code
+
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0)
         error_match = re.search(r"ETISS: Error: (.*)", out)
         if error_match:
             error_msg = error_match.group(1)
-            raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
-
+            if self.allow_error:
+                logger.error(f"An ETISS Error occured during simulation: {error_msg}")
+            else:
+                raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
         if self.end_to_end_cycles:
-            cpu_cycles = re.search(r"CPU Cycles \(estimated\): (.*)", out)
-        else:
-            cpu_cycles = re.search(r".*Total Cycles: (.*)", out)
-        if not cpu_cycles:
-            if exit_code == 0:
-                logger.warning("unexpected script output (cycles)")
-            total_cycles = None
-        else:
-            total_cycles = int(float(cpu_cycles.group(1)))
-        setup_cycles = re.search(r".*Setup Cycles: (.*)", out)
-        if not setup_cycles:
-            setup_cycles = None
-        else:
-            setup_cycles = int(setup_cycles.group(1).replace(",", ""))
-        run_cycles = re.search(r".*Run Cycles: (.*)", out)
-        if not run_cycles:
-            run_cycles = None
-        else:
-            run_cycles = int(run_cycles.group(1).replace(",", ""))
+            sim_insns = re.search(r"CPU Cycles \(estimated\): (.*)", out)
+            sim_insns = int(float(sim_insns.group(1)))
+            metrics.append("Simulated Instructions", sim_insns, True)
+        mips = None  # TODO: parse mips?
         mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
-        if not mips_match:
-            if exit_code == 0:
-                raise logger.warning("unexpected script output (mips)")
-            mips = None
-        else:
-            mips = float(mips_match.group(1))
+        if mips_match:
+            mips_str = mips_match.group(1)
+            mips = float(mips_str)
+        if mips:
+            metrics.add("MIPS", mips, optional=True)
 
-        return total_cycles, setup_cycles, run_cycles, mips
+        return ?
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -393,13 +476,27 @@ class EtissTarget(RISCVTarget):
         if os.path.exists(metrics_file):
             os.remove(metrics_file)
 
+        def _handle_exit(code, out=None):
+
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
+
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out += self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
-        total_cycles, setup_cycles, run_cycles, mips = self.parse_stdout(out, handle_exit=handle_exit)
+        # TODO: get exit code
+        exit_code = 0
+        metrics = Metrics()
+        self.parse_stdout(out, metrics, exit_code=exit_code)
 
         get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")
@@ -418,12 +515,6 @@ class EtissTarget(RISCVTarget):
                 cwd=directory,
                 print_func=lambda *args, **kwargs: None,
             )
-
-        metrics = Metrics()
-        metrics.add("Cycles", total_cycles)
-        metrics.add("Setup Cycles", setup_cycles)
-        metrics.add("Run Cycles", run_cycles)
-        metrics.add("MIPS", mips, optional=True)
 
         metrics_file = os.path.join(directory, "metrics.csv")
         with open(metrics_file, "r") as handle:

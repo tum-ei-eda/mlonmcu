@@ -21,6 +21,7 @@
 import re
 import pandas as pd
 from typing import Union
+from pathlib import Path
 
 from mlonmcu.utils import is_power_of_two, filter_none
 from mlonmcu.config import str2bool, str2list
@@ -571,7 +572,7 @@ class GdbServer(TargetFeature):
         return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
-        assert target in ["host_x86", "etiss_pulpino", "etiss", "ovpsim"]
+        assert target in ["host_x86", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim"]
         return filter_none(
             {
                 f"{target}.gdbserver_enable": self.enabled,
@@ -610,6 +611,7 @@ class Trace(TargetFeature):
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
 
+    # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
         assert target in ["etiss_pulpino", "etiss", "ovpsim"]
         if target in ["etiss_pulpino", "etiss"]:
@@ -617,8 +619,12 @@ class Trace(TargetFeature):
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace --tracemem SAX")
-            # if self.to_file:
-            #    extra_args_new.append("--tracefile")
+            if self.to_file:
+                # assert directory is not None
+                directory = Path(".")  # Need to use relative path because target.dir not available here
+                trace_file = directory / f"trace.txt"
+                extra_args_new.append("--tracefile")
+                extra_args_new.append(trace_file)
             config.update({f"{target}.extra_args": extra_args_new})
 
 
@@ -813,6 +819,7 @@ class Autotuned(BackendFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
+        "mode": "autotvm",  # further options: autoscheduler, metascheduler
         "results_file": None,
     }
 
@@ -821,7 +828,13 @@ class Autotuned(BackendFeature):
 
     @property
     def results_file(self):
-        return self.config["results_file"] if "results_file" in self.config else None
+        return self.config.get("results_file", None)
+
+    @property
+    def mode(self):
+        value = self.config["mode"]
+        assert value in ["autotvm", "autoscheduler", "metascheduler"]
+        return value
 
     def get_backend_config(self, backend):
         assert backend in SUPPORTED_TVM_BACKENDS
@@ -829,7 +842,8 @@ class Autotuned(BackendFeature):
         return filter_none(
             {
                 f"{backend}.use_tuning_results": self.enabled,
-                f"{backend}.autotuning_results_file": self.results_file,
+                f"{backend}.autotuned_results_file": self.results_file,
+                f"{backend}.autotuned_mode": self.mode,
             }
         )
 
@@ -852,6 +866,7 @@ class TVMTuneBase(PlatformFeature):
         "results_file": None,
         "append": None,
         "trials": None,
+        "trials_single": None,
         "early_stopping": None,
         "num_workers": None,
         "max_parallel": None,
@@ -875,6 +890,10 @@ class TVMTuneBase(PlatformFeature):
     @property
     def trials(self):
         return self.config["trials"] if "trials" in self.config else None
+
+    @property
+    def trials_single(self):
+        return self.config["trials_single"] if "trials_single" in self.config else None
 
     @property
     def early_stopping(self):
@@ -920,6 +939,7 @@ class TVMTuneBase(PlatformFeature):
                 f"{platform}.autotuning_results_file": self.results_file,
                 f"{platform}.autotuning_append": self.append,
                 f"{platform}.autotuning_trials": self.trials,
+                f"{platform}.autotuning_trials_single": self.trials_single,
                 f"{platform}.autotuning_early_stopping": self.early_stopping,
                 f"{platform}.autotuning_num_workers": self.num_workers,
                 f"{platform}.autotuning_max_parallel": self.max_parallel,
@@ -936,8 +956,6 @@ class TVMTuneBase(PlatformFeature):
 class AutoTVM(TVMTuneBase):
     """Use the TVM autotuner inside the backend to generate tuning logs."""
 
-    # TODO: autoscheduler
-    # TODO: metascheduler
     # TODO: graphtuner
     # TODO: tuner base feature class
 
@@ -965,8 +983,8 @@ class AutoTVM(TVMTuneBase):
         return ret
 
 
-@register_feature("autoschedule", depends=["autotune"])
-class AutoSchedule(TVMTuneBase):
+@register_feature("autoscheduler", depends=["autotune"])
+class AutoScheduler(TVMTuneBase):
     """TODO"""
 
     # TODO: metascheduler
@@ -1002,6 +1020,27 @@ class AutoSchedule(TVMTuneBase):
         ret.update(new)
         return ret
 
+
+@register_feature("metascheduler", depends=["autotune"])
+class MetaScheduler(TVMTuneBase):
+    """TODO"""
+
+    DEFAULTS = {
+        **TVMTuneBase.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("metascheduler", features=features, config=config)
+
+    def get_platform_config(self, platform):
+        ret = super().get_platform_config(platform)
+        new = filter_none(
+            {
+                f"{platform}.metascheduler_enable": self.enabled,
+            }
+        )
+        ret.update(new)
+        return ret
 
 @register_feature("disable_legalize")
 class DisableLegalize(BackendFeature, SetupFeature):
@@ -1130,6 +1169,7 @@ class CacheSim(TargetFeature):
         value = self.config["detailed"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
         assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
@@ -1151,7 +1191,7 @@ class CacheSim(TargetFeature):
         assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
-            def cachesim_callback(stdout, metrics, artifacts):
+            def cachesim_callback(stdout, metrics, artifacts, directory=None):
                 """Callback which parses the targets output and updates the generated metrics and artifacts."""
                 expr = (
                     r"(D|I|L2)\$ ((?:Bytes (?:Read|Written))|(?:Read|Write) "
@@ -1190,42 +1230,41 @@ class LogInstructions(TargetFeature):
         value = self.config["to_file"]
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
+    # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "gvsoc_pulp"]
+        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
         if not self.enabled:
             return
         if target == "spike":
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("-l")
-            # if self.to_file:
-            #     extra_args_new.append("--log=?")
+            if self.to_file:
+                # assert directory is not None
+                directory = Path(".")  # Need to use relative path because target.dir not available here
+                log_file = directory / "instrs.txt"
+                extra_args_new.append(f"--log={log_file}")
             config.update({f"{target}.extra_args": extra_args_new})
         elif target in ["etiss_pulpino", "etiss"]:
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
-        elif target == "ovpsim":
+        elif target in ["ovpsim", "corev_ovpsim"]:
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace")
-            # if self.to_file:
-            #    extra_args_new.append("--tracefile")
+            if self.to_file:
+                # assert directory is not None
+                directory = Path(".")  # Need to use relative path because target.dir not available here
+                log_file = directory / "instrs.txt"
+                extra_args_new.append("--tracefile")
+                extra_args_new.append(log_file)
             config.update({f"{target}.extra_args": extra_args_new})
         elif target == "gvsoc_pulp":
             extra_args_new = config.get("extra_args", [])
             if self.to_file:
-                extra_args_new.append(f"--trace=insn:{target}_instrs.log")
-                """
-                TODO: The above code will generate a instruction log.
-                But it will not be recorded by Artifact (which should be done in get_target_callbacks).
-                The code to let it be recorded by Artifact is currently not added because of the following reasons:
-                1. This feature is rarely used.
-                2. GVSOC can directly write the instruction log into a file which should be much faster than
-                read/write from the output. This makes GVSOC special and difficult to be adapted in the current
-                code.
-                3. This difficulty reflected in that the methods add_target_config and get_target_callbacks should
-                have a consensus about where in the system file system the instruction log is written to and can be
-                read from. This is not feasible in current code and the realization requires a workaround.
-                """
+                # assert directory is not None
+                directory = Path(".")  # Need to use relative path because target.dir not available here
+                log_file = directory / "instrs.txt"
+                extra_args_new.append(f"--trace=insn:{log_file}")
             else:
                 extra_args_new.append("--trace=insn")
             config.update({f"{target}.extra_args": extra_args_new})
@@ -1236,41 +1275,42 @@ class LogInstructions(TargetFeature):
             "etiss_pulpino",
             "etiss",
             "ovpsim",
+            "corev_ovpsim",
             "gvsoc_pulp",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             if not target == "gvsoc_pulp":
 
-                def log_instrs_callback(stdout, metrics, artifacts):
+                def log_instrs_callback(stdout, metrics, artifacts, directory=None):
                     """Callback which parses the targets output and updates the generated metrics and artifacts."""
                     new_lines = []
                     if self.to_file:
-                        # TODO: update stdout and remove log_instrs lines
-                        instrs = []
-                        for line in stdout.split("\n"):
-                            if target in ["etiss_pulpino", "etiss"]:
-                                expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
-                            elif target == "spike":
-                                expr = re.compile(r"core\s+\d+: 0x[a-fA-F0-9]+ \(0x[a-fA-F0-9]+\) .*")
-                            elif target == "ovpsim":
-                                expr = re.compile(
-                                    r"Info 'riscvOVPsim\/cpu',\s0x[0-9abcdef]+\(.*\):\s[0-9abcdef]+\s+\w+\s+.*"
-                                )
-                            match = expr.match(line)
-                            if match is not None:
-                                instrs.append(line)
-                            else:
-                                new_lines.append(line)
+                        if target in ["etiss_pulpino", "etiss"]:
+                            # TODO: update stdout and remove log_instrs lines
+                            instrs = []
+                            for line in stdout.split("\n"):
+                                if target in ["etiss_pulpino", "etiss"]:
+                                    expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
+                                match = expr.match(line)
+                                if match is not None:
+                                    instrs.append(line)
+                                else:
+                                    new_lines.append(line)
+                            content = "\n".join(instrs),
+                            return "\n".join(new_lines)
+                        else:
+                            assert target in ["spike", "ovpsim", "corev_ovpsim"]
+                            log_file = Path(directory) / "instrs.txt"
+                            with open(log_file, "r") as f:
+                                content = f.read()
                         instrs_artifact = Artifact(
                             f"{target}_instrs.log",
-                            content="\n".join(instrs),
+                            content=content,
                             fmt=ArtifactFormat.TEXT,
                             flags=(self.name, target),
                         )
                         artifacts.append(instrs_artifact)
-                        return "\n".join(new_lines)
-                    else:
-                        return stdout
+                    return stdout
 
                 return None, log_instrs_callback
         return None, None
@@ -1369,6 +1409,9 @@ class AutoVectorize(PlatformFeature):
         "verbose": False,
         "loop": True,
         "slp": True,
+        "force_vector_width": None,  # llvm only
+        "force_vector_interleave": None,  # llvm only
+        "custom_unroll": False,  # TODO: this is not related to vectorization -> move to llvm toolchain!
     }
 
     def __init__(self, features=None, config=None):
@@ -1377,7 +1420,13 @@ class AutoVectorize(PlatformFeature):
     @property
     def verbose(self):
         value = self.config["verbose"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        # return str2bool(value) if not isinstance(value, (bool, int)) else value
+        if value is None or not value:
+            return "OFF"
+        assert isinstance(value, str)
+        value = value.lower()
+        assert value in ["loop", "slp", "none"]
+        return value
 
     @property
     def loop(self):
@@ -1389,12 +1438,46 @@ class AutoVectorize(PlatformFeature):
         value = self.config["slp"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def force_vector_width(self):
+        value = self.config["force_vector_width"]
+        # bool not allowed!
+        if value is None:
+            return "OFF"
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        if value <= 1:
+            return "OFF"
+        return value
+
+    @property
+    def force_vector_interleave(self):
+        value = self.config["force_vector_interleave"]
+        # bool not allowed!
+        if value is None:
+            return "OFF"
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        if value <= 1:
+            return "OFF"
+        return value
+
+    @property
+    def custom_unroll(self):
+        value = self.config["custom_unroll"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_platform_defs(self, platform):
         return {
             "RISCV_AUTO_VECTORIZE": self.enabled,
             "RISCV_AUTO_VECTORIZE_VERBOSE": self.verbose,
             "RISCV_AUTO_VECTORIZE_LOOP": self.loop and self.enabled,
             "RISCV_AUTO_VECTORIZE_SLP": self.slp and self.enabled,
+            "RISCV_AUTO_VECTORIZE_FORCE_VECTOR_WIDTH": self.force_vector_width,
+            "RISCV_AUTO_VECTORIZE_FORCE_VECTOR_INTERLEAVE": self.force_vector_interleave,
+            "RISCV_AUTO_VECTORIZE_CUSTOM_UNROLL": self.custom_unroll,
         }
 
 
@@ -1467,7 +1550,7 @@ class Benchmark(PlatformFeature, TargetFeature):
     def get_target_callbacks(self, target):
         if self.enabled:
 
-            def benchmark_callback(stdout, metrics, artifacts):
+            def benchmark_callback(stdout, metrics, artifacts, directory=None):
                 if len(metrics) <= 1:
                     return stdout
                 metrics_ = metrics[1:]  # drop first run (warmup)
@@ -1598,6 +1681,11 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         **FeatureBase.DEFAULTS,
         "mac": True,
         "mem": True,
+        "bi": True,
+        "alu": True,
+        "bitmanip": True,
+        "simd": True,
+        "hwlp": True,
     }
 
     def __init__(self, features=None, config=None):
@@ -1613,11 +1701,42 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
         value = self.config["mem"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def bi(self):
+        value = self.config["bi"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def alu(self):
+        value = self.config["alu"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def bitmanip(self):
+        value = self.config["bitmanip"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def simd(self):
+        value = self.config["simd"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def hwlp(self):
+        value = self.config["hwlp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["etiss", "microtvm_etiss"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in ["etiss", "microtvm_etiss", "corev_ovpsim", "cv32e40p"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             config[f"{target}.enable_xcorevmac"] = self.mac
             config[f"{target}.enable_xcorevmem"] = self.mem
+            config[f"{target}.enable_xcorevbi"] = self.bi
+            config[f"{target}.enable_xcorevalu"] = self.alu
+            config[f"{target}.enable_xcorevbitmanip"] = self.bitmanip
+            config[f"{target}.enable_xcorevsimd"] = self.simd
+            config[f"{target}.enable_xcorevhwlp"] = self.hwlp
 
 
 @register_feature("xpulp")
@@ -1790,3 +1909,83 @@ class SplitLayers(FrontendFeature):
                 f"{frontend}.pack_script": self.tflite_pack_exe,
             }
         )
+
+# @register_feature("hpmcounter")
+class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
+    """Use RISC-V Performance Counters"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "num_counters": 32,
+        "supported_counters": 1,  # To check if number of enabled counters exceeds counters implemented in hw
+        "enabled_counters": [],
+        "counter_names": [],
+    }
+
+    # def __init__(self, features=None, config=None):
+    #     super().__init__("hpmcounter", features=features, config=config)
+
+    @property
+    def enabled_counters(self):
+        temp = self.config["num_counters"]
+        return int(temp)
+
+    @property
+    def supported_counters(self):
+        temp = self.config["supported_counters"]
+        return int(temp)
+
+    @property
+    def enabled_counters(self):
+        temp = self.config["enabled_counters"]
+        if isinstance(temp, int):
+            temp = [temp]
+        elif isinstance(temp, str):
+            temp = str2list(temp)
+        assert isinstance(temp, list)
+        temp = list(map( int, temp))
+        return temp
+
+    @property
+    def counter_names(self):
+        temp = self.config["counter_names"]
+        if not isinstance(temp, list):
+            temp = str2list(temp)
+        return temp
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert self.supported_counters >= len(self.enabled_counters)
+        assert max(self.enabled_counter) < self.supported_counters
+        return {
+            "HPM_COUNTERS": self.num_counters,
+            **({f"USE_HPM{i}": i in self.enabled_counters for i in range(self.num_counters)}),
+        }
+
+    def get_target_callbacks(self, target):
+
+        if self.enabled:
+            def hpm_callback(stdout, metrics, artifacts, directory=None):
+                """Callback for extracting HPM metrics from stdout"""
+                print("stdout", stdout)
+                # TODO: add metrics
+                # TODO: remove HPM lines from stdout
+                return stdout
+
+            return None, hpm_callback
+        return None, None
+
+@register_feature("cv32_hpmcounter")
+class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
+    """Use RISC-V Performance Counters"""
+
+    DEFAULTS = {
+        **HpmCounter.DEFAULTS,
+        "num_counters": 12,
+        "supported_counters": 32,  # TODO
+        "enabled_counters": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        "counter_names": ["Cycles", "Instructions", "LD Stalls", "JMP Stalls", "IMiss", "LD", "ST", "Jump", "Branch", "Branch Taken", "Compressed", "Pipe Stall"]
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("cv32_hpmcounter", features=features, config=config)

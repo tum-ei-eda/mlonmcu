@@ -24,6 +24,7 @@ import multiprocessing
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
+from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
 from .model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
@@ -61,6 +62,7 @@ class TVMBackend(Backend):
         "target_mabi": None,
         "target_mattr": None,
         "target_keys": None,
+        "target_num_cores": None,
         "extra_targets": None,  # list
         "extra_target_details": None,  # dict
         "desired_layout": None,  # optional: NCHW, NHWC, NHWC:HWOI, ...
@@ -75,6 +77,11 @@ class TVMBackend(Backend):
         "tophub_url": None,
         "num_threads": multiprocessing.cpu_count(),
         "dump": [],  # Supports: c, relay, tir, ll
+        "disable_vectorize": "auto",
+        "custom_unroll": False,  # Experimental, RISC-V only
+        "autotuned_mode": None,
+        "autotuned_results_file": None,
+        "relay_debug": None, # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
     }
 
     REQUIRED = set()
@@ -97,24 +104,52 @@ class TVMBackend(Backend):
         self.artifacts = (
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
-        self._tuning_records = None
+        self._tuning_records = {}
+        results_file = self.config.get("autotuned_results_file", None)
+        tuner_name = self.config.get("autotuned_mode", None)
+        if results_file is not None:
+            assert tuner_name is not None
+            self._tuning_records[tuner_name] = results_file
+
+
+    # On the long term, we might support multiple TUNE stages in a single run (i.e. to allow autotvm+graphtuner to be separated)
+    # Hence
+    # @property
+    # def tuning_records(self):
+    #     if self._tuning_records:
+    #         return self._tuning_records
+    #     return self.config.get("autotuning_results_file", None):
+
+    # @tuning_records.setter
+    # def tuning_records(self, filepath):
+    #     self._tuning_records = filepath
+
+    def set_tuning_records(self, records, tuner_name=None):
+        if tuner_name is None:
+            tuner_name = self.config["autotuned_mode"]
+            # tuner_name = "autotvm"
+            assert tuner_name is not None
+        self._tuning_records[tuner_name] = records
+
+    def get_tuning_records(self, tuner_name=None):
+        if tuner_name is None:
+            tuner_name = self.config["autotuned_mode"]
+            # tuner_name = "autotvm"
+            if tuner_name is None:
+                if len(self._tuning_records) > 0:
+                    tuner_name = list(self._tuning_records.keys())[0]
+        return self._tuning_records.get(tuner_name, None)
 
     @property
-    def tuning_records(self):
-        if self._tuning_records:
-            return self._tuning_records
-        elif "autotuning_results_file" in self.config and self.config["autotuning_results_file"]:
-            return self.config["autotuning_results_file"]
-        else:
-            return None
-
-    @tuning_records.setter
-    def tuning_records(self, filepath):
-        self._tuning_records = filepath
+    def disable_vectorize(self):
+        temp = self.config["disable_vectorize"]
+        if temp is None or (isinstance(temp,  str) and temp in ["auto", "AUTO"]):
+            return self.target == "c"
+        return str2bool(temp)
 
     @property
     def pass_config(self):
-        base = {"tir.disable_vectorize": self.target == "c"}
+        base = {"tir.disable_vectorize": self.disable_vectorize}
         extra = self.config["extra_pass_config"]
         if isinstance(extra, str):
             import ast
@@ -157,6 +192,27 @@ class TVMBackend(Backend):
         return self.config["target_model"]
 
     @property
+    def target_num_cores(self):
+        return self.config["target_num_cores"]
+
+    # TODO:
+    # "target_device": ?,
+    # "target_libs": ?,
+    # "target_tag": ?,
+    # "target_march": ?,
+    # "target_keys": ?,
+    # "target_opt_level": ?,
+    # "target_cl_opt": ?,
+    # "target_mfloat_abi": ?,
+    # "target_fast_math_ninf": ?,
+    # "target_fast_math_contract": ?,
+    # "target_fast_math_nnan": ?,
+    # "target_fast_math": ?,
+    # "target_fast_math_nsz": ?,
+    # "target_fast_math_reassoc": ?,
+    # "target_fast_math_arcp": ?,
+
+    @property
     def extra_targets(self):
         return str2list(self.config["extra_targets"], allow_none=True)
 
@@ -195,7 +251,8 @@ class TVMBackend(Backend):
 
     @property
     def disabled_passes(self):
-        return self.config["disabled_passes"]
+        value = self.config["disabled_passes"]
+        return str2list(value) if isinstance(value, str) else value
 
     @property
     def tvm_pythonpath(self):
@@ -224,6 +281,11 @@ class TVMBackend(Backend):
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
     @property
+    def custom_unroll(self):
+        value = self.config["custom_unroll"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+
+    @property
     def dump(self):
         value = self.config["dump"]
         if isinstance(value, str):
@@ -248,6 +310,10 @@ class TVMBackend(Backend):
     def num_threads(self):
         return self.config["num_threads"]
 
+    @property
+    def relay_debug(self):
+        return self.config["relay_debug"]
+
     def get_target_details(self):
         ret = {}
         if self.target_device:
@@ -261,11 +327,16 @@ class TVMBackend(Backend):
         if self.target_mabi:
             ret["mabi"] = self.target_mabi
         if self.target_mattr:
-            ret["mattr"] = self.target_mattr
+            temp = self.target_mattr
+            if self.custom_unroll:
+                temp += ",+no-default-unroll"
+            ret["mattr"] = temp
         if self.target_keys:
             ret["keys"] = self.target_keys
         if self.target_model:
             ret["model"] = self.target_model
+        if self.target_num_cores:
+            ret["num-cores"] = self.target_num_cores
         return ret
 
     def get_tvmc_compile_args(self, out, dump=None):
@@ -283,7 +354,7 @@ class TVMBackend(Backend):
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
-            *get_tuning_records_tvmc_args(self.use_tuning_results, self.tuning_records),
+            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records()),
             *get_desired_layout_args(self.desired_layout, self.desired_layout_ops, self.desired_layout_map),
             *(["--dump-code", ",".join(dump)] if dump is not None and len(dump) > 0 else []),
             *self.tvmc_extra_args,
@@ -301,6 +372,7 @@ class TVMBackend(Backend):
             None if self.use_tlcpack else self.tvm_configs_dir,
             tophub_url=self.tophub_url,
             num_threads=self.num_threads,
+            debug_cfg=self.relay_debug,
         )
         if self.use_tlcpack:
             pre = ["tvmc"]
@@ -316,7 +388,19 @@ class TVMBackend(Backend):
 
     def invoke_tvmc_compile(self, out, dump=None, cwd=None):
         args = self.get_tvmc_compile_args(out, dump=dump)
-        return self.invoke_tvmc("compile", *args, cwd=cwd)
+        # self.timeout_sec = 90
+        self.timeout_sec = 0
+        if self.timeout_sec > 0:
+            ret = exec_timeout(
+                self.timeout_sec,
+                self.invoke_tvmc,
+                "compile",
+                *args,
+               cwd=cwd,
+            )
+        else:
+            ret = self.invoke_tvmc("compile", *args, cwd=cwd)
+        return ret
 
     def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
         self.model = model

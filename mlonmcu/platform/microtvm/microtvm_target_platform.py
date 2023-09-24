@@ -53,14 +53,14 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
         value = self.config["experimental_tvmc_print_time"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-    def invoke_tvmc_micro_flash(self, target=None, list_options=False):
+    def invoke_tvmc_micro_flash(self, target=None, list_options=False, **kwargs):
         all_args = []
         all_args.append(self.project_dir)
         template_args = self.get_template_args(target)
         all_args.extend(template_args)
-        return self.invoke_tvmc_micro("flash", *all_args, target=target, list_options=list_options)
+        return self.invoke_tvmc_micro("flash", *all_args, target=target, list_options=list_options, **kwargs)
 
-    def invoke_tvmc_micro_run(self, *args, target=None, list_options=False):
+    def invoke_tvmc_micro_run(self, *args, target=None, list_options=False, **kwargs):
         all_args = []
         all_args.append(self.project_dir)
         all_args.extend(["--device", "micro"])
@@ -71,7 +71,7 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
                 self.collect_available_project_options("run", target=target), target.get_project_options()
             )
             all_args.extend(get_project_option_args("run", options))
-        return self.invoke_tvmc("run", *all_args, target=target)
+        return self.invoke_tvmc("run", *all_args, target=target, **kwargs)
 
     def invoke_tvmc_run(self, *args, target=None):
         return self.invoke_tvmc_micro_run(*args, target=target)

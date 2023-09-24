@@ -84,7 +84,7 @@ def execute(
             while exit_code is None:
                 exit_code = process.poll()
             if handle_exit is not None:
-                exit_code = handle_exit(exit_code)
+                exit_code = handle_exit(exit_code, out=out_str)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
@@ -94,7 +94,7 @@ def execute(
         exit_code = p.poll()
         print_func(out_str)
         if handle_exit is not None:
-            exit_code = handle_exit(exit_code)
+            exit_code = handle_exit(exit_code, out=out_str)
         if exit_code != 0:
             err_func(out_str)
         assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(

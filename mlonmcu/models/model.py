@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import re
+from math import sqrt
 from enum import Enum
 from pathlib import Path
 from collections import namedtuple
@@ -116,8 +117,26 @@ def parse_type_string(inputs_string):
     return type_dict
 
 
-class Model:
+class Workload:
+
+    DEFAULTS = {}
+
+    def __init__(self, name, config=None, alt=None):
+        self.name = name
+        self.alt = alt
+        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, set(), set())
+
+    def get_platform_defs(self, platform):
+        return {}
+
+    def add_platform_defs(self, platform, defs):
+        defs.update(self.get_platform_defs(platform))
+
+
+class Model(Workload):
+
     DEFAULTS = {
+        **Workload.DEFAULTS,
         "metadata_path": "definition.yml",
         "input_shapes": None,
         "output_shapes": None,
@@ -129,15 +148,13 @@ class Model:
     }
 
     def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
-        self.name = name
+        super().__init__(name, config=config, alt=alt)
         self.paths = paths
         if not isinstance(self.paths, list):
             self.paths = [self.path]
-        self.alt = alt
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]
-        self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, set(), set())
         self.metadata = parse_metadata_from_path(self.metadata_path)
 
     @property
@@ -202,3 +219,147 @@ class Model:
         if self.alt:
             return f"Model({self.name},alt={self.alt})"
         return f"Model({self.name})"
+
+
+class Program(Workload):
+    pass
+
+
+class ExampleProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EXAMPLE_BENCHMARK"] = self.name
+        return ret
+
+class EmbenchProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EMBENCH_BENCHMARK"] = self.name
+        return ret
+
+
+class TaclebenchProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["TACLEBENCH_BENCHMARK"] = self.name
+        return ret
+
+
+class PolybenchProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["POLYBENCH_BENCHMARK"] = self.name
+        return ret
+
+
+class MibenchProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["MIBENCH_BENCHMARK"] = self.name
+        return ret
+
+
+class MathisProgram(Program):
+
+    DEFAULTS = {
+        "size": 1024,
+        # "size": 65536,
+    }
+
+    @property
+    def size(self):
+        value = self.config["size"]
+        if isinstance(value, str):
+            value = str(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    def get_nargs(self, name):
+        return {
+            "to_upper": 2,
+            "add8": 4,
+            "add16": 4,
+            "gather_add8": 4,
+            "gather_add16": 4,
+            "scatter_add8": 4,
+            "scatter_add16": 4,
+            "dot8": 3,
+            "dot16": 3,
+            "saxpy8": 5,
+            "saxpy16": 5,
+            "matmul8": 4,
+            "matmul16": 4,
+            "matmul8_a": 4,
+            "matmul16_a": 4,
+            "transposed_matmul8": 4,
+            "transposed_matmul16": 4,
+            "transposed_matmul8_a": 4,
+            "transposed_matmul16_a": 4,
+            "transposed_matmul8_b": 4,
+            "transposed_matmul16_b": 4,
+        }[name]
+
+    def get_elem_size(self, name):
+        return {
+            "to_upper": 8,
+            "add8": 8,
+            "add16": 16,
+            "gather_add8": 8,
+            "gather_add16": 16,
+            "scatter_add8": 8,
+            "scatter_add16": 16,
+            "dot8": 8,
+            "dot16": 16,
+            "saxpy8": 8,
+            "saxpy16": 16,
+            "matmul8": 8,
+            "matmul16": 16,
+            "matmul8": 8,
+            "matmul16": 16,
+            "matmul8_a": 8,
+            "matmul16_a": 16,
+            "transposed_matmul8": 8,
+            "transposed_matmul16": 16,
+            "transposed_matmul8_a": 8,
+            "transposed_matmul16_a": 16,
+            "transposed_matmul8_b": 8,
+            "transposed_matmul16_b": 16,
+        }[name]
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["MATHIS_TEST"] = self.name
+            ret["MATHIS_NARGS"] = self.get_nargs(self.name)
+            ret["MATHIS_ELEM_SIZE"] = self.get_elem_size(self.name)
+            ret["MATHIS_SIZE"] = int(sqrt(self.size)) if "matmul" in self.name else self.size
+        return ret
+
+
+class CoremarkProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["COREMARK_ITERATIONS"] = 10
+        return ret
+
+
+class DhrystoneProgram(Program):
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["DHRYSTONE_ITERATIONS"] = 10000
+        return ret

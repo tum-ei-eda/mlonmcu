@@ -45,6 +45,7 @@ class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
     RAW = 11
     BIN = 11
     SHARED_OBJECT = 12  # Here: the parent tar archive
+    ARCHIVE = 13
 
 
 def lookup_artifacts(artifacts, name=None, fmt=None, flags=None, first_only=False):
@@ -111,7 +112,7 @@ class Artifact:
             assert self.content is not None
         elif self.fmt in [ArtifactFormat.RAW, ArtifactFormat.BIN]:
             assert self.raw is not None
-        elif self.fmt in [ArtifactFormat.MLF, ArtifactFormat.SHARED_OBJECT]:
+        elif self.fmt in [ArtifactFormat.MLF, ArtifactFormat.SHARED_OBJECT, ArtifactFormat.ARCHIVE]:
             assert self.raw is not None
         elif self.fmt in [ArtifactFormat.PATH]:
             assert self.path is not None
@@ -143,7 +144,7 @@ class Artifact:
             assert not extract, "extract option is only available for ArtifactFormat.MLF"
             with open(filename, "wb") as handle:
                 handle.write(self.raw)
-        elif self.fmt in [ArtifactFormat.MLF, ArtifactFormat.SHARED_OBJECT]:
+        elif self.fmt in [ArtifactFormat.MLF, ArtifactFormat.SHARED_OBJECT, ArtifactFormat.ARCHIVE]:
             with open(filename, "wb") as handle:
                 handle.write(self.raw)
             if extract:
@@ -165,7 +166,7 @@ class Artifact:
             print(self.content)
         elif self.fmt in [ArtifactFormat.RAW, ArtifactFormat.BIN]:
             print(f"Data Size: {len(self.raw)}B")
-        elif self.fmt in [ArtifactFormat.MLF, ArtifactFormat.SHARED_OBJECT]:
+        elif self.fmt in [ArtifactFormat.MLF, ArtifactFormat.SHARED_OBJECT, ArtifactFormat.ARCHIVE]:
             print(f"Archive Size: {len(self.raw)}B")
         elif self.fmt in [ArtifactFormat.PATH]:
             print(f"File Location: {self.path}")

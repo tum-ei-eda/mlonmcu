@@ -20,6 +20,7 @@ import os
 import sys
 import multiprocessing
 import logging
+import argparse
 
 from mlonmcu.platform import get_platforms
 from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
@@ -28,6 +29,8 @@ from mlonmcu.logging import get_logger, set_log_level
 from .helper.parse import extract_config
 
 logger = get_logger()
+
+NUM_GEN_ARGS = 9
 
 
 def handle_logging_flags(args):
@@ -91,33 +94,6 @@ def add_flow_options(parser):
         help="Enabled features for target/framework/backend (choices: %(choices)s)",
     )
     flow_parser.add_argument(
-        "--feature-gen",
-        dest="feature_gen",
-        type=str,
-        metavar="FEATURES",
-        nargs="+",
-        action="append",
-        help="Generator statement for features.",
-    )
-    flow_parser.add_argument(
-        "--feature-gen2",
-        dest="feature_gen2",
-        type=str,
-        metavar="FEATURES",
-        nargs="+",
-        action="append",
-        help="Generator statement for features. (level 2)",
-    )
-    flow_parser.add_argument(
-        "--feature-gen3",
-        dest="feature_gen3",
-        type=str,
-        metavar="FEATURES",
-        nargs="+",
-        action="append",
-        help="Generator statement for features. (level 3)",
-    )
-    flow_parser.add_argument(
         "-c",
         "--config",
         metavar="KEY=VALUE",
@@ -132,30 +108,27 @@ def add_flow_options(parser):
             "values are always treated as strings."
         ),
     )
-    flow_parser.add_argument(
-        "--config-gen",
-        dest="config_gen",
-        metavar="KEY=VALUE",
-        nargs="+",
-        action="append",
-        help="Generator statement for configs.",
-    )
-    flow_parser.add_argument(
-        "--config-gen2",
-        dest="config_gen2",
-        metavar="KEY=VALUE",
-        nargs="+",
-        action="append",
-        help="Generator statement for configs. (level 2)",
-    )
-    flow_parser.add_argument(
-        "--config-gen3",
-        dest="config_gen3",
-        metavar="KEY=VALUE",
-        nargs="+",
-        action="append",
-        help="Generator statement for configs. (level 3)",
-    )
+    def add_gen_args(parser, number):
+        for i in range(number):
+            suffix = str(i + 1) if i > 0 else ""
+            parser.add_argument(
+                "--feature-gen" + suffix,
+                dest="feature_gen" + suffix,
+                type=str,
+                metavar="FEATURES",
+                nargs="+",
+                action="append",
+                help=f"Generator statement for features. (Also available: --feature-gen2 ... --feature-gen{number})" if i == 0 else argparse.SUPPRESS,
+            )
+            flow_parser.add_argument(
+                "--config-gen" + suffix,
+                dest="config_gen" + suffix,
+                metavar="KEY=VALUE",
+                nargs="+",
+                action="append",
+                help=f"Generator statement for configs. (Also available: --config-gen2 ... --config-gen{number})" if i == 0 else argparse.SUPPRESS,
+            )
+    add_gen_args(flow_parser, NUM_GEN_ARGS)
     flow_parser.add_argument(
         "--parallel",
         metavar="THREADS",

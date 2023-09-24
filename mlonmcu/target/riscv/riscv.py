@@ -49,6 +49,7 @@ class RISCVTarget(Target):
         "arch": None,  # Please use above properties if possible
         "abi": None,  # Please use above properties if possible
         "attr": "",  # Please avoid using this directly
+        "cpu": None,
     }
     REQUIRED = {"riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"}
     PUPL_GCC_TOOLCHAIN_REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}  # TODO elegant handle customized toolchain
@@ -161,11 +162,11 @@ class RISCVTarget(Target):
 
     @property
     def gcc_extensions(self):
-        return self.extensions
+        return [ext for ext in self.extensions if ext not in ["xcorev", "xcorevmac", "xcorevmem"]]
 
     @property
     def llvm_extensions(self):
-        return self.extensions
+        return [ext for ext in self.extensions if ext not in ["zifencei", "zicsr"]]
 
     @property
     def arch(self):
@@ -174,6 +175,32 @@ class RISCVTarget(Target):
             return temp
         else:
             exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def cpu(self):
+        temp = self.config["cpu"]
+        if temp:
+            return temp
+        else:
+            return f"generic-rv{self.xlen}"
+
+    @property
+    def llvm_arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            exts_str = join_extensions(sort_extensions_canonical(self.llvm_extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def gcc_arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            exts_str = join_extensions(sort_extensions_canonical(self.gcc_extensions, lower=True))
             return f"rv{self.xlen}{exts_str}"
 
     @property
@@ -229,7 +256,7 @@ class RISCVTarget(Target):
 
     @property
     def timeout_sec(self):
-        return int(self.config["timeout_sec"])
+        return float(self.config["timeout_sec"])
 
     @property
     def fpu(self):
@@ -264,28 +291,53 @@ class RISCVTarget(Target):
         elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = self.arch
+        # ret["RISCV_ARCH"] = self.gcc_arch
+        ret["RISCV_ARCH"] = self.llvm_arch
         ret["RISCV_ABI"] = self.abi
-        ret["RISCV_ATTR"] = self.attr  # TODO: use for clang
+        ret["RISCV_MCPU"] = self.cpu
+        # llvm/clang only!
+        ret["RISCV_ATTR"] = self.attr
+        def feature_helper(attrs):
+            # TODO
+            return ""
+        ret["RISCV_FEATURES"] = feature_helper(self.attr)
         return ret
 
     def get_arch(self):
         return "riscv"
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
-            arch_replace = self.arch.replace("imafd", "g")
-            arch_split = arch_replace.split("_")
-            arch_remove = ["zicsr", "zifencei"]
-            arch_clean = "-".join([a for a in arch_split if a not in arch_remove])
-            ret = {
-                "target_march": self.arch,
-                "target_mtriple": self.riscv_gcc_basename,  # TODO: riscv32-esp-elf for esp32c3!
-                "target_mabi": self.abi,
-                "target_mattr": self.attr,
-                "target_mcpu": f"generic-rv{self.xlen}",
-                "target_model": f"{self.name}-{arch_clean}",
-            }
+            arch_clean = self.llvm_arch.replace("imafd", "g").replace("_", "-")
+            ret.update(
+                {
+                    # "target_march": self.llvm_arch,
+                    "target_mtriple": self.riscv_gcc_basename,
+                    "target_mabi": self.abi,
+                    "target_mattr": self.attr,
+                    "target_mcpu": self.cpu,
+                    "target_model": f"etiss-{arch_clean}",
+                    # "target_model": f"{self.name}-{arch_clean}",
+                    "target_num_cores": 1,  # TODO: also add for non-riscv targets
+                    # "target_device": ?,
+                    # "target_libs": ?,
+                    # "target_tag": ?,
+                    # "target_march": ?,
+                    # "target_keys": ?,
+                    # "target_opt_level": ?,
+                    # "target_cl_opt": ?,
+                    # "target_mfloat_abi": ?,
+                    # "target_fast_math_ninf": ?,
+                    # "target_fast_math_contract": ?,
+                    # "target_fast_math_nnan": ?,
+                    # "target_fast_math": ?,
+                    # "target_fast_math_nsz": ?,
+                    # "target_fast_math_reassoc": ?,
+                    # "target_fast_math_arcp": ?,
+                    # "target_model": "host",
+                }
+            )
             if optimized_schedules:
                 ret.update(
                     {
@@ -293,5 +345,4 @@ class RISCVTarget(Target):
                         "target_keys": None,
                     }
                 )
-            return ret
-        return {}
+        return ret

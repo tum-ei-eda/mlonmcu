@@ -101,6 +101,8 @@ def parseElf(inFile):
         ".Pulp_Chip.Info",
         # ARM (corstone300)
         ".ddr",
+        # cv32e40p
+        ".debugger_stack",
     ]
     ignorePrefixes = [
         ".gcc_except",

@@ -20,9 +20,11 @@
 
 def get_autotuning_defaults():
     return {
+        "mode": None,
         "results_file": None,
         "append": None,
         "trials": 10,  # TODO: increase to 100?
+        "trials_single": None,
         "early_stopping": None,  # calculate default dynamically
         "num_workers": None,
         "max_parallel": 1,
@@ -47,4 +49,9 @@ def get_autoscheduler_defaults():
         "enable": False,
         "include_simple_tasks": False,
         "log_estimated_latency": True,
+    }
+
+def get_metascheduler_defaults():
+    return {
+        "enable": False,
     }

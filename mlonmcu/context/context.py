@@ -474,6 +474,12 @@ class MlonMcuContext:
         sessions_runs = self.get_sessions_runs_idx()
         print_sessions(sessions_runs, with_runs=runs, with_labels=labels)
 
+    def lookup(self, key, flags=None):
+        user_vars = self.environment.vars
+        if key in user_vars:
+            return user_vars[key]
+        return self.cache[key, flags]
+
     def export(self, dest, session_ids=None, run_ids=None, interactive=True):
         dest = Path(dest)
         if (dest.is_file() and dest.exists()) or (dest.is_dir() and utils.is_populated(dest)):
@@ -516,9 +522,13 @@ class MlonMcuContext:
                     base = tmpdir / str(sid)
                 if run_ids is None:
                     src = session.dir / "runs"
+                    report_path = session.dir / "report.csv"  # TODO: only works for csv
+                    # TODO: use artifacts from restored session instead
                     shutil.copytree(
                         src, base, dirs_exist_ok=True, symlinks=True
                     )  # Warning: dirs_exist_ok=True requires python 3.8+
+                    if report_path.is_file():
+                        shutil.copyfile(report_path, base / "report.csv")
                 else:
                     base = base / "runs"
                     for rid in run_ids:

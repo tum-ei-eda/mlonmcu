@@ -24,6 +24,7 @@ from pathlib import Path
 
 from mlonmcu.config import str2bool
 from mlonmcu.setup import utils  # TODO: Move one level up?
+from mlonmcu.timeout import exec_timeout
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target import get_targets
@@ -299,13 +300,50 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return out, artifacts
 
     def generate(self, src, target, model=None) -> Tuple[dict, dict]:
-        out, artifacts = self.compile(target, src=src, model=model)
+
+        # TODO: fix timeouts
+        if self.validate_outputs:
+            # some strange bug?
+            self.timeout_sec = 0
+        else:
+            self.timeout_sec = 90
+        self.timeout_sec = 0
+        if self.timeout_sec > 0:
+            out, artifacts = exec_timeout(
+                self.timeout_sec,
+                self.compile,
+                target,
+                src=src,
+                model=model,
+            )
+        else:
+            out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlonmcu"
+        hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"  # TODO: move to dumps
+        asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
+        srcdump_file = self.build_dir / "dumps" / "generic_mlonmcu.srcdump"  # TODO: optional
+
+>>>>>>> origin/llvmgen
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
             data = handle.read()
             artifact = Artifact("generic_mlonmcu", raw=data, fmt=ArtifactFormat.RAW)
             artifacts.insert(0, artifact)  # First artifact should be the ELF
+        if hex_file.is_file():
+            with open(hex_file, "rb") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.hex", raw=data, fmt=ArtifactFormat.RAW)
+                artifacts.insert(1, artifact)
+        if asmdump_file.is_file():
+            with open(asmdump_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.dump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,))
+                artifacts.append(artifact)
+        if srcdump_file.is_file():
+            with open(srcdump_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.srcdump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,))
+                artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)
         stdout_artifact = Artifact(
             "mlif_out.log", content=out, fmt=ArtifactFormat.TEXT

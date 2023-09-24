@@ -323,7 +323,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
         srcdump_file = self.build_dir / "dumps" / "generic_mlonmcu.srcdump"  # TODO: optional
 
->>>>>>> origin/llvmgen
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
             data = handle.read()

@@ -428,13 +428,12 @@ class EtissTarget(RISCVTarget):
         return ret
 
     def parse_exit(self, out):
-        exit_code = None
-        exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
-        if not exit_match:
+        exit_code = super().parse_exit(out)
+        if exit_code is None:
             # legacy
             exit_match = re.search(r"exit called with code: (.*)", out)
-        if exit_match:
-            exit_code = int(exit_match.group(1))
+            if exit_match:
+                exit_code = int(exit_match.group(1))
         return exit_code
 
     def parse_stdout(self, out, metrics, exit_code=0):
@@ -446,10 +445,9 @@ class EtissTarget(RISCVTarget):
                 logger.error(f"An ETISS Error occured during simulation: {error_msg}")
             else:
                 raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
-        if self.end_to_end_cycles:
-            sim_insns = re.search(r"CPU Cycles \(estimated\): (.*)", out)
-            sim_insns = int(float(sim_insns.group(1)))
-            metrics.append("Simulated Instructions", sim_insns, True)
+        sim_insns = re.search(r"CPU Cycles \(estimated\): (.*)", out)
+        sim_insns = int(float(sim_insns.group(1)))
+        metrics.add("Simulated Instructions", sim_insns, True)
         mips = None  # TODO: parse mips?
         mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
         if mips_match:

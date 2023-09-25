@@ -28,6 +28,7 @@ from mlonmcu.config import str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.bench import add_bench_metrics
 from .riscv_pext_target import RVPTarget
 from .riscv_vext_target import RVVTarget
 from .util import update_extensions, sort_extensions_canonical, join_extensions
@@ -150,50 +151,44 @@ class SpikeTarget(RVPTarget, RVVTarget):
         )
         return ret
 
-    def parse_stdout(self, out):
-        if self.end_to_end_cycles:
-            cpu_cycles = re.search(r"(\d*) cycles", out)
-        else:
-            cpu_cycles = re.search(r".*Total Cycles: (.*)", out)
-        if not cpu_cycles:
-            logger.warning("unexpected script output (cycles)")
-            total_cycles = None
-        else:
-            total_cycles = int(float(cpu_cycles.group(1)))
-        # mips = None  # TODO: parse mips?
-        setup_cycles = re.search(r".*Setup Cycles: (.*)", out)
-        if not setup_cycles:
-            setup_cycles = None
-        else:
-            setup_cycles = int(setup_cycles.group(1).replace(",", ""))
-        run_cycles = re.search(r".*Run Cycles: (.*)", out)
-        if not run_cycles:
-            run_cycles = None
-        else:
-            run_cycles = int(run_cycles.group(1).replace(",", ""))
-        return total_cycles, setup_cycles, run_cycles
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0)
+        sim_insns = re.search(r"(\d*) cycles", out)
+        sim_insns = int(float(sim_insns.group(1)))
+        metrics.add("Simulated Instructions", sim_insns, True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
+        def _handle_exit(code, out=None):
+
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
         start_time = time.time()
         if self.print_outputs:
-            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out = self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         # TODO: do something with out?
         end_time = time.time()
         diff = end_time - start_time
         # size instead of readelf?
-        total_cycles, setup_cycles, run_cycles = self.parse_stdout(out)
 
+        # TODO: get exit code
+        exit_code = 0
         metrics = Metrics()
-        metrics.add("Cycles", total_cycles)
-        metrics.add("Setup Cycles", setup_cycles)
-        metrics.add("Run Cycles", run_cycles)
-        if total_cycles is not None:
-            metrics.add("Total MIPS", (total_cycles / diff) / 1e6)
+        self.parse_stdout(out, metrics, exit_code=exit_code)
+
+        if metrics.has("Simulated Instructions"):
+            sim_insns = metrics.get("Simulated Instructions")
+            metrics.add("MIPS", (sim_insns / diff) / 1e6, True)
 
         return metrics, out, []
 

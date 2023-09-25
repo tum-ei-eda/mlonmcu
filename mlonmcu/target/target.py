@@ -19,6 +19,7 @@
 """MLonMCU Target definitions"""
 
 import os
+import re
 import tempfile
 import time
 from pathlib import Path
@@ -124,6 +125,13 @@ class Target:
     def inspect(self, program: Path, *args, **kwargs):
         """Use target to inspect a executable"""
         return execute(self.inspect_program, program, *self.inspect_program_args, *args, **kwargs)
+
+    def parse_exit(self, out):
+        exit_code = None
+        exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
+        if exit_match:
+            exit_code = int(exit_match.group(1))
+        return exit_code
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         # This should not be accurate, just a fallback which should be overwritten

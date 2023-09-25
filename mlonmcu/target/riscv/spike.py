@@ -75,7 +75,6 @@ class SpikeTarget(RVPTarget, RVVTarget):
         **RVPTarget.DEFAULTS,
         **RVVTarget.DEFAULTS,
         "spikepk_extra_args": [],
-        "end_to_end_cycles": False,
     }
     REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | {"spike.exe", "spike.pk"}
 
@@ -93,11 +92,6 @@ class SpikeTarget(RVPTarget, RVVTarget):
     @property
     def spikepk_extra_args(self):
         return self.config["spikepk_extra_args"]
-
-    @property
-    def end_to_end_cycles(self):
-        value = self.config["end_to_end_cycles"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def extensions(self):
@@ -127,8 +121,7 @@ class SpikeTarget(RVPTarget, RVVTarget):
                 extra_args = self.extra_args
             spike_args.extend(extra_args)
 
-        if self.end_to_end_cycles:
-            spikepk_args.append("-s")
+        spikepk_args.append("-s")
 
         if len(self.spikepk_extra_args) > 0:
             if isinstance(self.spikepk_extra_args, str):

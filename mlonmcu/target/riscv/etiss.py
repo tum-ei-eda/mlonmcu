@@ -65,7 +65,6 @@ class EtissTarget(RISCVTarget):
         "vlen": 0,  # vectorization=off
         "elen": 32,
         "jit": None,
-        "end_to_end_cycles": False,
         "allow_error": False,
         "max_block_size": None,
         "enable_xcorevmac": False,
@@ -274,11 +273,6 @@ class EtissTarget(RISCVTarget):
         if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
             attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)
-
-    @property
-    def end_to_end_cycles(self):
-        value = self.config["end_to_end_cycles"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def allow_error(self):

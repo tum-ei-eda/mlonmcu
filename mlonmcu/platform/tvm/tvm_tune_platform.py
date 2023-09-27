@@ -436,6 +436,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 num_tuned = len(remove_empty(content_best.split("\n")))
                 metrics.add("Tuned Tasks", num_tuned, True)
             else:
+                artifact_ = Artifact("best_tuning_results.log.txt", content="", fmt=ArtifactFormat.TEXT)
+                artifacts.append(artifact_)
                 metrics.add("Tuned Tasks", 0, True)
 
         if autotvm_enable or autoscheduler_enable or metascheduler_enable:

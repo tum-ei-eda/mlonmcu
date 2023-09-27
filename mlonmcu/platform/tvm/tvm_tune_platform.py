@@ -184,6 +184,12 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     cnt += 1
             return cnt
 
+        def get_max_flops(out, prefix="M"):
+            res = re.compile(f"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
+            if len(res) > 0:
+                return res[-1]
+            return -1
+
         # pick best records
         def _pick_best(backend, records, verbose=False):
             with tempfile.TemporaryDirectory() as tmp_dir:
@@ -325,8 +331,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 # content_best = _pick_best(backend, content, verbose=verbose)
                                 sub_trials = len(remove_empty(content.split("\n")))
                                 sub_failed_trials = count_failed_trials(content)
+                                max_flops = get_max_flops(out)
                                 t1 = time.time()
-                            return (out, content, task_len, sub_trials, sub_failed_trials, t1 - t0, visualize_raw_task)
+                            return (out, content, task_len, sub_trials, sub_failed_trials, max_flops, t1 - t0, visualize_raw_task)
 
                         workers.append(executor.submit(do_work, i, content, task_len))
                 all_out = ""
@@ -338,12 +345,13 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     try:
                         ret = w.result()
                         logger.debug(f"Worker {i}: done")
-                        out, content, size, tuned, failed, duration, visualize_raw_task = ret
+                        out, content, size, tuned, failed, max_flops, duration, visualize_raw_task = ret
                         all_out += out
                         all_content += content
                         metrics_.add("Config Space Size", size, True)
                         metrics_.add("Total Trials", tuned, True)
                         metrics_.add("Failed Trials", failed, True)
+                        metrics_.add("Max. MFLOPS", max_flops, True)
                         metrics_.add("Tune Duration [s]", duration, True)
                         metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
                         if early_stopping < trials_single:

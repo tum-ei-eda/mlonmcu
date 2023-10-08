@@ -83,6 +83,15 @@ jobs:
           else
               echo "template=${{ steps.cfg.outputs.template }}-" >> $GITHUB_OUTPUT
           fi
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -181,6 +190,15 @@ jobs:
           else
               echo "template=${{ steps.cfg.outputs.template }}-" >> $GITHUB_OUTPUT
           fi
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -275,6 +293,15 @@ jobs:
           else
               echo "template=${{ steps.cfg.outputs.template }}-" >> $GITHUB_OUTPUT
           fi
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v3
         with:

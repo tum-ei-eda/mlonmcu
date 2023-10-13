@@ -50,9 +50,9 @@ repos:
   muriscvnn:
     url: "git@github.com:fabianpedd/muriscv_nn.git"
     ref: main
-  packer:
-    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
-    ref: main
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
   spike:
     url: "git@github.com:riscv-software-src/riscv-isa-sim.git"
     ref: master
@@ -125,6 +125,7 @@ frontends:
     features:
       validate: true
       visualize: true
+      split_layers: true
   relay:
     enabled: true
     features:

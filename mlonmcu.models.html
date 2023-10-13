@@ -220,6 +220,42 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">LayerGenFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#LayerGenFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.Frontend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fmt':</span> <span class="pre">'tflite',</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['validate']</span></em><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['layergen.exe']</span></em><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend.fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fmt</span></span><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.fmt" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend.layergen_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">layergen_exe</span></span><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.layergen_exe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend.produce_artifacts">
+<span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#LayerGenFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.produce_artifacts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.ONNXFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">ONNXFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#ONNXFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.ONNXFrontend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.SimpleFrontend</span></code></a></p>
@@ -545,6 +581,11 @@
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.model.Model.skip_check">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">skip_check</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.skip_check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.models.model.Model.support_path">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">support_path</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.support_path" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -607,6 +648,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.RELAY">
 <span class="sig-name descname"><span class="pre">RELAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ModelFormat(value=5,</span> <span class="pre">extensions=['relay'])</span></em><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.RELAY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.TEXT">
+<span class="sig-name descname"><span class="pre">TEXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ModelFormat(value=8,</span> <span class="pre">extensions=['txt'])</span></em><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.TEXT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -688,6 +734,42 @@
 </section>
 <section id="module-mlonmcu.models">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.models" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.</span></span><span class="sig-name descname"><span class="pre">LayerGenFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#LayerGenFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.models.frontend.Frontend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fmt':</span> <span class="pre">'tflite',</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['validate']</span></em><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.FEATURES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['layergen.exe']</span></em><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.REQUIRED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fmt</span></span><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.fmt" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.layergen_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">layergen_exe</span></span><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.layergen_exe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.produce_artifacts">
+<span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#LayerGenFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.produce_artifacts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.models.ONNXFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.</span></span><span class="sig-name descname"><span class="pre">ONNXFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#ONNXFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.ONNXFrontend" title="Permalink to this definition"></a></dt>

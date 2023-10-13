@@ -135,7 +135,8 @@
     <span class="n">ONNX</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;onnx&quot;</span><span class="p">])</span>
     <span class="n">RELAY</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;relay&quot;</span><span class="p">])</span>
     <span class="n">PB</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;pb&quot;</span><span class="p">])</span>
-    <span class="n">PADDLE</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;pdmodel&quot;</span><span class="p">])</span></div>
+    <span class="n">PADDLE</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;pdmodel&quot;</span><span class="p">])</span>
+    <span class="n">TEXT</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;txt&quot;</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="parse_metadata_from_path"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.parse_metadata_from_path">[docs]</a><span class="k">def</span> <span class="nf">parse_metadata_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -182,6 +183,15 @@
     <span class="k">def</span> <span class="nf">outputs_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: fall back to metadata</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;outputs_path&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">skip_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TEXT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="p">:</span>

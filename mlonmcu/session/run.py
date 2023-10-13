@@ -317,7 +317,7 @@ class Run:
         """Setter for the backend instance."""
         self.backend = backend
         # assert len(self.platforms) > 0, "Add at least a platform before adding a backend."
-        if self.model is not None:
+        if self.model is not None and not self.model.skip_check:
             assert self.backend.supports_model(self.model), (
                 "The added backend does not support the chosen model. "
                 "Add the backend before adding a model to find a suitable frontend."

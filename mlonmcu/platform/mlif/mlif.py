@@ -344,7 +344,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         else:
             out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlonmcu"
-        hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"  # TODO: move to dumps
+        hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
+        path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps
         asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
         srcdump_file = self.build_dir / "dumps" / "generic_mlonmcu.srcdump"  # TODO: optional
 
@@ -353,10 +354,17 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             data = handle.read()
             artifact = Artifact("generic_mlonmcu", raw=data, fmt=ArtifactFormat.RAW)
             artifacts.insert(0, artifact)  # First artifact should be the ELF
+        # for cv32e40p
         if hex_file.is_file():
             with open(hex_file, "rb") as handle:
                 data = handle.read()
                 artifact = Artifact("generic_mlonmcu.hex", raw=data, fmt=ArtifactFormat.RAW)
+                artifacts.insert(1, artifact)
+        # only for vicuna
+        if path_file.is_file():
+            with open(path_file, "rb") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.path", raw=data, fmt=ArtifactFormat.RAW)
                 artifacts.insert(1, artifact)
         if asmdump_file.is_file():
             with open(asmdump_file, "r") as handle:

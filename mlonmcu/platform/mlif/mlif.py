@@ -73,6 +73,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "mem_only": False,
         "debug_symbols": False,
         "verbose_makefile": False,
+        "lto": False!
+        "slim_cpp": True,
+        "garbage_collect": True,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -217,6 +220,21 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["verbose_makefile"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def lto(self):
+        value = self.config["verbose_makefile"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def slim_cpp(self):
+        value = self.config["slim_cpp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def garbage_collect(self):
+        value = self.config["garbage_collect"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -234,10 +252,17 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             args.append(f"-DLLVM_DIR={self.llvm_dir}")
         if self.optimize:
             args.append(f"-DOPTIMIZE={self.optimize}")
+        # TODO: put in dict to also track false values!
         if self.debug_symbols:
             args.append("-DDEBUG_SYMBOLS=ON")
         if self.verbose_makefile:
             args.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")
+        if self.lto:
+            args.append("-DENABLE_LTO=ON")
+        if self.garbage_collect:
+            args.append("-DENABLE_GC=ON")
+        if self.slim_cpp:
+            args.append("-DSLIM_CPP=ON")
         if self.model_support_dir:
             args.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
         else:

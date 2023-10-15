@@ -99,6 +99,8 @@ def exec(*args, **kwargs):
         The command to be executed.
     """
     logger.debug("- Executing: " + str(args))
+    if "cwd" in kwargs:
+        logger.debug("- CWD: " + str(kwargs["cwd"]))
     subprocess.run([i for i in args], **kwargs, check=True)
 
 

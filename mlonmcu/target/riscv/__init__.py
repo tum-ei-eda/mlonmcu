@@ -7,6 +7,7 @@ from .riscv_qemu import RiscvQemuTarget
 from .gvsoc_pulp import GvsocPulpTarget
 from .ara import AraTarget
 from .cv32e40p import CV32E40PTarget
+from .vicuna import VicunaTarget
 
 __all__ = [
     "EtissPulpinoTarget",
@@ -18,4 +19,5 @@ __all__ = [
     "GvsocPulpTarget",
     "AraTarget",
     "CV32E40PTarget",
+    "VicunaTarget",
 ]

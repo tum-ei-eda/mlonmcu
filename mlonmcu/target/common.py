@@ -63,6 +63,8 @@ def execute(
         The command line output of the command
     """
     logger.debug("- Executing: %s", str(args))
+    if "cwd" in kwargs:
+        logger.debug("- CWD: %s", str(kwargs["cwd"]))
     if ignore_output:
         assert not live
         subprocess.run(args, **kwargs, check=True)

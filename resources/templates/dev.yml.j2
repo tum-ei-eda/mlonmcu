@@ -98,6 +98,12 @@ repos:
   tflite_pack:
     url: "https://github.com/tum-ei-eda/tflite-pack.git"
     ref: 439b78d36456f716629ad9dbaff9734baaa75db9
+  vicuna:
+    url: "https://github.com/vproc/vicuna.git"
+    ref: c1484ec8fa9f1106505a4ca246af39a66420a1d0
+  verilator:
+    url: "https://github.com/verilator/verilator"
+    ref: tags/v4.210
 
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -224,6 +230,10 @@ targets:
     enabled: false
     features:
       vext: false
+  vicuna:
+    enabled: true
+    features:
+      vext: true
   microtvm_host:
     enabled: true
   microtvm_spike:

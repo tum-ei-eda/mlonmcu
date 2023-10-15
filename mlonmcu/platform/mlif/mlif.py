@@ -344,6 +344,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         else:
             out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlonmcu"
+        map_file = self.build_dir / "linker.map"  # TODO: optional
         hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
         path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps
         asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
@@ -362,10 +363,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 artifacts.insert(1, artifact)
         # only for vicuna
         if path_file.is_file():
-            with open(path_file, "rb") as handle:
+            with open(path_file, "r") as handle:
                 data = handle.read()
-                artifact = Artifact("generic_mlonmcu.path", raw=data, fmt=ArtifactFormat.RAW)
+                artifact = Artifact("generic_mlonmcu.path", content=data, fmt=ArtifactFormat.TEXT)
                 artifacts.insert(1, artifact)
+        if map_file.is_file():
+            with open(map_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT)
+                artifacts.append(artifact)
         if asmdump_file.is_file():
             with open(asmdump_file, "r") as handle:
                 data = handle.read()

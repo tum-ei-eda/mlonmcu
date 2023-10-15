@@ -73,7 +73,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "mem_only": False,
         "debug_symbols": False,
         "verbose_makefile": False,
-        "lto": False!
+        "lto": False,
         "slim_cpp": True,
         "garbage_collect": True,
     }

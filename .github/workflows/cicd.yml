@@ -24,11 +24,13 @@ on:
   push:
     branches:
       - main
+      - staging-newer
     tags:
       - 'v*'
   pull_request:
     branches:
       - main
+      - staging-newer
 jobs:
   build:
     runs-on: ubuntu-latest

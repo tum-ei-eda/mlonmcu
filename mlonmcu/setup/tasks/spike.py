@@ -70,7 +70,7 @@ def _validate_spike_clean(context: MlonMcuContext, params={}):
 def clone_spike_pk(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
-    """Clone the spike proxt kernel."""
+    """Clone the spike proxy kernel."""
     spikepkName = utils.makeDirName("spikepk")
     spikepkSrcDir = context.environment.paths["deps"].path / "src" / spikepkName
     user_vars = context.environment.vars

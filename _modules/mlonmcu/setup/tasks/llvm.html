@@ -149,7 +149,8 @@
         <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">llvmInstallDir</span><span class="p">):</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">llvmUrl</span><span class="p">,</span> <span class="n">llvmArchive</span><span class="p">,</span> <span class="n">llvmInstallDir</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">llvmInstallDir</span></div>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">llvmInstallDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">llvmInstallDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

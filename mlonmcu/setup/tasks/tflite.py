@@ -57,4 +57,4 @@ def download_tflite_vizualize(
         url = "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/tools/visualize.py"
         utils.download(url, tfLiteVizualizeExe, progress=verbose)
     context.cache["tflite_visualize.exe"] = tfLiteVizualizeExe
-    context.export_paths.add(tfliteVisualizeInstallDir)
+    context.export_paths.add(tfLiteVizualizeInstallDir)

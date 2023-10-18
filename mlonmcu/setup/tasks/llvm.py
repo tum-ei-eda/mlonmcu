@@ -65,3 +65,4 @@ def install_llvm(
         if not utils.is_populated(llvmInstallDir):
             utils.download_and_extract(llvmUrl, llvmArchive, llvmInstallDir, progress=verbose)
     context.cache["llvm.install_dir"] = llvmInstallDir
+    context.export_paths.add(llvmInstallDir / "bin")

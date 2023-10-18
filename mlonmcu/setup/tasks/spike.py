@@ -120,7 +120,7 @@ def build_spike_pk(
         spikepkArgs = []
         spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
-        spikepkArgs.append(f"--with-arch={arch}")
+        spikepkArgs.append(f"--with-arch={arch}_zifencei_zicsr")
         spikepkArgs.append("--with-abi=ilp32d")
         env = os.environ.copy()
         env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]

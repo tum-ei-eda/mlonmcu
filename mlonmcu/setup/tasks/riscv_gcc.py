@@ -145,3 +145,4 @@ def install_riscv_gcc(
     context.cache["riscv_gcc.install_dir", flags] = riscvInstallDir
     context.cache["riscv_gcc.name", flags] = gccName
     context.cache["riscv_gcc.variant", flags] = variant
+    context.export_paths.add(riscvInstallDir / "bin")

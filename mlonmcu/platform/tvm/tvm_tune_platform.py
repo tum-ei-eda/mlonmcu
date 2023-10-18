@@ -260,7 +260,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
 
             sub_metrics = {}
             sub_artifacts = {}
-            if num_workers > 0:
+            if num_workers is not None and num_workers > 0:
                 assert self.experimental_tvmc_tune_tasks, "num_workers requires experimental_tvmc_tune_tasks=1"
                 # TODO: fix
                 assert self.config["autotuning_tasks"] is None, "tune_tasks not supported together with num_workers > 0"

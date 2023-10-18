@@ -140,7 +140,8 @@
             <span class="n">armFileName</span> <span class="o">=</span> <span class="s2">&quot;gcc-arm-11.2-2022.02-x86_64-arm-none-eabi&quot;</span>
             <span class="n">armArchive</span> <span class="o">=</span> <span class="n">armFileName</span> <span class="o">+</span> <span class="s2">&quot;.tar.xz&quot;</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">armUrl</span><span class="p">,</span> <span class="n">armArchive</span><span class="p">,</span> <span class="n">armInstallDir</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">armInstallDir</span></div>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">armInstallDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">armInstallDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

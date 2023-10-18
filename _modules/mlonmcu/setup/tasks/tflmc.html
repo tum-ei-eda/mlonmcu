@@ -223,7 +223,8 @@
         <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">tflmcInstallDir</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">tflmcBuildDir</span> <span class="o">/</span> <span class="s2">&quot;compiler&quot;</span><span class="p">,</span> <span class="n">tflmcExe</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflmc.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tflmcBuildDir</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflmc.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tflmcExe</span></div>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflmc.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">tflmcExe</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tflmcExe</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

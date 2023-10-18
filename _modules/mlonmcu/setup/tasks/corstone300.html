@@ -146,7 +146,8 @@
             <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
                 <span class="n">fvpScript</span><span class="p">,</span> <span class="s2">&quot;--i-agree-to-the-contained-eula&quot;</span><span class="p">,</span> <span class="s2">&quot;--no-interactive&quot;</span><span class="p">,</span> <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="n">fvpSubDir</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;corstone300.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fvpExe</span></div>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;corstone300.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fvpExe</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fvpExe</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

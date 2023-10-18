@@ -141,7 +141,8 @@
         <span class="n">tfLiteVizualizeInstallDir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/lite/tools/visualize.py&quot;</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">tfLiteVizualizeExe</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflite_visualize.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tfLiteVizualizeExe</span></div>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tflite_visualize.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tfLiteVizualizeExe</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tfliteVisualizeInstallDir</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

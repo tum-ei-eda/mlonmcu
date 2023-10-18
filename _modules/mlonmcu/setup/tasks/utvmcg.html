@@ -178,7 +178,8 @@
         <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">utvmcgInstallDir</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">utvmcgBuildDir</span> <span class="o">/</span> <span class="s2">&quot;utvm_staticrt_codegen&quot;</span><span class="p">,</span> <span class="n">utvmcgExe</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;utvmcg.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">utvmcgBuildDir</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">utvmcgExe</span></div>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">utvmcgExe</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">utvmcgExe</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

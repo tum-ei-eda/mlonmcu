@@ -702,6 +702,7 @@ class LayerGenFrontend(Frontend):
 
     def produce_artifacts(self, model):
         pass
+
     # def produce_artifacts(self, model):
     #     artifacts = {}
     #     name = model.name

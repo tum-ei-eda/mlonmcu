@@ -716,7 +716,11 @@ class Run:
         self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
         self.artifacts_per_stage[RunStage.BUILD] = {}
         for name in self.artifacts_per_stage[RunStage.LOAD]:
-            model_artifact = self.artifacts_per_stage[RunStage.LOAD][name][0]
+            model_artifact = lookup_artifacts(self.artifacts_per_stage[RunStage.LOAD][name], flags=["model"])
+            if len(model_artifact) == 0:
+                # TODO: This breaks because number of subs can not decrease...
+                continue
+            model_artifact = model_artifact[0]
             if not model_artifact.exported:
                 model_artifact.export(self.dir)
             self.backend.load_model(model=model_artifact.path)

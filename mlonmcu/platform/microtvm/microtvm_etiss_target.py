@@ -142,9 +142,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "etiss_script": self.etiss_script,
                 "etiss_args": self.etiss_extra_args if self.etiss_extra_args else "",
                 # TODO: tc handling
-                # "arch": self.arch,
-                # "arch": self.gcc_arch,
-                "arch": self.llvm_arch,
+                "arch": self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch,
                 "abi": self.abi,
                 "cpu_arch": self.cpu_arch
             }

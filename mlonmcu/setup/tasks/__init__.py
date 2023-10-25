@@ -51,3 +51,4 @@ from .corev import *  # noqa: F401, F403
 from .cv32e40p import *  # noqa: F401, F403
 from .boost import *  # noqa: F401, F403
 from .cmake import *  # noqa: F401, F403
+from .tgc import *  # noqa: F401, F403

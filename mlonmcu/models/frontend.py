@@ -1437,7 +1437,6 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
             raw=packed_data,
             fmt=ArtifactFormat.RAW,
             optional=not self.use_packed,
-            flags=["model"],
         )
 
         if self.use_packed:

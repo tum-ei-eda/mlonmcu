@@ -20,7 +20,7 @@
 
 from .target import Target
 from ._target import register_target, get_targets
-from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarget
+from .riscv import EtissPulpinoTarget, SpikeTarget, OVPSimTarget, RiscvQemuTarget, TGCTarget
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
 
@@ -34,4 +34,5 @@ __all__ = [
     "RiscvQemuTarget",
     "Corstone300Target",
     "HostX86Target",
+    "TGCTarget",
 ]

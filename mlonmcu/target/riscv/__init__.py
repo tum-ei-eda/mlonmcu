@@ -11,6 +11,7 @@ from .ara_rtl import AraRtlTarget
 from .cv32e40p import CV32E40PTarget
 from .vicuna import VicunaTarget
 from .canmv_k230_ssh import CanMvK230SSHTarget
+from .tgc import TGCTarget
 
 __all__ = [
     "EtissPulpinoTarget",
@@ -31,4 +32,5 @@ __all__ = [
     "CV32E40PTarget",
     "VicunaTarget",
     "CanMvK230SSHTarget",
+    "TGCTarget",
 ]

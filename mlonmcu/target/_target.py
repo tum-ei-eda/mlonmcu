@@ -32,6 +32,7 @@ from .riscv import (
     CV32E40PTarget,
     VicunaTarget,
     CanMvK230SSHTarget,
+    TGCTarget,
 )
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
@@ -73,3 +74,4 @@ register_target("ara_rtl", AraRtlTarget)
 register_target("cv32e40p", CV32E40PTarget)
 register_target("vicuna", VicunaTarget)
 register_target("canmv_k230_ssh", CanMvK230SSHTarget)
+register_target("tgc", TGCTarget)

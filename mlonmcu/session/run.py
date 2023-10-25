@@ -397,11 +397,11 @@ class Run:
             if not isinstance(self.model, Model):
                 self.backend = None
                 return
-            if not self.model.skip_check:
-                assert self.backend.supports_model(self.model), (
-                    "The added backend does not support the chosen model. "
-                    "Add the backend before adding a model to find a suitable frontend."
-                )
+            # if not self.model.skip_check:
+            #     assert self.backend.supports_model(self.model), (
+            #         "The added backend does not support the chosen model. "
+            #         "Add the backend before adding a model to find a suitable frontend."
+            #     )
         for platform in self.platforms:
             self.backend.add_platform_config(platform.name, platform.config)
             self.backend.add_platform_defs(platform.name, platform.definitions)

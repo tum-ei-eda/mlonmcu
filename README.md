@@ -33,6 +33,22 @@ This project contains research code related to the deployment of inference or le
 
 ## Getting started
 
+#### Connan Commands (MINRES only)
+
+```sh
+sudo apt install libfmt-dev libspdlog-dev libyaml-cpp-dev libjsoncpp-dev
+# ...
+curl -sfL https://direnv.net/install.sh | bash
+which direnv
+curl -s "https://get.sdkman.io" | bash
+source $HOME/.sdkman/bin/sdkman-init.sh
+sdk version
+sdk install java 11.0.21-tem
+pip3 install 'conan<2.0
+conan profile new --detect default
+conan remote add gitea https://git.minres.com/api/packages/Tooling/conan
+```
+
 ### Prerequisites
 
 #### Ubuntu/Debian
@@ -52,16 +68,8 @@ sudo apt install ninja-build flex lsb-release libelf-dev
 
 Also make sure that your default Python is at least v3.7. If the `python` command is not available in your shell or points Python v2.7 check out `python-is-python3`.
 
-**Warning:** It seems like the ETISS tool fails to compile if if find a version of LLVM 11 on your system which does not include Clang 11. The best workaround for now is to (if possible) remove those tools from your system: `sudo apt remove llvm-11* clang-11*` (See issue #1)
 
 Make sure to use a fresh virtual Python environment in the following steps.
-
-##### Install Release from PyPI
-
-**Warning:** As the PyPI package is not always up to date, it is currently recommented to use a self-build version of the package (as explained in the next section)
-
-To use the PIP package, run the following: `pip install mlonmcu` (Add `--user` if you are not using a virtual environment)
-
 
 #### Build Package manually
 
@@ -72,6 +80,8 @@ python -m venv .venv  # Feel free to choose a different directory or use a conda
 
 # Run this whenever your have updated the repository
 source .venv/bin/activate
+
+git clone -b develop https://github.com/Minres/mlonmcu.git
 
 # Environment-specific dependencies are installed later
 
@@ -92,24 +102,6 @@ Then you should be able to install the `mlonmcu` python package like this
 
 make install  # Alternative: python setup.py install
 ```
-
-#### Docker (Any other OS)
-
-See [`./docker/README.md`](https://github.com/tum-ei-eda/mlonmcu/blob/main/docker/README.md) for more details.
-
-This repository ships three different types of docker images based on Debian:
-
-- A minimal one with preinstalled software dependencies and python packages
-
-  Feel free to use this one if you do not want to install anything (except Docker) on your main sytem to work with mlonmcu
-- A medium one which already has the `mlonmcu` python package installed
-
-  Recommended and the easiest to use. (Especially when using `docker-compose` to mount shared directories etc.)
-
-- A very large one with an already initialized and installed
-
-  Mainly used for triggering automated benchmarks without spending too much time on downloading/compiling heavy dependencies over and over again.
-
 ### Usage
 
 Is is recommended to checkout the provided [Demo Jupyter Notebook](https://github.com/tum-ei-eda/mlonmcu/blob/main/ipynb/Demo.ipynb) as it contains a end-to-end example which should help to understand the main concepts and methodology of the tool. The following paragraphs can be seen as a TL;DL version of the information in that Demo notebook.
@@ -117,22 +109,24 @@ Is is recommended to checkout the provided [Demo Jupyter Notebook](https://githu
 While some tools and features of this project work out of the box, some of them require setting up an environment where additional dependencies are installed. This can be achived by creating a MLonMCU environment as follows:
 
 ```bash
-mlonmcu init
+mlonmcu init --name <environment_name> --template tgc # this creates a mlonmcu environment
 ```
 
-Make sure to point the `MLONMCU_HOME` environment variable to the location of the previously initialied environment. (Alternative: use the `default` environment or `--home` argument on the command line)
-
-Next, generate a `requirements_addition.txt` file inside the environment directory using `mlonmcu setup -g` which now be installed by running `pip install -r $MLONMCU_HOME/requirements_addition.txt` inside the virtual Python environment.
-
-
-To use the created environment in a python program, a `MlonMcuContext` needs to be created as follows:
-
+Now you have to point the environment variable to your environment
+```bash
+export MLONMCU_HOME=<path_to_your_environment_variable>
+mlonmcu env # this command lists all your available environments
 ```
-import mlonmcu.context
 
-with mlonmcu.context.MlonMcuContext() as context:
-    pass
+The next step can take some time
+```bash
+mlonmmcu setup -g # creates a requirements.txt file for your environment
+pip install -r $MLONMCU_HOME/requirements_addition.txt
+#the tgc iss needs cmake version 3.20 so make sure the necessary version is loaded before running mlonmcu setup
+module load ./Modulefile
+mlonmcu setup
 ```
+Now you are ready to go. For Usage it is best to checkout the Demo Jupyter notebook. The general flow will be described here.
 
 ## List of interesting MLonMCU forks
 

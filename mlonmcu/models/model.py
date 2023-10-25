@@ -53,7 +53,6 @@ class ModelFormats(Enum):
     RELAY = ModelFormat(5, ["relay"])
     PB = ModelFormat(6, ["pb"])
     PADDLE = ModelFormat(7, ["pdmodel"])
-    TEXT = ModelFormat(8, ["txt"])
 
 
 def parse_metadata_from_path(path):
@@ -269,15 +268,6 @@ class Model(Workload):
                 assert isinstance(value, str)
                 value = Path(value)
         return value
-
-    @property
-    def skip_check(self):
-        if len(self.formats) == 0:
-            return True
-        elif len(self.formats) == 1:
-            return self.formats[0] == ModelFormats.TEXT
-        else:
-            return False
 
     def __repr__(self):
         if self.alt:

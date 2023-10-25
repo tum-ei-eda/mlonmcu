@@ -44,23 +44,6 @@ SUPPORTED_FRONTENDS = {
     "pb": PBFrontend,
     "paddle": PaddleFrontend,
     "example": ExampleFrontend,
-    "embench": EmbenchFrontend,
-    "taclebench": TaclebenchFrontend,
-    "coremark": CoremarkFrontend,
-    "dhrystone": DhrystoneFrontend,
-    "polybench": PolybenchFrontend,
-    "mathis": MathisFrontend,
-    "mibench": MibenchFrontend,
-    "layergen": LayerGenFrontend,
-    "openasip": OpenASIPFrontend,
 }  # TODO: use registry instead
 
-__all__ = [
-    "print_summary",
-    "TfLiteFrontend",
-    "PackedFrontend",
-    "ONNXFrontend",
-    "PBFrontend",
-    "LayerGenFrontend",
-    "SUPPORTED_FRONTENDS",
-]
+__all__ = ["print_summary", "TfLiteFrontend", "PackedFrontend", "ONNXFrontend", "PBFrontend", "SUPPORTED_FRONTENDS"]

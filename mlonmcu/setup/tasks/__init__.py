@@ -45,9 +45,10 @@ from .ovpsim import *  # noqa: F401, F403
 from .vicuna import *  # noqa: F401, F403
 from .benchmarks import *  # noqa: F401, F403
 from .srecord import *  # noqa: F401, F403
-from .layergen import *  # noqa: F401, F403
+# from .layergen import *  # noqa: F401, F403
 from .dtc import *  # noqa: F401, F403
 from .corev import *  # noqa: F401, F403
 from .cv32e40p import *  # noqa: F401, F403
 from .boost import *  # noqa: F401, F403
 from .cmake import *  # noqa: F401, F403
+from .tgc import *

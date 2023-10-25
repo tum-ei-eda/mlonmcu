@@ -96,4 +96,3 @@ def build_utvm_staticrt_codegen(
         utils.move(utvmcgBuildDir / "utvm_staticrt_codegen", utvmcgExe)
     context.cache["utvmcg.build_dir", flags] = utvmcgBuildDir
     context.cache["utvmcg.exe", flags] = utvmcgExe
-    context.export_paths.add(utvmcgExe.parent)

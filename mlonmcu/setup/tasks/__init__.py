@@ -40,5 +40,4 @@ from .zephyr import *  # noqa: F401, F403
 from .pulp import *  # noqa: F401, F403
 from .ara import *  # noqa: F401, F403
 from .verilator import *  # noqa: F401, F403
-from .layergen import *  # noqa: F401, F403
-from .dtc import *  # noqa: F401, F403
+from .tgc import *

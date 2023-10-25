@@ -67,6 +67,8 @@ RUN apt-get update \
     && rm -rf /var/cache/apt/archives/ \
     && rm -rf /var/cache/apt/lists
 
+RUN dpkg -l
+
 CMD /bin/bash
 
 FROM mlonmcu-ci AS mlonmcu

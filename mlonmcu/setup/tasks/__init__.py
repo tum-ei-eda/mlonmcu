@@ -43,3 +43,4 @@ from .verilator import *  # noqa: F401, F403
 from .ovpsim import *  # noqa: F401, F403
 from .vicuna import *  # noqa: F401, F403
 from .benchmarks import *  # noqa: F401, F403
+from .srecord import *  # noqa: F401, F403

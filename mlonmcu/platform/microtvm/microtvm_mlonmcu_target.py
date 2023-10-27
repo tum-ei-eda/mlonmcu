@@ -57,7 +57,13 @@ class MlonmcuMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
     }
-    REQUIRED = Target.REQUIRED | {"mlif.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "etissvp.script", "llvm.install_dir"}
+    REQUIRED = Target.REQUIRED | {
+        "mlif.src_dir",
+        "riscv_gcc.install_dir",
+        "riscv_gcc.name",
+        "etissvp.script",
+        "llvm.install_dir",
+    }
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -143,7 +149,7 @@ class MlonmcuMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "etiss_args": self.etiss_extra_args,
                 "arch": self.gcc_arch,
                 "abi": self.abi,
-                "cpu_arch": self.cpu_arch
+                "cpu_arch": self.cpu_arch,
             }
         )
         return ret

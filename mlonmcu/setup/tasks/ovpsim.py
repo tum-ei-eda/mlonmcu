@@ -54,11 +54,13 @@ def install_corev_ovpsim(
         return False
     else:
         if not ovpExe.is_file():
+
             def _helper(url):
                 fullUrlSplit = url.split("/")
                 tmpUrl = "/".join(fullUrlSplit[:-1])
                 tmpFileName, tmpFileExtension = fullUrlSplit[-1].split(".", 1)
                 return tmpUrl, tmpFileName, tmpFileExtension
+
             if "corev_ovpsim.dl_url" in user_vars:
                 ovpUrl, ovpFileName, ovpFileExtension = _helper(user_vars["corev_ovpsim.dl_url"])
             else:

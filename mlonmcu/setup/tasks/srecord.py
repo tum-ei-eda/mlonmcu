@@ -36,6 +36,7 @@ Tasks = get_task_factory()
 def _validate_srecord(context: MlonMcuContext, params={}):
     return context.environment.has_target("cv32e40p")  # TODO: further targets?
 
+
 # TODO: cleanup build dir?
 
 

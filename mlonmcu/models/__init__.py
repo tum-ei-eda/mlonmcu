@@ -17,7 +17,22 @@
 # limitations under the License.
 #
 from mlonmcu.models.lookup import print_summary
-from .frontend import PBFrontend, TfLiteFrontend, PackedFrontend, ONNXFrontend, RelayFrontend, PaddleFrontend, ExampleFrontend, EmbenchFrontend, TaclebenchFrontend, PolybenchFrontend, CoremarkFrontend, DhrystoneFrontend, MathisFrontend, MibenchFrontend
+from .frontend import (
+    PBFrontend,
+    TfLiteFrontend,
+    PackedFrontend,
+    ONNXFrontend,
+    RelayFrontend,
+    PaddleFrontend,
+    ExampleFrontend,
+    EmbenchFrontend,
+    TaclebenchFrontend,
+    PolybenchFrontend,
+    CoremarkFrontend,
+    DhrystoneFrontend,
+    MathisFrontend,
+    MibenchFrontend,
+)
 
 SUPPORTED_FRONTENDS = {
     "tflite": TfLiteFrontend,

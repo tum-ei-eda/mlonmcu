@@ -81,7 +81,7 @@ class TVMBackend(Backend):
         "custom_unroll": False,  # Experimental, RISC-V only
         "autotuned_mode": None,
         "autotuned_results_file": None,
-        "relay_debug": None, # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
+        "relay_debug": None,  # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
     }
 
     REQUIRED = set()
@@ -110,7 +110,6 @@ class TVMBackend(Backend):
         if results_file is not None:
             assert tuner_name is not None
             self._tuning_records[tuner_name] = results_file
-
 
     # On the long term, we might support multiple TUNE stages in a single run (i.e. to allow autotvm+graphtuner to be separated)
     # Hence
@@ -143,7 +142,7 @@ class TVMBackend(Backend):
     @property
     def disable_vectorize(self):
         temp = self.config["disable_vectorize"]
-        if temp is None or (isinstance(temp,  str) and temp in ["auto", "AUTO"]):
+        if temp is None or (isinstance(temp, str) and temp in ["auto", "AUTO"]):
             return self.target == "c"
         return str2bool(temp)
 
@@ -396,7 +395,7 @@ class TVMBackend(Backend):
                 self.invoke_tvmc,
                 "compile",
                 *args,
-               cwd=cwd,
+                cwd=cwd,
             )
         else:
             ret = self.invoke_tvmc("compile", *args, cwd=cwd)

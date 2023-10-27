@@ -21,6 +21,7 @@ from collections import ChainMap
 
 NUM_GEN_ARGS = 9
 
+
 def parse_var(s):
     """
     Parse a key, value pair, separated by '='

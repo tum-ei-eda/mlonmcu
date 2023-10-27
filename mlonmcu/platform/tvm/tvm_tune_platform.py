@@ -28,7 +28,12 @@ from pathlib import Path
 from .tvm_target_platform import TvmTargetPlatform
 from ..platform import TunePlatform
 
-from mlonmcu.flow.tvm.backend.tuner import get_autotuning_defaults, get_autotvm_defaults, get_autoscheduler_defaults, get_metascheduler_defaults
+from mlonmcu.flow.tvm.backend.tuner import (
+    get_autotuning_defaults,
+    get_autotvm_defaults,
+    get_autoscheduler_defaults,
+    get_metascheduler_defaults,
+)
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_rpc_tvmc_args,
     get_target_tvmc_args,
@@ -243,7 +248,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 # out_file = Path(tmp_dir) / "tuning_results.log.txt"
                 tmp_dir = Path(tmp_dir)
                 work_dir = tmp_dir / "work_dir"
-                tune_args = self.get_metascheduler_tune_args(model_path, backend, target, work_dir, trials_global, trials_single, 0)
+                tune_args = self.get_metascheduler_tune_args(
+                    model_path, backend, target, work_dir, trials_global, trials_single, 0
+                )
                 out = self.invoke_tvmc_tune(*tune_args, target=target, cwd=tmp_dir)
                 with tarfile.open(tmp_dir / "work_dir.tar", "w") as tar:
                     for file in os.listdir(work_dir):
@@ -251,7 +258,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 raw = None
                 with open(tmp_dir / "work_dir.tar", "rb") as tar:
                     raw = tar.read()
-                artifact = Artifact("work_dir.tar", raw=raw, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"])
+                artifact = Artifact(
+                    "work_dir.tar", raw=raw, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"]
+                )
         elif autotvm_enable or autoscheduler_enable:
             if append:
                 if results_file is not None:
@@ -306,13 +315,19 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 out_file = Path(tmp_dir) / "tuning_results.log.txt"
                                 with open(out_file, "w") as handle:
                                     handle.write(prepend)
-                                if trials_single == 0 or (trials_single is None):  # 0: auto, None: do not limit per task
+                                if trials_single == 0 or (
+                                    trials_single is None
+                                ):  # 0: auto, None: do not limit per task
                                     trials_single = max(1, trials_global // len(tune_tasks))
                                     early_stopping = max(trials_single, 10)  # Let's see if this default works out...
                                 if autotvm_enable:
-                                    tune_args = self.get_autotvm_tune_args(model_path, backend, target, out_file, trials_single, early_stopping)
+                                    tune_args = self.get_autotvm_tune_args(
+                                        model_path, backend, target, out_file, trials_single, early_stopping
+                                    )
                                 elif autoscheduler_enable:
-                                    tune_args = self.get_autoscheduler_tune_args(model_path, backend, target, out_file, trials_single, early_stopping)
+                                    tune_args = self.get_autoscheduler_tune_args(
+                                        model_path, backend, target, out_file, trials_single, early_stopping
+                                    )
                                 else:
                                     assert False
                                 out = self.invoke_tvmc_tune(*tune_args, "--tasks", str(idx), target=target, cwd=tmp_dir)
@@ -333,7 +348,16 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 sub_failed_trials = count_failed_trials(content)
                                 max_flops = get_max_flops(out)
                                 t1 = time.time()
-                            return (out, content, task_len, sub_trials, sub_failed_trials, max_flops, t1 - t0, visualize_raw_task)
+                            return (
+                                out,
+                                content,
+                                task_len,
+                                sub_trials,
+                                sub_failed_trials,
+                                max_flops,
+                                t1 - t0,
+                                visualize_raw_task,
+                            )
 
                         workers.append(executor.submit(do_work, i, content, task_len))
                 all_out = ""
@@ -380,9 +404,13 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     with open(out_file, "w") as handle:
                         handle.write(content)
                     if autotvm_enable:
-                        tune_args = self.get_autotvm_tune_args(model_path, backend, target, out_file, trials_global, early_stopping)
+                        tune_args = self.get_autotvm_tune_args(
+                            model_path, backend, target, out_file, trials_global, early_stopping
+                        )
                     elif autoscheduler_enable:
-                        tune_args = self.get_autoscheduler_tune_args(model_path, backend, target, out_file, trials_global, early_stopping)  # TODO: expose per_task trials
+                        tune_args = self.get_autoscheduler_tune_args(
+                            model_path, backend, target, out_file, trials_global, early_stopping
+                        )  # TODO: expose per_task trials
                     else:
                         assert False
                     out = self.invoke_tvmc_tune(*tune_args, target=target, cwd=tmp_dir)
@@ -411,7 +439,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             metrics = Metrics()
         elif autotvm_enable or autoscheduler_enable:
             flag = "autotvm" if autoscheduler_enable else "autoscheduler"
-            artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records", flag])
+            artifact = Artifact(
+                "tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records", flag]
+            )
             artifacts.append(artifact)
             if visualize_raw:
                 visualize_artifact = Artifact(

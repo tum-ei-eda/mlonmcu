@@ -20,6 +20,7 @@
 import re
 import ast
 
+
 def parse_bench_results(out, allow_missing=False):
     matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out, re.DOTALL)
     ret = {}
@@ -36,6 +37,7 @@ def parse_bench_results(out, allow_missing=False):
             continue
         ret[f"{mode} CPI"] = cycles / instructions
     return ret
+
 
 def add_bench_metrics(out, metrics, allow_missing=False):
     results = parse_bench_results(out, allow_missing=allow_missing)

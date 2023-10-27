@@ -333,7 +333,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return out, artifacts
 
     def generate(self, src, target, model=None) -> Tuple[dict, dict]:
-
         # TODO: fix timeouts
         if self.validate_outputs:
             # some strange bug?
@@ -383,12 +382,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if asmdump_file.is_file():
             with open(asmdump_file, "r") as handle:
                 data = handle.read()
-                artifact = Artifact("generic_mlonmcu.dump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,))
+                artifact = Artifact(
+                    "generic_mlonmcu.dump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
+                )
                 artifacts.append(artifact)
         if srcdump_file.is_file():
             with open(srcdump_file, "r") as handle:
                 data = handle.read()
-                artifact = Artifact("generic_mlonmcu.srcdump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,))
+                artifact = Artifact(
+                    "generic_mlonmcu.srcdump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
+                )
                 artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)
         stdout_artifact = Artifact(

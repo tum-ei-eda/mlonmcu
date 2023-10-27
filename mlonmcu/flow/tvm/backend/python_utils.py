@@ -19,7 +19,9 @@
 import os
 
 
-def prepare_python_environment(pythonpath, tvm_build_dir, tvm_configs_dir, tophub_url=None, num_threads=None, debug_cfg=None):
+def prepare_python_environment(
+    pythonpath, tvm_build_dir, tvm_configs_dir, tophub_url=None, num_threads=None, debug_cfg=None
+):
     env = os.environ.copy()
     if debug_cfg:
         env["TVM_LOG_DEBUG"] = debug_cfg

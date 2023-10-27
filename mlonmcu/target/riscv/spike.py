@@ -159,8 +159,8 @@ class SpikeTarget(RVPTarget, RVVTarget):
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
-        def _handle_exit(code, out=None):
 
+        def _handle_exit(code, out=None):
             assert out is not None
             temp = self.parse_exit(out)
             # TODO: before or after?
@@ -169,6 +169,7 @@ class SpikeTarget(RVPTarget, RVVTarget):
             if handle_exit is not None:
                 temp = handle_exit(temp, out=out)
             return temp
+
         start_time = time.time()
         if self.print_outputs:
             out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)

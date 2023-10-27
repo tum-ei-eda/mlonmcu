@@ -123,7 +123,7 @@ class Run:
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
-        self.directories= {}
+        self.directories = {}
         # self.init_directory()
         self.target = target
         self.cache_hints = []
@@ -462,7 +462,11 @@ class Run:
                 model_hints = frontend.lookup_models([model_name], context=context)
                 # model_hints = lookup_models([model_name], frontends=self.frontends, context=context)
                 for model_hint in model_hints:
-                    if self.backend is None or isinstance(model_hint, Program) or (self.backend is not None and self.backend.supports_model(model_hint)):
+                    if (
+                        self.backend is None
+                        or isinstance(model_hint, Program)
+                        or (self.backend is not None and self.backend.supports_model(model_hint))
+                    ):
                         self.frontends = [frontend]
                         assert model_hint is not None, "Unable to pick a suitable model"
                         model = model_hint
@@ -761,7 +765,9 @@ class Run:
                 # artifacts = self.compile_platform.artifacts
                 if isinstance(artifacts, dict):
                     new = {
-                        key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        key
+                        if name in ["", "default"]
+                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
                         for key, value in artifacts.items()
                     }
                 else:
@@ -773,9 +779,7 @@ class Run:
             self.artifacts_per_stage[RunStage.COMPILE] = {}
             codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
             name = "default"
-            artifacts = self.compile_platform.generate_artifacts(
-                codegen_dir, self.target
-            )
+            artifacts = self.compile_platform.generate_artifacts(codegen_dir, self.target)
             if isinstance(artifacts, dict):
                 new = {
                     key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
@@ -834,14 +838,17 @@ class Run:
                 if len(tuning_artifact) == 0:
                     # fallback for metascheduler
                     tuning_artifact = lookup_artifacts(
-                        tune_stage_artifacts, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"], first_only=True
+                        tune_stage_artifacts,
+                        fmt=ArtifactFormat.ARCHIVE,
+                        flags=["records", "metascheduler"],
+                        first_only=True,
                     )
                     if len(tuning_artifact) == 0:
                         continue
                 tuning_artifact = tuning_artifact[0]
                 if not tuning_artifact.exported:
                     tuning_artifact.export(self.dir)
-                tuner_name = tuning_artifact.flags[-1] # TODO: improve
+                tuner_name = tuning_artifact.flags[-1]  # TODO: improve
                 self.backend.set_tuning_records(tuning_artifact.path, tuner_name=tuner_name)
                 candidate = (RunStage.TUNE, name)
                 assert candidate in self.sub_parents

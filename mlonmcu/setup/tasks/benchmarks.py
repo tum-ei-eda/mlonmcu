@@ -1,4 +1,3 @@
-
 # Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
 #
 # This file is part of MLonMCU.

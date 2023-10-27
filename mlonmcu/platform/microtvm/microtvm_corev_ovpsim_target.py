@@ -56,7 +56,13 @@ class CoreVOVPSimMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
     }
-    REQUIRED = Target.REQUIRED | {"microtvm_ovpsim.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name", "corev_ovpsim.exe", "llvm.install_dir"}
+    REQUIRED = Target.REQUIRED | {
+        "microtvm_ovpsim.src_dir",
+        "riscv_gcc.install_dir",
+        "riscv_gcc.name",
+        "corev_ovpsim.exe",
+        "llvm.install_dir",
+    }
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

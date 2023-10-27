@@ -25,7 +25,18 @@ from abc import ABC, abstractmethod
 from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram, PolybenchProgram, CoremarkProgram, DhrystoneProgram, MathisProgram, MibenchProgram
+from mlonmcu.models.model import (
+    ModelFormats,
+    Model,
+    ExampleProgram,
+    EmbenchProgram,
+    TaclebenchProgram,
+    PolybenchProgram,
+    CoremarkProgram,
+    DhrystoneProgram,
+    MathisProgram,
+    MibenchProgram,
+)
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
@@ -683,8 +694,8 @@ class PaddleFrontend(SimpleFrontend):
             config=config,
         )
 
-class ExampleFrontend(SimpleFrontend):
 
+class ExampleFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "example",
@@ -710,7 +721,6 @@ class ExampleFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -723,7 +733,6 @@ class ExampleFrontend(SimpleFrontend):
 
 
 class EmbenchFrontend(SimpleFrontend):
-
     REQUIRED = {"embench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -760,7 +769,7 @@ class EmbenchFrontend(SimpleFrontend):
             "nsichneu",
             "statemate",
             "primecount",
-      ]
+        ]
 
     # @property
     # def skip_backend(self):
@@ -779,7 +788,6 @@ class EmbenchFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -793,7 +801,6 @@ class EmbenchFrontend(SimpleFrontend):
 
 
 class TaclebenchFrontend(SimpleFrontend):
-
     REQUIRED = {"taclebench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -884,7 +891,6 @@ class TaclebenchFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -898,7 +904,6 @@ class TaclebenchFrontend(SimpleFrontend):
 
 
 class PolybenchFrontend(SimpleFrontend):
-
     REQUIRED = {"polybench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -962,7 +967,6 @@ class PolybenchFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -976,7 +980,6 @@ class PolybenchFrontend(SimpleFrontend):
 
 
 class CoremarkFrontend(SimpleFrontend):
-
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
@@ -991,7 +994,7 @@ class CoremarkFrontend(SimpleFrontend):
     def supported_names(self):
         return [
             "coremark",
-      ]
+        ]
 
     def lookup_models(self, names, context=None):
         ret = []
@@ -1006,7 +1009,6 @@ class CoremarkFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -1019,7 +1021,6 @@ class CoremarkFrontend(SimpleFrontend):
 
 
 class DhrystoneFrontend(SimpleFrontend):
-
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
@@ -1049,7 +1050,6 @@ class DhrystoneFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -1062,7 +1062,6 @@ class DhrystoneFrontend(SimpleFrontend):
 
 
 class MathisFrontend(SimpleFrontend):
-
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
@@ -1112,7 +1111,6 @@ class MathisFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -1125,7 +1123,6 @@ class MathisFrontend(SimpleFrontend):
 
 
 class MibenchFrontend(SimpleFrontend):
-
     REQUIRED = {"mibench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -1169,7 +1166,6 @@ class MibenchFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}

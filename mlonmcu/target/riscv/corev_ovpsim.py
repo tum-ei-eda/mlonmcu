@@ -135,7 +135,6 @@ class COREVOVPSimTarget(RISCVTarget):
         value = self.config["enable_xcorevhwlp"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
-
     @property
     def extensions(self):
         exts = super().extensions
@@ -291,7 +290,6 @@ class COREVOVPSimTarget(RISCVTarget):
         out = ""
 
         def _handle_exit(code, out=None):
-
             assert out is not None
             temp = self.parse_exit(out)
             # TODO: before or after?

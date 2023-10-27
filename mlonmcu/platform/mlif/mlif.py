@@ -76,6 +76,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "lto": False,
         "slim_cpp": True,
         "garbage_collect": True,
+        "fuse_ld": None,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -235,6 +236,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["garbage_collect"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def fuse_ld(self):
+        value = self.config["fuse_ld"]
+        return value
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -263,6 +269,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             args.append("-DENABLE_GC=ON")
         if self.slim_cpp:
             args.append("-DSLIM_CPP=ON")
+        if self.fuse_ld:
+            args.append(f"-DFUSE_LD={self.fuse_ld}")
         if self.model_support_dir:
             args.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
         else:

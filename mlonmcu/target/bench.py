@@ -32,6 +32,8 @@ def parse_bench_results(out, allow_missing=False):
         instructions = ret.get(f"{mode} Instructions", None)
         if cycles is None or instructions is None:
             continue
+        if cycles == 0 or instructions == 0:
+            continue
         ret[f"{mode} CPI"] = cycles / instructions
     return ret
 

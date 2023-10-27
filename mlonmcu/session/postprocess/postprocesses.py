@@ -424,7 +424,14 @@ class Artifact2ColumnPostprocess(RunPostprocess):
 class AnalyseInstructionsPostprocess(RunPostprocess):
     """Counting specific types of instructions."""
 
-    DEFAULTS = {**RunPostprocess.DEFAULTS, "groups": True, "sequences": True, "top": 10}
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "groups": True,
+        "sequences": True,
+        "top": 10,
+        "to_df": True,
+        "to_file": True,
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_instructions", features=features, config=config)
@@ -445,6 +452,18 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def top(self):
         """get sequences property."""
         return int(self.config["top"])
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -572,7 +591,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             major_counts, major_probs = _helper(majors, top=self.top)
             majors_csv = _gen_csv("Major", major_counts, major_probs)
             artifact = Artifact("analyse_instructions_majors.csv", content=majors_csv, fmt=ArtifactFormat.TEXT)
-            ret_artifacts.append(artifact)
+            if self.to_file:
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["AnalyseInstructionsMajorsCounts"] = str(major_counts)
+                post_df["AnalyseInstructionsMajorsProbs"] = str(major_probs)
+                report.post_df = post_df
         if self.sequences:
             max_len = 3
 
@@ -590,7 +615,14 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 artifact = Artifact(
                     f"analyse_instructions_seq{length}.csv", content=sequence_csv, fmt=ArtifactFormat.TEXT
                 )
-                ret_artifacts.append(artifact)
+                if self.to_file:
+                    ret_artifacts.append(artifact)
+                if self.to_df:
+                    post_df = report.post_df.copy()
+                    post_df["AnalyseInstructionsSeqCounts"] = str(counts)
+                    post_df["AnalyseInstructionsSeqProbs"] = str(probs)
+                    report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
 
 
@@ -690,10 +722,26 @@ class CompareRowsPostprocess(SessionPostprocess):
 class AnalyseDumpPostprocess(RunPostprocess):
     """Counting static instructions."""
 
-    DEFAULTS = {**RunPostprocess.DEFAULTS}
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "to_df": True,
+        "to_file": True,
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_dump", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -742,17 +790,39 @@ class AnalyseDumpPostprocess(RunPostprocess):
         artifact = Artifact(
             f"dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT
         )
-        ret_artifacts.append(artifact)
+        if self.to_file:
+            ret_artifacts.append(artifact)
+        if self.to_df:
+            post_df = report.post_df.copy()
+            post_df["DumpCounts"] = str(counts)
+            report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
 
 
 class AnalyseCoreVCountsPostprocess(RunPostprocess):
     """Counting static instructions."""
 
-    DEFAULTS = {**RunPostprocess.DEFAULTS}
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "to_df": True,
+        "to_file": True,
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_corev_counts", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1032,13 +1102,19 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             cv_ext_unknowns_artifact = Artifact(
                 f"cv_ext_unknowns.csv", content="\n".join(unknowns), fmt=ArtifactFormat.TEXT
             )
-            ret_artifacts.append(cv_ext_unknowns_artifact)
+            if self.to_file:
+                ret_artifacts.append(cv_ext_unknowns_artifact)
             # TODO: logging
 
-        ret_artifacts.append(cv_counts_artifact)
-        ret_artifacts.append(cv_ext_counts_artifact)
-        ret_artifacts.append(cv_ext_unique_counts_artifact)
-        main_df = report.main_df.copy()
-        main_df["XCVCounts"] = str(cv_counts)
-        report.main_df = main_df
+        if self.to_file:
+            ret_artifacts.append(cv_counts_artifact)
+            ret_artifacts.append(cv_ext_counts_artifact)
+            ret_artifacts.append(cv_ext_unique_counts_artifact)
+        if self.to_df:
+            post_df = report.post_df.copy()
+            post_df["XCVCounts"] = str(cv_counts)
+            post_df["XCVExtCounts"] = str(cv_ext_counts)
+            post_df["XCVExtUniqueCounts"] = str(cv_ext_unique_counts)
+            report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts

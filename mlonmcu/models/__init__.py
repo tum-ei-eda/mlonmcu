@@ -32,6 +32,7 @@ from .frontend import (
     DhrystoneFrontend,
     MathisFrontend,
     MibenchFrontend,
+    LayerGenFrontend,
 )
 
 SUPPORTED_FRONTENDS = {
@@ -49,6 +50,15 @@ SUPPORTED_FRONTENDS = {
     "polybench": PolybenchFrontend,
     "mathis": MathisFrontend,
     "mibench": MibenchFrontend,
+    "layergen": LayerGenFrontend,
 }  # TODO: use registry instead
 
-__all__ = ["print_summary", "TfLiteFrontend", "PackedFrontend", "ONNXFrontend", "PBFrontend", "SUPPORTED_FRONTENDS"]
+__all__ = [
+    "print_summary",
+    "TfLiteFrontend",
+    "PackedFrontend",
+    "ONNXFrontend",
+    "PBFrontend",
+    "LayerGenFrontend",
+    "SUPPORTED_FRONTENDS",
+]

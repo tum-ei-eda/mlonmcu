@@ -29,7 +29,8 @@ on:
         required: true
         default: "dev"
   schedule:
-    - cron: "0 0 * * 6"
+    - cron: "0 0 * * 6"  # main, default
+    - cron: "0 12 * * 6"  # staging-newer, dev
 
 jobs:
   minimal:
@@ -45,28 +46,56 @@ jobs:
         uses: ASzc/change-string-case-action@v5
         with:
           string: ${{ github.repository }}
+      - name: CFG
+        id: cfg
+        run: |
+          if [[ "${{github.event_name}}" != "schedule" ]]
+          then
+              echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+              echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 0 * * 6" ]]
+          then
+              echo "branch=main" >> $GITHUB_OUTPUT
+              echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=dev" >> $GITHUB_OUTPUT
+          else
+              echo "Invalid!"
+              exit 1
+          fi
       - name: Gen string
         id: branch_str
         run: |
-          if [[ "${{ github.event.inputs.branch }}" == "main" ]]
+          if [[ "${{ steps.cfg.outputs.branch }}" == "main" ]]
           then
               echo "branch=" >> $GITHUB_OUTPUT
           else
-              echo "branch=${{ github.event.inputs.branch }}-" >> $GITHUB_OUTPUT
+              echo "branch=${{ steps.cfg.outputs.branch }}-" >> $GITHUB_OUTPUT
           fi
       - name: Gen another string
         id: template_str
         run: |
-          if [[ "${{ github.event.inputs.template }}" == "default" ]]
+          if [[ "${{ steps.cfg.outputs.template }}" == "default" ]]
           then
               echo "template=" >> $GITHUB_OUTPUT
           else
-              echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
+              echo "template=${{ steps.cfg.outputs.template }}-" >> $GITHUB_OUTPUT
           fi
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ steps.cfg.outputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -87,7 +116,7 @@ jobs:
           target: cmake-install
           build-args: |
             ENABLE_CMAKE=true
-            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+            MLONMCU_TEMPLATE=${{ github.steps.cfg.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
           cache-to: type=inline
@@ -102,7 +131,7 @@ jobs:
           target: mlonmcu-ci
           build-args: |
             ENABLE_CMAKE=true
-            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+            MLONMCU_TEMPLATE=${{ github.steps.cfg.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
@@ -124,28 +153,56 @@ jobs:
         uses: ASzc/change-string-case-action@v5
         with:
           string: ${{ github.repository }}
+      - name: CFG
+        id: cfg
+        run: |
+          if [[ "${{github.event_name}}" != "schedule" ]]
+          then
+              echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+              echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 0 * * 6" ]]
+          then
+              echo "branch=main" >> $GITHUB_OUTPUT
+              echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=dev" >> $GITHUB_OUTPUT
+          else
+              echo "Invalid!"
+              exit 1
+          fi
       - name: Gen string
         id: branch_str
         run: |
-          if [[ "${{ github.event.inputs.branch }}" == "main" ]]
+          if [[ "${{ steps.cfg.outputs.branch }}" == "main" ]]
           then
               echo "branch=" >> $GITHUB_OUTPUT
           else
-              echo "branch=${{ github.event.inputs.branch }}-" >> $GITHUB_OUTPUT
+              echo "branch=${{ steps.cfg.outputs.branch }}-" >> $GITHUB_OUTPUT
           fi
       - name: Gen another string
         id: template_str
         run: |
-          if [[ "${{ github.event.inputs.template }}" == "default" ]]
+          if [[ "${{ steps.cfg.outputs.template }}" == "default" ]]
           then
               echo "template=" >> $GITHUB_OUTPUT
           else
-              echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
+              echo "template=${{ steps.cfg.outputs.template }}-" >> $GITHUB_OUTPUT
           fi
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          submodules: recursive
+          ref: ${{ steps.cfg.outputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -156,25 +213,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Build and push
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     file: docker/Dockerfile
-      #     pull: true
-      #     push: true
-      #     target: mlonmcu
-      #     cache-from: |
-      #       type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
-      #       type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
-      #     cache-to: type=inline
-      #     tags: ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
       - name: Login to DockerHub
         uses: docker/login-action@v2
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Check disk 1
+        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v4
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -186,7 +232,7 @@ jobs:
           target: mlonmcu
           build-args: |
             ENABLE_CMAKE=true
-            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+            MLONMCU_TEMPLATE=${{ steps.cfg.outputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
@@ -194,6 +240,8 @@ jobs:
           tags: |
             tumeda/mlonmcu:${{ steps.branch_str.outputs.branch }}latest
             tumeda/mlonmcu:${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
+      - name: Check disk 2
+        run: df -h
   bench:
     name: Build large image for benchmarking
     runs-on: ubuntu-latest
@@ -208,28 +256,56 @@ jobs:
         uses: ASzc/change-string-case-action@v5
         with:
           string: ${{ github.repository }}
+      - name: CFG
+        id: cfg
+        run: |
+          if [[ "${{github.event_name}}" != "schedule" ]]
+          then
+              echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+              echo "template=${{ github.event.inputs.template }}" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 0 * * 6" ]]
+          then
+              echo "branch=main" >> $GITHUB_OUTPUT
+              echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=dev" >> $GITHUB_OUTPUT
+          else
+              echo "Invalid!"
+              exit 1
+          fi
       - name: Gen string
         id: branch_str
         run: |
-          if [[ "${{ github.event.inputs.branch }}" == "main" ]]
+          if [[ "${{ steps.cfg.outputs.branch }}" == "main" ]]
           then
               echo "branch=" >> $GITHUB_OUTPUT
           else
-              echo "branch=${{ github.event.inputs.branch }}-" >> $GITHUB_OUTPUT
+              echo "branch=${{ steps.cfg.outputs.branch }}-" >> $GITHUB_OUTPUT
           fi
       - name: Gen another string
         id: template_str
         run: |
-          if [[ "${{ github.event.inputs.template }}" == "default" ]]
+          if [[ "${{ steps.cfg.outputs.template }}" == "default" ]]
           then
               echo "template=" >> $GITHUB_OUTPUT
           else
-              echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
+              echo "template=${{ steps.cfg.outputs.template }}-" >> $GITHUB_OUTPUT
           fi
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          submodules: recursive
+          ref: ${{ steps.cfg.outputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -246,6 +322,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Check disk 1
+        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v4
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -256,7 +334,7 @@ jobs:
           target: mlonmcu-bench
           build-args: |
             ENABLE_CMAKE=true
-            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+            MLONMCU_TEMPLATE=${{ steps.cfg.outputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
@@ -265,3 +343,5 @@ jobs:
           tags: |
             tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
             tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
+      - name: Check disk 2
+        run: df -h

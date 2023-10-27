@@ -385,10 +385,11 @@ class Run:
             if not isinstance(self.model, Model):
                 self.backend = None
                 return
-            assert self.backend.supports_model(self.model), (
-                "The added backend does not support the chosen model. "
-                "Add the backend before adding a model to find a suitable frontend."
-            )
+            if not self.model.skip_check:
+                assert self.backend.supports_model(self.model), (
+                    "The added backend does not support the chosen model. "
+                    "Add the backend before adding a model to find a suitable frontend."
+                )
         for platform in self.platforms:
             self.backend.add_platform_defs(platform.name, platform.definitions)
 
@@ -803,7 +804,7 @@ class Run:
 
         target_to_backend = self.target_to_backend and (self.target is not None)
         if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
-            assert self.target is not None, "Backend needs target"
+            assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
             target_to_backend = True
 
         if target_to_backend:
@@ -879,6 +880,9 @@ class Run:
             for name in self.artifacts_per_stage[RunStage.LOAD]:
                 load_stage_artifacts = self.artifacts_per_stage[RunStage.LOAD][name]
                 model_artifact = lookup_artifacts(load_stage_artifacts, flags=["model"], first_only=True)
+                if len(model_artifact) == 0:
+                    # TODO: This breaks because number of subs can not decrease...
+                    continue
                 assert len(model_artifact) == 1
                 model_artifact = model_artifact[0]
                 if not model_artifact.exported:

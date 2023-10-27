@@ -75,6 +75,12 @@ repos:
   tflite_pack:
     url: "https://github.com/tum-ei-eda/tflite-pack.git"
     ref: 439b78d36456f716629ad9dbaff9734baaa75db9
+  layergen:
+    url: "https://github.com/PhilippvK/ml-layer-gen.git"
+    ref: 7c56995616fb1c246cb889972fdbe46dd217d758
+  dtc:
+    url: "https://github.com/dgibson/dtc.git"
+    ref: main
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -142,7 +148,7 @@ frontends:
     features:
       validate: true
       visualize: true
-      split_layers: true
+      split_layers: false
   relay:
     enabled: true
     features:
@@ -157,6 +163,8 @@ frontends:
   pb:
     enabled: true
   paddle:
+    enabled: true
+  layergen:
     enabled: true
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
 # Some targets/platforms support multiple toolchains

@@ -921,9 +921,15 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             "cv.dotup.sci.b",
         }
         XCVHWLP_INSNS = {
-
+            "cv.count",
+            "cv.counti",
+            "cv.start",
+            "cv.starti",
+            "cv.end",
+            "cv.endi",
+            "cv.setup",
+            "cv.setupi",
         }
-
 
         unknowns = []
         cv_ext_totals = {
@@ -933,6 +939,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             "XCVAlu": len(XCVALU_INSNS),
             "XCVBitmanip": len(XCVBITMANIP_INSNS),
             "XCVSimd": len(XCVSIMD_INSNS),
+            "XCVHwlp": len(XCVHWLP_INSNS),
             "Unknown": 0,
         }
         cv_ext_counts = {

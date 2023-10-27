@@ -629,12 +629,6 @@ class CompareRowsPostprocess(SessionPostprocess):
         return int(value)
 
     @property
-    def baseline(self):
-        """Get baseline property."""
-        value = self.config["baseline"]
-        return int(value)
-
-    @property
     def percent(self):
         """Get percent property."""
         value = self.config["percent"]

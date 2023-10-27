@@ -137,6 +137,7 @@ class Run:
         self.result = None
         self.failing = False  # -> RunStatus
         self.reason = None
+        self.failed_stage = None
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
         self.locked = False
         self.report = None
@@ -1024,6 +1025,7 @@ class Run:
                         self.unlock()
                     logger.exception(e)
                     run_stage = RunStage(stage).name
+                    self.failed_stage = run_stage
                     logger.error("%s Run failed at stage '%s', aborting...", self.prefix, run_stage)
                     break
             # self.stage = stage  # FIXME: The stage_func should update the stage intead?
@@ -1071,7 +1073,10 @@ class Run:
         return ret[0] if len(ret) == 1 else ret
 
     def get_reason_text(self):
-        return str(type(self.reason).__name__) if self.reason else None
+        ret = str(type(self.reason).__name__) if self.reason else None
+        if self.failed_stage:
+            ret += " @ " + str(self.failed_stage)
+        return ret
 
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
         """Return dict with component-specific and global configuration for this run."""

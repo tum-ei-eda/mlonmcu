@@ -62,6 +62,7 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
 
     def invoke_tvmc_micro_run(self, *args, target=None, list_options=False, **kwargs):
         all_args = []
+        all_args.extend(args)
         all_args.append(self.project_dir)
         all_args.extend(["--device", "micro"])
         if list_options:
@@ -82,7 +83,7 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
         if self.profile:
             assert (
                 self.experimental_tvmc_print_time
-            ), "MicroTVM profiloing is only supported in environments with microtvm.experimental_tvmc_print_time=  1"
+            ), "MicroTVM profiling is only supported in environments with microtvm.experimental_tvmc_print_time=1"
         ret = [
             *get_data_tvmc_args(
                 mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
@@ -91,8 +92,8 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
                 print_time=self.experimental_tvmc_print_time and not self.profile,
                 profile=self.profile and self.experimental_tvmc_print_time,
                 end_to_end=False,
-                # repeat=self.repeat if self.experimental_tvmc_print_time else None,
-                # number=self.number if self.experimental_tvmc_print_time else None,
+                repeat=self.repeat if self.experimental_tvmc_print_time else None,
+                number=self.number if self.experimental_tvmc_print_time else None,
             ),
             # *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]

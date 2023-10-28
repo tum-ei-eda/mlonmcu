@@ -42,9 +42,7 @@ def _validate_dtc(context: MlonMcuContext, params=None):
 @Tasks.provides(["dtc.src_dir"])
 @Tasks.validate(_validate_dtc)
 @Tasks.register(category=TaskType.MISC)
-def clone_dtc(
-    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
-):
+def clone_dtc(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Clone the dtc repo."""
     name = utils.makeDirName("dtc")
     srcDir = context.environment.paths["deps"].path / "src" / name
@@ -61,9 +59,7 @@ def clone_dtc(
 @Tasks.provides(["dtc.install_dir", "dtc.build_dir", "dtc.exe"])
 @Tasks.validate(_validate_dtc)
 @Tasks.register(category=TaskType.MISC)
-def build_dtc(
-    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
-):
+def build_dtc(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Build the device tree compile."""
     if not params:
         params = {}

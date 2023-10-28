@@ -1519,7 +1519,7 @@ class Benchmark(PlatformFeature, TargetFeature):
         return value
 
     def get_platform_config(self, platform):
-        supported = ["mlif", "tvm"]  # TODO: support microtvm and espidf
+        supported = ["mlif", "tvm", "microtvm"]  # TODO: support espidf
         assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
 
         if platform in ["tvm", "microtvm"]:

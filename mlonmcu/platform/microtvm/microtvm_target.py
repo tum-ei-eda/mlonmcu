@@ -143,7 +143,6 @@ def create_microtvm_platform_target(name, platform, base=Target):
                 metrics.add("Runtime [s]", time_s)
 
             if self.platform.profile:
-                print("out", out)
                 headers = None
                 skip = False
                 lines = out.split("\n")
@@ -154,7 +153,6 @@ def create_microtvm_platform_target(name, platform, base=Target):
                     return [y[0] for y in x]
 
                 for line in lines:
-                    print("line", line)
                     if skip:
                         skip = False
                         continue

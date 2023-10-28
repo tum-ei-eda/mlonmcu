@@ -58,6 +58,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         **TvmTargetPlatform.DEFAULTS,
         "experimental_tvmc_tune_tasks": False,
         "experimental_tvmc_tune_visualize": False,
+        # "experimental_tvmc_tune_wandb": False,  # TODO
+        "enable_wandb": False,
         "min_repeat_ms": 0,
         **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
         **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
@@ -80,6 +82,11 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     @property
     def experimental_tvmc_tune_visualize(self):
         value = self.config["experimental_tvmc_tune_visualize"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def enable_wandb(self):
+        value = self.config["enable_wandb"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -119,6 +126,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         if self.config["autotuning_tasks"]:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
             ret.extend(["--tasks", str(self.config["autotuning_tasks"])])
+        if self.enable_wandb:
+            ret.append("--wandb-callback")
         ret.append(model)
         return ret
 
@@ -141,6 +150,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         return ret
 
     def get_autoscheduler_tune_args(self, model, backend, target, out, trials_global, early_stopping):
+        assert not self.enable_wandb, "WANDB callback not yet supported by AutoScheduler"
         ret = self.get_tune_args(model, backend, target, out, trials_global, early_stopping)
         ret.append("--enable-autoscheduler")
         if self.config.get("autoscheduler_include_simple_tasks", False):

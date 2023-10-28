@@ -30,6 +30,7 @@ on:
         default: "dev"
   schedule:
     - cron: "0 0 * * 6"  # main, default
+    - cron: "0 6 * * 6"  # staging-newer, corev
     - cron: "0 12 * * 6"  # staging-newer, dev
 
 jobs:
@@ -57,6 +58,10 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
               echo "branch=staging-newer" >> $GITHUB_OUTPUT
@@ -164,6 +169,10 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
               echo "branch=staging-newer" >> $GITHUB_OUTPUT
@@ -267,6 +276,10 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
               echo "branch=staging-newer" >> $GITHUB_OUTPUT

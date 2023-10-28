@@ -470,7 +470,6 @@ class EtissTarget(RISCVTarget):
             os.remove(metrics_file)
 
         def _handle_exit(code, out=None):
-
             assert out is not None
             temp = self.parse_exit(out)
             # TODO: before or after?

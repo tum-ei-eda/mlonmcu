@@ -139,3 +139,4 @@ def build_tflite_micro_compiler(
         utils.move(tflmcBuildDir / "compiler", tflmcExe)
     context.cache["tflmc.build_dir", flags] = tflmcBuildDir
     context.cache["tflmc.exe", flags] = tflmcExe
+    context.export_paths.add(tflmcExe.parent)

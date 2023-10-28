@@ -297,6 +297,7 @@ class MlonMcuContext:
                 self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
                 logger.debug(f"Restored {len(self.sessions)} recent sessions")
         self.cache = TaskCache()
+        self.export_paths = set()
 
     def create_session(self, label="", config=None):
         try:

@@ -41,6 +41,7 @@ def _validate_tvm(context: MlonMcuContext, params=None):
             return False
     return context.environment.has_framework("tvm")
 
+
 def _validate_tvm_clone(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
     tvm_src_dir = user_vars.get("tvm.src_dir", None)
@@ -77,7 +78,6 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
     tvm_install_dir = user_vars.get("tvm.install_dir", None)
     if tvm_install_dir:
         return False
-
 
     return context.environment.has_framework("tvm")
 
@@ -182,7 +182,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             cwd=tvmBuildDir,
             debug=dbg,
             use_ninja=ninja,
-            live=verbose
+            live=verbose,
         )
         utils.make(cwd=tvmBuildDir, threads=threads, use_ninja=ninja, live=verbose)
     context.cache["tvm.build_dir", flags] = tvmBuildDir

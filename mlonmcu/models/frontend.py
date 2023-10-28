@@ -25,7 +25,18 @@ from abc import ABC, abstractmethod
 from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.models.model import ModelFormats, Model, ExampleProgram, EmbenchProgram, TaclebenchProgram, PolybenchProgram, CoremarkProgram, DhrystoneProgram, MathisProgram, MibenchProgram
+from mlonmcu.models.model import (
+    ModelFormats,
+    Model,
+    ExampleProgram,
+    EmbenchProgram,
+    TaclebenchProgram,
+    PolybenchProgram,
+    CoremarkProgram,
+    DhrystoneProgram,
+    MathisProgram,
+    MibenchProgram,
+)
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
@@ -44,6 +55,7 @@ class Frontend(ABC):
 
     DEFAULTS = {
         "use_inout_data": False,
+        # TODO: print_outputs for frontends
     }
 
     REQUIRED = set()
@@ -646,6 +658,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
             raw=packed_data,
             fmt=ArtifactFormat.RAW,
             optional=not self.use_packed,
+            flags=["model"],
         )
 
         if self.use_packed:
@@ -683,8 +696,8 @@ class PaddleFrontend(SimpleFrontend):
             config=config,
         )
 
-class ExampleFrontend(SimpleFrontend):
 
+class ExampleFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "example",
@@ -710,7 +723,6 @@ class ExampleFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -723,7 +735,6 @@ class ExampleFrontend(SimpleFrontend):
 
 
 class EmbenchFrontend(SimpleFrontend):
-
     REQUIRED = {"embench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -760,7 +771,7 @@ class EmbenchFrontend(SimpleFrontend):
             "nsichneu",
             "statemate",
             "primecount",
-      ]
+        ]
 
     # @property
     # def skip_backend(self):
@@ -779,7 +790,6 @@ class EmbenchFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -793,7 +803,6 @@ class EmbenchFrontend(SimpleFrontend):
 
 
 class TaclebenchFrontend(SimpleFrontend):
-
     REQUIRED = {"taclebench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -884,7 +893,6 @@ class TaclebenchFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -898,7 +906,6 @@ class TaclebenchFrontend(SimpleFrontend):
 
 
 class PolybenchFrontend(SimpleFrontend):
-
     REQUIRED = {"polybench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -962,7 +969,6 @@ class PolybenchFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -976,7 +982,6 @@ class PolybenchFrontend(SimpleFrontend):
 
 
 class CoremarkFrontend(SimpleFrontend):
-
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
@@ -991,7 +996,7 @@ class CoremarkFrontend(SimpleFrontend):
     def supported_names(self):
         return [
             "coremark",
-      ]
+        ]
 
     def lookup_models(self, names, context=None):
         ret = []
@@ -1006,7 +1011,6 @@ class CoremarkFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -1019,7 +1023,6 @@ class CoremarkFrontend(SimpleFrontend):
 
 
 class DhrystoneFrontend(SimpleFrontend):
-
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
@@ -1049,7 +1052,6 @@ class DhrystoneFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -1062,7 +1064,6 @@ class DhrystoneFrontend(SimpleFrontend):
 
 
 class MathisFrontend(SimpleFrontend):
-
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
@@ -1112,7 +1113,6 @@ class MathisFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -1125,7 +1125,6 @@ class MathisFrontend(SimpleFrontend):
 
 
 class MibenchFrontend(SimpleFrontend):
-
     REQUIRED = {"mibench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -1169,7 +1168,6 @@ class MibenchFrontend(SimpleFrontend):
         return ret
 
     def generate(self, model) -> Tuple[dict, dict]:
-
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
@@ -1181,3 +1179,104 @@ class MibenchFrontend(SimpleFrontend):
             ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
 
         return ret
+
+
+class LayerGenFrontend(Frontend):
+    FEATURES = Frontend.FEATURES
+
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+        "fmt": "tflite",  # TODO: relay
+    }
+
+    REQUIRED = Frontend.REQUIRED | {"layergen.exe"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "layergen",
+            input_formats=[ModelFormats.TEXT],
+            output_formats=[ModelFormats.TFLITE, ModelFormats.RELAY],
+            features=features,
+            config=config,
+        )
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        value = value.upper()
+        assert value in ["TFLITE", "RELAY"]
+        return value
+
+    @property
+    def layergen_exe(self):
+        return Path(self.config["layergen.exe"])
+
+    def produce_artifacts(self, model):
+        pass
+
+    # def produce_artifacts(self, model):
+    #     artifacts = {}
+    #     name = model.name
+    #     path = model.paths[0]
+    #     ext = ModelFormats[self.fmt].extension
+    #     print("ext", ext)
+    #     with open(path, "r") as handle:
+    #         content = handle.read()
+    #     lines = content.strip().split("\n")
+    #     print("lines", lines, list(filter(None, lines)))
+    #     assert len(lines) > 0, "Empty file not allowed."
+
+    #     def helper(args):
+    #         args = args.split(" ")
+    #         with tempfile.TemporaryDirectory() as tmpdirname:
+    #             out = Path(tmpdirname) / f"out.{ext}"
+    #             utils.python(self.layergen_exe, self.fmt.lower(), out, *args, print_output=True, cwd=tmpdirname)
+    #             # TODO: log output
+    #             with open(out, "rb") as handle:
+    #                 raw = handle.read()
+    #             return raw
+
+    #     if len(lines) > 1:
+    #         for i, args in enumerate(lines):
+    #             name = f"model{i}"
+    #             raw = helper(args)
+    #             artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
+    #         artifacts[name] = [artifact]
+    #     else:
+    #         artifacts["default"] = []
+    #     return artifacts
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = {}
+        name = model.name
+        path = model.paths[0]
+        ext = ModelFormats[self.fmt].extension
+        with open(path, "r") as handle:
+            content = handle.read()
+        lines = content.strip().split("\n")
+        assert len(lines) > 0, "Empty file not allowed."
+
+        def helper(args):
+            args = args.split(" ")
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                out = Path(tmpdirname) / f"out.{ext}"
+                utils.python(self.layergen_exe, self.fmt.lower(), out, *args, print_output=True, cwd=tmpdirname)
+                # TODO: log output
+                with open(out, "rb") as handle:
+                    raw = handle.read()
+                return raw
+
+        if len(lines) > 1:
+            for i, args in enumerate(lines):
+                name = f"model{i}"
+                raw = helper(args)
+                artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
+                artifacts[name] = [artifact]
+            # TODO: fix this
+            artifacts["default"] = artifacts["model0"]  # Dummy model because default artifacts can not be empty
+        else:
+            name = "default"
+            raw = helper(lines[0])
+            artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
+            artifacts[name] = [artifact]
+        return artifacts, {}

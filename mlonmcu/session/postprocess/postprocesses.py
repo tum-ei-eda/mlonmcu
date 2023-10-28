@@ -219,7 +219,8 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
             return
         to_concat = [
             df["Features"].apply(lambda x: pd.Series({"feature_" + feature_name: feature_name in x}))
-            for feature_name in list(set(df["Features"].sum())) if feature_name in self.limit or len(self.limit) == 0
+            for feature_name in list(set(df["Features"].sum()))
+            if feature_name in self.limit or len(self.limit) == 0
         ]
         if len(to_concat) == 0:
             return
@@ -266,7 +267,12 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         df = report.post_df
         if "Config" not in df.columns:
             return
-        config_df = df["Config"].apply(lambda x: {key: value for key, value in x.items() if key in self.limit or len(self.limit) == 0}).apply(pd.Series).add_prefix("config_")
+        config_df = (
+            df["Config"]
+            .apply(lambda x: {key: value for key, value in x.items() if key in self.limit or len(self.limit) == 0})
+            .apply(pd.Series)
+            .add_prefix("config_")
+        )
         if self.drop:
             tmp_df = df.drop(columns=["Config"])
         else:
@@ -284,10 +290,108 @@ class MyPostprocess(SessionPostprocess):
 
     def __init__(self, features=None, config=None):
         super().__init__("mypost", features=features, config=config)
-        self.config2cols = Config2ColumnsPostprocess(config={"config2cols.limit": ["tvmllvm.desired_layout", "tvmaot.desired_layout", "tvmaotplus.desired_layout", "tvmrt.desired_layout", "xcorev.mem", "xcorev.mac", "xcorev.bi", "xcorev.alu", "xcorev.bitmanip", "xcorev.simd", "xcorev.hwlp", "cv32e40p.fpu", "etiss.fpu", "corev_ovpsim.fpu", "tvmaot.disabled_passes", "tvmaotplus.disabled_passes", "tvmrt.disabled_passes", "tvmllvm.disabled_passes", "auto_vectorize.loop", "auto_vectorize.slp", "auto_vectorize.force_vector_width", "auto_vectorize.force_vector_interleave", "auto_vectorize.custom_unroll", "tvmllvm.target_keys", "tvmrt.target_keys", "tvmaot.target_keys", "tvmaotplus.target_keys", "autotuned.mode"], "config2cols.drop": True})
-        self.rename_cols = RenameColumnsPostprocess(config={"rename_cols.mapping": {"config_tvmllvm.desired_layout": "Layout", "config_tvmaot.desired_layout": "Layout", "config_tvmaotplus.desired_layout": "Layout", "config_tvmrt.desired_layout": "Layout", "config_xcorev.mem": "XCVMem", "config_xcorev.mac": "XCVMac", "config_xcorev.bi": "XCVBi", "config_xcorev.alu": "XCVAlu", "config_xcorev.bitmanip": "XCVBitmanip", "config_xcorev.simd": "XCVSimd", "config_xcorev.hwlp": "XCVHwlp", "feature_autotuned": "Autotuned", "feature_debug": "Debug", "config_cv32e40p.fpu": "FPU", "config_etiss.fpu": "FPU", "config_corev_ovpsim.fpu": "FPU", "config_tvmaot.disabled_passes": "Disabled", "config_tvmaotplus.disabled_passes": "Disabled", "config_tvmrt.disabled_passes": "Disabled", "config_tvmllvm.disabled_passes": "Disabled", "config_auto_vectorize.loop": "Loop", "config_auto_vectorize.slp": "Slp", "config_auto_vectorize.force_vector_width": "FVW", "config_auto_vectorize.force_vector_interleave": "FVI", "config_auto_vectorize.custom_unroll": "Unroll", "config_tvmllvm.target_keys": "Keys", "config_tvmrt.target_keys": "Keys", "config_tvmaot.target_keys": "Keys", "config_tvmaotplus.target_keys": "Keys", "config_autotuned.mode": "Tuner"}})
-        self.features2cols = Features2ColumnsPostprocess(config={"features2cols.limit": ["autotuned", "debug", "auto_vectorize", "target_optimized"], "features2cols.drop": True})
-        self.filter_cols = FilterColumnsPostprocess(config={"filter_cols.drop": ["Postprocesses", "Framework", "Platform", "Session", "ROM read-only", "ROM code", "ROM misc", "RAM data", "RAM zero-init data", "Run Stage Time [s]", "Compile Stage Time [s]", "Workspace Size [B]", "Build Stage Time [s]", "Load Stage Time [s]", "feature_auto_vectorize",  "feature_target_optimized", "Setup Cycles", "Setup Instructions", "Setup CPI"]})
+        self.config2cols = Config2ColumnsPostprocess(
+            config={
+                "config2cols.limit": [
+                    "tvmllvm.desired_layout",
+                    "tvmaot.desired_layout",
+                    "tvmaotplus.desired_layout",
+                    "tvmrt.desired_layout",
+                    "xcorev.mem",
+                    "xcorev.mac",
+                    "xcorev.bi",
+                    "xcorev.alu",
+                    "xcorev.bitmanip",
+                    "xcorev.simd",
+                    "xcorev.hwlp",
+                    "cv32e40p.fpu",
+                    "etiss.fpu",
+                    "corev_ovpsim.fpu",
+                    "tvmaot.disabled_passes",
+                    "tvmaotplus.disabled_passes",
+                    "tvmrt.disabled_passes",
+                    "tvmllvm.disabled_passes",
+                    "auto_vectorize.loop",
+                    "auto_vectorize.slp",
+                    "auto_vectorize.force_vector_width",
+                    "auto_vectorize.force_vector_interleave",
+                    "auto_vectorize.custom_unroll",
+                    "tvmllvm.target_keys",
+                    "tvmrt.target_keys",
+                    "tvmaot.target_keys",
+                    "tvmaotplus.target_keys",
+                    "autotuned.mode",
+                ],
+                "config2cols.drop": True,
+            }
+        )
+        self.rename_cols = RenameColumnsPostprocess(
+            config={
+                "rename_cols.mapping": {
+                    "config_tvmllvm.desired_layout": "Layout",
+                    "config_tvmaot.desired_layout": "Layout",
+                    "config_tvmaotplus.desired_layout": "Layout",
+                    "config_tvmrt.desired_layout": "Layout",
+                    "config_xcorev.mem": "XCVMem",
+                    "config_xcorev.mac": "XCVMac",
+                    "config_xcorev.bi": "XCVBi",
+                    "config_xcorev.alu": "XCVAlu",
+                    "config_xcorev.bitmanip": "XCVBitmanip",
+                    "config_xcorev.simd": "XCVSimd",
+                    "config_xcorev.hwlp": "XCVHwlp",
+                    "feature_autotuned": "Autotuned",
+                    "feature_debug": "Debug",
+                    "config_cv32e40p.fpu": "FPU",
+                    "config_etiss.fpu": "FPU",
+                    "config_corev_ovpsim.fpu": "FPU",
+                    "config_tvmaot.disabled_passes": "Disabled",
+                    "config_tvmaotplus.disabled_passes": "Disabled",
+                    "config_tvmrt.disabled_passes": "Disabled",
+                    "config_tvmllvm.disabled_passes": "Disabled",
+                    "config_auto_vectorize.loop": "Loop",
+                    "config_auto_vectorize.slp": "Slp",
+                    "config_auto_vectorize.force_vector_width": "FVW",
+                    "config_auto_vectorize.force_vector_interleave": "FVI",
+                    "config_auto_vectorize.custom_unroll": "Unroll",
+                    "config_tvmllvm.target_keys": "Keys",
+                    "config_tvmrt.target_keys": "Keys",
+                    "config_tvmaot.target_keys": "Keys",
+                    "config_tvmaotplus.target_keys": "Keys",
+                    "config_autotuned.mode": "Tuner",
+                }
+            }
+        )
+        self.features2cols = Features2ColumnsPostprocess(
+            config={
+                "features2cols.limit": ["autotuned", "debug", "auto_vectorize", "target_optimized"],
+                "features2cols.drop": True,
+            }
+        )
+        self.filter_cols = FilterColumnsPostprocess(
+            config={
+                "filter_cols.drop": [
+                    "Postprocesses",
+                    "Framework",
+                    "Platform",
+                    "Session",
+                    "ROM read-only",
+                    "ROM code",
+                    "ROM misc",
+                    "RAM data",
+                    "RAM zero-init data",
+                    "Run Stage Time [s]",
+                    "Compile Stage Time [s]",
+                    "Workspace Size [B]",
+                    "Build Stage Time [s]",
+                    "Load Stage Time [s]",
+                    "feature_auto_vectorize",
+                    "feature_target_optimized",
+                    "Setup Cycles",
+                    "Setup Instructions",
+                    "Setup CPI",
+                ]
+            }
+        )
 
     def post_session(self, report):
         """TODO"""
@@ -424,7 +528,14 @@ class Artifact2ColumnPostprocess(RunPostprocess):
 class AnalyseInstructionsPostprocess(RunPostprocess):
     """Counting specific types of instructions."""
 
-    DEFAULTS = {**RunPostprocess.DEFAULTS, "groups": True, "sequences": True, "top": 10}
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "groups": True,
+        "sequences": True,
+        "top": 10,
+        "to_df": True,
+        "to_file": True,
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_instructions", features=features, config=config)
@@ -445,6 +556,18 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def top(self):
         """get sequences property."""
         return int(self.config["top"])
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -572,7 +695,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             major_counts, major_probs = _helper(majors, top=self.top)
             majors_csv = _gen_csv("Major", major_counts, major_probs)
             artifact = Artifact("analyse_instructions_majors.csv", content=majors_csv, fmt=ArtifactFormat.TEXT)
-            ret_artifacts.append(artifact)
+            if self.to_file:
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["AnalyseInstructionsMajorsCounts"] = str(major_counts)
+                post_df["AnalyseInstructionsMajorsProbs"] = str(major_probs)
+                report.post_df = post_df
         if self.sequences:
             max_len = 3
 
@@ -590,7 +719,14 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 artifact = Artifact(
                     f"analyse_instructions_seq{length}.csv", content=sequence_csv, fmt=ArtifactFormat.TEXT
                 )
-                ret_artifacts.append(artifact)
+                if self.to_file:
+                    ret_artifacts.append(artifact)
+                if self.to_df:
+                    post_df = report.post_df.copy()
+                    post_df["AnalyseInstructionsSeqCounts"] = str(counts)
+                    post_df["AnalyseInstructionsSeqProbs"] = str(probs)
+                    report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
 
 
@@ -621,12 +757,6 @@ class CompareRowsPostprocess(SessionPostprocess):
         """Get group_by property."""
         value = self.config["group_by"]
         return str2list(value, allow_none=True)
-
-    @property
-    def baseline(self):
-        """Get baseline property."""
-        value = self.config["baseline"]
-        return int(value)
 
     @property
     def baseline(self):
@@ -696,10 +826,26 @@ class CompareRowsPostprocess(SessionPostprocess):
 class AnalyseDumpPostprocess(RunPostprocess):
     """Counting static instructions."""
 
-    DEFAULTS = {**RunPostprocess.DEFAULTS}
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "to_df": True,
+        "to_file": True,
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_dump", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -707,7 +853,9 @@ class AnalyseDumpPostprocess(RunPostprocess):
         if (platform != "mlif").any():
             return []
         ret_artifacts = []
-        dump_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu.dump", fmt=ArtifactFormat.TEXT, first_only=True)
+        dump_artifact = lookup_artifacts(
+            artifacts, name="generic_mlonmcu.dump", fmt=ArtifactFormat.TEXT, first_only=True
+        )
         assert len(dump_artifact) == 1, "To use analyse_dump postprocess, please set mlif.enable_asmdump=1"
         dump_artifact = dump_artifact[0]
         is_llvm = "llvm" in dump_artifact.flags
@@ -745,20 +893,40 @@ class AnalyseDumpPostprocess(RunPostprocess):
         counts_csv = "Instruction,Count,Probability\n"
         for insn, count in sorted(counts.items(), key=lambda item: item[1]):
             counts_csv += f"{insn},{count},{count/total:.4f}\n"
-        artifact = Artifact(
-            f"dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT
-        )
-        ret_artifacts.append(artifact)
+        artifact = Artifact(f"dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT)
+        if self.to_file:
+            ret_artifacts.append(artifact)
+        if self.to_df:
+            post_df = report.post_df.copy()
+            post_df["DumpCounts"] = str(counts)
+            report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
 
 
 class AnalyseCoreVCountsPostprocess(RunPostprocess):
     """Counting static instructions."""
 
-    DEFAULTS = {**RunPostprocess.DEFAULTS}
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "to_df": True,
+        "to_file": True,
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_corev_counts", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -861,7 +1029,6 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             "cv.addrn",
             "cv.clipur",
             "cv.subrn",
-
         }
         XCVBITMANIP_INSNS = {
             "cv.ror",
@@ -927,9 +1094,15 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             "cv.dotup.sci.b",
         }
         XCVHWLP_INSNS = {
-
+            "cv.count",
+            "cv.counti",
+            "cv.start",
+            "cv.starti",
+            "cv.end",
+            "cv.endi",
+            "cv.setup",
+            "cv.setupi",
         }
-
 
         unknowns = []
         cv_ext_totals = {
@@ -939,6 +1112,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             "XCVAlu": len(XCVALU_INSNS),
             "XCVBitmanip": len(XCVBITMANIP_INSNS),
             "XCVSimd": len(XCVSIMD_INSNS),
+            "XCVHwlp": len(XCVHWLP_INSNS),
             "Unknown": 0,
         }
         cv_ext_counts = {
@@ -1017,12 +1191,8 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
         rel = used / totals
         cv_ext_unique_counts_csv += f"XCVTotal,{used},{rel:.4f}\n"
 
-        cv_counts_artifact = Artifact(
-            f"cv_counts.csv", content=cv_counts_csv, fmt=ArtifactFormat.TEXT
-        )
-        cv_ext_counts_artifact = Artifact(
-            f"cv_ext_counts.csv", content=cv_ext_counts_csv, fmt=ArtifactFormat.TEXT
-        )
+        cv_counts_artifact = Artifact(f"cv_counts.csv", content=cv_counts_csv, fmt=ArtifactFormat.TEXT)
+        cv_ext_counts_artifact = Artifact(f"cv_ext_counts.csv", content=cv_ext_counts_csv, fmt=ArtifactFormat.TEXT)
         cv_ext_unique_counts_artifact = Artifact(
             f"cv_ext_unique_counts.csv", content=cv_ext_unique_counts_csv, fmt=ArtifactFormat.TEXT
         )
@@ -1031,13 +1201,19 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             cv_ext_unknowns_artifact = Artifact(
                 f"cv_ext_unknowns.csv", content="\n".join(unknowns), fmt=ArtifactFormat.TEXT
             )
-            ret_artifacts.append(cv_ext_unknowns_artifact)
+            if self.to_file:
+                ret_artifacts.append(cv_ext_unknowns_artifact)
             # TODO: logging
 
-        ret_artifacts.append(cv_counts_artifact)
-        ret_artifacts.append(cv_ext_counts_artifact)
-        ret_artifacts.append(cv_ext_unique_counts_artifact)
-        main_df = report.main_df.copy()
-        main_df["XCVCounts"] = str(cv_counts)
-        report.main_df = main_df
+        if self.to_file:
+            ret_artifacts.append(cv_counts_artifact)
+            ret_artifacts.append(cv_ext_counts_artifact)
+            ret_artifacts.append(cv_ext_unique_counts_artifact)
+        if self.to_df:
+            post_df = report.post_df.copy()
+            post_df["XCVCounts"] = str(cv_counts)
+            post_df["XCVExtCounts"] = str(cv_ext_counts)
+            post_df["XCVExtUniqueCounts"] = str(cv_ext_unique_counts)
+            report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts

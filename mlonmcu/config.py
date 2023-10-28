@@ -230,6 +230,7 @@ def str2dict(value, allow_none=False):
     if isinstance(value, dict):
         return value
     assert isinstance(value, str)
+    # TODO: parse key=value,key2=value2 via regex
     return dict(ast.literal_eval(value))
 
 

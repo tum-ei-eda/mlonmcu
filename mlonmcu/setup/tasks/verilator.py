@@ -37,7 +37,7 @@ Tasks = get_task_factory()
 
 
 def _validate_verilator(context: MlonMcuContext, params=None):
-    return context.environment.has_target("ara") or  context.environment.has_target("vicuna")
+    return context.environment.has_target("ara") or context.environment.has_target("vicuna")
 
 
 @Tasks.provides(["verilator.src_dir"])
@@ -135,3 +135,4 @@ def install_verilator(
                 live=verbose,
             )
     context.cache["verilator.install_dir"] = verilatorInstallDir
+    context.export_paths.add(verilatorInstallDir)

@@ -123,7 +123,7 @@ class Run:
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
-        self.directories= {}
+        self.directories = {}
         # self.init_directory()
         self.target = target
         self.cache_hints = []
@@ -137,6 +137,7 @@ class Run:
         self.result = None
         self.failing = False  # -> RunStatus
         self.reason = None
+        self.failed_stage = None
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
         self.locked = False
         self.report = None
@@ -384,10 +385,11 @@ class Run:
             if not isinstance(self.model, Model):
                 self.backend = None
                 return
-            assert self.backend.supports_model(self.model), (
-                "The added backend does not support the chosen model. "
-                "Add the backend before adding a model to find a suitable frontend."
-            )
+            if not self.model.skip_check:
+                assert self.backend.supports_model(self.model), (
+                    "The added backend does not support the chosen model. "
+                    "Add the backend before adding a model to find a suitable frontend."
+                )
         for platform in self.platforms:
             self.backend.add_platform_defs(platform.name, platform.definitions)
 
@@ -461,7 +463,11 @@ class Run:
                 model_hints = frontend.lookup_models([model_name], context=context)
                 # model_hints = lookup_models([model_name], frontends=self.frontends, context=context)
                 for model_hint in model_hints:
-                    if self.backend is None or isinstance(model_hint, Program) or (self.backend is not None and self.backend.supports_model(model_hint)):
+                    if (
+                        self.backend is None
+                        or isinstance(model_hint, Program)
+                        or (self.backend is not None and self.backend.supports_model(model_hint))
+                    ):
                         self.frontends = [frontend]
                         assert model_hint is not None, "Unable to pick a suitable model"
                         model = model_hint
@@ -760,7 +766,9 @@ class Run:
                 # artifacts = self.compile_platform.artifacts
                 if isinstance(artifacts, dict):
                     new = {
-                        key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        key
+                        if name in ["", "default"]
+                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
                         for key, value in artifacts.items()
                     }
                 else:
@@ -772,9 +780,7 @@ class Run:
             self.artifacts_per_stage[RunStage.COMPILE] = {}
             codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
             name = "default"
-            artifacts = self.compile_platform.generate_artifacts(
-                codegen_dir, self.target
-            )
+            artifacts = self.compile_platform.generate_artifacts(codegen_dir, self.target)
             if isinstance(artifacts, dict):
                 new = {
                     key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
@@ -798,7 +804,7 @@ class Run:
 
         target_to_backend = self.target_to_backend and (self.target is not None)
         if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
-            assert self.target is not None, "Backend needs target"
+            assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
             target_to_backend = True
 
         if target_to_backend:
@@ -833,14 +839,17 @@ class Run:
                 if len(tuning_artifact) == 0:
                     # fallback for metascheduler
                     tuning_artifact = lookup_artifacts(
-                        tune_stage_artifacts, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"], first_only=True
+                        tune_stage_artifacts,
+                        fmt=ArtifactFormat.ARCHIVE,
+                        flags=["records", "metascheduler"],
+                        first_only=True,
                     )
                     if len(tuning_artifact) == 0:
                         continue
                 tuning_artifact = tuning_artifact[0]
                 if not tuning_artifact.exported:
                     tuning_artifact.export(self.dir)
-                tuner_name = tuning_artifact.flags[-1] # TODO: improve
+                tuner_name = tuning_artifact.flags[-1]  # TODO: improve
                 self.backend.set_tuning_records(tuning_artifact.path, tuner_name=tuner_name)
                 candidate = (RunStage.TUNE, name)
                 assert candidate in self.sub_parents
@@ -871,6 +880,9 @@ class Run:
             for name in self.artifacts_per_stage[RunStage.LOAD]:
                 load_stage_artifacts = self.artifacts_per_stage[RunStage.LOAD][name]
                 model_artifact = lookup_artifacts(load_stage_artifacts, flags=["model"], first_only=True)
+                if len(model_artifact) == 0:
+                    # TODO: This breaks because number of subs can not decrease...
+                    continue
                 assert len(model_artifact) == 1
                 model_artifact = model_artifact[0]
                 if not model_artifact.exported:
@@ -1024,6 +1036,7 @@ class Run:
                         self.unlock()
                     logger.exception(e)
                     run_stage = RunStage(stage).name
+                    self.failed_stage = run_stage
                     logger.error("%s Run failed at stage '%s', aborting...", self.prefix, run_stage)
                     break
             # self.stage = stage  # FIXME: The stage_func should update the stage intead?
@@ -1071,7 +1084,10 @@ class Run:
         return ret[0] if len(ret) == 1 else ret
 
     def get_reason_text(self):
-        return str(type(self.reason).__name__) if self.reason else None
+        ret = str(type(self.reason).__name__) if self.reason else None
+        if self.failed_stage:
+            ret += " @ " + str(self.failed_stage)
+        return ret
 
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
         """Return dict with component-specific and global configuration for this run."""

@@ -53,6 +53,7 @@ class ModelFormats(Enum):
     RELAY = ModelFormat(5, ["relay"])
     PB = ModelFormat(6, ["pb"])
     PADDLE = ModelFormat(7, ["pdmodel"])
+    TEXT = ModelFormat(8, ["txt"])
 
 
 def parse_metadata_from_path(path):
@@ -118,7 +119,6 @@ def parse_type_string(inputs_string):
 
 
 class Workload:
-
     DEFAULTS = {}
 
     def __init__(self, name, config=None, alt=None):
@@ -134,7 +134,6 @@ class Workload:
 
 
 class Model(Workload):
-
     DEFAULTS = {
         **Workload.DEFAULTS,
         "metadata_path": "definition.yml",
@@ -215,6 +214,15 @@ class Model(Workload):
         # TODO: fall back to metadata
         return self.config["outputs_path"]
 
+    @property
+    def skip_check(self):
+        if len(self.formats) == 0:
+            return True
+        elif len(self.formats) == 1:
+            return self.formats[0] == ModelFormats.TEXT
+        else:
+            return False
+
     def __repr__(self):
         if self.alt:
             return f"Model({self.name},alt={self.alt})"
@@ -226,15 +234,14 @@ class Program(Workload):
 
 
 class ExampleProgram(Program):
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["EXAMPLE_BENCHMARK"] = self.name
         return ret
 
-class EmbenchProgram(Program):
 
+class EmbenchProgram(Program):
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -243,7 +250,6 @@ class EmbenchProgram(Program):
 
 
 class TaclebenchProgram(Program):
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -252,7 +258,6 @@ class TaclebenchProgram(Program):
 
 
 class PolybenchProgram(Program):
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -261,7 +266,6 @@ class PolybenchProgram(Program):
 
 
 class MibenchProgram(Program):
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -270,7 +274,6 @@ class MibenchProgram(Program):
 
 
 class MathisProgram(Program):
-
     DEFAULTS = {
         "size": 1024,
         # "size": 65536,
@@ -348,7 +351,6 @@ class MathisProgram(Program):
 
 
 class CoremarkProgram(Program):
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -357,7 +359,6 @@ class CoremarkProgram(Program):
 
 
 class DhrystoneProgram(Program):
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":

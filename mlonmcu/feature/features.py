@@ -1042,6 +1042,7 @@ class MetaScheduler(TVMTuneBase):
         ret.update(new)
         return ret
 
+
 @register_feature("disable_legalize")
 class DisableLegalize(BackendFeature, SetupFeature):
     """Enable transformation to reduces sizes of intermediate buffers by skipping legalization passes."""
@@ -1296,7 +1297,7 @@ class LogInstructions(TargetFeature):
                                     instrs.append(line)
                                 else:
                                     new_lines.append(line)
-                            content = "\n".join(instrs),
+                            content = ("\n".join(instrs),)
                             return "\n".join(new_lines)
                         else:
                             assert target in ["spike", "ovpsim", "corev_ovpsim"]
@@ -1728,7 +1729,12 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["etiss", "microtvm_etiss", "corev_ovpsim", "cv32e40p"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in [
+            "etiss",
+            "microtvm_etiss",
+            "corev_ovpsim",
+            "cv32e40p",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             config[f"{target}.enable_xcorevmac"] = self.mac
             config[f"{target}.enable_xcorevmem"] = self.mem
@@ -1910,6 +1916,7 @@ class SplitLayers(FrontendFeature):
             }
         )
 
+
 # @register_feature("hpmcounter")
 class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
     """Use RISC-V Performance Counters"""
@@ -1943,7 +1950,7 @@ class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
         elif isinstance(temp, str):
             temp = str2list(temp)
         assert isinstance(temp, list)
-        temp = list(map( int, temp))
+        temp = list(map(int, temp))
         return temp
 
     @property
@@ -1963,8 +1970,8 @@ class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
         }
 
     def get_target_callbacks(self, target):
-
         if self.enabled:
+
             def hpm_callback(stdout, metrics, artifacts, directory=None):
                 """Callback for extracting HPM metrics from stdout"""
                 print("stdout", stdout)
@@ -1975,6 +1982,7 @@ class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
             return None, hpm_callback
         return None, None
 
+
 @register_feature("cv32_hpmcounter")
 class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
     """Use RISC-V Performance Counters"""
@@ -1984,7 +1992,20 @@ class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
         "num_counters": 12,
         "supported_counters": 32,  # TODO
         "enabled_counters": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-        "counter_names": ["Cycles", "Instructions", "LD Stalls", "JMP Stalls", "IMiss", "LD", "ST", "Jump", "Branch", "Branch Taken", "Compressed", "Pipe Stall"]
+        "counter_names": [
+            "Cycles",
+            "Instructions",
+            "LD Stalls",
+            "JMP Stalls",
+            "IMiss",
+            "LD",
+            "ST",
+            "Jump",
+            "Branch",
+            "Branch Taken",
+            "Compressed",
+            "Pipe Stall",
+        ],
     }
 
     def __init__(self, features=None, config=None):

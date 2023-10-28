@@ -202,6 +202,7 @@ class TaskFactory:
 
     def removes(self, keys):
         """Decorator for cleanuo tasks."""
+
         # TODO: implementation
         def real_decorator(function):
             @wraps(function)

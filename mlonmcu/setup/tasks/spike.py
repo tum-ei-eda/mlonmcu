@@ -70,7 +70,7 @@ def _validate_spike_clean(context: MlonMcuContext, params={}):
 def clone_spike_pk(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
-    """Clone the spike proxt kernel."""
+    """Clone the spike proxy kernel."""
     spikepkName = utils.makeDirName("spikepk")
     spikepkSrcDir = context.environment.paths["deps"].path / "src" / spikepkName
     user_vars = context.environment.vars
@@ -120,7 +120,7 @@ def build_spike_pk(
         spikepkArgs = []
         spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
-        spikepkArgs.append(f"--with-arch={arch}")
+        spikepkArgs.append(f"--with-arch={arch}_zifencei_zicsr")
         spikepkArgs.append("--with-abi=ilp32d")
         env = os.environ.copy()
         env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]
@@ -138,6 +138,7 @@ def build_spike_pk(
         utils.move(spikepkBuildDir / "pk", spikepkBin)
     context.cache["spikepk.build_dir"] = spikepkBuildDir
     context.cache["spike.pk"] = spikepkBin
+    context.export_paths.add(spikepkInstallDir)
 
 
 @Tasks.provides(["spike.src_dir"])
@@ -198,6 +199,7 @@ def build_spike(
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
     context.cache["spike.exe"] = spikeExe
+    context.export_paths.add(spikeInstallDir)
 
 
 @Tasks.needs(["spike.exe", "spike.build_dir"])  # TODO: make sure spike.exe has beeen copies before

@@ -59,6 +59,9 @@ repos:
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
     ref: 29b1d52dddc170579cab1b9510a2749ac03da3d6
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
@@ -104,6 +107,9 @@ repos:
   verilator:
     url: "https://github.com/verilator/verilator"
     ref: tags/v4.210
+  dtc:
+    url: "https://github.com/dgibson/dtc.git"
+    ref: main
 
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -173,6 +179,7 @@ frontends:
     features:
       validate: true
       visualize: true
+      split_layers: true
   relay:
     enabled: true
     features:
@@ -214,7 +221,7 @@ targets:
     enabled: true
     features:
       vext: true
-      vext: pext
+      pext: true
       cachesim: true
       log_instrs: true
   ovpsim:

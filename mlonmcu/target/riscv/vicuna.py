@@ -26,6 +26,7 @@ import time
 
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
+
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
@@ -51,6 +52,7 @@ TRACE_FILE ?= sim_trace.csv
 TRACE_SIGS ?= '*'
 
 """
+
 
 class VicunaTarget(RVVTarget):
     """Target using a Pulpino-like VP running in the GVSOC simulator"""
@@ -89,7 +91,6 @@ class VicunaTarget(RVVTarget):
         # TODO
     }
 
-
     REQUIRED = RVVTarget.REQUIRED | {
         "vicuna.src_dir",  # for the bsp package
         "verilator.install_dir",  # for simulation
@@ -97,8 +98,8 @@ class VicunaTarget(RVVTarget):
 
     def __init__(self, name="vicuna", features=None, config=None):
         super().__init__(name, features=features, config=config)
-        assert self.xlen == 32, 'Vicuna target must have xlen=32'
-        assert not self.enable_vext or self.embedded_vext, 'Vicuna target only support embedded vector ext'
+        assert self.xlen == 32, "Vicuna target must have xlen=32"
+        assert not self.enable_vext or self.embedded_vext, "Vicuna target only support embedded vector ext"
         self.prj_dir = None
         self.obj_dir = None
 
@@ -210,7 +211,14 @@ class VicunaTarget(RVVTarget):
         # input("000")
         env["PATH"] = f"{self.verilator_install_dir}/bin:{orig_path}"
         out = utils.make("verilator-version-check", env=env, cwd=sim_dir, **kwargs)
-        out += utils.make(self.obj_dir / "Vvproc_top.mk", f"PROJ_DIR={self.prj_dir.name}", *self.get_config_args(), env=env, cwd=sim_dir, **kwargs)
+        out += utils.make(
+            self.obj_dir / "Vvproc_top.mk",
+            f"PROJ_DIR={self.prj_dir.name}",
+            *self.get_config_args(),
+            env=env,
+            cwd=sim_dir,
+            **kwargs,
+        )
         # print("self.obj_dir", self.obj_dir)
         # input("111")
         out += utils.make("-f", self.obj_dir / "Vvproc_top.mk", "Vvproc_top", env=env, cwd=self.obj_dir, **kwargs)
@@ -222,15 +230,21 @@ class VicunaTarget(RVVTarget):
         if len(self.extra_args) > 0:
             assert False, "Vicuna TB does not allow cmdline arguments"
 
-        assert (
-            self.prj_dir is not None
-        ), "Not prepared?"
+        assert self.prj_dir is not None, "Not prepared?"
         path_file = f"{program}.path"
 
         trace_file = "file"
         trace_vcd = "vcd"
         # trace_fst = "fst"
-        vicuna_args = [path_file, str(self.mem_width), str(self.mem_size), str(self.mem_latency), str(self.vlen * 2), trace_file, trace_vcd]
+        vicuna_args = [
+            path_file,
+            str(self.mem_width),
+            str(self.mem_size),
+            str(self.mem_latency),
+            str(self.vlen * 2),
+            trace_file,
+            trace_vcd,
+        ]
         env = os.environ.copy()
         out = execute(
             vicuna_exe,

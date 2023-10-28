@@ -60,12 +60,14 @@ RUN apt-get update \
     g++ graphviz doxygen libtinfo-dev zlib1g-dev \
     autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
-    virtualenv git python3-dev python3-pip python3-setuptools libzstd-dev \
+    virtualenv git python3-dev python3-pip python3-setuptools libtinfo5 libzstd-dev \
     gcc libedit-dev libxml2-dev libopenblas-dev liblapack-dev gfortran cmake unzip ninja-build python-is-python3 device-tree-compiler libboost-all-dev \
-    flex \
+    libfl-dev \
     && apt-get clean \
     && rm -rf /var/cache/apt/archives/ \
     && rm -rf /var/cache/apt/lists
+
+RUN dpkg -l
 
 CMD /bin/bash
 
@@ -89,6 +91,8 @@ ENV MLONMCU_HOME=/environment
 RUN mlonmcu setup -g
 
 RUN pip3 install -r /environment/requirements_addition.txt --no-cache-dir
+
+RUN df -h
 
 RUN df -h
 

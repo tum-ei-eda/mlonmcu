@@ -249,33 +249,45 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.tempdir:
             self.tempdir.cleanup()
 
-    def get_common_cmake_args(self):
-        args = []
-        args.append(f"-DTOOLCHAIN={self.toolchain}")
+    def get_definitions(self):
+        definitions = self.definitions
+        definitions["TOOLCHAIN"] = self.toolchain
+        definitions["QUIET"] = self.mem_only
+        if self.num_threads is not None:
+            definitions["SUBPROJECT_THREADS"] = self.num_threads
         if self.toolchain == "llvm" and self.llvm_dir is None:
             raise RuntimeError("Missing config variable: llvm.install_dir")
         else:
-            args.append(f"-DLLVM_DIR={self.llvm_dir}")
-        if self.optimize:
-            args.append(f"-DOPTIMIZE={self.optimize}")
-        # TODO: put in dict to also track false values!
-        if self.debug_symbols:
-            args.append("-DDEBUG_SYMBOLS=ON")
-        if self.verbose_makefile:
-            args.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")
-        if self.lto:
-            args.append("-DENABLE_LTO=ON")
-        if self.garbage_collect:
-            args.append("-DENABLE_GC=ON")
-        if self.slim_cpp:
-            args.append("-DSLIM_CPP=ON")
-        if self.fuse_ld:
-            args.append(f"-DFUSE_LD={self.fuse_ld}")
-        if self.model_support_dir:
-            args.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
-        else:
-            pass
-        return args
+            definitions["LLVM_DIR"] = self.llvm_dir
+        if self.optimize is not None:
+            definitions["OPTIMIZE"] = self.optimize
+        if self.debug_symbols is not None:
+            definitions["DEBUG_SYMBOLS"] = self.debug_symbols
+        if self.verbose_makefile is not None:
+            definitions["CMAKE_VERBOSE_MAKEFILE"] = self.verbose_makefile
+        if self.lto is not None:
+            definitions["ENABLE_LTO"] = self.lto
+        if self.garbage_collect is not None:
+            definitions["ENABLE_GC"] = self.garbage_collect
+        if self.slim_cpp is not None:
+            definitions["SLIM_CPP"] = self.slim_cpp
+        if self.model_support_dir is not None:
+            definitions["MODEL_SUPPORT_DIR"] = self.model_support_dir
+        if self.fuse_ld is not None:
+            definitions["FUSE_LD"] = self.fuse_ld
+
+        return definitions
+
+    def get_cmake_args(self):
+
+        cmakeArgs = []
+        definitions = self.get_definitions()
+        for key, value in definitions.items():
+            if isinstance(value, bool):
+                value = "ON" if value else "OFF"
+            cmakeArgs.append(f"-D{key}={value}")
+        cmakeArgs.extend(self.get_common_cmake_args())
+        return cmakeArgs
 
     def prepare(self):
         self.init_directory()
@@ -284,16 +296,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         del target
         if not isinstance(src, Path):
             src = Path(src)
-        cmakeArgs = []
-        definitions = self.definitions
-        if self.mem_only:
-            definitions["QUIET"] = True
-        definitions["SUBPROJECT_THREADS"] = self.num_threads
-        for key, value in definitions.items():
-            if isinstance(value, bool):
-                value = "ON" if value else "OFF"
-            cmakeArgs.append(f"-D{key}={value}")
-        cmakeArgs.extend(self.get_common_cmake_args())
+        cmakeArgs = self.get_cmake_args()
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():

@@ -286,7 +286,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             if isinstance(value, bool):
                 value = "ON" if value else "OFF"
             cmakeArgs.append(f"-D{key}={value}")
-        cmakeArgs.extend(self.get_common_cmake_args())
         return cmakeArgs
 
     def prepare(self):

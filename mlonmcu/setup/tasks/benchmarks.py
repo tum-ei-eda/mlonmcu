@@ -32,19 +32,19 @@ Tasks = get_task_factory()
 
 
 def _validate_benchmarks(context: MlonMcuContext, params=None):
-    benchmark = params.get("benchmark", None)
-    assert benchmark is not None
-    if not context.environment.has_frontend(benchmark):
-        return False
-    user_vars = context.environment.vars
-    if f"{benchmark}.src_dir" in user_vars:
-        return False
+    if params:
+        benchmark = params.get("benchmark", None)
+        assert benchmark is not None
+        if not context.environment.has_frontend(benchmark):
+            return False
+        user_vars = context.environment.vars
+        if f"{benchmark}.src_dir" in user_vars:
+            return False
     return True
 
 
 # Cloning all benchmarks in a single task saves a lot of code
 @Tasks.provides(["benchmarks.src_dir"])
-# @Tasks.optional(["embench.src_dir", "taclebench.src_dir"])
 @Tasks.param("benchmark", ["embench", "taclebench", "polybench", "mibench"])
 @Tasks.validate(_validate_benchmarks)
 @Tasks.register(category=TaskType.FRONTEND)

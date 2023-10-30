@@ -110,6 +110,18 @@ repos:
   dtc:
     url: "https://github.com/dgibson/dtc.git"
     ref: main
+  embench:
+    url: "https://github.com/embench/embench-iot.git"
+    ref: master
+  taclebench:
+    url: "https://github.com/tacle/tacle-bench.git"
+    ref: master
+  polybench:
+    url: "https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git"
+    ref: master
+  mibench:
+    url: "https://github.com/embecosm/mibench.git"
+    ref: master
 
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -195,6 +207,22 @@ frontends:
   pb:
     enabled: true
   paddle:
+    enabled: true
+  example:
+    enabled: true
+  embench:
+    enabled: true
+  taclebench:
+    enabled: true
+  polybench:
+    enabled: true
+  coremark:
+    enabled: true
+  mathis:
+    enabled: true
+  dhrystone:
+    enabled: true
+  mibench:
     enabled: true
 # List of supported targets in the environment
 targets:

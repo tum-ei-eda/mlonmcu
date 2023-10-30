@@ -75,7 +75,7 @@ class EtissTarget(RISCVTarget):
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script", "etiss.src_dir"}
+    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)

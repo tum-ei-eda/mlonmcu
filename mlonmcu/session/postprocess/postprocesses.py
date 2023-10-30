@@ -798,7 +798,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         assert isinstance(to_compare, list)
         assert all(col in main_df.columns for col in to_compare)
         full_df = pd.concat([pre_df, main_df, post_df], axis=1)
-        grouped = full_df.groupby(group_by, axis=0, group_keys=False)
+        grouped = full_df.groupby(group_by, axis=0, group_keys=False, dropna=False)
         new_df = pd.DataFrame()
         for col in to_compare:
 

@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import multiprocessing
+from pathlib import Path
 
 from mlonmcu.setup.task import TaskType
 from mlonmcu.context.context import MlonMcuContext
@@ -53,7 +54,7 @@ def install_llvm(
     user_vars = context.environment.vars
     if "llvm.install_dir" in user_vars:  # TODO: also check command line flags?
         # TODO: WARNING
-        llvmInstallDir = user_vars["llvm.install_dir"]
+        llvmInstallDir = Path(user_vars["llvm.install_dir"])
     else:
         # TODO: share helper with riscv.py
         def _helper(url):

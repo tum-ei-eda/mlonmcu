@@ -27,6 +27,7 @@ from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 
 from .common import get_task_factory
+from .cv32e40p import _validate_cv32e40p
 
 logger = get_logger()
 Tasks = get_task_factory()
@@ -37,7 +38,7 @@ Tasks = get_task_factory()
 
 
 def _validate_verilator(context: MlonMcuContext, params=None):
-    return context.environment.has_target("ara") or context.environment.has_target("vicuna")
+    return context.environment.has_target("ara") or context.environment.has_target("vicuna") or _validate_cv32e40p(context, params=params)
 
 
 @Tasks.provides(["verilator.src_dir"])
@@ -64,7 +65,7 @@ def clone_verilator(
 
 
 @Tasks.needs(["verilator.src_dir"])
-@Tasks.provides(["verilator.build_dir"])
+@Tasks.provides(["verilator.build_dir", "verilator.install_dir"])
 @Tasks.validate(_validate_verilator)
 @Tasks.register(category=TaskType.TARGET)
 def build_verilator(
@@ -99,10 +100,13 @@ def build_verilator(
                 f"--prefix={verilatorInstallDir}",
                 env=env,
                 cwd=verilatorBuildDir,
-                live=verbose,
+                # live=verbose,
+                live=False,
             )
             utils.make(cwd=verilatorBuildDir, threads=threads, live=verbose)
+            utils.make("install", cwd=verilatorBuildDir, threads=threads, live=verbose)
     context.cache["verilator.build_dir"] = verilatorBuildDir
+    context.cache["verilator.install_dir"] = verilatorInstallDir
 
 
 @Tasks.needs(["verilator.build_dir"])

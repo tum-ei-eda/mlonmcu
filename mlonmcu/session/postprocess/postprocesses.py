@@ -791,7 +791,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         if group_by is None:
             group_by = [x for x in pre_df.columns if x != "Run"]
         assert isinstance(group_by, list)
-        assert all(col in list(pre_df.columns) + list(post_df.columns) for col in group_by)
+        assert all(col in list(pre_df.columns) + list(post_df.columns) for col in group_by), "Cols mssing in df"
         to_compare = self.to_compare
         if to_compare is None:
             to_compare = list(main_df.columns)

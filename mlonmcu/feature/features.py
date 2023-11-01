@@ -1841,10 +1841,9 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
                 continue
         EXTRA_FLAGS = "'" + EXTRA_FLAGS.strip() + "'"
         return {
-            # EXTRA_CMAKE_C_FLAGS will be directly append to CMAKE_C_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
-            "EXTRA_CMAKE_C_FLAGS": EXTRA_FLAGS,
-            # EXTRA_CMAKE_CXX_FLAGS will be directly append to CMAKE_CXX_FLAGS in mlonmcu_sw/mlif/tootchains/Pulp.cmake
-            "EXTRA_CMAKE_CXX_FLAGS": EXTRA_FLAGS,
+            "EXTRA_C_FLAGS": EXTRA_FLAGS,
+            "EXTRA_CXX_FLAGS": EXTRA_FLAGS,
+            "EXTRA_ASM_FLAGS": EXTRA_FLAGS,
         }
 
     def add_platform_defs(self, platform, defs):

@@ -144,4 +144,3 @@ def install_verilator(
                 live=verbose,
             )
     context.cache["verilator.install_dir"] = verilatorInstallDir
-    context.export_paths.add(verilatorInstallDir)

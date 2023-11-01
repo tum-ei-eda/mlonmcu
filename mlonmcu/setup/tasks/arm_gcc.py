@@ -56,4 +56,3 @@ def install_arm_gcc(
             armArchive = armFileName + ".tar.xz"
             utils.download_and_extract(armUrl, armArchive, armInstallDir, progress=verbose)
     context.cache["arm_gcc.install_dir"] = armInstallDir
-    context.export_paths.add(armInstallDir / "bin")

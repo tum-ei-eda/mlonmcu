@@ -66,4 +66,3 @@ def install_corstone300(
                 fvpSubDir,
             )
     context.cache["corstone300.exe"] = fvpExe
-    context.export_paths.add(fvpExe.parent)

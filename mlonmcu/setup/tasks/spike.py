@@ -129,7 +129,6 @@ def build_spike_pk(
         utils.move(spikepkBuildDir / "pk", spikepkBin)
     context.cache["spikepk.build_dir"] = spikepkBuildDir
     context.cache["spike.pk"] = spikepkBin
-    context.export_paths.add(spikepkInstallDir)
 
 
 @Tasks.provides(["spike.src_dir"])
@@ -189,4 +188,3 @@ def build_spike(
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
     context.cache["spike.exe"] = spikeExe
-    context.export_paths.add(spikeInstallDir)

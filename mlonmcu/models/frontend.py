@@ -43,7 +43,6 @@ class Frontend(ABC):
 
     DEFAULTS = {
         "use_inout_data": False,
-        # TODO: print_outputs for frontends
     }
 
     REQUIRED = []
@@ -249,7 +248,7 @@ class SimpleFrontend(Frontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW), flags=["model"])
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
         return artifacts
 
 
@@ -304,7 +303,7 @@ class TfLiteFrontend(SimpleFrontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW), flags=["model"])
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
 
         if not self.visualize_enable:
             assert len(self.output_formats) == 1
@@ -431,7 +430,7 @@ class RelayFrontend(SimpleFrontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW), flags=["model"])
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
 
         if not self.visualize_graph:
             assert len(self.output_formats) == 1
@@ -600,14 +599,12 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
             raw=tflite_data,
             fmt=ArtifactFormat.RAW,
             optional=self.use_packed,
-            flags=["model"],
         )
         packed_artifact = Artifact(
             f"{name}.tflm",
             raw=packed_data,
             fmt=ArtifactFormat.RAW,
             optional=not self.use_packed,
-            flags=["model"],
         )
 
         if self.use_packed:
@@ -668,104 +665,3 @@ class PaddleFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
-
-
-class LayerGenFrontend(Frontend):
-    FEATURES = Frontend.FEATURES
-
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "fmt": "tflite",  # TODO: relay
-    }
-
-    REQUIRED = Frontend.REQUIRED + ["layergen.exe"]
-
-    def __init__(self, features=None, config=None):
-        super().__init__(
-            "layergen",
-            input_formats=[ModelFormats.TEXT],
-            output_formats=[ModelFormats.TFLITE, ModelFormats.RELAY],
-            features=features,
-            config=config,
-        )
-
-    @property
-    def fmt(self):
-        value = self.config["fmt"]
-        value = value.upper()
-        assert value in ["TFLITE", "RELAY"]
-        return value
-
-    @property
-    def layergen_exe(self):
-        return Path(self.config["layergen.exe"])
-
-    def produce_artifacts(self, model):
-        pass
-
-    # def produce_artifacts(self, model):
-    #     artifacts = {}
-    #     name = model.name
-    #     path = model.paths[0]
-    #     ext = ModelFormats[self.fmt].extension
-    #     print("ext", ext)
-    #     with open(path, "r") as handle:
-    #         content = handle.read()
-    #     lines = content.strip().split("\n")
-    #     print("lines", lines, list(filter(None, lines)))
-    #     assert len(lines) > 0, "Empty file not allowed."
-
-    #     def helper(args):
-    #         args = args.split(" ")
-    #         with tempfile.TemporaryDirectory() as tmpdirname:
-    #             out = Path(tmpdirname) / f"out.{ext}"
-    #             utils.python(self.layergen_exe, self.fmt.lower(), out, *args, print_output=True, cwd=tmpdirname)
-    #             # TODO: log output
-    #             with open(out, "rb") as handle:
-    #                 raw = handle.read()
-    #             return raw
-
-    #     if len(lines) > 1:
-    #         for i, args in enumerate(lines):
-    #             name = f"model{i}"
-    #             raw = helper(args)
-    #             artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
-    #         artifacts[name] = [artifact]
-    #     else:
-    #         artifacts["default"] = []
-    #     return artifacts
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = {}
-        name = model.name
-        path = model.paths[0]
-        ext = ModelFormats[self.fmt].extension
-        with open(path, "r") as handle:
-            content = handle.read()
-        lines = content.strip().split("\n")
-        assert len(lines) > 0, "Empty file not allowed."
-
-        def helper(args):
-            args = args.split(" ")
-            with tempfile.TemporaryDirectory() as tmpdirname:
-                out = Path(tmpdirname) / f"out.{ext}"
-                utils.python(self.layergen_exe, self.fmt.lower(), out, *args, print_output=True, cwd=tmpdirname)
-                # TODO: log output
-                with open(out, "rb") as handle:
-                    raw = handle.read()
-                return raw
-
-        if len(lines) > 1:
-            for i, args in enumerate(lines):
-                name = f"model{i}"
-                raw = helper(args)
-                artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
-                artifacts[name] = [artifact]
-            # TODO: fix this
-            artifacts["default"] = artifacts["model0"]  # Dummy model because default artifacts can not be empty
-        else:
-            name = "default"
-            raw = helper(lines[0])
-            artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
-            artifacts[name] = [artifact]
-        return artifacts, {}

@@ -317,7 +317,7 @@ class Run:
         """Setter for the backend instance."""
         self.backend = backend
         # assert len(self.platforms) > 0, "Add at least a platform before adding a backend."
-        if self.model is not None and not self.model.skip_check:
+        if self.model is not None:
             assert self.backend.supports_model(self.model), (
                 "The added backend does not support the chosen model. "
                 "Add the backend before adding a model to find a suitable frontend."
@@ -716,11 +716,7 @@ class Run:
         self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
         self.artifacts_per_stage[RunStage.BUILD] = {}
         for name in self.artifacts_per_stage[RunStage.LOAD]:
-            model_artifact = lookup_artifacts(self.artifacts_per_stage[RunStage.LOAD][name], flags=["model"])
-            if len(model_artifact) == 0:
-                # TODO: This breaks because number of subs can not decrease...
-                continue
-            model_artifact = model_artifact[0]
+            model_artifact = self.artifacts_per_stage[RunStage.LOAD][name][0]
             if not model_artifact.exported:
                 model_artifact.export(self.dir)
             self.backend.load_model(model=model_artifact.path)

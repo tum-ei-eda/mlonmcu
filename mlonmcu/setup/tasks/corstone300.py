@@ -62,4 +62,3 @@ def install_corstone300(
                 fvpScript, "--i-agree-to-the-contained-eula", "--no-interactive", "-d", fvpSubDir, print_output=False
             )
     context.cache["corstone300.exe"] = fvpExe
-    context.export_paths.add(fvpExe.parent)

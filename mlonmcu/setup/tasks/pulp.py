@@ -190,4 +190,3 @@ def install_gvsoc(
     context.cache["pulp_freertos.install_dir"] = pulpRtosInstallDir
     context.cache["pulp_freertos.pythonpath"] = pulpPythonPath
     context.cache["gvsoc.exe"] = gvsocExe
-    context.export_paths.add(gvsocExe.parent)

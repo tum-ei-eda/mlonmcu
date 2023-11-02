@@ -53,7 +53,7 @@ class RISCVTarget(Target):
     }
     REQUIRED = {"riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"}
     PUPL_GCC_TOOLCHAIN_REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}  # TODO elegant handle customized toolchain
-    OPTIONAL = {"llvm.install_dir"}
+    OPTIONAL = {"llvm.install_dir", "mlif.toolchain"}  # TODO: just a workaround until tc components are implemented
 
     def reconfigure(self):
         # super().reconfigure()
@@ -279,6 +279,13 @@ class RISCVTarget(Target):
     def has_fpu(self):
         return self.fpu != "none"
 
+    @property
+    def toolchain(self):
+        value = self.config.get("mlif.toolchain", None)
+        if value is None:
+            value = "gcc"
+        return str(value)
+
     def get_target_system(self):
         return "generic_riscv"  # TODO: rename to generic-rv32 for compatibility with LLVM
 
@@ -291,8 +298,7 @@ class RISCVTarget(Target):
         elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        # ret["RISCV_ARCH"] = self.gcc_arch
-        ret["RISCV_ARCH"] = self.llvm_arch
+        ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
         ret["RISCV_ABI"] = self.abi
         ret["RISCV_MCPU"] = self.cpu
         # llvm/clang only!

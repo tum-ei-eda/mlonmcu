@@ -448,7 +448,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             # TODO: get num trials etc.
             metrics = Metrics()
         elif autotvm_enable or autoscheduler_enable:
-            flag = "autotvm" if autoscheduler_enable else "autoscheduler"
+            flag = "autotvm" if not autoscheduler_enable else "autoscheduler"
             artifact = Artifact(
                 "tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT, flags=["records", flag]
             )

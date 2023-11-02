@@ -482,7 +482,7 @@ class EtissTarget(RISCVTarget):
             out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out += self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         # TODO: get exit code
         exit_code = 0

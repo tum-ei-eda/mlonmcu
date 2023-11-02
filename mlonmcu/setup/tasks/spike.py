@@ -52,11 +52,12 @@ def _validate_spikepk(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
     # multilib = user_vars.get("riscv_gcc.multilib", False)
     supported_archs = user_vars.get("riscv_gcc.supported_archs", [])
-    arch = params["arch"]
-    # if arch != "rv32gc":
-    if arch != "default":
-        if arch not in supported_archs:
-            return False
+    if params:
+        arch = params["arch"]
+        # if arch != "rv32gc":
+        if arch != "default":
+            if arch not in supported_archs:
+                return False
     return True
 
 
@@ -69,7 +70,7 @@ def _validate_spike_clean(context: MlonMcuContext, params={}):
 
 
 @Tasks.provides(["spikepk.src_dir"])
-@Tasks.validate(_validate_spike)
+@Tasks.validate(_validate_spikepk)
 @Tasks.register(category=TaskType.TARGET)
 def clone_spike_pk(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -87,8 +88,7 @@ def clone_spike_pk(
 
 
 @Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
-@Tasks.provides(["spikepk.build_dir", "spikepk.install_dir"])
-@Tasks.optional(["spike.pk"])
+@Tasks.provides(["spikepk.build_dir", "spikepk.install_dir", "spike.pk"])
 # TODO: allow arch,abi
 @Tasks.param("arch", ["default"])  # ["rv32gc", "rv64gc", "rv32im", "rv64im"]
 @Tasks.validate(_validate_spikepk)

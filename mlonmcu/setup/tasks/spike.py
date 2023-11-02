@@ -106,12 +106,13 @@ def build_spike_pk(
             riscv_gcc = user_vars["riscv_gcc.install_dir"]
         else:
             riscv_gcc = context.cache["riscv_gcc.install_dir"]
-        arch = "rv32imafdc"
+        arch = user_vars.get("spikepk.default_arch", "rv32imafdc")
+        abi = user_vars.get("spikepk.default_abi", "ilp32d")
         spikepkArgs = []
         spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
         spikepkArgs.append(f"--with-arch={arch}_zifencei_zicsr")
-        spikepkArgs.append("--with-abi=ilp32d")
+        spikepkArgs.append(f"--with-abi={abi}")
         env = os.environ.copy()
         env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]
         utils.exec_getout(

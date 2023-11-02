@@ -35,8 +35,8 @@ repos:
     options:
       single_branch: true
   tvm:
-    url: "https://github.com/PhilippvK/tvm.git"  # TODO: change to upstream after pr merged
-    ref: bba12d72c79717ddb5343fc3483dc0821d129704
+    url: "https://github.com/PhilippvK/tvm.git"
+    ref: de2992b277570663a086a825598ddeb5b9c073cc  # branch: corev
     options:
       recursive: true
       submodules:
@@ -98,6 +98,12 @@ repos:
   srecord:
     url: "https://github.com/sierrafoxtrot/srecord.git"
     ref: master
+  corevverif:
+    url: "https://github.com/PhilippvK/core-v-verif.git"
+    ref: 81002bc0a3a0afc2a1d444344fd6b26ddd308ad4
+  cv32e40p:
+    url: "https://github.com/PhilippvK/cv32e40p.git"
+    ref: 8e29b89d1b3c8451bac36545a4d5b154ad0a1ab8
 
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -211,7 +217,6 @@ targets:
     enabled: true
     features:
       xcorev: true
-      pext: true
   cv32e40p:
     enabled: true
     features:
@@ -261,12 +266,14 @@ vars:
   allow_extensions: false
   # tvm.make_tool: "ninja"
   # llvm.version: "16.0.0"
-  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiFUYGac2R8AXSGrvxSXx2/llvm.tar.xz"
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fi2nv21dKWpdLGzV3j4NES/corev_llvm_custom.tar.xz"
   runs_per_stage: true
   riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiVEqbY3A7PCSDrw6fvCKu/rv32im_ilp32.tar.xz"
   corev_ovpsim.version: "v20231026"
   # spike.keep_build_dir: false
   # etiss.keep_build_dir: false
+  spikepk.default_arch: rv32im
+  spikepk.default_abi: ilp32
 flags:
   tflmc.exe:
   - x86

@@ -222,7 +222,6 @@ class EtissTarget(RISCVTarget):
     def extensions(self):
         exts = super().extensions
         required = set()
-        # required.add("zicsr")
         if "xcorev" not in exts:
             if self.enable_xcorevmac:
                 required.add("xcvmac")

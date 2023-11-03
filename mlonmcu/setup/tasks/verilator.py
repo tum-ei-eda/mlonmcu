@@ -38,7 +38,11 @@ Tasks = get_task_factory()
 
 
 def _validate_verilator(context: MlonMcuContext, params=None):
-    return context.environment.has_target("ara") or context.environment.has_target("vicuna") or _validate_cv32e40p(context, params=params)
+    return (
+        context.environment.has_target("ara")
+        or context.environment.has_target("vicuna")
+        or _validate_cv32e40p(context, params=params)
+    )
 
 
 @Tasks.provides(["verilator.src_dir"])

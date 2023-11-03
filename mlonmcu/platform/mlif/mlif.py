@@ -279,7 +279,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return definitions
 
     def get_cmake_args(self):
-
         cmakeArgs = []
         definitions = self.get_definitions()
         for key, value in definitions.items():

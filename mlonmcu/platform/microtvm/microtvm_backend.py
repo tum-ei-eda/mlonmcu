@@ -20,7 +20,8 @@ from mlonmcu.logging import get_logger
 
 from mlonmcu.flow.tvm.backend.backend import TVMBackend
 
-# from mlonmcu.flow.tvm.backend.tvmaot import TVMAOTBackend
+from mlonmcu.flow.tvm.backend.tvmaot import TVMAOTBackend
+
 # from mlonmcu.flow.tvm.backend.tvmaotplus import TVMAOTPlusBackend
 from mlonmcu.flow.tvm.backend.tvmllvm import TVMLLVMBackend
 from mlonmcu.flow.tvm.backend.tvmrt import TVMRTBackend
@@ -42,7 +43,7 @@ def get_microtvm_platform_backends():
     return MICROTVM_PLATFORM_BACKEND_REGISTRY
 
 
-# register_microtvm_platform_backend("tvmaot", TVMAOTBackend)
+register_microtvm_platform_backend("tvmaot", TVMAOTBackend)
 # register_microtvm_platform_backend("tvmaotplus", TVMAOTPlusBackend)
 register_microtvm_platform_backend("tvmrt", TVMRTBackend)
 register_microtvm_platform_backend("tvmllvm", TVMLLVMBackend)
@@ -51,7 +52,7 @@ register_microtvm_platform_backend("tvmllvm", TVMLLVMBackend)
 def create_microtvm_platform_backend(name, platform, base=TVMBackend):
     class MicroTvmPlatformBackend(base):
         def __init__(self, features=None, config=None):
-            super().__init__(runtime="crt", fmt="mlf", features=features, config=config)
+            super().__init__(runtime="crt", fmt="mlf", system_lib=True, features=features, config=config)
             self.platform = platform
 
     return MicroTvmPlatformBackend

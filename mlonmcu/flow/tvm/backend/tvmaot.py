@@ -50,8 +50,10 @@ class TVMAOTBackend(TVMBackend):
 
     name = "tvmaot"
 
-    def __init__(self, runtime="crt", fmt="mlf", features=None, config=None):
-        super().__init__(executor="aot", runtime=runtime, fmt=fmt, features=features, config=config)
+    def __init__(self, runtime="crt", fmt="mlf", system_lib=False, features=None, config=None):
+        super().__init__(
+            executor="aot", runtime=runtime, fmt=fmt, system_lib=system_lib, features=features, config=config
+        )
 
     @property
     def arena_size(self):
@@ -74,7 +76,9 @@ class TVMAOTBackend(TVMBackend):
 
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmaot_tvmc_args(
-            self.alignment_bytes, self.unpacked_api
+            self.alignment_bytes,
+            self.unpacked_api,
+            system_lib=self.system_lib,
         )
 
     def get_workspace_size_from_metadata(self, metadata):

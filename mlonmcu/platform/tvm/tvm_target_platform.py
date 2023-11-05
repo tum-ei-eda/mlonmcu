@@ -45,7 +45,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     DEFAULTS = {
         **TargetPlatform.DEFAULTS,
         **TvmRpcPlatform.DEFAULTS,
-        "fill_mode": "random",
+        "fill_mode": None,  # random, zeros, ones, none
         "ins_file": None,
         "outs_file": None,
         "print_top": False,

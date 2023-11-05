@@ -46,8 +46,16 @@ class TVMLLVMBackend(TVMBackend):
 
     name = "tvmllvm"
 
-    def __init__(self, runtime="crt", fmt="mlf", features=None, config=None):
-        super().__init__(target="llvm", executor="graph", runtime=runtime, fmt=fmt, features=features, config=config)
+    def __init__(self, runtime="crt", fmt="mlf", system_lib=True, features=None, config=None):
+        super().__init__(
+            target="llvm",
+            executor="graph",
+            runtime=runtime,
+            fmt=fmt,
+            system_lib=system_lib,
+            features=features,
+            config=config,
+        )
 
     @property
     def arena_size(self):
@@ -60,7 +68,9 @@ class TVMLLVMBackend(TVMBackend):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def get_tvmc_compile_args(self, out, dump=None):
-        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(self.runtime)
+        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(
+            self.runtime, system_lib=self.system_lib
+        )
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None

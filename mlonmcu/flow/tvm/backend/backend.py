@@ -88,7 +88,9 @@ class TVMBackend(Backend):
 
     OPTIONAL = {"tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir", "tvm.use_tlcpack"}
 
-    def __init__(self, target="c", executor=None, runtime="crt", fmt="mlf", features=None, config=None):
+    def __init__(
+        self, target="c", executor=None, runtime="crt", fmt="mlf", system_lib=False, features=None, config=None
+    ):
         super().__init__(framework="tvm", features=features, config=config)
 
         self.model = None  # Actual filename!
@@ -99,6 +101,7 @@ class TVMBackend(Backend):
         self.runtime = runtime
         self.executor = executor
         self.fmt = fmt
+        self.system_lib = system_lib
 
         self.prefix = "default"
         self.artifacts = (

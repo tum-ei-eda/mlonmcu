@@ -137,9 +137,14 @@ def get_rpc_tvmc_args(enabled, key, hostname, port):
     )
 
 
-def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api, runtime="crt", target="c"):
-    ret = [
-        *["--runtime-crt-system-lib", str(0 if target == "c" else 1)],
+def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api, runtime="crt", target="c", system_lib=False):
+    ret = []
+    if runtime == "crt":
+        if unpacked_api:
+            assert not system_lib, "Unpacked API is incompatible with system lib"
+        ret += ["--runtime-crt-system-lib", str(int(system_lib))]
+
+    ret += [
         *["--executor-aot-unpacked-api", str(int(unpacked_api))],
         *["--executor-aot-interface-api", "c" if unpacked_api else "packed"],
     ]
@@ -151,11 +156,11 @@ def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api, runtime="crt", target="c
     return ret
 
 
-def get_tvmrt_tvmc_args(runtime="crt"):
+def get_tvmrt_tvmc_args(runtime="crt", system_lib=True, link_params=True):
     ret = []
     if runtime == "crt":
-        ret.extend(["--runtime-crt-system-lib", str(1)])
-    ret.extend(["--executor-graph-link-params", str(1)])
+        ret += ["--runtime-crt-system-lib", str(int(system_lib))]
+    ret += ["--executor-graph-link-params", str(int(link_params))]
     return ret
 
 

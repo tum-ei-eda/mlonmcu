@@ -87,11 +87,11 @@ def build_cv32e40p(
         # No need to build a vext and non-vext variant?
         utils.mkdirs(buildDir)
         args = [
-          "CV_SW_TOOLCHAIN=_",
-          "CV_SW_PREFIX=_",
-          f"CV_CORE_PATH={cv32e40pDir}",
-          f"CV_CORE_PKG={cv32e40pDir}",
-          "VERBOSE=1"
+            "CV_SW_TOOLCHAIN=_",
+            "CV_SW_PREFIX=_",
+            f"CV_CORE_PATH={cv32e40pDir}",
+            f"CV_CORE_PKG={cv32e40pDir}",
+            "VERBOSE=1",
         ]
         args.append(f"LOG_INSNS={int(trace)}")
         args.append(f"WAVES={int(waves)}")

@@ -154,8 +154,9 @@ class SpikeTarget(RVPTarget, RVVTarget):
     def parse_stdout(self, out, metrics, exit_code=0):
         add_bench_metrics(out, metrics, exit_code != 0)
         sim_insns = re.search(r"(\d*) cycles", out)
-        sim_insns = int(float(sim_insns.group(1)))
-        metrics.add("Simulated Instructions", sim_insns, True)
+        if sim_insns:
+            sim_insns = int(float(sim_insns.group(1)))
+            metrics.add("Simulated Instructions", sim_insns, True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""

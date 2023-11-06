@@ -351,6 +351,7 @@ int {prefix}_invoke() {{
 """
         wrapper_content += """
 #endif  // DEBUG_ARENA_USAGE
+  return 0;
 }
 """
         if header:

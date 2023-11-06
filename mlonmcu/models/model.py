@@ -346,7 +346,8 @@ class MathisProgram(Program):
             ret["MATHIS_TEST"] = self.name
             ret["MATHIS_NARGS"] = self.get_nargs(self.name)
             ret["MATHIS_ELEM_SIZE"] = self.get_elem_size(self.name)
-            ret["MATHIS_SIZE"] = int(sqrt(self.size)) if "matmul" in self.name else self.size
+            ret["MATHIS_SIZE"] = self.size
+            ret["MATHIS_N"] = int(sqrt(self.size)) if "matmul" in self.name else self.size
         return ret
 
 

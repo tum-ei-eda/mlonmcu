@@ -180,11 +180,14 @@ class CV32E40PTarget(RISCVTarget):
         return ret
 
     def parse_exit(self, out):
-        exit_match = re.search(r".* EXIT FAILURE: .*", out)
-        if exit_match:
-            exit_code = -1  # any none-zero value
-        else:
-            exit_code = 0
+        exit_code = super().parse_exit(out)
+        if exit_code is None:
+            # legacy
+            exit_match = re.search(r".* EXIT FAILURE: .*", out)
+            if exit_match:
+                exit_code = -1  # any none-zero value
+            else:
+                exit_code = 0
         return exit_code
 
     def parse_stdout(self, out, metrics, exit_code=0):

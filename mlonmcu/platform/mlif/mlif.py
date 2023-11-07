@@ -64,6 +64,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         **TargetPlatform.DEFAULTS,
         "template": "ml_interface",
         "ignore_data": True,
+        "skip_check": False,
         "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
         "toolchain": "gcc",
@@ -179,6 +180,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def skip_check(self):
+        value = self.config["skip_check"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def fail_on_error(self):
         value = self.config["fail_on_error"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -259,6 +265,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         definitions["TEMPLATE"] = self.template
         definitions["TOOLCHAIN"] = self.toolchain
         definitions["QUIET"] = self.mem_only
+        definitions["SKIP_CHECK"] = self.skip_check
         if self.num_threads is not None:
             definitions["SUBPROJECT_THREADS"] = self.num_threads
         if self.toolchain == "llvm" and self.llvm_dir is None:

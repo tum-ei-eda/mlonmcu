@@ -45,12 +45,18 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
     DEFAULTS = {
         **TvmTargetPlatform.DEFAULTS,
         "experimental_tvmc_print_time": False,
+        "skip_flash": False,
         # Warning: contains configs not supported by microtvm
     }
 
     @property
     def experimental_tvmc_print_time(self):
         value = self.config["experimental_tvmc_print_time"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def skip_flash(self):
+        value = self.config["skip_flash"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def invoke_tvmc_micro_flash(self, target=None, list_options=False, **kwargs):
@@ -114,7 +120,9 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
 
     def run(self, elf, target, timeout=120):
         # TODO: implement timeout
-        output = self.flash(elf, target)
+        output = ""
+        if not self.skip_flash:
+            output += self.flash(elf, target)
         run_args = self.get_tvmc_run_args()
         output += self.invoke_tvmc_run(*run_args, target=target)
 

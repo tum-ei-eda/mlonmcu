@@ -159,7 +159,6 @@ def create_microtvm_platform_target(name, platform, base=Target):
                     if headers is None:
                         if "Name" in line:
                             headers = extract_cols(line)
-                            print("headers", headers)
                             skip = True
                             continue
                     else:

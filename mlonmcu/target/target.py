@@ -168,7 +168,7 @@ class Target:
                 if n == total - 1:
                     temp_dir_ = temp_dir
                 else:
-                    temp_dir_ = temp_dir / str(n)
+                    temp_dir_ = Path(temp_dir) / str(n)
                     temp_dir_.mkdir()
                 metrics_, out, artifacts_ = self.get_metrics(elf, *args, temp_dir_)
                 metrics.append(metrics_)

@@ -358,6 +358,7 @@ class Run:
         self.model = model
         self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())
         for platform in self.platforms:
+            self.model.add_platform_config(platform, platform.config)
             self.model.add_platform_defs(platform, platform.definitions)
         # TODO: update after load stage
         # for platform in self.platforms:
@@ -368,6 +369,7 @@ class Run:
         self.frontends = add_any(frontend, self.frontends, append=append)
         for frontend in self.frontends:
             for platform in self.platforms:
+                frontend.add_platform_config(platform, platform.config)
                 frontend.add_platform_defs(platform.name, platform.definitions)
 
     def add_frontends(self, frontends, append=False):
@@ -375,6 +377,7 @@ class Run:
         self.frontends = add_any(frontends, self.frontends, append=append)
         for frontend in self.frontends:
             for platform in self.platforms:
+                frontend.add_platform_config(platform, platform.config)
                 frontend.add_platform_defs(platform.name, platform.definitions)
 
     def add_backend(self, backend):
@@ -391,6 +394,7 @@ class Run:
                     "Add the backend before adding a model to find a suitable frontend."
                 )
         for platform in self.platforms:
+            self.backend.add_platform_config(platform.name, platform.config)
             self.backend.add_platform_defs(platform.name, platform.definitions)
 
     def add_framework(self, framework):
@@ -398,6 +402,7 @@ class Run:
         self.framework = framework
         # assert len(self.platforms) > 0, "Add at least a platform before adding a framework."
         for platform in self.platforms:
+            self.framework.add_platform_config(platform.name, platform.config)
             self.framework.add_platform_defs(platform.name, platform.definitions)
 
     def add_target(self, target):
@@ -405,6 +410,7 @@ class Run:
         self.target = target
         assert self.platforms is not None, "Add at least a platform before adding a target."
         for platform in self.platforms:
+            self.target.add_platform_config(platform.name, platform.config)
             self.target.add_platform_defs(platform.name, platform.definitions)
         self.cache_hints = [self.target.get_arch()]
         # self.resolve_chache_refs()
@@ -413,12 +419,16 @@ class Run:
         """Setter for the platform instance."""
         self.platforms = add_any(platform, self.platforms, append=append)
         for frontend in self.frontends:
+            self.frontend.add_platform_config(platform.name, platform.config)
             self.frontend.add_platform_defs(platform.name, platform.definitions)
         if self.model:
+            self.model.add_platform_config(platform.name, platform.config)
             self.model.add_platform_defs(platform.name, platform.definitions)
         if self.backend:
+            self.backend.add_platform_config(platform.name, platform.config)
             self.backend.add_platform_defs(platform.name, platform.definitions)
         if self.framework:
+            self.framework.add_platform_config(platform.name, platform.config)
             self.framework.add_platform_defs(platform.name, platform.definitions)
 
     def add_platforms(self, platforms, append=False):
@@ -427,12 +437,16 @@ class Run:
         # TODO: check for duplicates?
         for platform in platforms:
             for frontend in self.frontends:
+                self.frontend.add_platform_config(platform.name, platform.config)
                 self.frontend.add_platform_defs(platform.name, platform.definitions)
             if self.model:
+                self.model.add_platform_config(platform.name, platform.config)
                 self.model.add_platform_defs(platform.name, platform.definitions)
             if self.backend:
+                self.backend.add_platform_config(platform.name, platform.config)
                 self.backend.add_platform_defs(platform.name, platform.definitions)
             if self.framework:
+                self.framework.add_platform_config(platform.name, platform.config)
                 self.framework.add_platform_defs(platform.name, platform.definitions)
 
     def add_postprocess(self, postprocess, append=True):

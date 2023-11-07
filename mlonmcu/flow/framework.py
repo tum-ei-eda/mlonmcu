@@ -59,6 +59,12 @@ class Framework(ABC):
         assert isinstance(cls.name, str)
         cls.registry[cls.name] = cls
 
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
+
     def get_platform_defs(self, platform):
         if platform == "espidf":
             framework_upper = self.name.upper()

@@ -62,6 +62,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
         **TargetPlatform.DEFAULTS,
+        "template": "ml_interface",
         "ignore_data": True,
         "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
@@ -169,6 +170,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["llvm.install_dir"]
 
     @property
+    def template(self):
+        return self.config["template"]
+
+    @property
     def ignore_data(self):
         value = self.config["ignore_data"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -251,6 +256,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     def get_definitions(self):
         definitions = self.definitions
+        definitions["TEMPLATE"] = self.template
         definitions["TOOLCHAIN"] = self.toolchain
         definitions["QUIET"] = self.mem_only
         if self.num_threads is not None:

@@ -269,6 +269,12 @@ class Frontend(ABC):
         else:
             raise NotImplementedError
 
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
+
     def get_platform_defs(self, platform):
         return {}
 
@@ -727,10 +733,10 @@ class ExampleFrontend(SimpleFrontend):
 
         return {"default": artifacts}, {}
 
-    def get_platform_defs(self, platform):
+    def get_platform_confif(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["TEMPLATE"] = "example"
+            ret["template"] = "example"
         return ret
 
 
@@ -797,8 +803,13 @@ class EmbenchFrontend(SimpleFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["TEMPLATE"] = "embench"
             ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
+        return ret
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "embench"
         return ret
 
 
@@ -900,8 +911,13 @@ class TaclebenchFrontend(SimpleFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["TEMPLATE"] = "taclebench"
             ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
+        return ret
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "taclebench"
         return ret
 
 
@@ -976,8 +992,13 @@ class PolybenchFrontend(SimpleFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["TEMPLATE"] = "polybench"
             ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
+        return ret
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "polybench"
         return ret
 
 
@@ -1015,10 +1036,10 @@ class CoremarkFrontend(SimpleFrontend):
 
         return {"default": artifacts}, {}
 
-    def get_platform_defs(self, platform):
+    def get_platform_config(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["TEMPLATE"] = "coremark"
+            ret["template"] = "coremark"
         return ret
 
 
@@ -1056,10 +1077,10 @@ class DhrystoneFrontend(SimpleFrontend):
 
         return {"default": artifacts}, {}
 
-    def get_platform_defs(self, platform):
+    def get_platform_config(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["TEMPLATE"] = "dhrystone"
+            ret["template"] = "dhrystone"
         return ret
 
 
@@ -1117,10 +1138,10 @@ class MathisFrontend(SimpleFrontend):
 
         return {"default": artifacts}, {}
 
-    def get_platform_defs(self, platform):
+    def get_platform_config(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["TEMPLATE"] = "mathis"
+            ret["template"] = "mathis"
         return ret
 
 
@@ -1175,8 +1196,14 @@ class MibenchFrontend(SimpleFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["TEMPLATE"] = "mibench"
             ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
+
+        return ret
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "mibench"
 
         return ret
 

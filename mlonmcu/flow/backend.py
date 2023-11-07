@@ -148,6 +148,12 @@ class Backend(ABC):
                     logger.info(f"Exporting artifact: {artifact.name}")
                     outfile.write(artifact.content)
 
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
+
     def get_platform_defs(self, platform):
         if platform == "espidf":
             backend_upper = self.name.upper()

@@ -229,6 +229,12 @@ class Target:
     def get_arch(self):
         raise NotImplementedError
 
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
+
     def get_platform_defs(self, platform):
         return {}
 

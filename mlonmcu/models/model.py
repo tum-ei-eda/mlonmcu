@@ -126,6 +126,12 @@ class Workload:
         self.alt = alt
         self.config = filter_config(config if config is not None else {}, self.name, self.DEFAULTS, set(), set())
 
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
+
     def get_platform_defs(self, platform):
         return {}
 

@@ -162,7 +162,15 @@ class RISCVTarget(Target):
 
     @property
     def gcc_extensions(self):
-        return [ext for ext in (self.extensions | {"zicsr"}) if ext not in ["xcorev", "xcorevmac", "xcorevmem"]]
+        # return [ext for ext in (self.extensions | {"zicsr"}) if ext not in ["xcorev", "xcorevmac", "xcorevmem"]]
+        exts = {"zicsr"}
+        for ext in self.extensions:
+            if "xcv" in ext:
+                if ext[-2] != "p":
+                    # Add missing version
+                    ext = ext + "1p0"
+            exts.add(ext)
+        return exts
 
     @property
     def llvm_extensions(self):

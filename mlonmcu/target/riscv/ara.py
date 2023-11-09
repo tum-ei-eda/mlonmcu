@@ -58,7 +58,7 @@ class AraTarget(RISCVTarget):
 
     def __init__(self, name="ara", features=None, config=None):
         super().__init__(name, features=features, config=config)
-        assert self.config["xlen"] == str(64), 'ARA target must has xlen equal 64, try "-c ara.xlen=64"'
+        assert self.config["xlen"] == 64, 'ARA target must has xlen equal 64, try "-c ara.xlen=64"'
 
     @property
     def ara_apps_dir(self):

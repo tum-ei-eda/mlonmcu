@@ -125,8 +125,8 @@ def install_etiss(
         return False
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # etissName = utils.makeDirName("etiss", flags=flags)
-    etissBuildDir = context.cache["etiss.build_dir", flags]
-    etissInstallDir = context.cache["etiss.install_dir", flags]
+    etissBuildDir = Path(context.cache["etiss.build_dir", flags])
+    etissInstallDir = Path(context.cache["etiss.install_dir", flags])
     etissvpExe = etissInstallDir / "bin" / "bare_etiss_processor"
     etissvpScript = etissInstallDir / "bin" / "run_helper.sh"
     if rebuild or not utils.is_populated(etissInstallDir) or not etissvpExe.is_file():

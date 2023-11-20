@@ -733,7 +733,7 @@ class ExampleFrontend(SimpleFrontend):
 
         return {"default": artifacts}, {}
 
-    def get_platform_confif(self, platform):
+    def get_platform_config(self, platform):
         ret = {}
         if platform == "mlif":
             ret["template"] = "example"

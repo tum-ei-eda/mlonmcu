@@ -723,8 +723,8 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                     ret_artifacts.append(artifact)
                 if self.to_df:
                     post_df = report.post_df.copy()
-                    post_df["AnalyseInstructionsSeqCounts"] = str(counts)
-                    post_df["AnalyseInstructionsSeqProbs"] = str(probs)
+                    post_df[f"AnalyseInstructionsSeq{length}Counts"] = str(counts)
+                    post_df[f"AnalyseInstructionsSeq{length}Probs"] = str(probs)
                     report.post_df = post_df
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts

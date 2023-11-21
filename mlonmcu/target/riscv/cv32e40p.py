@@ -192,6 +192,10 @@ class CV32E40PTarget(RISCVTarget):
 
     def parse_stdout(self, out, metrics, exit_code=0):
         add_bench_metrics(out, metrics, exit_code != 0)
+        sim_insns = re.search(r"#insns=(\d*)\s", out)
+        if sim_insns:
+            sim_insns = int(float(sim_insns.group(1)))
+            metrics.add("Simulated Instructions", sim_insns, True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -210,22 +214,21 @@ class CV32E40PTarget(RISCVTarget):
             os.remove(metrics_file)
 
         # TODO: re-enable sim MIPS
-        # host_time0 = time.time()
+        start_time = time.time()
         if self.print_outputs:
             out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out += self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
-        # host_time1 = time.time()
+        end_time = time.time()
+        diff = end_time - start_time
         exit_code = 0
         metrics = Metrics()
         self.parse_stdout(out, metrics, exit_code=exit_code)
-        # if total_instructions is not None:
-        #     if total_cycles is not None:
-        #         metrics.add("CPI", total_cycles/total_instructions)
-        #     mips = (total_instructions / (host_time1 - host_time0)) / 1e6
-        #     metrics.add("MIPS", mips, optional=True)
+        if metrics.has("Simulated Instructions"):
+            sim_insns = metrics.get("Simulated Instructions")
+            metrics.add("MIPS", (sim_insns / diff) / 1e6, True)
 
         return metrics, out, []
 

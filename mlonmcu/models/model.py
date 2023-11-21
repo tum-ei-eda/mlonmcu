@@ -236,7 +236,10 @@ class Model(Workload):
 
 
 class Program(Workload):
-    pass
+    def __repr__(self):
+        if self.alt:
+            return f"Program({self.name},alt={self.alt})"
+        return f"Program({self.name})"
 
 
 class ExampleProgram(Program):

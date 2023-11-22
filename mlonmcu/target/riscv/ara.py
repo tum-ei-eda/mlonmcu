@@ -52,6 +52,7 @@ class AraTarget(RVVTarget):
         "embedded_vext": False,
         "elen": 64,
         "num_threads": multiprocessing.cpu_count(),
+        "limit_cycles": 10000000,
     }
 
     REQUIRED = RVVTarget.REQUIRED | {
@@ -93,6 +94,11 @@ class AraTarget(RVVTarget):
     def vlen(self):
         value = self.config["vlen"]
         return value
+
+    @property
+    def limit_cycles(self):
+        value = self.config["limit_cycles"]
+        return int(value) if value is not None else None
 
     @property
     def enable_vext(self):
@@ -149,13 +155,12 @@ class AraTarget(RVVTarget):
         """Use target to execute an executable with given arguments"""
         # run simulation
         # to add trace: https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L201
-        ara_verilator_args = ["-l", f"ram,{program}"]
-        if len(self.extra_args) > 0:
-            if isinstance(self.extra_args, str):
-                extra_args = self.extra_args.split(" ")
-            else:
-                extra_args = self.extra_args
-            ara_verilator_args.extend(extra_args)
+        ara_verilator_args = []
+        limit_cycles = self.limit_cycles
+        if limit_cycles is not None:
+            ara_verilator_args.extend(["-c", str(limit_cycles)])
+        ara_verilator_args.extend(["-l", f"ram,{program}"])
+        assert len(self.extra_args) == 0
 
         if self.ara_verilator_tb:
             exe = self.ara_verilator_tb

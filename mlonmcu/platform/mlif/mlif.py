@@ -79,6 +79,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "slim_cpp": True,
         "garbage_collect": True,
         "fuse_ld": None,
+        "strip_strings": False,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -252,6 +253,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["fuse_ld"]
         return value
 
+    @property
+    def strip_strings(self):
+        value = self.config["strip_strings"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -288,6 +294,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["MODEL_SUPPORT_DIR"] = self.model_support_dir
         if self.fuse_ld is not None:
             definitions["FUSE_LD"] = self.fuse_ld
+        if self.strip_strings is not None:
+            definitions["STRIP_STRINGS"] = self.strip_strings
 
         return definitions
 

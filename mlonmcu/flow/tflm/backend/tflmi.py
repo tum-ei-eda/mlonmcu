@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import sys
+from typing import Tuple
 
 from .backend import TFLMBackend
 from mlonmcu.config import str2bool
@@ -348,7 +349,7 @@ class TFLMIBackend(TFLMBackend):
     def arena_size(self):
         return int(self.config["arena_size"])
 
-    def generate_code(self):
+    def generate(self) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
         config_map = {key.split(".")[-1]: value for key, value in self.config.items()}
@@ -372,7 +373,7 @@ class TFLMIBackend(TFLMBackend):
         )
         artifacts.append(workspace_size_artifact)
         # TODO: stdout_artifact (Would need to invoke TFLMI in subprocess to get stdout)
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

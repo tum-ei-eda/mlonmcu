@@ -34,8 +34,10 @@ repos:
     ref: f050eec7e32a0895f7658db21a4bdbd0975087a5
   tvm:
     url: "https://github.com/apache/tvm.git"
-    # ref: de6d8067754d746d88262c530b5241b5577b9aae
-    ref: 604b263dd5834f8bd96dc1876f4bad74100f692b
+    ref: de6d8067754d746d88262c530b5241b5577b9aae
+  utvm_staticrt_codegen:
+    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
+    ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
   tvm_extensions:
     url: "https://github.com/tum-ei-eda/tvm_extensions.git"
     ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
@@ -55,8 +57,8 @@ repos:
     url: "https://github.com/PhilippvK/CMSIS_5.git"
     ref: ad1c3cad8f1240ef14a2c55381a78d792d76ec4d
   mlif:
-    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 711e7cf8ecfe67cdc09f963eb2db46a9da39de86
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"  # This should be later changed to main branch in mlonmcu-sw
+    ref: 8d4e966c237bdf839005727fdb4d6d8fc6ecbe17
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
@@ -66,15 +68,19 @@ repos:
   zephyr:
     url: "https://github.com/zephyrproject-rtos/zephyr.git"
     ref: v3.2.0
-  tflite_pack:
-    url: "https://github.com/tum-ei-eda/tflite-pack.git"
-    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
-  layergen:
-    url: "https://github.com/PhilippvK/ml-layer-gen.git"
-    ref: 7c56995616fb1c246cb889972fdbe46dd217d758
-  dtc:
-    url: "https://github.com/dgibson/dtc.git"
-    ref: main
+  pulp_gcc:
+    url: "https://github.com/pulp-platform/riscv-gnu-toolchain.git"
+    ref: 11ba51efe1c4692d60357083b9c20c28bfb66a23
+  pulp_freertos:
+    url: "https://github.com/pulp-platform/pulp-freertos.git"
+    ref: aabd624fd9feef222f8dc2e0fa3b7dc487c42bf3
+  ara:
+    url: "https://github.com/PhilippvK/ara.git"
+    ref: 8b3909979f7c2da159879e71dcba45b63f40583f
+  verilator:
+    url: "https://github.com/verilator/verilator"
+    ref: 8f090176a68b66bbe0a6ce95294944bffda9fdf7
+
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -126,14 +132,14 @@ frameworks:
           autotuned: true
           moiopt: true
       tvmcg:
-        enabled: false
+        enabled: true
         features:
           debug_arena: true
           disable_legalize: false
           autotuned: true
     features:
       cmsisnnbyoc: false
-      muriscvnnbyoc: false
+      muriscvnnbyoc: true
 # Some frontends are experimental and therefore disabled here
 # Features like packing are only available in certain environments
 frontends:
@@ -142,7 +148,6 @@ frontends:
     features:
       validate: true
       visualize: true
-      split_layers: false
   relay:
     enabled: true
     features:
@@ -157,8 +162,6 @@ frontends:
   pb:
     enabled: true
   paddle:
-    enabled: true
-  layergen:
     enabled: true
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
 # Some targets/platforms support multiple toolchains
@@ -194,9 +197,13 @@ platforms:
       # validate: true
 # List of supported targets in the environment
 targets:
-  default: etiss_pulpino
-  etiss_pulpino:
+  default: ara
+  ara:
     enabled: true
+    features:
+      vext: true
+  etiss_pulpino:
+    enabled: false
     features:
       gdbserver: true
       etissdbg: true
@@ -205,11 +212,11 @@ targets:
       # vext: true
       # pext: true
   host_x86:
-    enabled: true
+    enabled: false
     features:
       gdbserver: true
   spike:
-    enabled: true
+    enabled: false
     features:
       vext: false
       pext: false
@@ -228,23 +235,27 @@ targets:
       arm_mvei: true
       arm_dsp: true
   riscv_qemu:
-    enabled: true
+    enabled: false
     features:
       vext: false
   microtvm_host:
-    enabled: true
+    enabled: false
   microtvm_spike:
-    enabled: true
+    enabled: false
   microtvm_zephyr:
     enabled: false
   microtvm_arduino:
     enabled: false
   microtvm_etissvp:
-    enabled: true
+    enabled: false
   microtvm_espidf:
     enabled: false
   tvm_cpu:
-    enabled: true
+    enabled: false
+  gvsoc_pulp:
+    enabled: false
+  gvsoc_pulpissimo:
+    enabled: false
 postprocesses:
   use:
   # - detailed_cycles
@@ -257,12 +268,9 @@ postprocesses:
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
   allow_extensions: false
-  # tvm.make_tool: "ninja"
   llvm.version: "14.0.0"
   runs_per_stage: true
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
-  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv32gcv_new.tar.gz"
-  riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiNvP4mzVQ8uDvgT9Yf2bqNk/rv32gcp.tar.xz"
+  pulp_gcc.dl_url: "https://github.com/pulp-platform/pulp-riscv-gnu-toolchain/releases/download/v1.0.16/v1.0.16-pulp-riscv-gcc-ubuntu-18.tar.bz2"
 flags:
   tflmc.exe:
   - x86

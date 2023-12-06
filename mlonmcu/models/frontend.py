@@ -17,10 +17,12 @@
 # limitations under the License.
 #
 import re
+import time
 import tempfile
 import multiprocessing
 from pathlib import Path
 from abc import ABC, abstractmethod
+from typing import Tuple, List
 
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import ModelFormats, Model
@@ -28,6 +30,7 @@ from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
+from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.logging import get_logger
 
@@ -40,6 +43,7 @@ class Frontend(ABC):
 
     DEFAULTS = {
         "use_inout_data": False,
+        # TODO: print_outputs for frontends
     }
 
     REQUIRED = []
@@ -194,7 +198,7 @@ class Frontend(ABC):
         if len(output_types) > 0:
             cfg.update({f"{model.name}.output_types": output_types})
 
-    def generate_models(self, model):
+    def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []
 
         count = len(model.paths)
@@ -213,10 +217,29 @@ class Frontend(ABC):
         assert len(artifacts) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
 
         # If we want to use the same instance of this Frontend in parallel, we need to get rid of self.artifacts...
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
-    def export_models(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_models() first"
+    def generate_artifacts(self, model) -> List[Artifact]:
+        start_time = time.time()
+        artifacts, metrics = self.generate(model)
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Load Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)
+            artifact = Artifact("load_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+        self.artifacts = artifacts
+        return artifacts
+
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -253,7 +276,7 @@ class SimpleFrontend(Frontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
         return artifacts
 
 
@@ -308,7 +331,7 @@ class TfLiteFrontend(SimpleFrontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
 
         if not self.visualize_enable:
             assert len(self.output_formats) == 1
@@ -336,7 +359,7 @@ class TfLiteFrontend(SimpleFrontend):
 
         return artifacts
 
-    def generate_models(self, model):
+    def generate(self, model) -> Tuple[dict, dict]:
         if self.split_layers:
             artifacts = {}
 
@@ -389,9 +412,9 @@ class TfLiteFrontend(SimpleFrontend):
                     assert len(ret) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
                     artifacts[subrun] = ret
 
-            self.artifacts = artifacts
+            return artifacts, {}
         else:
-            super().generate_models(model)
+            return super().generate(model)
 
 
 class RelayFrontend(SimpleFrontend):
@@ -435,7 +458,7 @@ class RelayFrontend(SimpleFrontend):
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
             raw = handle.read()
-            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW))
+            artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
 
         if not self.visualize_graph:
             assert len(self.output_formats) == 1
@@ -604,12 +627,14 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
             raw=tflite_data,
             fmt=ArtifactFormat.RAW,
             optional=self.use_packed,
+            flags=["model"],
         )
         packed_artifact = Artifact(
             f"{name}.tflm",
             raw=packed_data,
             fmt=ArtifactFormat.RAW,
             optional=not self.use_packed,
+            flags=["model"],
         )
 
         if self.use_packed:
@@ -670,3 +695,104 @@ class PaddleFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
+
+
+class LayerGenFrontend(Frontend):
+    FEATURES = Frontend.FEATURES
+
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+        "fmt": "tflite",  # TODO: relay
+    }
+
+    REQUIRED = Frontend.REQUIRED + ["layergen.exe"]
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "layergen",
+            input_formats=[ModelFormats.TEXT],
+            output_formats=[ModelFormats.TFLITE, ModelFormats.RELAY],
+            features=features,
+            config=config,
+        )
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        value = value.upper()
+        assert value in ["TFLITE", "RELAY"]
+        return value
+
+    @property
+    def layergen_exe(self):
+        return Path(self.config["layergen.exe"])
+
+    def produce_artifacts(self, model):
+        pass
+
+    # def produce_artifacts(self, model):
+    #     artifacts = {}
+    #     name = model.name
+    #     path = model.paths[0]
+    #     ext = ModelFormats[self.fmt].extension
+    #     print("ext", ext)
+    #     with open(path, "r") as handle:
+    #         content = handle.read()
+    #     lines = content.strip().split("\n")
+    #     print("lines", lines, list(filter(None, lines)))
+    #     assert len(lines) > 0, "Empty file not allowed."
+
+    #     def helper(args):
+    #         args = args.split(" ")
+    #         with tempfile.TemporaryDirectory() as tmpdirname:
+    #             out = Path(tmpdirname) / f"out.{ext}"
+    #             utils.python(self.layergen_exe, self.fmt.lower(), out, *args, print_output=True, cwd=tmpdirname)
+    #             # TODO: log output
+    #             with open(out, "rb") as handle:
+    #                 raw = handle.read()
+    #             return raw
+
+    #     if len(lines) > 1:
+    #         for i, args in enumerate(lines):
+    #             name = f"model{i}"
+    #             raw = helper(args)
+    #             artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
+    #         artifacts[name] = [artifact]
+    #     else:
+    #         artifacts["default"] = []
+    #     return artifacts
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = {}
+        name = model.name
+        path = model.paths[0]
+        ext = ModelFormats[self.fmt].extension
+        with open(path, "r") as handle:
+            content = handle.read()
+        lines = content.strip().split("\n")
+        assert len(lines) > 0, "Empty file not allowed."
+
+        def helper(args):
+            args = args.split(" ")
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                out = Path(tmpdirname) / f"out.{ext}"
+                utils.python(self.layergen_exe, self.fmt.lower(), out, *args, print_output=True, cwd=tmpdirname)
+                # TODO: log output
+                with open(out, "rb") as handle:
+                    raw = handle.read()
+                return raw
+
+        if len(lines) > 1:
+            for i, args in enumerate(lines):
+                name = f"model{i}"
+                raw = helper(args)
+                artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
+                artifacts[name] = [artifact]
+            # TODO: fix this
+            artifacts["default"] = artifacts["model0"]  # Dummy model because default artifacts can not be empty
+        else:
+            name = "default"
+            raw = helper(lines[0])
+            artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
+            artifacts[name] = [artifact]
+        return artifacts, {}

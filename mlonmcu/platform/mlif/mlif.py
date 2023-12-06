@@ -18,6 +18,7 @@
 #
 """MLIF Platform"""
 import tempfile
+from typing import Tuple
 
 from pathlib import Path
 
@@ -69,6 +70,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "input_data_path": None,
         "output_data_path": None,
         "mem_only": False,
+        "debug_symbols": False,
+        "verbose_makefile": False,
     }
 
     REQUIRED = ["mlif.src_dir"]
@@ -203,6 +206,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["mem_only"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def debug_symbols(self):
+        value = self.config["debug_symbols"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def verbose_makefile(self):
+        value = self.config["verbose_makefile"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -220,6 +233,14 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             args.append(f"-DLLVM_DIR={self.llvm_dir}")
         if self.optimize:
             args.append(f"-DOPTIMIZE={self.optimize}")
+        if self.debug_symbols:
+            args.append("-DDEBUG_SYMBOLS=ON")
+        if self.verbose_makefile:
+            args.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")
+        if self.model_support_dir:
+            args.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
+        else:
+            pass
         return args
 
     def prepare(self):
@@ -238,11 +259,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 value = "ON" if value else "OFF"
             cmakeArgs.append(f"-D{key}={value}")
         cmakeArgs.extend(self.get_common_cmake_args())
-        cmakeArgs.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")  # TODO for debug, should be removed
-        if self.model_support_dir:
-            cmakeArgs.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
-        else:
-            pass
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():
@@ -281,7 +297,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         return out, artifacts
 
-    def generate_elf(self, src, target, model=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / "generic_mlif"
         # TODO: just use path instead of raw data?
@@ -290,11 +306,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             artifact = Artifact("generic_mlif", raw=data, fmt=ArtifactFormat.RAW)
             artifacts.insert(0, artifact)  # First artifact should be the ELF
         metrics = self.get_metrics(elf_file)
-        content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
-        metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
-        artifacts.append(metrics_artifact)
         stdout_artifact = Artifact(
             "mlif_out.log", content=out, fmt=ArtifactFormat.TEXT
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
-        self.artifacts = {"default": artifacts}
+        return {"default": artifacts}, {"default": metrics}

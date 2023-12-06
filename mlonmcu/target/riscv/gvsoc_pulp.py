@@ -100,7 +100,7 @@ class GvsocPulpTarget(RISCVTarget):
     def gvsoc_preparation_env(self):
         return {
             "PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix),
-            "PULP_CURRENT_CONFIG": "pulp@config_file=chips/pulp/pulp.json",
+            "PULP_CURRENT_CONFIG": f"{self.model}@config_file=chips/{self.model}/{self.model}.json",
             "PULP_CONFIGS_PATH": str(self.pulp_freertos_config_dir),
             "PYTHONPATH": str(self.pulp_freertos_install_dir / "python"),
             "INSTALL_DIR": str(self.pulp_freertos_install_dir),
@@ -111,7 +111,7 @@ class GvsocPulpTarget(RISCVTarget):
     def get_basic_gvsoc_simulating_arg(self, program):
         gvsoc_simulating_arg = []
         gvsoc_simulating_arg.append(f"--dir={program.parent / 'gvsim'}")
-        gvsoc_simulating_arg.append("--config-file=pulp@config_file=chips/pulp/pulp.json")
+        gvsoc_simulating_arg.append(f"--config-file={self.model}@config_file=chips/{self.model}/{self.model}.json")
         gvsoc_simulating_arg.append("--platform=gvsoc")
         gvsoc_simulating_arg.append(f"--binary={program.stem}")
         gvsoc_simulating_arg.append("prepare")
@@ -120,6 +120,7 @@ class GvsocPulpTarget(RISCVTarget):
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute an executable with given arguments"""
+        # create a new folder and copy the compiled program into it
         gvsimDir = program.parent / "gvsim"
         if not os.path.exists(gvsimDir):
             os.makedirs(gvsimDir)

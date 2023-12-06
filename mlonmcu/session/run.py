@@ -318,7 +318,7 @@ class Run:
         """Setter for the backend instance."""
         self.backend = backend
         # assert len(self.platforms) > 0, "Add at least a platform before adding a backend."
-        if self.model is not None:
+        if self.model is not None and not self.model.skip_check:
             assert self.backend.supports_model(self.model), (
                 "The added backend does not support the chosen model. "
                 "Add the backend before adding a model to find a suitable frontend."
@@ -630,8 +630,7 @@ class Run:
             self.export_stage(RunStage.COMPILE, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.COMPILE]:
                 elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][name][0]
-                self.target.generate_metrics(elf_artifact.path)
-                artifacts = self.target.artifacts
+                artifacts = self.target.generate_artifacts(elf_artifact.path)
                 if isinstance(artifacts, dict):
                     new = {
                         (
@@ -650,8 +649,7 @@ class Run:
             self.export_stage(RunStage.BUILD, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.BUILD]:
                 shared_object_artifact = self.artifacts_per_stage[RunStage.BUILD][name][0]
-                self.target.generate_metrics(shared_object_artifact.path)
-                artifacts = self.target.artifacts
+                artifacts = self.target.generate_artifacts(shared_object_artifact.path)
                 if isinstance(artifacts, dict):
                     new = {
                         (
@@ -684,8 +682,10 @@ class Run:
             if name not in ["", "default"]:
                 codegen_dir = codegen_dir / "sub" / name
             # TODO!
-            self.compile_platform.generate_elf(codegen_dir, self.target)  # TODO: has to go into different dirs
-            artifacts = self.compile_platform.artifacts
+            artifacts = self.compile_platform.generate_artifacts(
+                codegen_dir, self.target
+            )  # TODO: has to go into different dirs
+            # artifacts = self.compile_platform.artifacts
             if isinstance(artifacts, dict):
                 new = {
                     key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
@@ -717,7 +717,11 @@ class Run:
         self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
         self.artifacts_per_stage[RunStage.BUILD] = {}
         for name in self.artifacts_per_stage[RunStage.LOAD]:
-            model_artifact = self.artifacts_per_stage[RunStage.LOAD][name][0]
+            model_artifact = lookup_artifacts(self.artifacts_per_stage[RunStage.LOAD][name], flags=["model"])
+            if len(model_artifact) == 0:
+                # TODO: This breaks because number of subs can not decrease...
+                continue
+            model_artifact = model_artifact[0]
             if not model_artifact.exported:
                 model_artifact.export(self.dir)
             input_shapes = self.model.input_shapes
@@ -740,8 +744,7 @@ class Run:
                     self.backend.tuning_records = tuning_artifact.path
 
             # TODO: allow raw data as well as filepath in backends
-            self.backend.generate_code()
-            artifacts = self.backend.artifacts
+            artifacts = self.backend.generate_artifacts()
             if isinstance(artifacts, dict):
                 new = {
                     key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
@@ -800,7 +803,7 @@ class Run:
         self.lock()
         # assert self.completed[RunStage.NOP]
 
-        self.frontend.generate_models(self.model)
+        artifacts = self.frontend.generate_artifacts(self.model)
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}
         self.frontend.process_metadata(self.model, cfg=cfg_new)
@@ -819,7 +822,6 @@ class Run:
                         if platform is not None and component == platform.name:
                             platform.config[name] = value
                 self.config[key] = value
-        artifacts = self.frontend.artifacts
         if isinstance(artifacts, dict):
             self.artifacts_per_stage[RunStage.LOAD] = artifacts
         else:
@@ -1029,58 +1031,47 @@ class Run:
         self.export_stage(RunStage.RUN, optional=self.export_optional)
 
         subs = []
-        if RunStage.LOAD in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.LOAD].keys()
-            subs = names
-        if RunStage.TUNE in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.TUNE].keys()
-            subs = names
-        if RunStage.BUILD in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.BUILD].keys()
-            subs = names
         # metrics = Metrics()
         metrics_by_sub = {}
-        if RunStage.COMPILE in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.COMPILE].keys()
-            subs = names
-            for name in self.artifacts_per_stage[RunStage.COMPILE]:
-                metrics_by_sub[name] = Metrics()
-                if (
-                    len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
-                ):  # TODO: look for artifact of type metrics instead
-                    compile_metrics_artifact = lookup_artifacts(
-                        self.artifacts_per_stage[RunStage.COMPILE][name], name="metrics.csv"
-                    )[0]
-                    compile_metrics = Metrics.from_csv(compile_metrics_artifact.content)
-                    metrics_by_sub[name] = compile_metrics
 
-        if RunStage.RUN in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.RUN].keys()
-            if (
-                RunStage.COMPILE in self.artifacts_per_stage
-                and len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
-            ):
-                if not self.failing:
-                    assert len(names) == len(
-                        subs
-                    ), "Run and Compile Stage should have the same number of subs"  # TODO: fix
-            if not self.failing:
+        def metrics_helper(stage, subs):
+            # if self.failing:
+            #     return subs
+            if stage in self.artifacts_per_stage:
+                names = self.artifacts_per_stage[stage].keys()
                 subs = names
-                for name in self.artifacts_per_stage[RunStage.RUN]:
-                    run_metrics_artifact = lookup_artifacts(
-                        self.artifacts_per_stage[RunStage.RUN][name], name="metrics.csv"
-                    )[0]
-                    run_metrics = Metrics.from_csv(run_metrics_artifact.content)
-                    # Combine with compile metrics
-                    if name in metrics_by_sub:
-                        metrics_data = metrics_by_sub[name].get_data()
-                    else:
-                        metrics_data = {}
-                    run_metrics_data = run_metrics.get_data()
-                    for key, value in metrics_data.items():
-                        if key not in run_metrics_data:
-                            run_metrics.add(key, value)
-                    metrics_by_sub[name] = run_metrics
+                for name in self.artifacts_per_stage[stage]:
+                    # metrics_by_sub[name] = Metrics()
+                    if len(self.artifacts_per_stage[stage][name]) > 1:
+                        filename = f"{stage.name.lower()}_metrics.csv"
+                        metrics_artifact = lookup_artifacts(self.artifacts_per_stage[stage][name], name=filename)
+                        if len(metrics_artifact) == 0:
+                            continue
+                        assert len(metrics_artifact) == 1
+                        metrics_artifact = metrics_artifact[0]
+                        metrics = Metrics.from_csv(metrics_artifact.content)
+                        metrics_data = metrics.get_data(include_optional=self.export_optional)
+                        # Combine with existing metrics
+                        parents = self.sub_parents[(stage, name)]
+                        parent_stage, parent_name = parents
+                        if parent_name in metrics_by_sub:
+                            parent_metrics_data = metrics_by_sub[parent_name].get_data(
+                                include_optional=self.export_optional
+                            )
+                        else:
+                            parent_metrics_data = {}
+                        for key, value in parent_metrics_data.items():
+                            if key not in metrics_data:
+                                metrics.add(key, value)
+                        metrics_by_sub[name] = metrics
+            return subs
+
+        for stage in range(RunStage.LOAD, RunStage.POSTPROCESS):
+            subs_ = metrics_helper(RunStage(stage), subs)
+            if len(subs_) < len(subs):
+                assert self.failing
+            else:
+                subs = subs_
 
         pres = []
         mains = []

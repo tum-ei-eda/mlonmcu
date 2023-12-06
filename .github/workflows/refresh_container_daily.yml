@@ -1,0 +1,182 @@
+##
+## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
+##
+## This file is part of MLonMCU.
+## See https://github.com/tum-ei-eda/mlonmcu.git for further info.
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+name: Daily Refresh of Benchmarking Docker Container(s)
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch name"
+        required: true
+        default: "staging-newer"
+      template:
+        description: "Environment template"
+        required: true
+        default: "dev"
+  schedule:
+    - cron: "0 12 * * *"
+
+jobs:
+  refresh:
+    name: Refresh large image for benchmarking
+    if: (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lowercase repository url
+        id: lowered
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ github.repository }}
+      - name: Gen string
+        id: branch_str
+        run: |
+          if [[ "${{ github.event.inputs.branch }}" == "main" ]]
+          then
+              echo "branch=" >> $GITHUB_OUTPUT
+          else
+              echo "branch=${{ github.event.inputs.branch }}-" >> $GITHUB_OUTPUT
+          fi
+      - name: Gen another string
+        id: template_str
+        run: |
+          if [[ "${{ github.event.inputs.template }}" == "default" ]]
+          then
+              echo "template=" >> $GITHUB_OUTPUT
+          else
+              echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
+          fi
+      - name: A
+        run: df -h
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+      - name: B
+        run: df -h
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push to Docker Hub
+        uses: docker/build-push-action@v4
+        if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
+        with:
+          context: .
+          file: docker/Dockerfile2
+          push: true
+          build-args: |
+            BASE_IMAGE=tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+          tags: |
+            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
+  refresh_cron:
+    name: Refresh large image for benchmarking
+    if: (github.event_name == 'schedule')
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {branch: staging-newer, template: dev}
+          - {branch: main, template: default}
+    steps:
+      - name: Lowercase repository url
+        id: lowered
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ github.repository }}
+      - name: Gen string
+        id: branch_str
+        run: |
+          if [[ "${{ matrix.config.branch }}" == "main" ]]
+          then
+              echo "branch=" >> $GITHUB_OUTPUT
+          else
+              echo "branch=${{ matrix.config.branch }}-" >> $GITHUB_OUTPUT
+          fi
+      - name: Gen another string
+        id: template_str
+        run: |
+          if [[ "${{ matrix.config.template }}" == "default" ]]
+          then
+              echo "template=" >> $GITHUB_OUTPUT
+          else
+              echo "template=${{ matrix.config.template }}-" >> $GITHUB_OUTPUT
+          fi
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.config.branch }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push to Docker Hub
+        uses: docker/build-push-action@v4
+        if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
+        with:
+          context: .
+          file: docker/Dockerfile2
+          push: true
+          build-args: |
+            BASE_IMAGE=tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
+            MLONMCU_TEMPLATE=${{ matrix.config.template }}
+          tags: |
+            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated

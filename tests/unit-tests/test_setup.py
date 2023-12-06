@@ -71,14 +71,15 @@ def test_task_registry_reset_changes():
 @pytest.mark.parametrize("print_output", [False, True])
 @pytest.mark.parametrize("rebuild", [False, True])  # TODO: actually test this
 @pytest.mark.parametrize("write_cache", [False])  # TODO: True
-def test_setup_install_dependencies(progress, print_output, rebuild, write_cache, fake_context):
+@pytest.mark.parametrize("write_env", [False])  # TODO: True
+def test_setup_install_dependencies(progress, print_output, rebuild, write_cache, write_env, fake_context):
     # example_task1_mock = mock.Mock(return_value=True)
     TestTaskFactory.registry["example_task1"] = mock.Mock(return_value=True)
     # example_task2_mock = mock.Mock(return_value=True)
     TestTaskFactory.registry["example_task2"] = mock.Mock(return_value=True)
     config = {"print_output": print_output}
     installer = Setup(config=config, context=fake_context, tasks_factory=TestTaskFactory)
-    result = installer.install_dependencies(progress=progress, write_cache=write_cache, rebuild=rebuild)
+    result = installer.install_dependencies(progress=progress, write_cache=write_cache, write_env=write_env, rebuild=rebuild)
     assert result
     # assert example_task1_mock.call_count == 3
     assert (

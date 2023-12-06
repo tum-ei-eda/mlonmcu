@@ -213,8 +213,9 @@ class SpikeTarget(RISCVTarget):
         cycles = self.parse_stdout(out)
 
         metrics = Metrics()
-        metrics.add("Cycles", cycles)
-        metrics.add("MIPS", (cycles / diff) / 1e6)
+        if cycles is not None and cycles > 0:
+            metrics.add("Cycles", cycles)
+            metrics.add("MIPS", (cycles / diff) / 1e6)
 
         return metrics, out, []
 

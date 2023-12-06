@@ -210,10 +210,30 @@ def str2bool(value, allow_none=False):
     if value is None:
         assert allow_none, "str2bool received None value while allow_none=False"
         return value
+    if isinstance(value, (int, bool)):
+        return bool(value)
     assert isinstance(value, str)
-    return bool(value) if isinstance(value, (int, bool)) else bool(distutils.util.strtobool(value))
+    return bool(distutils.util.strtobool(value))
 
 
-def str2dict(value):
+def str2dict(value, allow_none=False):
+    if value is None:
+        assert allow_none, "str2dict received None value while allow_none=False"
+        return value
+    if isinstance(value, dict):
+        return value
     assert isinstance(value, str)
+    # TODO: parse key=value,key2=value2 via regex
     return dict(ast.literal_eval(value))
+
+
+def str2list(value, allow_none=False):
+    if value is None:
+        assert allow_none, "str2list received None value while allow_none=False"
+        return value
+    if isinstance(value, (list, set, tuple)):
+        return list(value)
+    assert isinstance(value, str)
+    if value.startswith("["):
+        return list(ast.literal_eval(value))
+    return value.split(",")

@@ -301,3 +301,4 @@ class TVMBackend(Backend):
 
             if self.model_info and not self.input_shapes:
                 self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+            self.model_info = None

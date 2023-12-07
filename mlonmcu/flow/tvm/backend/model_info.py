@@ -36,7 +36,7 @@ class TensorInfo:
             "int32": 4,
             "int64": 8,
         }
-        assert dtype in size_lookup
+        assert dtype in size_lookup, f"Unsupported type: {dtype}"
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
 

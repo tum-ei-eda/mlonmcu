@@ -567,7 +567,17 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.Model.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'inputs_path':</span> <span class="pre">'input',</span> <span class="pre">'metadata_path':</span> <span class="pre">'definition.yml',</span> <span class="pre">'outputs_path':</span> <span class="pre">'output',</span> <span class="pre">'support_path':</span> <span class="pre">'support'}</span></em><a class="headerlink" href="#mlonmcu.models.model.Model.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'input_shapes':</span> <span class="pre">None,</span> <span class="pre">'input_types':</span> <span class="pre">None,</span> <span class="pre">'inputs_path':</span> <span class="pre">'input',</span> <span class="pre">'metadata_path':</span> <span class="pre">'definition.yml',</span> <span class="pre">'output_shapes':</span> <span class="pre">None,</span> <span class="pre">'output_types':</span> <span class="pre">None,</span> <span class="pre">'outputs_path':</span> <span class="pre">'output',</span> <span class="pre">'support_path':</span> <span class="pre">'support'}</span></em><a class="headerlink" href="#mlonmcu.models.model.Model.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.model.Model.input_shapes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_shapes</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.input_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.model.Model.input_types">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_types</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.input_types" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -578,6 +588,16 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.models.model.Model.metadata_path">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_path</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.metadata_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.model.Model.output_shapes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_shapes</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.output_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.model.Model.output_types">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_types</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.output_types" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -685,6 +705,32 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.models.model.parse_metadata_from_path">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model.</span></span><span class="sig-name descname"><span class="pre">parse_metadata_from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model.html#parse_metadata_from_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model.parse_metadata_from_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.model.parse_shape_string">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model.</span></span><span class="sig-name descname"><span class="pre">parse_shape_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model.html#parse_shape_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model.parse_shape_string" title="Permalink to this definition"></a></dt>
+<dd><p>Parse an input shape dictionary string to a usable dictionary.</p>
+<p>Taken from: <a class="reference external" href="https://github.com/apache/tvm/blob/main/python/tvm/driver/tvmc/shape_parser.py">https://github.com/apache/tvm/blob/main/python/tvm/driver/tvmc/shape_parser.py</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>inputs_string: str</strong></dt><dd><p>A string of the form “input_name:[dim1,dim2,…,dimn] input_name2:[dim1,dim2]” that
+indicates the desired shape for specific model inputs. Colons, forward slashes and dots
+within input_names are supported. Spaces are supported inside of dimension arrays.</p>
+</dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>shape_dict: dict</strong></dt><dd><p>A dictionary mapping input names to their shape for use in relay frontend converters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.model.parse_type_string">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model.</span></span><span class="sig-name descname"><span class="pre">parse_type_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model.html#parse_type_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model.parse_type_string" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>

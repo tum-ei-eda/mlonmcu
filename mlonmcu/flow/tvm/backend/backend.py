@@ -64,6 +64,8 @@ class TVMBackend(Backend):
         # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py
         "tophub_url": None,
         "num_threads": multiprocessing.cpu_count(),
+        "refresh_model_info": False,
+        "generate_wrapper": "auto",
     }
 
     REQUIRED = []
@@ -200,6 +202,22 @@ class TVMBackend(Backend):
         value = self.config["tvm.use_tlcpack"]
         return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def refresh_model_info(self):
+        value = self.config["refresh_model_info"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def generate_wrapper(self):
+        value = self.config["generate_wrapper"]
+        if isinstance(value, str):
+            if value.lower() == "auto":
+                value = self.fmt == "mlf"
+            else:
+                value = str2bool(value)
+        assert isinstance(value, bool)
+        return value
+
     def num_threads(self):
         return self.config["num_threads"]
 
@@ -301,4 +319,3 @@ class TVMBackend(Backend):
 
             if self.model_info and not self.input_shapes:
                 self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
-            self.model_info = None

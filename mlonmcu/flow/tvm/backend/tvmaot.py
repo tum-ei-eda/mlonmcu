@@ -89,8 +89,7 @@ class TVMAOTBackend(TVMBackend):
         assert self.model is not None
         full = False  # Required due to bug in TVM
         dump = ["c", "relay"] if full else []
-        generate_wrapper = True
-        if generate_wrapper and not self.model_info and "relay" not in dump:
+        if self.generate_wrapper and (not self.model_info or self.refresh_model_info) and "relay" not in dump:
             dump.append("relay")
         with tempfile.TemporaryDirectory() as temp_dir:
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
@@ -132,14 +131,17 @@ class TVMAOTBackend(TVMBackend):
                             optional=True,
                         )
                     )
-            if generate_wrapper:
+            if self.generate_wrapper:
                 if self.arena_size is not None:
                     assert self.arena_size >= 0
                     workspace_size = self.arena_size
                 else:
                     workspace_size = self.get_workspace_size_from_metadata(metadata)
-                if not self.model_info:
-                    self.model_info = get_relay_model_info(mod_txt)
+                if (not self.model_info) or self.refresh_model_info:
+                    try:
+                        self.model_info = get_relay_model_info(mod_txt)
+                    except Exception:
+                        assert self.model_info is not None, "Model info missing!"
                 wrapper_src = generate_tvmaot_wrapper(
                     self.model_info,
                     workspace_size,

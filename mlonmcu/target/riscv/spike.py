@@ -24,7 +24,6 @@ import time
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
@@ -190,7 +189,8 @@ class SpikeTarget(RVPTarget, RVVTarget):
 
         if metrics.has("Simulated Instructions"):
             sim_insns = metrics.get("Simulated Instructions")
-            metrics.add("MIPS", (sim_insns / diff) / 1e6, True)
+            if diff > 0:
+                metrics.add("MIPS", (sim_insns / diff) / 1e6, True)
 
         return metrics, out, []
 

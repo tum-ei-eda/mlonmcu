@@ -73,9 +73,12 @@ class TVMRTBackend(TVMBackend):
             graph = graph_artifact.content
             params_artifact = lookup_artifacts(artifacts, f"{self.prefix}.params")[0]
             params = params_artifact.raw
-            if not self.model_info:
-                relay_artifact = lookup_artifacts(artifacts, f"{self.prefix}.relay")[0]
-                self.model_info = get_relay_model_info(relay_artifact.content)
+            if (not self.model_info) or self.refresh_model_info:
+                try:
+                    relay_artifact = lookup_artifacts(artifacts, f"{self.prefix}.relay")[0]
+                    self.model_info = get_relay_model_info(relay_artifact.content)
+                except Exception:
+                    assert self.model_info is not None, "Model info missing"
             wrapper_src = generate_tvmrt_wrapper(
                 graph, params, self.model_info, workspace_size, debug_arena=self.debug_arena
             )

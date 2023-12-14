@@ -102,9 +102,12 @@ class TVMAOTBackend(TVMBackend):
                 metadata_artifact = lookup_artifacts(artifacts, f"{self.prefix}.json")[0]
                 metadata = json.loads(metadata_artifact.content)
                 workspace_size = self.get_workspace_size_from_metadata(metadata)
-            if not self.model_info:
+            if (not self.model_info) or self.refresh_model_info:
                 relay_artifact = lookup_artifacts(artifacts, f"{self.prefix}.relay")[0]
-                self.model_info = get_relay_model_info(relay_artifact.content)
+                try:
+                    self.model_info = get_relay_model_info(relay_artifact.content)
+                except Exception:
+                    assert self.model_info is not None, "Model info missing!"
             wrapper_src = generate_tvmaot_wrapper(
                 self.model_info,
                 workspace_size,

@@ -26,6 +26,8 @@ class TFLMBackend(Backend):
 
     name = None
 
+    FEATURES = []
+
     DEFAULTS = {}
 
     REQUIRED = set()

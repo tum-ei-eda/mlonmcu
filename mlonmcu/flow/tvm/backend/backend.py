@@ -82,6 +82,8 @@ class TVMBackend(Backend):
         "autotuned_mode": None,
         "autotuned_results_file": None,
         "relay_debug": None,  # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
+        "refresh_model_info": False,
+        "generate_wrapper": "auto",
     }
 
     REQUIRED = set()
@@ -301,14 +303,25 @@ class TVMBackend(Backend):
         return value
 
     @property
-    def generate_wrapper(self):
-        return self.fmt == "mlf"
-
-    @property
     def needs_target(self):
         return self.target == "llvm"  # not c
 
     @property
+    def refresh_model_info(self):
+        value = self.config["refresh_model_info"]
+        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def generate_wrapper(self):
+        value = self.config["generate_wrapper"]
+        if isinstance(value, str):
+            if value.lower() == "auto":
+                value = self.fmt == "mlf"
+            else:
+                value = str2bool(value)
+        assert isinstance(value, bool)
+        return value
+
     def num_threads(self):
         return self.config["num_threads"]
 

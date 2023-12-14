@@ -377,6 +377,12 @@ def download_and_extract(url, archive, dest, progress=False):
                 tmp_dir_new = Path(tmp_dir) / contents[0]
                 if tmp_dir_new.is_dir():  # Archive contains a single subdirectory with a different name
                     tmp_dir = tmp_dir_new
+                    # workaround
+                    contents = list(Path(tmp_dir).glob("*"))
+                    if len(contents) == 1:
+                        tmp_dir_new = Path(tmp_dir) / contents[0]
+                        if tmp_dir_new.is_dir():  # Archive contains a single subdirectory with a different name
+                            tmp_dir = tmp_dir_new
             move(tmp_dir, dest)
 
 

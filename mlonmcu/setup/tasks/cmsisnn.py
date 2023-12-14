@@ -28,6 +28,8 @@ from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 
 from .common import get_task_factory
+from .arm_gcc import _validate_arm_gcc
+from .riscv_gcc import _validate_riscv_gcc
 
 logger = get_logger()
 
@@ -41,6 +43,8 @@ def _validate_cmsisnn(context: MlonMcuContext, params=None):
     dsp = params.get("dsp", False)
     target_arch = params.get("target_arch", None)
     if target_arch == "arm":
+        if not _validate_arm_gcc(context, params=params):
+            return False
         if dsp and not context.environment.has_feature("arm_dsp"):
             return False
         if mvei and not context.environment.has_feature("arm_mvei"):
@@ -48,6 +52,9 @@ def _validate_cmsisnn(context: MlonMcuContext, params=None):
     else:
         if mvei or dsp:
             return False
+        if target_arch == "riscv":
+            if not _validate_riscv_gcc(context, params=params):
+                return False
     return True
 
 

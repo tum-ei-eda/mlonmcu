@@ -168,6 +168,8 @@ def parse_relay_main(line):
             output_shape = shape_from_str(output_shape_str)
             output_tensor = TensorInfo(output_name, output_shape, output_type)
             output_tensors.append(output_tensor)
+    assert len(input_tensors) > 0, "No input tensors found in RelayIR"
+    assert len(output_tensors) > 0, "No output tensors found in RelayIR"
     return input_tensors, output_tensors
 
 

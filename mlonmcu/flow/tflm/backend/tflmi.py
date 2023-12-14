@@ -312,6 +312,8 @@ void {prefix}_invoke() {{
 class TFLMIBackend(TFLMBackend):
     name = "tflmi"
 
+    FEATURES = ["debug_arena"]
+
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,
         "arena_size": 2**20,  # 1 MB

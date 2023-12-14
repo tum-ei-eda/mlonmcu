@@ -26,12 +26,14 @@ class TFLMBackend(Backend):
 
     name = None
 
+    FEATURES = []
+
     DEFAULTS = {}
 
     REQUIRED = []
 
     def __init__(self, features=None, config=None):
-        super().__init__(framework="tflm", config=config)
+        super().__init__(framework="tflm", config=config, features=features)
         self.model = None
         self.supported_formats = [ModelFormats.TFLITE]
 

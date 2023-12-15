@@ -61,11 +61,11 @@ class TFLMICodegen:
                     + op
                     + '() != kTfLiteOk) {\n    error_reporter->Report("Add'  # TODO: replace with new logger
                     + op
-                    + '() failed");\n    exit(1);\n  }\n'
+                    + '() failed");\n    return 1;\n  }\n'
                 )
             else:
                 # TODO
-                out += "  if (resolver.Add" + op + "() != kTfLiteOk) {\n    exit(1);\n  }\n"
+                out += "  if (resolver.Add" + op + "() != kTfLiteOk) {\n    return 1;\n  }\n"
         for op in custom_ops:
             op_name = op
             op_reg = op
@@ -79,7 +79,7 @@ class TFLMICodegen:
                     + op_reg
                     + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'  # TODO: replace with new logger
                     + op_name
-                    + '() failed");\n    exit(1);\n  }\n'
+                    + '() failed");\n    return 1;\n  }\n'
                 )
             else:
                 # TODO
@@ -88,7 +88,7 @@ class TFLMICodegen:
                     + op_name
                     + '", tflite::'
                     + op_reg
-                    + "()) != kTfLiteOk) {\n    exit(1);\n  }\n"
+                    + "()) != kTfLiteOk) {\n    return 1;\n  }\n"
                 )
         return out
 
@@ -261,7 +261,7 @@ private:
                            model->version(), TFLITE_SCHEMA_VERSION);
 """
         wrapper_content += """
-    exit(1);
+    return 1;
   }
 
   // This pulls in all the operation implementations we need.
@@ -297,8 +297,9 @@ private:
     error_reporter->Report("AllocateTensors() failed");
 """
         wrapper_content += """
-    exit(1);
+    return 1;
   }
+  return 0;
 }
 """
 
@@ -338,7 +339,7 @@ int {prefix}_invoke() {{
     error_reporter->Report("Invoke failed\\n");
 """
         wrapper_content += """
-    exit(1);
+    return 1;
   }
 #if DEBUG_ARENA_USAGE
   size_t used = interpreter->arena_used_bytes();

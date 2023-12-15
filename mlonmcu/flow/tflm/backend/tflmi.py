@@ -101,11 +101,11 @@ class TFLMICodegen:
 
 #include <stddef.h>
 
-void {prefix}_init();
+int {prefix}_init();
 void *{prefix}_input_ptr(int index);
 size_t {prefix}_input_size(int index);
 size_t {prefix}_inputs();
-void {prefix}_invoke();
+int {prefix}_invoke();
 void *{prefix}_output_ptr(int index);
 size_t {prefix}_output_size(int index);
 size_t {prefix}_outputs();
@@ -232,7 +232,7 @@ private:
 
 // The name of this function is important for Arduino compatibility.
 """
-            + f"void {prefix}_init() {{"
+            + f"int {prefix}_init() {{"
             + """
   // Set up logging. Google style is to avoid globals or statics because of
   // lifetime uncertainty, but since this has a trivial destructor it's okay.
@@ -327,7 +327,7 @@ size_t {prefix}_outputs() {{
   return interpreter->outputs_size();
 }}
 
-void {prefix}_invoke() {{
+int {prefix}_invoke() {{
   // Run inference, and report any error
   TfLiteStatus invoke_status = interpreter->Invoke();
   if (invoke_status != kTfLiteOk) {{

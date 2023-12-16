@@ -127,11 +127,11 @@
 
 <span class="s2">#include &lt;stddef.h&gt;</span>
 
-<span class="s2">void TVMWrap_Init();</span>
+<span class="s2">int TVMWrap_Init();</span>
 <span class="s2">void *TVMWrap_GetInputPtr(int index);</span>
 <span class="s2">size_t TVMWrap_GetInputSize(int index);</span>
 <span class="s2">size_t TVMWrap_GetNumInputs();</span>
-<span class="s2">void TVMWrap_Run();</span>
+<span class="s2">int TVMWrap_Run();</span>
 <span class="s2">void *TVMWrap_GetOutputPtr(int index);</span>
 <span class="s2">size_t TVMWrap_GetOutputSize(int index);</span>
 <span class="s2">size_t TVMWrap_GetNumOutputs();</span>
@@ -342,7 +342,7 @@
 
 <span class="s2">void *g_handle = NULL;</span>
 
-<span class="s2">void TVMWrap_Init()</span>
+<span class="s2">int TVMWrap_Init()</span>
 <span class="s2">{</span>
 <span class="s2">    int64_t device_type = kDLCPU;</span>
 <span class="s2">    int64_t device_id = 0;</span>
@@ -373,6 +373,7 @@
 
 <span class="s2">    //return graph_executor;</span>
 <span class="s2">    g_handle = graph_executor;</span>
+<span class="s2">    return 0;  // TODO</span>
 <span class="s2">}</span>
 
 <span class="s2">void *TVMWrap_GetInputPtr(int index)</span>
@@ -407,13 +408,14 @@
 <span class="s2">    return $</span><span class="si">{numInputs}</span><span class="s2">;</span>
 <span class="s2">}</span>
 
-<span class="s2">void TVMWrap_Run()</span>
+<span class="s2">int TVMWrap_Run()</span>
 <span class="s2">{</span>
 <span class="s2">    TVMGraphExecutor* graph_executor = (TVMGraphExecutor*)g_handle;</span>
 <span class="s2">    TVMGraphExecutor_Run(graph_executor);</span>
 <span class="s2">#if DEBUG_ARENA_USAGE</span>
 <span class="s2">    DBGPRINTF(&quot;</span><span class="se">\\</span><span class="s2">nGraph executor arena max usage after model invocation: </span><span class="si">%lu</span><span class="s2"> bytes</span><span class="se">\\</span><span class="s2">n&quot;, max_arena_usage);</span>
 <span class="s2">#endif  // DEBUG_ARENA_USAGE</span>
+<span class="s2">    return 0;  // TODO</span>
 <span class="s2">}</span>
 
 <span class="s2">void *TVMWrap_GetOutputPtr(int index)</span>
@@ -622,12 +624,13 @@
 <span class="s2">    return 0;</span>
 <span class="s2">}</span>
 
-<span class="s2">void TVMWrap_Init()</span>
+<span class="s2">int TVMWrap_Init()</span>
 <span class="s2">{</span>
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">workspace_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">mainCode</span> <span class="o">+=</span> <span class="s2">&quot;    StackMemoryManager_Init(&amp;app_workspace, g_aot_memory, WORKSPACE_SIZE);&quot;</span>
     <span class="n">mainCode</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    return 0;  // TODO</span>
 <span class="s2">}</span>
 
 <span class="s2">void *TVMWrap_GetInputPtr(int index)</span>
@@ -647,7 +650,7 @@
 <span class="s2">    return $</span><span class="si">{numInputs}</span><span class="s2">;</span>
 <span class="s2">}</span>
 
-<span class="s2">void TVMWrap_Run()</span>
+<span class="s2">int TVMWrap_Run()</span>
 <span class="s2">{&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">api</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
         <span class="n">mainCode</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -683,6 +686,7 @@
 <span class="s2">    {</span>
 <span class="s2">        TVMPlatformAbort(kTvmErrorPlatformCheckFailure);</span>
 <span class="s2">    }</span>
+<span class="s2">    return 0;</span>
 
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="k">else</span><span class="p">:</span>
@@ -695,6 +699,7 @@
 <span class="s2">#endif  // DEBUG_ARENA_USAGE</span>
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="n">mainCode</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    return 0;  // TODO</span>
 <span class="s2">}</span>
 
 <span class="s2">void *TVMWrap_GetOutputPtr(int index)</span>

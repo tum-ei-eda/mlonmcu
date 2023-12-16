@@ -137,7 +137,9 @@
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;corstone300.exe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cmsis.dir&quot;</span><span class="p">,</span>
         <span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ethosu_platform.dir&quot;</span><span class="p">,</span>
         <span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">,</span>
     <span class="p">]</span>  <span class="c1"># Actually cmsisnn.dir points to the root CMSIS_5 directory</span>
 
@@ -181,8 +183,16 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arm_gcc.install_dir&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cmsis_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cmsis.dir&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cmsisnn_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cmsisnn.dir&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ethosu_platform_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ethosu_platform.dir&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -286,7 +296,9 @@
 
 <div class="viewcode-block" id="Corstone300Target.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.target.arm.html#mlonmcu.target.Corstone300Target.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;CMSIS_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;CMSIS_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmsis_dir</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;CMSISNN_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmsisnn_dir</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ETHOSU_PLATFORM_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ethosu_platform_dir</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ARM_COMPILER_PREFIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_prefix</span>
         <span class="n">cpu</span><span class="p">,</span> <span class="n">float_abi</span><span class="p">,</span> <span class="n">fpu</span> <span class="o">=</span> <span class="n">resolve_cpu_features</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">enable_fp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_fpu</span><span class="p">,</span> <span class="n">enable_dsp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_dsp</span><span class="p">,</span> <span class="n">enable_mve</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enable_mvei</span>

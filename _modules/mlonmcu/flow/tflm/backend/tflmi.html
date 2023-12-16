@@ -106,7 +106,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">.backend</span> <span class="kn">import</span> <span class="n">TFLMBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">main</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 
@@ -134,32 +134,48 @@
         <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;}  //namespace tflite</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="TFLMICodegen.make_op_registrations"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflm.backend.html#mlonmcu.flow.tflm.TFLMICodegen.make_op_registrations">[docs]</a>    <span class="k">def</span> <span class="nf">make_op_registrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">):</span>
+<div class="viewcode-block" id="TFLMICodegen.make_op_registrations"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflm.backend.html#mlonmcu.flow.tflm.TFLMICodegen.make_op_registrations">[docs]</a>    <span class="k">def</span> <span class="nf">make_op_registrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">,</span> <span class="n">reporter</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">&quot;static tflite::MicroMutableOpResolver&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_ops</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;&gt; resolver(error_reporter);</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">reporter</span> <span class="k">else</span>
+            <span class="s2">&quot;static tflite::MicroMutableOpResolver&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_ops</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;&gt; resolver;</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="s2">&quot;  if (resolver.Add&quot;</span>
-                <span class="o">+</span> <span class="n">op</span>
-                <span class="o">+</span> <span class="s1">&#39;() != kTfLiteOk) {</span><span class="se">\n</span><span class="s1">    error_reporter-&gt;Report(&quot;Add&#39;</span>
-                <span class="o">+</span> <span class="n">op</span>
-                <span class="o">+</span> <span class="s1">&#39;() failed&quot;);</span><span class="se">\n</span><span class="s1">    exit(1);</span><span class="se">\n</span><span class="s1">  }</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="s2">&quot;  if (resolver.Add&quot;</span>
+                    <span class="o">+</span> <span class="n">op</span>
+                    <span class="o">+</span> <span class="s1">&#39;() != kTfLiteOk) {</span><span class="se">\n</span><span class="s1">    error_reporter-&gt;Report(&quot;Add&#39;</span>  <span class="c1"># TODO: replace with new logger</span>
+                    <span class="o">+</span> <span class="n">op</span>
+                    <span class="o">+</span> <span class="s1">&#39;() failed&quot;);</span><span class="se">\n</span><span class="s1">    return 1;</span><span class="se">\n</span><span class="s1">  }</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># TODO</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;  if (resolver.Add&quot;</span> <span class="o">+</span> <span class="n">op</span> <span class="o">+</span> <span class="s2">&quot;() != kTfLiteOk) {</span><span class="se">\n</span><span class="s2">    return 1;</span><span class="se">\n</span><span class="s2">  }</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">custom_ops</span><span class="p">:</span>
             <span class="n">op_name</span> <span class="o">=</span> <span class="n">op</span>
             <span class="n">op_reg</span> <span class="o">=</span> <span class="n">op</span>
             <span class="k">if</span> <span class="s2">&quot;|&quot;</span> <span class="ow">in</span> <span class="n">op</span><span class="p">:</span>
                 <span class="n">op_name</span><span class="p">,</span> <span class="n">op_reg</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="s1">&#39;  if (resolver.AddCustom(&quot;&#39;</span>
-                <span class="o">+</span> <span class="n">op_name</span>
-                <span class="o">+</span> <span class="s1">&#39;&quot;, tflite::&#39;</span>
-                <span class="o">+</span> <span class="n">op_reg</span>
-                <span class="o">+</span> <span class="s1">&#39;()) != kTfLiteOk) {</span><span class="se">\n</span><span class="s1">    error_reporter-&gt;Report(&quot;AddCustom&#39;</span>
-                <span class="o">+</span> <span class="n">op_name</span>
-                <span class="o">+</span> <span class="s1">&#39;() failed&quot;);</span><span class="se">\n</span><span class="s1">    exit(1);</span><span class="se">\n</span><span class="s1">  }</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="s1">&#39;  if (resolver.AddCustom(&quot;&#39;</span>
+                    <span class="o">+</span> <span class="n">op_name</span>
+                    <span class="o">+</span> <span class="s1">&#39;&quot;, tflite::&#39;</span>
+                    <span class="o">+</span> <span class="n">op_reg</span>
+                    <span class="o">+</span> <span class="s1">&#39;()) != kTfLiteOk) {</span><span class="se">\n</span><span class="s1">    error_reporter-&gt;Report(&quot;AddCustom&#39;</span>  <span class="c1"># TODO: replace with new logger</span>
+                    <span class="o">+</span> <span class="n">op_name</span>
+                    <span class="o">+</span> <span class="s1">&#39;() failed&quot;);</span><span class="se">\n</span><span class="s1">    return 1;</span><span class="se">\n</span><span class="s1">  }</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># TODO</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="s1">&#39;  if (resolver.AddCustom(&quot;&#39;</span>
+                    <span class="o">+</span> <span class="n">op_name</span>
+                    <span class="o">+</span> <span class="s1">&#39;&quot;, tflite::&#39;</span>
+                    <span class="o">+</span> <span class="n">op_reg</span>
+                    <span class="o">+</span> <span class="s2">&quot;()) != kTfLiteOk) {</span><span class="se">\n</span><span class="s2">    return 1;</span><span class="se">\n</span><span class="s2">  }</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
 <div class="viewcode-block" id="TFLMICodegen.generate_header"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflm.backend.html#mlonmcu.flow.tflm.TFLMICodegen.generate_header">[docs]</a>    <span class="k">def</span> <span class="nf">generate_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">):</span>
@@ -171,11 +187,11 @@
 
 <span class="s2">#include &lt;stddef.h&gt;</span>
 
-<span class="s2">void </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_init();</span>
+<span class="s2">int </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_init();</span>
 <span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_ptr(int index);</span>
 <span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_size(int index);</span>
 <span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_inputs();</span>
-<span class="s2">void </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_invoke();</span>
+<span class="s2">int </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_invoke();</span>
 <span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_ptr(int index);</span>
 <span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_size(int index);</span>
 <span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_outputs();</span>
@@ -196,15 +212,9 @@
         <span class="n">custom_ops</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># TODO: implement</span>
         <span class="n">registrations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># TODO: implement</span>
         <span class="n">ops_resolver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># TODO: implement</span>
+        <span class="n">reporter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">arena_size</span> <span class="o">=</span> <span class="n">arena_size</span> <span class="k">if</span> <span class="n">arena_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
-        <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="k">if</span> <span class="n">ops</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
-                <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">ops</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">convert_op_name</span><span class="p">(</span><span class="n">op</span><span class="p">):</span>
@@ -227,15 +237,10 @@
 
             <span class="n">op_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">convert_op_name</span><span class="p">,</span> <span class="n">ops</span><span class="p">))</span>
             <span class="n">ops</span> <span class="o">=</span> <span class="n">op_names</span>
-        <span class="n">custom_ops</span> <span class="o">=</span> <span class="n">custom_ops</span> <span class="k">if</span> <span class="n">custom_ops</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;custom_ops&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-        <span class="n">registrations</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">registrations</span> <span class="k">if</span> <span class="n">registrations</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;registrations&quot;</span><span class="p">]</span>
-        <span class="p">)</span>  <span class="c1"># TODO: Dict or list?</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">registrations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-        <span class="n">ops_resolver</span> <span class="o">=</span> <span class="n">ops_resolver</span> <span class="k">if</span> <span class="n">ops_resolver</span> <span class="k">else</span> <span class="n">TFLMIBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;ops_resolver&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ops_resolver</span> <span class="o">!=</span> <span class="s2">&quot;mutable&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -249,10 +254,12 @@
         <span class="n">wrapper_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">// This file is generated. Do not edit.</span>
 <span class="s2">#include &quot;tensorflow/lite/micro/kernels/micro_ops.h&quot;</span>
-<span class="s2">#include &quot;tensorflow/lite/micro/micro_error_reporter.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/micro/micro_interpreter.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/micro/micro_mutable_op_resolver.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/schema/schema_generated.h&quot;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;#include &quot;tensorflow/lite/micro/micro_error_reporter.h&quot;</span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">legacy</span><span class="p">:</span>
             <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;#include &quot;tensorflow/lite/version.h&quot;</span>
@@ -282,7 +289,12 @@
         <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 
 <span class="s2">namespace {</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">tflite::ErrorReporter *error_reporter = nullptr;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">const tflite::Model *model = nullptr;</span>
 <span class="s2">tflite::MicroInterpreter *interpreter = nullptr;</span>
 
@@ -306,26 +318,36 @@
 
 <span class="s2">// The name of this function is important for Arduino compatibility.</span>
 <span class="s2">&quot;&quot;&quot;</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;void </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_init() </span><span class="se">{{</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;int </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_init() </span><span class="se">{{</span><span class="s2">&quot;</span>
             <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">  // Set up logging. Google style is to avoid globals or statics because of</span>
 <span class="s2">  // lifetime uncertainty, but since this has a trivial destructor it&#39;s okay.</span>
 <span class="s2">  // NOLINTNEXTLINE(runtime-global-variables)</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#ifdef _DEBUG</span>
 <span class="s2">  static tflite::MicroErrorReporter micro_error_reporter;</span>
 <span class="s2">#else</span>
 <span class="s2">  static DummyReporter micro_error_reporter;</span>
 <span class="s2">#endif</span>
 <span class="s2">  error_reporter = &amp;micro_error_reporter;</span>
-
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">  // Map the model into a usable data structure. This doesn&#39;t involve any</span>
 <span class="s2">  // copying or parsing, it&#39;s a very lightweight operation.</span>
 <span class="s2">  model = tflite::GetModel(g_model_data);</span>
 <span class="s2">  if (model-&gt;version() != TFLITE_SCHEMA_VERSION) {</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    error_reporter-&gt;Report(&quot;Model provided is schema version </span><span class="si">%d</span><span class="s2"> not equal &quot;</span>
 <span class="s2">                           &quot;to supported version </span><span class="si">%d</span><span class="s2">.&quot;,</span>
 <span class="s2">                           model-&gt;version(), TFLITE_SCHEMA_VERSION);</span>
-<span class="s2">    exit(1);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    return 1;</span>
 <span class="s2">  }</span>
 
 <span class="s2">  // This pulls in all the operation implementations we need.</span>
@@ -333,21 +355,37 @@
 <span class="s2">  // static tflite::ops::micro::AllOpsResolver resolver;</span>
 
 <span class="s2">&quot;&quot;&quot;</span>
-        <span class="p">)</span>
-        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_op_registrations</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">)</span>
-        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_op_registrations</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="n">custom_ops</span><span class="p">,</span> <span class="n">reporter</span><span class="o">=</span><span class="n">reporter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 
 <span class="s2">  // Build an interpreter to run the model with.</span>
 <span class="s2">  static tflite::MicroInterpreter static_interpreter(</span>
 <span class="s2">      model, resolver, tensor_arena, kTensorArenaSize, error_reporter);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">  // Build an interpreter to run the model with.</span>
+<span class="s2">  static tflite::MicroInterpreter static_interpreter(</span>
+<span class="s2">      model, resolver, tensor_arena, kTensorArenaSize);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">  interpreter = &amp;static_interpreter;</span>
 
 <span class="s2">  // Allocate memory from the tensor_arena for the model&#39;s tensors.</span>
 <span class="s2">  TfLiteStatus allocate_status = interpreter-&gt;AllocateTensors();</span>
 <span class="s2">  if (allocate_status != kTfLiteOk) {</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    error_reporter-&gt;Report(&quot;AllocateTensors() failed&quot;);</span>
-<span class="s2">    exit(1);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    return 1;</span>
 <span class="s2">  }</span>
+<span class="s2">  return 0;</span>
 <span class="s2">}</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
@@ -376,18 +414,31 @@
 <span class="s2">  return interpreter-&gt;outputs_size();</span>
 <span class="se">}}</span>
 
-<span class="s2">void </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_invoke() </span><span class="se">{{</span>
+<span class="s2">int </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_invoke() </span><span class="se">{{</span>
 <span class="s2">  // Run inference, and report any error</span>
 <span class="s2">  TfLiteStatus invoke_status = interpreter-&gt;Invoke();</span>
 <span class="s2">  if (invoke_status != kTfLiteOk) </span><span class="se">{{</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+            <span class="c1"># TODO</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    error_reporter-&gt;Report(&quot;Invoke failed</span><span class="se">\\</span><span class="s2">n&quot;);</span>
-<span class="s2">    exit(1);</span>
-<span class="s2">  </span><span class="se">}}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    return 1;</span>
+<span class="s2">  }</span>
 <span class="s2">#if DEBUG_ARENA_USAGE</span>
 <span class="s2">  size_t used = interpreter-&gt;arena_used_bytes();</span>
-<span class="s2">  error_reporter-&gt;Report(&quot;Arena Usage after model invocation: %d bytes</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reporter</span><span class="p">:</span>
+            <span class="c1"># TODO</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  error_reporter-&gt;Report(&quot;Arena Usage after model invocation: </span><span class="si">%d</span><span class="s2"> bytes</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#endif  // DEBUG_ARENA_USAGE</span>
-<span class="se">}}</span>
+<span class="s2">  return 0;</span>
+<span class="s2">}</span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">wrapper_content</span><span class="p">,</span> <span class="n">header_content</span>
@@ -398,6 +449,8 @@
 <div class="viewcode-block" id="TFLMIBackend"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflm.backend.html#mlonmcu.flow.tflm.TFLMIBackend">[docs]</a><span class="k">class</span> <span class="nc">TFLMIBackend</span><span class="p">(</span><span class="n">TFLMBackend</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tflmi&quot;</span>
 
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">]</span>
+
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">TFLMBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;arena_size&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="o">**</span><span class="mi">20</span><span class="p">,</span>  <span class="c1"># 1 MB</span>
@@ -407,6 +460,7 @@
         <span class="s2">&quot;registrations&quot;</span><span class="p">:</span> <span class="p">{},</span>
         <span class="s2">&quot;ops_resolver&quot;</span><span class="p">:</span> <span class="s2">&quot;mutable&quot;</span><span class="p">,</span>
         <span class="s2">&quot;legacy&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;reporter&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Has to be disabled for support with latest upstream</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">TFLMBackend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
@@ -435,15 +489,45 @@
     <span class="k">def</span> <span class="nf">arena_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">])</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ops&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">custom_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;custom_ops&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">registrations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;registrations&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ops_resolver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ops_resolver&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reporter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;reporter&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
 <div class="viewcode-block" id="TFLMIBackend.generate"><a class="viewcode-back" href="../../../../../mlonmcu.flow.tflm.backend.html#mlonmcu.flow.tflm.TFLMIBackend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">config_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="n">wrapper_code</span><span class="p">,</span> <span class="n">header_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codegen</span><span class="o">.</span><span class="n">generate_wrapper</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
             <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span>
             <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">config_map</span><span class="p">,</span>
+            <span class="n">arena_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span><span class="p">,</span>
+            <span class="n">debug_arena</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug_arena</span><span class="p">,</span>
+            <span class="n">ops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ops</span><span class="p">,</span>
+            <span class="n">custom_ops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_ops</span><span class="p">,</span>
+            <span class="n">registrations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">registrations</span><span class="p">,</span>
+            <span class="n">ops_resolver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ops_resolver</span><span class="p">,</span>
+            <span class="n">legacy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">,</span>
+            <span class="n">reporter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.cc&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_code</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">))</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>

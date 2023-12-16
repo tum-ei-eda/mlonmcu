@@ -175,8 +175,7 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">full</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Required due to bug in TVM</span>
         <span class="n">dump</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;relay&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">full</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="n">generate_wrapper</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="n">generate_wrapper</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="ow">and</span> <span class="s2">&quot;relay&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_wrapper</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_model_info</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;relay&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
             <span class="n">dump</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;relay&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
             <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar&quot;</span>
@@ -218,14 +217,17 @@
                             <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-            <span class="k">if</span> <span class="n">generate_wrapper</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_wrapper</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span> <span class="o">&gt;=</span> <span class="mi">0</span>
                     <span class="n">workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_workspace_size_from_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">get_relay_model_info</span><span class="p">(</span><span class="n">mod_txt</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_model_info</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">get_relay_model_info</span><span class="p">(</span><span class="n">mod_txt</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Model info missing!&quot;</span>
                 <span class="n">wrapper_src</span> <span class="o">=</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">,</span>
                     <span class="n">workspace_size</span><span class="p">,</span>

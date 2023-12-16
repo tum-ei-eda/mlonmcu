@@ -157,6 +157,7 @@
         <span class="s2">&quot;mem_only&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;debug_symbols&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;verbose_makefile&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;goal&quot;</span><span class="p">:</span> <span class="s2">&quot;generic_mlonmcu&quot;</span><span class="p">,</span>  <span class="c1"># Use &#39;generic_mlif&#39; for older version of MLIF</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mlif.src_dir&quot;</span><span class="p">]</span>
@@ -170,7 +171,10 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">goal</span> <span class="o">=</span> <span class="s2">&quot;generic_mlif&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">goal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;goal&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="MlifPlatform.gen_data_artifact"><a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.gen_data_artifact">[docs]</a>    <span class="k">def</span> <span class="nf">gen_data_artifact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">in_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_data_path</span>
@@ -384,11 +388,11 @@
 
 <div class="viewcode-block" id="MlifPlatform.generate"><a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">elf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;generic_mlif&quot;</span>
+        <span class="n">elf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal</span>
         <span class="c1"># TODO: just use path instead of raw data?</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">elf_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-            <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;generic_mlif&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">)</span>
+            <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;generic_mlonmcu&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">)</span>
             <span class="n">artifacts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">artifact</span><span class="p">)</span>  <span class="c1"># First artifact should be the ELF</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">elf_file</span><span class="p">)</span>
         <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>

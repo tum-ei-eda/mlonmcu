@@ -1932,7 +1932,7 @@ class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
     #     super().__init__("hpmcounter", features=features, config=config)
 
     @property
-    def enabled_counters(self):
+    def num_counters(self):
         temp = self.config["num_counters"]
         return int(temp)
 

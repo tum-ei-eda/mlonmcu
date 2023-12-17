@@ -24,12 +24,11 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
-from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.timeout import exec_timeout
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 from .riscv import RISCVTarget, sort_extensions_canonical
-from .util import update_extensions
 
 logger = get_logger()
 

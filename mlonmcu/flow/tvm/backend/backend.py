@@ -116,7 +116,8 @@ class TVMBackend(Backend):
             assert tuner_name is not None
             self._tuning_records[tuner_name] = results_file
 
-    # On the long term, we might support multiple TUNE stages in a single run (i.e. to allow autotvm+graphtuner to be separated)
+    # On the long term, we might support multiple TUNE stages in a single run
+    # (i.e. to allow autotvm+graphtuner to be separated)
     # Hence
     # @property
     # def tuning_records(self):

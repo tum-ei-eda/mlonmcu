@@ -20,15 +20,12 @@
 
 import os
 import re
-import csv
 import time
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool, str2list
-from mlonmcu.artifact import Artifact, ArtifactFormat
-from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.config import str2bool
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics

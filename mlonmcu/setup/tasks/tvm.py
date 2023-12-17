@@ -208,8 +208,8 @@ def install_tvm(
     if "tvm.install_dir" in user_vars:
         return False
     flags = utils.makeFlags((params["dbg"], "dbg"))
-    tvmName = utils.makeDirName("tvm", flags=flags)
-    tvmSrcDir = context.cache["tvm.src_dir", ()]
+    # tvmName = utils.makeDirName("tvm", flags=flags)
+    # tvmSrcDir = context.cache["tvm.src_dir", ()]
     tvmBuildDir = context.cache["tvm.build_dir", flags]
     tvmInstallDir = context.cache["tvm.install_dir", flags]
     if rebuild or not utils.is_populated(tvmInstallDir):

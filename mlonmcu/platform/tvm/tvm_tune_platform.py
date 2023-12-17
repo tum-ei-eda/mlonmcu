@@ -200,7 +200,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             return cnt
 
         def get_max_flops(out, prefix="M"):
-            res = re.compile(f"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
+            res = re.compile(r"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
             if len(res) > 0:
                 return res[-1]
             return -1

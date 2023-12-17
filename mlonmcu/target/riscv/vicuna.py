@@ -25,14 +25,12 @@ from tempfile import TemporaryDirectory
 import time
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
 
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.setup import utils
 from .riscv_vext_target import RVVTarget
-from .util import update_extensions
 
 logger = get_logger()
 

@@ -24,7 +24,6 @@ from pathlib import Path
 import tarfile
 from typing import Tuple
 
-from .backend import TVMBackend
 from .tvmrt import TVMRTBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat

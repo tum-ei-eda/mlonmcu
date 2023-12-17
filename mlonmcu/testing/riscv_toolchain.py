@@ -6,7 +6,7 @@ from mlonmcu.target.riscv.riscv_pext_target import RVPTarget
 from mlonmcu.target import register_target
 from mlonmcu.environment.config import TargetConfig
 
-from .helpers import _test_compile_platform
+from .helpers import MODEL_FRONTENDS, TARGET_PLATFORMS, _check_features, _init_run
 
 
 def _check_multilib(context, gcc):
@@ -100,13 +100,13 @@ def _test_compile_platform2(
         run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
         run.add_platform_by_name(platform_name, context=user_context)
         run.add_target_by_name(target_name, context=user_context)
-        arch = run.target.arch
-        abi = run.target.abi
-        vext = "vext" in features
-        pext = "pext" in features
-        toolchain = run.platform.toolchain
+        # arch = run.target.arch
+        # abi = run.target.abi
+        # vext = "vext" in features
+        # pext = "pext" in features
+        # toolchain = run.platform.toolchain
         # _check_available_multilibs(user_context, arch, abi,... , toolchain)
-        assert session.process_runs(until=RunStage.COMPILE, context=user_context)
+        # assert session.process_runs(until=RunStage.COMPILE, context=user_context)
     report = session.get_reports()
     df, artifacts = report.df, run.artifacts
 

@@ -27,7 +27,7 @@ from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 
-from .common import _validate_gcc, get_task_factory
+from .common import get_task_factory
 
 logger = get_logger()
 

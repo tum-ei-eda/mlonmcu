@@ -600,6 +600,7 @@ int TVMWrap_Run()
     {
         TVMPlatformAbort(kTvmErrorPlatformCheckFailure);
     }
+    return 0;
 
 """
     else:

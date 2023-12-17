@@ -80,6 +80,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "garbage_collect": True,
         "fuse_ld": None,
         "strip_strings": False,
+        "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -93,7 +94,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         self.tempdir = None
         self.build_dir = None
-        self.goal = "generic_mlonmcu"
+
+    @property
+    def goal(self):
+        return self.config["goal"]
 
     def gen_data_artifact(self):
         in_paths = self.input_data_path
@@ -372,7 +376,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             )
         else:
             out, artifacts = self.compile(target, src=src, model=model)
-        elf_file = self.build_dir / "bin" / "generic_mlonmcu"
+        elf_file = self.build_dir / "bin" / self.goal
         map_file = self.build_dir / "linker.map"  # TODO: optional
         hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
         path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps

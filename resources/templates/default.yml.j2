@@ -31,19 +31,19 @@ paths:
 repos:
   tensorflow:
     url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: f050eec7e32a0895f7658db21a4bdbd0975087a5
+    ref: 93d4b1ccc6e0d1a9062acb1d79f21505daf9d940
   tvm:
     url: "https://github.com/apache/tvm.git"
     # ref: de6d8067754d746d88262c530b5241b5577b9aae
-    ref: 604b263dd5834f8bd96dc1876f4bad74100f692b
+    ref: a9fcac1a47f4b57c1d9d828c7ed1d77452b02cc5
     options:
       recursive: true
   tvm_extensions:
     url: "https://github.com/tum-ei-eda/tvm_extensions.git"
-    ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
+    ref: 859bbc89519b610d8adcdba0869d8b087887aabd
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
-    ref: c023b80a51c1b48ec62b9b092d047e9ac0bab3e8
+    ref: 71800396c2a07202265a8f92c85c33845a369494  # TODO: tag release
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
     ref: 40c0b920cf4072adf189211ca44291534355dcfd
@@ -54,19 +54,26 @@ repos:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
     ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
   cmsis:
-    url: "https://github.com/PhilippvK/CMSIS_5.git"
-    ref: ad1c3cad8f1240ef14a2c55381a78d792d76ec4d
+    # url: "https://github.com/PhilippvK/CMSIS_5.git"
+    url: "https://github.com/ARM-software/CMSIS_5.git"
+    ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
+    # ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
+  cmsisnn:
+    # url: "https://github.com/PhilippvK/CMSIS-NN.git"
+    url: "https://github.com/ARM-software/CMSIS-NN.git"
+    # ref: 35ce20560794ddc9e6d87006cad7a3bc665f8319  # v4.0.0 + portability patch
+    ref: 040da18234b597867bd54d736ca4ceae545b2853
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 711e7cf8ecfe67cdc09f963eb2db46a9da39de86
+    ref: c7b0e7364c232666ebd5a17476181e3ff9a71d70
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
-    ref: release/v4.4
+    ref: release/v4.4  # TODO: v5.2
     options:
       recursive: true
   microtvm_etiss:
     url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
-    ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
+    ref: b1e53bdae24bb35e53d7cdad2917a9090f7fa933
   microtvm_spike:
     url: "https://github.com/PhilippvK/microtvm-spike-template.git"
     ref: ffba460345f5b8682e2a6cb315699ff872c6221e
@@ -75,10 +82,10 @@ repos:
     ref: v3.2.0
   tflite_pack:
     url: "https://github.com/tum-ei-eda/tflite-pack.git"
-    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
+    ref: 2d31cafc941d3889b042af9c0a72b5f768ac4606
   layergen:
     url: "https://github.com/PhilippvK/ml-layer-gen.git"
-    ref: 7c56995616fb1c246cb889972fdbe46dd217d758
+    ref: 8d27988fe3a50838521e7c7fb42193da717c5830
   dtc:
     url: "https://github.com/dgibson/dtc.git"
     ref: main

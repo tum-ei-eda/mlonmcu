@@ -104,6 +104,7 @@
 <span class="sd">&quot;&quot;&quot;MLonMCU Target definitions&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
@@ -111,6 +112,7 @@
 
 
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">filter_none</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.feature</span> <span class="kn">import</span> <span class="n">Feature</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
@@ -142,14 +144,14 @@
 <span class="sd">        Optinal map of environment variables</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;benchmark&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;benchmark&quot;</span><span class="p">}</span>
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;repeat&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -167,6 +169,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">inspect_program_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--all&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># def init_directory(self, path=None, context=None):</span>
+    <span class="c1">#     # return False</span>
+    <span class="c1">#     assert path is not None</span>
+    <span class="c1">#         self.dir = Path(path)</span>
+    <span class="c1">#     self.dir.mkdir(exist_ok=True)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -191,6 +200,9 @@
             <span class="n">feature</span><span class="o">.</span><span class="n">add_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_callbacks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_callbacks</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">features</span></div>
 
+<div class="viewcode-block" id="Target.reconfigure"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.reconfigure">[docs]</a>    <span class="k">def</span> <span class="nf">reconfigure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
 <div class="viewcode-block" id="Target.exec"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.exec">[docs]</a>    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
@@ -198,6 +210,13 @@
 <div class="viewcode-block" id="Target.inspect"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.inspect">[docs]</a>    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to inspect a executable&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inspect_program</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">inspect_program_args</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Target.parse_exit"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.parse_exit">[docs]</a>    <span class="k">def</span> <span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">exit_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;MLONMCU EXIT: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exit_match</span><span class="p">:</span>
+            <span class="n">exit_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">exit_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">exit_code</span></div>
 
 <div class="viewcode-block" id="Target.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># This should not be accurate, just a fallback which should be overwritten</span>
@@ -224,15 +243,22 @@
         <span class="c1"># We only save the stdout and artifacts of the last execution</span>
         <span class="c1"># Callect metrics from all runs to aggregate them in a callback with high priority</span>
         <span class="n">artifacts_</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">total</span><span class="p">):</span>
-            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+        <span class="c1"># if self.dir is None:</span>
+        <span class="c1">#    self.dir = Path(</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">total</span><span class="p">):</span>
                 <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_callbacks</span><span class="p">:</span>
-                    <span class="n">callback</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
-                <span class="n">metrics_</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics_</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_callbacks</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts_</span><span class="p">)</span>
+                    <span class="n">callback</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">total</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">temp_dir_</span> <span class="o">=</span> <span class="n">temp_dir</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">temp_dir_</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="n">temp_dir_</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+                <span class="n">metrics_</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">temp_dir_</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics_</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_callbacks</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts_</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">artifacts_</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Collected target metrics for multiple runs. Please aggregate them in a callback!&quot;</span><span class="p">)</span>
@@ -288,14 +314,45 @@
 <div class="viewcode-block" id="Target.get_arch"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_arch">[docs]</a>    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
+<div class="viewcode-block" id="Target.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Target.add_platform_config"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.add_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_config</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div>
+
 <div class="viewcode-block" id="Target.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="Target.add_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.add_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">add_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
         <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Target.get_backend_config"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{}</span></div></div>
+<div class="viewcode-block" id="Target.get_backend_config"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Target.add_backend_config"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.add_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span>
+                <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="n">optimized_layouts</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="n">optimized_schedules</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># only allow overwriting non-none values</span>
+        <span class="c1"># to support accepting user-vars</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Target.get_hardware_details"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_hardware_details">[docs]</a>    <span class="k">def</span> <span class="nf">get_hardware_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;num-cores&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># TODO: overwrite for host_x86?</span>
+            <span class="s2">&quot;cache-line-bytes&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>  <span class="c1"># TODO: disable?</span>
+            <span class="s2">&quot;vector-unit-bytes&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>  <span class="c1"># TODO: disable?</span>
+            <span class="c1"># The following are GPU specific</span>
+            <span class="s2">&quot;max-shared-memory-per-block&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;max-local-memory-per-block&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;max-threads-per-block&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;max-vthread-extent&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;warp-size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span></div></div>
 </pre></div>
 
            </div>

@@ -110,7 +110,19 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.models.model</span> <span class="kn">import</span> <span class="n">ModelFormats</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.models.model</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ModelFormats</span><span class="p">,</span>
+    <span class="n">Model</span><span class="p">,</span>
+    <span class="n">ExampleProgram</span><span class="p">,</span>
+    <span class="n">EmbenchProgram</span><span class="p">,</span>
+    <span class="n">TaclebenchProgram</span><span class="p">,</span>
+    <span class="n">PolybenchProgram</span><span class="p">,</span>
+    <span class="n">CoremarkProgram</span><span class="p">,</span>
+    <span class="n">DhrystoneProgram</span><span class="p">,</span>
+    <span class="n">MathisProgram</span><span class="p">,</span>
+    <span class="n">MibenchProgram</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.models.lookup</span> <span class="kn">import</span> <span class="n">lookup_models</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span><span class="p">,</span> <span class="n">str2bool</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
@@ -124,15 +136,15 @@
 
 
 <div class="viewcode-block" id="Frontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend">[docs]</a><span class="k">class</span> <span class="nc">Frontend</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;validate&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;validate&quot;</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;use_inout_data&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="c1"># TODO: print_outputs for frontends</span>
     <span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">input_formats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_formats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -172,6 +184,9 @@
             <span class="n">supported</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">fmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_formats</span> <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">ins</span><span class="p">)</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span> <span class="ow">and</span> <span class="n">supported</span>
         <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="Frontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">lookup_models</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">frontends</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Frontend.process_features"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.process_features">[docs]</a>    <span class="k">def</span> <span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -337,7 +352,19 @@
             <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">:</span>
                 <span class="n">artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Frontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Frontend.add_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.add_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_config</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Frontend.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Frontend.add_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.add_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">add_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
+        <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="SimpleFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.SimpleFrontend">[docs]</a><span class="k">class</span> <span class="nc">SimpleFrontend</span><span class="p">(</span><span class="n">Frontend</span><span class="p">):</span>
@@ -369,7 +396,7 @@
 <span class="c1"># TODO: frontend parsed metadata instead of lookup.py?</span>
 <span class="c1"># TODO: how to find inout_data?</span>
 <div class="viewcode-block" id="TfLiteFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend">[docs]</a><span class="k">class</span> <span class="nc">TfLiteFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;visualize&quot;</span><span class="p">,</span> <span class="s2">&quot;split_layers&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;visualize&quot;</span><span class="p">,</span> <span class="s2">&quot;split_layers&quot;</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -379,7 +406,7 @@
         <span class="s2">&quot;pack_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -474,7 +501,10 @@
                     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">num_layers</span> <span class="o">=</span> <span class="n">get_num_layers</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
                     <span class="k">assert</span> <span class="n">num_layers</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="n">keep</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">keep</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">:</span>
+                            <span class="k">continue</span>
                         <span class="n">out_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;layer</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="n">out_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="o">/</span> <span class="n">out_name</span>
                         <span class="n">tflite_pack_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;-k&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">out_file</span><span class="p">]</span>
@@ -503,11 +533,11 @@
 
 
 <div class="viewcode-block" id="RelayFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.RelayFrontend">[docs]</a><span class="k">class</span> <span class="nc">RelayFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;relayviz&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;relayviz&quot;</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">&quot;visualize_graph&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;relayviz_plotter&quot;</span><span class="p">:</span> <span class="s2">&quot;term&quot;</span><span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -614,7 +644,7 @@
 
 
 <div class="viewcode-block" id="PackedFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend">[docs]</a><span class="k">class</span> <span class="nc">PackedFrontend</span><span class="p">(</span><span class="n">Frontend</span><span class="p">):</span>  <span class="c1"># Inherit from TFLiteFrontend? -&gt; how to do constructor?</span>
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;packing&quot;</span><span class="p">,</span> <span class="s2">&quot;packed&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;packing&quot;</span><span class="p">,</span> <span class="s2">&quot;packed&quot;</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -625,7 +655,7 @@
         <span class="s2">&quot;check&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Unimplemented</span>
     <span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;packer.exe&quot;</span><span class="p">]</span>  <span class="c1"># TODO move to feature?</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;packer.exe&quot;</span><span class="p">}</span>  <span class="c1"># TODO move to feature?</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;packed&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -711,8 +741,8 @@
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.tflite&quot;</span><span class="p">,</span>
             <span class="n">raw</span><span class="o">=</span><span class="n">tflite_data</span><span class="p">,</span>
             <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
-            <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_packed</span><span class="p">,</span>
             <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
+            <span class="n">optional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_packed</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">packed_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.tflm&quot;</span><span class="p">,</span>
@@ -729,14 +759,6 @@
 
 
 <div class="viewcode-block" id="ONNXFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.ONNXFrontend">[docs]</a><span class="k">class</span> <span class="nc">ONNXFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;onnx&quot;</span><span class="p">,</span>
@@ -747,14 +769,6 @@
 
 
 <div class="viewcode-block" id="PBFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PBFrontend">[docs]</a><span class="k">class</span> <span class="nc">PBFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;pb&quot;</span><span class="p">,</span>
@@ -765,14 +779,6 @@
 
 
 <div class="viewcode-block" id="PaddleFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PaddleFrontend">[docs]</a><span class="k">class</span> <span class="nc">PaddleFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;paddle&quot;</span><span class="p">,</span>
@@ -780,6 +786,511 @@
             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ExampleFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.ExampleFrontend">[docs]</a><span class="k">class</span> <span class="nc">ExampleFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;example&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;hello_world&quot;</span><span class="p">,</span> <span class="s2">&quot;foobar&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ExampleFrontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.ExampleFrontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;example/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">ExampleProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;example/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="ExampleFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.ExampleFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="ExampleFrontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.ExampleFrontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;example&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="EmbenchFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.EmbenchFrontend">[docs]</a><span class="k">class</span> <span class="nc">EmbenchFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;embench.src_dir&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;embench&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: automatic lookup</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;edn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;md5sum&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nettle-sha256&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nettle-aes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ud&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matmult-int&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aha-mont64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;huffbench&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cubic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nbody&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sglib-combined&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;crc32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;wikisort&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;slre&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qrduino&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;minver&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;picojpeg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tarfind&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;st&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nsichneu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;statemate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;primecount&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def skip_backend(self):</span>
+    <span class="c1">#     return True</span>
+
+<div class="viewcode-block" id="EmbenchFrontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.EmbenchFrontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;embench/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">EmbenchProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;embench/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="EmbenchFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.EmbenchFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="EmbenchFrontend.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.EmbenchFrontend.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;EMBENCH_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;embench.src_dir&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="EmbenchFrontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.EmbenchFrontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;embench&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="TaclebenchFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TaclebenchFrontend">[docs]</a><span class="k">class</span> <span class="nc">TaclebenchFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;taclebench.src_dir&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;taclebench&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: automatic lookup</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;test/test3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;test/cover&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;test/duff&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;app/powerwindow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;app/lift&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/deg2rad&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/matrix1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/binarysearch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/pm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/sha&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/filterbank&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/md5&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/fir2dim&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/fft&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/minver&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/lms&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/bitcount&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/st&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/bsort&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/bitonic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/iir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/prime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/jfdctint&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/recursion&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/complex_updates&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/cosf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/insertsort&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/fac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/rad2deg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/isqrt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/cubic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/ludcmp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/quicksort&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kernel/countnegative&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/epic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/huff_dec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/fmref&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/h264_dec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/dijkstra&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/adpcm_dec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/adpcm_enc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/gsm_dec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/rijndael_dec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/g723_enc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/huff_enc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/statemate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/susan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/gsm_enc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/ndes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/audiobeam&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/rijndael_enc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/cjpeg_transupp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/ammunition&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/mpeg2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/anagram&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/cjpeg_wrbmp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sequential/petrinet&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def skip_backend(self):</span>
+    <span class="c1">#     return True</span>
+
+<div class="viewcode-block" id="TaclebenchFrontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TaclebenchFrontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;taclebench/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">TaclebenchProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;taclebench/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="TaclebenchFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TaclebenchFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="TaclebenchFrontend.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TaclebenchFrontend.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;TACLEBENCH_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;taclebench.src_dir&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="TaclebenchFrontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TaclebenchFrontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;taclebench&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="PolybenchFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PolybenchFrontend">[docs]</a><span class="k">class</span> <span class="nc">PolybenchFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;polybench.src_dir&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;polybench&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: automatic lookup</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;linear-algebra/solvers/gramschmidt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/solvers/ludcmp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/solvers/trisolv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/solvers/durbin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/solvers/lu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/solvers/cholesky&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/kernels/atax&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/kernels/3mm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/kernels/mvt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/kernels/2mm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/kernels/bicg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/kernels/doitgen&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/blas/trmm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/blas/gemver&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/blas/syrk&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/blas/gesummv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/blas/syr2k&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/blas/symm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear-algebra/blas/gemm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stencils/fdtd-2d&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stencils/seidel-2d&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stencils/adi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stencils/jacobi-1d&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stencils/jacobi-2d&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stencils/heat-3d&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;datamining/covariance&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;datamining/correlation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;medley/deriche&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;medley/nussinov&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;medley/floyd-warshall&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def skip_backend(self):</span>
+    <span class="c1">#     return True</span>
+
+<div class="viewcode-block" id="PolybenchFrontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PolybenchFrontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;polybench/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">PolybenchProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;polybench/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="PolybenchFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PolybenchFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="PolybenchFrontend.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PolybenchFrontend.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;POLYBENCH_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;polybench.src_dir&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="PolybenchFrontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PolybenchFrontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;polybench&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="CoremarkFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CoremarkFrontend">[docs]</a><span class="k">class</span> <span class="nc">CoremarkFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;coremark&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;coremark&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="CoremarkFrontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CoremarkFrontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;coremark/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">CoremarkProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;coremark/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="CoremarkFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CoremarkFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="CoremarkFrontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CoremarkFrontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;coremark&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="DhrystoneFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.DhrystoneFrontend">[docs]</a><span class="k">class</span> <span class="nc">DhrystoneFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;dhrystone&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;dhrystone&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="DhrystoneFrontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.DhrystoneFrontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;dhrystone/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">DhrystoneProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;dhrystone/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="DhrystoneFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.DhrystoneFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="DhrystoneFrontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.DhrystoneFrontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dhrystone&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="MathisFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MathisFrontend">[docs]</a><span class="k">class</span> <span class="nc">MathisFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;mathis&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;to_upper&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;add8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;add16&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gather_add8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gather_add16&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;scatter_add8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;scatter_add16&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dot8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dot16&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;saxpy8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;saxpy16&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matmul8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matmul16&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matmul8_a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matmul16_a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transposed_matmul8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transposed_matmul16&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transposed_matmul8_a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transposed_matmul16_a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transposed_matmul8_b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transposed_matmul16_b&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="MathisFrontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MathisFrontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;mathis/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">MathisProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;mathis/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="MathisFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MathisFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="MathisFrontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MathisFrontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mathis&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="MibenchFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MibenchFrontend">[docs]</a><span class="k">class</span> <span class="nc">MibenchFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mibench.src_dir&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;mibench&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: automatic lookup</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;telecomm/FFT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;telecomm/CRC32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/susan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/basicmath&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/bitcount&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/qsort&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;security/sha&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;security/rijndael&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;network/dijkstra&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;office/stringsearch&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def skip_backend(self):</span>
+    <span class="c1">#     return True</span>
+
+<div class="viewcode-block" id="MibenchFrontend.lookup_models"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MibenchFrontend.lookup_models">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;mibench/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">MibenchProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;mibench/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="MibenchFrontend.generate"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MibenchFrontend.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="MibenchFrontend.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MibenchFrontend.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MIBENCH_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mibench.src_dir&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="MibenchFrontend.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MibenchFrontend.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mibench&quot;</span>
+
+        <span class="k">return</span> <span class="n">ret</span></div></div>
 
 
 <div class="viewcode-block" id="LayerGenFrontend"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.LayerGenFrontend">[docs]</a><span class="k">class</span> <span class="nc">LayerGenFrontend</span><span class="p">(</span><span class="n">Frontend</span><span class="p">):</span>
@@ -790,7 +1301,7 @@
         <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;tflite&quot;</span><span class="p">,</span>  <span class="c1"># TODO: relay</span>
     <span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;layergen.exe&quot;</span><span class="p">]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;layergen.exe&quot;</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>

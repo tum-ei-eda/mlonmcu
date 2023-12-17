@@ -136,7 +136,7 @@
 <div class="viewcode-block" id="EspIdfPlatform"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform">[docs]</a><span class="k">class</span> <span class="nc">EspIdfPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ESP-IDF Platform class.&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;benchmark&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;benchmark&quot;</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">CompilePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -150,7 +150,7 @@
         <span class="s2">&quot;flash_only&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;espidf.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;espidf.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf.src_dir&quot;</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>

@@ -66,6 +66,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.timeout">mlonmcu.timeout module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
@@ -136,22 +137,22 @@
 <p>A run is single model/backend/framework/target combination with a given set of features and configs.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'export_optional':</span> <span class="pre">False,</span> <span class="pre">'stage_subdirs':</span> <span class="pre">False,</span> <span class="pre">'target_to_backend':</span> <span class="pre">False,</span> <span class="pre">'tune_enabled':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'export_optional':</span> <span class="pre">False,</span> <span class="pre">'stage_subdirs':</span> <span class="pre">False,</span> <span class="pre">'target_optimized_layouts':</span> <span class="pre">False,</span> <span class="pre">'target_optimized_schedules':</span> <span class="pre">False,</span> <span class="pre">'target_to_backend':</span> <span class="pre">True,</span> <span class="pre">'tune_enabled':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['autotune',</span> <span class="pre">'target_optimized']</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'autotune',</span> <span class="pre">'target_optimized'}</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.OPTIONAL">
-<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.OPTIONAL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.OPTIONAL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.REQUIRED">
-<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.REQUIRED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.session.run.Run.REQUIRED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -168,7 +169,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_feature">
-<span class="sig-name descname"><span class="pre">add_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_feature" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_feature" title="Permalink to this definition"></a></dt>
 <dd><p>Setter for a feature instance.</p>
 </dd></dl>
 
@@ -198,7 +199,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_frontend">
-<span class="sig-name descname"><span class="pre">add_frontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frontend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_frontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_frontend" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_frontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frontend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_frontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_frontend" title="Permalink to this definition"></a></dt>
 <dd><p>Setter for the frontend instance.</p>
 </dd></dl>
 
@@ -210,7 +211,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_frontends">
-<span class="sig-name descname"><span class="pre">add_frontends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frontends</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_frontends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_frontends" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_frontends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frontends</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_frontends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_frontends" title="Permalink to this definition"></a></dt>
 <dd><p>Setter for the list of frontends.</p>
 </dd></dl>
 
@@ -234,7 +235,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_platform">
-<span class="sig-name descname"><span class="pre">add_platform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_platform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_platform" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_platform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_platform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_platform" title="Permalink to this definition"></a></dt>
 <dd><p>Setter for the platform instance.</p>
 </dd></dl>
 
@@ -246,7 +247,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_platforms">
-<span class="sig-name descname"><span class="pre">add_platforms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platforms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_platforms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_platforms" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_platforms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_platforms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_platforms" title="Permalink to this definition"></a></dt>
 <dd><p>Setter for the list of platforms.</p>
 </dd></dl>
 
@@ -258,7 +259,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.add_postprocess">
-<span class="sig-name descname"><span class="pre">add_postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">postprocess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_postprocess" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">postprocess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.add_postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.add_postprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Setter for a postprocess instance.</p>
 </dd></dl>
 
@@ -392,6 +393,11 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.get_reason_text">
+<span class="sig-name descname"><span class="pre">get_reason_text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.get_reason_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.get_reason_text" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.get_report">
 <span class="sig-name descname"><span class="pre">get_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.get_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.get_report" title="Permalink to this definition"></a></dt>
 <dd><p>Returns teh complete report of this run.</p>
@@ -440,11 +446,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.session.run.Run.pick_model_frontend">
-<span class="sig-name descname"><span class="pre">pick_model_frontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_hints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.pick_model_frontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.pick_model_frontend" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.postprocess">
 <span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#Run.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.Run.postprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Postprocess the ‘run’.</p>
@@ -478,6 +479,18 @@
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.stage_subdirs">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stage_subdirs</span></span><a class="headerlink" href="#mlonmcu.session.run.Run.stage_subdirs" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.target_optimized_layouts">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_optimized_layouts</span></span><a class="headerlink" href="#mlonmcu.session.run.Run.target_optimized_layouts" title="Permalink to this definition"></a></dt>
+<dd><p>Get target_optimized_layouts property.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.run.Run.target_optimized_schedules">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_optimized_schedules</span></span><a class="headerlink" href="#mlonmcu.session.run.Run.target_optimized_schedules" title="Permalink to this definition"></a></dt>
+<dd><p>Get target_optimized_schedules property.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.run.Run.target_platform">
@@ -577,6 +590,11 @@ on its properties at a later point in time.</p>
 
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.session.run.add_any">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.session.run.</span></span><span class="sig-name descname"><span class="pre">add_any</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/run.html#add_any"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.run.add_any" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-mlonmcu.session.session">
 <span id="mlonmcu-session-session-module"></span><h2>mlonmcu.session.session module<a class="headerlink" href="#module-mlonmcu.session.session" title="Permalink to this headline"></a></h2>
@@ -656,6 +674,16 @@ on its properties at a later point in time.</p>
 <span class="sig-name descname"><span class="pre">request_run_idx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/session.html#Session.request_run_idx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.session.Session.request_run_idx" title="Permalink to this definition"></a></dt>
 <dd><p>Return next free run index.</p>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.session.Session.runs_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runs_dir</span></span><a class="headerlink" href="#mlonmcu.session.session.Session.runs_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.session.Session.update_latest_run_symlink">
+<span class="sig-name descname"><span class="pre">update_latest_run_symlink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latest_run_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/session.html#Session.update_latest_run_symlink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.session.Session.update_latest_run_symlink" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

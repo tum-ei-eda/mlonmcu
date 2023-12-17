@@ -101,6 +101,10 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">ChainMap</span>
+
+<span class="n">NUM_GEN_ARGS</span> <span class="o">=</span> <span class="mi">9</span>
 
 
 <div class="viewcode-block" id="parse_var"><a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.parse_var">[docs]</a><span class="k">def</span> <span class="nf">parse_var</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
@@ -142,16 +146,32 @@
         <span class="n">features</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">feature</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;feature_gen&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">feature_gen</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">helper</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">gen</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">feature_gen</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-                <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">gen</span> <span class="o">=</span> <span class="p">[[]]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="n">feature_gen</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">feature_gen</span><span class="p">:</span>
+                <span class="n">gen</span> <span class="o">=</span> <span class="p">[[]]</span>
+                <span class="k">return</span> <span class="n">gen</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">feature_gen</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="p">[[]]</span>
+        <span class="k">return</span> <span class="n">gen</span>
+
+    <span class="n">gens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_GEN_ARGS</span><span class="p">):</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">helper</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;feature_gen&quot;</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">gens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+
+    <span class="n">gen</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[]),</span> <span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">gens</span><span class="p">))))</span>
+
     <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">gen</span></div>
 
 
@@ -161,17 +181,32 @@
         <span class="n">configs</span> <span class="o">=</span> <span class="n">parse_vars</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">configs</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;config_gen&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">config_gen</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">helper</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">gen</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">config_gen</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-                <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">parse_vars</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-                <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">gen</span> <span class="o">=</span> <span class="p">[{}]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="n">config_gen</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">config_gen</span><span class="p">:</span>
+                <span class="n">gen</span> <span class="o">=</span> <span class="p">[{}]</span>
+                <span class="k">return</span> <span class="n">gen</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">config_gen</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">parse_vars</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="p">[{}]</span>
+        <span class="k">return</span> <span class="n">gen</span>
+
+    <span class="n">gens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_GEN_ARGS</span><span class="p">):</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">helper</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;config_gen&quot;</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">gens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+
+    <span class="n">gen</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ChainMap</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)),</span> <span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">gens</span><span class="p">))))</span>
 
     <span class="k">return</span> <span class="n">configs</span><span class="p">,</span> <span class="n">gen</span></div>
 

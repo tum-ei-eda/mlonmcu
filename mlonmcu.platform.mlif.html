@@ -66,6 +66,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.timeout">mlonmcu.timeout module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
@@ -123,22 +124,22 @@
 <p>Model Library Interface Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'debug_symbols':</span> <span class="pre">False,</span> <span class="pre">'fail_on_error':</span> <span class="pre">False,</span> <span class="pre">'goal':</span> <span class="pre">'generic_mlonmcu',</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'input_data_path':</span> <span class="pre">None,</span> <span class="pre">'mem_only':</span> <span class="pre">False,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'output_data_path':</span> <span class="pre">None,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc',</span> <span class="pre">'verbose_makefile':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'debug_symbols':</span> <span class="pre">False,</span> <span class="pre">'fail_on_error':</span> <span class="pre">False,</span> <span class="pre">'fuse_ld':</span> <span class="pre">None,</span> <span class="pre">'garbage_collect':</span> <span class="pre">True,</span> <span class="pre">'goal':</span> <span class="pre">'generic_mlonmcu',</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'input_data_path':</span> <span class="pre">None,</span> <span class="pre">'lto':</span> <span class="pre">False,</span> <span class="pre">'mem_only':</span> <span class="pre">False,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'output_data_path':</span> <span class="pre">None,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'skip_check':</span> <span class="pre">False,</span> <span class="pre">'slim_cpp':</span> <span class="pre">True,</span> <span class="pre">'strip_strings':</span> <span class="pre">False,</span> <span class="pre">'template':</span> <span class="pre">'ml_interface',</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc',</span> <span class="pre">'verbose_makefile':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'validate',</span> <span class="pre">'muriscvnn',</span> <span class="pre">'cmsisnn',</span> <span class="pre">'muriscvnnbyoc',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'vext',</span> <span class="pre">'pext',</span> <span class="pre">'arm_mvei',</span> <span class="pre">'arm_dsp',</span> <span class="pre">'auto_vectorize',</span> <span class="pre">'benchmark',</span> <span class="pre">'xpulp']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arm_dsp',</span> <span class="pre">'arm_mvei',</span> <span class="pre">'auto_vectorize',</span> <span class="pre">'benchmark',</span> <span class="pre">'cmsisnn',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'debug',</span> <span class="pre">'muriscvnn',</span> <span class="pre">'muriscvnnbyoc',</span> <span class="pre">'pext',</span> <span class="pre">'validate',</span> <span class="pre">'vext',</span> <span class="pre">'xpulp'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.OPTIONAL">
-<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['llvm.install_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.OPTIONAL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'llvm.install_dir'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.OPTIONAL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.REQUIRED">
-<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['mlif.src_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'mlif.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -171,6 +172,16 @@
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fail_on_error</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.fail_on_error" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.fuse_ld">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fuse_ld</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.fuse_ld" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.garbage_collect">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">garbage_collect</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.garbage_collect" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.gen_data_artifact">
 <span class="sig-name descname"><span class="pre">gen_data_artifact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.gen_data_artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.gen_data_artifact" title="Permalink to this definition"></a></dt>
@@ -182,8 +193,13 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.get_common_cmake_args">
-<span class="sig-name descname"><span class="pre">get_common_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.get_common_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.get_common_cmake_args" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.get_cmake_args">
+<span class="sig-name descname"><span class="pre">get_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.get_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.get_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.get_definitions">
+<span class="sig-name descname"><span class="pre">get_definitions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.get_definitions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.get_definitions" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -214,6 +230,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.llvm_dir">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_dir</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.llvm_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.lto">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lto</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.lto" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -249,6 +270,26 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.prepare">
 <span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.prepare" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.skip_check">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">skip_check</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.skip_check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.slim_cpp">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">slim_cpp</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.slim_cpp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.strip_strings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strip_strings</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.strip_strings" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.mlif.MlifPlatform.template">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.mlif.MlifPlatform.template" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -319,22 +360,22 @@
 <p>Model Library Interface Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'debug_symbols':</span> <span class="pre">False,</span> <span class="pre">'fail_on_error':</span> <span class="pre">False,</span> <span class="pre">'goal':</span> <span class="pre">'generic_mlonmcu',</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'input_data_path':</span> <span class="pre">None,</span> <span class="pre">'mem_only':</span> <span class="pre">False,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'output_data_path':</span> <span class="pre">None,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc',</span> <span class="pre">'verbose_makefile':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'debug_symbols':</span> <span class="pre">False,</span> <span class="pre">'fail_on_error':</span> <span class="pre">False,</span> <span class="pre">'fuse_ld':</span> <span class="pre">None,</span> <span class="pre">'garbage_collect':</span> <span class="pre">True,</span> <span class="pre">'goal':</span> <span class="pre">'generic_mlonmcu',</span> <span class="pre">'ignore_data':</span> <span class="pre">True,</span> <span class="pre">'input_data_path':</span> <span class="pre">None,</span> <span class="pre">'lto':</span> <span class="pre">False,</span> <span class="pre">'mem_only':</span> <span class="pre">False,</span> <span class="pre">'model_support_dir':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'output_data_path':</span> <span class="pre">None,</span> <span class="pre">'prebuild_lib_path':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'skip_check':</span> <span class="pre">False,</span> <span class="pre">'slim_cpp':</span> <span class="pre">True,</span> <span class="pre">'strip_strings':</span> <span class="pre">False,</span> <span class="pre">'template':</span> <span class="pre">'ml_interface',</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc',</span> <span class="pre">'verbose_makefile':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.DEFAULTS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['debug',</span> <span class="pre">'validate',</span> <span class="pre">'muriscvnn',</span> <span class="pre">'cmsisnn',</span> <span class="pre">'muriscvnnbyoc',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'vext',</span> <span class="pre">'pext',</span> <span class="pre">'arm_mvei',</span> <span class="pre">'arm_dsp',</span> <span class="pre">'auto_vectorize',</span> <span class="pre">'benchmark',</span> <span class="pre">'xpulp']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arm_dsp',</span> <span class="pre">'arm_mvei',</span> <span class="pre">'auto_vectorize',</span> <span class="pre">'benchmark',</span> <span class="pre">'cmsisnn',</span> <span class="pre">'cmsisnnbyoc',</span> <span class="pre">'debug',</span> <span class="pre">'muriscvnn',</span> <span class="pre">'muriscvnnbyoc',</span> <span class="pre">'pext',</span> <span class="pre">'validate',</span> <span class="pre">'vext',</span> <span class="pre">'xpulp'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.FEATURES" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.OPTIONAL">
-<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['llvm.install_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.OPTIONAL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'llvm.install_dir'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.OPTIONAL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.REQUIRED">
-<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['mlif.src_dir']</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'mlif.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.REQUIRED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -367,6 +408,16 @@
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fail_on_error</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.fail_on_error" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.fuse_ld">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fuse_ld</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.fuse_ld" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.garbage_collect">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">garbage_collect</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.garbage_collect" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.gen_data_artifact">
 <span class="sig-name descname"><span class="pre">gen_data_artifact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.gen_data_artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.gen_data_artifact" title="Permalink to this definition"></a></dt>
@@ -378,8 +429,13 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.get_common_cmake_args">
-<span class="sig-name descname"><span class="pre">get_common_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.get_common_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.get_common_cmake_args" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.get_cmake_args">
+<span class="sig-name descname"><span class="pre">get_cmake_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.get_cmake_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.get_cmake_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.get_definitions">
+<span class="sig-name descname"><span class="pre">get_definitions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.get_definitions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.get_definitions" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -410,6 +466,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.llvm_dir">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_dir</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.llvm_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.lto">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lto</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.lto" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -445,6 +506,26 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.prepare">
 <span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/mlif/mlif.html#MlifPlatform.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.prepare" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.skip_check">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">skip_check</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.skip_check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.slim_cpp">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">slim_cpp</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.slim_cpp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.strip_strings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strip_strings</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.strip_strings" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.mlif.MlifPlatform.template">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#mlonmcu.platform.mlif.MlifPlatform.template" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

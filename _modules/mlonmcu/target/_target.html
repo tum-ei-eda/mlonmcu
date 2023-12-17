@@ -98,7 +98,18 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">.riscv</span> <span class="kn">import</span> <span class="n">EtissPulpinoTarget</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">,</span> <span class="n">RiscvQemuTarget</span><span class="p">,</span> <span class="n">GvsocPulpTarget</span><span class="p">,</span> <span class="n">AraTarget</span>
+<span class="kn">from</span> <span class="nn">.riscv</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EtissPulpinoTarget</span><span class="p">,</span>
+    <span class="n">SpikeTarget</span><span class="p">,</span>
+    <span class="n">OVPSimTarget</span><span class="p">,</span>
+    <span class="n">COREVOVPSimTarget</span><span class="p">,</span>
+    <span class="n">RiscvQemuTarget</span><span class="p">,</span>
+    <span class="n">GvsocPulpTarget</span><span class="p">,</span>
+    <span class="n">EtissTarget</span><span class="p">,</span>
+    <span class="n">AraTarget</span><span class="p">,</span>
+    <span class="n">CV32E40PTarget</span><span class="p">,</span>
+    <span class="n">VicunaTarget</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.arm</span> <span class="kn">import</span> <span class="n">Corstone300Target</span>
 <span class="kn">from</span> <span class="nn">.host_x86</span> <span class="kn">import</span> <span class="n">HostX86Target</span>
 
@@ -118,13 +129,17 @@
 
 
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">EtissPulpinoTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">EtissTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">,</span> <span class="n">Corstone300Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span> <span class="n">COREVOVPSimTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;riscv_qemu&quot;</span><span class="p">,</span> <span class="n">RiscvQemuTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">,</span> <span class="n">GvsocPulpTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;ara&quot;</span><span class="p">,</span> <span class="n">AraTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;cv32e40p&quot;</span><span class="p">,</span> <span class="n">CV32E40PTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;vicuna&quot;</span><span class="p">,</span> <span class="n">VicunaTarget</span><span class="p">)</span>
 </pre></div>
 
            </div>

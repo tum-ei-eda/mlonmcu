@@ -224,12 +224,13 @@
         <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="RenameColumnsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">RenameColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
+<div class="viewcode-block" id="RenameColumnsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">RenameColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can rename columns based on a provided mapping.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;mapping&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;merge&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -242,32 +243,80 @@
             <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;merge&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
 <div class="viewcode-block" id="RenameColumnsPostprocess.post_session"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.post_session">[docs]</a>    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">values</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;rename_cols: non unique mapping found. use merge=True to avoid overwriting values.&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">df</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)]</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">merge</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+
         <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">main_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span>
-        <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span></div></div>
+        <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">main_df</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Features2ColumnsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">Features2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can be used to transform (explode) the &#39;Features&#39; Column</span>
 <span class="sd">    in a dataframe for easier filtering.&quot;&quot;&quot;</span>
 
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;drop&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;features2cols&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get limit property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="Features2ColumnsPostprocess.post_session"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess.post_session">[docs]</a>    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
         <span class="k">if</span> <span class="s2">&quot;Features&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">return</span>
+        <span class="n">to_concat</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">&quot;feature_&quot;</span> <span class="o">+</span> <span class="n">feature_name</span><span class="p">:</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">x</span><span class="p">}))</span>
+            <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+            <span class="k">if</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_concat</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
         <span class="n">feature_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">&quot;feature_&quot;</span> <span class="o">+</span> <span class="n">feature_name</span><span class="p">:</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">x</span><span class="p">}))</span>
-                <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
-            <span class="p">],</span>
+            <span class="n">to_concat</span><span class="p">,</span>
             <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop</span><span class="p">:</span>
+            <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Features&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">df</span>
         <span class="n">new_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">tmp_df</span><span class="p">,</span> <span class="n">feature_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">new_df</span></div></div>
 
@@ -277,7 +326,8 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;drop&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -285,31 +335,155 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get limit property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="Config2ColumnsPostprocess.post_session"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess.post_session">[docs]</a>    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
         <span class="k">if</span> <span class="s2">&quot;Config&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">config_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Config&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s2">&quot;config_&quot;</span><span class="p">)</span>
-        <span class="n">keep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span>
-        <span class="k">if</span> <span class="n">keep</span><span class="p">:</span>
-            <span class="n">keep_cols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;config_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">config_df</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keep_cols</span><span class="p">:</span>
-                    <span class="c1"># if not col.startswith(&quot;config_&quot;):</span>
-                    <span class="c1">#     continue</span>
-                    <span class="n">config_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Config&quot;</span><span class="p">])</span>
+        <span class="n">config_df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Config&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">})</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s2">&quot;config_&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop</span><span class="p">:</span>
+            <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Config&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">df</span>
         <span class="n">new_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">tmp_df</span><span class="p">,</span> <span class="n">config_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">new_df</span></div></div>
+
+
+<div class="viewcode-block" id="MyPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MyPostprocess">[docs]</a><span class="k">class</span> <span class="nc">MyPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;mypost&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config2cols</span> <span class="o">=</span> <span class="n">Config2ColumnsPostprocess</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;config2cols.limit&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;tvmllvm.desired_layout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmaot.desired_layout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmaotplus.desired_layout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmrt.desired_layout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;xcorev.mem&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;xcorev.mac&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;xcorev.bi&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;xcorev.alu&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;xcorev.bitmanip&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;xcorev.simd&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;xcorev.hwlp&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;cv32e40p.fpu&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;etiss.fpu&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;corev_ovpsim.fpu&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmaot.disabled_passes&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmaotplus.disabled_passes&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmrt.disabled_passes&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmllvm.disabled_passes&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;auto_vectorize.loop&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;auto_vectorize.slp&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;auto_vectorize.force_vector_width&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;auto_vectorize.force_vector_interleave&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;auto_vectorize.custom_unroll&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmllvm.target_keys&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmrt.target_keys&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmaot.target_keys&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tvmaotplus.target_keys&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;autotuned.mode&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;config2cols.drop&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename_cols</span> <span class="o">=</span> <span class="n">RenameColumnsPostprocess</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;rename_cols.mapping&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;config_tvmllvm.desired_layout&quot;</span><span class="p">:</span> <span class="s2">&quot;Layout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmaot.desired_layout&quot;</span><span class="p">:</span> <span class="s2">&quot;Layout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmaotplus.desired_layout&quot;</span><span class="p">:</span> <span class="s2">&quot;Layout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmrt.desired_layout&quot;</span><span class="p">:</span> <span class="s2">&quot;Layout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_xcorev.mem&quot;</span><span class="p">:</span> <span class="s2">&quot;XCVMem&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_xcorev.mac&quot;</span><span class="p">:</span> <span class="s2">&quot;XCVMac&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_xcorev.bi&quot;</span><span class="p">:</span> <span class="s2">&quot;XCVBi&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_xcorev.alu&quot;</span><span class="p">:</span> <span class="s2">&quot;XCVAlu&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_xcorev.bitmanip&quot;</span><span class="p">:</span> <span class="s2">&quot;XCVBitmanip&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_xcorev.simd&quot;</span><span class="p">:</span> <span class="s2">&quot;XCVSimd&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_xcorev.hwlp&quot;</span><span class="p">:</span> <span class="s2">&quot;XCVHwlp&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;feature_autotuned&quot;</span><span class="p">:</span> <span class="s2">&quot;Autotuned&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;feature_debug&quot;</span><span class="p">:</span> <span class="s2">&quot;Debug&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_cv32e40p.fpu&quot;</span><span class="p">:</span> <span class="s2">&quot;FPU&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_etiss.fpu&quot;</span><span class="p">:</span> <span class="s2">&quot;FPU&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_corev_ovpsim.fpu&quot;</span><span class="p">:</span> <span class="s2">&quot;FPU&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmaot.disabled_passes&quot;</span><span class="p">:</span> <span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmaotplus.disabled_passes&quot;</span><span class="p">:</span> <span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmrt.disabled_passes&quot;</span><span class="p">:</span> <span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmllvm.disabled_passes&quot;</span><span class="p">:</span> <span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_auto_vectorize.loop&quot;</span><span class="p">:</span> <span class="s2">&quot;Loop&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_auto_vectorize.slp&quot;</span><span class="p">:</span> <span class="s2">&quot;Slp&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_auto_vectorize.force_vector_width&quot;</span><span class="p">:</span> <span class="s2">&quot;FVW&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_auto_vectorize.force_vector_interleave&quot;</span><span class="p">:</span> <span class="s2">&quot;FVI&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_auto_vectorize.custom_unroll&quot;</span><span class="p">:</span> <span class="s2">&quot;Unroll&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmllvm.target_keys&quot;</span><span class="p">:</span> <span class="s2">&quot;Keys&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmrt.target_keys&quot;</span><span class="p">:</span> <span class="s2">&quot;Keys&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmaot.target_keys&quot;</span><span class="p">:</span> <span class="s2">&quot;Keys&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_tvmaotplus.target_keys&quot;</span><span class="p">:</span> <span class="s2">&quot;Keys&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;config_autotuned.mode&quot;</span><span class="p">:</span> <span class="s2">&quot;Tuner&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features2cols</span> <span class="o">=</span> <span class="n">Features2ColumnsPostprocess</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;features2cols.limit&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;autotuned&quot;</span><span class="p">,</span> <span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="s2">&quot;auto_vectorize&quot;</span><span class="p">,</span> <span class="s2">&quot;target_optimized&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;features2cols.drop&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_cols</span> <span class="o">=</span> <span class="n">FilterColumnsPostprocess</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;filter_cols.drop&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;Postprocesses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Framework&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Platform&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Session&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ROM read-only&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ROM code&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ROM misc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RAM data&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RAM zero-init data&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Run Stage Time [s]&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Compile Stage Time [s]&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Workspace Size [B]&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Build Stage Time [s]&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Load Stage Time [s]&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;feature_auto_vectorize&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;feature_target_optimized&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Setup Cycles&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Setup Instructions&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Setup CPI&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="MyPostprocess.post_session"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MyPostprocess.post_session">[docs]</a>    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config2cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features2cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename_cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PassConfig2ColumnsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">PassConfig2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
@@ -439,7 +613,14 @@
 <div class="viewcode-block" id="AnalyseInstructionsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">AnalyseInstructionsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Counting specific types of instructions.&quot;&quot;&quot;</span>
 
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;sequences&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;sequences&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;to_df&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;analyse_instructions&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -461,6 +642,18 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;get sequences property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_df property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_df&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_file property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
 <div class="viewcode-block" id="AnalyseInstructionsPostprocess.post_run"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.post_run">[docs]</a>    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
         <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -468,8 +661,8 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">log_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;To use analyse_instructions process, please enable feature log_instrs.&quot;</span>
         <span class="n">log_artifact</span> <span class="o">=</span> <span class="n">log_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">is_spike</span> <span class="o">=</span> <span class="s2">&quot;spike&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span>
-        <span class="n">is_etiss</span> <span class="o">=</span> <span class="s2">&quot;etiss_pulpino&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span>
-        <span class="n">is_ovpsim</span> <span class="o">=</span> <span class="s2">&quot;ovpsim&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span>
+        <span class="n">is_etiss</span> <span class="o">=</span> <span class="s2">&quot;etiss_pulpino&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span> <span class="ow">or</span> <span class="s2">&quot;etiss&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span>
+        <span class="n">is_ovpsim</span> <span class="o">=</span> <span class="s2">&quot;ovpsim&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span> <span class="ow">or</span> <span class="s2">&quot;corev_ovpsim&quot;</span> <span class="ow">in</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">flags</span>
         <span class="n">is_riscv</span> <span class="o">=</span> <span class="n">is_spike</span> <span class="ow">or</span> <span class="n">is_etiss</span> <span class="ow">or</span> <span class="n">is_ovpsim</span>
         <span class="k">if</span> <span class="n">is_spike</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">content</span>
@@ -587,7 +780,13 @@
             <span class="n">major_counts</span><span class="p">,</span> <span class="n">major_probs</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">majors</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
             <span class="n">majors_csv</span> <span class="o">=</span> <span class="n">_gen_csv</span><span class="p">(</span><span class="s2">&quot;Major&quot;</span><span class="p">,</span> <span class="n">major_counts</span><span class="p">,</span> <span class="n">major_probs</span><span class="p">)</span>
             <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;analyse_instructions_majors.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">majors_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
-            <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+                <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;AnalyseInstructionsMajorsCounts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">major_counts</span><span class="p">)</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;AnalyseInstructionsMajorsProbs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">major_probs</span><span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span><span class="p">:</span>
             <span class="n">max_len</span> <span class="o">=</span> <span class="mi">3</span>
 
@@ -605,7 +804,14 @@
                 <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;analyse_instructions_seq</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">sequence_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
                 <span class="p">)</span>
-                <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                    <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+                    <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">post_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;AnalyseInstructionsSeq</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">Counts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+                    <span class="n">post_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;AnalyseInstructionsSeq</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">Probs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
+                    <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">,</span> <span class="s2">&quot;Either to_file or to_df have to be true&quot;</span>
         <span class="k">return</span> <span class="n">ret_artifacts</span></div></div>
 
 
@@ -670,14 +876,14 @@
         <span class="k">if</span> <span class="n">group_by</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">group_by</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pre_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;Run&quot;</span><span class="p">]</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pre_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">post_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">group_by</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pre_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">post_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">group_by</span><span class="p">),</span> <span class="s2">&quot;Cols mssing in df&quot;</span>
         <span class="n">to_compare</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_compare</span>
         <span class="k">if</span> <span class="n">to_compare</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">to_compare</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">main_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_compare</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="n">main_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">to_compare</span><span class="p">)</span>
         <span class="n">full_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pre_df</span><span class="p">,</span> <span class="n">main_df</span><span class="p">,</span> <span class="n">post_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">grouped</span> <span class="o">=</span> <span class="n">full_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">group_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="n">full_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">group_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">new_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">to_compare</span><span class="p">:</span>
 
@@ -700,6 +906,402 @@
             <span class="n">new_df</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new</span>
         <span class="n">main_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">main_df</span><span class="p">,</span> <span class="n">new_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">main_df</span> <span class="o">=</span> <span class="n">main_df</span></div></div>
+
+
+<div class="viewcode-block" id="AnalyseDumpPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseDumpPostprocess">[docs]</a><span class="k">class</span> <span class="nc">AnalyseDumpPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Counting static instructions.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;to_df&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;analyse_dump&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_df property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_df&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_file property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="AnalyseDumpPostprocess.post_run"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseDumpPostprocess.post_run">[docs]</a>    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
+        <span class="n">platform</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">[</span><span class="s2">&quot;Platform&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">&quot;mlif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dump_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span>
+            <span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;generic_mlonmcu.dump&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">dump_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;To use analyse_dump postprocess, please set mlif.enable_asmdump=1&quot;</span>
+        <span class="n">dump_artifact</span> <span class="o">=</span> <span class="n">dump_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">is_llvm</span> <span class="o">=</span> <span class="s2">&quot;llvm&quot;</span> <span class="ow">in</span> <span class="n">dump_artifact</span><span class="o">.</span><span class="n">flags</span>
+        <span class="k">assert</span> <span class="n">is_llvm</span><span class="p">,</span> <span class="s2">&quot;Non-llvm objdump currently unsupported&quot;</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">dump_artifact</span><span class="o">.</span><span class="n">content</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">splitted</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitted</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">insn</span> <span class="o">=</span> <span class="n">splitted</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">splitted</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;cv.&quot;</span> <span class="ow">in</span> <span class="n">insn</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">and</span> <span class="s2">&quot;)&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(.*)\((.*)\)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="n">g</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+                        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+                        <span class="n">offset</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="n">g</span>
+                        <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;ri&quot;</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">offset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                            <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;rr&quot;</span>
+                        <span class="n">insn</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="k">if</span> <span class="s2">&quot;!&quot;</span> <span class="ow">in</span> <span class="n">base</span><span class="p">:</span>
+                            <span class="n">insn</span> <span class="o">+=</span> <span class="s2">&quot;_inc&quot;</span>
+            <span class="k">if</span> <span class="n">insn</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">insn</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">insn</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">counts_csv</span> <span class="o">=</span> <span class="s2">&quot;Instruction,Count,Probability</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">insn</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">insn</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="o">/</span><span class="n">total</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dump_counts.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">counts_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+            <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+            <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;DumpCounts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">,</span> <span class="s2">&quot;Either to_file or to_df have to be true&quot;</span>
+        <span class="k">return</span> <span class="n">ret_artifacts</span></div></div>
+
+
+<div class="viewcode-block" id="AnalyseCoreVCountsPostprocess"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseCoreVCountsPostprocess">[docs]</a><span class="k">class</span> <span class="nc">AnalyseCoreVCountsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Counting static instructions.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;to_df&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;analyse_corev_counts&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_df property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_df&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_file property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="AnalyseCoreVCountsPostprocess.post_run"><a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseCoreVCountsPostprocess.post_run">[docs]</a>    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
+        <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">count_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dump_counts.csv&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">count_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;To use analyse_corev_counts postprocess, analyse_dump needs to run first.&quot;</span>
+        <span class="n">count_artifact</span> <span class="o">=</span> <span class="n">count_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">count_artifact</span><span class="o">.</span><span class="n">content</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">XCVMAC_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cv.mac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.msu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.mulun&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.mulhhun&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.mulsn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.mulhhsn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.mulurn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.mulhhurn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.mulsrn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.mulhhsrn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.macun&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.machhun&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.macsn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.machhsn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.macurn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.machhurn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.macsrn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.machhsrn&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">XCVMEM_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cv.lb_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lbu_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lh_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lhu_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lw_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lb_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lbu_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lh_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lhu_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lw_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lb_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lbu_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lh_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lhu_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lw_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lb_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lbu_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lh_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lhu_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lw_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lb_rr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lbu_rr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lh_rr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lhu_rr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.lw_rr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sb_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sh_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sw_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sb_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sh_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sw_ri_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sb_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sh_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sw_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sb_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sh_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sw_rr_inc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sb_rr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sh_rr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sw_rr&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">XCVBI_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cv.bneimm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.beqimm&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">XCVALU_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cv.slet&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.min&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.addnr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.addunr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.addn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.maxu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.subun&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.extbz&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.addun&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.clip&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.clipu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.subn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.max&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.extbs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.abs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.addurn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.exths&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.exthz&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.minu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sletu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.suburn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.addrn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.clipur&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.subrn&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">XCVBITMANIP_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cv.ror&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.clb&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">XCVSIMD_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cv.add.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.add.sc.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.add.sc.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.add.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.and.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.and.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.and.sc.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.and.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpeq.sc.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpge.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpgtu.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmplt.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpltu.sci.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpne.sc.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpne.sci.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.extract.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.extract.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.extractu.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.extractu.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.insert.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.max.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.max.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.maxu.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.or.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.or.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.pack&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.packhi.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.packlo.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.shuffle2.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.shuffle2.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.shufflei0.sci.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sll.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sra.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sra.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.srl.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.srl.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sub.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sub.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.xor.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.xor.sci.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.add.sci.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpeq.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpgtu.sc.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpleu.sc.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sdotup.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sdotup.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.shuffle.sci.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.xor.sc.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.xor.sc.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sdotsp.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.cmpeq.sci.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.and.sci.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.dotsp.h&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.dotsp.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.sdotsp.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.add.b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.dotup.sci.b&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">XCVHWLP_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cv.count&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.counti&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.starti&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.endi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.setup&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cv.setupi&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">unknowns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cv_ext_totals</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;XCVMac&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">XCVMAC_INSNS</span><span class="p">),</span>
+            <span class="s2">&quot;XCVMem&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">XCVMEM_INSNS</span><span class="p">),</span>
+            <span class="s2">&quot;XCVBi&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">XCVBI_INSNS</span><span class="p">),</span>
+            <span class="s2">&quot;XCVAlu&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">XCVALU_INSNS</span><span class="p">),</span>
+            <span class="s2">&quot;XCVBitmanip&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">XCVBITMANIP_INSNS</span><span class="p">),</span>
+            <span class="s2">&quot;XCVSimd&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">XCVSIMD_INSNS</span><span class="p">),</span>
+            <span class="s2">&quot;XCVHwlp&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">XCVHWLP_INSNS</span><span class="p">),</span>
+            <span class="s2">&quot;Unknown&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">cv_ext_counts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;XCVMac&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVMem&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVBi&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVAlu&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVBitmanip&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVSimd&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVHwlp&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;Unknown&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">cv_ext_unique_counts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;XCVMac&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVMem&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVBi&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVAlu&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVBitmanip&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVSimd&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;XCVHwlp&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;Unknown&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">total_counts</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">cv_counts_csv</span> <span class="o">=</span> <span class="s2">&quot;Instruction,Count,Probability</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">cv_counts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="s2">&quot;cv.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">cv_counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">splitted</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitted</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+            <span class="n">insn</span> <span class="o">=</span> <span class="n">splitted</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">splitted</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">cv_counts</span><span class="p">[</span><span class="n">insn</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+            <span class="n">total_counts</span> <span class="o">+=</span> <span class="n">count</span>
+            <span class="k">if</span> <span class="n">insn</span> <span class="ow">in</span> <span class="n">XCVMAC_INSNS</span><span class="p">:</span>
+                <span class="n">cv_ext_counts</span><span class="p">[</span><span class="s2">&quot;XCVMac&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">cv_ext_unique_counts</span><span class="p">[</span><span class="s2">&quot;XCVMac&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">insn</span> <span class="ow">in</span> <span class="n">XCVMEM_INSNS</span><span class="p">:</span>
+                <span class="n">cv_ext_counts</span><span class="p">[</span><span class="s2">&quot;XCVMem&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">cv_ext_unique_counts</span><span class="p">[</span><span class="s2">&quot;XCVMem&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">insn</span> <span class="ow">in</span> <span class="n">XCVBI_INSNS</span><span class="p">:</span>
+                <span class="n">cv_ext_counts</span><span class="p">[</span><span class="s2">&quot;XCVBi&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">cv_ext_unique_counts</span><span class="p">[</span><span class="s2">&quot;XCVBi&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">insn</span> <span class="ow">in</span> <span class="n">XCVALU_INSNS</span><span class="p">:</span>
+                <span class="n">cv_ext_counts</span><span class="p">[</span><span class="s2">&quot;XCVAlu&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">cv_ext_unique_counts</span><span class="p">[</span><span class="s2">&quot;XCVAlu&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">insn</span> <span class="ow">in</span> <span class="n">XCVBITMANIP_INSNS</span><span class="p">:</span>
+                <span class="n">cv_ext_counts</span><span class="p">[</span><span class="s2">&quot;XCVBitmanip&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">cv_ext_unique_counts</span><span class="p">[</span><span class="s2">&quot;XCVBitmanip&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">insn</span> <span class="ow">in</span> <span class="n">XCVSIMD_INSNS</span><span class="p">:</span>
+                <span class="n">cv_ext_counts</span><span class="p">[</span><span class="s2">&quot;XCVSimd&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">cv_ext_unique_counts</span><span class="p">[</span><span class="s2">&quot;XCVSimd&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">insn</span> <span class="ow">in</span> <span class="n">XCVHWLP_INSNS</span><span class="p">:</span>
+                <span class="n">cv_ext_counts</span><span class="p">[</span><span class="s2">&quot;XCVHwlp&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">cv_ext_unique_counts</span><span class="p">[</span><span class="s2">&quot;XCVHwlp&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cv_ext_counts</span><span class="p">[</span><span class="s2">&quot;Unknown&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">cv_ext_unique_counts</span><span class="p">[</span><span class="s2">&quot;Unknown&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">insn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unknowns</span><span class="p">:</span>
+                    <span class="n">unknowns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">insn</span><span class="p">)</span>
+        <span class="n">cv_ext_totals</span><span class="p">[</span><span class="s2">&quot;Unknown&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unknowns</span><span class="p">)</span>
+        <span class="n">cv_ext_counts_csv</span> <span class="o">=</span> <span class="s2">&quot;Set,Count,Probability</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">ext</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cv_ext_counts</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">cv_ext_counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="o">/</span><span class="n">total_counts</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">cv_ext_unique_counts_csv</span> <span class="o">=</span> <span class="s2">&quot;Set,Used,Utilization</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">ext</span><span class="p">,</span> <span class="n">used</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cv_ext_unique_counts</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">used</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">rel</span> <span class="o">=</span> <span class="n">used</span> <span class="o">/</span> <span class="n">cv_ext_totals</span><span class="p">[</span><span class="n">ext</span><span class="p">]</span>
+            <span class="n">cv_ext_unique_counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">used</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">rel</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">used</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">cv_ext_unique_counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">totals</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">cv_ext_totals</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">used</span> <span class="o">/</span> <span class="n">totals</span>
+        <span class="n">cv_ext_unique_counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;XCVTotal,</span><span class="si">{</span><span class="n">used</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">rel</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">cv_counts_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;cv_counts.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">cv_counts_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+        <span class="n">cv_ext_counts_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;cv_ext_counts.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">cv_ext_counts_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+        <span class="n">cv_ext_unique_counts_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+            <span class="s2">&quot;cv_ext_unique_counts.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">cv_ext_unique_counts_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unknowns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unknown instructions found: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">unknowns</span><span class="p">)</span>
+            <span class="n">cv_ext_unknowns_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                <span class="s2">&quot;cv_ext_unknowns.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unknowns</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cv_ext_unknowns_artifact</span><span class="p">)</span>
+            <span class="c1"># TODO: logging</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+            <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cv_counts_artifact</span><span class="p">)</span>
+            <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cv_ext_counts_artifact</span><span class="p">)</span>
+            <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cv_ext_unique_counts_artifact</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+            <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;XCVCounts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cv_counts</span><span class="p">)</span>
+            <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;XCVExtCounts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cv_ext_counts</span><span class="p">)</span>
+            <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;XCVExtUniqueCounts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cv_ext_unique_counts</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">,</span> <span class="s2">&quot;Either to_file or to_df have to be true&quot;</span>
+        <span class="k">return</span> <span class="n">ret_artifacts</span></div></div>
 </pre></div>
 
            </div>

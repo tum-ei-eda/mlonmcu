@@ -126,14 +126,14 @@
 <div class="viewcode-block" id="Platform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.Platform">[docs]</a><span class="k">class</span> <span class="nc">Platform</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract platform class.&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -191,15 +191,7 @@
 
 
 <div class="viewcode-block" id="BuildPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.BuildPlatform">[docs]</a><span class="k">class</span> <span class="nc">BuildPlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract backend platform class.&quot;&quot;&quot;</span>
-
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">Platform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract build platform class.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">supports_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -218,15 +210,7 @@
 
 
 <div class="viewcode-block" id="TunePlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TunePlatform">[docs]</a><span class="k">class</span> <span class="nc">TunePlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract backend platform class.&quot;&quot;&quot;</span>
-
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">Platform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract tune platform class.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">supports_tune</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -269,7 +253,7 @@
 <div class="viewcode-block" id="CompilePlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform">[docs]</a><span class="k">class</span> <span class="nc">CompilePlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract compile platform class.&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;debug&quot;</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">Platform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -277,8 +261,6 @@
         <span class="s2">&quot;build_dir&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;num_threads&quot;</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="p">}</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">supports_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -291,7 +273,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_threads&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_threads&quot;</span><span class="p">]))</span>
 
 <div class="viewcode-block" id="CompilePlatform.get_metrics"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">):</span>
         <span class="n">static_mem</span> <span class="o">=</span> <span class="n">get_static_mem_usage</span><span class="p">(</span><span class="n">elf</span><span class="p">)</span>
@@ -339,14 +321,6 @@
 
 <div class="viewcode-block" id="TargetPlatform"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform">[docs]</a><span class="k">class</span> <span class="nc">TargetPlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract target platform class.&quot;&quot;&quot;</span>
-
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Platform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
-
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">Platform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="TargetPlatform.create_target"><a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.create_target">[docs]</a>    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>

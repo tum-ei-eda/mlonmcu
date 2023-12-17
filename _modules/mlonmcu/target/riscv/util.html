@@ -102,6 +102,14 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MLonMCU RISC-V utilities&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+
+<div class="viewcode-block" id="split_extensions"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.util.split_extensions">[docs]</a><span class="k">def</span> <span class="nf">split_extensions</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+    <span class="c1"># special case for non std conform zve32x/zve64x</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?:zve(?:32|64)x)|(?:[^xz_])|(?:x[^xz_]+)|(?:z[^xz_]+)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="sort_extensions_canonical"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.util.sort_extensions_canonical">[docs]</a><span class="k">def</span> <span class="nf">sort_extensions_canonical</span><span class="p">(</span><span class="n">extensions</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -123,6 +131,14 @@
         <span class="s2">&quot;T&quot;</span><span class="p">,</span>
         <span class="s2">&quot;P&quot;</span><span class="p">,</span>
         <span class="s2">&quot;V&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Z&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;XCVMAC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;XCVMEM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;XCVBI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;XCVALU&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;XCVBITMANIP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;XCVSIMD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;XCVHWLP&quot;</span><span class="p">,</span>
         <span class="s2">&quot;X&quot;</span><span class="p">,</span>
         <span class="s2">&quot;S&quot;</span><span class="p">,</span>
         <span class="s2">&quot;SX&quot;</span><span class="p">,</span>
@@ -171,52 +187,125 @@
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
-<div class="viewcode-block" id="update_extensions"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.util.update_extensions">[docs]</a><span class="k">def</span> <span class="nf">update_extensions</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="n">pext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pext_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">elen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embedded</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fpu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="n">exts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">require</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">pext</span> <span class="ow">and</span> <span class="s2">&quot;p&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
-        <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">variant</span> <span class="o">==</span> <span class="s2">&quot;xuantie&quot;</span><span class="p">:</span>
-            <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zpn&quot;</span><span class="p">)</span>
-            <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zpsfoperand&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">pext_spec</span> <span class="ow">and</span> <span class="n">pext_spec</span> <span class="o">&gt;</span> <span class="mf">0.96</span><span class="p">:</span>
-                <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zbpbo&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="update_extensions"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.util.update_extensions">[docs]</a><span class="k">def</span> <span class="nf">update_extensions</span><span class="p">(</span>
+    <span class="n">exts</span><span class="p">,</span>
+    <span class="n">embedded</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">compressed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">atomic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">multiply</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pext_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">vext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">elen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">embedded_vext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">vlen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">fpu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">minimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># ret = exts.copy()</span>
+    <span class="n">require</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">ignore_exts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;zifencei&quot;</span><span class="p">,</span> <span class="s2">&quot;zicsr&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;g&quot;</span><span class="p">:</span>
+            <span class="n">fpu</span> <span class="o">=</span> <span class="s2">&quot;double&quot;</span>
+            <span class="n">atomic</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">multiply</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">embedded</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;e&quot;</span><span class="p">:</span>
+            <span class="n">embedded</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">multiply</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span>
+            <span class="n">multiply</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">atomic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span>
+            <span class="n">atomic</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">compressed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
+            <span class="n">compressed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">fpu</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
+            <span class="n">fpu</span> <span class="o">=</span> <span class="s2">&quot;single&quot;</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">fpu</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+            <span class="n">fpu</span> <span class="o">=</span> <span class="s2">&quot;double&quot;</span>
+        <span class="k">elif</span> <span class="n">vext</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;v&quot;</span><span class="p">:</span>
+            <span class="n">vext</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">pext</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;p&quot;</span><span class="p">:</span>
+            <span class="n">pext</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">vlen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;zvl&quot;</span> <span class="ow">in</span> <span class="n">ext</span> <span class="ow">and</span> <span class="s2">&quot;sseg&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ext</span><span class="p">:</span>
+            <span class="n">vlen_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ext</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">vlen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vlen_</span> <span class="o">&gt;</span> <span class="n">vlen</span><span class="p">:</span>
+                <span class="n">vlen</span> <span class="o">=</span> <span class="n">vlen_</span>
+        <span class="k">elif</span> <span class="n">embedded_vext</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;zve&quot;</span> <span class="ow">in</span> <span class="n">ext</span><span class="p">:</span>
+            <span class="n">vext</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">embedded_vext</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">elen_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ext</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">elen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">elen_</span> <span class="o">&gt;</span> <span class="n">elen</span><span class="p">:</span>
+                <span class="n">elen</span> <span class="o">=</span> <span class="n">elen_</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">ignore_exts</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">embedded</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">atomic</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">multiply</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">compressed</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pext</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">vext</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">elen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">elen</span> <span class="o">=</span> <span class="mi">32</span>
         <span class="k">assert</span> <span class="n">elen</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported ELEN: </span><span class="si">{</span><span class="n">elen</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="n">elen</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>  <span class="c1"># Required to tell the compiler that EEW=64 is not allowed...</span>
-            <span class="k">if</span> <span class="n">embedded</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">embedded_vext</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">fpu</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;double&quot;</span><span class="p">,</span> <span class="s2">&quot;single&quot;</span><span class="p">]:</span>
-                    <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32f&quot;</span><span class="p">)</span>
+                    <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zve32f&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve32x&quot;</span><span class="p">)</span>
+                    <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zve32x&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span>
-                <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+                <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">elen</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">embedded</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">embedded_vext</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span><span class="p">:</span>
-                    <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve64d&quot;</span><span class="p">)</span>
+                    <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zve64d&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span><span class="p">:</span>
-                    <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve64f&quot;</span><span class="p">)</span>
+                    <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zve64f&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zve64x&quot;</span><span class="p">)</span>
+                    <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zve64x&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span>
-                <span class="n">require</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+                <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+        <span class="c1"># if vlen:</span>
+        <span class="c1">#     require.add(f&quot;zvl{vlen}b&quot;)</span>
 
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">minimal</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fpu</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;double&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">minimal</span><span class="p">:</span>
+            <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zicsr&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">atomic</span> <span class="ow">and</span> <span class="n">multiply</span> <span class="ow">and</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span><span class="p">:</span>
+            <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zifencei&quot;</span><span class="p">)</span>
+
+    <span class="n">ret</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">require</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
 <div class="viewcode-block" id="update_extensions_pulp"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.util.update_extensions_pulp">[docs]</a><span class="k">def</span> <span class="nf">update_extensions_pulp</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="n">xpulp_version</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">exts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">required</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">xpulp_version</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;xpulpv</span><span class="si">{</span><span class="n">xpulp_version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ret</span></div>
+        <span class="n">required</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;xpulpv</span><span class="si">{</span><span class="n">xpulp_version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">required</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

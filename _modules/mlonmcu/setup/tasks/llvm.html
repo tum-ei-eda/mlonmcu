@@ -104,6 +104,7 @@
 <span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.setup.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
@@ -138,13 +139,25 @@
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="k">if</span> <span class="s2">&quot;llvm.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
         <span class="c1"># TODO: WARNING</span>
-        <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span>
+        <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">llvmVersion</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.version&quot;</span><span class="p">,</span> <span class="s2">&quot;14.0.0&quot;</span><span class="p">)</span>
-        <span class="n">llvmDist</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.distribution&quot;</span><span class="p">,</span> <span class="s2">&quot;x86_64-linux-gnu-ubuntu-18.04&quot;</span><span class="p">)</span>
-        <span class="n">llvmUrl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">/&quot;</span>
-        <span class="n">llvmFileName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;clang+llvm-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">llvmDist</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">llvmArchive</span> <span class="o">=</span> <span class="n">llvmFileName</span> <span class="o">+</span> <span class="s2">&quot;.tar.xz&quot;</span>
+        <span class="c1"># TODO: share helper with riscv.py</span>
+        <span class="k">def</span> <span class="nf">_helper</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+            <span class="c1"># candidate_exts = [&quot;.zip&quot;, &quot;.tar&quot;]  # .tar.xz an .tar.gz also supported</span>
+            <span class="n">fullUrlSplit</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="n">llvmUrl</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fullUrlSplit</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">llvmFileName</span><span class="p">,</span> <span class="n">llvmFileExtension</span> <span class="o">=</span> <span class="n">fullUrlSplit</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">llvmUrl</span><span class="p">,</span> <span class="n">llvmFileName</span><span class="p">,</span> <span class="n">llvmFileExtension</span>
+
+        <span class="k">if</span> <span class="s2">&quot;llvm.dl_url&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+            <span class="n">llvmUrl</span><span class="p">,</span> <span class="n">llvmFileName</span><span class="p">,</span> <span class="n">llvmFileExtension</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.dl_url&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">llvmVersion</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.version&quot;</span><span class="p">,</span> <span class="s2">&quot;14.0.0&quot;</span><span class="p">)</span>
+            <span class="n">llvmDist</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.distribution&quot;</span><span class="p">,</span> <span class="s2">&quot;x86_64-linux-gnu-ubuntu-18.04&quot;</span><span class="p">)</span>
+            <span class="n">llvmUrl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="n">llvmFileName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;clang+llvm-</span><span class="si">{</span><span class="n">llvmVersion</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">llvmDist</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">llvmFileExtension</span> <span class="o">=</span> <span class="s2">&quot;tar.xz&quot;</span>
+        <span class="n">llvmArchive</span> <span class="o">=</span> <span class="n">llvmFileName</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">llvmFileExtension</span>
         <span class="c1"># if rebuild or not utils.is_populated(llvmInstallDir):</span>
         <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">llvmInstallDir</span><span class="p">):</span>

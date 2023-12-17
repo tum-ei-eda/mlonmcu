@@ -66,6 +66,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.timeout">mlonmcu.timeout module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
@@ -161,12 +162,12 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.feature.feature.FeatureBase.OPTIONAL">
-<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.feature.feature.FeatureBase.OPTIONAL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.feature.feature.FeatureBase.OPTIONAL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.feature.feature.FeatureBase.REQUIRED">
-<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#mlonmcu.feature.feature.FeatureBase.REQUIRED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.feature.feature.FeatureBase.REQUIRED" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -368,10 +369,127 @@
 <section id="module-mlonmcu.feature.features">
 <span id="mlonmcu-feature-features-module"></span><h2>mlonmcu.feature.features module<a class="headerlink" href="#module-mlonmcu.feature.features" title="Permalink to this headline"></a></h2>
 <p>Definition of MLonMCU features and the feature registry.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="mlonmcu.feature.features.filter_none">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">filter_none</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#filter_none"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.filter_none" title="Permalink to this definition"></a></dt>
-<dd><p>Helper function which drop dict items with a None value.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.HpmCounter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">HpmCounter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#HpmCounter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.HpmCounter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.feature.feature.TargetFeature" title="mlonmcu.feature.feature.TargetFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.feature.feature.TargetFeature</span></code></a>, <a class="reference internal" href="#mlonmcu.feature.feature.PlatformFeature" title="mlonmcu.feature.feature.PlatformFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.feature.feature.PlatformFeature</span></code></a></p>
+<p>Use RISC-V Performance Counters</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.HpmCounter.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'counter_names':</span> <span class="pre">[],</span> <span class="pre">'enabled':</span> <span class="pre">True,</span> <span class="pre">'enabled_counters':</span> <span class="pre">[],</span> <span class="pre">'num_counters':</span> <span class="pre">32,</span> <span class="pre">'supported_counters':</span> <span class="pre">1}</span></em><a class="headerlink" href="#mlonmcu.feature.features.HpmCounter.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.HpmCounter.counter_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">counter_names</span></span><a class="headerlink" href="#mlonmcu.feature.features.HpmCounter.counter_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.HpmCounter.enabled_counters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled_counters</span></span><a class="headerlink" href="#mlonmcu.feature.features.HpmCounter.enabled_counters" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.HpmCounter.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#HpmCounter.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.HpmCounter.get_platform_defs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.HpmCounter.get_target_callbacks">
+<span class="sig-name descname"><span class="pre">get_target_callbacks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#HpmCounter.get_target_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.HpmCounter.get_target_callbacks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.HpmCounter.num_counters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_counters</span></span><a class="headerlink" href="#mlonmcu.feature.features.HpmCounter.num_counters" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.HpmCounter.supported_counters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supported_counters</span></span><a class="headerlink" href="#mlonmcu.feature.features.HpmCounter.supported_counters" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">TVMTuneBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#TVMTuneBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.feature.feature.PlatformFeature" title="mlonmcu.feature.feature.PlatformFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlonmcu.feature.feature.PlatformFeature</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'append':</span> <span class="pre">None,</span> <span class="pre">'early_stopping':</span> <span class="pre">None,</span> <span class="pre">'enabled':</span> <span class="pre">True,</span> <span class="pre">'max_parallel':</span> <span class="pre">None,</span> <span class="pre">'num_workers':</span> <span class="pre">None,</span> <span class="pre">'results_file':</span> <span class="pre">None,</span> <span class="pre">'tasks':</span> <span class="pre">None,</span> <span class="pre">'timeout':</span> <span class="pre">None,</span> <span class="pre">'trials':</span> <span class="pre">None,</span> <span class="pre">'trials_single':</span> <span class="pre">None,</span> <span class="pre">'use_rpc':</span> <span class="pre">None,</span> <span class="pre">'visualize':</span> <span class="pre">None,</span> <span class="pre">'visualize_file':</span> <span class="pre">None,</span> <span class="pre">'visualize_live':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.DEFAULTS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.append">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">append</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.append" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.early_stopping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">early_stopping</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.early_stopping" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.get_platform_config">
+<span class="sig-name descname"><span class="pre">get_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#TVMTuneBase.get_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.get_platform_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.max_parallel">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_parallel</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.max_parallel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.num_workers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_workers</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.num_workers" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.results_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">results_file</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.results_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.tasks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tasks</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.tasks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.timeout">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">timeout</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.timeout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.trials">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trials</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.trials" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.trials_single">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trials_single</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.trials_single" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.use_rpc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_rpc</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.use_rpc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.visualize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.visualize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.visualize_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_file</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.visualize_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.feature.features.TVMTuneBase.visualize_live">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_live</span></span><a class="headerlink" href="#mlonmcu.feature.features.TVMTuneBase.visualize_live" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -382,7 +500,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.feature.features.get_available_features">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">get_available_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#get_available_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.get_available_features" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">get_available_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#get_available_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.get_available_features" title="Permalink to this definition"></a></dt>
 <dd><p>Utility for looking up features.</p>
 </dd></dl>
 
@@ -393,7 +511,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.feature.features.register_feature">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">register_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#register_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.register_feature" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.feature.features.</span></span><span class="sig-name descname"><span class="pre">register_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/feature/features.html#register_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.feature.features.register_feature" title="Permalink to this definition"></a></dt>
 <dd><p>Decorator for adding a feature to the global registry.</p>
 </dd></dl>
 

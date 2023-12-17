@@ -103,242 +103,61 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MicroTVM Platform&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">concurrent</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
-
-<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.python_utils</span> <span class="kn">import</span> <span class="n">prepare_python_environment</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmc_utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_bench_tvmc_args</span><span class="p">,</span>
-    <span class="n">get_data_tvmc_args</span><span class="p">,</span>
-    <span class="n">get_target_tvmc_args</span><span class="p">,</span>
-    <span class="n">get_rpc_tvmc_args</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tuner</span> <span class="kn">import</span> <span class="n">TVMTuner</span>
+<span class="kn">from</span> <span class="nn">.microtvm_base_platform</span> <span class="kn">import</span> <span class="n">MicroTvmBasePlatform</span>
+<span class="kn">from</span> <span class="nn">.microtvm_target_platform</span> <span class="kn">import</span> <span class="n">MicroTvmTargetPlatform</span>
+<span class="kn">from</span> <span class="nn">.microtvm_build_platform</span> <span class="kn">import</span> <span class="n">MicroTvmBuildPlatform</span>
+<span class="kn">from</span> <span class="nn">.microtvm_tune_platform</span> <span class="kn">import</span> <span class="n">MicroTvmTunePlatform</span>
+<span class="kn">from</span> <span class="nn">.microtvm_compile_platform</span> <span class="kn">import</span> <span class="n">MicroTvmCompilePlatform</span>
 
-<span class="kn">from</span> <span class="nn">..platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">,</span> <span class="n">BuildPlatform</span><span class="p">,</span> <span class="n">TunePlatform</span>
 <span class="kn">from</span> <span class="nn">.microtvm_target</span> <span class="kn">import</span> <span class="n">create_microtvm_platform_target</span><span class="p">,</span> <span class="n">get_microtvm_platform_targets</span>
-<span class="kn">from</span> <span class="nn">.microtvm_backend</span> <span class="kn">import</span> <span class="n">create_microtvm_platform_backend</span><span class="p">,</span> <span class="n">get_microtvm_platform_backends</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 <span class="c1"># TODO: This file is very similar to the TVM platform -&gt; Reuse as much as possible</span>
 
 
-<div class="viewcode-block" id="parse_project_options_from_stdout"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.parse_project_options_from_stdout">[docs]</a><span class="k">def</span> <span class="nf">parse_project_options_from_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s+([A-Za-z0-9_]+)=&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="filter_project_options"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.filter_project_options">[docs]</a><span class="k">def</span> <span class="nf">filter_project_options</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">}</span></div>
-
-
-<div class="viewcode-block" id="get_project_option_args"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.get_project_option_args">[docs]</a><span class="k">def</span> <span class="nf">get_project_option_args</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">stage</span><span class="p">,</span> <span class="n">project_options</span><span class="p">):</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">project_options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--project-option&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">ret</span>
-
-    <span class="k">return</span> <span class="n">ret</span></div>
-
-
-<div class="viewcode-block" id="MicroTvmPlatform"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform">[docs]</a><span class="k">class</span> <span class="nc">MicroTvmPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">,</span> <span class="n">BuildPlatform</span><span class="p">,</span> <span class="n">TunePlatform</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;TVM Platform class.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="MicroTvmPlatform"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform">[docs]</a><span class="k">class</span> <span class="nc">MicroTvmPlatform</span><span class="p">(</span>
+    <span class="n">MicroTvmBasePlatform</span><span class="p">,</span>
+    <span class="n">MicroTvmCompilePlatform</span><span class="p">,</span>
+    <span class="c1"># MicroTvmTargetPlatform,  # implicitly via tune platform</span>
+    <span class="n">MicroTvmBuildPlatform</span><span class="p">,</span>
+    <span class="n">MicroTvmTunePlatform</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;MicroTVM Platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm_rpc&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm_profile&quot;</span><span class="p">]</span>
+        <span class="n">MicroTvmBasePlatform</span><span class="o">.</span><span class="n">FEATURES</span>
+        <span class="o">|</span> <span class="n">MicroTvmCompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span>
+        <span class="o">|</span> <span class="n">MicroTvmTargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span>
+        <span class="o">|</span> <span class="n">MicroTvmBuildPlatform</span><span class="o">.</span><span class="n">FEATURES</span>
+        <span class="o">|</span> <span class="n">MicroTvmTunePlatform</span><span class="o">.</span><span class="n">FEATURES</span>
     <span class="p">)</span>  <span class="c1"># TODO: validate?</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">CompilePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">TargetPlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;project_template&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;project_options&quot;</span><span class="p">:</span> <span class="p">{},</span>
-        <span class="s2">&quot;project_dir&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;fill_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;random&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ins_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;outs_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;print_top&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;repeat&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;use_rpc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;rpc_key&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;rpc_hostname&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;rpc_port&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;experimental_tvmc_micro_tune&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;experimental_tvmc_tune_tasks&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;experimental_autotvm_visualize&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;experimental_tvmc_print_time&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="o">**</span><span class="p">{(</span><span class="s2">&quot;autotuning_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">TVMTuner</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="o">**</span><span class="n">MicroTvmBasePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">MicroTvmCompilePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">MicroTvmTargetPlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">MicroTvmBuildPlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">MicroTvmTunePlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">]</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">MicroTvmBasePlatform</span><span class="o">.</span><span class="n">REQUIRED</span>
+        <span class="o">|</span> <span class="n">MicroTvmCompilePlatform</span><span class="o">.</span><span class="n">REQUIRED</span>
+        <span class="o">|</span> <span class="n">MicroTvmTargetPlatform</span><span class="o">.</span><span class="n">REQUIRED</span>
+        <span class="o">|</span> <span class="n">MicroTvmBuildPlatform</span><span class="o">.</span><span class="n">REQUIRED</span>
+        <span class="o">|</span> <span class="n">MicroTvmTunePlatform</span><span class="o">.</span><span class="n">REQUIRED</span>
+    <span class="p">)</span>  <span class="c1"># TODO: validate?</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="s2">&quot;microtvm&quot;</span><span class="p">,</span>  <span class="c1"># Actually: tvmllvm</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MicroTvmPlatform</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;microtvm&quot;</span><span class="p">,</span>
             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">=</span> <span class="s2">&quot;app&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">project_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_options&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">opts_split</span> <span class="o">=</span> <span class="n">opts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-            <span class="n">opts</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opts_split</span><span class="p">:</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
-                <span class="n">opts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">opts</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">fill_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fill_mode&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ins_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ins_file&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">outs_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;outs_file&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">print_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_top&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;profile&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;repeat&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">use_rpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_rpc&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rpc_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;rpc_key&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rpc_hostname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;rpc_hostname&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rpc_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;rpc_port&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvmc_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvmc_custom_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvm_pythonpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvm_build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvm_configs_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">project_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_template&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">visualize_tuning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Visualize the tuning progress via matplotlib</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;visualize_tuning&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tune_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Effectively select which tasks should be tuned in the session</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tune_tasks&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">experimental_tvmc_micro_tune</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;experimental_tvmc_micro_tune&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">experimental_tvmc_tune_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;experimental_tvmc_tune_tasks&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">experimental_tvmc_tune_visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;experimental_tvmc_tune_visualize&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">experimental_tvmc_print_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;experimental_tvmc_print_time&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
-
-<div class="viewcode-block" id="MicroTvmPlatform.init_directory"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.init_directory">[docs]</a>    <span class="k">def</span> <span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Project directory already initialized&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="n">dir_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_dir&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_dir&quot;</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="s2">&quot;temp&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">dir_name</span>
-                <span class="p">)</span>  <span class="c1"># TODO: Need to lock this for parallel builds</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Creating temporary directory because no context was available &quot;</span>
-                    <span class="s2">&quot;and &#39;espidf.project_dir&#39; was not supplied&quot;</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="n">dir_name</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Temporary project directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.get_supported_backends"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_supported_backends">[docs]</a>    <span class="k">def</span> <span class="nf">get_supported_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">backend_names</span> <span class="o">=</span> <span class="n">get_microtvm_platform_backends</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">backend_names</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.create_backend"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.create_backend">[docs]</a>    <span class="k">def</span> <span class="nf">create_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">supported</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_backends</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid MicroTVM platform backend&quot;</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="n">supported</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">create_microtvm_platform_backend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">)</span></div>
-
+    <span class="c1"># The following methods are defined here as they would need to be implemented for compile and target platforms</span>
 <div class="viewcode-block" id="MicroTvmPlatform.get_supported_targets"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_supported_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">get_microtvm_platform_targets</span><span class="p">()</span></div>
 
@@ -346,325 +165,7 @@
         <span class="n">supported</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid MicroTVM device&quot;</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">supported</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">create_microtvm_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.get_tvmc_run_args"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_tvmc_run_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_run_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;RPC is only supported for tuning with microtvm platform&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_print_time</span>
-            <span class="p">),</span> <span class="s2">&quot;MicroTVM profiloing is only supported in environments with microtvm.experimental_tvmc_print_time=1&quot;</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">path</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--device&quot;</span><span class="p">,</span> <span class="n">device</span><span class="p">],</span>
-            <span class="o">*</span><span class="n">get_data_tvmc_args</span><span class="p">(</span>
-                <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_mode</span><span class="p">,</span> <span class="n">ins_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ins_file</span><span class="p">,</span> <span class="n">outs_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">outs_file</span><span class="p">,</span> <span class="n">print_top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_top</span>
-            <span class="p">),</span>
-            <span class="o">*</span><span class="n">get_bench_tvmc_args</span><span class="p">(</span>
-                <span class="n">print_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_print_time</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
-                <span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_print_time</span><span class="p">,</span>
-                <span class="n">end_to_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="c1"># repeat=self.repeat if self.experimental_tvmc_print_time else None,</span>
-                <span class="c1"># number=self.number if self.experimental_tvmc_print_time else None,</span>
-            <span class="p">),</span>
-            <span class="c1"># *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="n">list_options</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--list-options&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.get_tvmc_micro_args"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_tvmc_micro_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_micro_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tune_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="n">command</span><span class="p">]</span>
-        <span class="k">if</span> <span class="s2">&quot;create&quot;</span> <span class="ow">in</span> <span class="n">command</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--force&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;tune&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">tune_args</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tune_args</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">list_options</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">list_options</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--help&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.invoke_tvmc"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.invoke_tvmc">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_configs_dir</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">target</span><span class="p">:</span>
-            <span class="n">target</span><span class="o">.</span><span class="n">update_environment</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvmc_custom_script</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.driver.tvmc&quot;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tvmc_custom_script</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="o">*</span><span class="n">pre</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.collect_available_project_options"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.collect_available_project_options">[docs]</a>    <span class="k">def</span> <span class="nf">collect_available_project_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">micro</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_micro_args</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;micro&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">parse_project_options_from_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.invoke_tvmc_micro"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.invoke_tvmc_micro">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc_micro</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">extra_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">micro</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tune_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
-    <span class="p">):</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_micro_args</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">tune_args</span><span class="o">=</span><span class="n">tune_args</span><span class="p">)</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">filter_project_options</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">collect_available_project_options</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">),</span>
-            <span class="n">target</span><span class="o">.</span><span class="n">get_project_options</span><span class="p">(),</span>
-        <span class="p">)</span>
-        <span class="n">args</span> <span class="o">+=</span> <span class="n">get_project_option_args</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;micro&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.collect_available_run_project_options"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.collect_available_run_project_options">[docs]</a>    <span class="k">def</span> <span class="nf">collect_available_run_project_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_run_args</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">parse_project_options_from_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.invoke_tvmc_run"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.invoke_tvmc_run">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">micro</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_run_args</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">micro</span><span class="p">:</span>
-            <span class="n">options</span> <span class="o">=</span> <span class="n">filter_project_options</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">collect_available_run_project_options</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">device</span><span class="p">),</span> <span class="n">target</span><span class="o">.</span><span class="n">get_project_options</span><span class="p">()</span>
-            <span class="p">)</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">get_project_option_args</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.close"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.get_template_args"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_template_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">template</span>
-        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">template_path</span><span class="p">:</span>
-            <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;template&quot;</span>
-            <span class="n">template_path</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">template_path</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">template</span> <span class="o">==</span> <span class="s2">&quot;template&quot;</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="n">template_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_template</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">template_path</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">template_path</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;template&quot;</span><span class="p">,</span> <span class="s2">&quot;--template-dir&quot;</span><span class="p">,</span> <span class="n">template_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">template</span><span class="p">,)</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.prepare"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mlf</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">mlf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">out</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.compile"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="c1"># TODO: build with cmake options</span>
-        <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span><span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span>
-        <span class="c1"># TODO: support self.num_threads (e.g. patch esp-idf)</span>
-        <span class="k">return</span> <span class="n">out</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.generate"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
-        <span class="c1"># TODO: name missleading as we are not interested in the ELF</span>
-        <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;default.tar&quot;</span>  <span class="c1"># TODO: lookup for *.tar file</span>
-        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
-        <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
-            <span class="s2">&quot;microtvm_out.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>  <span class="c1"># TODO: split into one file per command</span>
-        <span class="p">)</span>
-        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.flash"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.flash">[docs]</a>    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
-        <span class="c1"># Ignore elf, as we use self.project_dir instead</span>
-        <span class="c1"># TODO: add alternative approach which allows passing elf instead</span>
-        <span class="k">if</span> <span class="n">elf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ignoring ELF file for microtvm platform&quot;</span><span class="p">)</span>
-        <span class="c1"># TODO: implement timeout</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Flashing target software using MicroTVM ProjectAPI&quot;</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span><span class="s2">&quot;flash&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">output</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.run"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
-        <span class="c1"># TODO: implement timeout</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_run</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">),</span> <span class="s2">&quot;micro&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="n">micro</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">output</span></div>
-
-<div class="viewcode-block" id="MicroTvmPlatform.get_micro_tune_args"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_micro_tune_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_micro_tune_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
-        <span class="n">tuner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_tuner&quot;</span><span class="p">,</span> <span class="s2">&quot;ga&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">tuner</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ga&quot;</span><span class="p">,</span> <span class="s2">&quot;gridsearch&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="s2">&quot;xgb&quot;</span><span class="p">,</span> <span class="s2">&quot;xgb_knob&quot;</span><span class="p">,</span> <span class="s2">&quot;xgb-rank&quot;</span><span class="p">]</span>
-        <span class="n">trials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_trials&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trials</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="n">trials</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">trials</span><span class="p">)</span>
-        <span class="n">early_stopping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_early_stopping&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">early_stopping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">early_stopping</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">trials</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Let&#39;s see if this default works out...</span>
-        <span class="n">early_stopping</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">early_stopping</span><span class="p">)</span>
-        <span class="n">max_parallel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_max_parallel&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">timeout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_timeout&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>
-        <span class="n">results_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_results_file&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">desired_layout</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desired_layout&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="o">*</span><span class="n">get_target_tvmc_args</span><span class="p">(</span>
-                <span class="s2">&quot;c&quot;</span><span class="p">,</span>
-                <span class="n">extra_target</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">extra_target</span><span class="p">,</span>
-                <span class="n">target_details</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">get_target_details</span><span class="p">(),</span>
-            <span class="p">),</span>
-            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--desired-layout&quot;</span><span class="p">,</span> <span class="n">desired_layout</span><span class="p">]</span> <span class="k">if</span> <span class="n">desired_layout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
-            <span class="o">*</span><span class="n">get_rpc_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_hostname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_port</span><span class="p">),</span>
-            <span class="c1"># TODO: missing: pass config, disabled_pass, etc.</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--tuner&quot;</span><span class="p">,</span> <span class="n">tuner</span><span class="p">],</span>
-            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--early-stopping&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">early_stopping</span><span class="p">)]</span> <span class="k">if</span> <span class="n">early_stopping</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]),</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--parallel&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_parallel</span><span class="p">)],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--timeout&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">timeout</span> <span class="o">*</span> <span class="n">max_parallel</span><span class="p">)],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--trials&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">trials</span><span class="p">)],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--number&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">)],</span>  <span class="c1"># TODO: variable</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--repeat&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">)],</span>  <span class="c1"># TODO: variable</span>
-            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--tuning-records&quot;</span><span class="p">,</span> <span class="n">results_file</span><span class="p">]</span> <span class="k">if</span> <span class="n">results_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)],</span>
-            <span class="c1"># &quot;--target-c-link-params&quot;,</span>
-            <span class="c1"># &quot;1&quot;,</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_visualize&quot;</span><span class="p">]:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_tune_tasks</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.visualize_tuning requires experimental_autotvm_visualize&quot;</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--visualize&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_tasks&quot;</span><span class="p">]:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_tune_tasks</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.tune_tasks requires experimental_tvmc_tune_tasks&quot;</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--tasks&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_tasks&quot;</span><span class="p">])])</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-
-    <span class="k">def</span> <span class="nf">_tune_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_micro_tune</span><span class="p">,</span> <span class="s2">&quot;Microtvm tuning requires experimental_tvmc_micro_tune&quot;</span>
-        <span class="n">enable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_enable&quot;</span><span class="p">]</span>
-        <span class="n">results_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_results_file&quot;</span><span class="p">]</span>
-        <span class="n">append</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_append&quot;</span><span class="p">]</span>
-        <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_num_workers&quot;</span><span class="p">])</span>
-        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
-            <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
-
-        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">enable</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">append</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">results_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">results_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-                        <span class="n">content</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvmc_tune_tasks</span><span class="p">,</span> <span class="s2">&quot;num_workers&gt;1 requires experimental_tvmc_tune_tasks=1&quot;</span>
-                <span class="c1"># TODO: fix</span>
-                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuning_tasks&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;tune_tasks not supported together with num_workers &gt; 1&quot;</span>
-
-                <span class="k">def</span> <span class="nf">get_tune_tasks</span><span class="p">():</span>
-                    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-                        <span class="n">out_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;tuning_results.log.txt&quot;</span>
-                        <span class="n">tune_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_micro_tune_args</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">out_file</span><span class="p">)</span>
-                        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span>
-                            <span class="s2">&quot;tune&quot;</span><span class="p">,</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span>
-                            <span class="kc">None</span><span class="p">,</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-                            <span class="n">target</span><span class="p">,</span>
-                            <span class="n">tune_args</span><span class="o">=</span><span class="n">tune_args</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;--task&quot;</span><span class="p">,</span> <span class="s2">&quot;list&quot;</span><span class="p">],</span>
-                        <span class="p">)</span>
-                        <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-                            <span class="k">if</span> <span class="s2">&quot;Available Tasks for tuning&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                                <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
-                                <span class="k">break</span>
-                        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;. &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-                        <span class="k">return</span> <span class="n">tasks</span>
-
-                <span class="n">num_tasks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_tune_tasks</span><span class="p">())</span>
-                <span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_tasks</span><span class="p">):</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created worker for task </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-                        <span class="k">def</span> <span class="nf">do_work</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">prepend</span><span class="p">):</span>
-                            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-                                <span class="n">out_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;tuning_results.log.txt&quot;</span>
-                                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-                                    <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">prepend</span><span class="p">)</span>
-                                <span class="n">tune_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_micro_tune_args</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">out_file</span><span class="p">)</span>
-                                <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span>
-                                    <span class="s2">&quot;tune&quot;</span><span class="p">,</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span>
-                                    <span class="kc">None</span><span class="p">,</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-                                    <span class="n">target</span><span class="p">,</span>
-                                    <span class="n">tune_args</span><span class="o">=</span><span class="n">tune_args</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;--task&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)],</span>
-                                    <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;[worker-</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">] &quot;</span><span class="p">,</span>
-                                <span class="p">)</span>
-                                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-                                    <span class="n">content</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-                            <span class="k">return</span> <span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
-
-                        <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">do_work</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">content</span><span class="p">))</span>
-                <span class="n">all_out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                <span class="n">all_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">workers</span><span class="p">):</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Worker </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: done&quot;</span><span class="p">)</span>
-                    <span class="n">ret</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
-                    <span class="n">out</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="n">ret</span>
-                    <span class="n">all_out</span> <span class="o">+=</span> <span class="n">out</span>
-                    <span class="n">all_content</span> <span class="o">+=</span> <span class="n">content</span>
-                <span class="n">out</span> <span class="o">=</span> <span class="n">all_out</span>
-                <span class="n">content</span> <span class="o">=</span> <span class="n">all_content</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-                    <span class="n">out_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;tuning_results.log.txt&quot;</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-                        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-                    <span class="n">tune_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_micro_tune_args</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">out_file</span><span class="p">)</span>
-                    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro</span><span class="p">(</span>
-                        <span class="s2">&quot;tune&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_args</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="n">tune_args</span><span class="o">=</span><span class="n">tune_args</span>
-                    <span class="p">)</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-                        <span class="n">content</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-
-        <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;tuning_results.log.txt&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
-        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
-
-        <span class="c1"># pick best records</span>
-        <span class="k">def</span> <span class="nf">_pick_best</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-            <span class="n">content_best</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-                <span class="n">in_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;tuning_results.log.txt&quot;</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">in_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-                    <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
-                <span class="n">out_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;best_tuning_results.log.txt&quot;</span>
-                <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="s2">&quot;--mode&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;pick&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--i&quot;</span><span class="p">,</span>
-                    <span class="n">in_file</span><span class="p">,</span>
-                    <span class="s2">&quot;--o&quot;</span><span class="p">,</span>
-                    <span class="n">out_file</span><span class="p">,</span>
-                <span class="p">]</span>
-                <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_configs_dir</span><span class="p">)</span>
-                <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.autotvm.record&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-                    <span class="n">content_best</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">content_best</span>
-
-        <span class="n">content_best</span> <span class="o">=</span> <span class="n">_pick_best</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_best</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">artifact_</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;best_tuning_results.log.txt&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content_best</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
-            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact_</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">enable</span><span class="p">:</span>
-            <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
-                <span class="s2">&quot;tvmc_micro_tune_out.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
-            <span class="p">)</span>  <span class="c1"># TODO: rename to tvmaot_out.log?</span>
-            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+        <span class="k">return</span> <span class="n">create_microtvm_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

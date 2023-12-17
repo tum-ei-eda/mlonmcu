@@ -113,8 +113,10 @@
 <span class="kn">from</span> <span class="nn">.microtvm_arduino_target</span> <span class="kn">import</span> <span class="n">ArduinoMicroTvmPlatformTarget</span>
 <span class="kn">from</span> <span class="nn">.microtvm_espidf_target</span> <span class="kn">import</span> <span class="n">EspidfMicroTvmPlatformTarget</span>
 <span class="kn">from</span> <span class="nn">.microtvm_host_target</span> <span class="kn">import</span> <span class="n">HostMicroTvmPlatformTarget</span>
-<span class="kn">from</span> <span class="nn">.microtvm_etissvp_target</span> <span class="kn">import</span> <span class="n">EtissvpMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_etiss_target</span> <span class="kn">import</span> <span class="n">EtissMicroTvmPlatformTarget</span>
 <span class="kn">from</span> <span class="nn">.microtvm_spike_target</span> <span class="kn">import</span> <span class="n">SpikeMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_corev_ovpsim_target</span> <span class="kn">import</span> <span class="n">CoreVOVPSimMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_mlonmcu_target</span> <span class="kn">import</span> <span class="n">MlonmcuMicroTvmPlatformTarget</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -141,20 +143,19 @@
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_zephyr&quot;</span><span class="p">,</span> <span class="n">ZephyrMicroTvmPlatformTarget</span><span class="p">)</span>
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_arduino&quot;</span><span class="p">,</span> <span class="n">ArduinoMicroTvmPlatformTarget</span><span class="p">)</span>
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_host&quot;</span><span class="p">,</span> <span class="n">HostMicroTvmPlatformTarget</span><span class="p">)</span>
-<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_etissvp&quot;</span><span class="p">,</span> <span class="n">EtissvpMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_etiss&quot;</span><span class="p">,</span> <span class="n">EtissMicroTvmPlatformTarget</span><span class="p">)</span>
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_espidf&quot;</span><span class="p">,</span> <span class="n">EspidfMicroTvmPlatformTarget</span><span class="p">)</span>
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_spike&quot;</span><span class="p">,</span> <span class="n">SpikeMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_corev_ovpsim&quot;</span><span class="p">,</span> <span class="n">CoreVOVPSimMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_mlonmcu&quot;</span><span class="p">,</span> <span class="n">MlonmcuMicroTvmPlatformTarget</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="create_microtvm_platform_target"><a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_target.create_microtvm_platform_target">[docs]</a><span class="k">def</span> <span class="nf">create_microtvm_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
     <span class="k">class</span> <span class="nc">MicroTvmPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
-        <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">+</span> <span class="p">[]</span>
-
         <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
             <span class="o">**</span><span class="n">base</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
             <span class="s2">&quot;timeout_sec&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># disabled</span>
         <span class="p">}</span>
-        <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">+</span> <span class="p">[]</span>
 
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -227,7 +228,6 @@
                 <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="n">time_s</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">profile</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
                 <span class="n">headers</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -238,14 +238,12 @@
                     <span class="k">return</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
 
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
                         <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
                         <span class="k">continue</span>
                     <span class="k">if</span> <span class="n">headers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">if</span> <span class="s2">&quot;Name&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
                             <span class="n">headers</span> <span class="o">=</span> <span class="n">extract_cols</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
                             <span class="n">skip</span> <span class="o">=</span> <span class="kc">True</span>
                             <span class="k">continue</span>
                     <span class="k">else</span><span class="p">:</span>

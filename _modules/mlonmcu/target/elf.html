@@ -184,6 +184,10 @@
         <span class="s2">&quot;.l1cluster_g&quot;</span><span class="p">,</span>
         <span class="s2">&quot;.heap_l2_shared&quot;</span><span class="p">,</span>
         <span class="s2">&quot;.Pulp_Chip.Info&quot;</span><span class="p">,</span>
+        <span class="c1"># ARM (corstone300)</span>
+        <span class="s2">&quot;.ddr&quot;</span><span class="p">,</span>
+        <span class="c1"># cv32e40p</span>
+        <span class="s2">&quot;.debugger_stack&quot;</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">ignorePrefixes</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;.gcc_except&quot;</span><span class="p">,</span>
@@ -236,6 +240,7 @@
                 <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bss&quot;</span>
                 <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;.sbss&quot;</span>
                 <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;.shbss&quot;</span>
+                <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;.bss.noinit&quot;</span>
                 <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.bss&quot;</span><span class="p">)</span>
                 <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.sbss&quot;</span><span class="p">)</span>
                 <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;noinit&quot;</span>

@@ -136,22 +136,22 @@ class RepoConfig(BaseConfig):
 
     @property
     def single_branch(self):
-       value = self.options.get("single_branch", False)
-       assert isinstance(value, bool)
-       return value
+        value = self.options.get("single_branch", False)
+        assert isinstance(value, bool)
+        return value
 
     @property
     def recursive(self):
-       value = self.options.get("recursive", True)
-       assert isinstance(value, bool)
-       return value
+        value = self.options.get("recursive", True)
+        assert isinstance(value, bool)
+        return value
 
     @property
     def submodules(self):
-       value = self.options.get("submodules", None)
-       if value is not None:
-           assert isinstance(value, list)
-       return value
+        value = self.options.get("submodules", None)
+        if value is not None:
+            assert isinstance(value, list)
+        return value
 
 
 class BackendConfig(BaseConfig):

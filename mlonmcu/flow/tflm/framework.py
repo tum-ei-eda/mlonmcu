@@ -29,7 +29,7 @@ class TFLMFramework(Framework):
 
     name = "tflm"
 
-    FEATURES = ["muriscvnn", "cmsisnn"]
+    FEATURES = {"muriscvnn", "cmsisnn"}
 
     DEFAULTS = {
         "optimized_kernel": None,
@@ -37,7 +37,7 @@ class TFLMFramework(Framework):
         "optimized_kernel_libs": [],
     }
 
-    REQUIRED = ["tf.src_dir"]
+    REQUIRED = {"tf.src_dir"}
 
     backends = TFLMBackend.registry
 

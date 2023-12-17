@@ -22,10 +22,6 @@ from .tvmaot import TVMAOTBackend, main
 
 
 class TVMAOTPlusBackend(TVMAOTBackend):
-    FEATURES = [
-        *TVMAOTBackend.FEATURES,
-    ]
-
     DEFAULTS = {
         **TVMAOTBackend.DEFAULTS,
         "arena_size": 0,
@@ -38,8 +34,8 @@ class TVMAOTPlusBackend(TVMAOTBackend):
 
     name = "tvmaotplus"
 
-    def __init__(self, runtime="crt", fmt="mlf", features=None, config=None):
-        super().__init__(runtime=runtime, fmt=fmt, features=features, config=config)
+    def __init__(self, runtime="crt", fmt="mlf", system_lib=False, features=None, config=None):
+        super().__init__(runtime=runtime, fmt=fmt, system_lib=False, features=features, config=config)
 
 
 if __name__ == "__main__":

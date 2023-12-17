@@ -44,7 +44,10 @@ def test_create_environment_dict():
                 os.path.join(os.getcwd(), "baz2"),
             ],
         },
-        "repos": {"repo1": {"url": "repo1url", "ref": None, "options": {}}, "repo2": {"url": "repo2url", "ref": "repo2ref", "options": {}}},
+        "repos": {
+            "repo1": {"url": "repo1url", "ref": None, "options": {}},
+            "repo2": {"url": "repo2url", "ref": "repo2ref", "options": {}},
+        },
         "frameworks": {"default": None},
         "frontends": {},
         "toolchains": {},

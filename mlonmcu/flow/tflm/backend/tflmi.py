@@ -363,7 +363,7 @@ int {prefix}_invoke() {{
 class TFLMIBackend(TFLMBackend):
     name = "tflmi"
 
-    FEATURES = ["debug_arena"]
+    FEATURES = TFLMBackend.FEATURES | {"debug_arena"}
 
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,
@@ -376,8 +376,6 @@ class TFLMIBackend(TFLMBackend):
         "legacy": False,
         "reporter": False,  # Has to be disabled for support with latest upstream
     }
-
-    REQUIRED = TFLMBackend.REQUIRED + []
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)

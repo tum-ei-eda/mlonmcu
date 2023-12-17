@@ -66,6 +66,17 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
     return True
 
 
+def _validate_muriscvnn_build(context: MlonMcuContext, params=None):
+    if not _validate_muriscvnn(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    skip_build = user_vars.get("muriscvnn.skip_build", True)
+    # TODO: str2bool
+    if skip_build:
+        return False
+    return True
+
+
 @Tasks.provides(["muriscvnn.src_dir", "muriscvnn.inc_dir"])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
@@ -86,7 +97,7 @@ def clone_muriscvnn(
         muriscvnnIncludeDir = muriscvnnSrcDir / "Include"
     if rebuild or not utils.is_populated(muriscvnnSrcDir):
         muriscvnnRepo = context.environment.repos["muriscvnn"]
-        utils.clone(muriscvnnRepo.url, muriscvnnSrcDir, branch=muriscvnnRepo.ref)
+        utils.clone_wrapper(muriscvnnRepo, muriscvnnSrcDir, refresh=rebuild)
     context.cache["muriscvnn.src_dir"] = muriscvnnSrcDir
     context.cache["muriscvnn.inc_dir"] = muriscvnnIncludeDir
 
@@ -100,7 +111,7 @@ def clone_muriscvnn(
 @Tasks.param("pext", [False])
 @Tasks.param("toolchain", ["gcc"])
 @Tasks.param("target_arch", ["x86", "riscv"])
-@Tasks.validate(_validate_muriscvnn)
+@Tasks.validate(_validate_muriscvnn_build)
 @Tasks.register(category=TaskType.OPT)
 def build_muriscvnn(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

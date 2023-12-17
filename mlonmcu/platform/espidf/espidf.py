@@ -51,7 +51,7 @@ def get_project_template(name="project"):
 class EspIdfPlatform(CompilePlatform, TargetPlatform):
     """ESP-IDF Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["benchmark"]
+    FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -65,7 +65,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "flash_only": False,
     }
 
-    REQUIRED = ["espidf.install_dir", "espidf.src_dir"]
+    REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(

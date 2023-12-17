@@ -63,6 +63,8 @@ def execute(
         The command line output of the command
     """
     logger.debug("- Executing: %s", str(args))
+    if "cwd" in kwargs:
+        logger.debug("- CWD: %s", str(kwargs["cwd"]))
     if ignore_output:
         assert not live
         subprocess.run(args, **kwargs, check=True)
@@ -84,7 +86,7 @@ def execute(
             while exit_code is None:
                 exit_code = process.poll()
             if handle_exit is not None:
-                exit_code = handle_exit(exit_code)
+                exit_code = handle_exit(exit_code, out=out_str)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
@@ -94,7 +96,7 @@ def execute(
         exit_code = p.poll()
         print_func(out_str)
         if handle_exit is not None:
-            exit_code = handle_exit(exit_code)
+            exit_code = handle_exit(exit_code, out=out_str)
         if exit_code != 0:
             err_func(out_str)
         assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
@@ -135,8 +137,8 @@ def add_common_options(parser: argparse.ArgumentParser, target):
 def init_target_features(names, config):
     features = []
     for name in names:
-        feature_classes = get_available_features(feature_type=FeatureType.TARGET, feature_name=name)
-        for feature_class in feature_classes:
+        avail_features = get_available_features(feature_type=FeatureType.TARGET, feature_name=name)
+        for feature_class in avail_features.values():
             features.append(feature_class(config=config))
     return features
 

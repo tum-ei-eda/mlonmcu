@@ -47,7 +47,7 @@ jobs:
     - name: Install APT packages
       run: |
         sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler
-        sudo apt -qq install -y ninja-build
+        sudo apt -qq install -y ninja-build flex
         sudo apt remove clang-11* llvm-11*
     - name: Initialize Virtualenv
       run: |

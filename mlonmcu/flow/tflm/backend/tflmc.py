@@ -35,7 +35,7 @@ logger = get_logger()
 class TFLMCBackend(TFLMBackend):
     name = "tflmc"
 
-    FEATURES = ["debug_arena"]
+    FEATURES = {"debug_arena"}
 
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,
@@ -45,7 +45,7 @@ class TFLMCBackend(TFLMBackend):
         "debug_arena": False,
     }
 
-    REQUIRED = TFLMBackend.REQUIRED + ["tflmc.exe"]
+    REQUIRED = TFLMBackend.REQUIRED | {"tflmc.exe"}
 
     @property
     def print_outputs(self):

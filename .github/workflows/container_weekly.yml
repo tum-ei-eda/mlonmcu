@@ -23,14 +23,16 @@ on:
       branch:
         description: "Branch name"
         required: true
-        default: "staging-newer"
+        default: "develop"
       template:
         description: "Environment template"
         required: true
         default: "dev"
   schedule:
     - cron: "0 0 * * 6"  # main, default
-    - cron: "0 12 * * 6"  # staging-newer, dev
+    - cron: "0 6 * * 6"  # develop, corev
+    - cron: "0 12 * * 6"  # develop, dev
+    - cron: "0 18 * * 6"  # develop, ara
 
 jobs:
   minimal:
@@ -57,10 +59,18 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=develop" >> $github_output
+              echo "template=corev" >> $github_output
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
-              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 18 * * 6" ]]
+          then
+              echo "branch=develop" >> $github_output
+              echo "template=ara" >> $github_output
           else
               echo "Invalid!"
               exit 1
@@ -164,10 +174,18 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
-              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 18 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=ara" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -267,10 +285,18 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
-              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 18 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=ara" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1

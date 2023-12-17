@@ -28,10 +28,10 @@ class Framework(ABC):
 
     name = None
 
-    FEATURES = []
+    FEATURES = set()
     DEFAULTS = {}
-    REQUIRED = ["tf.src_dir"]
-    OPTIONAL = []
+    REQUIRED = {"tf.src_dir"}
+    OPTIONAL = set()
 
     def __init__(self, features=None, config=None, backends={}):
         self.config = config if config else {}
@@ -58,6 +58,12 @@ class Framework(ABC):
         super().__init_subclass__(**kwargs)
         assert isinstance(cls.name, str)
         cls.registry[cls.name] = cls
+
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
 
     def get_platform_defs(self, platform):
         if platform == "espidf":

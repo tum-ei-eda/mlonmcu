@@ -43,13 +43,6 @@ register_tvm_platform_backend("tvmllvm", TVMLLVMBackend)
 
 def create_tvm_platform_backend(name, platform, base=TVMBackend):
     class TvmPlatformBackend(base):
-        FEATURES = base.FEATURES + []
-
-        DEFAULTS = {
-            **base.DEFAULTS,
-        }
-        REQUIRED = base.REQUIRED + []
-
         def __init__(self, features=None, config=None):
             super().__init__(runtime="cpp", fmt="so", features=features, config=config)
             self.platform = platform

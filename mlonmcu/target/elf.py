@@ -99,6 +99,10 @@ def parseElf(inFile):
         ".l1cluster_g",
         ".heap_l2_shared",
         ".Pulp_Chip.Info",
+        # ARM (corstone300)
+        ".ddr",
+        # cv32e40p
+        ".debugger_stack",
     ]
     ignorePrefixes = [
         ".gcc_except",
@@ -151,6 +155,7 @@ def parseElf(inFile):
                 or s.name == "bss"
                 or s.name == ".sbss"
                 or s.name == ".shbss"
+                or s.name == ".bss.noinit"
                 or s.name.endswith(".bss")
                 or s.name.startswith(".sbss")
                 or s.name == "noinit"

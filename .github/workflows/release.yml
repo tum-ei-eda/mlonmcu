@@ -39,6 +39,10 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Build package
+      run: make dist
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:

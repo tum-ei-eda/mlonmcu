@@ -622,7 +622,7 @@ class Trace(TargetFeature):
             if self.to_file:
                 # assert directory is not None
                 directory = Path(".")  # Need to use relative path because target.dir not available here
-                trace_file = directory / f"trace.txt"
+                trace_file = directory / "trace.txt"
                 extra_args_new.append("--tracefile")
                 extra_args_new.append(trace_file)
             config.update({f"{target}.extra_args": extra_args_new})
@@ -1877,7 +1877,7 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
             if key in dict1.keys():
                 dict1_value = dict1[key]
                 dict2_value = dict2[key]
-                if isinstance(dict1_value, (str, list)) and type(dict1_value) == type(dict2_value):
+                if isinstance(dict1_value, (str, list)) and type(dict1_value) is type(dict2_value):
                     if isinstance(dict1_value, str):
                         dict1[key] = dict1_value + " " + dict2_value
                     else:

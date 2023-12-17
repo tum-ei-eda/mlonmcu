@@ -64,7 +64,7 @@ def install_llvm(
             llvmFileName, llvmFileExtension = fullUrlSplit[-1].split(".", 1)
             return llvmUrl, llvmFileName, llvmFileExtension
 
-        if f"llvm.dl_url" in user_vars:
+        if "llvm.dl_url" in user_vars:
             llvmUrl, llvmFileName, llvmFileExtension = _helper(user_vars[f"llvm.dl_url"])
         else:
             llvmVersion = user_vars.get("llvm.version", "14.0.0")

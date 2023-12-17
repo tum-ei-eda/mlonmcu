@@ -1,9 +1,7 @@
 """Test used RISC-V GCC Toolchains"""
 import pytest
 
-from mlonmcu.environment.config import PathConfig
-from mlonmcu.config import str2bool, str2list
-from mlonmcu.session.run import RunStage
+# from mlonmcu.session.run import RunStage
 from mlonmcu.testing.riscv_toolchain import (
     _get_target_config,
     _get_feature_vext_config,
@@ -68,7 +66,7 @@ def test_embedded_vector_32bit(
     models_dir,
 ):
     if elen == 32:
-        pytest.skip(f"ELEN 32 not supported due to compiler bug")
+        pytest.skip("ELEN 32 not supported due to compiler bug")
 
     config = {
         **_get_target_config(target, 32, fpu, embedded, compressed, atomic, multiply),
@@ -108,9 +106,9 @@ def test_embedded_vector_64bit(
     models_dir,
 ):
     if elen == 32:
-        pytest.skip(f"ELEN 32 not supported due to compiler bug")
+        pytest.skip("ELEN 32 not supported due to compiler bug")
     if fpu == "single":
-        pytest.skip(f"Single precision float not supported due to compiler bug")
+        pytest.skip("Single precision float not supported due to compiler bug")
 
     config = {
         **_get_target_config(target, 64, fpu, embedded, compressed, atomic, multiply),
@@ -141,7 +139,8 @@ def test_embedded_vector_64bit(
 # @pytest.mark.parametrize("embedded,compressed,atomic,multiply", [(False, True, True, True)])
 # @pytest.mark.parametrize("feature_names", [["vext"], ["vext", "muriscvnn"]])
 # def test_vector_32bit(
-#     model_name, target, vlen, spec, fpu, embedded, compressed, atomic, multiply, feature_names, user_context, models_dir
+#     model_name, target, vlen, spec, fpu, embedded, compressed, atomic,
+#     multiply, feature_names, user_context, models_dir
 # ):
 #     config = {
 #         **_get_target_config(target, 32, fpu, embedded, compressed, atomic, multiply),

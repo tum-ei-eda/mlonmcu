@@ -114,7 +114,7 @@ def build_spike_pk(
     else:
         abi = "lp64" if "rv64" in arch else "ilp32"
     # spikepkBin = spikepkInstallDir / f"pk_{arch}_{abi}"
-    spikepkDefaultBin = spikepkInstallDir / f"pk"
+    spikepkDefaultBin = spikepkInstallDir / "pk"
     # if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
     if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkDefaultBin.is_file()):
         # No need to build a vext and non-vext variant?

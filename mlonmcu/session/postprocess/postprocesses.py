@@ -893,7 +893,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
         counts_csv = "Instruction,Count,Probability\n"
         for insn, count in sorted(counts.items(), key=lambda item: item[1]):
             counts_csv += f"{insn},{count},{count/total:.4f}\n"
-        artifact = Artifact(f"dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT)
+        artifact = Artifact("dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT)
         if self.to_file:
             ret_artifacts.append(artifact)
         if self.to_df:
@@ -1191,15 +1191,15 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
         rel = used / totals
         cv_ext_unique_counts_csv += f"XCVTotal,{used},{rel:.4f}\n"
 
-        cv_counts_artifact = Artifact(f"cv_counts.csv", content=cv_counts_csv, fmt=ArtifactFormat.TEXT)
-        cv_ext_counts_artifact = Artifact(f"cv_ext_counts.csv", content=cv_ext_counts_csv, fmt=ArtifactFormat.TEXT)
+        cv_counts_artifact = Artifact("cv_counts.csv", content=cv_counts_csv, fmt=ArtifactFormat.TEXT)
+        cv_ext_counts_artifact = Artifact("cv_ext_counts.csv", content=cv_ext_counts_csv, fmt=ArtifactFormat.TEXT)
         cv_ext_unique_counts_artifact = Artifact(
-            f"cv_ext_unique_counts.csv", content=cv_ext_unique_counts_csv, fmt=ArtifactFormat.TEXT
+            "cv_ext_unique_counts.csv", content=cv_ext_unique_counts_csv, fmt=ArtifactFormat.TEXT
         )
         if len(unknowns) > 0:
             logger.warning("Unknown instructions found: %s", unknowns)
             cv_ext_unknowns_artifact = Artifact(
-                f"cv_ext_unknowns.csv", content="\n".join(unknowns), fmt=ArtifactFormat.TEXT
+                "cv_ext_unknowns.csv", content="\n".join(unknowns), fmt=ArtifactFormat.TEXT
             )
             if self.to_file:
                 ret_artifacts.append(cv_ext_unknowns_artifact)

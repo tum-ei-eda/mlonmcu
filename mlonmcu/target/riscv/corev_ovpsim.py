@@ -89,7 +89,7 @@ class COREVOVPSimTarget(RISCVTarget):
         if temp:
             return temp
         else:
-            return f"CV32E40P"
+            return "CV32E40P"
 
     @property
     def processor(self):
@@ -97,7 +97,7 @@ class COREVOVPSimTarget(RISCVTarget):
         if temp:
             return temp
         else:
-            return f"CVE4P"
+            return "CVE4P"
 
     @property
     def enable_xcorevmac(self):

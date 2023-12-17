@@ -52,7 +52,6 @@ def create_mlif_platform_target(name, platform, base=Target):
         def get_metrics(self, elf, directory, handle_exit=None):
             # This is wrapper around the original exec function to catch special return codes thrown by the inout data
             # feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))
-            _handle_exit = handle_exit
             if self.platform.validate_outputs or not self.platform.skip_check:
 
                 def _handle_exit(code, out=None):
@@ -68,6 +67,9 @@ def create_mlif_platform_target(name, platform, base=Target):
                             if not self.platform.fail_on_error:
                                 code = 0
                     return code
+
+            else:
+                _handle_exit = handle_exit
 
             metrics, out, artifacts = super().get_metrics(elf, directory, handle_exit=_handle_exit)
 

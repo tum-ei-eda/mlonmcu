@@ -142,7 +142,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             if not to_file:
                 to_file = "viz.png"
             live = self.config["autotuning_visualize_live"]
-            assert self.experimental_tvmc_tune_tasks, f"requires experimental_autotvm_visualize"
+            assert self.experimental_tvmc_tune_tasks, "requires experimental_autotvm_visualize"
             visualize_arg = to_file
             if live:
                 visualize_arg += ",live"

@@ -1,10 +1,13 @@
 import pytest
-from mlonmcu.session.run import RunStage
+
+# from mlonmcu.session.run import RunStage
 
 # from mlonmcu.artifact import ArtifactFormat
 from mlonmcu.artifact import lookup_artifacts
 
-from mlonmcu.testing.helpers import _check_features, _init_run, _test_frontend
+from mlonmcu.testing.helpers import _test_frontend
+
+# from mlonmcu.testing.helpers import _check_features, _init_run
 
 
 # TODO: make sure that we use quant/float models and several different operators

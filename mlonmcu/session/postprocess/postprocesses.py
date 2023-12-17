@@ -139,12 +139,13 @@ class FilterColumnsPostprocess(SessionPostprocess):
         )
 
 
-class RenameColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
+class RenameColumnsPostprocess(SessionPostprocess):
     """Postprocess which can rename columns based on a provided mapping."""
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
         "mapping": {},
+        "merge": True,
     }
 
     def __init__(self, features=None, config=None):
@@ -157,32 +158,80 @@ class RenameColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
             return str2dict(value)
         return value
 
+    @property
+    def merge(self):
+        value = self.config["merge"]
+        return str2bool(value)
+
     def post_session(self, report):
         """Called at the end of a session."""
+        values = self.mapping.values()
+        if len(values) != len(set(values)) and not self.merge:
+            logger.warning("rename_cols: non unique mapping found. use merge=True to avoid overwriting values.")
+
+        def merge(df):
+            if len(set(df.columns)) == len(df.columns):
+                return df
+            a = df.loc[:, ~df.columns.duplicated(keep="first")]
+            b = df.loc[:, df.columns.duplicated(keep="first")]
+            return a.combine_first(merge(b))
+
         report.pre_df = report.pre_df.rename(columns=self.mapping)
         report.main_df = report.main_df.rename(columns=self.mapping)
         report.post_df = report.post_df.rename(columns=self.mapping)
+
+        if self.merge:
+            report.pre_df = merge(report.pre_df)
+            report.main_df = merge(report.main_df)
+            report.post_df = merge(report.post_df)
 
 
 class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     """Postprocess which can be used to transform (explode) the 'Features' Column
     in a dataframe for easier filtering."""
 
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "limit": [],
+        "drop": True,
+    }
+
     def __init__(self, features=None, config=None):
         super().__init__("features2cols", features=features, config=config)
+
+    @property
+    def limit(self):
+        """Get limit property."""
+        value = self.config["limit"]
+        if not isinstance(value, list):
+            return str2list(value)
+        return value
+
+    @property
+    def drop(self):
+        """Get drop property."""
+        value = self.config["drop"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_session(self, report):
         df = report.post_df
         if "Features" not in df.columns:
             return
+        to_concat = [
+            df["Features"].apply(lambda x: pd.Series({"feature_" + feature_name: feature_name in x}))
+            for feature_name in list(set(df["Features"].sum()))
+            if feature_name in self.limit or len(self.limit) == 0
+        ]
+        if len(to_concat) == 0:
+            return
         feature_df = pd.concat(
-            [
-                df["Features"].apply(lambda x: pd.Series({"feature_" + feature_name: feature_name in x}))
-                for feature_name in list(set(df["Features"].sum()))
-            ],
+            to_concat,
             axis=1,
         )
-        tmp_df = df.drop(columns=["Features"])
+        if self.drop:
+            tmp_df = df.drop(columns=["Features"])
+        else:
+            tmp_df = df
         new_df = pd.concat([tmp_df, feature_df], axis=1)
         report.post_df = new_df
 
@@ -192,7 +241,8 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
-        "limit": None,
+        "limit": [],
+        "drop": True,
     }
 
     def __init__(self, features=None, config=None):
@@ -200,31 +250,155 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 
     @property
     def limit(self):
+        """Get limit property."""
         value = self.config["limit"]
-        if value is None:
-            return None
-        if isinstance(value, str):
-            value = value.split(",")
-        assert isinstance(value, list)
+        if not isinstance(value, list):
+            return str2list(value)
         return value
+
+    @property
+    def drop(self):
+        """Get drop property."""
+        value = self.config["drop"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_session(self, report):
         """Called at the end of a session."""
         df = report.post_df
         if "Config" not in df.columns:
             return
-        config_df = df["Config"].apply(pd.Series).add_prefix("config_")
-        keep = self.limit
-        if keep:
-            keep_cols = [f"config_{x}" for x in keep]
-            for col in config_df:
-                if col not in keep_cols:
-                    # if not col.startswith("config_"):
-                    #     continue
-                    config_df.drop(columns=[col], inplace=True)
-        tmp_df = df.drop(columns=["Config"])
+        config_df = (
+            df["Config"]
+            .apply(lambda x: {key: value for key, value in x.items() if key in self.limit or len(self.limit) == 0})
+            .apply(pd.Series)
+            .add_prefix("config_")
+        )
+        if self.drop:
+            tmp_df = df.drop(columns=["Config"])
+        else:
+            tmp_df = df
         new_df = pd.concat([tmp_df, config_df], axis=1)
         report.post_df = new_df
+
+
+class MyPostprocess(SessionPostprocess):
+    """TODO"""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("mypost", features=features, config=config)
+        self.config2cols = Config2ColumnsPostprocess(
+            config={
+                "config2cols.limit": [
+                    "tvmllvm.desired_layout",
+                    "tvmaot.desired_layout",
+                    "tvmaotplus.desired_layout",
+                    "tvmrt.desired_layout",
+                    "xcorev.mem",
+                    "xcorev.mac",
+                    "xcorev.bi",
+                    "xcorev.alu",
+                    "xcorev.bitmanip",
+                    "xcorev.simd",
+                    "xcorev.hwlp",
+                    "cv32e40p.fpu",
+                    "etiss.fpu",
+                    "corev_ovpsim.fpu",
+                    "tvmaot.disabled_passes",
+                    "tvmaotplus.disabled_passes",
+                    "tvmrt.disabled_passes",
+                    "tvmllvm.disabled_passes",
+                    "auto_vectorize.loop",
+                    "auto_vectorize.slp",
+                    "auto_vectorize.force_vector_width",
+                    "auto_vectorize.force_vector_interleave",
+                    "auto_vectorize.custom_unroll",
+                    "tvmllvm.target_keys",
+                    "tvmrt.target_keys",
+                    "tvmaot.target_keys",
+                    "tvmaotplus.target_keys",
+                    "autotuned.mode",
+                ],
+                "config2cols.drop": True,
+            }
+        )
+        self.rename_cols = RenameColumnsPostprocess(
+            config={
+                "rename_cols.mapping": {
+                    "config_tvmllvm.desired_layout": "Layout",
+                    "config_tvmaot.desired_layout": "Layout",
+                    "config_tvmaotplus.desired_layout": "Layout",
+                    "config_tvmrt.desired_layout": "Layout",
+                    "config_xcorev.mem": "XCVMem",
+                    "config_xcorev.mac": "XCVMac",
+                    "config_xcorev.bi": "XCVBi",
+                    "config_xcorev.alu": "XCVAlu",
+                    "config_xcorev.bitmanip": "XCVBitmanip",
+                    "config_xcorev.simd": "XCVSimd",
+                    "config_xcorev.hwlp": "XCVHwlp",
+                    "feature_autotuned": "Autotuned",
+                    "feature_debug": "Debug",
+                    "config_cv32e40p.fpu": "FPU",
+                    "config_etiss.fpu": "FPU",
+                    "config_corev_ovpsim.fpu": "FPU",
+                    "config_tvmaot.disabled_passes": "Disabled",
+                    "config_tvmaotplus.disabled_passes": "Disabled",
+                    "config_tvmrt.disabled_passes": "Disabled",
+                    "config_tvmllvm.disabled_passes": "Disabled",
+                    "config_auto_vectorize.loop": "Loop",
+                    "config_auto_vectorize.slp": "Slp",
+                    "config_auto_vectorize.force_vector_width": "FVW",
+                    "config_auto_vectorize.force_vector_interleave": "FVI",
+                    "config_auto_vectorize.custom_unroll": "Unroll",
+                    "config_tvmllvm.target_keys": "Keys",
+                    "config_tvmrt.target_keys": "Keys",
+                    "config_tvmaot.target_keys": "Keys",
+                    "config_tvmaotplus.target_keys": "Keys",
+                    "config_autotuned.mode": "Tuner",
+                }
+            }
+        )
+        self.features2cols = Features2ColumnsPostprocess(
+            config={
+                "features2cols.limit": ["autotuned", "debug", "auto_vectorize", "target_optimized"],
+                "features2cols.drop": True,
+            }
+        )
+        self.filter_cols = FilterColumnsPostprocess(
+            config={
+                "filter_cols.drop": [
+                    "Postprocesses",
+                    "Framework",
+                    "Platform",
+                    "Session",
+                    "ROM read-only",
+                    "ROM code",
+                    "ROM misc",
+                    "RAM data",
+                    "RAM zero-init data",
+                    "Run Stage Time [s]",
+                    "Compile Stage Time [s]",
+                    "Workspace Size [B]",
+                    "Build Stage Time [s]",
+                    "Load Stage Time [s]",
+                    "feature_auto_vectorize",
+                    "feature_target_optimized",
+                    "Setup Cycles",
+                    "Setup Instructions",
+                    "Setup CPI",
+                ]
+            }
+        )
+
+    def post_session(self, report):
+        """TODO"""
+        self.config2cols.post_session(report)
+        self.features2cols.post_session(report)
+        self.rename_cols.post_session(report)
+        self.filter_cols.post_session(report)
 
 
 class PassConfig2ColumnsPostprocess(SessionPostprocess):
@@ -354,7 +528,14 @@ class Artifact2ColumnPostprocess(RunPostprocess):
 class AnalyseInstructionsPostprocess(RunPostprocess):
     """Counting specific types of instructions."""
 
-    DEFAULTS = {**RunPostprocess.DEFAULTS, "groups": True, "sequences": True, "top": 10}
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "groups": True,
+        "sequences": True,
+        "top": 10,
+        "to_df": True,
+        "to_file": True,
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_instructions", features=features, config=config)
@@ -376,6 +557,18 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         """get sequences property."""
         return int(self.config["top"])
 
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
         ret_artifacts = []
@@ -383,8 +576,8 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         assert len(log_artifact) == 1, "To use analyse_instructions process, please enable feature log_instrs."
         log_artifact = log_artifact[0]
         is_spike = "spike" in log_artifact.flags
-        is_etiss = "etiss_pulpino" in log_artifact.flags
-        is_ovpsim = "ovpsim" in log_artifact.flags
+        is_etiss = "etiss_pulpino" in log_artifact.flags or "etiss" in log_artifact.flags
+        is_ovpsim = "ovpsim" in log_artifact.flags or "corev_ovpsim" in log_artifact.flags
         is_riscv = is_spike or is_etiss or is_ovpsim
         if is_spike:
             content = log_artifact.content
@@ -502,7 +695,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             major_counts, major_probs = _helper(majors, top=self.top)
             majors_csv = _gen_csv("Major", major_counts, major_probs)
             artifact = Artifact("analyse_instructions_majors.csv", content=majors_csv, fmt=ArtifactFormat.TEXT)
-            ret_artifacts.append(artifact)
+            if self.to_file:
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["AnalyseInstructionsMajorsCounts"] = str(major_counts)
+                post_df["AnalyseInstructionsMajorsProbs"] = str(major_probs)
+                report.post_df = post_df
         if self.sequences:
             max_len = 3
 
@@ -520,7 +719,14 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 artifact = Artifact(
                     f"analyse_instructions_seq{length}.csv", content=sequence_csv, fmt=ArtifactFormat.TEXT
                 )
-                ret_artifacts.append(artifact)
+                if self.to_file:
+                    ret_artifacts.append(artifact)
+                if self.to_df:
+                    post_df = report.post_df.copy()
+                    post_df[f"AnalyseInstructionsSeq{length}Counts"] = str(counts)
+                    post_df[f"AnalyseInstructionsSeq{length}Probs"] = str(probs)
+                    report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
 
 
@@ -585,14 +791,14 @@ class CompareRowsPostprocess(SessionPostprocess):
         if group_by is None:
             group_by = [x for x in pre_df.columns if x != "Run"]
         assert isinstance(group_by, list)
-        assert all(col in list(pre_df.columns) + list(post_df.columns) for col in group_by)
+        assert all(col in list(pre_df.columns) + list(post_df.columns) for col in group_by), "Cols mssing in df"
         to_compare = self.to_compare
         if to_compare is None:
             to_compare = list(main_df.columns)
         assert isinstance(to_compare, list)
         assert all(col in main_df.columns for col in to_compare)
         full_df = pd.concat([pre_df, main_df, post_df], axis=1)
-        grouped = full_df.groupby(group_by, axis=0, group_keys=False)
+        grouped = full_df.groupby(group_by, axis=0, group_keys=False, dropna=False)
         new_df = pd.DataFrame()
         for col in to_compare:
 
@@ -615,3 +821,399 @@ class CompareRowsPostprocess(SessionPostprocess):
             new_df[new_name] = new
         main_df = pd.concat([main_df, new_df], axis=1)
         report.main_df = main_df
+
+
+class AnalyseDumpPostprocess(RunPostprocess):
+    """Counting static instructions."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "to_df": True,
+        "to_file": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_dump", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        platform = report.pre_df["Platform"]
+        if (platform != "mlif").any():
+            return []
+        ret_artifacts = []
+        dump_artifact = lookup_artifacts(
+            artifacts, name="generic_mlonmcu.dump", fmt=ArtifactFormat.TEXT, first_only=True
+        )
+        assert len(dump_artifact) == 1, "To use analyse_dump postprocess, please set mlif.enable_asmdump=1"
+        dump_artifact = dump_artifact[0]
+        is_llvm = "llvm" in dump_artifact.flags
+        assert is_llvm, "Non-llvm objdump currently unsupported"
+        content = dump_artifact.content
+        lines = content.split("\n")
+        counts = {}
+        total = 0
+        for line in lines:
+            splitted = line.split("\t")
+            if len(splitted) != 3:
+                continue
+            insn = splitted[1]
+            args = splitted[2]
+            if "cv." in insn:
+                if "(" in args and ")" in args:
+                    m = re.compile(r"(.*)\((.*)\)").match(args)
+                    if m:
+                        g = m.groups()
+                        assert len(g) == 2
+                        offset, base = g
+                        fmt = "ri"
+                        try:
+                            offset = int(offset)
+                        except ValueError:
+                            fmt = "rr"
+                        insn += f"_{fmt}"
+                        if "!" in base:
+                            insn += "_inc"
+            if insn in counts:
+                counts[insn] += 1
+            else:
+                counts[insn] = 1
+            total += 1
+        counts_csv = "Instruction,Count,Probability\n"
+        for insn, count in sorted(counts.items(), key=lambda item: item[1]):
+            counts_csv += f"{insn},{count},{count/total:.4f}\n"
+        artifact = Artifact("dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT)
+        if self.to_file:
+            ret_artifacts.append(artifact)
+        if self.to_df:
+            post_df = report.post_df.copy()
+            post_df["DumpCounts"] = str(counts)
+            report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
+        return ret_artifacts
+
+
+class AnalyseCoreVCountsPostprocess(RunPostprocess):
+    """Counting static instructions."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "to_df": True,
+        "to_file": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_corev_counts", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        ret_artifacts = []
+        count_artifact = lookup_artifacts(artifacts, name="dump_counts.csv", fmt=ArtifactFormat.TEXT, first_only=True)
+        assert len(count_artifact) == 1, "To use analyse_corev_counts postprocess, analyse_dump needs to run first."
+        count_artifact = count_artifact[0]
+        content = count_artifact.content
+
+        lines = content.split("\n")
+
+        XCVMAC_INSNS = {
+            "cv.mac",
+            "cv.msu",
+            "cv.mulun",
+            "cv.mulhhun",
+            "cv.mulsn",
+            "cv.mulhhsn",
+            "cv.mulurn",
+            "cv.mulhhurn",
+            "cv.mulsrn",
+            "cv.mulhhsrn",
+            "cv.macun",
+            "cv.machhun",
+            "cv.macsn",
+            "cv.machhsn",
+            "cv.macurn",
+            "cv.machhurn",
+            "cv.macsrn",
+            "cv.machhsrn",
+        }
+        XCVMEM_INSNS = {
+            "cv.lb_ri_inc",
+            "cv.lbu_ri_inc",
+            "cv.lh_ri_inc",
+            "cv.lhu_ri_inc",
+            "cv.lw_ri_inc",
+            "cv.lb_ri_inc",
+            "cv.lbu_ri_inc",
+            "cv.lh_ri_inc",
+            "cv.lhu_ri_inc",
+            "cv.lw_ri_inc",
+            "cv.lb_rr_inc",
+            "cv.lbu_rr_inc",
+            "cv.lh_rr_inc",
+            "cv.lhu_rr_inc",
+            "cv.lw_rr_inc",
+            "cv.lb_rr_inc",
+            "cv.lbu_rr_inc",
+            "cv.lh_rr_inc",
+            "cv.lhu_rr_inc",
+            "cv.lw_rr_inc",
+            "cv.lb_rr",
+            "cv.lbu_rr",
+            "cv.lh_rr",
+            "cv.lhu_rr",
+            "cv.lw_rr",
+            "cv.sb_ri_inc",
+            "cv.sh_ri_inc",
+            "cv.sw_ri_inc",
+            "cv.sb_ri_inc",
+            "cv.sh_ri_inc",
+            "cv.sw_ri_inc",
+            "cv.sb_rr_inc",
+            "cv.sh_rr_inc",
+            "cv.sw_rr_inc",
+            "cv.sb_rr_inc",
+            "cv.sh_rr_inc",
+            "cv.sw_rr_inc",
+            "cv.sb_rr",
+            "cv.sh_rr",
+            "cv.sw_rr",
+        }
+        XCVBI_INSNS = {
+            "cv.bneimm",
+            "cv.beqimm",
+        }
+        XCVALU_INSNS = {
+            "cv.slet",
+            "cv.min",
+            "cv.addnr",
+            "cv.addunr",
+            "cv.addn",
+            "cv.maxu",
+            "cv.subun",
+            "cv.extbz",
+            "cv.addun",
+            "cv.clip",
+            "cv.clipu",
+            "cv.subn",
+            "cv.max",
+            "cv.extbs",
+            "cv.abs",
+            "cv.addurn",
+            "cv.exths",
+            "cv.exthz",
+            "cv.minu",
+            "cv.sletu",
+            "cv.suburn",
+            "cv.addrn",
+            "cv.clipur",
+            "cv.subrn",
+        }
+        XCVBITMANIP_INSNS = {
+            "cv.ror",
+            "cv.clb",
+        }
+        XCVSIMD_INSNS = {
+            "cv.add.h",
+            "cv.add.sc.b",
+            "cv.add.sc.h",
+            "cv.add.sci.h",
+            "cv.and.b",
+            "cv.and.h",
+            "cv.and.sc.h",
+            "cv.and.sci.h",
+            "cv.cmpeq.sc.h",
+            "cv.cmpge.sci.h",
+            "cv.cmpgtu.h",
+            "cv.cmplt.sci.h",
+            "cv.cmpltu.sci.b",
+            "cv.cmpne.sc.h",
+            "cv.cmpne.sci.b",
+            "cv.extract.b",
+            "cv.extract.h",
+            "cv.extractu.b",
+            "cv.extractu.h",
+            "cv.insert.h",
+            "cv.max.h",
+            "cv.max.sci.h",
+            "cv.maxu.h",
+            "cv.or.b",
+            "cv.or.h",
+            "cv.pack",
+            "cv.packhi.b",
+            "cv.packlo.b",
+            "cv.shuffle2.b",
+            "cv.shuffle2.h",
+            "cv.shufflei0.sci.b",
+            "cv.sll.sci.h",
+            "cv.sra.h",
+            "cv.sra.sci.h",
+            "cv.srl.h",
+            "cv.srl.sci.h",
+            "cv.sub.b",
+            "cv.sub.h",
+            "cv.xor.b",
+            "cv.xor.sci.b",
+            "cv.add.sci.b",
+            "cv.cmpeq.b",
+            "cv.cmpgtu.sc.h",
+            "cv.cmpleu.sc.h",
+            "cv.sdotup.h",
+            "cv.sdotup.b",
+            "cv.shuffle.sci.h",
+            "cv.xor.sc.b",
+            "cv.xor.sc.h",
+            "cv.sdotsp.h",
+            "cv.cmpeq.sci.b",
+            "cv.and.sci.b",
+            "cv.dotsp.h",
+            "cv.dotsp.b",
+            "cv.sdotsp.b",
+            "cv.add.b",
+            "cv.dotup.sci.b",
+        }
+        XCVHWLP_INSNS = {
+            "cv.count",
+            "cv.counti",
+            "cv.start",
+            "cv.starti",
+            "cv.end",
+            "cv.endi",
+            "cv.setup",
+            "cv.setupi",
+        }
+
+        unknowns = []
+        cv_ext_totals = {
+            "XCVMac": len(XCVMAC_INSNS),
+            "XCVMem": len(XCVMEM_INSNS),
+            "XCVBi": len(XCVBI_INSNS),
+            "XCVAlu": len(XCVALU_INSNS),
+            "XCVBitmanip": len(XCVBITMANIP_INSNS),
+            "XCVSimd": len(XCVSIMD_INSNS),
+            "XCVHwlp": len(XCVHWLP_INSNS),
+            "Unknown": 0,
+        }
+        cv_ext_counts = {
+            "XCVMac": 0,
+            "XCVMem": 0,
+            "XCVBi": 0,
+            "XCVAlu": 0,
+            "XCVBitmanip": 0,
+            "XCVSimd": 0,
+            "XCVHwlp": 0,
+            "Unknown": 0,
+        }
+        cv_ext_unique_counts = {
+            "XCVMac": 0,
+            "XCVMem": 0,
+            "XCVBi": 0,
+            "XCVAlu": 0,
+            "XCVBitmanip": 0,
+            "XCVSimd": 0,
+            "XCVHwlp": 0,
+            "Unknown": 0,
+        }
+        total_counts = 0
+        cv_counts_csv = "Instruction,Count,Probability\n"
+        cv_counts = {}
+        for line in lines[1:]:
+            if "cv." not in line:
+                continue
+            cv_counts_csv += f"{line}\n"
+            splitted = line.split(",")
+            assert len(splitted) == 3
+            insn = splitted[0]
+            count = int(splitted[1])
+            cv_counts[insn] = count
+            total_counts += count
+            if insn in XCVMAC_INSNS:
+                cv_ext_counts["XCVMac"] += count
+                cv_ext_unique_counts["XCVMac"] += 1
+            elif insn in XCVMEM_INSNS:
+                cv_ext_counts["XCVMem"] += count
+                cv_ext_unique_counts["XCVMem"] += 1
+            elif insn in XCVBI_INSNS:
+                cv_ext_counts["XCVBi"] += count
+                cv_ext_unique_counts["XCVBi"] += 1
+            elif insn in XCVALU_INSNS:
+                cv_ext_counts["XCVAlu"] += count
+                cv_ext_unique_counts["XCVAlu"] += 1
+            elif insn in XCVBITMANIP_INSNS:
+                cv_ext_counts["XCVBitmanip"] += count
+                cv_ext_unique_counts["XCVBitmanip"] += 1
+            elif insn in XCVSIMD_INSNS:
+                cv_ext_counts["XCVSimd"] += count
+                cv_ext_unique_counts["XCVSimd"] += 1
+            elif insn in XCVHWLP_INSNS:
+                cv_ext_counts["XCVHwlp"] += count
+                cv_ext_unique_counts["XCVHwlp"] += 1
+            else:
+                cv_ext_counts["Unknown"] += count
+                cv_ext_unique_counts["Unknown"] += 1
+                if insn not in unknowns:
+                    unknowns.append(insn)
+        cv_ext_totals["Unknown"] = len(unknowns)
+        cv_ext_counts_csv = "Set,Count,Probability\n"
+        for ext, count in sorted(cv_ext_counts.items(), key=lambda item: item[1]):
+            if count == 0:
+                continue
+            cv_ext_counts_csv += f"{ext},{count},{count/total_counts}\n"
+        cv_ext_unique_counts_csv = "Set,Used,Utilization\n"
+        for ext, used in sorted(cv_ext_unique_counts.items(), key=lambda item: item[1]):
+            if used == 0:
+                continue
+            rel = used / cv_ext_totals[ext]
+            cv_ext_unique_counts_csv += f"{ext},{used},{rel:.4f}\n"
+        used = sum(cv_ext_unique_counts.values())
+        totals = sum(cv_ext_totals.values())
+        rel = used / totals
+        cv_ext_unique_counts_csv += f"XCVTotal,{used},{rel:.4f}\n"
+
+        cv_counts_artifact = Artifact("cv_counts.csv", content=cv_counts_csv, fmt=ArtifactFormat.TEXT)
+        cv_ext_counts_artifact = Artifact("cv_ext_counts.csv", content=cv_ext_counts_csv, fmt=ArtifactFormat.TEXT)
+        cv_ext_unique_counts_artifact = Artifact(
+            "cv_ext_unique_counts.csv", content=cv_ext_unique_counts_csv, fmt=ArtifactFormat.TEXT
+        )
+        if len(unknowns) > 0:
+            logger.warning("Unknown instructions found: %s", unknowns)
+            cv_ext_unknowns_artifact = Artifact(
+                "cv_ext_unknowns.csv", content="\n".join(unknowns), fmt=ArtifactFormat.TEXT
+            )
+            if self.to_file:
+                ret_artifacts.append(cv_ext_unknowns_artifact)
+            # TODO: logging
+
+        if self.to_file:
+            ret_artifacts.append(cv_counts_artifact)
+            ret_artifacts.append(cv_ext_counts_artifact)
+            ret_artifacts.append(cv_ext_unique_counts_artifact)
+        if self.to_df:
+            post_df = report.post_df.copy()
+            post_df["XCVCounts"] = str(cv_counts)
+            post_df["XCVExtCounts"] = str(cv_ext_counts)
+            post_df["XCVExtUniqueCounts"] = str(cv_ext_unique_counts)
+            report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
+        return ret_artifacts

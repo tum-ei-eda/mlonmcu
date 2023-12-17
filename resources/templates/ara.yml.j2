@@ -34,7 +34,9 @@ repos:
     ref: f050eec7e32a0895f7658db21a4bdbd0975087a5
   tvm:
     url: "https://github.com/apache/tvm.git"
-    ref: de6d8067754d746d88262c530b5241b5577b9aae
+    ref: 603ee8acf34550f1f9b76ce607769b61a77c5354
+    options:
+      recursive: true
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
@@ -43,7 +45,7 @@ repos:
     ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
-    ref: c023b80a51c1b48ec62b9b092d047e9ac0bab3e8
+    ref: 686db91d2db78a5994b492c047d9e0ba9916a5b2
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
     ref: 40c0b920cf4072adf189211ca44291534355dcfd
@@ -62,6 +64,8 @@ repos:
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
+    options:
+      recursive: true
   microtvm_etissvp:
     url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
     ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
@@ -71,15 +75,38 @@ repos:
   pulp_gcc:
     url: "https://github.com/pulp-platform/riscv-gnu-toolchain.git"
     ref: 11ba51efe1c4692d60357083b9c20c28bfb66a23
+    options:
+      recursive: true
   pulp_freertos:
     url: "https://github.com/pulp-platform/pulp-freertos.git"
     ref: aabd624fd9feef222f8dc2e0fa3b7dc487c42bf3
+    options:
+      recursive: true
   ara:
     url: "https://github.com/PhilippvK/ara.git"
-    ref: 8b3909979f7c2da159879e71dcba45b63f40583f
+    ref: e7038ecf5fcb70e6973ac2c3e3d3a53935e3c4d0
+    options:
+      recursive: true
+      submodules:
+        - hardware
   verilator:
     url: "https://github.com/verilator/verilator"
     ref: 8f090176a68b66bbe0a6ce95294944bffda9fdf7
+  embench:
+    url: "https://github.com/embench/embench-iot.git"
+    ref: master
+  taclebench:
+    url: "https://github.com/tacle/tacle-bench.git"
+    ref: master
+  polybench:
+    url: "https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git"
+    ref: master
+  mibench:
+    url: "https://github.com/embecosm/mibench.git"
+    ref: master
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
 
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -148,6 +175,7 @@ frontends:
     features:
       validate: true
       visualize: true
+      split_layers: true
   relay:
     enabled: true
     features:
@@ -162,6 +190,22 @@ frontends:
   pb:
     enabled: true
   paddle:
+    enabled: true
+  example:
+    enabled: true
+  embench:
+    enabled: true
+  taclebench:
+    enabled: true
+  polybench:
+    enabled: true
+  coremark:
+    enabled: true
+  mathis:
+    enabled: true
+  dhrystone:
+    enabled: true
+  mibench:
     enabled: true
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
 # Some targets/platforms support multiple toolchains
@@ -268,9 +312,11 @@ postprocesses:
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
   allow_extensions: false
-  llvm.version: "14.0.0"
+  # llvm.version: "15.0.6"  # No llvm 16 build available for ubuntu < 22.04
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fi3U4poNbe5DuUgqRsosK4/llvm16.tar.xz"
   runs_per_stage: true
   pulp_gcc.dl_url: "https://github.com/pulp-platform/pulp-riscv-gnu-toolchain/releases/download/v1.0.16/v1.0.16-pulp-riscv-gcc-ubuntu-18.tar.bz2"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv64gcv.tar.gz"
 flags:
   tflmc.exe:
   - x86

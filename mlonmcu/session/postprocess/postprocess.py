@@ -23,12 +23,12 @@ from mlonmcu.config import filter_config
 class Postprocess:
     """Abstract postprocess."""
 
-    FEATURES = []
+    FEATURES = set()
 
     DEFAULTS = {}
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, name, config=None, features=None):
         self.name = name

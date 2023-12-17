@@ -32,6 +32,8 @@ repos:
   tvm:
     url: "https://github.com/PhilippvK/tvm.git"
     ref: philippvk-current-4-new
+    options:
+      recursive: true
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
@@ -59,8 +61,10 @@ repos:
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
-  microtvm_etissvp:
-    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
+    options:
+      recursive: true
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
     ref: main
   microtvm_espidf:
     url: "https://github.com/PhilippvK/microtvm-espidf-template.git"
@@ -232,7 +236,7 @@ targets:
     enabled: false
   microtvm_arduino:
     enabled: false
-  microtvm_etissvp:
+  microtvm_etiss:
     enabled: false
   microtvm_espidf:
     enabled: false

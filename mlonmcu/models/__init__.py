@@ -24,6 +24,14 @@ from .frontend import (
     ONNXFrontend,
     RelayFrontend,
     PaddleFrontend,
+    ExampleFrontend,
+    EmbenchFrontend,
+    TaclebenchFrontend,
+    PolybenchFrontend,
+    CoremarkFrontend,
+    DhrystoneFrontend,
+    MathisFrontend,
+    MibenchFrontend,
     LayerGenFrontend,
 )
 
@@ -34,6 +42,14 @@ SUPPORTED_FRONTENDS = {
     "onnx": ONNXFrontend,
     "pb": PBFrontend,
     "paddle": PaddleFrontend,
+    "example": ExampleFrontend,
+    "embench": EmbenchFrontend,
+    "taclebench": TaclebenchFrontend,
+    "coremark": CoremarkFrontend,
+    "dhrystone": DhrystoneFrontend,
+    "polybench": PolybenchFrontend,
+    "mathis": MathisFrontend,
+    "mibench": MibenchFrontend,
     "layergen": LayerGenFrontend,
 }  # TODO: use registry instead
 

@@ -24,6 +24,7 @@ from pathlib import Path
 
 from mlonmcu.config import str2bool
 from mlonmcu.setup import utils  # TODO: Move one level up?
+from mlonmcu.timeout import exec_timeout
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target import get_targets
@@ -41,8 +42,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     FEATURES = (
         CompilePlatform.FEATURES
-        + TargetPlatform.FEATURES
-        + [
+        | TargetPlatform.FEATURES
+        | {
             "validate",
             "muriscvnn",
             "cmsisnn",
@@ -55,13 +56,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "auto_vectorize",
             "benchmark",
             "xpulp",
-        ]  # TODO: allow Feature-Features with automatic resolution of initialization order
+        }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
         **TargetPlatform.DEFAULTS,
+        "template": "ml_interface",
         "ignore_data": True,
+        "skip_check": False,
         "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
         "toolchain": "gcc",
@@ -72,11 +75,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "mem_only": False,
         "debug_symbols": False,
         "verbose_makefile": False,
+        "lto": False,
+        "slim_cpp": True,
+        "garbage_collect": True,
+        "fuse_ld": None,
+        "strip_strings": False,
         "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
     }
 
-    REQUIRED = ["mlif.src_dir"]
-    OPTIONAL = ["llvm.install_dir"]
+    REQUIRED = {"mlif.src_dir"}
+    OPTIONAL = {"llvm.install_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -168,8 +176,17 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["llvm.install_dir"]
 
     @property
+    def template(self):
+        return self.config["template"]
+
+    @property
     def ignore_data(self):
         value = self.config["ignore_data"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def skip_check(self):
+        value = self.config["skip_check"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -220,6 +237,31 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["verbose_makefile"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def lto(self):
+        value = self.config["verbose_makefile"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def slim_cpp(self):
+        value = self.config["slim_cpp"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def garbage_collect(self):
+        value = self.config["garbage_collect"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def fuse_ld(self):
+        value = self.config["fuse_ld"]
+        return value
+
+    @property
+    def strip_strings(self):
+        value = self.config["strip_strings"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -228,24 +270,47 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.tempdir:
             self.tempdir.cleanup()
 
-    def get_common_cmake_args(self):
-        args = []
-        args.append(f"-DTOOLCHAIN={self.toolchain}")
+    def get_definitions(self):
+        definitions = self.definitions
+        definitions["TEMPLATE"] = self.template
+        definitions["TOOLCHAIN"] = self.toolchain
+        definitions["QUIET"] = self.mem_only
+        definitions["SKIP_CHECK"] = self.skip_check
+        if self.num_threads is not None:
+            definitions["SUBPROJECT_THREADS"] = self.num_threads
         if self.toolchain == "llvm" and self.llvm_dir is None:
             raise RuntimeError("Missing config variable: llvm.install_dir")
         else:
-            args.append(f"-DLLVM_DIR={self.llvm_dir}")
-        if self.optimize:
-            args.append(f"-DOPTIMIZE={self.optimize}")
-        if self.debug_symbols:
-            args.append("-DDEBUG_SYMBOLS=ON")
-        if self.verbose_makefile:
-            args.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")
-        if self.model_support_dir:
-            args.append(f"-DMODEL_SUPPORT_DIR={self.model_support_dir}")
-        else:
-            pass
-        return args
+            definitions["LLVM_DIR"] = self.llvm_dir
+        if self.optimize is not None:
+            definitions["OPTIMIZE"] = self.optimize
+        if self.debug_symbols is not None:
+            definitions["DEBUG_SYMBOLS"] = self.debug_symbols
+        if self.verbose_makefile is not None:
+            definitions["CMAKE_VERBOSE_MAKEFILE"] = self.verbose_makefile
+        if self.lto is not None:
+            definitions["ENABLE_LTO"] = self.lto
+        if self.garbage_collect is not None:
+            definitions["ENABLE_GC"] = self.garbage_collect
+        if self.slim_cpp is not None:
+            definitions["SLIM_CPP"] = self.slim_cpp
+        if self.model_support_dir is not None:
+            definitions["MODEL_SUPPORT_DIR"] = self.model_support_dir
+        if self.fuse_ld is not None:
+            definitions["FUSE_LD"] = self.fuse_ld
+        if self.strip_strings is not None:
+            definitions["STRIP_STRINGS"] = self.strip_strings
+
+        return definitions
+
+    def get_cmake_args(self):
+        cmakeArgs = []
+        definitions = self.get_definitions()
+        for key, value in definitions.items():
+            if isinstance(value, bool):
+                value = "ON" if value else "OFF"
+            cmakeArgs.append(f"-D{key}={value}")
+        return cmakeArgs
 
     def prepare(self):
         self.init_directory()
@@ -254,15 +319,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         del target
         if not isinstance(src, Path):
             src = Path(src)
-        cmakeArgs = []
-        definitions = self.definitions
-        if self.mem_only:
-            definitions["QUIET"] = True
-        for key, value in definitions.items():
-            if isinstance(value, bool):
-                value = "ON" if value else "OFF"
-            cmakeArgs.append(f"-D{key}={value}")
-        cmakeArgs.extend(self.get_common_cmake_args())
+        cmakeArgs = self.get_cmake_args()
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():
@@ -302,13 +359,66 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return out, artifacts
 
     def generate(self, src, target, model=None) -> Tuple[dict, dict]:
-        out, artifacts = self.compile(target, src=src, model=model)
+        # TODO: fix timeouts
+        if self.validate_outputs:
+            # some strange bug?
+            self.timeout_sec = 0
+        else:
+            self.timeout_sec = 90
+        self.timeout_sec = 0
+        if self.timeout_sec > 0:
+            out, artifacts = exec_timeout(
+                self.timeout_sec,
+                self.compile,
+                target,
+                src=src,
+                model=model,
+            )
+        else:
+            out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / self.goal
+        map_file = self.build_dir / "linker.map"  # TODO: optional
+        hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
+        path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps
+        asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
+        srcdump_file = self.build_dir / "dumps" / "generic_mlonmcu.srcdump"  # TODO: optional
+
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
             data = handle.read()
             artifact = Artifact("generic_mlonmcu", raw=data, fmt=ArtifactFormat.RAW)
             artifacts.insert(0, artifact)  # First artifact should be the ELF
+        # for cv32e40p
+        if hex_file.is_file():
+            with open(hex_file, "rb") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.hex", raw=data, fmt=ArtifactFormat.RAW)
+                artifacts.insert(1, artifact)
+        # only for vicuna
+        if path_file.is_file():
+            with open(path_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.path", content=data, fmt=ArtifactFormat.TEXT)
+                artifacts.insert(1, artifact)
+        if map_file.is_file():
+            with open(map_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT)
+                artifacts.append(artifact)
+        if asmdump_file.is_file():
+            with open(asmdump_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact(
+                    "generic_mlonmcu.dump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
+                )
+                artifacts.append(artifact)
+        if srcdump_file.is_file():
+            with open(srcdump_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact(
+                    "generic_mlonmcu.srcdump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
+                )
+                artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)
         stdout_artifact = Artifact(
             "mlif_out.log", content=out, fmt=ArtifactFormat.TEXT

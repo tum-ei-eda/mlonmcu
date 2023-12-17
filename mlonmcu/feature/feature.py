@@ -34,8 +34,8 @@ class FeatureBase(ABC):
     scope = None
 
     DEFAULTS = {"enabled": True}
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, name, features=None, config=None):
         self.name = name

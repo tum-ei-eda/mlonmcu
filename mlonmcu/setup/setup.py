@@ -35,15 +35,15 @@ logger = get_logger()
 class Setup:
     """MLonMCU dependency management interface."""
 
-    FEATURES = []
+    FEATURES = set()
 
     DEFAULTS = {
         "print_outputs": False,
         "num_threads": None,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, features=None, config=None, context=None, tasks_factory=None):
         if not tasks_factory:

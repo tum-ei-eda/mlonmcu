@@ -27,8 +27,6 @@ logger = get_logger()
 
 
 class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    FEATURES = Target.FEATURES + []
-
     DEFAULTS = {
         **Target.DEFAULTS,
         "extra_files_tar": None,
@@ -46,7 +44,7 @@ class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "openocd_serial": None,
         "port": None,  # Workaround to overwrite esptool detection
     }
-    REQUIRED = Target.REQUIRED + ["zephyr.install_dir", "zephyr.sdk_dir"]
+    REQUIRED = Target.REQUIRED | {"zephyr.install_dir", "zephyr.sdk_dir"}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

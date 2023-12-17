@@ -23,7 +23,7 @@ on:
       branch:
         description: "Branch name"
         required: true
-        default: "staging-newer"
+        default: "develop"
       template:
         description: "Environment template"
         required: true
@@ -113,7 +113,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {branch: staging-newer, template: dev}
+          - {branch: develop, template: dev}
           - {branch: main, template: default}
     steps:
       - name: Lowercase repository url

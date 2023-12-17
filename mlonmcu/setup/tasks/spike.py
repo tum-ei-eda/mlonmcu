@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import shutil
 import multiprocessing
 from pathlib import Path
 
@@ -37,16 +38,6 @@ Tasks = get_task_factory()
 def _validate_spike(context: MlonMcuContext, params=None):
     if not context.environment.has_target("spike"):
         return False
-    if params.get("vext", False):
-        if params.get("pext", False):
-            return False  # Can not use booth at a time
-        if not context.environment.supports_feature("vext"):
-            return False
-    if params.get("pext", False):
-        if params.get("vext", False):
-            return False  # Can not use booth at a time
-        if not context.environment.supports_feature("pext"):
-            return False
     user_vars = context.environment.vars
     if "spike.pk" not in user_vars:  # TODO: also check command line flags?
         assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
@@ -55,13 +46,36 @@ def _validate_spike(context: MlonMcuContext, params=None):
     return True
 
 
+def _validate_spikepk(context: MlonMcuContext, params=None):
+    if not _validate_spike(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    # multilib = user_vars.get("riscv_gcc.multilib", False)
+    supported_archs = user_vars.get("riscv_gcc.supported_archs", [])
+    if params:
+        arch = params["arch"]
+        # if arch != "rv32gc":
+        if arch != "default":
+            if arch not in supported_archs:
+                return False
+    return True
+
+
+def _validate_spike_clean(context: MlonMcuContext, params={}):
+    if not _validate_spike(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    keep_build_dir = user_vars.get("spike.keep_build_dir", True)
+    return not keep_build_dir
+
+
 @Tasks.provides(["spikepk.src_dir"])
-@Tasks.validate(_validate_spike)
+@Tasks.validate(_validate_spikepk)
 @Tasks.register(category=TaskType.TARGET)
 def clone_spike_pk(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
-    """Clone the spike proxt kernel."""
+    """Clone the spike proxy kernel."""
     spikepkName = utils.makeDirName("spikepk")
     spikepkSrcDir = context.environment.paths["deps"].path / "src" / spikepkName
     user_vars = context.environment.vars
@@ -69,13 +83,15 @@ def clone_spike_pk(
         return False
     if rebuild or not utils.is_populated(spikepkSrcDir):
         spikepkRepo = context.environment.repos["spikepk"]
-        utils.clone(spikepkRepo.url, spikepkSrcDir, branch=spikepkRepo.ref)
+        utils.clone_wrapper(spikepkRepo, spikepkSrcDir, refresh=rebuild)
     context.cache["spikepk.src_dir"] = spikepkSrcDir
 
 
 @Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
-@Tasks.provides(["spikepk.build_dir", "spike.pk"])
-@Tasks.validate(_validate_spike)
+@Tasks.provides(["spikepk.build_dir", "spikepk.install_dir", "spike.pk"])
+# TODO: allow arch,abi
+@Tasks.param("arch", ["default"])  # ["rv32gc", "rv64gc", "rv32im", "rv64im"]
+@Tasks.validate(_validate_spikepk)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike_pk(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -90,29 +106,30 @@ def build_spike_pk(
     spikepkSrcDir = context.cache["spikepk.src_dir"]
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
-    spikepkBin = spikepkInstallDir / "pk"
-    if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
+    # default_arch = "rv32gc"
+    arch = params.get("arch", "rv32gc")
+    if arch == "default":
+        arch = user_vars.get("spikepk.default_arch", "rv32imafdc_zifencei_zicsr")
+        abi = user_vars.get("spikepk.default_abi", "ilp32d")
+    else:
+        abi = "lp64" if "rv64" in arch else "ilp32"
+    # spikepkBin = spikepkInstallDir / f"pk_{arch}_{abi}"
+    spikepkDefaultBin = spikepkInstallDir / "pk"
+    # if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
+    if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkDefaultBin.is_file()):
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikepkBuildDir)
         gccName = context.cache["riscv_gcc.name"]
         # assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
-        vext = params.get("vext", False)
-        pext = params.get("pext", False)
-        assert not (pext and vext), "Currently only p or vector extension can be enabled at a time."
-        if vext and "riscv_gcc.install_dir_vext" in user_vars:
-            riscv_gcc = user_vars["riscv_gcc.install_dir_vext"]
-        elif pext and "riscv_gcc.install_dir_pext" in user_vars:
-            riscv_gcc = user_vars["riscv_gcc.install_dir_pext"]
-        elif "riscv_gcc.install_dir" in user_vars:
+        if "riscv_gcc.install_dir" in user_vars:
             riscv_gcc = user_vars["riscv_gcc.install_dir"]
         else:
             riscv_gcc = context.cache["riscv_gcc.install_dir"]
-        arch = "rv32imafdc"
         spikepkArgs = []
+        spikepkArgs.append(f"--with-arch={arch}")
+        spikepkArgs.append(f"--with-abi={abi}")
         spikepkArgs.append("--prefix=" + str(riscv_gcc))
         spikepkArgs.append("--host=" + gccName)
-        spikepkArgs.append(f"--with-arch={arch}")
-        spikepkArgs.append("--with-abi=ilp32d")
         env = os.environ.copy()
         env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]
         utils.exec_getout(
@@ -126,9 +143,13 @@ def build_spike_pk(
         utils.make(cwd=spikepkBuildDir, threads=threads, live=verbose, env=env)
         # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
         utils.mkdirs(spikepkInstallDir)
-        utils.move(spikepkBuildDir / "pk", spikepkBin)
+        # utils.move(spikepkBuildDir / "pk", spikepkBin)
+        # if arch == default_arch:
+        utils.copy(spikepkBuildDir / "pk", spikepkDefaultBin)
     context.cache["spikepk.build_dir"] = spikepkBuildDir
-    context.cache["spike.pk"] = spikepkBin
+    context.cache["spikepk.install_dir"] = spikepkInstallDir
+    # if arch == default_arch:
+    context.cache["spike.pk"] = spikepkDefaultBin
     context.export_paths.add(spikepkInstallDir)
 
 
@@ -146,7 +167,7 @@ def clone_spike(
         return False
     if rebuild or not utils.is_populated(spikeSrcDir):
         spikeRepo = context.environment.repos["spike"]
-        utils.clone(spikeRepo.url, spikeSrcDir, branch=spikeRepo.ref)
+        utils.clone_wrapper(spikeRepo, spikeSrcDir, refresh=rebuild)
     context.cache["spike.src_dir"] = spikeSrcDir
 
 
@@ -176,8 +197,9 @@ def build_spike(
         utils.mkdirs(spikeBuildDir)
         spikeArgs = []
         spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
+        spikeArgs.append("--enable-misaligned")
         utils.exec_getout(
-            str(spikeSrcDir / "configure"),
+            str(Path(spikeSrcDir) / "configure"),
             *spikeArgs,
             cwd=spikeBuildDir,
             live=False,
@@ -190,3 +212,36 @@ def build_spike(
     context.cache["spike.build_dir"] = spikeBuildDir
     context.cache["spike.exe"] = spikeExe
     context.export_paths.add(spikeInstallDir)
+
+
+@Tasks.needs(["spike.exe", "spike.build_dir"])  # TODO: make sure spike.exe has beeen copies before
+@Tasks.removes(["spike.build_dir"])  # TODO: implement
+@Tasks.validate(_validate_spike_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_spike(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Cleanup Spike build dir."""
+    spikeBuildDir = context.cache["spike.build_dir"]
+    shutil.rmtree(spikeBuildDir)
+    del context.cache["spike.build_dir"]
+
+
+def _validate_microtvm_spike(context: MlonMcuContext, params=None):
+    return context.environment.has_target("microtvm_spike")
+
+
+@Tasks.provides(["microtvm_spike.src_dir", "microtvm_spike.template"])
+@Tasks.validate(_validate_microtvm_spike)
+@Tasks.register(category=TaskType.TARGET)
+def clone_microtvm_spike(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the microtvm-spike-template repository."""
+    name = utils.makeDirName("microtvm_spike")
+    srcDir = context.environment.paths["deps"].path / "src" / name
+    if rebuild or not utils.is_populated(srcDir):
+        repo = context.environment.repos["microtvm_spike"]
+        utils.clone_wrapper(repo, srcDir, refresh=rebuild)
+    context.cache["microtvm_spike.src_dir"] = srcDir
+    context.cache["microtvm_spike.template"] = srcDir / "template_project"

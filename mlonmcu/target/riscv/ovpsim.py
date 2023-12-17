@@ -54,7 +54,7 @@ def replace_unsupported(exts):
 class OVPSimTarget(RISCVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = RISCVTarget.FEATURES + ["vext", "pext", "gdbserver", "log_instrs", "trace"]
+    FEATURES = RISCVTarget.FEATURES | {"vext", "pext", "gdbserver", "log_instrs", "trace"}
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -72,7 +72,7 @@ class OVPSimTarget(RISCVTarget):
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
+    REQUIRED = RISCVTarget.REQUIRED | {"ovpsim.exe"}
 
     def __init__(self, name="ovpsim", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -100,8 +100,8 @@ class OVPSimTarget(RISCVTarget):
             vext=self.enable_vext,
             elen=self.elen,
             embedded=self.embedded_vext,
+            vlen=self.vlen,
             fpu=self.fpu,
-            variant=self.gcc_variant,
         )
 
     @property
@@ -174,6 +174,8 @@ class OVPSimTarget(RISCVTarget):
             "riscvOVPsim/cpu/unaligned=T",
             "--override",
             "riscvOVPsim/cpu/pk/reportExitErrors=T",
+            "--finishonopcode",
+            "0",
         ]
         if self.enable_pext:
             args.extend(
@@ -282,18 +284,18 @@ class OVPSimTarget(RISCVTarget):
             ret["RISCV_RVV_VLEN"] = self.vlen
         return ret
 
-    def get_backend_config(self, backend):
-        ret = super().get_backend_config(backend)
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = super().get_backend_config(
+            backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+        )
         if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update({"target_model": "ovpsim-rv32"})
-            if self.enable_pext or self.enable_vext:
-                ret.update(
-                    {
-                        # Warning: passing kernel layouts does not work with upstream TVM
-                        # TODO: allow passing map?
-                        "desired_layout": "NHWC:HWOI",
-                    }
-                )
+            if optimized_layouts:
+                if self.enable_pext or self.enable_vext:
+                    ret.update(
+                        {
+                            "desired_layout": "NHWC:HWOI",
+                        }
+                    )
         return ret
 
 

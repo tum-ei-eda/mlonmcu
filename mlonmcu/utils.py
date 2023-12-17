@@ -47,3 +47,10 @@ def get_base_prefix_compat():
 def in_virtualenv():
     """Detects if the current python interpreter is from a virtual environment."""
     return get_base_prefix_compat() != sys.prefix
+
+
+def filter_none(data):
+    """Helper function which drop dict items with a None value."""
+    assert isinstance(data, dict), "Dict only"
+    out = {key: value for key, value in data.items() if value is not None}
+    return out

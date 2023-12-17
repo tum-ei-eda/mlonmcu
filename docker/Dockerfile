@@ -20,7 +20,7 @@ ARG ENABLE_CMAKE="false"
 
 FROM debian:bullseye AS cmake-install
 ARG CMAKE_REPO="https://github.com/Kitware/CMake"
-ARG CMAKE_VERSION="3.20.0"
+ARG CMAKE_VERSION="3.22.2"
 ARG CMAKE_TARGET="Linux-x86_64"
 ARG ENABLE_CMAKE
 
@@ -33,7 +33,10 @@ RUN mkdir -p /opt/tools/cmake  \
 RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     then apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends wget ca-certificates ; \
+    && apt-get -y install --no-install-recommends wget ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/cache/apt/archives/ \
+    && rm -rf /var/cache/apt/lists; \
     fi
 
 # Install modern CMake
@@ -57,8 +60,14 @@ RUN apt-get update \
     g++ graphviz doxygen libtinfo-dev zlib1g-dev \
     autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
-    virtualenv git python3-dev python3-pip python3-setuptools libtinfo5 \
-    gcc libedit-dev libxml2-dev libopenblas-dev liblapack-dev gfortran cmake unzip ninja-build python-is-python3 device-tree-compiler libboost-all-dev
+    virtualenv git python3-dev python3-pip python3-setuptools libtinfo5 libzstd-dev \
+    gcc libedit-dev libxml2-dev libopenblas-dev liblapack-dev gfortran cmake unzip ninja-build python-is-python3 device-tree-compiler libboost-all-dev \
+    libfl-dev \
+    && apt-get clean \
+    && rm -rf /var/cache/apt/archives/ \
+    && rm -rf /var/cache/apt/lists
+
+RUN dpkg -l
 
 CMD /bin/bash
 
@@ -66,9 +75,9 @@ FROM mlonmcu-ci AS mlonmcu
 
 ADD . /mlonmcu
 WORKDIR /mlonmcu
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
-RUN pip3 install .
+RUN pip3 install --upgrade pip --no-cache-dir
+RUN pip3 install -r requirements.txt --no-cache-dir
+RUN pip3 install . --no-cache-dir
 CMD mlonmcu
 
 ARG MLONMCU_TEMPLATE=default
@@ -81,7 +90,9 @@ ENV MLONMCU_HOME=/environment
 
 RUN mlonmcu setup -g
 
-RUN pip3 install -r /environment/requirements_addition.txt
+RUN pip3 install -r /environment/requirements_addition.txt --no-cache-dir
+
+RUN df -h
 
 RUN df -h
 

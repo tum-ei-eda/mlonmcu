@@ -65,7 +65,7 @@ def install_llvm(
             return llvmUrl, llvmFileName, llvmFileExtension
 
         if "llvm.dl_url" in user_vars:
-            llvmUrl, llvmFileName, llvmFileExtension = _helper(user_vars[f"llvm.dl_url"])
+            llvmUrl, llvmFileName, llvmFileExtension = _helper(user_vars["llvm.dl_url"])
         else:
             llvmVersion = user_vars.get("llvm.version", "14.0.0")
             llvmDist = user_vars.get("llvm.distribution", "x86_64-linux-gnu-ubuntu-18.04")

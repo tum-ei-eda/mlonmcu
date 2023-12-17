@@ -24,13 +24,13 @@ on:
   push:
     branches:
       - main
-      - staging-newer
+      - develop
     tags:
       - 'v*'
   pull_request:
     branches:
       - main
-      - staging-newer
+      - develop
   workflow_dispatch:
     inputs:
       integration_tests:

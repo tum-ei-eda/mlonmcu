@@ -22,11 +22,13 @@ import os
 import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
+
 # import time
 import multiprocessing
 
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
+
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
@@ -224,7 +226,12 @@ class AraTarget(RVVTarget):
                 self.prepare_simulator(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
             else:
                 self.prepare_simulator(
-                    elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                    elf,
+                    *args,
+                    cwd=directory,
+                    live=False,
+                    print_func=lambda *args, **kwargs: None,
+                    handle_exit=handle_exit,
                 )
 
         def _handle_exit(code, out=None):
@@ -236,6 +243,7 @@ class AraTarget(RVVTarget):
             if handle_exit is not None:
                 temp = handle_exit(temp, out=out)
             return temp
+
         # simulation_start = time.time()
         if self.print_outputs:
             out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)

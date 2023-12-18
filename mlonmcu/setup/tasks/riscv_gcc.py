@@ -122,13 +122,11 @@ def install_riscv_gcc(
         default_multilib = user_vars.get("riscv_gcc_default.default_multilib_default", None)
         multilibs = user_vars.get("riscv_gcc.multilibs_default", None)
     elif vext and "riscv_gcc.install_dir_vext" in user_vars:
-        assert not multilib, "Multilib toolchain does only support riscv_gcc.install_dir"
         riscvInstallDir = Path(user_vars["riscv_gcc.install_dir_vext"])
         multilib = user_vars.get("riscv_gcc.multilib_vext", None)
         default_multilib = user_vars.get("riscv_gcc.default_multilib_vext", None)
         multilibs = user_vars.get("riscv_gcc.multilibs_vext", None)
     elif pext and "riscv_gcc.install_dir_pext" in user_vars:
-        assert not multilib, "Multilib toolchain does only support riscv_gcc.install_dir"
         riscvInstallDir = Path(user_vars["riscv_gcc.install_dir_pext"])
         multilib = user_vars.get("riscv_gcc.multilib_pext", None)
         default_multilib = user_vars.get("riscv_gcc.default_multilib_pext", None)

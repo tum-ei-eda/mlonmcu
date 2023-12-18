@@ -1,34 +1,5 @@
 # ML on MCU
 
-[![pypi package](https://badge.fury.io/py/mlonmcu.svg)](https://pypi.org/project/mlonmcu)
-[![readthedocs](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
-![covergae](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
-[![GitHub license](https://img.shields.io/github/license/tum-ei-eda/mlonmcu.svg)](https://github.com/tum-ei-eda/mlonmcu/blob/main/LICENSE)
-
-[![cicd workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
-[![demo workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml)
-[![container workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml)
-[![bench workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml)
-
-This project contains research code related to the deployment of inference or learning applications on tiny micro-controllers.
-
-
-* Free software: Apache License, Version 2.0
-* Python Package: [https://pypi.org/project/mlonmcu/](https://pypi.org/project/mlonmcu/)
-* Documentation: [https://mlonmcu.readthedocs.io](https://mlonmcu.readthedocs.io) or [https://tum-ei-eda.github.io/mlonmcu/](https://tum-ei-eda.github.io/mlonmcu/)
-
-
-## Features
-
-- Highly configurable python package
-- Automatic resolution and installation of dependencies
-- Supporting a large combination of frameworks/backends/targets/features
-- Build-in parallel processing of large number of benchmarks
-- Isolated enironments (not interfering with other installations)
-- Command Line and Python Development Interfaces
-- Docker images to get started quickly
-- Extensive documentation on usage and code details
-- CI/CD integration and high PyTest coverage
 
 ## Getting started
 
@@ -51,16 +22,8 @@ sudo apt install ninja-build
 
 Also make sure that your default Python is at least v3.7. If the `python` command is not available in your shell or points Python v2.7 check out `python-is-python3`.
 
-**Warning:** It seems like the ETISS tool fails to compile if if find a version of LLVM 11 on your system which does not include Clang 11. The best workaround for now is to (if possible) remove those tools from your system: `sudo apt remove llvm-11* clang-11*` (See issue #1)
 
 Make sure to use a fresh virtual Python environment in the following steps.
-
-##### Install Release from PyPI
-
-**Warning:** As the PyPI package is not always up to date, it is currently recommented to use a self-build version of the package (as explained in the next section)
-
-To use the PIP package, run the following: `pip install mlonmcu` (Add `--user` if you are not using a virtual environment)
-
 
 #### Build Package manually
 
@@ -91,24 +54,6 @@ Then you should be able to install the `mlonmcu` python package like this
 
 make install  # Alternative: python setup.py install
 ```
-
-#### Docker (Any other OS)
-
-See [`./docker/README.md`](https://github.com/tum-ei-eda/mlonmcu/blob/main/docker/README.md) for more details.
-
-This repository ships three different types of docker images based on Debian:
-
-- A minimal one with preinstalled software dependencies and python packages
-
-  Feel free to use this one if you do not want to install anything (except Docker) on your main sytem to work with mlonmcu
-- A medium one which already has the `mlonmcu` python package installed
-
-  Recommended and the easiest to use. (Especially when using `docker-compose` to mount shared directories etc.)
-
-- A very large one with an already initialized and installed
-
-  Mainly used for triggering automated benchmarks without spending too much time on downloading/compiling heavy dependencies over and over again.
-
 ### Usage
 
 Is is recommended to checkout the provided [Demo Jupyter Notebook](https://github.com/tum-ei-eda/mlonmcu/blob/main/ipynb/Demo.ipynb) as it contains a end-to-end example which should help to understand the main concepts and methodology of the tool. The following paragraphs can be seen as a TL;DL version of the information in that Demo notebook.
@@ -116,59 +61,32 @@ Is is recommended to checkout the provided [Demo Jupyter Notebook](https://githu
 While some tools and features of this project work out of the box, some of them require setting up an environment where additional dependencies are installed. This can be achived by creating a MLonMCU environment as follows:
 
 ```bash
-mlonmcu init
+mlonmcu init --name <environment_name> --template tgc # this creates a mlonmcu environment
 ```
 
-Make sure to point the `MLONMCU_HOME` environment variable to the location of the previously initialied environment. (Alternative: use the `default` environment or `--home` argument on the command line)
-
-Next, generate a `requirements_addition.txt` file inside the environment directory using `mlonmcu setup -g` which now be installed by running `pip install -r $MLONMCU_HOME/requirements_addition.txt` inside the virtual Python environment.
-
-
-To use the created environment in a python program, a `MlonMcuContext` needs to be created as follows:
-
-```
-import mlonmcu.context
-
-with mlonmcu.context.MlonMcuContext() as context:
-    pass
+Now you have to point the environment variable to your environment
+```bash
+export MLONMCU_HOME=<path_to_your_environment_variable>
+mlonmcu env # this command lists all your available environments
 ```
 
-
-## Development
-
-Make sure to first install the additonal set of development Python packages into your virtual environment:
-
+The next step can take some time
+```bash
+mlonmcu setup
 ```
-pip install -r requirements_all.txt  # Install packages for every component (instead of using mlonmcu setup -g)
-pip install -r requirements_dev.txt  # Building distributions and running tests
-pip install -r docs/requirements.txt  # For working with the documentation
+Now you are ready to go. For Usage it is best to checkout the Demo Jupyter notebook. The general flow will be described here.
+
+An mlonmcu environment comes with a model zoo. If you want to implement your own model you can add it to the model directory of your environment. 
+Be careful for each model that you add you need a single repository that is called the same as your .tflite model or the mlonmcu framework won't see your model
+```bash
+cd $MLONMCU_HOME/models # navigate to your environment model directory
+mkdir <your_model_name>
+cp <path_to_your_model>/<your_model_name>.tflite $MLONMCU_HOME/model/<your_model_name>/<your_model_name>.tflite #
+mlonmcu models # to list all available models 
 ```
 
-Unit test and integration test are defined in the `tests/` directory and can be triggered using `make test` or `pytest tests/`
-
-Coverage can be determined by running `make coverage`. The latest coverage report (HTML) for the default branch can also be found as an artifact of the CI/CD workflow.
-
-Documentation is mainly generated automatically from doctrings (triggered via `make html`). It is also possible to include markdown files from the repo into the `.rst` files found in the [`docs/`](./docs/) directory. There is a GitHub workflow which publishes the documentation for the default branch to our [GitHub Pages](https://tum-ei-eda.github.io/mlonmcu).
-
-Regarding coding style, it is recommended to run `black` before every commit. The default line length should be given in the `setup.cfg` file.
-
-## Credits
-
-This is a research project proposed by the Chair of Design Automation of the Technical University of Munich.
-
-### Developers
-
-- Rafael Stahl (TUM) [@rafzi]
-
-  - Wrote initial version of the MLonMCU project
-
-- Philipp van Kempen (TUM) [@PhilippvK]
-
-  - Came up with MLonMCU Python package
-
-
-### Other
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template. However most of the templates was manually changed to be in Markdown instead of reStructuredText.
-
-- **Cookiecutter:** https://github.com/audreyr/cookiecutter
-- **`audreyr/cookiecutter-pypackage`:** https://github.com/audreyr/cookiecutter-pypackage
+The general flow of a mlonmcu run looks like this. This is just a simple run that takes runs with self generated data
+```bash
+mlonmcu flow run model -b tvmaot -t tgc # model for your model name, -t for your target, -b for the backen you want its between tvm/tvmaot and tflmi
+```
+For further use and more usecases check the notebooks.

@@ -35,6 +35,8 @@ python -m venv .venv  # Feel free to choose a different directory or use a conda
 # Run this whenever your have updated the repository
 source .venv/bin/activate
 
+git clone -b develop https://github.com/Minres/mlonmcu.git
+
 # Environment-specific dependencies are installed later
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!

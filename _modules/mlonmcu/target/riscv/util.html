@@ -172,9 +172,12 @@
     <span class="k">return</span> <span class="n">extensions_new</span></div>
 
 
-<div class="viewcode-block" id="join_extensions"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.util.join_extensions">[docs]</a><span class="k">def</span> <span class="nf">join_extensions</span><span class="p">(</span><span class="n">exts</span><span class="p">):</span>
+<div class="viewcode-block" id="join_extensions"><a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.util.join_extensions">[docs]</a><span class="k">def</span> <span class="nf">join_extensions</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="n">merge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">merge</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;i&quot;</span> <span class="ow">in</span> <span class="n">exts</span> <span class="ow">and</span> <span class="s2">&quot;m&quot;</span> <span class="ow">in</span> <span class="n">exts</span> <span class="ow">and</span> <span class="s2">&quot;a&quot;</span> <span class="ow">in</span> <span class="n">exts</span> <span class="ow">and</span> <span class="s2">&quot;f&quot;</span> <span class="ow">in</span> <span class="n">exts</span> <span class="ow">and</span> <span class="s2">&quot;d&quot;</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+            <span class="n">exts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;g&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exts</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot;imafd&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
         <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sep</span> <span class="o">==</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>

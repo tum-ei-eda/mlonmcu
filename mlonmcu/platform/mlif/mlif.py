@@ -102,6 +102,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "global_isel": False,
         "extend_attrs": False,
         "ccache": False,
+        "prefix": None,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -296,6 +297,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def validate_outputs(self):
         return not self.ignore_data
+    
+    @property
+    def prefix(self):
+        return self.config["prefix"]
 
     @property
     def toolchain(self):
@@ -513,9 +518,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():
-            cmakeArgs.append("-DSRC_DIR=" + str(src))
+            cmakeArgs.append("-DSRC_DIR=" + str(src))    
         else:
             raise RuntimeError("Unable to find sources!")
+        if self.prefix is not None:
+            cmakeArgs.append("-DTGC_PREFIX=" + self.prefix)
         if self.ignore_data:
             cmakeArgs.append("-DDATA_SRC=")
         else:

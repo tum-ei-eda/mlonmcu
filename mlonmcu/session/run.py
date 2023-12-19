@@ -1258,7 +1258,7 @@ class Run:
                 main = metrics_by_sub[sub].get_data(include_optional=self.export_optional)
             else:
                 main = {}
-            mains.append(main if len(main) > 0 else {"Incomplete": [True]})
+            mains.append(main if len(main) > 0 else {"Incomplete": True})
             posts.append(post)  # TODO: omit for subs?
         report.set(pre=pres, main=mains, post=posts)
         return report

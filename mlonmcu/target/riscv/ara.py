@@ -192,7 +192,8 @@ class AraTarget(RVVTarget):
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)
         if exit_code is None:
-            print("EXIT NONE")
+            if "Simulation timeout of" in out:
+                exit_code = -1
         return exit_code
 
     def parse_stdout(self, out, metrics, exit_code=0):

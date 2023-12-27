@@ -37,54 +37,24 @@ repos:
     ref: 603ee8acf34550f1f9b76ce607769b61a77c5354
     options:
       recursive: true
-  utvm_staticrt_codegen:
-    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
-    ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
   tvm_extensions:
     url: "https://github.com/tum-ei-eda/tvm_extensions.git"
     ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
     ref: 686db91d2db78a5994b492c047d9e0ba9916a5b2
-  etiss:
-    url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: 40c0b920cf4072adf189211ca44291534355dcfd
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
   spikepk:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
     ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
-  cmsis:
-    url: "https://github.com/PhilippvK/CMSIS_5.git"
-    ref: ad1c3cad8f1240ef14a2c55381a78d792d76ec4d
   mlif:
-    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"  # This should be later changed to main branch in mlonmcu-sw
-    ref: 8d4e966c237bdf839005727fdb4d6d8fc6ecbe17
-  espidf:
-    url: "https://github.com/espressif/esp-idf.git"
-    ref: release/v4.4
-    options:
-      recursive: true
-  microtvm_etissvp:
-    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
-    ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
-  zephyr:
-    url: "https://github.com/zephyrproject-rtos/zephyr.git"
-    ref: v3.2.0
-  pulp_gcc:
-    url: "https://github.com/pulp-platform/riscv-gnu-toolchain.git"
-    ref: 11ba51efe1c4692d60357083b9c20c28bfb66a23
-    options:
-      recursive: true
-  pulp_freertos:
-    url: "https://github.com/pulp-platform/pulp-freertos.git"
-    ref: aabd624fd9feef222f8dc2e0fa3b7dc487c42bf3
-    options:
-      recursive: true
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: ara-new
   ara:
     url: "https://github.com/PhilippvK/ara.git"
-    ref: e7038ecf5fcb70e6973ac2c3e3d3a53935e3c4d0
+    ref: ara-new
     options:
       recursive: true
       submodules:
@@ -246,15 +216,6 @@ targets:
     enabled: true
     features:
       vext: true
-  etiss_pulpino:
-    enabled: false
-    features:
-      gdbserver: true
-      etissdbg: true
-      trace: true
-      log_instrs: true
-      # vext: true
-      # pext: true
   host_x86:
     enabled: false
     features:
@@ -272,12 +233,6 @@ targets:
       vext: false
       pext: false
       log_instrs: true
-  corstone300:
-    enabled: false
-    features:
-      ethosu: false
-      arm_mvei: true
-      arm_dsp: true
   riscv_qemu:
     enabled: false
     features:
@@ -286,19 +241,7 @@ targets:
     enabled: false
   microtvm_spike:
     enabled: false
-  microtvm_zephyr:
-    enabled: false
-  microtvm_arduino:
-    enabled: false
-  microtvm_etissvp:
-    enabled: false
-  microtvm_espidf:
-    enabled: false
   tvm_cpu:
-    enabled: false
-  gvsoc_pulp:
-    enabled: false
-  gvsoc_pulpissimo:
     enabled: false
 postprocesses:
   use:

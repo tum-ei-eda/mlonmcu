@@ -588,10 +588,10 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         elif is_etiss:
             content = log_artifact.content
             if self.groups:
-                encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([01]+)\s.*").findall(content)
-                encodings = [f"0b{enc}" for enc in encodings]
+                encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+                # encodings = [f"{enc}" for enc in encodings]
             if self.sequences:
-                names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[01]+\s.*").findall(content)
+                names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
         elif is_ovpsim:
             content = log_artifact.content
             if self.groups:

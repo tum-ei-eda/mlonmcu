@@ -533,7 +533,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         "groups": True,
         "sequences": True,
         "top": 10,
-        "to_df": True,
+        "to_df": False,
         "to_file": True,
     }
 
@@ -828,7 +828,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
 
     DEFAULTS = {
         **RunPostprocess.DEFAULTS,
-        "to_df": True,
+        "to_df": False,
         "to_file": True,
     }
 
@@ -909,7 +909,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
 
     DEFAULTS = {
         **RunPostprocess.DEFAULTS,
-        "to_df": True,
+        "to_df": False,
         "to_file": True,
     }
 

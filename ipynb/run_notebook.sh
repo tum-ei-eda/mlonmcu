@@ -85,7 +85,7 @@ fi
 if [[ $NOOP -eq 0 ]]
 then
     echo "Executing notebook..."
-    python3 -m jupyter nbconvert --to notebook --execute $NOTEBOOK
+    python3 -m jupyter nbconvert --to notebook --execute $NOTEBOOK --inplace
 else
     echo "Skipping execution of notebook..."
 fi

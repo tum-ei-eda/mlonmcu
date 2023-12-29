@@ -1297,8 +1297,8 @@ class LogInstructions(TargetFeature):
                                     instrs.append(line)
                                 else:
                                     new_lines.append(line)
-                            content = ("\n".join(instrs),)
-                            return "\n".join(new_lines)
+                            content = "\n".join(instrs)
+                            stdout = "\n".join(new_lines)
                         else:
                             assert target in ["spike", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"

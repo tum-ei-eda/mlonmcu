@@ -61,16 +61,16 @@ jobs:
               echo "template=default" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
           then
-              echo "branch=develop" >> $github_output
-              echo "template=corev" >> $github_output
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=dev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 18 * * 6" ]]
           then
-              echo "branch=develop" >> $github_output
-              echo "template=ara" >> $github_output
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=ara" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1

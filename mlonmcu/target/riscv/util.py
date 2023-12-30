@@ -87,9 +87,12 @@ def sort_extensions_canonical(extensions, lower=False, unpack=False):
     return extensions_new
 
 
-def join_extensions(exts):
+def join_extensions(exts, merge=True):
     sep = ""
     ret = ""
+    if merge:
+        if "i" in exts and "m" in exts and "a" in exts and "f" in exts and "d" in exts:
+            exts = ["g"] + [e for e in exts if e not in "imafd"]
     for ext in exts:
         length = len(ext)
         if sep == "_":

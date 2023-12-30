@@ -29,7 +29,7 @@ do
       shift 2
       ;;
     -e | --environment )
-      HOME_="$2"
+      VENV="$2"
       shift 2
       ;;
     --skip )

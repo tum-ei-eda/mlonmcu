@@ -1,0 +1,79 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home_dir }}"
+logging:
+  level: INFO
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 5
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
+  models:
+    - "{{ home_dir }}/models"
+# Here default clone_urls
+repos:
+  tvm:
+    url: "https://github.com/apache/tvm.git"
+    ref: a9fcac1a47f4b57c1d9d828c7ed1d77452b02cc5
+    options:
+      recursive: true
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: c7b0e7364c232666ebd5a17476181e3ff9a71d70
+frameworks:
+  default: tvm
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmaot:
+        enabled: true
+        features: {}
+    features: {}
+frontends:
+  tflite:
+    enabled: true
+    features: []
+toolchains:
+  gcc: true
+  llvm: true
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      vext: true
+      auto_vectorize: true
+targets:
+  default: host_x86
+  spike:
+    enabled: true
+    features:
+      vext: true
+  host_x86:
+    enabled: true
+    features: []
+postprocesses:
+  use: []
+vars:
+  allow_extensions: false
+  runs_per_stage: true
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv32gcv_new.tar.gz"
+flags: {}

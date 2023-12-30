@@ -2,32 +2,98 @@
 
 set -e
 
-if [[ $# -lt 1 ]]
-then
-    echo "Invalid number or arguments!"
-    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop]"
-    exit 1
-fi
+SHORT=h:,:,e:
+LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,help
+OPTS=$(getopt -a -n class --options $SHORT --longoptions $LONG -- "$@")
 
-HOME=
+eval set -- "$OPTS"
+
+HOME_=
 VENV=
 SKIP=0
 CLEANUP=0
 CLEAR=0
 NOOP=0
-HTML=1
-PDF=1
+HTML=0
+PDF=0
 
-NOTEBOOK=$(readlink -f $1)
+function print_usage() {
+    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf]"
+}
+
+while :
+do
+  case "$1" in
+    -h | --home )
+      HOME_="$2"
+      shift 2
+      ;;
+    -e | --environment )
+      HOME_="$2"
+      shift 2
+      ;;
+    --skip )
+      SKIP=1
+      shift
+      ;;
+    --cleanup )
+      CLEANUP=1
+      shift
+      ;;
+    --clear )
+      CLEAR=1
+      shift
+      ;;
+    --noop )
+      NOOP=1
+      shift
+      ;;
+    --html )
+      HTML=1
+      shift
+      ;;
+    --pdf )
+      PDF=1
+      shift
+      ;;
+    --help)
+      print_usage
+      exit 0
+      ;;
+    --)
+      if [[ "$NOTEBOOK" != "" ]]
+      then
+          echo "Too many notebooks specified!"
+          exit 1
+      fi
+      NOTEBOOK=$2
+      shift;
+      break
+      ;;
+    *)
+      echo "Unexpected option: $1"
+      print_usage
+      exit 1
+      ;;
+  esac
+done
+
+
+NOTEBOOK=$(readlink -f $NOTEBOOK)
+if [[ ! -f $NOTEBOOK ]]
+then
+    echo "Notebook does not exist!"
+    exit 1
+fi
 DIR=$(readlink -f $(dirname $0))
 NAME=$(basename $NOTEBOOK | cut -d. -f1)
 DIRECTORY=$(dirname $NOTEBOOK)
 YAML=$DIRECTORY/environment.yml.j2
 REQUIREMENTS=$DIRECTORY/requirements.txt
 TEMPDIR=$(mktemp -d -t $NAME-XXXX)
-if [[ "$HOME" != "" ]]
+if [[ "$HOME_" != "" ]]
 then
-    WORKSPACE=$HOME
+    WORKSPACE=$HOME_
 else
     WORKSPACE=$TEMPDIR/workspace
 fi
@@ -114,7 +180,7 @@ cd -
 if [[ $CLEANUP -eq 1 ]]
 then
     echo "Cleaning up..."
-    rm -r $TEMPDIR
+    rm -rf $TEMPDIR
 fi
 
 echo "Done."

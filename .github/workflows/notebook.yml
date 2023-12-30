@@ -53,7 +53,7 @@ jobs:
       run: |
         cd ipynb
         # find ${{ github.event.inputs.path }} -name '*.ipynb' -exec ./run_notebook.sh {} \;
-        find Examples/AnalyseInstructionsFeature -name '*.ipynb' -exec ./run_notebook.sh {} \;
+        find Examples/AnalyseInstructionsFeature -name '*.ipynb' -exec ./run_notebook.sh {} --html --pdf \;
     - name: Archive reports
       uses: actions/upload-artifact@v4
       with:

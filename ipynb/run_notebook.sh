@@ -3,7 +3,7 @@
 set -e
 
 SHORT=h:,:,e:
-LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,help
+LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,mill,help
 OPTS=$(getopt -a -n class --options $SHORT --longoptions $LONG -- "$@")
 
 eval set -- "$OPTS"
@@ -16,9 +16,10 @@ CLEAR=0
 NOOP=0
 HTML=0
 PDF=0
+MILL=0
 
 function print_usage() {
-    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf]"
+    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf] [--mill]"
 }
 
 while :
@@ -54,6 +55,10 @@ do
       ;;
     --pdf )
       PDF=1
+      shift
+      ;;
+    --mill )
+      MILL=1
       shift
       ;;
     --help)
@@ -151,7 +156,14 @@ fi
 if [[ $NOOP -eq 0 ]]
 then
     echo "Executing notebook..."
-    python3 -m jupyter nbconvert --to notebook --execute $NOTEBOOK --inplace
+    cp $NOTEBOOK $NOTEBOOK.orig
+    if [[ $MILL -eq 1 ]]
+    then
+        python3 -m pip install papermill
+        python3 -m papermill $NOTEBOOK $NOTEBOOK --cwd $DIRECTORY
+    else
+        python3 -m jupyter nbconvert --to notebook --execute $NOTEBOOK --inplace
+    fi
 else
     echo "Skipping execution of notebook..."
 fi

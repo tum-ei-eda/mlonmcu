@@ -28,29 +28,38 @@ paths:
     - "{{ home_dir }}/models"
 # Here default clone_urls
 repos:
-  tensorflow:
-    url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: 93d4b1ccc6e0d1a9062acb1d79f21505daf9d940
+  tvm:
+    url: "https://github.com/apache/tvm.git"
+    ref: a9fcac1a47f4b57c1d9d828c7ed1d77452b02cc5
+    options:
+      recursive: true
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
     ref: 40c0b920cf4072adf189211ca44291534355dcfd
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
     ref: c7b0e7364c232666ebd5a17476181e3ff9a71d70
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 2d31cafc941d3889b042af9c0a72b5f768ac4606
 frameworks:
-  default: tflm
-  tflm:
+  default: tvm
+  tvm:
     enabled: true
     backends:
-      default: tflmi
-      tflmi:
+      default: tvmaotplus
+      tvmaotplus:
+        enabled: true
+        features: {}
+      tvmllvm:
         enabled: true
         features: {}
     features: {}
 frontends:
   tflite:
     enabled: true
-    features: []
+    features:
+      split_layers: true
 toolchains:
   gcc: true
 platforms:
@@ -58,6 +67,10 @@ platforms:
     enabled: true
     features:
       debug: true
+  tvm:
+    enabled: true
+    features:
+      tvm_profile: true
 targets:
   default: host_x86
   etiss:
@@ -65,6 +78,9 @@ targets:
     features:
       log_instrs: true
   host_x86:
+    enabled: true
+    features: []
+  tvm_cpu:
     enabled: true
     features: []
 postprocesses:

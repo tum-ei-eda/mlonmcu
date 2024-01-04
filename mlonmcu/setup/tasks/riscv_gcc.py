@@ -171,9 +171,9 @@ def install_riscv_gcc(
                 riscvFileName = f"riscv64-unknown-elf-gcc-{riscvVersion}-{riscvDist}"
             riscvFileExtension = "tar.gz"
         riscvArchive = riscvFileName + "." + riscvFileExtension
+        # if rebuild or not utils.is_populated(riscvInstallDir):
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
-        # if not utils.is_populated(riscvInstallDir):
-        if rebuild or not utils.is_populated(riscvInstallDir):
+        if not utils.is_populated(riscvInstallDir):
             utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir, progress=verbose)
         multilib = user_vars.get("riscv_gcc.multilib", None)
         default_multilib = user_vars.get("riscv_gcc.default_multilib", None)

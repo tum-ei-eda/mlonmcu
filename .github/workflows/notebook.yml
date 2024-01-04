@@ -52,7 +52,7 @@ jobs:
     - name: Run Notebooks
       run: |
         cd ipynb
-        find ${{ github.event.inputs.path }} -name '*.ipynb' -print0 | xargs -n1 -0 ./run_notebook.sh --html --pdf --mill
+        find ${{ github.event.inputs.path }} -name '*.ipynb' -print0 | xargs -n1 -0 ./run_notebook.sh --html --pdf --mill --cleanup
     - name: Archive reports
       uses: actions/upload-artifact@v4
       with:

@@ -363,7 +363,7 @@ def is_populated(path):
     return path.is_dir() and os.listdir(path.resolve())
 
 
-def download_and_extract(url, archive, dest, progress=False):
+def download_and_extract(url, archive, dest, progress=False, force=True):
     if isinstance(dest, str):
         dest = Path(dest)
     assert isinstance(dest, Path)
@@ -386,6 +386,9 @@ def download_and_extract(url, archive, dest, progress=False):
                 tmp_dir_new = Path(tmp_dir) / contents[0]
                 if tmp_dir_new.is_dir():  # Archive contains a single subdirectory with a different name
                     tmp_dir = tmp_dir_new
+            if dest.is_dir():
+                assert force, f"Set force=True to replace destination {dest}"
+                shutil.rmtree(dest)
             move(tmp_dir, dest)
 
 

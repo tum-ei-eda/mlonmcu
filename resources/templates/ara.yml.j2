@@ -250,12 +250,12 @@ postprocesses:
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
   allow_extensions: false
-  # llvm.version: "15.0.6"  # No llvm 16 build available for ubuntu < 22.04
-  llvm.dl_url: "https://syncandshare.lrz.de/dl/fi3U4poNbe5DuUgqRsosK4/llvm16.tar.xz"
   runs_per_stage: true
-  pulp_gcc.dl_url: "https://github.com/pulp-platform/pulp-riscv-gnu-toolchain/releases/download/v1.0.16/v1.0.16-pulp-riscv-gcc-ubuntu-18.tar.bz2"
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiNzAB7WesRHnfsUaMz9Fk/rv64gc_lp64d_medany.tar.xz"
-  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiPkqhW3qzMPd3mdomd21x/rv64gcv_lp64d_medany.tar.xz"
+  # llvm.version: "15.0.6"  # No llvm 16 build available for ubuntu < 22.04
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/Archive/llvm16.tar.xz"
+  # pulp_gcc.dl_url: "https://github.com/pulp-platform/pulp-riscv-gnu-toolchain/releases/download/v1.0.16/v1.0.16-pulp-riscv-gcc-ubuntu-18.tar.bz2"
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv64gc_lp64d.tar.xz"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv64gcv_lp64d_medany.tar.xz"
 flags:
   tflmc.exe:
   - x86

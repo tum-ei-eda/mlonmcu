@@ -22,6 +22,16 @@ import ast
 
 
 def parse_bench_results(out, allow_missing=False):
+    lines = out.split("\n")
+    for i, line in enumerate(lines):
+        if "Program start." in line:
+            lines = lines[i:]
+            break
+    for i, line in enumerate(lines):
+        if "Program finish." in line:
+            lines = lines[:i]
+            break
+    out = "\n".join(lines)
     matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out, re.DOTALL)
     ret = {}
     for key, value in matches:

@@ -29,10 +29,11 @@ def parse_bench_results(out, allow_missing=False):
             break
     for i, line in enumerate(lines):
         if "Program finish." in line:
-            lines = lines[:i]
+            lines = lines[:i+1]
             break
     out = "\n".join(lines)
-    matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out, re.DOTALL)
+    # matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out, re.DOTALL)
+    matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out)
     ret = {}
     for key, value in matches:
         value = ast.literal_eval(value)

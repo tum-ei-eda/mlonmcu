@@ -22,6 +22,7 @@ import re
 import ast
 import tempfile
 from pathlib import Path
+from io import StringIO
 
 import pandas as pd
 
@@ -516,13 +517,34 @@ class Artifact2ColumnPostprocess(RunPostprocess):
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
         for filename, colname in self.file2colname.items():
+            filename = Path(filename)
+            filecol = None
+            if ":" in filename.name:
+                fname, filecol = filename.name.rsplit(":", 1)
+                filename = filename.parent / fname
             matches = lookup_artifacts(artifacts, name=filename, first_only=True)
             if not matches:
                 report.main_df[colname] = ""
                 continue
             if matches[0].fmt != ArtifactFormat.TEXT:
                 raise RuntimeError("Can only put text into report columns")
-            report.main_df[colname] = matches[0].content
+            content = matches[0].content
+            if filecol:
+                assert filename.suffix == ".csv"
+                filedf = pd.read_csv(StringIO(content))
+                if filecol == "*":
+                    cols = list(filedf.columns)
+                else:
+                    assert filecol in filedf.columns
+                    cols = [filecol]
+                content = filedf[cols].to_dict(orient="list")
+                if len(content) == 1:
+                    content = content[list(content.keys())[0]]
+                if len(content) == 1:
+                    content = content[0]
+                content = str(content)
+            report.main_df[colname] = content
+        return []
 
 
 class AnalyseInstructionsPostprocess(RunPostprocess):

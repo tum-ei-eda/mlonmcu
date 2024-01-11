@@ -311,7 +311,7 @@ class SimpleFrontend(Frontend):
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES | {"visualize", "split_layers"}
+    FEATURES = Frontend.FEATURES | {"visualize", "split_layers", "tflite_analyze"}
 
     DEFAULTS = {
         **Frontend.DEFAULTS,
@@ -319,9 +319,13 @@ class TfLiteFrontend(SimpleFrontend):
         "visualize_script": None,
         "split_layers": False,
         "pack_script": None,
+        "analyze_enable": False,
+        "analyze_script": None,
     }
 
     REQUIRED = Frontend.REQUIRED
+
+    OPTIONAL = SimpleFrontend.OPTIONAL | {"tflite_analyze.script"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -349,6 +353,15 @@ class TfLiteFrontend(SimpleFrontend):
     def pack_script(self):
         return self.config["pack_script"]
 
+    @property
+    def analyze_enable(self):
+        value = self.config["analyze_enable"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def analyze_script(self):
+        return self.config["analyze_script"]
+
     def produce_artifacts(self, model):
         assert len(self.input_formats) == len(model.paths) == 1
         artifacts = []
@@ -360,10 +373,34 @@ class TfLiteFrontend(SimpleFrontend):
             raw = handle.read()
             artifacts.append(Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
 
-        if not self.visualize_enable:
-            assert len(self.output_formats) == 1
-        else:
-            assert len(self.output_formats) == 2
+        if self.analyze_enable:
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                out_file = str(Path(tmpdirname) / f"tflite_analyze.csv")
+
+                args = [
+                    path,
+                    "--csv",
+                    out_file,
+                    "--ops",
+                    "--estimate-macs",
+                    "--estimate-rom",
+                    "--estimate-ram",
+                ]
+
+                assert self.analyze_script is not None
+                assert Path(self.analyze_script).is_file(), f"Script {self.analyze_script} not found."
+                utils.python(self.analyze_script, *args, print_output=False)
+
+                with open(out_file, "r") as handle:
+                    tflite_analyze_csv = handle.read()
+
+                tflite_analyze_artifact = Artifact(
+                    f"tflite_analyze.csv",
+                    content=tflite_analyze_csv,
+                    fmt=ArtifactFormat.TEXT,
+                )
+                artifacts.append(tflite_analyze_artifact)
+        if self.visualize_enable:
 
             assert self.visualize_script is not None
 
@@ -383,6 +420,13 @@ class TfLiteFrontend(SimpleFrontend):
                     fmt=ArtifactFormat.TEXT,
                 )
                 artifacts.append(tflite_visualize_artifact)
+
+        if self.visualize_enable and self.analyze_enable:
+            assert len(self.output_formats) == 3
+        elif self.visualize_enable or self.analyze_enable:
+            assert len(self.output_formats) == 2
+        else:
+            assert len(self.output_formats) == 1
 
         return artifacts
 

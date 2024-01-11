@@ -1983,6 +1983,34 @@ class SplitLayers(FrontendFeature):
         )
 
 
+@register_feature("tflite_analyze")
+class TfLiteAnalyze(FrontendFeature):
+    """Get the estimated ROM, RAM and MACs from a TFLite model."""
+
+    REQUIRED = {"tflite_analyze.exe"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("tflite_analyze", features=features, config=config)
+
+    @property
+    def tflite_analyze_exe(self):
+        return self.config["tflite_analyze.exe"]
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        return filter_none(
+            {
+                f"{frontend}.analyze_enable": self.enabled,
+                f"{frontend}.analyze_script": self.tflite_analyze_exe,
+            }
+        )
+
+    def update_formats(self, frontend, input_formats, output_formats):
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        if self.enabled:
+            output_formats.append(ArtifactFormat.TEXT)
+
+
 # @register_feature("hpmcounter")
 class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
     """Use RISC-V Performance Counters"""

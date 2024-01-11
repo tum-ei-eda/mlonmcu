@@ -535,6 +535,73 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
         }
 
 
+@register_feature("bext")
+class Bext(SetupFeature, TargetFeature, PlatformFeature):
+    """Enable bitmanipulation extension for supported RISC-V targets"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        # use target-side settings by default
+        "spec": None,
+        "zba": True,
+        "zbb": True,
+        "zbc": True,
+        "zbs": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("bext", features=features, config=config)
+
+    @property
+    def spec(self):
+        return self.config["spec"]
+
+    @property
+    def zba(self):
+        value = self.config["zba"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def zbb(self):
+        value = self.config["zbb"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def zbc(self):
+        value = self.config["zbc"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def zbs(self):
+        value = self.config["zbs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def get_target_config(self, target):
+        return filter_none(
+            {
+                f"{target}.enable_bext": True,  # Handle via arch characters in the future
+                f"{target}.bext_spec": self.spec,
+                f"{target}.bext_zba": self.zba,
+                f"{target}.bext_zbb": self.zbb,
+                f"{target}.bext_zbc": self.zbc,
+                f"{target}.bext_zbs": self.zbs,
+            }
+        )
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {"RISCV_PEXT": self.enabled}
+
+    def get_required_cache_flags(self):
+        # These will be merged automatically with existing ones
+        return {
+            # "riscv_gcc.install_dir": ["bext"],
+            # "riscv_gcc.name": ["bext"],
+            "riscv_gcc.install_dir": [],
+            "riscv_gcc.name": [],
+        }
+
+
 @register_feature("debug")
 class Debug(SetupFeature, PlatformFeature):
     """Enable debugging ability of target software."""

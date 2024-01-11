@@ -77,6 +77,14 @@ def build_tensorflow(
     else:
         tflmLib = tflmBuildDir / "gen" / "linux_x86_64" / "lib" / "libtensorflow-microlite.a"
     # if rebuild or not tflmLib.is_file() or not utils.is_populated(tflmDownloadsDir):
+    if rebuild and utils.is_populated(tflmDownloadsDir):
+        utils.make(
+            "-f",
+            str(tflmDir / "tools" / "make" / "Makefile"),
+            "clean_downloads",
+            cwd=tfSrcDir,
+            live=verbose,
+        )
     if rebuild or not utils.is_populated(tflmDownloadsDir):
         tfDbgArg = ["BUILD_TYPE=debug"] if params["dbg"] else []
         utils.make(

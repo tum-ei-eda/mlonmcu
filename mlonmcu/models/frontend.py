@@ -24,6 +24,8 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Tuple, List
 
+import numpy as np
+
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import (
     ModelFormats,
@@ -55,7 +57,17 @@ class Frontend(ABC):
 
     DEFAULTS = {
         "use_inout_data": False,
-        # TODO: print_outputs for frontends
+        # the following should be configured using gen_data feature
+        "gen_data": False,
+        "gen_data_fill_mode": None,
+        "gen_data_file": None,
+        "gen_data_number": None,
+        "gen_data_fmt": None,
+        # the following should be configured using gen_ref_data feature
+        "gen_ref_data": False,
+        "gen_ref_data_mode": None,
+        "gen_ref_data_file": None,
+        "gen_ref_data_fmt": None,
     }
 
     REQUIRED = set()
@@ -83,6 +95,52 @@ class Frontend(ABC):
     def use_inout_data(self):
         value = self.config["use_inout_data"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def gen_data(self):
+        value = self.config["gen_data"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def gen_data_fill_mode(self):
+        value = self.config["gen_data_fill_mode"]
+        assert value in ["random", "ones", "zeros", "file", "dataset"]
+        return value
+
+    @property
+    def gen_data_file(self):
+        return self.config["gen_data_file"]
+
+    @property
+    def gen_data_number(self):
+        return int(self.config["gen_data_number"])
+
+    @property
+    def gen_data_fmt(self):
+        value = self.config["gen_data_fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    @property
+    def gen_ref_data(self):
+        value = self.config["gen_data"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def gen_ref_data_mode(self):
+        value = self.config["gen_ref_data_mode"]
+        assert value in ["file", "model"]
+        return value
+
+    @property
+    def gen_ref_data_file(self):
+        return self.config["gen_ref_data_file"]
+
+    @property
+    def gen_ref_data_fmt(self):
+        value = self.config["gen_ref_data_fmt"]
+        assert value in ["npy", "npz"]
+        return value
 
     def supports_formats(self, ins=None, outs=None):
         """Returs true if the frontend can handle at least one combination of input and output formats."""
@@ -145,7 +203,7 @@ class Frontend(ABC):
                     input_shapes[name] = shape
                 if name and ty:
                     input_types[name] = ty
-                if self.use_inout_data:
+                if self.use_inout_data or (self.gen_data and self.gen_data_fill_mode == "file" and self.gen_data_file == "auto"):
                     if "example_input" in inp and "path" in inp["example_input"]:
                         in_data_dir = Path(inp["example_input"]["path"])
                         # TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)
@@ -212,6 +270,209 @@ class Frontend(ABC):
             cfg.update({f"{model.name}.input_types": input_types})
         if len(output_types) > 0:
             cfg.update({f"{model.name}.output_types": output_types})
+        # flattened version
+        if len(input_shapes) > 0:
+            assert len(input_types) in [len(input_shapes), 0]
+            input_names = list(input_shapes.keys())
+        elif len(input_shapes) > 0:
+            input_names = list(input_types.keys())
+        else:
+            input_names = []
+        if len(output_shapes) > 0:
+            assert len(output_types) in [len(output_shapes), 0]
+            output_names = list(output_shapes.keys())
+        elif len(output_shapes) > 0:
+            output_names = list(output_types.keys())
+        else:
+            output_names = []
+        model_info_dict = {
+            "input_names": input_names,
+            "output_names": output_names,
+            "input_shapes": list(input_shapes.values()),
+            "output_shapes": list(output_shapes.values()),
+            "input_types": list(input_types.values()),
+            "output_types": list(output_types.values()),
+        }
+        print("model_info_dict", model_info_dict)
+        artifacts = []
+        if self.gen_data:
+            inputs_data = []
+            if self.gen_data_fill_mode == "random":
+                raise NotImplementedError
+            elif self.gen_data_fill_mode == "zeros":
+                raise NotImplementedError
+            elif self.gen_data_fill_mode == "ones":
+                raise NotImplementedError
+            elif self.gen_data_fill_mode == "file":
+                if self.gen_data_file == "auto":
+                    len(in_paths) > 0
+                    print("in_paths", in_paths)
+                    if len(in_paths) == 1:
+                        if in_paths[0].is_dir():
+                            files = list(in_paths[0].iterdir())
+                    else:
+                        files = in_paths
+                    temp = {}
+                    for file in files:
+                        if not isinstance(file, Path):
+                            file = Path(file)
+                        assert file.is_file()
+                        print("file", file)
+                        basename, ext = file.stem, file.suffix
+                        if ext == ".bin":
+                            if "_" in basename:
+                                i, ii = basename.split("_", 1)
+                                i = int(i)
+                                ii = int(ii)
+                            else:
+                                i = int(basename)
+                                ii = 0
+                            with open(file, "rb") as f:
+                                data = f.read()
+                            if i not in temp:
+                                temp[i] = {}
+                            temp[i][ii] = data
+                        elif ext in [".npy", ".npz"]:
+                            raise NotImplementedError
+                        else:
+                            raise RuntimeError(f"Unsupported ext: {ext}")
+                    # print("temp", temp)
+                    for i in range(min(self.gen_data_number, len(temp))):
+                        print("i", i)
+                        assert i in temp
+                        data = {}
+                        for ii, input_name in enumerate(input_names):
+                            print("ii", ii)
+                            assert ii in temp[i]
+                            # assert input_name in input_types
+                            dtype = input_types.get(input_name, "int8")  # TODO: require dtype!
+                            arr = np.frombuffer(temp[i][ii], dtype=dtype)
+                            assert ii < len(input_shapes)
+                            shape = input_shapes[input_name]
+                            arr = np.reshape(arr, shape)
+                            data[input_name] = arr
+                        inputs_data.append(data)
+                else:
+                    assert self.gen_data_file is not None, "Missing value for gen_data_file"
+                    file = Path(self.gen_data_file)
+                    assert file.is_file(), f"File not found: {file}"
+                # for i, input_name in enumerate(input_names):
+
+            elif self.gen_data_fill_mode == "dataset":
+                raise NotImplementedError
+            else:
+                raise RuntimeError(f"unsupported fill_mode: {self.gen_data_fill_mode}")
+            print("inputs_data", inputs_data)
+            fmt = self.gen_data_fmt
+            if fmt == "npy":
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    tempfilename = Path(tmpdirname) / "inputs.npy"
+                    np.save(tempfilename, inputs_data)
+                    with open(tempfilename, "rb") as f:
+                        raw = f.read()
+            elif fmt == "npz":
+                raise NotImplementedError
+            else:
+                raise RuntimeError(f"Unsupported fmt: {fmt}")
+            assert raw
+            inputs_data_artifact = Artifact(f"inputs.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("inputs", fmt))
+            artifacts.append(inputs_data_artifact)
+        if self.gen_ref_data:
+            outputs_data = []
+            if self.gen_ref_data_mode == "model":
+                raise NotImplementedError
+            elif self.gen_ref_data_mode == "file":
+                if self.gen_ref_data_file == "auto":
+                    len(out_paths) > 0
+                    if len(out_paths) == 1:
+                        if out_paths[0].is_dir():
+                            files = list(out_paths[0].iterdir())
+                    else:
+                        files = out_paths
+                    temp = {}
+                    for file in files:
+                        if not isinstance(file, Path):
+                            file = Path(file)
+                        assert file.is_file()
+                        print("file", file)
+                        basename, ext = file.stem, file.suffix
+                        if ext == ".bin":
+                            if "_" in basename:
+                                i, ii = basename.split("_", 1)
+                                i = int(i)
+                                ii = int(ii)
+                            else:
+                                i = int(basename)
+                                ii = 0
+                            with open(file, "rb") as f:
+                                data = f.read()
+                            if i not in temp:
+                                temp[i] = {}
+                            temp[i][ii] = data
+                        elif ext in [".npy", ".npz"]:
+                            raise NotImplementedError
+                        else:
+                            raise RuntimeError(f"Unsupported ext: {ext}")
+                    # print("temp", temp)
+                    # TODO: handle case where there are more output samples than input samples?
+                    for i in range(len(temp)):
+                        print("i", i)
+                        assert i in temp
+                        data = {}
+                        for ii, output_name in enumerate(output_names):
+                            print("ii", ii)
+                            assert ii in temp[i]
+                            # assert output_name in output_types
+                            dtype = output_types.get(output_name, "float32")  # TODO: require dtype!
+                            arr = np.frombuffer(temp[i][ii], dtype=dtype)
+                            assert ii < len(output_shapes)
+                            shape = output_shapes[output_name]
+                            arr = np.reshape(arr, shape)
+                            data[output_name] = arr
+                        outputs_data.append(data)
+                else:
+                    assert self.gen_data_file is not None, "Missing value for gen_data_file"
+                    file = Path(self.gen_data_file)
+                    assert file.is_file(), f"File not found: {file}"
+            else:
+                raise RuntimeError(f"unsupported fill_mode: {self.gen_ref_data_mode}")
+            print("outputs_data", outputs_data)
+            fmt = self.gen_data_fmt
+            if fmt == "npy":
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    tempfilename = Path(tmpdirname) / "outputs_ref.npy"
+                    np.save(tempfilename, outputs_data)
+                    with open(tempfilename, "rb") as f:
+                        raw = f.read()
+            elif fmt == "npz":
+                raise NotImplementedError
+            else:
+                raise RuntimeError(f"Unsupported fmt: {fmt}")
+            assert raw
+            outputs_data_artifact = Artifact(f"outputs.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("outputs", fmt))
+            artifacts.append(outputs_data_artifact)
+        # nested version
+        # model_info_dict = {
+        #     "inputs": [
+        #         {
+        #             "name": "input_1",
+        #             "shape": [1, 1014],
+        #             "type": "int8",
+        #         }
+        #     ],
+        #     "outputs": [
+        #         {
+        #             "name": "output",
+        #             "shape": [1, 10],
+        #             "type": "int8",
+        #         }
+        #     ],
+        # }
+        import yaml
+        content = yaml.dump(model_info_dict)
+        model_info_artifact = Artifact("model_info.yml", content=content, fmt=ArtifactFormat.TEXT, flags=("model_info",))
+        artifacts.append(model_info_artifact)
+        return artifacts
 
     def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []

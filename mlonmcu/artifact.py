@@ -40,7 +40,7 @@ class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
     DATA = 6
     NUMPY = 7
     PARAMS = 8
-    JSON = 9  # ?
+    JSON = 9  # TODO: how about YAML or more general: DICT?
     PATH = 10  # NOT A DIRECTORY?
     RAW = 11
     BIN = 11

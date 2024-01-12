@@ -222,7 +222,7 @@ class Frontend(ABC):
                     output_shapes[name] = shape
                 if name and ty:
                     output_types[name] = ty
-                if self.use_inout_data:
+                if self.use_inout_data or (self.gen_ref_data and self.gen_ref_data_mode == "file" and self.gen_ref_data_file == "auto"):
                     if "test_output_path" in outp:
                         out_data_dir = Path(outp["test_output_path"])
                         out_path = model_dir / out_data_dir
@@ -572,7 +572,7 @@ class SimpleFrontend(Frontend):
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES | {"visualize", "split_layers", "tflite_analyze"}
+    FEATURES = Frontend.FEATURES | {"visualize", "split_layers", "tflite_analyze", "gen_data", "gen_ref_data"}
 
     DEFAULTS = {
         **Frontend.DEFAULTS,

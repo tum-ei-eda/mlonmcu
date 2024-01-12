@@ -74,7 +74,7 @@ def add_any(new, base=None, append=True):
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
-    FEATURES = {"autotune", "target_optimized"}
+    FEATURES = {"autotune", "target_optimized", "validate_new"}
 
     DEFAULTS = {
         "export_optional": False,

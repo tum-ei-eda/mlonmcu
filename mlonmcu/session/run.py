@@ -982,7 +982,15 @@ class Run:
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}
         if isinstance(self.model, Model):
-            self.frontend.process_metadata(self.model, cfg=cfg_new)
+            artifacts_ = self.frontend.process_metadata(self.model, cfg=cfg_new)
+            if artifacts_ is not None:
+                if isinstance(artifacts, dict):
+                    assert "default" in artifacts.keys()
+                    artifacts["default"].extend(artifacts_)
+                    # ignore subs for now
+                else:
+                    assert isinstance(artifacts, list)
+                    artifacts.extend(artifacts_)
             if len(cfg_new) > 0:
                 for key, value in cfg_new.items():
                     component, name = key.split(".")[:2]

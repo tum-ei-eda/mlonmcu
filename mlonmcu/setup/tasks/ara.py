@@ -39,6 +39,10 @@ def _validate_ara(context: MlonMcuContext, params=None):
     return context.environment.has_target("ara")
 
 
+def _validate_ara_rtl(context: MlonMcuContext, params=None):
+    return context.environment.has_target("ara_rtl")
+
+
 @Tasks.provides(["ara.src_dir"])
 @Tasks.validate(_validate_ara)
 @Tasks.register(category=TaskType.TARGET)

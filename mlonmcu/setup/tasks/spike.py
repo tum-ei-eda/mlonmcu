@@ -29,6 +29,7 @@ from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 
 from .common import get_task_factory
+from .ara import _validate_ara_rtl
 
 logger = get_logger()
 
@@ -36,7 +37,7 @@ Tasks = get_task_factory()
 
 
 def _validate_spike(context: MlonMcuContext, params=None):
-    if not context.environment.has_target("spike"):
+    if not context.environment.has_target("spike") and not _validate_ara_rtl(context, params=params):
         return False
     user_vars = context.environment.vars
     if "spike.pk" not in user_vars:  # TODO: also check command line flags?

@@ -196,7 +196,8 @@ def build_spike(
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikeBuildDir)
         spikeArgs = []
-        spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
+        # spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
+        spikeArgs.append("--prefix=" + str(spikeInstallDir))
         spikeArgs.append("--enable-misaligned")
         utils.exec_getout(
             str(Path(spikeSrcDir) / "configure"),
@@ -206,10 +207,11 @@ def build_spike(
             print_output=False,
         )
         utils.make(cwd=spikeBuildDir, threads=threads, live=verbose)
-        # utils.make(target="install", cwd=spikeBuildDir, threads=threads, live=verbose)
+        utils.make("install", cwd=spikeBuildDir, threads=threads, live=verbose)
         utils.mkdirs(spikeInstallDir)
         utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
+    context.cache["spike.install_dir"] = spikeInstallDir
     context.cache["spike.exe"] = spikeExe
     context.export_paths.add(spikeInstallDir)
 

@@ -229,3 +229,9 @@ class RunFeature(FeatureBase):
 
     def add_run_config(self, config):
         config.update(self.get_run_config())
+
+    def get_postprocesses(self):
+        return []
+
+    def add_postprocesses(self, postprocesses):
+        postprocesses.extend(self.get_postprocesses())

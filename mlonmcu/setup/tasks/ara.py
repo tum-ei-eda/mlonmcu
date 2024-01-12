@@ -58,4 +58,5 @@ def clone_ara(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             araRepo = context.environment.repos["ara"]
             utils.clone_wrapper(araRepo, araSrcDir, refresh=rebuild)
             utils.exec_getout("make", "apply-patches", cwd=araSrcDir / "hardware")
+            utils.exec_getout("make", "bender", cwd=araSrcDir / "hardware")
     context.cache["ara.src_dir", flags] = araSrcDir

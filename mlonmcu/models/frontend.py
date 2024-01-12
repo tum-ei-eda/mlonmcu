@@ -227,7 +227,7 @@ class Frontend(ABC):
                         out_data_dir = Path(outp["test_output_path"])
                         out_path = model_dir / out_data_dir
                         assert (
-                            in_path.is_dir()
+                            out_path.is_dir()
                         ), f"Output data directory defined in model metadata does not exist: {out_path}"
                         out_paths.append(out_path)
         else:

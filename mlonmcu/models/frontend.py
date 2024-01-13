@@ -628,6 +628,9 @@ class TfLiteFrontend(SimpleFrontend):
         artifacts = []
 
         name = model.name
+        # assert "/" not in name
+        if "/" in name:
+            name = name.rsplit("/", 1)[-1]
         path = model.paths[0]
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:

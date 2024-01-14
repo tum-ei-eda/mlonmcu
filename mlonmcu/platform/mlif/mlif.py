@@ -105,12 +105,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             in_paths = [in_paths]
         in_paths_new = []
         for in_path in in_paths:
+            if in_path is None:
+                continue
+            if not isinstance(in_path, Path):
+                in_path = Path(in_path)
             if in_path.is_file():
                 raise NotImplementedError
             elif in_path.is_dir():
-                in_paths_new.extend([f for f in Path(in_path).iterdir() if f.is_file()])
+                in_paths_new.extend([f for f in in_path.iterdir() if f.is_file()])
             else:
-                logger.warning("TODO")
                 return None
         in_paths = in_paths_new
         out_paths = self.output_data_path
@@ -118,16 +121,18 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             out_paths = [out_paths]
         out_paths_new = []
         for out_path in out_paths:
+            if out_path is None:
+                continue
+            if not isinstance(out_path, Path):
+                out_path = Path(out_path)
             if out_path.is_file():
                 raise NotImplementedError
             elif out_path.is_dir():
-                out_paths_new.extend([f for f in Path(out_path).iterdir() if f.is_file()])
+                out_paths_new.extend([f for f in out_path.iterdir() if f.is_file()])
             else:
-                logger.warning("TODO")
                 return None
         out_paths = out_paths_new
         if len(in_paths) == 0 or len(out_paths) == 0:
-            logger.warning("TODO")
             return None
         data_src = get_data_source(in_paths, out_paths)
         return Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
@@ -326,15 +331,18 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             cmakeArgs.append("-DSRC_DIR=" + str(src))
         else:
             raise RuntimeError("Unable to find sources!")
+        artifacts = []
         if self.ignore_data:
             cmakeArgs.append("-DDATA_SRC=")
-            artifacts = []
         else:
             data_artifact = self.gen_data_artifact()
-            data_file = self.build_dir / data_artifact.name
-            data_artifact.export(data_file)
-            cmakeArgs.append("-DDATA_SRC=" + str(data_file))
-            artifacts = [data_artifact]
+            if data_artifact:
+                data_file = self.build_dir / data_artifact.name
+                data_artifact.export(data_file)
+                cmakeArgs.append("-DDATA_SRC=" + str(data_file))
+                artifacts.append(data_artifact)
+            else:
+                logger.warning("No validation data provided for model.")
         utils.mkdirs(self.build_dir)
         out = utils.cmake(
             self.mlif_dir,

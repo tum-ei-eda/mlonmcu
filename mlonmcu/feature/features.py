@@ -2266,9 +2266,9 @@ class ValidateNew(RunFeature):
     def __init__(self, features=None, config=None):
         super().__init__("validate_new", features=features, config=config)
 
-    def get_postprocesses(self):
-        # config = {}
-        # from mlonmcu.session.postprocess import ValidateOutputsPostprocess
-        # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)
-        # return [validate_outputs_postprocess]
-        return ["validate_outputs"]
+    # def get_postprocesses(self):
+    #     # config = {}
+    #     # from mlonmcu.session.postprocess import ValidateOutputsPostprocess
+    #     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)
+    #     # return [validate_outputs_postprocess]
+    #     return ["validate_outputs"]

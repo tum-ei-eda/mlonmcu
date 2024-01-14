@@ -198,7 +198,9 @@ class Frontend(ABC):
             for inp in ins:
                 name = inp.get("name", None)
                 shape = inp.get("shape", None)
-                ty = inp.get("type", None)
+                ty = inp.get("dtype", None)
+                if ty is None:
+                    ty = inp.get("type", None)  # legacy
                 if name and shape:
                     input_shapes[name] = shape
                 if name and ty:
@@ -217,7 +219,9 @@ class Frontend(ABC):
             for outp in outs:
                 name = outp.get("name", None)
                 shape = outp.get("shape", None)
-                ty = outp.get("type", None)
+                ty = outp.get("dtype", None)
+                if ty is None:
+                    ty = outp.get("type", None)  # legacy
                 if name and shape:
                     output_shapes[name] = shape
                 if name and ty:
@@ -344,10 +348,10 @@ class Frontend(ABC):
                         for ii, input_name in enumerate(input_names):
                             print("ii", ii)
                             assert ii in temp[i]
-                            # assert input_name in input_types
-                            dtype = input_types.get(input_name, "int8")  # TODO: require dtype!
+                            assert input_name in input_types, f"Unknown dtype for input: {input_name}"
+                            dtype = input_types[input_name]
                             arr = np.frombuffer(temp[i][ii], dtype=dtype)
-                            assert ii < len(input_shapes)
+                            assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
                             shape = input_shapes[input_name]
                             arr = np.reshape(arr, shape)
                             data[input_name] = arr
@@ -422,10 +426,10 @@ class Frontend(ABC):
                         for ii, output_name in enumerate(output_names):
                             print("ii", ii)
                             assert ii in temp[i]
-                            # assert output_name in output_types
-                            dtype = output_types.get(output_name, "float32")  # TODO: require dtype!
+                            assert output_name in output_types, f"Unknown dtype for output: {output_name}"
+                            dtype = output_types[output_name]
                             arr = np.frombuffer(temp[i][ii], dtype=dtype)
-                            assert ii < len(output_shapes)
+                            assert output_name in output_shapes, f"Unknown shape for output: {output_name}"
                             shape = output_shapes[output_name]
                             arr = np.reshape(arr, shape)
                             data[output_name] = arr
@@ -449,7 +453,7 @@ class Frontend(ABC):
             else:
                 raise RuntimeError(f"Unsupported fmt: {fmt}")
             assert raw
-            outputs_data_artifact = Artifact(f"outputs.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("outputs", fmt))
+            outputs_data_artifact = Artifact(f"outputs_ref.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("outputs", fmt))
             artifacts.append(outputs_data_artifact)
         # nested version
         # model_info_dict = {

@@ -152,6 +152,10 @@ class Run:
             feature.used = True
             tmp_run_config = {f"run.{key}": value for key, value in self.run_config.items()}
             feature.add_run_config(tmp_run_config)
+            # names = []
+            # feature.add_postprocesses(names)
+            # if len(names) > 0:
+            #     self.add_postprocesses_by_name(names, append=True, context=???):
             self.run_config = filter_config(tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         return features
 

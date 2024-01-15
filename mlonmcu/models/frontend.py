@@ -479,7 +479,7 @@ class Frontend(ABC):
             else:
                 raise RuntimeError(f"Unsupported fmt: {fmt}")
             assert raw
-            outputs_data_artifact = Artifact(f"outputs_ref.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("outputs", fmt))
+            outputs_data_artifact = Artifact(f"outputs_ref.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("outputs_ref", fmt))
             artifacts.append(outputs_data_artifact)
         # nested version
         # model_info_dict = {

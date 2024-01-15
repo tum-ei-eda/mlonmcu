@@ -1288,24 +1288,51 @@ class ValidateOutputsPostprocess(RunPostprocess):
         import numpy as np
         outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
         import copy
-        outputs = copy.deepcopy(outputs_ref)
-        outputs[1][list(outputs[1].keys())[0]][0] = 42
-        print("outputs_ref", outputs_ref)
-        # outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
-        # assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
-        # outputs_artifact = outputs_artifact[0]
-        # outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        # outputs = copy.deepcopy(outputs_ref)
+        # outputs[1][list(outputs[1].keys())[0]][0] = 42
+        outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+        assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+        outputs_artifact = outputs_artifact[0]
+        outputs = np.load(outputs_artifact.path, allow_pickle=True)
         compared = 0
         matching = 0
+        missing = 0
         for i, output_ref in enumerate(outputs_ref):
-            assert i < len(outputs), "Missing output sample"
+            if i >= len(outputs):
+                logger.warning("Missing output sample")
+                missing += 1
+                break
             output = outputs[i]
+            ii = 0
             for out_name, out_ref_data in output_ref.items():
-                assert out_name in output, "Output not found: {out_name}"
-                out_data = output[out_name]
+                if out_name in output:
+                    out_data = output[out_name]
+                elif ii < len(output):
+                    if isinstance(output, dict):
+                        # fallback for custom name-based npy dict
+                        out_data = list(output.values())[ii]
+                    else:  # fallback for index-based npy array
+                        assert isinstance(output, (list, np.array)), "expected dict, list of np.array type"
+                        out_data = output[ii]
+                else:
+                    RuntimeError(f"Output not found: {out_name}")
+                # optional dequantize
+                quant = model_info_data.get("output_quant_details", None)
+                if quant:
+                    assert ii < len(quant)
+                    quant = quant[ii]
+                    if quant:
+                        quant_scale, quant_zero_point, quant_dtype = quant
+                        if quant_dtype:
+                            if out_data.dtype.name != quant_dtype:
+                                # need to dequantize here
+                                assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                                assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                                out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale
                 if np.allclose(out_data, out_ref_data, rtol=0, atol=0):
                     matching += 1
                 compared += 1
+                ii += 1
         if self.report:
             raise NotImplementedError
         if self.atol:

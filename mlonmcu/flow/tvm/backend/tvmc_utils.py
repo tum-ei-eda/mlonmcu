@@ -176,7 +176,7 @@ def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=10):
         ret.extend(["--outputs", outs_file])
 
     if print_top is not None and print_top > 0:
-        ret.extend(["--print-top", print_top])
+        ret.extend(["--print-top", str(print_top)])
 
     return ret
 

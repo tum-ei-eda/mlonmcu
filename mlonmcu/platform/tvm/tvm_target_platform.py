@@ -75,7 +75,8 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
 
     @property
     def print_top(self):
-        return self.config["print_top"]
+        value = self.config["print_top"]
+        return int(value) if isinstance(value, str) else None
 
     @property
     def profile(self):

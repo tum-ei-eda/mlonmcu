@@ -17,12 +17,15 @@
 # limitations under the License.
 #
 """TVM Target Platform"""
+import tempfile
+from pathlib import Path
 from mlonmcu.config import str2bool
 from .tvm_rpc_platform import TvmRpcPlatform
 from ..platform import TargetPlatform
 from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from .tvm_target import create_tvm_platform_target
+from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_bench_tvmc_args,
     get_data_tvmc_args,
@@ -121,10 +124,10 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
             base = Target
         return create_tvm_platform_target(name, self, base=base)
 
-    def get_tvmc_run_args(self):
+    def get_tvmc_run_args(self, ins_file=None, outs_file=None):
         return [
             *get_data_tvmc_args(
-                mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
+                mode=self.fill_mode, ins_file=ins_file, outs_file=outs_file, print_top=self.print_top
             ),
             *get_bench_tvmc_args(
                 print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=self.number
@@ -132,18 +135,39 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
 
-    def invoke_tvmc_run(self, *args, target=None):
+    def invoke_tvmc_run(self, *args, target=None, **kwargs):
         assert target is not None, "Target required for tvmc run"
         combined_args = []
         combined_args.extend(["--device", target.device])
-        return self.invoke_tvmc("run", *args)
+        return self.invoke_tvmc("run", *args, **kwargs)
 
     def run(self, elf, target, timeout=120):
         # TODO: implement timeout
         # Here, elf is actually a directory
         # TODO: replace workaround with possibility to pass TAR directly
         tar_path = str(elf)
-        args = [tar_path] + self.get_tvmc_run_args()
-        output = self.invoke_tvmc_run(*args, target=target)
+        in_path = self.ins_file
+        out_path = self.outs_file
+        set_inputs = False
+        get_outputs = True
+        artifacts = []
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            if set_inputs and in_path is None:
+                in_path = Path(tmp_dir) / "ins.npz"
+                # TODO: populate
+            if get_outputs and out_path is None:
+                out_path = Path(tmp_dir) / "outs.npz"
+            args = [tar_path] + self.get_tvmc_run_args(ins_file=in_path, outs_file=out_path)
+            output = self.invoke_tvmc_run(*args, target=target, cwd=tmp_dir)
+            if get_outputs and self.outs_file is None:
+                import numpy as np
+                with np.load(out_path) as out_data:
+                    outs_data = [dict(out_data)]
+                outs_path = Path(tmp_dir) / "outputs.npy"
+                np.save(outs_path, outs_data)
+                with open(outs_path, "rb") as f:
+                    outs_raw = f.read()
+                outputs_artifact = Artifact("outputs.npy", raw=outs_raw, fmt=ArtifactFormat.BIN, flags=("outputs", "npy"))
+                artifacts.append(outputs_artifact)
 
-        return output
+        return output, artifacts

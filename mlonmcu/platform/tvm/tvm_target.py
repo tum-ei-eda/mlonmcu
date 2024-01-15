@@ -61,8 +61,8 @@ def create_tvm_platform_target(name, platform, base=Target):
             if self.timeout_sec > 0:
                 raise NotImplementedError
 
-            ret = self.platform.run(program, self)
-            return ret
+            ret, artifacts = self.platform.run(program, self)
+            return ret, artifacts
 
         def parse_stdout(self, out):
             mean_ms = None
@@ -91,10 +91,11 @@ def create_tvm_platform_target(name, platform, base=Target):
             return mean_ms, median_ms, max_ms, min_ms, std_ms
 
         def get_metrics(self, elf, directory, handle_exit=None):
+            artifacts = []
             if self.print_outputs:
-                out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
+                out, artifacts = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
             else:
-                out = self.exec(
+                out, artifacts = self.exec(
                     elf,
                     cwd=directory,
                     live=False,
@@ -153,7 +154,7 @@ def create_tvm_platform_target(name, platform, base=Target):
                     metrics_.add("Runtime [s]", float(item["Duration (us)"]) / 1e6)
                     metrics[item["Name"]] = metrics_
 
-            return metrics, out, []
+            return metrics, out, artifacts
 
         def get_arch(self):
             return "unkwown"

@@ -590,6 +590,7 @@ class SimpleFrontend(Frontend):
         assert len(self.input_formats) == len(self.output_formats) == len(model.paths) == 1
         artifacts = []
         name = model.name
+        assert "/" not in name
         path = model.paths[0]
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?

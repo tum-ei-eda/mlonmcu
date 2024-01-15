@@ -191,6 +191,8 @@ class Frontend(ABC):
         output_shapes = {}
         input_types = {}
         output_types = {}
+        input_quant_details = {}
+        output_quant_details = {}
         if metadata is not None and "network_parameters" in metadata:
             network = metadata["network_parameters"]
             assert "input_nodes" in network
@@ -198,11 +200,20 @@ class Frontend(ABC):
             for inp in ins:
                 name = inp.get("name", None)
                 shape = inp.get("shape", None)
-                ty = inp.get("type", None)
+                ty = inp.get("dtype", None)
+                if ty is None:
+                    ty = inp.get("type", None)  # legacy
+                quantize = inp.get("quantize", None)
                 if name and shape:
                     input_shapes[name] = shape
                 if name and ty:
                     input_types[name] = ty
+                if name and quantize:
+                    quant_scale = quantize.get("scale", None)
+                    quant_zero_shift = quantize.get("zero_shift", None)
+                    quant_dtype = quantize.get("dtype", None)
+                    quant_details = [quant_scale, quant_zero_shift, quant_dtype]
+                    input_quant_details[name] = quant_details
                 if self.use_inout_data or (self.gen_data and self.gen_data_fill_mode == "file" and self.gen_data_file == "auto"):
                     if "example_input" in inp and "path" in inp["example_input"]:
                         in_data_dir = Path(inp["example_input"]["path"])
@@ -217,11 +228,20 @@ class Frontend(ABC):
             for outp in outs:
                 name = outp.get("name", None)
                 shape = outp.get("shape", None)
-                ty = outp.get("type", None)
+                ty = outp.get("dtype", None)
+                if ty is None:
+                    ty = outp.get("type", None)  # legacy
+                dequantize = outp.get("dequantize", None)
                 if name and shape:
                     output_shapes[name] = shape
                 if name and ty:
                     output_types[name] = ty
+                if name and dequantize:
+                    quant_scale = dequantize.get("scale", None)
+                    quant_zero_shift = dequantize.get("zero_shift", None)
+                    quant_dtype = dequantize.get("dtype", None)
+                    quant_details = [quant_scale, quant_zero_shift, quant_dtype]
+                    output_quant_details[name] = quant_details
                 if self.use_inout_data or (self.gen_ref_data and self.gen_ref_data_mode == "file" and self.gen_ref_data_file == "auto"):
                     if "test_output_path" in outp:
                         out_data_dir = Path(outp["test_output_path"])
@@ -292,6 +312,8 @@ class Frontend(ABC):
             "output_shapes": list(output_shapes.values()),
             "input_types": list(input_types.values()),
             "output_types": list(output_types.values()),
+            "input_quant_details": list(input_quant_details.values()),
+            "output_quant_details": list(output_quant_details.values()),
         }
         print("model_info_dict", model_info_dict)
         artifacts = []
@@ -344,8 +366,12 @@ class Frontend(ABC):
                         for ii, input_name in enumerate(input_names):
                             print("ii", ii)
                             assert ii in temp[i]
-                            # assert input_name in input_types
-                            dtype = input_types.get(input_name, "int8")  # TODO: require dtype!
+                            assert input_name in input_types, f"Unknown dtype for input: {input_name}"
+                            dtype = input_types[input_name]
+                            quant = input_quant_details.get(name, None)
+                            if quant:
+                                _, _, ty = quant
+                                dtype = ty
                             arr = np.frombuffer(temp[i][ii], dtype=dtype)
                             assert ii < len(input_shapes)
                             shape = input_shapes[input_name]
@@ -422,8 +448,12 @@ class Frontend(ABC):
                         for ii, output_name in enumerate(output_names):
                             print("ii", ii)
                             assert ii in temp[i]
-                            # assert output_name in output_types
-                            dtype = output_types.get(output_name, "float32")  # TODO: require dtype!
+                            assert output_name in output_types, f"Unknown dtype for output: {output_name}"
+                            dtype = output_types[output_name]
+                            dequant = output_quant_details.get(name, None)
+                            if dequant:
+                                _, _, ty = dequant
+                                dtype = ty
                             arr = np.frombuffer(temp[i][ii], dtype=dtype)
                             assert ii < len(output_shapes)
                             shape = output_shapes[output_name]

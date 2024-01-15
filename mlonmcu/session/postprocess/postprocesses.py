@@ -1455,3 +1455,106 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             report.post_df = post_df
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
+
+
+class ValidateOutputsPostprocess(RunPostprocess):
+    """Postprocess for comparing model outputs with golden reference."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "atol": 0.0,
+        "rtol": 0.0,
+        "report": False
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("validate_outputs", features=features, config=config)
+
+    @property
+    def atol(self):
+        """Get atol property."""
+        value = self.config["atol"]
+        return float(value)
+
+    @property
+    def rtol(self):
+        """Get rtol property."""
+        value = self.config["rtol"]
+        return float(value)
+
+    @property
+    def report(self):
+        """Get report property."""
+        value = self.config["report"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        print("model_info_data", model_info_data)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
+        assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
+        outputs_ref_artifact = outputs_ref_artifact[0]
+        import numpy as np
+        outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
+        import copy
+        # outputs = copy.deepcopy(outputs_ref)
+        # outputs[1][list(outputs[1].keys())[0]][0] = 42
+        outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+        assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+        outputs_artifact = outputs_artifact[0]
+        outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        compared = 0
+        matching = 0
+        missing = 0
+        for i, output_ref in enumerate(outputs_ref):
+            if i >= len(outputs):
+                logger.warning("Missing output sample")
+                missing += 1
+                break
+            output = outputs[i]
+            ii = 0
+            for out_name, out_ref_data in output_ref.items():
+                if out_name in output:
+                    out_data = output[out_name]
+                elif ii < len(output):
+                    if isinstance(output, dict):
+                        # fallback for custom name-based npy dict
+                        out_data = list(output.values())[ii]
+                    else:  # fallback for index-based npy array
+                        assert isinstance(output, (list, np.array)), "expected dict, list of np.array type"
+                        out_data = output[ii]
+                else:
+                    RuntimeError(f"Output not found: {out_name}")
+                # optional dequantize
+                quant = model_info_data.get("output_quant_details", None)
+                if quant:
+                    assert ii < len(quant)
+                    quant = quant[ii]
+                    if quant:
+                        quant_scale, quant_zero_point, quant_dtype = quant
+                        if quant_dtype:
+                            if out_data.dtype.name != quant_dtype:
+                                # need to dequantize here
+                                assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                                assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                                out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale
+                if np.allclose(out_data, out_ref_data, rtol=0, atol=0):
+                    matching += 1
+                compared += 1
+                ii += 1
+        if self.report:
+            raise NotImplementedError
+        if self.atol:
+            raise NotImplementedError
+        if self.rtol:
+            raise NotImplementedError
+        res = f"{matching}/{compared} ({int(matching/compared*100)}%)"
+        report.post_df["Validation Result"] = res
+        return []

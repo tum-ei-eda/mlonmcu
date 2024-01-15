@@ -458,11 +458,17 @@ class TfLiteFrontend(SimpleFrontend):
                     num = int(matches[0])
                     return num
 
+                replace = False
+                # replace = True
+                drop = False
+                # drop = True
                 def gen_layer_files(file, dest):
                     results = []
                     num_layers = get_num_layers(file)
                     assert num_layers > 0
                     keep = None
+                    if replace:
+                        assert keep is not None and len(keep) == 1
                     for i in range(num_layers):
                         if keep and i not in keep:
                             continue
@@ -486,7 +492,11 @@ class TfLiteFrontend(SimpleFrontend):
                     assert len(ret) > 0, f"'{self.name}' frontend should produce at least one model"
                     max_outs = len(self.output_formats)
                     assert len(ret) <= max_outs, f"'{self.name}' frontend should not return more than {max_outs}"
+                    if replace:
+                        subrun = "default"
                     artifacts[subrun] = ret
+                if drop:
+                    del artifacts["default"]
 
             return artifacts, {}
         else:

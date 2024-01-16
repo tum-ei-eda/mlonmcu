@@ -152,7 +152,7 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
             cwd=cwd,
             **kwargs,
         )
-        return ret
+        return ret, []
 
     def parse_stdout(self, out, metrics, exit_code=0):
         add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
@@ -176,9 +176,9 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
 
         start_time = time.time()
         if self.print_outputs:
-            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out, artifacts = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
-            out = self.exec(
+            out, artifacts = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         # TODO: do something with out?
@@ -196,7 +196,7 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
             if diff > 0:
                 metrics.add("MIPS", (sim_insns / diff) / 1e6, True)
 
-        return metrics, out, []
+        return metrics, out, artifacts
 
     def get_platform_defs(self, platform):
         ret = {}

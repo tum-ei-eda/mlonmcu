@@ -167,7 +167,7 @@ class Target:
         metrics = []
         total = 1 + (self.repeat if self.repeat else 0)
         # We only save the stdout and artifacts of the last execution
-        # Callect metrics from all runs to aggregate them in a callback with high priority
+        # Collect metrics from all runs to aggregate them in a callback with high priority
         artifacts_ = []
         # if self.dir is None:
         #    self.dir = Path(

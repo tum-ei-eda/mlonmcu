@@ -175,6 +175,7 @@ def install_riscv_gcc(
         # if rebuild or not utils.is_populated(riscvInstallDir):
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(riscvInstallDir):
+            logger.debug(riscvUrl+riscvArchive)
             utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir, progress=verbose)
         # workaround for gnu subdir ins tc downloads
         gnu_dir = riscvInstallDir / "gnu"

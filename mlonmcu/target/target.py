@@ -268,3 +268,23 @@ class Target:
             "max-vthread-extent": 0,
             "warp-size": 0,
         }
+
+    @property
+    def supports_filesystem(self):
+        return False
+
+    @property
+    def supports_stdout(self):
+        return True
+
+    @property
+    def supports_stdin(self):
+        return False
+
+    @property
+    def supports_argv(self):
+        return False
+
+    @property
+    def supports_uart(self):
+        return False

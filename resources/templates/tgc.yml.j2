@@ -61,7 +61,7 @@ repos:
     ref: 21c549c7fdd4f92fb5a16e98212fb9b4df2ab672
   mlif:
     url: "https://github.com/Minres/mlonmcu-sw.git"
-    ref: dc88f146fef9cb567ee12a1d4426580a3d05927b
+    ref: develop
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
@@ -71,6 +71,9 @@ repos:
   tgc:
     url: "https://git.minres.com/TGFS/TGC-ISS.git"
     ref: 97538fce12e9ec6767a720ded9b5e9a05559f722
+  tgc_gen:
+    url: "https://git.minres.com/TGFS/TGC-GEN.git"
+    ref:    
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -192,7 +195,7 @@ targets:
     features:
       gdbserver: true
   spike:
-    enabled: true
+    enabled: false
     features:
       vext: false
       pext: false
@@ -231,9 +234,9 @@ vars:
   llvm.version: "11.1.0"
   llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
   runs_per_stage: true
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
-  # riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv32gcv_new.tar.gz"
-  # riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiNvP4mzVQ8uDvgT9Yf2bqNk/rv32gcp.tar.xz"
-flags:
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32gc_ilp32d.tar.xz"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32gcv_ilp32d.tar.xz"
+  riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/pext/2022.04.28/Ubuntu/20.04/rv32gcp_ilp32d.tar.xz"
+  flags:
   tflmc.exe:
   - x86

@@ -74,6 +74,10 @@ mlonmcu env # this command lists all your available environments
 
 The next step can take some time
 ```bash
+mlonmmcu setup -g # creates a requirements.txt file for your environment
+pip install -r $MLONMCU_HOME/requirements_addition.txt
+#the tgc iss needs cmake version 3.20 so make sure the necessary version is loaded before running mlonmcu setup
+module load ./Modulefile
 mlonmcu setup
 ```
 Now you are ready to go. For Usage it is best to checkout the Demo Jupyter notebook. The general flow will be described here.

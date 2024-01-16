@@ -164,7 +164,7 @@ def get_tvmrt_tvmc_args(runtime="crt", system_lib=True, link_params=True):
     return ret
 
 
-def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=10):
+def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=None):
     ret = []
     if ins_file is not None:
         ret.extend(["--inputs", ins_file])

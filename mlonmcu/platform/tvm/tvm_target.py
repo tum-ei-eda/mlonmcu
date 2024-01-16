@@ -18,9 +18,11 @@
 #
 import re
 import os
+from pathlib import Path
 
 from mlonmcu.target.target import Target
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.logging import get_logger
 
@@ -61,7 +63,97 @@ def create_tvm_platform_target(name, platform, base=Target):
             if self.timeout_sec > 0:
                 raise NotImplementedError
 
-            ret, artifacts = self.platform.run(program, self)
+            ins_file = None
+            num_inputs = 0
+            batch_size = 1
+            if self.platform.set_inputs:
+                interface = self.platform.set_inputs_interface
+                if interface == "auto":
+                    if self.supports_filesystem:
+                        interface = "filesystem"
+                else:
+                    assert interface in ["filesystem"]
+                if interface == "filesystem":
+                    ins_file = self.platform.ins_file
+                    if ins_file is None:
+                        assert self.platform.inputs_artifact is not None
+                        import numpy as np
+                        data = np.load(self.platform.inputs_artifact, allow_pickle=True)
+                        print("data", data, type(data))
+                        num_inputs = len(data)
+                        ins_file = Path(cwd) / "ins.npz"
+            outs_file = None
+            print_top = self.platform.print_top
+            print("before IF")
+            if self.platform.get_outputs:
+                print("IF")
+                interface = self.platform.get_outputs_interface
+                if interface == "auto":
+                    if self.supports_filesystem:
+                        interface = "filesystem"
+                    elif self.supports_stdout:
+                        interface = "stdout"
+                else:
+                    assert interface in ["filesystem", "stdout"]
+                if interface == "filesystem":
+                    outs_file = self.platform.outs_file
+                    if outs_file is None:
+                        outs_file = Path(cwd) / "outs.npz"
+                elif interface == "stdout":
+                    print_top = 1e6
+
+
+            ret = ""
+            artifacts = []
+            num_batches = max(round(num_inputs / batch_size), 1)
+            processed_inputs = 0
+            remaining_inputs = num_inputs
+            outs_data = []
+            for idx in range(num_batches):
+                print("idx", idx)
+                current_batch_size = max(min(batch_size, remaining_inputs), 1)
+                assert current_batch_size == 1
+                if processed_inputs < num_inputs:
+                    print("!!!")
+                    in_data = data[idx]
+                    print("in_data", in_data, type(in_data))
+                    np.savez(ins_file, **in_data)
+                    print("saved!")
+                    processed_inputs += 1
+                    remaining_inputs -= 1
+                else:
+                    ins_file = None
+                ret_, artifacts_ = self.platform.run(program, self, cwd=cwd, ins_file=ins_file, outs_file=outs_file, print_top=print_top)
+                ret += ret_
+                print("self.platform.get_outputs", self.platform.get_outputs)
+                if self.platform.get_outputs:
+                    interface = self.platform.get_outputs_interface
+                    # print("interface", interface)
+                    if interface == "auto":
+                        if self.supports_filesystem:
+                            interface = "filesystem"
+                        elif self.supports_stdout:
+                            interface = "stdout"
+                    else:
+                        assert interface in ["filesystem", "stdout"]
+                    if interface == "filesystem":
+                        import numpy as np
+                        with np.load(outs_file) as out_data:
+                            outs_data.append(dict(out_data))
+                    elif interface == "stdout":
+                        raise NotImplementedError
+                    else:
+                        assert False
+            print("outs_data", outs_data)
+            # input("$")
+            if len(outs_data) > 0:
+                outs_path = Path(cwd) / "outputs.npy"
+                np.save(outs_path, outs_data)
+                with open(outs_path, "rb") as f:
+                    outs_raw = f.read()
+                outputs_artifact = Artifact("outputs.npy", raw=outs_raw, fmt=ArtifactFormat.BIN, flags=("outputs", "npy"))
+                artifacts.append(outputs_artifact)
+
             return ret, artifacts
 
         def parse_stdout(self, out):
@@ -162,5 +254,13 @@ def create_tvm_platform_target(name, platform, base=Target):
         def update_environment(self, env):
             # TODO: implement in base class?
             pass
+
+        @property
+        def supports_filesystem(self):
+            return True
+
+        @property
+        def supports_stdout(self):
+            return True
 
     return TvmPlatformTarget

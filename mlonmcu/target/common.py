@@ -20,7 +20,7 @@
 
 import subprocess
 import argparse
-from typing import List, Callable
+from typing import List, Callable, Optional
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.type import FeatureType
@@ -38,6 +38,7 @@ def execute(
     print_func: Callable = print,
     handle_exit=None,
     err_func: Callable = logger.error,
+    encoding: Optional[str] = "utf-8",
     **kwargs,
 ) -> str:
     """Wrapper for running a program in a subprocess.
@@ -54,6 +55,8 @@ def execute(
         Function which should be used to print sysout messages.
     err_func : Callable
         Function which should be used to print errors.
+    encoding : str, optional
+        Choose encoding used to decode the stdout.
     kwargs: dict
         Arbitrary keyword arguments passed through to the subprocess.
 
@@ -78,25 +81,33 @@ def execute(
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         ) as process:
-            for line in process.stdout:
-                new_line = line.decode(errors="replace")
+            for new_line in process.stdout:
+                if encoding:
+                    new_line = new_line.decode(encoding, errors="replace")
                 out_str = out_str + new_line
                 print_func(new_line.replace("\n", ""))
             exit_code = None
             while exit_code is None:
                 exit_code = process.poll()
-            if handle_exit is not None:
-                exit_code = handle_exit(exit_code, out=out_str)
+                out_str_ = out_str
+                if encoding is None:
+                    out_str_ = out_str_.decode("utf-8", errors="ignore")
+                exit_code = handle_exit(exit_code, out=out_str_)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
     else:
         p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        out_str = p.communicate()[0].decode(errors="replace")
+        out_str = p.communicate()[0]
+        if encoding:
+            out_str = out_str.decode(encoding, errors="replace")
         exit_code = p.poll()
         print_func(out_str)
         if handle_exit is not None:
-            exit_code = handle_exit(exit_code, out=out_str)
+            out_str_ = out_str
+            if encoding is None:
+                out_str_ = out_str_.decode("utf-8", errors="ignore")
+            exit_code = handle_exit(exit_code, out=out_str_)
         if exit_code != 0:
             err_func(out_str)
         assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(

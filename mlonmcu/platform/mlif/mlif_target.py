@@ -16,9 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+from pathlib import Path
 from enum import IntEnum
 
 from mlonmcu.target import get_targets, Target
+from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
@@ -48,6 +51,165 @@ def create_mlif_platform_target(name, platform, base=Target):
             super().__init__(name=name, features=features, config=config)
             self.platform = platform
             self.validation_result = None
+
+        def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
+            ins_file = None
+            num_inputs = 0
+            batch_size = 5  # idea is to process i.e. 5 samples per batch, repeating until no samples remain
+            in_interface = None
+            out_interface = None
+            if self.platform.set_inputs:
+                # first figure out how many inputs are provided
+                assert self.platform.inputs_artifact is not None
+                import numpy as np
+                data = np.load(self.platform.inputs_artifact, allow_pickle=True)
+                # print("data", data, type(data))
+                num_inputs = len(data)
+                in_interface = self.platform.set_inputs_interface
+                if in_interface == "auto":
+                    if self.supports_filesystem:
+                        in_interface = "filesystem"
+                        # TODO: eventually update batch_size
+                    elif self.supports_stdin:
+                        in_interface = "stdin_raw"
+                        # TODO: also allow stdin?
+                        # TODO: eventually update batch_size
+                    else:  # Fallback
+                        in_interface = "rom"
+                        batch_size = 1e6  # all inputs are in already compiled into program
+                else:
+                    assert in_interface in ["filesystem", "stdin", "stdin_raw", "rom"]
+                if in_interface == "filesystem":
+                    pass
+                elif in_interface == "stdin":
+                    pass
+                elif in_interface == "stdin_raw":
+                    pass
+                elif in_interface == "rom":
+                    pass  # nothing to do
+            outs_file = None
+            encoding = "utf-8"
+            if self.platform.get_outputs:
+                out_interface = self.platform.get_outputs_interface
+                if out_interface == "auto":
+                    if self.supports_filesystem:
+                        out_interface = "filesystem"
+                    elif self.supports_stdout:
+                        out_interface = "stdout_raw"
+                        # TODO: support stdout?
+                else:
+                    assert out_interface in ["filesystem", "stdout", "stdout_raw"]
+                if out_interface == "filesystem":
+                    pass
+                elif out_interface == "stdout":
+                    pass
+                elif out_interface == "stdout_raw":
+                    encoding = None
+            ret = ""
+            artifacts = []
+            num_batches = max(round(num_inputs / batch_size), 1)
+            processed_inputs = 0
+            remaining_inputs = num_inputs
+            outs_data = []
+            stdin_data = None
+            for idx in range(num_batches):
+                # print("idx", idx)
+                # current_batch_size = max(min(batch_size, remaining_inputs), 1)
+                if processed_inputs < num_inputs:
+                    if in_interface == "filesystem":
+                        batch_data = data[idx * batch_size:((idx + 1) * batch_size)]
+                        # print("batch_data", batch_data, type(batch_data))
+                        ins_file = Path(cwd) / "ins.npy"
+                        np.save(ins_file, batch_data)
+                    elif in_interface == "stdin":
+                        raise NotImplementedError
+                    elif in_interface == "stdin_raw":
+                        batch_data = data[idx * batch_size:((idx + 1) * batch_size)]
+                        # print("batch_data", batch_data, type(batch_data))
+                        stdin_data = b""
+                        for cur_data in batch_data:
+                            # print("cur_data", cur_data)
+                            for key, value in cur_data.items():
+                                # print("key", key)
+                                # print("value", value, type(value))
+                                # print("value.tostring", value.tostring())
+                                stdin_data += value.tostring()
+                        # TODO: check that stdin_data has expected size
+                        # This is just a placeholder example!
+                        # stdin_data = "input[0] = {0, 1, 2, ...};\nDONE\n""".encode()
+                        # stdin_data *= 200
+                        # raise NotImplementedError
+                        # TODO: generate input stream here!
+
+                ret_, artifacts_ = super().exec(program, *args, cwd=cwd, **kwargs, stdin_data=stdin_data, encoding=encoding)
+                if self.platform.get_outputs:
+                    if out_interface == "filesystem":
+                        import numpy as np
+                        outs_file = Path(cwd) / "outs.npy"
+                        with np.load(outs_file) as out_data:
+                            outs_data.extend(dict(out_data))
+                    elif out_interface == "stdout":
+                        # TODO: get output_data from stdout
+                        raise NotImplementedError
+                    elif out_interface == "stdout_raw":
+                        # DUMMY BELOW
+                        model_info_file = self.platform.model_info_file  # TODO: replace workaround (add model info to platform?)
+                        assert model_info_file is not None
+                        import yaml
+                        with open(model_info_file, "r") as f:
+                            model_info_data = yaml.safe_load(f)
+                        # print("model_info_data", model_info_data)
+                        # dtype = "int8"
+                        # shape = [1, 10]
+                        # input("!")
+                        # print("ret_", ret_, type(ret_))
+                        # out_idx = 0
+                        x = ret_  # Does this copy?
+                        while True:
+                            out_data_temp = {}
+                            # substr = ret_[ret_.find("-?-".encode())+3:ret_.find("-!-".encode())]
+                            # print("substr", substr, len(substr))
+                            found_start = x.find("-?-".encode())
+                            # print("found_start", found_start)
+                            if found_start < 0:
+                                break
+                            x = x[found_start+3:]
+                            # print("x[:20]", x[:20])
+                            found_end = x.find("-!-".encode())
+                            # print("found_end", found_end)
+                            assert found_end >= 0
+                            x_ = x[:found_end]
+                            x = x[found_end+3:]
+                            # print("x[:20]", x[:20])
+                            # print("x_", x_)
+                            # out_idx += 1
+                            dtype = model_info_data["output_types"][0]
+                            arr = np.frombuffer(x_, dtype=dtype)
+                            # print("arr", arr)
+                            shape = model_info_data["output_shapes"][0]
+                            arr = arr.reshape(shape)
+                            # print("arr2", arr)
+                            assert len(model_info_data["output_names"]) == 1, "Multi-output models not yet supported"
+                            out_name = model_info_data["output_names"][0]
+                            out_data_temp[out_name] = arr
+                            outs_data.append(out_data_temp)
+                        # {"output_0": arr}])
+                        ret_ = ret_.decode("utf-8", errors="replace")
+                        # raise NotImplementedError
+                    else:
+                        assert False
+                ret += ret_
+                artifacts += artifacts_
+            # print("outs_data", outs_data)
+            # input("$")
+            if len(outs_data) > 0:
+                outs_path = Path(cwd) / "outputs.npy"
+                np.save(outs_path, outs_data)
+                with open(outs_path, "rb") as f:
+                    outs_raw = f.read()
+                outputs_artifact = Artifact("outputs.npy", raw=outs_raw, fmt=ArtifactFormat.BIN, flags=("outputs", "npy"))
+                artifacts.append(outputs_artifact)
+            return ret, artifacts
 
         def get_metrics(self, elf, directory, handle_exit=None):
             # This is wrapper around the original exec function to catch special return codes thrown by the inout data

@@ -2313,20 +2313,22 @@ class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "interface": "auto",  # Allowed: auto, rom, filesystem, stdout, uart
+        "interface": "auto",  # Allowed: auto, rom, filesystem, stdin, stdin_raw, uart
     }
 
     def __init__(self, features=None, config=None):
         super().__init__("set_inputs", features=features, config=config)
 
     @property
-    def mode(self):
+    def interface(self):
         value = self.config["interface"]
-        assert value in ["auto", "rom", "filesystem", "stdin", "uart"]
+        assert value in ["auto", "rom", "filesystem", "stdin", "stdin_raw", "uart"]
         return value
 
     def get_platform_config(self, platform):
         assert platform in ["mlif", "tvm", "microtvm"]
+        # if platform in ["tvm", "mircotvm"]:
+        #     assert self.interface in ["auto", "filesystem"]
         # if tvm/microtvm: allow using --fill-mode provided by tvmc run
         return {
             f"{platform}.set_inputs": self.enabled,
@@ -2340,17 +2342,17 @@ class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "interface": "auto",  # Allowed: auto, filesystem, stdout, uart
+        "interface": "auto",  # Allowed: auto, filesystem, stdout, stdout_raw, uart
         "fmt": "npy",  # Allowed: npz, npz
     }
 
     def __init__(self, features=None, config=None):
-        super().__init__("gen_outputs", features=features, config=config)
+        super().__init__("get_outputs", features=features, config=config)
 
     @property
-    def mode(self):
+    def interface(self):
         value = self.config["interface"]
-        assert value in ["auto", "filesystem", "stdout", "uart"]
+        assert value in ["auto", "filesystem", "stdout", "stdout_raw", "uart"]
         return value
 
     @property
@@ -2361,6 +2363,8 @@ class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 
     def get_platform_config(self, platform):
         assert platform in ["mlif", "tvm", "microtvm"]
+        # if platform in ["tvm", "mircotvm"]:
+        #     assert self.interface in ["auto", "filesystem", "stdout"]
         return {
             f"{platform}.get_outputs": self.enabled,
             f"{platform}.get_outputs_interface": self.interface,

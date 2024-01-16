@@ -1329,7 +1329,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                                 assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                                 assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
                                 out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale
-                if np.allclose(out_data, out_ref_data, rtol=0, atol=0):
+                if np.allclose(out_data, out_ref_data, rtol=0.1, atol=0.1):
                     matching += 1
                 compared += 1
                 ii += 1

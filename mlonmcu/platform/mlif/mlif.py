@@ -57,6 +57,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "auto_vectorize",
             "benchmark",
             "xpulp",
+            "set_inputs",
+            "get_outputs",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -82,6 +84,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "fuse_ld": None,
         "strip_strings": False,
         "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
+        "set_inputs": False,
+        "set_inputs_interface": None,
+        "get_outputs": False,
+        "get_outputs_interface": None,
+        "get_outputs_fmt": None,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -99,6 +106,52 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def goal(self):
         return self.config["goal"]
+
+    @property
+    def set_inputs(self):
+        value = self.config["set_inputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def set_inputs_interface(self):
+        value = self.config["set_inputs_interface"]
+        return value
+
+    @property
+    def get_outputs(self):
+        value = self.config["get_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def get_outputs_interface(self):
+        value = self.config["get_outputs_interface"]
+        return value
+
+    @property
+    def get_outputs_fmt(self):
+        value = self.config["get_outputs_fmt"]  # TODO: use
+        return value
+
+    @property
+    def inputs_artifact(self):
+        # THIS IS A HACK (get inputs fom artifacts!)
+        lookup_path = self.build_dir.parent / "inputs.npy"
+        if lookup_path.is_file():
+            return lookup_path
+        else:
+            logger.warning("Artifact 'inputs.npz' not found!")
+            return None
+
+    @property
+    def model_info_file(self):
+        # THIS IS A HACK (get inputs fom artifacts!)
+        lookup_path = self.build_dir.parent / "model_info.yml"
+        if lookup_path.is_file():
+            return lookup_path
+        else:
+            logger.warning("Artifact 'model_info.yml' not found!")
+            return None
+
 
     def gen_data_artifact(self):
         in_paths = self.input_data_path

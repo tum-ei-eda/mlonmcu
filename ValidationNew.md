@@ -2,7 +2,7 @@
 
 ## Updates
 
-- `mlonmcu-sw` (`$MLONMCU_HOME/models/`):
+- `mlonmcu-models` (`$MLONMCU_HOME/models/`, Branch: `refactor-validate`):
 	- `resnet/definition.yml`
 		- Add input/output dtype
 		- Add dequantize details (taken from `mlif_override.cpp`)
@@ -11,7 +11,7 @@
 		- Add example code to dump raw inputs/outputs via stdin/stdout
 - `mlonmcu-sw` (`$MLONMCU_HOME/deps/src/mlif`):
 	- Nothing changed (yet)
-- `mlonmcu`:
+- `mlonmcu` (Branch: `refactor-validate`):
 	- `mlonmcu/target/common.py`
 		- Allow overriding used encoding for stdout (Required for dumping raw data)
 		- Add optional `stdin_data` argument for passing input to process (Only works with `live=False` aka. `-c {target}.print_outputs=0`)
@@ -61,40 +61,40 @@ python3 -m mlonmcu.cli.main flow run resnet -v \
 	-c set_inputs.interface=auto -c get_outputs.interface=auto
 
 # not implemented:
-python3 -m mlonmcu.cli.main flow run resnet -v \
-	--target tvm_cpu --backend tvmllvm \
-	--feature validate_new --post validate_outputs \
-	-c tvm.print_outputs=1 -c tvm_cpu.print_outputs=1
-	-c set_inputs.interface=filesystem -c get_outputs.interface=stdout
+# python3 -m mlonmcu.cli.main flow run resnet -v \
+#	  --target tvm_cpu --backend tvmllvm \
+#	  --feature validate_new --post validate_outputs \
+#	  -c tvm.print_outputs=1 -c tvm_cpu.print_outputs=1
+#	  -c set_inputs.interface=filesystem -c get_outputs.interface=stdout
 
 # platform: mlif target: spike
 # implemented:
 python3 -m mlonmcu.cli.main flow run resnet -v \
-	--target spike  --backend tvmaotplus    \
-	-f validate \
-	--feature validate_new --post validate_outputs \
-	-c mlif.print_outputs=1 -c spike.print_outputs=0 \
-	-c set_inputs.interface=stdin_raw -c get_outputs.interface=stdout_raw
+--target spike  --backend tvmaotplus    \
+-f validate \
+--feature validate_new --post validate_outputs \
+-c mlif.print_outputs=1 -c spike.print_outputs=0 \
+-c set_inputs.interface=stdin_raw -c get_outputs.interface=stdout_raw
 
 # not implemented:
 # python3 -m mlonmcu.cli.main flow run resnet -v \
-	--target spike  --backend tvmaotplus    \
-	-f validate \
-	--feature validate_new --post validate_outputs \
-	-c mlif.print_outputs=1 -c spike.print_outputs=1 \
-	-c set_inputs.interface=stdin -c get_outputs.interface=stdout
+#   --target spike  --backend tvmaotplus    \
+#   -f validate \
+#   --feature validate_new --post validate_outputs \
+#   -c mlif.print_outputs=1 -c spike.print_outputs=1 \
+#   -c set_inputs.interface=stdin -c get_outputs.interface=stdout
 # python3 -m mlonmcu.cli.main flow run resnet -v \
-	--target spike  --backend tvmaotplus    \
-	-f validate \
-	--feature validate_new --post validate_outputs \
-	-c mlif.print_outputs=1 -c spike.print_outputs=1 \
-	-c set_inputs.interface=filesystem -c get_outputs.interface=filesystem
+#   --target spike  --backend tvmaotplus    \
+#   -f validate \
+#   --feature validate_new --post validate_outputs \
+#   -c mlif.print_outputs=1 -c spike.print_outputs=1 \
+#   -c set_inputs.interface=filesystem -c get_outputs.interface=filesystem
 # python3 -m mlonmcu.cli.main flow run resnet -v \
-	--target spike  --backend tvmaotplus    \
-	-f validate \
-	--feature validate_new --post validate_outputs \
-	-c mlif.print_outputs=1 -c spike.print_outputs=0 \
-	-c set_inputs.interface=auto -c get_outputs.interface=auto
+#   --target spike  --backend tvmaotplus    \
+#   -f validate \
+#   --feature validate_new --post validate_outputs \
+#   -c mlif.print_outputs=1 -c spike.print_outputs=0 \
+#   -c set_inputs.interface=auto -c get_outputs.interface=auto
 # combinations (e.g. filesystem+stdout) should also be tested!
 
 # platform: mlif target: host_x86`

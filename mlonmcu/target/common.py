@@ -38,6 +38,7 @@ def execute(
     print_func: Callable = print,
     handle_exit=None,
     err_func: Callable = logger.error,
+    stdin_data: Optional[bytes] = None,
     encoding: Optional[str] = "utf-8",
     **kwargs,
 ) -> str:
@@ -75,30 +76,42 @@ def execute(
 
     out_str = ""
     if live:
-        with subprocess.Popen(
-            args,
-            **kwargs,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        ) as process:
-            for new_line in process.stdout:
-                if encoding:
-                    new_line = new_line.decode(encoding, errors="replace")
-                out_str = out_str + new_line
-                print_func(new_line.replace("\n", ""))
-            exit_code = None
-            while exit_code is None:
-                exit_code = process.poll()
-                out_str_ = out_str
-                if encoding is None:
-                    out_str_ = out_str_.decode("utf-8", errors="ignore")
-                exit_code = handle_exit(exit_code, out=out_str_)
-            assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                exit_code, " ".join(list(map(str, args)))
-            )
+        try:
+            with subprocess.Popen(
+                args,
+                **kwargs,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            ) as process:
+                if stdin_data:
+                    raise RuntimeError("stdin_data only supported if live=False")
+                    # not working...
+                    # process.stdin.write(stdin_data)
+                for new_line in process.stdout:
+                    if encoding:
+                        new_line = new_line.decode(encoding, errors="replace")
+                    out_str = out_str + new_line
+                    print_func(new_line.replace("\n", ""))
+                exit_code = None
+                while exit_code is None:
+                    exit_code = process.poll()
+                if handle_exit is not None:
+                    out_str_ = out_str
+                    if encoding is None:
+                        out_str_ = out_str_.decode("utf-8", errors="ignore")
+                    exit_code = handle_exit(exit_code, out=out_str_)
+                assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+                    exit_code, " ".join(list(map(str, args)))
+                )
+        except BrokenPipeError:
+            logger.warning("Broken pipe!")
     else:
-        p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        out_str = p.communicate()[0]
+        p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if stdin_data:
+            out_str = p.communicate(input=stdin_data)[0]
+        else:
+            out_str = p.communicate()[0]
         if encoding:
             out_str = out_str.decode(encoding, errors="replace")
         exit_code = p.poll()

@@ -52,12 +52,12 @@
 python3 -m mlonmcu.cli.main flow run resnet -v \
 	--target tvm_cpu --backend tvmllvm \
 	--feature validate_new --post validate_outputs \
-	-c tvm.print_outputs=1 -c tvm_cpu.print_outputs=1
+	-c tvm.print_outputs=1 -c tvm_cpu.print_outputs=1 \
 	-c set_inputs.interface=filesystem -c get_outputs.interface=filesystem
 python3 -m mlonmcu.cli.main flow run resnet -v \
 	--target tvm_cpu --backend tvmllvm \
 	--feature validate_new --post validate_outputs \
-	-c tvm.print_outputs=1 -c tvm_cpu.print_outputs=1
+	-c tvm.print_outputs=1 -c tvm_cpu.print_outputs=1 \
 	-c set_inputs.interface=auto -c get_outputs.interface=auto
 
 # not implemented:

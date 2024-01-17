@@ -340,7 +340,7 @@ class Frontend(ABC):
                             arr = np.zeros(shape, dtype=dtype)
                         elif self.gen_data_fill_mode == "ones":
                             arr = np.ones(shape, dtype=dtype)
-                        elif self.gen_data_fill_mode == "ones":
+                        elif self.gen_data_fill_mode == "random":
                             if "float" in dtype:
                                 arr = np.rand(*shape).astype(dtype)
                             elif "int" in dtype:
@@ -439,7 +439,7 @@ class Frontend(ABC):
                     print("i", i)
                     print("model", model, type(model))
                     # input("321?")
-                    output_data = self.inference(model, input_data, quant=False, dequant=False)
+                    output_data = self.inference(model, input_data, quant=False, dequant=True)
                     print("output_data", output_data)
                     outputs_data.append(output_data)
                     # input("321!")

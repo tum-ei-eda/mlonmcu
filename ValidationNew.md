@@ -112,7 +112,7 @@ python3 -m mlonmcu.cli.main flow run resnet -v \
 - [ ] Implement missing interfaces for mlif platform (in: `filesystem`, `stdin`; out: `filesystem`, `stdout`) -> LIU
 - [ ] Implement missing interfaces for mlif platform (in: `rom`) -> PHILIPP)
 - [ ] Add support for multi-output/multi-input -> PHILIPP/LIU
-- [ ] Update `gen_data` & `gen_ref_data` feature (see NotImplementedErrors, respect fmt,...) -> LIU
+- [x] Update `gen_data` & `gen_ref_data` feature (see NotImplementedErrors, respect fmt,...)
 - [ ] Move `gen_data` & `gen_ref_data` from LOAD stage to custom stage (remove dependency on tflite frontend) -> PHILIPP
 - [ ] Test with targets: `tvm_cpu`, `host_x86`, `spike` (See example commands above) -> LIU
 - [ ] Extend `validate_outputs` postprocess (Add `report`, implement `atol`/`rtol`, `fail_on_error`, `top-k`,...) -> LIU

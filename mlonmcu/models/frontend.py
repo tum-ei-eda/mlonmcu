@@ -322,10 +322,35 @@ class Frontend(ABC):
         artifacts = []
         if self.gen_data:
             inputs_data = []
-            if self.gen_data_fill_mode == "random":
-                raise NotImplementedError
-            elif self.gen_data_fill_mode == "zeros":
-                raise NotImplementedError
+            if self.gen_data_fill_mode in ["zeros", "ones", "random"]:
+                for i in range(self.gen_data_number):
+                    print("i", i)
+                    data = {}
+                    for ii, input_name in enumerate(input_names):
+                        print("ii", ii)
+                        assert input_name in input_types, f"Unknown dtype for input: {input_name}"
+                        dtype = input_types[input_name]
+                        quant = input_quant_details.get(name, None)
+                        if quant:
+                            _, _, ty = quant
+                            dtype = ty
+                        assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
+                        shape = input_shapes[input_name]
+                        if self.gen_data_fill_mode == "zeros":
+                            arr = np.zeros(shape, dtype=dtype)
+                        elif self.gen_data_fill_mode == "ones":
+                            arr = np.ones(shape, dtype=dtype)
+                        elif self.gen_data_fill_mode == "ones":
+                            if "float" in dtype:
+                                arr = np.rand(*shape).astype(dtype)
+                            elif "int" in dtype:
+                                arr = np.random.randint(np.iinfo(dtype).min, np.iinfo(dtype).max, size=shape, dtype=dtype)
+                            else:
+                                assert False
+                        else:
+                            assert False
+                        data[input_name] = arr
+                    inputs_data.append(data)
             elif self.gen_data_fill_mode == "ones":
                 raise NotImplementedError
             elif self.gen_data_fill_mode == "file":
@@ -409,7 +434,16 @@ class Frontend(ABC):
         if self.gen_ref_data:
             outputs_data = []
             if self.gen_ref_data_mode == "model":
-                raise NotImplementedError
+                assert len(inputs_data) > 0
+                for i, input_data in enumerate(inputs_data):
+                    print("i", i)
+                    print("model", model, type(model))
+                    # input("321?")
+                    output_data = self.inference(model, input_data, quant=False, dequant=False)
+                    print("output_data", output_data)
+                    outputs_data.append(output_data)
+                    # input("321!")
+
             elif self.gen_ref_data_mode == "file":
                 if self.gen_ref_data_file == "auto":
                     len(out_paths) > 0

@@ -698,6 +698,13 @@ class TfLiteFrontend(SimpleFrontend):
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
         interpreter.allocate_tensors()
+        print()
+        print("Input details:")
+        print(input_details)
+        print()
+        print("Output details:")
+        print(output_details)
+        print()
         assert len(input_details) == 1, "Multi-inputs not yet supported"
         input_type = input_details[0]["dtype"]
         input_name = input_details[0]["name"]
@@ -706,10 +713,14 @@ class TfLiteFrontend(SimpleFrontend):
         np_features = input_data[input_name]
         if quant and input_type == np.int8:
             input_scale, input_zero_point = input_details[0]['quantization']
+            print("Input scale:", input_scale)
+            print("Input zero point:", input_zero_point)
+            print()
             np_features = (np_features / input_scale) + input_zero_point
             np_features = np.around(np_features)
         np_features = np_features.astype(input_type)
         np_features = np_features.reshape(input_shape)
+        print("np_features", np_features)
         interpreter.set_tensor(input_details[0]['index'], np_features)
         interpreter.invoke()
         output = interpreter.get_tensor(output_details[0]['index'])
@@ -720,9 +731,14 @@ class TfLiteFrontend(SimpleFrontend):
         output_name = output_details[0]["name"]
         if dequant and output_type == np.int8:
             output_scale, output_zero_point = output_details[0]["quantization"]
+            print("Raw output scores:", output)
+            print("Output scale:", output_scale)
+            print("Output zero point:", output_zero_point)
+            print()
             output = output_scale * (output.astype(np.float32) - output_zero_point)
 
         # Print the results of inference
+        print("Inference output:", output, type(output))
         return {output_name: output}
 
     def produce_artifacts(self, model):

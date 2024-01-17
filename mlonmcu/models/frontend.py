@@ -22,7 +22,7 @@ import tempfile
 import multiprocessing
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 import numpy as np
 
@@ -141,6 +141,9 @@ class Frontend(ABC):
         value = self.config["gen_ref_data_fmt"]
         assert value in ["npy", "npz"]
         return value
+
+    def inference(self, model: Model, input_data: Dict[str, np.array]):
+        raise NotImplementedError
 
     def supports_formats(self, ins=None, outs=None):
         """Returs true if the frontend can handle at least one combination of input and output formats."""
@@ -653,6 +656,40 @@ class TfLiteFrontend(SimpleFrontend):
     @property
     def analyze_script(self):
         return self.config["analyze_script"]
+
+    def inference(self, model: Model, input_data: Dict[str, np.array], quant=False, dequant=False):
+        import tensorflow as tf
+        model_path = str(model.paths[0])
+        interpreter = tf.lite.Interpreter(model_path=model_path)
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        interpreter.allocate_tensors()
+        assert len(input_details) == 1, "Multi-inputs not yet supported"
+        input_type = input_details[0]["dtype"]
+        input_name = input_details[0]["name"]
+        input_shape = input_details[0]["shape"]
+        assert input_name in input_data, f"Input {input_name} fot found in data"
+        np_features = input_data[input_name]
+        if quant and input_type == np.int8:
+            input_scale, input_zero_point = input_details[0]['quantization']
+            np_features = (np_features / input_scale) + input_zero_point
+            np_features = np.around(np_features)
+        np_features = np_features.astype(input_type)
+        np_features = np_features.reshape(input_shape)
+        interpreter.set_tensor(input_details[0]['index'], np_features)
+        interpreter.invoke()
+        output = interpreter.get_tensor(output_details[0]['index'])
+
+        # If the output type is int8 (quantized model), rescale data
+        assert len(output_details) == 1, "Multi-outputs not yet supported"
+        output_type = output_details[0]["dtype"]
+        output_name = output_details[0]["name"]
+        if dequant and output_type == np.int8:
+            output_scale, output_zero_point = output_details[0]["quantization"]
+            output = output_scale * (output.astype(np.float32) - output_zero_point)
+
+        # Print the results of inference
+        return {output_name: output}
 
     def produce_artifacts(self, model):
         assert len(self.input_formats) == len(model.paths) == 1

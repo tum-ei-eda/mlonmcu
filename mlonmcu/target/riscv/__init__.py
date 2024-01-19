@@ -19,6 +19,7 @@ __all__ = [
     "RiscvQemuTarget",
     "GvsocPulpTarget",
     "AraTarget",
+    "AraRtlTarget",
     "CV32E40PTarget",
     "VicunaTarget",
 ]

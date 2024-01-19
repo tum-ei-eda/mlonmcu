@@ -378,7 +378,7 @@ class TfLiteFrontend(SimpleFrontend):
 
         if self.analyze_enable:
             with tempfile.TemporaryDirectory() as tmpdirname:
-                out_file = str(Path(tmpdirname) / f"tflite_analyze.csv")
+                out_file = str(Path(tmpdirname) / "tflite_analyze.csv")
 
                 args = [
                     path,
@@ -398,7 +398,7 @@ class TfLiteFrontend(SimpleFrontend):
                     tflite_analyze_csv = handle.read()
 
                 tflite_analyze_artifact = Artifact(
-                    f"tflite_analyze.csv",
+                    "tflite_analyze.csv",
                     content=tflite_analyze_csv,
                     fmt=ArtifactFormat.TEXT,
                 )

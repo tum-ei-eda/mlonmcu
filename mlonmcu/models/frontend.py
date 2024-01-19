@@ -404,7 +404,6 @@ class TfLiteFrontend(SimpleFrontend):
                 )
                 artifacts.append(tflite_analyze_artifact)
         if self.visualize_enable:
-
             assert self.visualize_script is not None
 
             in_file = model.paths[0]

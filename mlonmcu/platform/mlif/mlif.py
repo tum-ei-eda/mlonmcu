@@ -239,7 +239,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def lto(self):
-        value = self.config["verbose_makefile"]
+        value = self.config["lto"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property

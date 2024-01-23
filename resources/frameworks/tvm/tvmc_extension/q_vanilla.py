@@ -18,10 +18,10 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__)))  # noqa: E402
+sys.path.append(os.path.join(os.path.dirname(__file__)))  
 
-from tvm.driver.tvmc.extensions import TVMCExtension
-from QVanilla_Accelerator.backend import QVanillaAcceleratorBackend
+from tvm.driver.tvmc.extensions import TVMCExtension   # noqa: E402
+from QVanilla_Accelerator.backend import QVanillaAcceleratorBackend   # noqa: E402
 
 
 class QVanillaExtension(TVMCExtension):

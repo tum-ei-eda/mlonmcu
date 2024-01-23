@@ -17,6 +17,7 @@
 """Relay graph patterns for the q_vanilla_accelerator accelerator"""
 
 from tvm.relay.dataflow_pattern import is_op, wildcard, is_constant
+
 # import tvm
 
 

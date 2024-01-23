@@ -19,7 +19,7 @@
 
 from tvm import relay
 from tvm.relay import op as _op
-from tvm.relay.qnn.strategy.hexagon import *
+from tvm.relay.qnn.strategy.generic import wrap_topi_schedule, wrap_topi_qnn_conv2d
 from tvm import topi
 
 
@@ -28,7 +28,7 @@ def qnn_conv2d_strategy(attrs, inputs, out_type, target):
     print("qnn strategy")
     strategy = _op.OpStrategy()
     strategy.add_implementation(
-        wrap_topi_qnn_conv2d(topi.hexagon.qnn_conv2d), wrap_topi_schedule(topi.hexagon.schedule_qnn_conv2d)
+        wrap_topi_qnn_conv2d(topi.hexagon.qnn_conv2d), wrap_topi_schedule(topi.hexagon.schedule_qnn_conv2d) 
     )
 
     return strategy

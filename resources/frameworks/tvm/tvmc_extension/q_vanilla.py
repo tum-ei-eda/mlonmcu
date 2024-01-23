@@ -15,9 +15,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import os, sys
+import os
+import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__)))
+sys.path.append(os.path.join(os.path.dirname(__file__)))  # noqa: E402
 
 from tvm.driver.tvmc.extensions import TVMCExtension
 from QVanilla_Accelerator.backend import QVanillaAcceleratorBackend

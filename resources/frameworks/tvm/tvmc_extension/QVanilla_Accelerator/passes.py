@@ -16,12 +16,12 @@
 # under the License.
 """Transform passes for the q_vanilla_accelerator accelerator"""
 
-import functools
+# import functools
 import tvm
 from tvm import tir
-from tvm.relay.backend.contrib.uma.api.utils import add_llvm_to_block
+# from tvm.relay.backend.contrib.uma.api.utils import add_llvm_to_block
 from tvm import relay
-from tvm.tir import buffer
+# from tvm.tir import buffer
 
 
 @tvm.tir.transform.prim_func_pass(opt_level=2)
@@ -38,11 +38,11 @@ class QVanillaAcceleratorConv2dPass:
 
     @classmethod
     def _q_vanilla_accelerator_conv2d_pass(cls, func, mod, ctx):
-        _loops = dict()
-        _handles = []
-        _entry_node = None
+        _loops = dict() # noqa: F841
+        _handles = []  # noqa: F841
+        _entry_node = None  # noqa: F841
         zp = []
-        block_idx = 0
+        block_idx = 0  # noqa: F841
 
         def _has_block(name: str, func: tvm.tir.PrimFunc) -> bool:
             """

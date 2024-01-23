@@ -16,7 +16,7 @@
 # under the License.
 """UMA codegen for the vanilla_accelerator accelerator"""
 
-import tvm
+# import tvm
 import pathlib
 
 

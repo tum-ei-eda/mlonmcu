@@ -21,7 +21,8 @@ from .passes import QVanillaAcceleratorConv2dPass, ConvertLayout
 from tvm.relay.backend.contrib.uma.api.utils import PassPhase
 from tvm.relay.backend.contrib.uma.backend import UMABackend
 from .codegen import gen_includes
-from .patterns import conv2d_pattern, dense_pattern, qnn_conv2d_add_pattern, qnn_conv2d_pattern
+# from .patterns import conv2d_pattern, dense_pattern, qnn_conv2d_pattern
+from .patterns import qnn_conv2d_add_pattern
 from .strategies import qnn_conv2d_strategy
 
 

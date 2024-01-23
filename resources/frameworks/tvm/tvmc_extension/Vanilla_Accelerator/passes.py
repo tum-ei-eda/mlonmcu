@@ -21,15 +21,15 @@ from tvm import tir
 from tvm.relay.backend.contrib.uma.api.utils import add_llvm_to_block
 from tvm import relay
 
+
 @tvm.tir.transform.prim_func_pass(opt_level=2)
 class VanillaAcceleratorConv2dPass:
     _EXTERNAL_FUNCTION_NAME = "vanilla_accelerator_conv2dnchw"
     _TVM_BLOCK_MATCH_NAME = "conv2d_nchw"
-  
+
     def transform_function(
         self, func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
     ) -> tvm.tir.PrimFunc:
-        
         return self._vanilla_accelerator_conv2d_pass(func, mod, ctx)
 
     @classmethod
@@ -49,14 +49,13 @@ class VanillaAcceleratorConv2dPass:
 
             _found_blocks = []
             tvm.tir.stmt_functor.post_order_visit(func.body, _hb)
-          
+
             return name in _found_blocks
 
         def _detect_and_replace_conv2d(
             func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
         ) -> tvm.tir.PrimFunc:
             def _replace_conv2d(op):
-              
                 if op == _entry_node:
                     irb = tvm.tir.ir_builder.create()
                     # Collection of buffer address
@@ -74,8 +73,7 @@ class VanillaAcceleratorConv2dPass:
                     # Remove that pad block of TOPI's conv2DNCHW by only returning the 2nd statement
                     return op.seq[1]
                 return op
-            
-            
+
             sch = tir.Schedule(func)
 
             if _has_block(cls._TVM_BLOCK_MATCH_NAME, func):
@@ -96,14 +94,12 @@ class VanillaAcceleratorConv2dPass:
                 _loops = {k: sch.get(v) for k, v in loops.items()}
                 _handles = func.buffer_map.items()
 
-                x = tvm.tir.stmt_functor.ir_transform(
-                    func.body, None, _replace_conv2d, ["tir.For", "tir.SeqStmt"]
-                )
-             
+                x = tvm.tir.stmt_functor.ir_transform(func.body, None, _replace_conv2d, ["tir.For", "tir.SeqStmt"])
+
                 return func.with_body(x)
             else:
                 return func
-            
+
         r = _detect_and_replace_conv2d(func, mod, ctx)
         return r
 
@@ -121,7 +117,6 @@ def tir_call(ib: tvm.tir.ir_builder, extern: bool, name: str, *args):
     """
 
     def buf_from_array(ib, arr, dtype):
-       
         # Allocate enough memory to store the whole array
         var = ib.allocate("int32", (len(arr),), scope="global")
         for i, v in enumerate(arr):
@@ -135,27 +130,23 @@ def tir_call(ib: tvm.tir.ir_builder, extern: bool, name: str, *args):
         return tvm.tir.call_extern("int32", name, *args)
     else:
         args = [
-            buf_from_array(ib, i, "int32")
-            if isinstance(i, (tuple, list, tvm.ir.container.Array))
-            else i
-            for i in args
+            buf_from_array(ib, i, "int32") if isinstance(i, (tuple, list, tvm.ir.container.Array)) else i for i in args
         ]
         return tvm.tir.call_packed(name, *args)
 
 
-
 @tvm.ir.transform.module_pass(opt_level=0)
 class ConvertLayout:
-  
     def transform_module(self, mod, ctx):
         print("relay pass function")
         # My pass functionality...
-        desired_layouts = {'nn.conv2d': ['NCHW', 'default']}
+        desired_layouts = {"nn.conv2d": ["NCHW", "default"]}
         # Convert the layout to NCHW
         # RemoveUnunsedFunctions is used to clean up the graph.
-        seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
-                                    relay.transform.ConvertLayout(desired_layouts)])
+        seq = tvm.transform.Sequential(
+            [relay.transform.RemoveUnusedFunctions(), relay.transform.ConvertLayout(desired_layouts)]
+        )
         with tvm.transform.PassContext(opt_level=3):
             mod = seq(mod)
-       
+
         return mod

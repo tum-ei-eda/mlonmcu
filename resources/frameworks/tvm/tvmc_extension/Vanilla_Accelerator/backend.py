@@ -24,7 +24,9 @@ from .patterns import conv2d_pattern
 
 class VanillaAcceleratorBackend(UMABackend):
     """UMA backend for the VanillaAccelerator accelerator."""
+
     print("backend")
+
     def __init__(self):
         super().__init__()
 

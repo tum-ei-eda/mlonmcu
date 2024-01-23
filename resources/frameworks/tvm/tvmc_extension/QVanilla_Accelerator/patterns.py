@@ -19,38 +19,46 @@
 from tvm.relay.dataflow_pattern import is_op, wildcard, is_constant
 import tvm
 
+
 def conv2d_pattern():
     pattern = is_op("nn.conv2d")(wildcard(), wildcard())
     pattern = pattern.has_attr({"strides": [1, 1], "groups": 1})
-   
+
     return pattern
 
 
-
 def qnn_conv2d_pattern():
-    
-    pattern = is_op("qnn.conv2d")(wildcard(), wildcard(), is_constant(), is_constant(), is_constant(), is_constant(),)
-    
+    pattern = is_op("qnn.conv2d")(
+        wildcard(),
+        wildcard(),
+        is_constant(),
+        is_constant(),
+        is_constant(),
+        is_constant(),
+    )
+
     pattern = pattern.has_attr({"strides": [1, 1], "groups": 1})
 
     return pattern
 
 
 def qnn_conv2d_add_pattern():
-    
-    qnn_conv2d = is_op("qnn.conv2d")(wildcard(), wildcard(), is_constant(),
-                         is_constant(), is_constant(), is_constant(),)
-    
+    qnn_conv2d = is_op("qnn.conv2d")(
+        wildcard(),
+        wildcard(),
+        is_constant(),
+        is_constant(),
+        is_constant(),
+        is_constant(),
+    )
+
     qnn_conv2d = qnn_conv2d.has_attr({"strides": [1, 1], "groups": 1})
 
     pattern = is_op("add")(qnn_conv2d, wildcard())
 
-    return pattern   
-
+    return pattern
 
 
 def dense_pattern():
     pattern = is_op("nn.dense")(wildcard(), wildcard())
     return pattern
-
-

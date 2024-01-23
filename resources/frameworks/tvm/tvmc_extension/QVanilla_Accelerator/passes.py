@@ -30,10 +30,10 @@ class QVanillaAcceleratorConv2dPass:
     # _TVM_BLOCK_MATCH_NAME = "conv2d_nchw"
     _TVM_BLOCK_MATCH_NAME = "compute_2"
     print("tir pass")
+
     def transform_function(
         self, func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
     ) -> tvm.tir.PrimFunc:
-       
         return self._q_vanilla_accelerator_conv2d_pass(func, mod, ctx)
 
     @classmethod
@@ -43,7 +43,7 @@ class QVanillaAcceleratorConv2dPass:
         _entry_node = None
         zp = []
         block_idx = 0
-        
+
         def _has_block(name: str, func: tvm.tir.PrimFunc) -> bool:
             """
             Determine of a tir.block with `name` exists in `func`
@@ -55,14 +55,13 @@ class QVanillaAcceleratorConv2dPass:
 
             _found_blocks = []
             tvm.tir.stmt_functor.post_order_visit(func.body, _hb)
-       
+
             return name in _found_blocks
 
         def _detect_and_replace_conv2d(
             func: tvm.tir.PrimFunc, mod: tvm.ir.IRModule, ctx: tvm.ir.transform.PassContext
         ) -> tvm.tir.PrimFunc:
             def _replace_conv2d(op):
-                
                 if op == _entry_node:
                     print("if op == _entry_node")
                     irb = tvm.tir.ir_builder.create()
@@ -76,27 +75,24 @@ class QVanillaAcceleratorConv2dPass:
 
                     offsets.append(zp[0])
                     offsets.append(zp[1])
-                  
 
                     args = buffers + offsets
-                    
+
                     irb.emit(tir_call(irb, True, cls._EXTERNAL_FUNCTION_NAME, *args))
                     irb_result = irb.get()
-                   
+
                     return irb_result
                 elif isinstance(op, tvm.tir.SeqStmt):
                     # Remove that pad block of TOPI's conv2DNCHW by only returning the 2nd statement
-                  
-                    return op.seq[block_idx]   # the line that I've changed to replace the compute_2 block
-                
+
+                    return op.seq[block_idx]  # the line that I've changed to replace the compute_2 block
+
                 return op
 
             sch = tir.Schedule(func)
 
             if _has_block(cls._TVM_BLOCK_MATCH_NAME, func):
-              
-
-                #find the zp values
+                # find the zp values
 
                 s1 = []
                 s2 = []
@@ -107,22 +103,18 @@ class QVanillaAcceleratorConv2dPass:
                         s1.append(s.buffer.data)
                         s2.append(s.value)
 
-
                 tvm.tir.stmt_functor.post_order_visit(func.body, _visit)
-                
+
                 for i in range(len(s1)):
-                    
                     if s1[i].name == "compile_engine_const":
-                        
                         zp.append(s2[i])
-                block_idx = len(s1) - 3      
-          
-              
+                block_idx = len(s1) - 3
+
                 ###
-                
+
                 conv2d_block = sch.get_block(cls._TVM_BLOCK_MATCH_NAME)
                 rv_loops = sch.get_loops(conv2d_block)
-                
+
                 assert len(rv_loops) == 7
                 loops = dict(
                     n=rv_loops[0],
@@ -134,14 +126,12 @@ class QVanillaAcceleratorConv2dPass:
                     kw=rv_loops[6],
                 )
                 _entry_node = sch.get(rv_loops[1])
-                
+
                 _loops = {k: sch.get(v) for k, v in loops.items()}
                 _handles = func.buffer_map.items()
 
-                x = tvm.tir.stmt_functor.ir_transform(
-                    func.body, None, _replace_conv2d, ["tir.For", "tir.SeqStmt"]
-                )
-                
+                x = tvm.tir.stmt_functor.ir_transform(func.body, None, _replace_conv2d, ["tir.For", "tir.SeqStmt"])
+
                 return func.with_body(x)
             else:
                 # print(func)
@@ -177,45 +167,38 @@ def tir_call(ib: tvm.tir.ir_builder, extern: bool, name: str, *args):
         return tvm.tir.call_extern("int32", name, *args)
     else:
         args = [
-            buf_from_array(ib, i, "int32")
-            if isinstance(i, (tuple, list, tvm.ir.container.Array))
-            else i
-            for i in args
+            buf_from_array(ib, i, "int32") if isinstance(i, (tuple, list, tvm.ir.container.Array)) else i for i in args
         ]
         return tvm.tir.call_packed(name, *args)
 
 
 @tvm.ir.transform.module_pass(opt_level=0)
 class ConvertLayout:
-   
     def transform_module(self, mod, ctx):
-       
         # My pass functionality...
-        desired_layouts = {'qnn.conv2d': ['NCHW', 'default']}
+        desired_layouts = {"qnn.conv2d": ["NCHW", "default"]}
         # Convert the layout to NCHW
         # RemoveUnunsedFunctions is used to clean up the graph.
-        seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
-                                    relay.transform.ConvertLayout(desired_layouts)])
+        seq = tvm.transform.Sequential(
+            [relay.transform.RemoveUnusedFunctions(), relay.transform.ConvertLayout(desired_layouts)]
+        )
         with tvm.transform.PassContext(opt_level=3):
             mod = seq(mod)
-        
-       
+
         return mod
+
 
 @tvm.ir.transform.module_pass(opt_level=0)
 class Canonicalize:
     print("Canonicalize")
+
     def transform_module(self, mod, ctx):
-      
         # My pass functionality...
-        
+
         # Convert the layout to NCHW
         # RemoveUnunsedFunctions is used to clean up the graph.
-        seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(),
-                                    relay.qnn.transform.CanonicalizeOps()])
+        seq = tvm.transform.Sequential([relay.transform.RemoveUnusedFunctions(), relay.qnn.transform.CanonicalizeOps()])
         with tvm.transform.PassContext(opt_level=3):
             mod = seq(mod)
 
         return mod
-        
-        

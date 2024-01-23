@@ -16,7 +16,8 @@
 # under the License.
 """UMA backend for the q_vanilla_accelerator accelerator"""
 from .passes import QVanillaAcceleratorConv2dPass, ConvertLayout
-#, ConvertLayout, Canonicalize, QVanillaAcceleratorDensePass
+
+# , ConvertLayout, Canonicalize, QVanillaAcceleratorDensePass
 from tvm.relay.backend.contrib.uma.api.utils import PassPhase
 from tvm.relay.backend.contrib.uma.backend import UMABackend
 from .codegen import gen_includes

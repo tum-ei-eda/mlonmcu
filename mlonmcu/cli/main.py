@@ -81,7 +81,7 @@ def handle_docker(args):
 # def main(args):
 def main(args=None):
     """Console script for mlonmcu."""
-    
+
     parser = argparse.ArgumentParser(
         description="ML on MCU Flow",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

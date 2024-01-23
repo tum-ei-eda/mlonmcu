@@ -1077,6 +1077,44 @@ class DisableLegalize(BackendFeature, SetupFeature):
         return ret
 
 
+@register_feature("uma_backends")
+class UMABackends(BackendFeature):
+    """Add directories that contain UMA backends."""
+
+    REQUIRED = []
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "uma_dir": "",
+        "uma_target": "",
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("uma_backends", features=features, config=config)
+
+    @property
+    def uma_dir(self):
+        return self.config["uma_dir"]
+
+    @property
+    def uma_target(self):
+        return self.config["uma_target"]
+
+    def add_backend_config(self, backend, config):
+        assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
+        tvmcArgs = ["--experimental-tvmc-extension", self.uma_dir]
+        if f"{backend}.tvmc_extra_args" in config:
+            config[f"{backend}.tvmc_extra_args"].extend(tvmcArgs)
+        else:
+            config[f"{backend}.tvmc_extra_args"] = tvmcArgs
+        extras = config.get(f"{backend}.extra_target", [])
+        if self.uma_target not in extras:
+            if isinstance(extras, str):
+                extras = [extras]
+            extras.append(self.uma_target)
+        config[f"{backend}.extra_target"] = extras
+
+
 @register_feature("demo")
 class Demo(PlatformFeature):
     """Run demo application instead of benchmarking code."""

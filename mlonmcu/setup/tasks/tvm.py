@@ -33,11 +33,15 @@ logger = get_logger()
 Tasks = get_task_factory()
 
 
+def requires_patch(context: MlonMcuContext):
+    return context.environment.has_feature("disable_legalize")
+
+
 def _validate_tvm(context: MlonMcuContext, params=None):
     # user_vars = context.environment.vars
     patch = bool(params.get("patch", False))
     if patch:
-        if not context.environment.has_feature("disable_legalize"):
+        if not requires_patch(context):
             return False
     return context.environment.has_framework("tvm")
 
@@ -63,10 +67,10 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
     #     if not (context.environment.has_feature("cmsisnnbyoc") or context.environment.has_feature("muriscvnnbyoc")):
     #         return False
     if patch:
-        if not context.environment.has_feature("disable_legalize"):
+        if not requires_patch(context):
             return False
     if use_tlcpack:
-        assert not context.environment.has_feature("disable_legalize")
+        assert not requires_patch(context)
         return False
     if dbg:
         assert not use_tlcpack
@@ -167,6 +171,13 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             r"s/USE_LLVM \(OFF\|ON\)/USE_LLVM " + llvmConfigEscaped + "/g",
             str(cfgFile),
         )
+        utils.exec(
+            "sed",
+            "-i",
+            "--",
+            r"s/USE_UMA OFF/USE_UMA ON/g",
+            str(cfgFile),
+        )
         if cmsisnn:
             utils.exec(
                 "sed",
@@ -218,7 +229,7 @@ def install_tvm(
 
 
 def _validate_tvm_extensions(context: MlonMcuContext, params=None):
-    return _validate_tvm_build(context, params=params) and context.environment.has_feature("disable_legalize")
+    return _validate_tvm_build(context, params=params) and requires_patch(context)
 
 
 @Tasks.provides(["tvm_extensions.src_dir", "tvm_extensions.wrapper"])

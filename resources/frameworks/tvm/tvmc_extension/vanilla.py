@@ -19,8 +19,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 
-from tvm.driver.tvmc.extensions import TVMCExtension   # noqa: E402
-from Vanilla_Accelerator.backend import VanillaAcceleratorBackend   # noqa: E402
+from tvm.driver.tvmc.extensions import TVMCExtension  # noqa: E402
+from Vanilla_Accelerator.backend import VanillaAcceleratorBackend  # noqa: E402
 
 
 class VanillaExtension(TVMCExtension):

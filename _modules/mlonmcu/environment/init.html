@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.environment.init &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -122,7 +125,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="create_environment_directories"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.create_environment_directories">[docs]</a><span class="k">def</span> <span class="nf">create_environment_directories</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">directories</span><span class="p">):</span>
+<div class="viewcode-block" id="create_environment_directories">
+<a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.create_environment_directories">[docs]</a>
+<span class="k">def</span> <span class="nf">create_environment_directories</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">directories</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
@@ -131,13 +136,19 @@
         <span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="n">directory</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="clone_models_repo"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.clone_models_repo">[docs]</a><span class="k">def</span> <span class="nf">clone_models_repo</span><span class="p">(</span>
+
+<div class="viewcode-block" id="clone_models_repo">
+<a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.clone_models_repo">[docs]</a>
+<span class="k">def</span> <span class="nf">clone_models_repo</span><span class="p">(</span>
     <span class="n">dest</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://github.com/tum-ei-eda/mlonmcu-models.git&quot;</span>
 <span class="p">):</span>  <span class="c1"># TODO: how to get submodule url/ref</span>
     <span class="n">git</span><span class="o">.</span><span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="create_venv_directory"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.create_venv_directory">[docs]</a><span class="k">def</span> <span class="nf">create_venv_directory</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="create_venv_directory">
+<a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.create_venv_directory">[docs]</a>
+<span class="k">def</span> <span class="nf">create_venv_directory</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
     <span class="n">dirname</span> <span class="o">=</span> <span class="s2">&quot;.venv&quot;</span> <span class="k">if</span> <span class="n">hidden</span> <span class="k">else</span> <span class="s2">&quot;venv&quot;</span>
@@ -146,7 +157,10 @@
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Virtual environment was created in </span><span class="si">{</span><span class="n">venv_dir</span><span class="si">}</span><span class="s2">. Make sure to activate it before using mlonmcu.&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="initialize_environment"><a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.initialize_environment">[docs]</a><span class="k">def</span> <span class="nf">initialize_environment</span><span class="p">(</span>
+
+<div class="viewcode-block" id="initialize_environment">
+<a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.initialize_environment">[docs]</a>
+<span class="k">def</span> <span class="nf">initialize_environment</span><span class="p">(</span>
     <span class="n">directory</span><span class="p">,</span>
     <span class="n">name</span><span class="p">,</span>
     <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -276,6 +290,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Finished. Please add `export MLONMCU_HOME=</span><span class="si">{</span><span class="n">target_dir</span><span class="si">}</span><span class="s2">` to your shell configuration to use it anywhere&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Recommended next step: `mlonmcu setup` inside your virtual environment.&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optional: `mlonmcu setup -g`&quot;</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

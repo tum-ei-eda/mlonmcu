@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.flow package &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=414d5694"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -109,9 +112,9 @@
            <div itemprop="articleBody">
              
   <section id="mlonmcu-flow-package">
-<h1>mlonmcu.flow package<a class="headerlink" href="#mlonmcu-flow-package" title="Permalink to this headline"></a></h1>
+<h1>mlonmcu.flow package<a class="headerlink" href="#mlonmcu-flow-package" title="Link to this heading"></a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="mlonmcu.flow.tflm.html">mlonmcu.flow.tflm package</a><ul>
@@ -127,8 +130,59 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflm.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflm.html#module-mlonmcu.flow.tflm.framework">mlonmcu.flow.tflm.framework module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflm.html#module-mlonmcu.flow.tflm">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflm.html#module-mlonmcu.flow.tflm.framework">mlonmcu.flow.tflm.framework module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework"><code class="docutils literal notranslate"><span class="pre">TFLMFramework</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.FEATURES"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.REQUIRED"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.backends"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.backends</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.get_platform_defs"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.get_platform_defs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.name"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.optimized_kernel"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.optimized_kernel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.optimized_kernel_inc_dirs"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.optimized_kernel_inc_dirs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.optimized_kernel_libs"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.optimized_kernel_libs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.tf_src"><code class="docutils literal notranslate"><span class="pre">TFLMFramework.tf_src</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tflm.html#module-mlonmcu.flow.tflm">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMBackend"><code class="docutils literal notranslate"><span class="pre">TFLMBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">TFLMBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">TFLMBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">TFLMBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMBackend.load_model"><code class="docutils literal notranslate"><span class="pre">TFLMBackend.load_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMBackend.name"><code class="docutils literal notranslate"><span class="pre">TFLMBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMBackend.registry"><code class="docutils literal notranslate"><span class="pre">TFLMBackend.registry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMCBackend"><code class="docutils literal notranslate"><span class="pre">TFLMCBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMCBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">TFLMCBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMCBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">TFLMCBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMCBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">TFLMCBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMCBackend.generate"><code class="docutils literal notranslate"><span class="pre">TFLMCBackend.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMCBackend.generate_header"><code class="docutils literal notranslate"><span class="pre">TFLMCBackend.generate_header()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMCBackend.name"><code class="docutils literal notranslate"><span class="pre">TFLMCBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMCBackend.print_outputs"><code class="docutils literal notranslate"><span class="pre">TFLMCBackend.print_outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.arena_size"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.arena_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.custom_ops"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.custom_ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.debug_arena"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.debug_arena</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.generate"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.legacy"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.legacy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.name"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.ops"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.ops_resolver"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.ops_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.registrations"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.registrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.TFLMIBackend.reporter"><code class="docutils literal notranslate"><span class="pre">TFLMIBackend.reporter</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="mlonmcu.flow.tvm.html">mlonmcu.flow.tvm package</a><ul>
@@ -152,205 +206,257 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm.framework">mlonmcu.flow.tvm.framework module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm.framework">mlonmcu.flow.tvm.framework module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework"><code class="docutils literal notranslate"><span class="pre">TVMFramework</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">TVMFramework.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.FEATURES"><code class="docutils literal notranslate"><span class="pre">TVMFramework.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.REQUIRED"><code class="docutils literal notranslate"><span class="pre">TVMFramework.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.crt_config_dir"><code class="docutils literal notranslate"><span class="pre">TVMFramework.crt_config_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.extra_incs"><code class="docutils literal notranslate"><span class="pre">TVMFramework.extra_incs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.extra_libs"><code class="docutils literal notranslate"><span class="pre">TVMFramework.extra_libs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.get_platform_defs"><code class="docutils literal notranslate"><span class="pre">TVMFramework.get_platform_defs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.name"><code class="docutils literal notranslate"><span class="pre">TVMFramework.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.tvm_src"><code class="docutils literal notranslate"><span class="pre">TVMFramework.tvm_src</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.get_crt_config_dir"><code class="docutils literal notranslate"><span class="pre">get_crt_config_dir()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.tvm.html#module-mlonmcu.flow.tvm">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.alignment_bytes"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.alignment_bytes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.arena_size"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.arena_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.debug_arena"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.debug_arena</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.generate"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.get_tvmc_compile_args"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.get_tvmc_compile_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.get_workspace_size_from_metadata"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.get_workspace_size_from_metadata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.name"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTBackend.unpacked_api"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.unpacked_api</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTPlusBackend"><code class="docutils literal notranslate"><span class="pre">TVMAOTPlusBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTPlusBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">TVMAOTPlusBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMAOTPlusBackend.name"><code class="docutils literal notranslate"><span class="pre">TVMAOTPlusBackend.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMCGBackend"><code class="docutils literal notranslate"><span class="pre">TVMCGBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMCGBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">TVMCGBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMCGBackend.generate"><code class="docutils literal notranslate"><span class="pre">TVMCGBackend.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMCGBackend.get_max_workspace_size_from_metadata"><code class="docutils literal notranslate"><span class="pre">TVMCGBackend.get_max_workspace_size_from_metadata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMCGBackend.name"><code class="docutils literal notranslate"><span class="pre">TVMCGBackend.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMRTBackend"><code class="docutils literal notranslate"><span class="pre">TVMRTBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMRTBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">TVMRTBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMRTBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">TVMRTBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMRTBackend.arena_size"><code class="docutils literal notranslate"><span class="pre">TVMRTBackend.arena_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMRTBackend.debug_arena"><code class="docutils literal notranslate"><span class="pre">TVMRTBackend.debug_arena</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMRTBackend.generate"><code class="docutils literal notranslate"><span class="pre">TVMRTBackend.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMRTBackend.get_tvmc_compile_args"><code class="docutils literal notranslate"><span class="pre">TVMRTBackend.get_tvmc_compile_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.TVMRTBackend.name"><code class="docutils literal notranslate"><span class="pre">TVMRTBackend.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
 <section id="module-mlonmcu.flow.backend">
-<span id="mlonmcu-flow-backend-module"></span><h2>mlonmcu.flow.backend module<a class="headerlink" href="#module-mlonmcu.flow.backend" title="Permalink to this headline"></a></h2>
+<span id="mlonmcu-flow-backend-module"></span><h2>mlonmcu.flow.backend module<a class="headerlink" href="#module-mlonmcu.flow.backend" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.backend.</span></span><span class="sig-name descname"><span class="pre">Backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.backend.</span></span><span class="sig-name descname"><span class="pre">Backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.FEATURES" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.OPTIONAL">
-<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.OPTIONAL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.OPTIONAL" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.REQUIRED">
-<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.REQUIRED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.REQUIRED" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.add_platform_config">
-<span class="sig-name descname"><span class="pre">add_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.add_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.add_platform_config" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.add_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.add_platform_config" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.add_platform_defs">
-<span class="sig-name descname"><span class="pre">add_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.add_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.add_platform_defs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.add_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.add_platform_defs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.export_artifacts">
-<span class="sig-name descname"><span class="pre">export_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.export_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.export_artifacts" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">export_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.export_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.export_artifacts" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.generate">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.generate" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.generate" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.generate_artifacts">
-<span class="sig-name descname"><span class="pre">generate_artifacts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.html#mlonmcu.artifact.Artifact" title="mlonmcu.artifact.Artifact"><span class="pre">mlonmcu.artifact.Artifact</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.generate_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.generate_artifacts" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_artifacts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlonmcu.html#mlonmcu.artifact.Artifact" title="mlonmcu.artifact.Artifact"><span class="pre">Artifact</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.generate_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.generate_artifacts" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.get_platform_config">
-<span class="sig-name descname"><span class="pre">get_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.get_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.get_platform_config" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.get_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.get_platform_config" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.get_platform_defs">
-<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.get_platform_defs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.get_platform_defs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.has_tuner">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_tuner</span></span><a class="headerlink" href="#mlonmcu.flow.backend.Backend.has_tuner" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_tuner</span></span><a class="headerlink" href="#mlonmcu.flow.backend.Backend.has_tuner" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.load_model">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.load_model" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.load_model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.name" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.flow.backend.Backend.name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.needs_target">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">needs_target</span></span><a class="headerlink" href="#mlonmcu.flow.backend.Backend.needs_target" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">needs_target</span></span><a class="headerlink" href="#mlonmcu.flow.backend.Backend.needs_target" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.process_features">
-<span class="sig-name descname"><span class="pre">process_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.process_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.process_features" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">process_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.process_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.process_features" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.set_tuning_records">
-<span class="sig-name descname"><span class="pre">set_tuning_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.set_tuning_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.set_tuning_records" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_tuning_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.set_tuning_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.set_tuning_records" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.Backend.supports_model">
-<span class="sig-name descname"><span class="pre">supports_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.supports_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.supports_model" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">supports_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#Backend.supports_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.Backend.supports_model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.get_parser">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.backend.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.get_parser" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.backend.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.get_parser" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.init_backend_features">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.backend.</span></span><span class="sig-name descname"><span class="pre">init_backend_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#init_backend_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.init_backend_features" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.backend.</span></span><span class="sig-name descname"><span class="pre">init_backend_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#init_backend_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.init_backend_features" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.flow.backend.main">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.backend.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.main" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.backend.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/backend.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.backend.main" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
 <section id="module-mlonmcu.flow.framework">
-<span id="mlonmcu-flow-framework-module"></span><h2>mlonmcu.flow.framework module<a class="headerlink" href="#module-mlonmcu.flow.framework" title="Permalink to this headline"></a></h2>
+<span id="mlonmcu-flow-framework-module"></span><h2>mlonmcu.flow.framework module<a class="headerlink" href="#module-mlonmcu.flow.framework" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.framework.</span></span><span class="sig-name descname"><span class="pre">Framework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.framework.</span></span><span class="sig-name descname"><span class="pre">Framework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.DEFAULTS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.FEATURES" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.FEATURES" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.OPTIONAL">
-<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.OPTIONAL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.OPTIONAL" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.REQUIRED">
-<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'tf.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.REQUIRED" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'tf.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.REQUIRED" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.add_platform_config">
-<span class="sig-name descname"><span class="pre">add_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.add_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.add_platform_config" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.add_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.add_platform_config" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.add_platform_defs">
-<span class="sig-name descname"><span class="pre">add_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.add_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.add_platform_defs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.add_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.add_platform_defs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.get_platform_config">
-<span class="sig-name descname"><span class="pre">get_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.get_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.get_platform_config" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.get_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.get_platform_config" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.get_platform_defs">
-<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.get_platform_defs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.get_platform_defs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.name" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.process_features">
-<span class="sig-name descname"><span class="pre">process_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.process_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.process_features" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">process_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.process_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.process_features" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.registry">
-<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'tflm':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tflm.framework.TFLMFramework'&gt;,</span> <span class="pre">'tvm':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tvm.framework.TVMFramework'&gt;}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.registry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'tflm':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tflm.framework.TFLMFramework'&gt;,</span> <span class="pre">'tvm':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tvm.framework.TVMFramework'&gt;}</span></em><a class="headerlink" href="#mlonmcu.flow.framework.Framework.registry" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.flow.framework.Framework.remove_config_prefix">
-<span class="sig-name descname"><span class="pre">remove_config_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.remove_config_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.remove_config_prefix" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">remove_config_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/framework.html#Framework.remove_config_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.framework.Framework.remove_config_prefix" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-mlonmcu.flow">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.flow" title="Permalink to this headline"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.flow" title="Link to this heading"></a></h2>
 <p>Flow module for frameworks and backend.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.flow.get_available_backend_names">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.</span></span><span class="sig-name descname"><span class="pre">get_available_backend_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow.html#get_available_backend_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.get_available_backend_names" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.</span></span><span class="sig-name descname"><span class="pre">get_available_backend_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow.html#get_available_backend_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.get_available_backend_names" title="Link to this definition"></a></dt>
 <dd><p>Return all available backend names.</p>
 </dd></dl>
 

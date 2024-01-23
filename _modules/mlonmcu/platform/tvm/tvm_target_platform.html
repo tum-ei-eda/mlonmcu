@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.tvm.tvm_target_platform &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -115,7 +118,9 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="TvmTargetPlatform"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform">[docs]</a><span class="k">class</span> <span class="nc">TvmTargetPlatform</span><span class="p">(</span><span class="n">TargetPlatform</span><span class="p">,</span> <span class="n">TvmRpcPlatform</span><span class="p">):</span>
+<div class="viewcode-block" id="TvmTargetPlatform">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform">[docs]</a>
+<span class="k">class</span> <span class="nc">TvmTargetPlatform</span><span class="p">(</span><span class="n">TargetPlatform</span><span class="p">,</span> <span class="n">TvmRpcPlatform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TVM target platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">(</span>
@@ -183,13 +188,21 @@
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;total_time&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="TvmTargetPlatform.flash"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.flash">[docs]</a>    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+<div class="viewcode-block" id="TvmTargetPlatform.flash">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.flash">[docs]</a>
+    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="TvmTargetPlatform.monitor"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.monitor">[docs]</a>    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TvmTargetPlatform.monitor">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.monitor">[docs]</a>
+    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="TvmTargetPlatform.get_supported_targets"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.get_supported_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TvmTargetPlatform.get_supported_targets">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.get_supported_targets">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: get this via tvmc run --help</span>
         <span class="n">target_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="s2">&quot;cuda&quot;</span><span class="p">,</span> <span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;metal&quot;</span><span class="p">,</span> <span class="s2">&quot;vulkan&quot;</span><span class="p">,</span> <span class="s2">&quot;rocm&quot;</span><span class="p">,</span> <span class="s2">&quot;micro&quot;</span><span class="p">]</span>
 
@@ -197,7 +210,10 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;tvm_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_names</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="TvmTargetPlatform.create_target"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.create_target">[docs]</a>    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TvmTargetPlatform.create_target">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.create_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid TVM device&quot;</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="n">get_targets</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
@@ -206,7 +222,10 @@
             <span class="n">base</span> <span class="o">=</span> <span class="n">Target</span>
         <span class="k">return</span> <span class="n">create_tvm_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TvmTargetPlatform.get_tvmc_run_args"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.get_tvmc_run_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_tvmc_run_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TvmTargetPlatform.get_tvmc_run_args">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.get_tvmc_run_args">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tvmc_run_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="o">*</span><span class="n">get_data_tvmc_args</span><span class="p">(</span>
                 <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_mode</span><span class="p">,</span> <span class="n">ins_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ins_file</span><span class="p">,</span> <span class="n">outs_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">outs_file</span><span class="p">,</span> <span class="n">print_top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_top</span>
@@ -217,13 +236,19 @@
             <span class="o">*</span><span class="n">get_rpc_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_hostname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_port</span><span class="p">),</span>
         <span class="p">]</span></div>
 
-<div class="viewcode-block" id="TvmTargetPlatform.invoke_tvmc_run"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.invoke_tvmc_run">[docs]</a>    <span class="k">def</span> <span class="nf">invoke_tvmc_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TvmTargetPlatform.invoke_tvmc_run">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.invoke_tvmc_run">[docs]</a>
+    <span class="k">def</span> <span class="nf">invoke_tvmc_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Target required for tvmc run&quot;</span>
         <span class="n">combined_args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">combined_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--device&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">device</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TvmTargetPlatform.run"><a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TvmTargetPlatform.run">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
         <span class="c1"># TODO: implement timeout</span>
         <span class="c1"># Here, elf is actually a directory</span>
         <span class="c1"># TODO: replace workaround with possibility to pass TAR directly</span>
@@ -231,7 +256,9 @@
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">tar_path</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tvmc_run_args</span><span class="p">()</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">output</span></div></div>
+        <span class="k">return</span> <span class="n">output</span></div>
+</div>
+
 </pre></div>
 
            </div>

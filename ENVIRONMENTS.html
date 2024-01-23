@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Environments &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=414d5694"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -83,14 +86,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="environments">
-<h1>Environments<a class="headerlink" href="#environments" title="Permalink to this headline"></a></h1>
+  <section id="environments">
+<h1>Environments<a class="headerlink" href="#environments" title="Link to this heading"></a></h1>
 <section id="motivation">
-<h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this headline"></a></h2>
+<h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading"></a></h2>
 <p>While the base set of features in MLonMCU should work out of the box, there are some reasons for not sticking to predefined default values. Instead of hardcoding values such as repository urls or file paths inside the codebase, they can be completely configured by the user to allow setting up custom environments with very low efforts required. Having multiple MLonMCU environments installed in parallel has further advantages as they are completely isolated from each other an therefore allow using different versions of components and a different set of features. In addition there is a possibility to turn of certain components completely to reduce the installation time. User configuration for the MLonMCU flow which would typically need to be passed via the command line can be instead defined in the environment file which going to be explained next.</p>
 </section>
 <section id="environment-yml-explained">
-<h2><code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> Explained<a class="headerlink" href="#environment-yml-explained" title="Permalink to this headline"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> Explained<a class="headerlink" href="#environment-yml-explained" title="Link to this heading"></a></h2>
 <p>Each MLonMCU environment has a unique directory which can be chosen by the user where dependencies are installed and exports are written to. In this directory which can also be referred as MLonMCU-Home the environment configuration file <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> can be found. The basic structure of this YAML file can be summarized as follows:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># The MLONMCU_HOME is filled in automatically when creating the environment</span>
 <span class="nt">home</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">home_dir</span><span class="nv"> </span><span class="s">}}&quot;</span>
@@ -156,7 +159,7 @@
 <p><strong>Hint:</strong> The <code class="docutils literal notranslate"><span class="pre">default</span></code> property which is available for some components supports wildcards, e.g. instead of providing a single backend name just put in “*” to use all enabled backends of the given framework by default.</p>
 </section>
 <section id="environment-templates">
-<h2>Environment Templates<a class="headerlink" href="#environment-templates" title="Permalink to this headline"></a></h2>
+<h2>Environment Templates<a class="headerlink" href="#environment-templates" title="Link to this heading"></a></h2>
 <p>There is a set of environment file templates provided with the MLonMCU package which can be chosen from by the user e.g.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">default</span></code>: Should work out of the box for everyone</p></li>
@@ -167,9 +170,9 @@
 <p>After a template was chosen, the initial environment file is being generated which can be freely modified by the user afterwards.</p>
 </section>
 <section id="creating-environments">
-<h2>Creating environments<a class="headerlink" href="#creating-environments" title="Permalink to this headline"></a></h2>
+<h2>Creating environments<a class="headerlink" href="#creating-environments" title="Link to this heading"></a></h2>
 <section id="command-line-recommended">
-<h3>Command line (recommended)<a class="headerlink" href="#command-line-recommended" title="Permalink to this headline"></a></h3>
+<h3>Command line (recommended)<a class="headerlink" href="#command-line-recommended" title="Link to this heading"></a></h3>
 <p>To get started with MLonMCU on the command line first an environment has to be created using the <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">init</span></code> command. As only some usage examples are shown in the following, make sure to check out <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">init</span> <span class="pre">--help</span></code> to learn more.</p>
 <ul class="simple">
 <li><p>Initialize a default environment at the default location (<code class="docutils literal notranslate"><span class="pre">~/.config/mlonmcu/environments/default</span></code> on most UNIX Systems): <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">init</span></code></p></li>
@@ -178,14 +181,14 @@
 <p>The tool will ask some questions on the command line interactively.</p>
 </section>
 <section id="python-api">
-<h3>Python API<a class="headerlink" href="#python-api" title="Permalink to this headline"></a></h3>
+<h3>Python API<a class="headerlink" href="#python-api" title="Link to this heading"></a></h3>
 <p>At the moment please stick to the CLI tool!</p>
 </section>
 </section>
 <section id="using-environments">
-<h2>Using environments<a class="headerlink" href="#using-environments" title="Permalink to this headline"></a></h2>
+<h2>Using environments<a class="headerlink" href="#using-environments" title="Link to this heading"></a></h2>
 <section id="command-line">
-<h3>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline"></a></h3>
+<h3>Command line<a class="headerlink" href="#command-line" title="Link to this heading"></a></h3>
 <p>Most of the <code class="docutils literal notranslate"><span class="pre">mlonmcu</span></code> subcommands need a MLonMCU environment to operate on. In some cases it can be resolved automatically however it is recommended to pass it explicitly by the user in either of the following ways:</p>
 <ul class="simple">
 <li><p>Point the <code class="docutils literal notranslate"><span class="pre">MLONMCU_HOME</span></code> environment variable to the environment directory which should be used.</p></li>
@@ -207,7 +210,7 @@
 </div>
 </section>
 <section id="id1">
-<h3>Python API<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<h3>Python API<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>For the best experience a MLonMCU environment should always we wrapped with a <code class="docutils literal notranslate"><span class="pre">MlonMcuContext</span></code> as it provides useful utilities and a locking mechanism which can ensure that only one instance of the environment can be requested at a time.</p>
 <p>The typical using using a Python <code class="docutils literal notranslate"><span class="pre">with</span></code> block looks as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
@@ -220,7 +223,7 @@
 </section>
 </section>
 <section id="environment-registry">
-<h2>Environment registry<a class="headerlink" href="#environment-registry" title="Permalink to this headline"></a></h2>
+<h2>Environment registry<a class="headerlink" href="#environment-registry" title="Link to this heading"></a></h2>
 <p>Optionally environment can be registered in the users home config directory with a given name which enabled referring to them without providing a file path. Use the <code class="docutils literal notranslate"><span class="pre">--register</span></code> and <code class="docutils literal notranslate"><span class="pre">--name</span></code> flags of the <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">init</span></code> command to do so. The command <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">env</span></code> provides useful utilities to list and modify existing entries in the registry file which is typically located at <code class="docutils literal notranslate"><span class="pre">~/.config/mlonmcu/environments.ini</span></code>.</p>
 </section>
 </section>

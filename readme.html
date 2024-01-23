@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ML on MCU &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=414d5694"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -104,8 +107,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="ml-on-mcu">
-<h1>ML on MCU<a class="headerlink" href="#ml-on-mcu" title="Permalink to this headline"></a></h1>
+  <section id="ml-on-mcu">
+<h1>ML on MCU<a class="headerlink" href="#ml-on-mcu" title="Link to this heading"></a></h1>
 <p><a class="reference external" href="https://pypi.org/project/mlonmcu"><img alt="pypi package" src="https://badge.fury.io/py/mlonmcu.svg" /></a>
 <a class="reference external" href="https://mlonmcu.readthedocs.io/en/latest/?version=latest"><img alt="readthedocs" src="https://readthedocs.org/projects/mlonmcu/badge/?version=latest" /></a>
 <img alt="covergae" src="https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage" />
@@ -121,7 +124,7 @@
 <li><p>Documentation: <a class="reference external" href="https://mlonmcu.readthedocs.io">https://mlonmcu.readthedocs.io</a> or <a class="reference external" href="https://tum-ei-eda.github.io/mlonmcu/">https://tum-ei-eda.github.io/mlonmcu/</a></p></li>
 </ul>
 <section id="features">
-<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline"></a></h2>
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Highly configurable python package</p></li>
 <li><p>Automatic resolution and installation of dependencies</p></li>
@@ -135,11 +138,11 @@
 </ul>
 </section>
 <section id="getting-started">
-<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <section id="prerequisites">
-<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline"></a></h3>
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
 <section id="ubuntu-debian">
-<h4>Ubuntu/Debian<a class="headerlink" href="#ubuntu-debian" title="Permalink to this headline"></a></h4>
+<h4>Ubuntu/Debian<a class="headerlink" href="#ubuntu-debian" title="Link to this heading"></a></h4>
 <p>First, a set of APT packages needs to be installed:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python related</span>
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">venv</span>
@@ -155,13 +158,13 @@
 <p><strong>Warning:</strong> It seems like the ETISS tool fails to compile if if find a version of LLVM 11 on your system which does not include Clang 11. The best workaround for now is to (if possible) remove those tools from your system: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">remove</span> <span class="pre">llvm-11*</span> <span class="pre">clang-11*</span></code> (See issue #1)</p>
 <p>Make sure to use a fresh virtual Python environment in the following steps.</p>
 <section id="install-release-from-pypi">
-<h5>Install Release from PyPI<a class="headerlink" href="#install-release-from-pypi" title="Permalink to this headline"></a></h5>
+<h5>Install Release from PyPI<a class="headerlink" href="#install-release-from-pypi" title="Link to this heading"></a></h5>
 <p><strong>Warning:</strong> As the PyPI package is not always up to date, it is currently recommented to use a self-build version of the package (as explained in the next section)</p>
 <p>To use the PIP package, run the following: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mlonmcu</span></code> (Add <code class="docutils literal notranslate"><span class="pre">--user</span></code> if you are not using a virtual environment)</p>
 </section>
 </section>
 <section id="build-package-manually">
-<h4>Build Package manually<a class="headerlink" href="#build-package-manually" title="Permalink to this headline"></a></h4>
+<h4>Build Package manually<a class="headerlink" href="#build-package-manually" title="Link to this heading"></a></h4>
 <p>First, install all relevant dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>python -m venv .venv  # Feel free to choose a different directory or use a conda environment
 
@@ -188,7 +191,7 @@ pip install -r ipynb/requirements.txt
 </div>
 </section>
 <section id="docker-any-other-os">
-<h4>Docker (Any other OS)<a class="headerlink" href="#docker-any-other-os" title="Permalink to this headline"></a></h4>
+<h4>Docker (Any other OS)<a class="headerlink" href="#docker-any-other-os" title="Link to this heading"></a></h4>
 <p>See <a class="reference external" href="https://github.com/tum-ei-eda/mlonmcu/blob/main/docker/README.md"><code class="docutils literal notranslate"><span class="pre">./docker/README.md</span></code></a> for more details.</p>
 <p>This repository ships three different types of docker images based on Debian:</p>
 <ul>
@@ -205,7 +208,7 @@ pip install -r ipynb/requirements.txt
 </section>
 </section>
 <section id="usage">
-<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h3>
+<h3>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h3>
 <p>Is is recommended to checkout the provided <a class="reference external" href="https://github.com/tum-ei-eda/mlonmcu/blob/main/ipynb/Demo.ipynb">Demo Jupyter Notebook</a> as it contains a end-to-end example which should help to understand the main concepts and methodology of the tool. The following paragraphs can be seen as a TL;DL version of the information in that Demo notebook.</p>
 <p>While some tools and features of this project work out of the box, some of them require setting up an environment where additional dependencies are installed. This can be achived by creating a MLonMCU environment as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlonmcu<span class="w"> </span>init
@@ -223,7 +226,7 @@ pip install -r ipynb/requirements.txt
 </section>
 </section>
 <section id="development">
-<h2>Development<a class="headerlink" href="#development" title="Permalink to this headline"></a></h2>
+<h2>Development<a class="headerlink" href="#development" title="Link to this heading"></a></h2>
 <p>Make sure to first install the additonal set of development Python packages into your virtual environment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements_all</span><span class="o">.</span><span class="n">txt</span>  <span class="c1"># Install packages for every component (instead of using mlonmcu setup -g)</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements_dev</span><span class="o">.</span><span class="n">txt</span>  <span class="c1"># Building distributions and running tests</span>
@@ -236,10 +239,10 @@ pip install -r ipynb/requirements.txt
 <p>Regarding coding style, it is recommended to run <code class="docutils literal notranslate"><span class="pre">black</span></code> before every commit. The default line length should be given in the <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code> file.</p>
 </section>
 <section id="credits">
-<h2>Credits<a class="headerlink" href="#credits" title="Permalink to this headline"></a></h2>
+<h2>Credits<a class="headerlink" href="#credits" title="Link to this heading"></a></h2>
 <p>This is a research project proposed by the Chair of Design Automation of the Technical University of Munich.</p>
 <section id="developers">
-<h3>Developers<a class="headerlink" href="#developers" title="Permalink to this headline"></a></h3>
+<h3>Developers<a class="headerlink" href="#developers" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Rafael Stahl (TUM) [&#64;rafzi]</p>
 <ul>
@@ -254,7 +257,7 @@ pip install -r ipynb/requirements.txt
 </ul>
 </section>
 <section id="other">
-<h3>Other<a class="headerlink" href="#other" title="Permalink to this headline"></a></h3>
+<h3>Other<a class="headerlink" href="#other" title="Link to this heading"></a></h3>
 <p>This package was created with Cookiecutter_ and the <code class="docutils literal notranslate"><span class="pre">audreyr/cookiecutter-pypackage</span></code>_ project template. However most of the templates was manually changed to be in Markdown instead of reStructuredText.</p>
 <ul class="simple">
 <li><p><strong>Cookiecutter:</strong> https://github.com/audreyr/cookiecutter</p></li>

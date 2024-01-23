@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.feature.features &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -136,7 +139,9 @@
 <span class="n">FEATURE_DEPS</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="register_feature"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.register_feature">[docs]</a><span class="k">def</span> <span class="nf">register_feature</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="register_feature">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.register_feature">[docs]</a>
+<span class="k">def</span> <span class="nf">register_feature</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for adding a feature to the global registry.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">depends</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">depends</span> <span class="o">=</span> <span class="p">[]</span>
@@ -148,7 +153,10 @@
     <span class="k">return</span> <span class="n">real_decorator</span></div>
 
 
-<div class="viewcode-block" id="get_available_feature_names"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.get_available_feature_names">[docs]</a><span class="k">def</span> <span class="nf">get_available_feature_names</span><span class="p">(</span><span class="n">feature_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_available_feature_names">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.get_available_feature_names">[docs]</a>
+<span class="k">def</span> <span class="nf">get_available_feature_names</span><span class="p">(</span><span class="n">feature_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility for getting feature names.&quot;&quot;&quot;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">feature_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -160,7 +168,10 @@
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
-<div class="viewcode-block" id="get_available_features"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.get_available_features">[docs]</a><span class="k">def</span> <span class="nf">get_available_features</span><span class="p">(</span><span class="n">feature_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">feature_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_available_features">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.get_available_features">[docs]</a>
+<span class="k">def</span> <span class="nf">get_available_features</span><span class="p">(</span><span class="n">feature_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">feature_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility for looking up features.&quot;&quot;&quot;</span>
     <span class="n">names</span> <span class="o">=</span> <span class="n">get_available_feature_names</span><span class="p">(</span><span class="n">feature_type</span><span class="o">=</span><span class="n">feature_type</span><span class="p">)</span>
     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">feature_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="n">feature_name</span><span class="p">]</span>
@@ -173,8 +184,12 @@
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
-<div class="viewcode-block" id="get_matching_features"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.get_matching_features">[docs]</a><span class="k">def</span> <span class="nf">get_matching_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">feature_type</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_matching_features">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.get_matching_features">[docs]</a>
+<span class="k">def</span> <span class="nf">get_matching_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">feature_type</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">feature</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span> <span class="k">if</span> <span class="n">feature_type</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">types</span><span class="p">()]</span></div>
+
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">])</span>
@@ -945,7 +960,9 @@
 
 
 <span class="c1"># not registered!</span>
-<div class="viewcode-block" id="TVMTuneBase"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.TVMTuneBase">[docs]</a><span class="k">class</span> <span class="nc">TVMTuneBase</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMTuneBase">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.TVMTuneBase">[docs]</a>
+<span class="k">class</span> <span class="nc">TVMTuneBase</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;results_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -1016,7 +1033,9 @@
     <span class="k">def</span> <span class="nf">tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="TVMTuneBase.get_platform_config"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.TVMTuneBase.get_platform_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+<div class="viewcode-block" id="TVMTuneBase.get_platform_config">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.TVMTuneBase.get_platform_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="s2">&quot;microtvm&quot;</span><span class="p">]</span>
         <span class="c1"># TODO: figure out a default path automatically</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
@@ -1034,7 +1053,9 @@
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_visualize_live&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">visualize_live</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.autotuning_tasks&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span>
             <span class="p">}</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+</div>
+
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;autotvm&quot;</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">])</span>
@@ -2002,7 +2023,9 @@
 
 
 <span class="c1"># @register_feature(&quot;hpmcounter&quot;)</span>
-<div class="viewcode-block" id="HpmCounter"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.HpmCounter">[docs]</a><span class="k">class</span> <span class="nc">HpmCounter</span><span class="p">(</span><span class="n">TargetFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>  <span class="c1"># TODO: SetupFeature?</span>
+<div class="viewcode-block" id="HpmCounter">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.HpmCounter">[docs]</a>
+<span class="k">class</span> <span class="nc">HpmCounter</span><span class="p">(</span><span class="n">TargetFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>  <span class="c1"># TODO: SetupFeature?</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Use RISC-V Performance Counters&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -2044,7 +2067,9 @@
             <span class="n">temp</span> <span class="o">=</span> <span class="n">str2list</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">temp</span>
 
-<div class="viewcode-block" id="HpmCounter.get_platform_defs"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.HpmCounter.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+<div class="viewcode-block" id="HpmCounter.get_platform_defs">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.HpmCounter.get_platform_defs">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for platform &#39;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_counters</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enabled_counters</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enabled_counter</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_counters</span>
@@ -2053,7 +2078,10 @@
             <span class="o">**</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;USE_HPM</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_counters</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_counters</span><span class="p">)}),</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="HpmCounter.get_target_callbacks"><a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.HpmCounter.get_target_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HpmCounter.get_target_callbacks">
+<a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.HpmCounter.get_target_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">hpm_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -2064,7 +2092,9 @@
                 <span class="k">return</span> <span class="n">stdout</span>
 
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hpm_callback</span>
-        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div></div>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+</div>
+
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;cv32_hpmcounter&quot;</span><span class="p">)</span>

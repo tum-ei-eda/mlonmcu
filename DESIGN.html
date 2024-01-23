@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Important Terms and Design Decisions (RFC) &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=414d5694"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -83,11 +86,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="important-terms-and-design-decisions-rfc">
-<h1>Important Terms and Design Decisions (RFC)<a class="headerlink" href="#important-terms-and-design-decisions-rfc" title="Permalink to this headline"></a></h1>
+  <section id="important-terms-and-design-decisions-rfc">
+<h1>Important Terms and Design Decisions (RFC)<a class="headerlink" href="#important-terms-and-design-decisions-rfc" title="Link to this heading"></a></h1>
 <p>MLonMCU offers a hand full of high level interfaces as well as a large number of internally used objects. You may use this document as a Glossary to understand the meaning of these some core concepts of the MLonMCU software infrastructure.</p>
 <section id="motivation-and-goals">
-<h2>Motivation and Goals<a class="headerlink" href="#motivation-and-goals" title="Permalink to this headline"></a></h2>
+<h2>Motivation and Goals<a class="headerlink" href="#motivation-and-goals" title="Link to this heading"></a></h2>
 <p>MLonMCU is basically a reimplemented version of a TinyML benchmarking project which was used internally before for about one year.</p>
 <p>The open source design was approached with the following set of goals in mind:</p>
 <ul class="simple">
@@ -104,25 +107,25 @@
 </ul>
 </section>
 <section id="fundamentals">
-<h2>Fundamentals<a class="headerlink" href="#fundamentals" title="Permalink to this headline"></a></h2>
+<h2>Fundamentals<a class="headerlink" href="#fundamentals" title="Link to this heading"></a></h2>
 <section id="features-and-configuration">
-<h3>Features and Configuration<a class="headerlink" href="#features-and-configuration" title="Permalink to this headline"></a></h3>
+<h3>Features and Configuration<a class="headerlink" href="#features-and-configuration" title="Link to this heading"></a></h3>
 <p>Two types of options can be found in a large number of classes in the MLonMCU Package: <code class="docutils literal notranslate"><span class="pre">features</span> <span class="pre">:</span> <span class="pre">List[Feature]</span></code> and <code class="docutils literal notranslate"><span class="pre">config</span> <span class="pre">:</span> <span class="pre">Dict</span></code>. This design decision leads to unified command line interfaces and less framework/backend/target/frontend/feature specific code in higher levels of the codebase. A baseline requirement for all classes which implement those two concepts is the definition of the class variables <code class="docutils literal notranslate"><span class="pre">FEATURES</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFAULTS</span></code> and <code class="docutils literal notranslate"><span class="pre">REQUIRED</span></code> .</p>
 <p>Learn more about these features here.</p>
 </section>
 <section id="contexts-and-environments">
-<h3>Contexts and Environments<a class="headerlink" href="#contexts-and-environments" title="Permalink to this headline"></a></h3>
+<h3>Contexts and Environments<a class="headerlink" href="#contexts-and-environments" title="Link to this heading"></a></h3>
 <p>TODO</p>
 </section>
 <section id="session-management-run-definition">
-<h3>Session Management/Run Definition<a class="headerlink" href="#session-management-run-definition" title="Permalink to this headline"></a></h3>
+<h3>Session Management/Run Definition<a class="headerlink" href="#session-management-run-definition" title="Link to this heading"></a></h3>
 </section>
 <section id="artifacts-handling">
-<h3>Artifacts Handling<a class="headerlink" href="#artifacts-handling" title="Permalink to this headline"></a></h3>
+<h3>Artifacts Handling<a class="headerlink" href="#artifacts-handling" title="Link to this heading"></a></h3>
 <p>TODO</p>
 </section>
 <section id="abstraction-at-various-levels">
-<h3>Abstraction at Various Levels<a class="headerlink" href="#abstraction-at-various-levels" title="Permalink to this headline"></a></h3>
+<h3>Abstraction at Various Levels<a class="headerlink" href="#abstraction-at-various-levels" title="Link to this heading"></a></h3>
 <p>Inheritance is used at multiple levels in the MLonMCU project to introduce abstract interfaces for important objects.</p>
 <p>Here ere the most relevant examples:</p>
 <ul class="simple">

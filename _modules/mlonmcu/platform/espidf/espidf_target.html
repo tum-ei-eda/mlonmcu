@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.espidf.espidf_target &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -117,7 +120,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="Esp32C3PerfCount"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount">[docs]</a><span class="k">class</span> <span class="nc">Esp32C3PerfCount</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="Esp32C3PerfCount">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount">[docs]</a>
+<span class="k">class</span> <span class="nc">Esp32C3PerfCount</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">CYCLE</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">INST</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">LD_HAZARD</span> <span class="o">=</span> <span class="mi">4</span>
@@ -131,10 +136,13 @@
     <span class="n">INST_COMP</span> <span class="o">=</span> <span class="mi">1024</span></div>
 
 
+
 <span class="n">ESPIDF_PLATFORM_TARGET_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="register_espidf_platform_target"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.register_espidf_platform_target">[docs]</a><span class="k">def</span> <span class="nf">register_espidf_platform_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="register_espidf_platform_target">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.register_espidf_platform_target">[docs]</a>
+<span class="k">def</span> <span class="nf">register_espidf_platform_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">ESPIDF_PLATFORM_TARGET_REGISTRY</span>
 
     <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">ESPIDF_PLATFORM_TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
@@ -142,11 +150,17 @@
     <span class="n">ESPIDF_PLATFORM_TARGET_REGISTRY</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span></div>
 
 
-<div class="viewcode-block" id="get_espidf_platform_targets"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.get_espidf_platform_targets">[docs]</a><span class="k">def</span> <span class="nf">get_espidf_platform_targets</span><span class="p">():</span>
+
+<div class="viewcode-block" id="get_espidf_platform_targets">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.get_espidf_platform_targets">[docs]</a>
+<span class="k">def</span> <span class="nf">get_espidf_platform_targets</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">ESPIDF_PLATFORM_TARGET_REGISTRY</span></div>
 
 
-<div class="viewcode-block" id="Esp32C3Target"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target">[docs]</a><span class="k">class</span> <span class="nc">Esp32C3Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Esp32C3Target">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target">[docs]</a>
+<span class="k">class</span> <span class="nc">Esp32C3Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">Target</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;xlen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
@@ -233,18 +247,29 @@
     <span class="k">def</span> <span class="nf">has_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpu</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span>
 
-<div class="viewcode-block" id="Esp32C3Target.get_platform_defs"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_platform_defs">[docs]</a>    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+<div class="viewcode-block" id="Esp32C3Target.get_platform_defs">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_platform_defs">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ESP32C3_PERF_COUNT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="Esp32C3Target.get_target_system"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_target_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Esp32C3Target.get_target_system">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_target_system">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;esp32c3&quot;</span></div>
 
-<div class="viewcode-block" id="Esp32C3Target.get_arch"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_arch">[docs]</a>    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Esp32C3Target.get_arch">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_arch">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;riscv&quot;</span></div>
 
-<div class="viewcode-block" id="Esp32C3Target.get_backend_config"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Esp32C3Target.get_backend_config">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_backend_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">:</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
@@ -266,7 +291,10 @@
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="Esp32C3Target.add_backend_config"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.add_backend_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Esp32C3Target.add_backend_config">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.add_backend_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">new</span> <span class="o">=</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span>
                 <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="n">optimized_layouts</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="n">optimized_schedules</span>
@@ -276,10 +304,14 @@
         <span class="c1"># only allow overwriting non-none values</span>
         <span class="c1"># to support accepting user-vars</span>
         <span class="n">new</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">}</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new</span><span class="p">)</span></div></div>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="create_espidf_platform_target"><a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.create_espidf_platform_target">[docs]</a><span class="k">def</span> <span class="nf">create_espidf_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
+
+<div class="viewcode-block" id="create_espidf_platform_target">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.create_espidf_platform_target">[docs]</a>
+<span class="k">def</span> <span class="nf">create_espidf_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
     <span class="k">class</span> <span class="nc">EspIdfPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
         <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
             <span class="o">**</span><span class="n">base</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -355,6 +387,7 @@
             <span class="k">return</span> <span class="s2">&quot;unkwown&quot;</span>
 
     <span class="k">return</span> <span class="n">EspIdfPlatformTarget</span></div>
+
 </pre></div>
 
            </div>

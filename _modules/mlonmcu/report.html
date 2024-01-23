@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.report &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -113,7 +116,9 @@
 <span class="n">SUPPORTED_FMTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;xlsx&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Report"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report">[docs]</a><span class="k">class</span> <span class="nc">Report</span><span class="p">:</span>
+<div class="viewcode-block" id="Report">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report">[docs]</a>
+<span class="k">class</span> <span class="nc">Report</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Report class wrapped around multiple pandas dataframes.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -127,7 +132,9 @@
         <span class="c1"># TODO: handle this properly by either adding NAN or use a single set(pre=, post=, main=) method</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Report.export"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="Report.export">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.export">[docs]</a>
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Export the report to  a file.</span>
 
 <span class="sd">        Arguments</span>
@@ -148,22 +155,34 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">()</span></div>
 
+
     <span class="c1"># def append(self, *args, **kwargs):</span>
     <span class="c1">#     self.df = self.df.append(*args, **kwargs, ignore_index=True)</span>
 
-<div class="viewcode-block" id="Report.set_pre"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_pre">[docs]</a>    <span class="k">def</span> <span class="nf">set_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="Report.set_pre">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_pre">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the left third of the dataframe.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Report.set_post"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_post">[docs]</a>    <span class="k">def</span> <span class="nf">set_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Report.set_post">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_post">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the right third of the dataframe.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Report.set_main"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_main">[docs]</a>    <span class="k">def</span> <span class="nf">set_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Report.set_main">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_main">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the center part of the dataframe.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">main_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Report.set"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">post</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Report.set">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set">[docs]</a>
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">post</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the dataframe.&quot;&quot;&quot;</span>
         <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pre</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_pre</span><span class="p">(</span><span class="n">pre</span> <span class="k">if</span> <span class="n">pre</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{})</span>
@@ -174,14 +193,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_main</span><span class="p">(</span><span class="n">main</span> <span class="k">if</span> <span class="n">main</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_post</span><span class="p">(</span><span class="n">post</span> <span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{})</span></div>
 
-<div class="viewcode-block" id="Report.add"><a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reports</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Report.add">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.add">[docs]</a>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reports</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function to append a line to an existing report.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reports</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">reports</span> <span class="o">=</span> <span class="p">[</span><span class="n">reports</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">report</span> <span class="ow">in</span> <span class="n">reports</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pre_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_df</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">main_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">main_df</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">post_df</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">post_df</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

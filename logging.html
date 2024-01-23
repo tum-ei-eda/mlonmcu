@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Logging and Verbosity &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=414d5694"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -91,10 +94,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="logging-and-verbosity">
-<h1>Logging and Verbosity<a class="headerlink" href="#logging-and-verbosity" title="Permalink to this headline"></a></h1>
+  <section id="logging-and-verbosity">
+<h1>Logging and Verbosity<a class="headerlink" href="#logging-and-verbosity" title="Link to this heading"></a></h1>
 <section id="command-line-output">
-<h2>Command-line output<a class="headerlink" href="#command-line-output" title="Permalink to this headline"></a></h2>
+<h2>Command-line output<a class="headerlink" href="#command-line-output" title="Link to this heading"></a></h2>
 <p>On the CLI-side of MLonMCU two flags are provided to customized the verbosity:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--verbose</span></code> or <code class="docutils literal notranslate"><span class="pre">-v</span></code> sets the used log level from <code class="docutils literal notranslate"><span class="pre">INFO</span></code> to <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> for more detailed outputs</p></li>
@@ -103,11 +106,11 @@
 <p>Of course these flags can <strong>not</strong> be used together!</p>
 </section>
 <section id="debugging-errors-and-specific-components">
-<h2>Debugging Errors and specific components<a class="headerlink" href="#debugging-errors-and-specific-components" title="Permalink to this headline"></a></h2>
+<h2>Debugging Errors and specific components<a class="headerlink" href="#debugging-errors-and-specific-components" title="Link to this heading"></a></h2>
 <p>MLonMCUs logging output is designed to be very clean so user doe not have to deal with the things going on in the background. However in terms of an error a full stack trace of the exception which was raised is provided to ease debugging. Using the <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> flag sets the loggers level to <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> which additionally print some useful information on the commands being executed etc. If required, most components feature a config such as <code class="docutils literal notranslate"><span class="pre">mlif.print_output</span></code> or <code class="docutils literal notranslate"><span class="pre">{backend_name}.print_output</span></code> which redirects all of its outputs to the command line.</p>
 </section>
 <section id="writing-log-files">
-<h2>Writing log files<a class="headerlink" href="#writing-log-files" title="Permalink to this headline"></a></h2>
+<h2>Writing log files<a class="headerlink" href="#writing-log-files" title="Link to this heading"></a></h2>
 <p>Is is possible to additionally write the messages produced by the MLonMCU logger to a log file in a user-specified directory. This feature can be enabled in the <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> file using the following options:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">logging</span><span class="p">:</span>
   <span class="n">level</span><span class="p">:</span> <span class="n">DEBUG</span>
@@ -119,7 +122,7 @@
 <p>By default a directory called <code class="docutils literal notranslate"><span class="pre">logs</span></code> in the environment directory is used, but this can be overwritten by the user itself. Enabling the <code class="docutils literal notranslate"><span class="pre">rotate</span></code> option may be helpful as well as it makes it easier to find logs related to a certain date. The log level configured in the environment file does only affect the logging to the file and not the command line output.</p>
 </section>
 <section id="background">
-<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline"></a></h2>
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h2>
 <p>MLonMCUs logging is based on the <code class="docutils literal notranslate"><span class="pre">logging</span></code> package, however it comes with a set of functions which need to be executed to initialized the logger class. For this reason someone should always use the <code class="docutils literal notranslate"><span class="pre">get_logger</span></code> function from <code class="docutils literal notranslate"><span class="pre">mlonmcu.logging</span></code> instead the official one.</p>
 </section>
 </section>

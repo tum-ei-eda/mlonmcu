@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.cache &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -108,7 +111,9 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
 
-<div class="viewcode-block" id="convert_key"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.convert_key">[docs]</a><span class="k">def</span> <span class="nf">convert_key</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_key">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.convert_key">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_key</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">())</span>
     <span class="k">else</span><span class="p">:</span>
@@ -118,7 +123,10 @@
     <span class="k">return</span> <span class="n">name</span></div>
 
 
-<div class="viewcode-block" id="TaskCache"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache">[docs]</a><span class="k">class</span> <span class="nc">TaskCache</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TaskCache">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache">[docs]</a>
+<span class="k">class</span> <span class="nc">TaskCache</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Task cache used to store dependency paths for the current and furture sessions.</span>
 
 <span class="sd">    This can be interpreted as a &quot;modded&quot; dictionary which takes a key + some flags.</span>
@@ -150,7 +158,9 @@
         <span class="n">name</span> <span class="o">=</span> <span class="n">convert_key</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 
-<div class="viewcode-block" id="TaskCache.find_best_match"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.find_best_match">[docs]</a>    <span class="k">def</span> <span class="nf">find_best_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<div class="viewcode-block" id="TaskCache.find_best_match">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.find_best_match">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_best_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Utility whih tries to resolve the cache entry with the beste match.</span>
 
 <span class="sd">        Parameters</span>
@@ -189,7 +199,10 @@
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="n">flag</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="TaskCache.read_from_file"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.read_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TaskCache.read_from_file">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.read_from_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -206,7 +219,10 @@
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="TaskCache.write_to_file"><a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.write_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TaskCache.write_to_file">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.write_to_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="c1"># d = self._vars</span>
 
         <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># This will be a dict of dicts</span>
@@ -233,7 +249,9 @@
                 <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="n">cfg</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-            <span class="n">cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cachefile</span><span class="p">)</span></div></div>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cachefile</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

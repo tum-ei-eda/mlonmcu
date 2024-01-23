@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Postprocesses &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=414d5694"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -93,11 +96,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="postprocesses">
-<h1>Postprocesses<a class="headerlink" href="#postprocesses" title="Permalink to this headline"></a></h1>
+  <section id="postprocesses">
+<h1>Postprocesses<a class="headerlink" href="#postprocesses" title="Link to this heading"></a></h1>
 <p>Postprocesses are a feature which was recently added to MLonMCU which is intended to help with automating common tasks for benchmarking and visualizations. These processes mainly operate on the Rows and columns of the report generated after a completed run or session. Their complexity can vary from very minimal utilities to powerful evaluation scripts.</p>
 <section id="stages">
-<h2>Stages<a class="headerlink" href="#stages" title="Permalink to this headline"></a></h2>
+<h2>Stages<a class="headerlink" href="#stages" title="Link to this heading"></a></h2>
 <p>Currently postprocesses can be applied at two different stages:</p>
 <ul class="simple">
 <li><p>after a <code class="docutils literal notranslate"><span class="pre">Run</span></code> which means you are only operating on a single row of a report</p></li>
@@ -106,7 +109,7 @@
 <p>In the future it might be possible to also insert postprocesses at earlier stages.</p>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">AverageCyclesPostprocess</span></code>: average over a number of similar runs (useful for non-deterministic targets)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DetailedCyclesPostprocess</span></code>: determine the number of cycles required for the model initialization and invocation from two runs with a different <code class="docutils literal notranslate"><span class="pre">--num</span></code> value</p></li>
@@ -115,9 +118,9 @@
 </ul>
 </section>
 <section id="usage-of-postprocesses">
-<h2>Usage of Postprocesses<a class="headerlink" href="#usage-of-postprocesses" title="Permalink to this headline"></a></h2>
+<h2>Usage of Postprocesses<a class="headerlink" href="#usage-of-postprocesses" title="Link to this heading"></a></h2>
 <section id="implement-custom-postprocesses">
-<h3>Implement custom postprocesses<a class="headerlink" href="#implement-custom-postprocesses" title="Permalink to this headline"></a></h3>
+<h3>Implement custom postprocesses<a class="headerlink" href="#implement-custom-postprocesses" title="Link to this heading"></a></h3>
 <p>To extend the list of predefined post-processes with a custom implementation a Python class has to be developed as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TODO</span>
 

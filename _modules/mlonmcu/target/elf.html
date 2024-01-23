@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.target.elf &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -122,7 +125,9 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="parseElf"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.parseElf">[docs]</a><span class="k">def</span> <span class="nf">parseElf</span><span class="p">(</span><span class="n">inFile</span><span class="p">):</span>
+<div class="viewcode-block" id="parseElf">
+<a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.parseElf">[docs]</a>
+<span class="k">def</span> <span class="nf">parseElf</span><span class="p">(</span><span class="n">inFile</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract static memory usage details from ELF file by mapping each segment.&quot;&quot;&quot;</span>
     <span class="c1"># TODO: check if this is generic anough for multiple platforms (riscv, arm, x86)</span>
     <span class="c1"># TODO: comare results with `riscv32-unknown-elf-size`</span>
@@ -260,7 +265,10 @@
     <span class="k">return</span> <span class="n">m</span></div>
 
 
-<div class="viewcode-block" id="printSz"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.printSz">[docs]</a><span class="k">def</span> <span class="nf">printSz</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">unknown_msg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="printSz">
+<a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.printSz">[docs]</a>
+<span class="k">def</span> <span class="nf">printSz</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">unknown_msg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function for printing file sizes.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">sz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;unknown [</span><span class="si">{</span><span class="n">unknown_msg</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="n">unknown_msg</span> <span class="k">else</span> <span class="s2">&quot;unknown&quot;</span>
@@ -269,7 +277,10 @@
     <span class="k">return</span> <span class="n">humanize</span><span class="o">.</span><span class="n">naturalsize</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span></div>
 
 
-<div class="viewcode-block" id="parse_cmdline"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.parse_cmdline">[docs]</a><span class="k">def</span> <span class="nf">parse_cmdline</span><span class="p">():</span>
+
+<div class="viewcode-block" id="parse_cmdline">
+<a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.parse_cmdline">[docs]</a>
+<span class="k">def</span> <span class="nf">parse_cmdline</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Cmdline interface definition.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;elf&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;ELF&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The target ELF file&quot;</span><span class="p">)</span>
@@ -289,7 +300,10 @@
     <span class="k">return</span> <span class="n">elfFile</span><span class="p">,</span> <span class="n">csvFile</span></div>
 
 
-<div class="viewcode-block" id="get_results"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.get_results">[docs]</a><span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="n">elfFile</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_results">
+<a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.get_results">[docs]</a>
+<span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="n">elfFile</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts and returns collected data.&quot;&quot;&quot;</span>
     <span class="n">staticSizes</span> <span class="o">=</span> <span class="n">parseElf</span><span class="p">(</span><span class="n">elfFile</span><span class="p">)</span>
 
@@ -308,7 +322,10 @@
     <span class="k">return</span> <span class="n">results</span></div>
 
 
-<div class="viewcode-block" id="print_results"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.print_results">[docs]</a><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+
+<div class="viewcode-block" id="print_results">
+<a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.print_results">[docs]</a>
+<span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Displaying a fancy overview.&quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== Results ===&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ROM usage:        &quot;</span> <span class="o">+</span> <span class="n">printSz</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;rom&quot;</span><span class="p">]))</span>
@@ -320,7 +337,10 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  zero-init data: &quot;</span> <span class="o">+</span> <span class="n">printSz</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;ram_zdata&quot;</span><span class="p">]))</span></div>
 
 
-<div class="viewcode-block" id="write_csv"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.write_csv">[docs]</a><span class="k">def</span> <span class="nf">write_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+
+<div class="viewcode-block" id="write_csv">
+<a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.write_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">write_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility for writing a CSV file.&quot;&quot;&quot;</span>
     <span class="c1"># Write metrics to file</span>
     <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
@@ -330,7 +350,10 @@
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.elf.main">[docs]</a>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Main entry point for command line usage.&quot;&quot;&quot;</span>
     <span class="n">elfFile</span><span class="p">,</span> <span class="n">csvFile</span> <span class="o">=</span> <span class="n">parse_cmdline</span><span class="p">()</span>
 
@@ -340,6 +363,7 @@
 
     <span class="k">if</span> <span class="n">csvFile</span><span class="p">:</span>
         <span class="n">write_csv</span><span class="p">(</span><span class="n">csvFile</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

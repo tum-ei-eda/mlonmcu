@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.models.utils &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -106,7 +109,9 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 
-<div class="viewcode-block" id="make_hex_array"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.utils.make_hex_array">[docs]</a><span class="k">def</span> <span class="nf">make_hex_array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;bin&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="make_hex_array">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.utils.make_hex_array">[docs]</a>
+<span class="k">def</span> <span class="nf">make_hex_array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;bin&quot;</span><span class="p">):</span>
     <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -136,7 +141,10 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="fill_data_source"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.utils.fill_data_source">[docs]</a><span class="k">def</span> <span class="nf">fill_data_source</span><span class="p">(</span><span class="n">in_bufs</span><span class="p">,</span> <span class="n">out_bufs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="fill_data_source">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.utils.fill_data_source">[docs]</a>
+<span class="k">def</span> <span class="nf">fill_data_source</span><span class="p">(</span><span class="n">in_bufs</span><span class="p">,</span> <span class="n">out_bufs</span><span class="p">):</span>
     <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;#include &quot;ml_interface.h&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;#include &lt;stddef.h&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
     <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;const int num_data_buffers_in = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="k">for</span> <span class="n">buf</span> <span class="ow">in</span> <span class="n">in_bufs</span><span class="p">]))</span> <span class="o">+</span> <span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -164,7 +172,10 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="lookup_data_buffers"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.utils.lookup_data_buffers">[docs]</a><span class="k">def</span> <span class="nf">lookup_data_buffers</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">):</span>
+
+<div class="viewcode-block" id="lookup_data_buffers">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.utils.lookup_data_buffers">[docs]</a>
+<span class="k">def</span> <span class="nf">lookup_data_buffers</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="n">legacy</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">used_fmt</span> <span class="o">=</span> <span class="kc">None</span>
@@ -213,12 +224,16 @@
     <span class="k">return</span> <span class="n">ins</span><span class="p">,</span> <span class="n">outs</span></div>
 
 
-<div class="viewcode-block" id="get_data_source"><a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.utils.get_data_source">[docs]</a><span class="k">def</span> <span class="nf">get_data_source</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_data_source">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.utils.get_data_source">[docs]</a>
+<span class="k">def</span> <span class="nf">get_data_source</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_paths</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_paths</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fill_data_source</span><span class="p">([],</span> <span class="p">[])</span>
     <span class="n">in_bufs</span><span class="p">,</span> <span class="n">out_bufs</span> <span class="o">=</span> <span class="n">lookup_data_buffers</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">fill_data_source</span><span class="p">(</span><span class="n">in_bufs</span><span class="p">,</span> <span class="n">out_bufs</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

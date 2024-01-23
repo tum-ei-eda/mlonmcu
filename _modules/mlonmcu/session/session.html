@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.session.session &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -125,7 +128,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>  <span class="c1"># TODO: rename to get_mlonmcu_logger</span>
 
 
-<div class="viewcode-block" id="SessionStatus"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.SessionStatus">[docs]</a><span class="k">class</span> <span class="nc">SessionStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>  <span class="c1"># TODO: remove?</span>
+<div class="viewcode-block" id="SessionStatus">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.SessionStatus">[docs]</a>
+<span class="k">class</span> <span class="nc">SessionStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>  <span class="c1"># TODO: remove?</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Status type for a session.&quot;&quot;&quot;</span>
 
     <span class="n">CREATED</span> <span class="o">=</span> <span class="mi">0</span>
@@ -134,7 +139,10 @@
     <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">3</span></div>
 
 
-<div class="viewcode-block" id="Session"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session">[docs]</a><span class="k">class</span> <span class="nc">Session</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Session">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session">[docs]</a>
+<span class="k">class</span> <span class="nc">Session</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A session which wraps around multiple runs in a context.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -185,7 +193,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;get report_fmt property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;report_fmt&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="Session.create_run"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.create_run">[docs]</a>    <span class="k">def</span> <span class="nf">create_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Session.create_run">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.create_run">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Factory method to create a run and add it to this session.&quot;&quot;&quot;</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating a new run with id </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
@@ -193,10 +203,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">run</span></div>
 
+
     <span class="c1">#  def update_run(self): # TODO TODO</span>
     <span class="c1">#      pass</span>
 
-<div class="viewcode-block" id="Session.get_reports"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.get_reports">[docs]</a>    <span class="k">def</span> <span class="nf">get_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Session.get_reports">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.get_reports">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a full report which includes all runs in this session.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span>
@@ -206,7 +219,10 @@
         <span class="n">merged</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">reports</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">merged</span></div>
 
-<div class="viewcode-block" id="Session.enumerate_runs"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.enumerate_runs">[docs]</a>    <span class="k">def</span> <span class="nf">enumerate_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Session.enumerate_runs">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.enumerate_runs">[docs]</a>
+    <span class="k">def</span> <span class="nf">enumerate_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update run indices.&quot;&quot;&quot;</span>
         <span class="c1"># Find start index</span>
         <span class="n">max_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
@@ -225,20 +241,29 @@
         <span class="k">if</span> <span class="n">last_run_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_latest_run_symlink</span><span class="p">(</span><span class="n">last_run_idx</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Session.update_latest_run_symlink"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.update_latest_run_symlink">[docs]</a>    <span class="k">def</span> <span class="nf">update_latest_run_symlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latest_run_idx</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Session.update_latest_run_symlink">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.update_latest_run_symlink">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_latest_run_symlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latest_run_idx</span><span class="p">):</span>
         <span class="n">run_link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs_dir</span> <span class="o">/</span> <span class="s2">&quot;latest&quot;</span>  <span class="c1"># TODO: Create relative symlink using os.path.relpath for portability</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">run_link</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">run_link</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">latest_run_idx</span><span class="p">),</span> <span class="n">run_link</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Session.request_run_idx"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.request_run_idx">[docs]</a>    <span class="k">def</span> <span class="nf">request_run_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Session.request_run_idx">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.request_run_idx">[docs]</a>
+    <span class="k">def</span> <span class="nf">request_run_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return next free run index.&quot;&quot;&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_run_idx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_run_idx</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="c1"># TODO: find a better approach for this</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="Session.process_runs"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.process_runs">[docs]</a>    <span class="k">def</span> <span class="nf">process_runs</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Session.process_runs">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.process_runs">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_runs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">until</span><span class="o">=</span><span class="n">RunStage</span><span class="o">.</span><span class="n">DONE</span><span class="p">,</span>
         <span class="n">per_stage</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -439,12 +464,16 @@
 
         <span class="k">return</span> <span class="n">num_failures</span> <span class="o">==</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="Session.discard"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Session.discard">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.discard">[docs]</a>
+    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Discard a run and remove its directory.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Cleaning up discarded session&quot;</span><span class="p">)</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Session(idx=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">,status=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">,runs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -454,7 +483,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get active property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">SessionStatus</span><span class="o">.</span><span class="n">OPEN</span>
 
-<div class="viewcode-block" id="Session.open"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Session.open">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.open">[docs]</a>
+    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Open this run.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SessionStatus</span><span class="o">.</span><span class="n">OPEN</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opened_at</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
@@ -473,7 +504,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs_dir</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Session.close"><a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Session.close">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.close">[docs]</a>
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Close this run.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SessionStatus</span><span class="o">.</span><span class="n">ERROR</span>
@@ -483,7 +517,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">session_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_lock</span><span class="o">.</span><span class="n">lock_file</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+</div>
+
 </pre></div>
 
            </div>

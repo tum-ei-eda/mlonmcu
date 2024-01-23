@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.tasks.riscv_gcc &mdash; ML on MCU 0.4.dev0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=414d5694"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -119,7 +122,9 @@
 <span class="n">Tasks</span> <span class="o">=</span> <span class="n">get_task_factory</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="check_multilibs"><a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.riscv_gcc.check_multilibs">[docs]</a><span class="k">def</span> <span class="nf">check_multilibs</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">gccName</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vext</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pext</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="check_multilibs">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.riscv_gcc.check_multilibs">[docs]</a>
+<span class="k">def</span> <span class="nf">check_multilibs</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">gccName</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vext</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pext</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">gccExe</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gccName</span><span class="si">}</span><span class="s2">-gcc&quot;</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="n">gccExe</span><span class="p">,</span> <span class="s2">&quot;--print-multi-lib&quot;</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">live</span><span class="p">)</span>
     <span class="n">multilibs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -140,6 +145,7 @@
             <span class="n">multilibs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arch</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">abi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">multilib</span><span class="p">,</span> <span class="n">default_multilib</span><span class="p">,</span> <span class="n">multilibs</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_validate_riscv_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -169,7 +175,9 @@
     <span class="k">return</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="install_riscv_gcc"><a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.riscv_gcc.install_riscv_gcc">[docs]</a><span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">(</span>
+<div class="viewcode-block" id="install_riscv_gcc">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.riscv_gcc.install_riscv_gcc">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">(</span>
     <span class="p">[</span>
         <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span>
         <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span>
@@ -284,6 +292,7 @@
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.default_multilib&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_multilib</span> <span class="ow">or</span> <span class="n">default_multilib_</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.multilibs&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">multilibs</span> <span class="ow">or</span> <span class="n">multilibs_</span>
     <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">riscvInstallDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

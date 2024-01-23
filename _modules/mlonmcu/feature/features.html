@@ -1183,6 +1183,44 @@
         <span class="k">return</span> <span class="n">ret</span>
 
 
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;uma_backends&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">UMABackends</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add directories that contain UMA backends.&quot;&quot;&quot;</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;uma_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;uma_target&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;uma_backends&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uma_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;uma_dir&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uma_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;uma_target&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">tvmcArgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--experimental-tvmc-extension&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uma_dir</span><span class="p">]</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_extra_args&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_extra_args&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tvmcArgs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tvmc_extra_args&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tvmcArgs</span>
+        <span class="n">extras</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_target&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uma_target</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extras</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extras</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">extras</span> <span class="o">=</span> <span class="p">[</span><span class="n">extras</span><span class="p">]</span>
+            <span class="n">extras</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uma_target</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extras</span>
+
+
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">Demo</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run demo application instead of benchmarking code.&quot;&quot;&quot;</span>
